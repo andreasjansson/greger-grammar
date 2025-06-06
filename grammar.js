@@ -283,6 +283,9 @@ module.exports = grammar({
       "\n"
     ),
 
+    // Tool content line - anything except closing tool tag
+    tool_content_line: $ => prec(-1, /[^\n]+/),
+
     newline: $ => "\n",
 
     // Basic tokens

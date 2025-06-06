@@ -7660,4 +7660,68 @@ tool_result_block: $ => seq(
 Fix tool result block to use proper content parsing
 </tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01726H9oUcrCbfDcdDZKH1B8 -->
+## TOOL RESULT:
+
+ID: toolu_01726H9oUcrCbfDcdDZKH1B8
+
+<tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix tool result block to use proper content parsing
+</tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+
+## ASSISTANT:
+
+Now I need to add the `tool_content_line` rule that properly handles content inside tool blocks:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Sq4SuiF91MA7VGeBSh638m
+
+### file-path
+
+<tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+./grammar.js
+</tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+
+### original-content
+
+<tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+// Basic patterns
+    line: $ => seq(
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      "\n"
+    ),
+
+    newline: $ => "\n",
+
+    // Basic tokens
+    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
+    url: $ => /https?:\/\/[^\s\n]+/,
+</tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+
+### new-content
+
+<tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+// Basic patterns
+    line: $ => seq(
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      "\n"
+    ),
+
+    // Tool content line - anything except closing tool tag
+    tool_content_line: $ => prec(-1, /[^\n]+/),
+
+    newline: $ => "\n",
+
+    // Basic tokens
+    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
+    url: $ => /https?:\/\/[^\s\n]+/,
+</tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+
+### git-commit-message
+
+<tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+Add tool_content_line rule for parsing content inside tool blocks
+</tool.toolu_01Sq4SuiF91MA7VGeBSh638m>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Sq4SuiF91MA7VGeBSh638m -->
