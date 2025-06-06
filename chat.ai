@@ -12580,4 +12580,672 @@ debug-test.el
 Add section extraction debugging
 </tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013SSRhoZ5N6RH2DqGhDZLy5 -->
+## TOOL RESULT:
+
+ID: toolu_013SSRhoZ5N6RH2DqGhDZLy5
+
+<tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add section extraction debugging
+</tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012D4nDPSwuvx1jrMmXM8Pyi
+
+### command
+
+<tool.toolu_012D4nDPSwuvx1jrMmXM8Pyi>
+emacs --batch -l debug-test.el
+</tool.toolu_012D4nDPSwuvx1jrMmXM8Pyi>
+
+## TOOL RESULT:
+
+ID: toolu_012D4nDPSwuvx1jrMmXM8Pyi
+
+<tool.toolu_012D4nDPSwuvx1jrMmXM8Pyi>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Tree structure:
+Root node type: source_file
+Child count: 2
+Child 0: section [## USER:
+
+Hello
+
+]
+Child 1: section [## ASSISTANT:
+
+Hi there! How can I help you today?
+]
+
+Extracted sections:
+Section 0: user_section
+Section 1: assistant_section
+
+Parsed result:
+(((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?"))))
+ ((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 2
+First message role: assistant
+First message content: (((type . "text") (text . "Hi there! How can I help you today?")))
+Second message role: user
+Second message content: "Hello"
+
+</tool.toolu_012D4nDPSwuvx1jrMmXM8Pyi>
+
+## ASSISTANT:
+
+Perfect! The sections are being extracted in the correct order:
+- Section 0: user_section
+- Section 1: assistant_section
+
+But the final result has assistant first, user second. This confirms that the issue is in the `greger-tree-sitter--process-sections-with-citations` function.
+
+Let me trace through the logic more carefully. The issue might be subtle. Let me create a minimal test of the section processing logic to see what's going wrong:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0155oqzRwaypBBNKEo454Ldv
+
+### file-path
+
+<tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+debug-test.el
+</tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+
+### original-content
+
+<tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+(message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+
+### new-content
+
+<tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+;; Test the section processing manually
+        (let* ((sections (greger-tree-sitter--get-all-sections root-node))
+               (processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+          (message "\nProcessed sections result:")
+          (pp processed-result))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+
+### git-commit-message
+
+<tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+Add manual section processing test
+</tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+
+## TOOL RESULT:
+
+ID: toolu_0155oqzRwaypBBNKEo454Ldv
+
+<tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 0, new has balance -2. They must be equal
+</tool.toolu_0155oqzRwaypBBNKEo454Ldv>
+
+## ASSISTANT:
+
+I made a parentheses error. Let me fix it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HDkByp36mPN1Qp3Hv6Wn5G
+
+### file-path
+
+<tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+debug-test.el
+</tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+
+### original-content
+
+<tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+;; Test the section processing manually
+        (let* ((sections (greger-tree-sitter--get-all-sections root-node))
+               (processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+          (message "\nProcessed sections result:")
+          (pp processed-result))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+
+### new-content
+
+<tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+;; Test the section processing manually
+        (let* ((sections (greger-tree-sitter--get-all-sections root-node))
+               (processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+          (message "\nProcessed sections result:")
+          (pp processed-result))
+
+        ;; Test individual section extraction
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nIndividual section extraction:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (extracted (greger-tree-sitter--extract-section section)))
+              (message "Section %d extracted: %S" i extracted)))))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+
+### git-commit-message
+
+<tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+Fix parentheses and add individual section extraction test
+</tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+
+## TOOL RESULT:
+
+ID: toolu_01HDkByp36mPN1Qp3Hv6Wn5G
+
+<tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance -2, new has balance -3. They must be equal
+</tool.toolu_01HDkByp36mPN1Qp3Hv6Wn5G>
+
+## ASSISTANT:
+
+The file is in a bad state. Let me rewrite the debug-test.el file properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013ZsXiJ8tcZKcJKWHFPEe7Q
+
+### file-path
+
+<tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+debug-test.el
+</tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+
+### original-content
+
+<tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child))))
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type))))
+;; Test the section processing manually
+        (let* ((sections (greger-tree-sitter--get-all-sections root-node))
+               (processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+          (message "\nProcessed sections result:")
+          (pp processed-result))
+
+        ;; Test individual section extraction
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nIndividual section extraction:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (extracted (greger-tree-sitter--extract-section section)))
+              (message "Section %d extracted: %S" i extracted)))))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result))))))
+</tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+
+### new-content
+
+<tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s" i (treesit-node-type child))))
+
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test individual section extraction
+          (message "\nIndividual section extraction:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (extracted (greger-tree-sitter--extract-section section)))
+              (message "Section %d extracted: %S" i extracted)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result))))))
+
+  (message "\nFinal parsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (dolist (msg result)
+      (message "Message role: %s" (alist-get 'role msg)))))
+</tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+
+### git-commit-message
+
+<tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+Rewrite debug test with proper structure
+</tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+
+## TOOL RESULT:
+
+ID: toolu_013ZsXiJ8tcZKcJKWHFPEe7Q
+
+<tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_013ZsXiJ8tcZKcJKWHFPEe7Q>
+
+## ASSISTANT:
+
+Let me check what's actually in the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01C4EGDJnXsb2Skc3t7pWWbJ
+
+### path
+
+<tool.toolu_01C4EGDJnXsb2Skc3t7pWWbJ>
+debug-test.el
+</tool.toolu_01C4EGDJnXsb2Skc3t7pWWbJ>
+
+## TOOL RESULT:
+
+ID: toolu_01C4EGDJnXsb2Skc3t7pWWbJ
+
+<tool.toolu_01C4EGDJnXsb2Skc3t7pWWbJ>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child))))
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result))))))
+</tool.toolu_01C4EGDJnXsb2Skc3t7pWWbJ>
+
+## ASSISTANT:
+
+Good, the file is intact. Now let me add a simple test to trace the section processing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TyG2g6wEEjTRDSbDcerKXJ
+
+### file-path
+
+<tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+debug-test.el
+</tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+
+### original-content
+
+<tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type))))))))
+</tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+
+### new-content
+
+<tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result)))))))
+</tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+
+### git-commit-message
+
+<tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+Add section processing test to debug
+</tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+
+## TOOL RESULT:
+
+ID: toolu_01TyG2g6wEEjTRDSbDcerKXJ
+
+<tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01TyG2g6wEEjTRDSbDcerKXJ>
+
+## ASSISTANT:
+
+Let me be more precise with the replacement:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017bB5Ez1kxPVSVSYDVmQCnr
+
+### file-path
+
+<tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+debug-test.el
+</tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+
+### original-content
+
+<tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type))))))))
+</tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+
+### new-content
+
+<tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result))))))))
+</tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+
+### git-commit-message
+
+<tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+Add section processing test to debug order issue
+</tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+
+## TOOL RESULT:
+
+ID: toolu_017bB5Ez1kxPVSVSYDVmQCnr
+
+<tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance -4, new has balance -5. They must be equal
+</tool.toolu_017bB5Ez1kxPVSVSYDVmQCnr>
+
+## ASSISTANT:
+
+The parentheses are already messed up. Let me rewrite the entire file:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Rf4wDPqzKrTkqNpUYVA5de
+
+### file-path
+
+<tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+debug-test.el
+</tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+
+### original-content
+
+<tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child))))
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result))))))
+</tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+
+### new-content
+
+<tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result))))))
+
+  (message "\nFinal parsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (dolist (msg result)
+      (message "Message role: %s" (alist-get 'role msg)))))
+</tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+
+### git-commit-message
+
+<tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+Completely rewrite debug test with proper parentheses
+</tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Rf4wDPqzKrTkqNpUYVA5de -->
