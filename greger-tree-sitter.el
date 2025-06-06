@@ -105,8 +105,8 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-assistant-section (section-node)
   "Extract assistant message from SECTION-NODE."
-  (let ((content-node (treesit-node-child-by-field-name
-                       (treesit-node-child section-node 0) "content")))
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
     `((role . "assistant")
       (content . ,(if content-node
                       (greger-tree-sitter--extract-content content-node)

@@ -8644,4 +8644,99 @@ greger-tree-sitter.el
 Fix function signature for extract-dialog
 </tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EQkHVw9xgAmX45XpRSXvSB -->
+## TOOL RESULT:
+
+ID: toolu_01EQkHVw9xgAmX45XpRSXvSB
+
+<tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix function signature for extract-dialog
+</tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Gnpcm69Ge4JhK5NN86mvKh
+
+### command
+
+<tool.toolu_01Gnpcm69Ge4JhK5NN86mvKh>
+emacs --batch -l test-dialog-conversion.el 2>&1 | head -20
+</tool.toolu_01Gnpcm69Ge4JhK5NN86mvKh>
+
+## TOOL RESULT:
+
+ID: toolu_01Gnpcm69Ge4JhK5NN86mvKh
+
+<tool.toolu_01Gnpcm69Ge4JhK5NN86mvKh>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing: simple-user-message ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-30>
+✅ PASS
+
+=== Testing: simple-conversation ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-18>
+❌ FAIL
+Expected: (((role . "user") (content . "Hello")) ((role . "assistant") (content . "Hi there! How can I help you today?")))
+Actual:   (((role . "user") (content . "Hello")) ((role . "assistant") (content . "")))
+
+=== Testing: tool-use-simple ===
+DEBUG: Root node type: source_file
+
+</tool.toolu_01Gnpcm69Ge4JhK5NN86mvKh>
+
+## ASSISTANT:
+
+Excellent! The first test is now passing. The issue with the second test is that it's only parsing one section instead of two. This is probably because my test markdown has two sections, but the tree-sitter is only parsing the first one. Let me check what's happening with the second section by looking at all other section extraction functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019PmkSP9rMPQ3DcNkY3PQks
+
+### file-path
+
+<tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+greger-tree-sitter.el
+</tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+
+### original-content
+
+<tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from SECTION-NODE."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+
+### new-content
+
+<tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from SECTION-NODE."
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+
+### git-commit-message
+
+<tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+Fix assistant section content extraction
+</tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019PmkSP9rMPQ3DcNkY3PQks -->
