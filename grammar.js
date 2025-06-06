@@ -191,11 +191,11 @@ module.exports = grammar({
       ))
     )),
 
-    cite_tag: $ => seq(
+    cite_tag: $ => prec(1, seq(
       "<cite>",
       field("content", repeat(choice(/[^<\n]+/, "\n"))),
       "</cite>"
-    ),
+    )),
 
     html_comment: $ => seq(
       "<!--",
