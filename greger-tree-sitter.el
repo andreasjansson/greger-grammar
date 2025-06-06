@@ -349,9 +349,15 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
              ((equal (treesit-node-type child) "citation_index")
               (let ((index-node (treesit-node-child-by-field-name child "index")))
                 (message "Found citation_index, index-node: %S" index-node)
-                (when index-node
-                  (setq encrypted-index (string-trim (treesit-node-text index-node)))
-                  (message "Set encrypted-index to: %S" encrypted-index))))))))
+                (if index-node
+                    (progn
+                      (setq encrypted-index (string-trim (treesit-node-text index-node)))
+                      (message "Set encrypted-index to: %S" encrypted-index))
+                  ;; Fallback: try to extract from the text after "Encrypted index:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Encrypted index:[ \t]*\\(.*\\)" text)
+                      (setq encrypted-index (string-trim (match-string 1 text)))
+                      (message "Extracted encrypted-index from text: %S" encrypted-index))))))))))
 
       (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S"
                url title cited-text encrypted-index)
