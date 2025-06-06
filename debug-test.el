@@ -23,7 +23,14 @@ Hi there! How can I help you today?
         (message "Child count: %d" (treesit-node-child-count root-node))
         (dotimes (i (treesit-node-child-count root-node))
           (let ((child (treesit-node-child root-node i)))
-            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child)))))))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child))))
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))))))
 
   (message "\nParsed result:")
   (let ((result (greger-tree-sitter-parse test-text)))

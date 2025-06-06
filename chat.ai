@@ -11792,4 +11792,792 @@ Hi there! How can I help you today?
 Add trailing newline to test case
 </tool.toolu_012NHHa8xJLmd5LgCdtp9rUb>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012NHHa8xJLmd5LgCdtp9rUb -->
+## TOOL RESULT:
+
+ID: toolu_012NHHa8xJLmd5LgCdtp9rUb
+
+<tool.toolu_012NHHa8xJLmd5LgCdtp9rUb>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add trailing newline to test case
+</tool.toolu_012NHHa8xJLmd5LgCdtp9rUb>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DATH831t7VsCcnoSUTRdF5
+
+### command
+
+<tool.toolu_01DATH831t7VsCcnoSUTRdF5>
+emacs --batch -l debug-test.el
+</tool.toolu_01DATH831t7VsCcnoSUTRdF5>
+
+## TOOL RESULT:
+
+ID: toolu_01DATH831t7VsCcnoSUTRdF5
+
+<tool.toolu_01DATH831t7VsCcnoSUTRdF5>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Tree structure:
+Root node type: source_file
+Child count: 2
+Child 0: section [## USER:
+
+Hello
+
+]
+Child 1: section [## ASSISTANT:
+
+Hi there! How can I help you today?
+]
+
+Parsed result:
+(((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?"))))
+ ((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 2
+First message role: assistant
+First message content: (((type . "text") (text . "Hi there! How can I help you today?")))
+Second message role: user
+Second message content: "Hello"
+
+</tool.toolu_01DATH831t7VsCcnoSUTRdF5>
+
+## ASSISTANT:
+
+Excellent! Now both messages are being parsed correctly. The issue was indeed the missing trailing newline. Both sections are now being captured properly by tree-sitter.
+
+But I can see two issues:
+
+1. **Order is reversed**: assistant comes first, then user (should be user first, then assistant)
+2. **Content structure difference**: user content is a plain string, assistant content is wrapped in content blocks
+
+The order issue is the main problem. From the tree structure, I can see:
+- Child 0: `section [## USER:\n\nHello\n\n]`
+- Child 1: `section [## ASSISTANT:\n\nHi there! How can I help you today?\n]`
+
+So tree-sitter is parsing them in the correct order (user first, then assistant), but the elisp conversion is reversing them.
+
+The issue must be in the `greger-tree-sitter--process-sections-with-citations` function. Let me trace through what should happen:
+
+1. Process sections list: [user_section, assistant_section]
+2. Process user_section → adds user message to messages → messages = [user]
+3. Process assistant_section → adds assistant content to current-assistant-blocks
+4. End of sections → flushes assistant blocks → messages = [assistant, user]
+5. nreverse → messages = [user, assistant]
+
+But I'm seeing [assistant, user], which suggests step 5 isn't happening or there's another issue.
+
+Actually, let me look more carefully at the logic. In step 3, when processing the assistant section, the logic is:
+
+```elisp
+((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                       "server_tool_use_section" "server_tool_result_section"))
+ (let ((message (greger-tree-sitter--extract-section section)))
+   (when message
+     (let ((content (alist-get 'content message)))
+       (if (listp content)
+           ;; Add all content blocks
+           (setq current-assistant-blocks (append current-assistant-blocks content))
+         ;; Convert string content to text block
+         (when (and (stringp content) (> (length (string-trim content)) 0))
+           (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+```
+
+This extracts the assistant section and adds it to `current-assistant-blocks`. But the `greger-tree-sitter--extract-assistant-section` function returns a message with role "assistant" and content as a string. Then this logic converts the string content to a text block and pushes it to `current-assistant-blocks`.
+
+The issue might be that the assistant section extraction is not working as expected. Let me check what `greger-tree-sitter--extract-assistant-section` returns when I process the assistant section.
+
+Actually, let me check what happens if I run the full test suite now with the newline issue "fixed" (by adding newlines):
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Np2w8NrDd7ii3yjT8NR77r
+
+### command
+
+<tool.toolu_01Np2w8NrDd7ii3yjT8NR77r>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01Np2w8NrDd7ii3yjT8NR77r>
+
+## TOOL RESULT:
+
+ID: toolu_01Np2w8NrDd7ii3yjT8NR77r
+
+<tool.toolu_01Np2w8NrDd7ii3yjT8NR77r>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Actual:
+(((role . "user")
+  (content . "")))
+
+
+=== Testing: system-and-user ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "What's the weather like?")))
+
+
+Actual:
+(((role . "user")
+  (content . ""))
+ ((role . "system")
+  (content . "You are a helpful assistant.")))
+
+
+=== Testing: simple-conversation ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content . "Hi there! How can I help you today?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Hello")))
+
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))))
+ ((role . "user")
+  (content . "What's 2+2?")))
+
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content . "Read the file hello.txt")))
+
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content . "Search for python files containing 'def main'")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))))
+ ((role . "user")
+  (content . "who's the current king of sweden?")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content . "List files and read the first one")))
+
+
+=== Testing: tool-use-multiline-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content . "I've created a new Python script file with a basic Hello World program.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content . "Write a new Python file")))
+
+
+=== Testing: thinking-only ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "I need to consider all the options carefully before responding.")))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . ""))))
+ ((role . "user")
+  (content . "Let me think about this")))
+
+
+=== Testing: tool-use-only ===
+❌ FAILED (0.026s)
+
+Expected:
+(((role . "user")
+  (content . "Read a file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt"))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt")))))
+ ((role . "user")
+  (content . "Read a file")))
+
+
+=== Testing: citations-basic ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))))
+ ((role . "user")
+  (content . "When was Claude Shannon born?")))
+
+
+=== Testing: citations-after-tool-result ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789"))))))
+ ((role . "user")
+  (content . "What's the current weather?")))
+
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))))
+ ((role . "user")
+  (content . "Tell me about Einstein and Newton")))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 0
+Failed: 14
+
+❌ FAILED TESTS:
+  - simple-user-message
+  - system-and-user
+  - simple-conversation
+  - thinking-section
+  - tool-use-single-param
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - tool-use-multiline-params
+  - thinking-only
+  - tool-use-only
+  - citations-basic
+  - citations-after-tool-result
+  - citations-multiple
+
+</tool.toolu_01Np2w8NrDd7ii3yjT8NR77r>
+
+## ASSISTANT:
+
+Perfect! Now I can see the pattern clearly. The main issues are:
+
+1. **Consistent order reversal**: In every test, the order is reversed. The user message should come first, but it's coming last.
+2. **Content extraction issues**: Some tests show empty content where there should be text.
+3. **Numeric parameter values**: Tool parameters like `context-lines` should be numeric (2) but are strings ("2").
+
+The order issue is consistent across all tests. Let me focus on that first. Looking at the pattern, it's definitely the `nreverse` that's causing the issue, or rather, the messages are being collected in the wrong order initially.
+
+Let me check the `greger-tree-sitter--process-sections-with-citations` function again. I suspect the issue is that the final assistant block flush is happening with a `push`, which puts it at the beginning of the list. Then `nreverse` puts it at the end, which is correct. But the user messages are also being added with `push`, so they get reversed too.
+
+Let me trace through a simple user + assistant case:
+
+1. sections = [user_section, assistant_section]
+2. Process user_section → `(push user-message messages)` → messages = [user]
+3. Process assistant_section → adds to current-assistant-blocks
+4. End → `(push assistant-message messages)` → messages = [assistant, user]
+5. nreverse → messages = [user, assistant] ✓
+
+That should be correct. But I'm seeing [assistant, user] which suggests the nreverse isn't happening.
+
+Wait, let me check if the `nreverse` is actually being returned. Looking at the function signature:
+
+```elisp
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  ...
+  (nreverse messages))
+```
+
+The function should return `(nreverse messages)`. But maybe the caller isn't using the return value correctly.
+
+Let me check `greger-tree-sitter--extract-dialog`:
+
+```elisp
+(let ((sections (greger-tree-sitter--get-all-sections root-node)))
+  (setq messages (greger-tree-sitter--process-sections-with-citations sections)))
+```
+
+That looks correct. The issue might be elsewhere.
+
+Actually, let me double-check my understanding. In the debug output, I saw:
+
+```
+First message role: assistant
+Second message role: user
+```
+
+This means the assistant is at index 0 and user is at index 1 in the list. So the list is [assistant, user]. The expected result is [user, assistant]. This means the reversal is not happening correctly.
+
+Let me add some debugging to the process-sections function to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013SSRhoZ5N6RH2DqGhDZLy5
+
+### file-path
+
+<tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+debug-test.el
+</tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+
+### original-content
+
+<tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child)))))))
+</tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+
+### new-content
+
+<tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child))))
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))))))
+</tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+
+### git-commit-message
+
+<tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+Add section extraction debugging
+</tool.toolu_013SSRhoZ5N6RH2DqGhDZLy5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013SSRhoZ5N6RH2DqGhDZLy5 -->
