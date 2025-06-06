@@ -11118,4 +11118,355 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Fix scanner to prioritize tool content and preserve whitespace
 </tool.toolu_019zbgfibCZh3syWEpmodtbF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019zbgfibCZh3syWEpmodtbF -->
+## TOOL RESULT:
+
+ID: toolu_019zbgfibCZh3syWEpmodtbF
+
+<tool.toolu_019zbgfibCZh3syWEpmodtbF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scanner to prioritize tool content and preserve whitespace
+</tool.toolu_019zbgfibCZh3syWEpmodtbF>
+
+## ASSISTANT:
+
+Now let me also fix the tool content scanning to be more aggressive about consuming content:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01J13tEpvqpXSbPNeDuPaUJT
+
+### file-path
+
+<tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+./src/scanner.c
+</tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+
+### original-content
+
+<tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+  
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+      
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+
+### new-content
+
+<tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+  
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag without modifying scanner state
+      TSLexer saved_lexer = *lexer;
+      
+      // Manually check for closing tag pattern
+      advance(lexer);
+      if (lexer->lookahead == '/') {
+        advance(lexer);
+        if (lexer->lookahead == 't') {
+          advance(lexer);
+          if (lexer->lookahead == 'o') {
+            advance(lexer);
+            if (lexer->lookahead == 'o') {
+              advance(lexer);
+              if (lexer->lookahead == 'l') {
+                advance(lexer);
+                if (lexer->lookahead == '.') {
+                  advance(lexer);
+                  
+                  // Check if the ID matches
+                  char end_id[64];
+                  int id_len = 0;
+                  while (lexer->lookahead && 
+                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
+                          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+                         id_len < 63) {
+                    end_id[id_len++] = lexer->lookahead;
+                    advance(lexer);
+                  }
+                  end_id[id_len] = '\0';
+                  
+                  if (lexer->lookahead == '>' && strcmp(scanner->tool_id, end_id) == 0) {
+                    // This is our closing tag, restore and stop
+                    *lexer = saved_lexer;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Not our closing tag, restore and continue
+      *lexer = saved_lexer;
+      advance(lexer);
+      has_content = true;
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+
+### git-commit-message
+
+<tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+Improve tool content scanning with better lookahead logic
+</tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+
+## TOOL RESULT:
+
+ID: toolu_01J13tEpvqpXSbPNeDuPaUJT
+
+<tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01J13tEpvqpXSbPNeDuPaUJT>
+
+## ASSISTANT:
+
+Let me check the current scanner content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MxNeovZzopSi5CSvGozB5f
+
+### path
+
+<tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+./src/scanner.c
+</tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+
+### start-line
+
+<tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+145
+</tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+
+### end-line
+
+<tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+175
+</tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+
+## TOOL RESULT:
+
+ID: toolu_01MxNeovZzopSi5CSvGozB5f
+
+<tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+
+  return false;
+}
+
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+</tool.toolu_01MxNeovZzopSi5CSvGozB5f>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GVvJaoWpzDHBAiyenTdcUA
+
+### file-path
+
+<tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+./src/scanner.c
+</tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+
+### original-content
+
+<tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+
+### new-content
+
+<tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+  
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag without modifying scanner state
+      TSLexer saved_lexer = *lexer;
+      
+      // Manually check for closing tag pattern
+      advance(lexer);
+      if (lexer->lookahead == '/') {
+        advance(lexer);
+        if (lexer->lookahead == 't') {
+          advance(lexer);
+          if (lexer->lookahead == 'o') {
+            advance(lexer);
+            if (lexer->lookahead == 'o') {
+              advance(lexer);
+              if (lexer->lookahead == 'l') {
+                advance(lexer);
+                if (lexer->lookahead == '.') {
+                  advance(lexer);
+                  
+                  // Check if the ID matches
+                  char end_id[64];
+                  int id_len = 0;
+                  while (lexer->lookahead && 
+                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
+                          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+                         id_len < 63) {
+                    end_id[id_len++] = lexer->lookahead;
+                    advance(lexer);
+                  }
+                  end_id[id_len] = '\0';
+                  
+                  if (lexer->lookahead == '>' && strcmp(scanner->tool_id, end_id) == 0) {
+                    // This is our closing tag, restore and stop
+                    *lexer = saved_lexer;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Not our closing tag, restore and continue
+      *lexer = saved_lexer;
+      advance(lexer);
+      has_content = true;
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+
+### git-commit-message
+
+<tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+Improve tool content scanning with better lookahead logic
+</tool.toolu_01GVvJaoWpzDHBAiyenTdcUA>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GVvJaoWpzDHBAiyenTdcUA -->

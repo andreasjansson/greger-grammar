@@ -155,22 +155,52 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
     if (lexer->lookahead == '<') {
-      // Look ahead to see if this is our closing tag
+      // Look ahead to see if this is our closing tag without modifying scanner state
       TSLexer saved_lexer = *lexer;
-      Scanner saved_scanner = *scanner;
 
-      if (scan_tool_end(lexer, scanner)) {
-        // This is our closing tag, don't consume it
-        *lexer = saved_lexer;
-        *scanner = saved_scanner;
-        break;
-      } else {
-        // Not our closing tag, restore and continue
-        *lexer = saved_lexer;
-        *scanner = saved_scanner;
+      // Manually check for closing tag pattern
+      advance(lexer);
+      if (lexer->lookahead == '/') {
         advance(lexer);
-        has_content = true;
+        if (lexer->lookahead == 't') {
+          advance(lexer);
+          if (lexer->lookahead == 'o') {
+            advance(lexer);
+            if (lexer->lookahead == 'o') {
+              advance(lexer);
+              if (lexer->lookahead == 'l') {
+                advance(lexer);
+                if (lexer->lookahead == '.') {
+                  advance(lexer);
+
+                  // Check if the ID matches
+                  char end_id[64];
+                  int id_len = 0;
+                  while (lexer->lookahead &&
+                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+                          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+                         id_len < 63) {
+                    end_id[id_len++] = lexer->lookahead;
+                    advance(lexer);
+                  }
+                  end_id[id_len] = '\0';
+
+                  if (lexer->lookahead == '>' && strcmp(scanner->tool_id, end_id) == 0) {
+                    // This is our closing tag, restore and stop
+                    *lexer = saved_lexer;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
+
+      // Not our closing tag, restore and continue
+      *lexer = saved_lexer;
+      advance(lexer);
+      has_content = true;
     } else {
       advance(lexer);
       has_content = true;
