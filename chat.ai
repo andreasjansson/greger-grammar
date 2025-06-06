@@ -9894,4 +9894,248 @@ tool_parameter: $ => seq(
 Keep tool parameter structure the same for now
 </tool.toolu_01Wbd58Q6KP8q8Lpt4MpN4wD>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Wbd58Q6KP8q8Lpt4MpN4wD -->
+## TOOL RESULT:
+
+ID: toolu_01Wbd58Q6KP8q8Lpt4MpN4wD
+
+<tool.toolu_01Wbd58Q6KP8q8Lpt4MpN4wD>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Keep tool parameter structure the same for now
+</tool.toolu_01Wbd58Q6KP8q8Lpt4MpN4wD>
+
+## ASSISTANT:
+
+Let me check the actual structure of our test file more carefully:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01KUdBcwaugYhwYkS7Fs8czt
+
+### command
+
+<tool.toolu_01KUdBcwaugYhwYkS7Fs8czt>
+head -30 test_nested_tools.greger | cat -n
+</tool.toolu_01KUdBcwaugYhwYkS7Fs8czt>
+
+## TOOL RESULT:
+
+ID: toolu_01KUdBcwaugYhwYkS7Fs8czt
+
+<tool.toolu_01KUdBcwaugYhwYkS7Fs8czt>
+Command executed successfully:
+     1	## USER:
+     2	
+     3	Test nested tool content
+     4	
+     5	## TOOL USE:
+     6	
+     7	Name: write-file
+     8	ID: toolu_abc123
+     9	
+    10	### filename
+    11	
+    12	<tool.toolu_abc123>
+    13	example.py
+    14	</tool.toolu_abc123>
+    15	
+    16	### content
+    17	
+    18	<tool.toolu_abc123>
+    19	Here's some tricky content that looks like tool blocks:
+    20	
+    21	<tool.def456>
+    22	This looks like a tool block but isn't!
+    23	Name: fake-tool
+    24	ID: fake_id
+    25	</tool.def456>
+    26	
+    27	Even more nested tool-like content:
+    28	<tool.xyz789>
+    29	nested content with ### parameters
+    30	and </tool.xyz789> closing tags
+
+</tool.toolu_01KUdBcwaugYhwYkS7Fs8czt>
+
+## ASSISTANT:
+
+The structure looks correct. The issue is that my scanner isn't properly handling the end tag detection. Let me fix the scanner to better handle the tool block matching:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01G4wpWfMMAeJKPuEmakdwbu
+
+### file-path
+
+<tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+./src/scanner.c
+</tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+
+### original-content
+
+<tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+  
+  // Skip whitespace
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+  
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    return scan_tool_start(lexer, scanner);
+  }
+  
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    return scan_tool_end(lexer, scanner);
+  }
+  
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+  
+  return false;
+}
+</tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+
+### new-content
+
+<tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+  
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    // Skip whitespace only for tool block start
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    return scan_tool_start(lexer, scanner);
+  }
+  
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    // Skip whitespace only for tool block end
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    return scan_tool_end(lexer, scanner);
+  }
+  
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+  
+  return false;
+}
+</tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+
+### git-commit-message
+
+<tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+Fix scanner whitespace handling for different token types
+</tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+
+## TOOL RESULT:
+
+ID: toolu_01G4wpWfMMAeJKPuEmakdwbu
+
+<tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
+
+## ASSISTANT:
+
+Let me check the end of the scanner file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01UdVajDe9rAANQpb1g8htCq
+
+### path
+
+<tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+./src/scanner.c
+</tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+
+### start-line
+
+<tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+185
+</tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+
+## TOOL RESULT:
+
+ID: toolu_01UdVajDe9rAANQpb1g8htCq
+
+<tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+  return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+
+  // Skip whitespace
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    return scan_tool_start(lexer, scanner);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    return scan_tool_end(lexer, scanner);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  return false;
+}
+</tool.toolu_01UdVajDe9rAANQpb1g8htCq>
+
+## ASSISTANT:
+
+The real issue is that the grammar structure and the scanner need to work together better. Let me simplify the approach by fixing the grammar structure first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019Z3YEhst4tCTovGk56KswZ
+
+### file-path
+
+<tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+./grammar.js
+</tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+
+### original-content
+
+<tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      "\n",
+      field("content", optional($.tool_block_content)),
+      "\n",
+      $.tool_block_end
+    ),
+</tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+
+### new-content
+
+<tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      field("content", optional($.tool_block_content)),
+      $.tool_block_end
+    ),
+</tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+
+### git-commit-message
+
+<tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+Simplify tool param block - let scanner handle newlines
+</tool.toolu_019Z3YEhst4tCTovGk56KswZ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019Z3YEhst4tCTovGk56KswZ -->
