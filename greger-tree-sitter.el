@@ -39,7 +39,6 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
      ((equal (treesit-node-type root-node) "section")
       ;; Single section case
-      (message "DEBUG: Single section")
       (when-let ((message (greger-tree-sitter--extract-section root-node)))
         (push message messages)))
 
