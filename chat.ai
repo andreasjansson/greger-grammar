@@ -8515,4 +8515,89 @@ tool_result_content: $ => repeat1(choice(
 Restore citations content rule
 </tool.toolu_01Fg3bhVPYBLrwX9tM81ceUX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Fg3bhVPYBLrwX9tM81ceUX -->
+## TOOL RESULT:
+
+ID: toolu_01Fg3bhVPYBLrwX9tM81ceUX
+
+<tool.toolu_01Fg3bhVPYBLrwX9tM81ceUX>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restore citations content rule
+</tool.toolu_01Fg3bhVPYBLrwX9tM81ceUX>
+
+## ASSISTANT:
+
+Now add the citation entry rules:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RraP5DHPDWngU5qUoXdZZr
+
+### file-path
+
+<tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+grammar.js
+</tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+
+### original-content
+
+<tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+tool_result_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+</tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+
+### new-content
+
+<tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+tool_result_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+
+    // Citation patterns
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+</tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+
+### git-commit-message
+
+<tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+Restore citation entry rules
+</tool.toolu_01RraP5DHPDWngU5qUoXdZZr>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RraP5DHPDWngU5qUoXdZZr -->

@@ -197,6 +197,42 @@ module.exports = grammar({
       $.tool_block_end
     ),
 
+    // Citation patterns
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+
 
 
 
