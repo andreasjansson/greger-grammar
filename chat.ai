@@ -2281,3 +2281,932 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
     (test-citations-basic)
   (message "Tree-sitter greger parser not available"))
 </tool.toolu_012BEyijiXkXYPYJ7WDEcmPz>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013T6DZQ2N9nXEnczPEeVaiU
+
+### path
+
+<tool.toolu_013T6DZQ2N9nXEnczPEeVaiU>
+greger-tree-sitter.el
+</tool.toolu_013T6DZQ2N9nXEnczPEeVaiU>
+
+## TOOL RESULT:
+
+ID: toolu_013T6DZQ2N9nXEnczPEeVaiU
+
+<tool.toolu_013T6DZQ2N9nXEnczPEeVaiU>
+;;; greger-tree-sitter.el --- Tree-sitter integration for greger format -*- lexical-binding: t -*-
+
+;;; Commentary:
+;; This file provides tree-sitter parsing for the greger conversation format.
+;; It can be used as a replacement for the regex-based parser in greger.el.
+
+;;; Code:
+
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse TEXT using tree-sitter and return the dialog structure.
+Returns the same format as `greger-parser-parse-dialog-messages-only'."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '())
+        (pending-citations nil))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--extract-section (section-node)
+  "Extract a dialog message from a SECTION-NODE."
+  (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+    (cond
+     ((equal section-type "user_section")
+      (greger-tree-sitter--extract-user-section section-node))
+     ((equal section-type "system_section")
+      (greger-tree-sitter--extract-system-section section-node))
+     ((equal section-type "assistant_section")
+      (greger-tree-sitter--extract-assistant-section section-node))
+     ((equal section-type "thinking_section")
+      (greger-tree-sitter--extract-thinking-section section-node))
+     ((equal section-type "tool_use_section")
+      (greger-tree-sitter--extract-tool-use-section section-node))
+     ((equal section-type "tool_result_section")
+      (greger-tree-sitter--extract-tool-result-section section-node))
+     ((equal section-type "server_tool_use_section")
+      (greger-tree-sitter--extract-server-tool-use-section section-node))
+     ((equal section-type "server_tool_result_section")
+      (greger-tree-sitter--extract-server-tool-result-section section-node))
+     (t nil))))
+
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user message from SECTION-NODE."
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from SECTION-NODE."
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from SECTION-NODE."
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking content and return as assistant message."
+  (let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  ""))))))))
+
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use and return as assistant message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+
+    ;; Extract tool name, ID, and parameters
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_name_line")
+              (setq tool-name (treesit-node-text
+                               (treesit-node-child-by-field-name child "name"))))
+             ((equal (treesit-node-type child) "tool_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_parameter")
+              (let ((param-name (treesit-node-text
+                                 (treesit-node-child-by-field-name child "param_name")))
+                    (param-value (greger-tree-sitter--extract-tool-param-value child)))
+                (push (cons (intern param-name) param-value) parameters))))))))
+
+    `((role . "assistant")
+      (content . (((type . "tool_use")
+                   (id . ,tool-id)
+                   (name . ,tool-name)
+                   (input . ,(nreverse parameters))))))))
+
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter node."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (string-trim (treesit-node-text content-node))
+            ""))
+      "")))
+
+(defun greger-tree-sitter--extract-tool-result-section (section-node)
+  "Extract tool result and return as user message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
+         (tool-id nil)
+         (result-content ""))
+
+    ;; Extract tool ID and result content
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_result_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_result_block")
+              (let ((content-node (treesit-node-child-by-field-name child "content")))
+                (when content-node
+                  (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,tool-id)
+                   (content . ,result-content)))))))
+
+(defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+  "Extract server tool use and return as assistant message."
+  ;; Similar to tool_use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+    ;; Change the type to server_tool_use
+    (when result
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_use"))))
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to server_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_result"))))
+    result))
+
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (pending-citations nil)
+        (i 0))
+
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; Citations section - store for association with previous message
+         ((equal section-type "citations_section")
+          (setq pending-citations (greger-tree-sitter--extract-citations-section section)))
+
+         ;; Regular section - check if it has cite tags
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              ;; If this message has cite tags and we have pending citations, associate them
+              (when (and pending-citations
+                         (greger-tree-sitter--message-has-cite-tags message))
+                (setq message (greger-tree-sitter--associate-citations message pending-citations))
+                (setq pending-citations nil))
+              (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a section node."
+  (treesit-node-type (treesit-node-child section-node 0)))
+
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Extract citations from a citations section."
+  (let* ((citations-section (treesit-node-child section-node 0))
+         (citations-content (greger-tree-sitter--find-child-by-type citations-section "citations_content"))
+         (citations '()))
+
+    (when citations-content
+      (let ((child-count (treesit-node-child-count citations-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child citations-content i)))
+            (when (equal (treesit-node-type child) "citation_entry")
+              (push (greger-tree-sitter--extract-citation-entry child) citations))))))
+
+    (nreverse citations)))
+
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+
+(defun greger-tree-sitter--message-has-cite-tags (message)
+  "Check if MESSAGE content contains cite tags."
+  (let ((content (alist-get 'content message)))
+    (and (stringp content)
+         (string-match-p "<cite>" content))))
+
+(defun greger-tree-sitter--associate-citations (message citations)
+  "Associate CITATIONS with cited text in MESSAGE."
+  ;; This is complex - we need to parse the content and split it by cite tags
+  (let ((content (alist-get 'content message)))
+    (when (stringp content)
+      (setf (alist-get 'content message)
+            (greger-tree-sitter--parse-content-with-citations content citations))))
+  message)
+
+(defun greger-tree-sitter--parse-content-with-citations (content citations)
+  "Parse CONTENT and create content blocks with citations."
+  (let ((parts '())
+        (current-pos 0))
+
+    ;; Find all cite tags and split content accordingly
+    (while (string-match "<cite>\\(.*?\\)</cite>" content current-pos)
+      (let ((before-cite (substring content current-pos (match-beginning 0)))
+            (cite-text (match-string 1 content))
+            (after-match (match-end 0)))
+
+        ;; Add text before cite if any
+        (when (> (length (string-trim before-cite)) 0)
+          (push `((type . "text") (text . ,(string-trim before-cite))) parts))
+
+        ;; Add cited text with citations
+        (push `((type . "text")
+                (text . ,cite-text)
+                (citations . ,citations)) parts)
+
+        (setq current-pos after-match)))
+
+    ;; Add remaining text after last cite
+    (let ((remaining (substring content current-pos)))
+      (when (> (length (string-trim remaining)) 0)
+        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+
+    (nreverse parts)))
+
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE."
+  (if content-node
+      (string-trim (treesit-node-text content-node))
+    ""))
+
+;; Test function
+(defun greger-tree-sitter-test ()
+  "Test the tree-sitter parser with a simple example."
+  (interactive)
+  (let ((test-text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+    (message "Parsed result: %S" (greger-tree-sitter-parse test-text))))
+
+(provide 'greger-tree-sitter)
+
+;;; greger-tree-sitter.el ends here
+</tool.toolu_013T6DZQ2N9nXEnczPEeVaiU>
+
+## ASSISTANT:
+
+Now let me look at the current grammar.js to understand what we have:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016x2fLrGazDURNpgKqqqP7r
+
+### path
+
+<tool.toolu_016x2fLrGazDURNpgKqqqP7r>
+grammar.js
+</tool.toolu_016x2fLrGazDURNpgKqqqP7r>
+
+## TOOL RESULT:
+
+ID: toolu_016x2fLrGazDURNpgKqqqP7r
+
+<tool.toolu_016x2fLrGazDURNpgKqqqP7r>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+  ],
+
+  conflicts: $ => [
+    // Add conflicts here if needed
+  ],
+
+  rules: {
+    source_file: $ => seq(
+      optional($.content),
+      repeat($.section)
+    ),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    tool_use_section: $ => seq(
+      $.tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    tool_result_section: $ => seq(
+      $.tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_header: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_header: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types
+    content: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_cite,
+      $.line,
+      $.newline
+    ))),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => prec(1, seq(
+      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+      "\n"
+    )),
+
+    system_content: $ => prec(-1, repeat1(choice(
+      $.safe_shell_commands,
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+
+    tool_use_content: $ => repeat1(choice(
+      $.tool_name_line,
+      $.tool_id_line,
+      $.tool_parameter,
+      $.newline
+    )),
+
+    tool_result_content: $ => repeat1(choice(
+      $.tool_result_id_line,
+      $.tool_result_block,
+      $.newline
+    )),
+
+    citations_content: $ => prec.left(repeat1(choice(
+      $.citation_entry,
+      $.newline
+    ))),
+
+    // Special tags and blocks
+    safe_shell_commands: $ => seq(
+      "<safe-shell-commands>",
+      "\n",
+      repeat(choice(/[^\n<]+/, "\n")),
+      "</safe-shell-commands>"
+    ),
+
+    include_tag: $ => seq(
+      "<include",
+      optional(/[ \t]+code/),
+      ">",
+      field("path", /[^<>\n]+/),
+      "</include>"
+    ),
+
+    // Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content))
+    )),
+
+    // Citations that appear without preceding cite tags
+    citations_without_text: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+      "\n",
+      repeat($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    )),
+
+    cite_tag: $ => prec(1, seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    )),
+
+    html_comment: $ => seq(
+      "<!--",
+      repeat(choice(/[^-\n]+/, seq("-", /[^-\n]/), "\n")),
+      "-->"
+    ),
+
+    // Code blocks
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_block
+    ),
+
+    triple_backtick_block: $ => seq(
+      "```",
+      optional(field("language", /[a-zA-Z]+/)),
+      "\n",
+      field("content", repeat(choice(/[^`\n]+/, "`", "``", "\n"))),
+      "```"
+    ),
+
+    single_backtick_block: $ => seq(
+      "``",
+      field("content", repeat(choice(/[^`\n]+/, "\n"))),
+      "``"
+    ),
+
+    inline_code: $ => seq(
+      "`",
+      field("content", /[^`\n]+/),
+      "`"
+    ),
+
+    // Tool-specific patterns
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", $.identifier),
+      "\n"
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $.identifier),
+      "\n"
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("param_name", $.identifier),
+      "\n",
+      "\n",
+      field("param_value", $.tool_param_block)
+    ),
+
+    tool_param_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+
+    tool_result_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $.identifier),
+      "\n"
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+
+    // Citation patterns
+    citation_entry: $ => prec.left(seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    )),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+
+    // Basic patterns
+    line: $ => seq(
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      "\n"
+    ),
+
+    // Tool content line - anything except closing tool tag
+    tool_content_line: $ => prec(-1, /[^\n]+/),
+
+    newline: $ => "\n",
+
+    // Basic tokens
+    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
+    url: $ => /https?:\/\/[^\s\n]+/,
+  }
+});
+</tool.toolu_016x2fLrGazDURNpgKqqqP7r>
+
+## ASSISTANT:
+
+Let me run the current test to see what's happening:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Jaf7mdHuKo5CZDqDYcxgQA
+
+### command
+
+<tool.toolu_01Jaf7mdHuKo5CZDqDYcxgQA>
+tree-sitter parse test_citations.greger
+</tool.toolu_01Jaf7mdHuKo5CZDqDYcxgQA>
+
+## TOOL RESULT:
+
+ID: toolu_01Jaf7mdHuKo5CZDqDYcxgQA
+
+<tool.toolu_01Jaf7mdHuKo5CZDqDYcxgQA>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (line [33, 0] - [34, 0])
+        (newline [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_section [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    1.13 ms	   975 bytes/ms	(MISSING "\n" [41, 49] - [41, 49])
+
+</tool.toolu_01Jaf7mdHuKo5CZDqDYcxgQA>
+
+## ASSISTANT:
+
+I can see the issue. The current parser is treating the assistant section and citations section as separate sections, but according to the expected output in the elisp test, they should be combined. Let me run the elisp test to see what it produces:
+
+## USER:
+
+That's probably fine, we can do a little bit of reformatting of the structure in greger-tree-sitter.el. If you look in that file you'll notice we do some of that already.
+
+## ASSISTANT:
+
+You're absolutely right! Let me run the current test to see what structure we're getting and then update the elisp code to properly handle the citations:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DiqQigTCNSRG5EW21N2RDo
+
+### command
+
+<tool.toolu_01DiqQigTCNSRG5EW21N2RDo>
+emacs --batch -l test-citations.el
+</tool.toolu_01DiqQigTCNSRG5EW21N2RDo>
+
+## TOOL RESULT:
+
+ID: toolu_01DiqQigTCNSRG5EW21N2RDo
+
+<tool.toolu_01DiqQigTCNSRG5EW21N2RDo>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+Parsed result: (((role . "assistant") (content . "Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>")) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01DiqQigTCNSRG5EW21N2RDo>
+
+## ASSISTANT:
+
+I can see the issue. The current implementation isn't properly handling the citations section that follows. Looking at the expected output from the test file, we need to:
+
+1. Combine text with `<cite>` tags with the following `## CITATIONS:` section
+2. Parse the cited text and citations into separate content blocks with the citations attached to the cited text
+
+Let me update the greger-tree-sitter.el file to handle this properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Upv3yqyuswfjqYgsaBw9gb
+
+### file-path
+
+<tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+greger-tree-sitter.el
+</tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+
+### original-content
+
+<tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+</tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+
+### new-content
+
+<tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+</tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+
+### git-commit-message
+
+<tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+Keep the existing section processing logic
+</tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Upv3yqyuswfjqYgsaBw9gb -->
