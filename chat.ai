@@ -11355,4 +11355,75 @@ externals: $ => [
 Add citation context externals
 </tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01287Q2mpDKs1J6RcaD1XirW -->
+## TOOL RESULT:
+
+ID: toolu_01287Q2mpDKs1J6RcaD1XirW
+
+<tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citation context externals
+</tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JYeJHiwEmkpiPv3pmdEWvo
+
+### file-path
+
+<tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+grammar.js
+</tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+
+### original-content
+
+<tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+
+### new-content
+
+<tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+// Citation parsing
+    citations_with_text: $ => seq(
+      $.citations_context_start,
+      repeat(choice(
+        $.text_before_cite,
+        $.cite_tag,
+        $.text_after_cite,
+        $.newline
+      )),
+      $.citations_context_end,
+      $.citations_entries
+    ),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      $.citations_entries
+    ),
+
+    text_before_cite: $ => /[^<\n#]+/,
+    text_after_cite: $ => /[^#\n]+/,
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    citations_entries: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+</tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+
+### git-commit-message
+
+<tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+Add citation parsing rules to grammar
+</tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JYeJHiwEmkpiPv3pmdEWvo -->

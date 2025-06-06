@@ -154,11 +154,37 @@ module.exports = grammar({
       "</include>"
     ),
 
+    // Citation parsing
+    citations_with_text: $ => seq(
+      $.citations_context_start,
+      repeat(choice(
+        $.text_before_cite,
+        $.cite_tag,
+        $.text_after_cite,
+        $.newline
+      )),
+      $.citations_context_end,
+      $.citations_entries
+    ),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      $.citations_entries
+    ),
+
+    text_before_cite: $ => /[^<\n#]+/,
+    text_after_cite: $ => /[^#\n]+/,
+
     cite_tag: $ => seq(
       "<cite>",
       field("content", repeat(choice(/[^<\n]+/, "\n"))),
       "</cite>"
     ),
+
+    citations_entries: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
 
     html_comment: $ => seq(
       "<!--",
