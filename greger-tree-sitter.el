@@ -5,15 +5,40 @@
 ;; It parses markdown-like conversation logs with sections like ## USER:, ## ASSISTANT:,
 ;; ## TOOL USE:, etc., and converts them to structured dialog messages.
 ;;
-;; The main entry point is `greger-tree-sitter-parse' which takes a markdown string
-;; and returns a list of message objects compatible with greger.el's format.
+;; MAIN ENTRY POINT:
+;;   `greger-tree-sitter-parse' - Parse greger text and return message list
 ;;
-;; Key features:
-;; - Parses user, assistant, system, thinking sections
-;; - Handles tool use and tool result sections
-;; - Supports server tool use and web search tool results
-;; - Parses citations (<cite>...</cite> tags with ## CITATIONS: sections)
-;; - Converts content to structured format with content blocks
+;; KEY FEATURES:
+;; - User/Assistant/System message parsing
+;; - Tool use workflows (## TOOL USE: → ## TOOL RESULT:)
+;; - Server tool workflows (## SERVER TOOL USE: → ## SERVER TOOL RESULT:)
+;; - Citations support (<cite>text</cite> + ## CITATIONS: sections)
+;; - Thinking sections (## THINKING:)
+;; - Complex content blocks with proper ordering
+;;
+;; CITATION WORKFLOW:
+;; When text contains <cite>cited text</cite>, the parser looks for subsequent
+;; ## CITATIONS: sections and associates the citation metadata with the cited text.
+;; This creates structured content blocks where cited text includes citation objects.
+;;
+;; OUTPUT FORMAT:
+;; Returns list of message objects compatible with greger.el:
+;;   ((role . "user") (content . "string content"))
+;;   ((role . "assistant") (content . (content-block-list)))
+;;
+;; Content blocks have 'type and type-specific fields:
+;;   - text: 'text field, optional 'citations field
+;;   - thinking: 'thinking field
+;;   - tool_use: 'id, 'name, 'input fields
+;;   - tool_result: 'tool_use_id, 'content fields
+;;   - server_tool_use: 'id, 'name, 'input fields
+;;   - web_search_tool_result: 'tool_use_id, 'content fields
+;;
+;; INTERNAL ARCHITECTURE:
+;; - Section extraction functions handle each ## HEADER: type
+;; - Citation processing associates ## CITATIONS: with <cite> tags
+;; - Content block ordering ensures tools → results → text flow
+;; - Tree-sitter grammar provides robust parsing of complex structures
 
 ;;; Code:
 
