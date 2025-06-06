@@ -9753,4 +9753,124 @@ This is a simple arithmetic question. I can answer this directly without needing
 Add simple test cases to verify basic functionality
 </tool.toolu_01Vch2YxpDiqVTrUkLx6TLgq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Vch2YxpDiqVTrUkLx6TLgq -->
+## TOOL RESULT:
+
+ID: toolu_01Vch2YxpDiqVTrUkLx6TLgq
+
+<tool.toolu_01Vch2YxpDiqVTrUkLx6TLgq>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/test-simple-cases.el with 2796 characters. Successfully staged 2 file(s) and committed with message: Add simple test cases to verify basic functionality
+</tool.toolu_01Vch2YxpDiqVTrUkLx6TLgq>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DWRbAJKFfvVfbqcwngiw42
+
+### command
+
+<tool.toolu_01DWRbAJKFfvVfbqcwngiw42>
+emacs --batch -l test-simple-cases.el
+</tool.toolu_01DWRbAJKFfvVfbqcwngiw42>
+
+## TOOL RESULT:
+
+ID: toolu_01DWRbAJKFfvVfbqcwngiw42
+
+<tool.toolu_01DWRbAJKFfvVfbqcwngiw42>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing simple-user-message ===
+❌ simple-user-message FAILED
+Expected: (((role . "user") (content . "Hello, how are you?")))
+Actual: (((role . "user") (content . "")))
+
+=== Testing simple-conversation ===
+❌ simple-conversation FAILED
+Expected: (((role . "user") (content . "Hello")) ((role . "assistant") (content . "Hi there! How can I help you today?")))
+Actual: (((role . "user") (content . "Hello")))
+
+=== Testing thinking-section ===
+❌ thinking-section FAILED
+Expected: (((role . "user") (content . "What's 2+2?")) ((role . "assistant") (content ((type . "thinking") (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools.")) ((type . "text") (text . "2 + 2 = 4")))))
+Actual: (((role . "user") (content . "What's 2+2?")) ((role . "assistant") (content ((type . "thinking") (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools.")))))
+
+=== Simple tests completed ===
+
+</tool.toolu_01DWRbAJKFfvVfbqcwngiw42>
+
+## ASSISTANT:
+
+I can see some issues with our parser. The main problems are:
+
+1. **Simple user message**: Content is empty instead of "Hello, how are you?"
+2. **Simple conversation**: Missing the assistant message
+3. **Thinking section**: Missing the text content after thinking
+
+Let me debug these issues. First, let me check what's happening with the simple user message:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01NGJ4TR8MBbqbWxDT3iFrQz
+
+### file-path
+
+<tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+debug-simple.el
+</tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+
+### contents
+
+<tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+;;; debug-simple.el --- Debug simple parsing issues -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-simple-user ()
+  "Debug simple user message parsing."
+  (let ((markdown "## USER:
+
+Hello, how are you?"))
+    (message "\n=== Debugging simple user message ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result)
+      (message "Reversed result: %S" (reverse result)))))
+
+(defun debug-simple-conversation ()
+  "Debug simple conversation parsing."
+  (let ((markdown "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+    (message "\n=== Debugging simple conversation ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result)
+      (message "Number of messages: %d" (length result))
+      (when (> (length result) 0)
+        (message "First message: %S" (car result)))
+      (when (> (length result) 1)
+        (message "Second message: %S" (cadr result))))))
+
+;; Run debug
+(if (treesit-ready-p 'greger)
+    (progn
+      (debug-simple-user)
+      (debug-simple-conversation)
+      (message "\n=== Debug completed ==="))
+  (message "Tree-sitter greger parser not available"))
+</tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+
+### git-commit-message
+
+<tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+Add debug script to investigate parsing issues
+</tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NGJ4TR8MBbqbWxDT3iFrQz -->
