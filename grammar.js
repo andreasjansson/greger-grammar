@@ -164,12 +164,7 @@ module.exports = grammar({
 
     // Content that may contain cite tags and subsequent citations
     content_with_citations: $ => repeat1(choice(
-      $.code_block,
-      $.inline_code,
-      $.include_tag,
-      $.html_comment,
-      $.line_with_citations,
-      $.line,
+      $.text_line,
       $.newline
     )),
 

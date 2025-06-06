@@ -7551,4 +7551,180 @@ grammar.js
 Remove unused line rule
 </tool.toolu_01LjC1J5tzSTPwnG9dbcP7wE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LjC1J5tzSTPwnG9dbcP7wE -->
+## TOOL RESULT:
+
+ID: toolu_01LjC1J5tzSTPwnG9dbcP7wE
+
+<tool.toolu_01LjC1J5tzSTPwnG9dbcP7wE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove unused line rule
+</tool.toolu_01LjC1J5tzSTPwnG9dbcP7wE>
+
+## ASSISTANT:
+
+Now let me regenerate and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JaJMb7FDnxvK4W4BCrVFiT
+
+### command
+
+<tool.toolu_01JaJMb7FDnxvK4W4BCrVFiT>
+tree-sitter generate
+</tool.toolu_01JaJMb7FDnxvK4W4BCrVFiT>
+
+## TOOL RESULT:
+
+ID: toolu_01JaJMb7FDnxvK4W4BCrVFiT
+
+<tool.toolu_01JaJMb7FDnxvK4W4BCrVFiT>
+Command failed with exit code 1: file:///Users/andreas/scratch/greger-grammar/[eval1]:240
+        const error = new ReferenceError(`Undefined symbol '${propertyName}'`);
+                      ^
+
+ReferenceError: Undefined symbol 'line'
+    at Object.get (file:///Users/andreas/scratch/greger-grammar/[eval1]:240:23)
+    at Proxy.content_with_citations (/Users/andreas/scratch/greger-grammar/grammar.js:172:9)
+    at grammar (file:///Users/andreas/scratch/greger-grammar/[eval1]:328:27)
+    at Object.<anonymous> (/Users/andreas/scratch/greger-grammar/grammar.js:10:18)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Module._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24) {
+  symbol: GrammarSymbol { type: 'SYMBOL', name: 'line' }
+}
+
+Node.js v24.0.2
+Error when generating parser
+
+Caused by:
+    Failed to load grammar.js -- `node` process exited with status 1
+
+</tool.toolu_01JaJMb7FDnxvK4W4BCrVFiT>
+
+## ASSISTANT:
+
+There are still references to the old `line` rule. Let me find and fix them:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01AVZD1yrL2VuA2TGyf2eCJc
+
+### pattern
+
+<tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+\$\.line[^_]
+</tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+
+### path
+
+<tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+grammar.js
+</tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+
+## TOOL RESULT:
+
+ID: toolu_01AVZD1yrL2VuA2TGyf2eCJc
+
+<tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+172:      $.line,
+
+</tool.toolu_01AVZD1yrL2VuA2TGyf2eCJc>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017quMXpS2EXch5gNS7GvLbr
+
+### path
+
+<tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+grammar.js
+</tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+
+### start-line
+
+<tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+165
+</tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+
+### end-line
+
+<tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+180
+</tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+
+## TOOL RESULT:
+
+ID: toolu_017quMXpS2EXch5gNS7GvLbr
+
+<tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+    // Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+</tool.toolu_017quMXpS2EXch5gNS7GvLbr>
+
+## ASSISTANT:
+
+Let me fix all references to the old rules:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01W1nguQNf6a2XPYf5E6cDoF
+
+### file-path
+
+<tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+grammar.js
+</tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+
+### original-content
+
+<tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+// Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+</tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+
+### new-content
+
+<tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+// Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+</tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+
+### git-commit-message
+
+<tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+Fix content_with_citations to use simplified rules
+</tool.toolu_01W1nguQNf6a2XPYf5E6cDoF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01W1nguQNf6a2XPYf5E6cDoF -->
