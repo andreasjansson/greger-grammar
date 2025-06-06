@@ -9999,4 +9999,323 @@ Hello, how are you?
 Add simple user test case for grammar debugging
 </tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019i7RY9aH4A4Qz2eQw81nJH -->
+## TOOL RESULT:
+
+ID: toolu_019i7RY9aH4A4Qz2eQw81nJH
+
+<tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/test_simple_user.greger with 29 characters. Successfully staged 2 file(s) and committed with message: Add simple user test case for grammar debugging
+</tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YHC4aXp7zBZkqKPZFbjAbq
+
+### command
+
+<tool.toolu_01YHC4aXp7zBZkqKPZFbjAbq>
+tree-sitter parse test_simple_user.greger
+</tool.toolu_01YHC4aXp7zBZkqKPZFbjAbq>
+
+## TOOL RESULT:
+
+ID: toolu_01YHC4aXp7zBZkqKPZFbjAbq
+
+<tool.toolu_01YHC4aXp7zBZkqKPZFbjAbq>
+Command failed with exit code 1: (source_file [0, 0] - [2, 19]
+  (section [0, 0] - [2, 0]
+    (user_section [0, 0] - [2, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [2, 0]
+        (newline [1, 0] - [2, 0]))))
+  (ERROR [2, 0] - [2, 19]))
+test_simple_user.greger	Parse:    0.60 ms       48 bytes/ms	(ERROR [2, 0] - [2, 19])
+
+</tool.toolu_01YHC4aXp7zBZkqKPZFbjAbq>
+
+## ASSISTANT:
+
+I see the issue! The grammar is parsing the content as just a newline and then there's an ERROR for the actual text content. This suggests our grammar isn't properly handling text content after section headers.
+
+Let me check our grammar definition to see what's wrong:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01H61nVW8716en931gMxKPQY
+
+### path
+
+<tool.toolu_01H61nVW8716en931gMxKPQY>
+grammar.js
+</tool.toolu_01H61nVW8716en931gMxKPQY>
+
+### start-line
+
+<tool.toolu_01H61nVW8716en931gMxKPQY>
+40
+</tool.toolu_01H61nVW8716en931gMxKPQY>
+
+### end-line
+
+<tool.toolu_01H61nVW8716en931gMxKPQY>
+60
+</tool.toolu_01H61nVW8716en931gMxKPQY>
+
+## TOOL RESULT:
+
+ID: toolu_01H61nVW8716en931gMxKPQY
+
+<tool.toolu_01H61nVW8716en931gMxKPQY>
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    thinking_section: $ => seq(
+</tool.toolu_01H61nVW8716en931gMxKPQY>
+
+## ASSISTANT:
+
+Let me look at how content is defined:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01S68Jv8Wquo9Rzc9LyPkPhB
+
+### pattern
+
+<tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+content:
+</tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+
+### path
+
+<tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+grammar.js
+</tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+
+## TOOL RESULT:
+
+ID: toolu_01S68Jv8Wquo9Rzc9LyPkPhB
+
+<tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+104:    content: $ => prec(-1, repeat1(choice(
+122:    system_content: $ => prec(-1, repeat1(choice(
+132:    tool_use_content: $ => repeat1(choice(
+139:    tool_result_content: $ => repeat1(choice(
+145:    citations_content: $ => prec.left(repeat1(choice(
+
+</tool.toolu_01S68Jv8Wquo9Rzc9LyPkPhB>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011BEeXYus7Aa9SqVszaLdwB
+
+### path
+
+<tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+grammar.js
+</tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+
+### start-line
+
+<tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+104
+</tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+
+### end-line
+
+<tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+115
+</tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+
+## TOOL RESULT:
+
+ID: toolu_011BEeXYus7Aa9SqVszaLdwB
+
+<tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+    content: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_cite,
+      $.line,
+      $.newline
+    ))),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => prec(1, seq(
+</tool.toolu_011BEeXYus7Aa9SqVszaLdwB>
+
+## ASSISTANT:
+
+I see the issue. Let me check what's happening with our content parsing. The grammar looks correct, but there might be an issue with how `line` is defined:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01R8V4B2MdrM5XPBJhc7Ze5n
+
+### pattern
+
+<tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+line:
+</tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+
+### path
+
+<tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+grammar.js
+</tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+
+## TOOL RESULT:
+
+ID: toolu_01R8V4B2MdrM5XPBJhc7Ze5n
+
+<tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+241:    tool_name_line: $ => seq(
+248:    tool_id_line: $ => seq(
+270:    tool_result_id_line: $ => seq(
+320:    line: $ => seq(
+326:    tool_content_line: $ => prec(-1, /[^\n]+/),
+328:    newline: $ => "\n",
+
+</tool.toolu_01R8V4B2MdrM5XPBJhc7Ze5n>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01YVh2xzdh4Qy7mdgg7W9zDw
+
+### path
+
+<tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+grammar.js
+</tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+
+### start-line
+
+<tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+320
+</tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+
+### end-line
+
+<tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+330
+</tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+
+## TOOL RESULT:
+
+ID: toolu_01YVh2xzdh4Qy7mdgg7W9zDw
+
+<tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+    line: $ => seq(
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      "\n"
+    ),
+
+    // Tool content line - anything except closing tool tag
+    tool_content_line: $ => prec(-1, /[^\n]+/),
+
+    newline: $ => "\n",
+
+    // Basic tokens
+</tool.toolu_01YVh2xzdh4Qy7mdgg7W9zDw>
+
+## ASSISTANT:
+
+I think I found the issue! The `line` rule requires the line to NOT start with certain characters (`[^#\n<\`]`), but "Hello, how are you?" starts with "H" which should be allowed. Let me check if this is the issue.
+
+The problem might be that our section parsing is correctly identifying the user section, but the content extraction logic is not working properly. Let me check the `greger-tree-sitter--extract-content` function:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_016bkyK5zsRUHgWQkJPeXmi1
+
+### file-path
+
+<tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+debug-extraction.el
+</tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+
+### contents
+
+<tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+;;; debug-extraction.el --- Debug content extraction -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-tree-structure ()
+  "Debug the tree structure for simple user message."
+  (let ((text "## USER:
+
+Hello, how are you?"))
+    (with-temp-buffer
+      (insert text)
+      (let ((parser (treesit-parser-create 'greger)))
+        (let ((root-node (treesit-parser-root-node parser)))
+          (message "\n=== Tree Structure Debug ===")
+          (message "Root node type: %s" (treesit-node-type root-node))
+          (message "Root node text: %S" (treesit-node-text root-node))
+
+          ;; Check children
+          (let ((child-count (treesit-node-child-count root-node)))
+            (message "Root has %d children" child-count)
+            (dotimes (i child-count)
+              (let ((child (treesit-node-child root-node i)))
+                (message "Child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))
+
+                ;; Check grandchildren for section
+                (when (equal (treesit-node-type child) "section")
+                  (let ((section-child-count (treesit-node-child-count child)))
+                    (message "  Section has %d children" section-child-count)
+                    (dotimes (j section-child-count)
+                      (let ((section-child (treesit-node-child child j)))
+                        (message "  Section child %d: type=%s text=%S"
+                                j (treesit-node-type section-child) (treesit-node-text section-child))
+
+                        ;; Check content
+                        (when (equal (treesit-node-type section-child) "user_section")
+                          (let ((user-child-count (treesit-node-child-count section-child)))
+                            (message "    User section has %d children" user-child-count)
+                            (dotimes (k user-child-count)
+                              (let ((user-child (treesit-node-child section-child k)))
+                                (message "    User child %d: type=%s text=%S"
+                                        k (treesit-node-type user-child) (treesit-node-text user-child))))))))))))))))
+
+;; Run debug
+(if (treesit-ready-p 'greger)
+    (debug-tree-structure)
+  (message "Tree-sitter greger parser not available"))
+</tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+
+### git-commit-message
+
+<tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+Add tree structure debugging to understand parsing issues
+</tool.toolu_016bkyK5zsRUHgWQkJPeXmi1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016bkyK5zsRUHgWQkJPeXmi1 -->
