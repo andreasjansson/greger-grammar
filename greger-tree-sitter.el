@@ -263,7 +263,29 @@ EXAMPLE OUTPUT:
                     "")))))
 
 (defun greger-tree-sitter--extract-system-section (section-node)
-  "Extract system message from SECTION-NODE."
+  "Extract system message from a ## SYSTEM: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+
+PROCESSING:
+  1. Gets the system_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"system\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## SYSTEM:
+
+  You are a helpful assistant.
+
+EXAMPLE OUTPUT:
+  ((role . \"system\") (content . \"You are a helpful assistant.\"))"
   (let* ((system-section-node (treesit-node-child section-node 0))
          (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
     `((role . "system")

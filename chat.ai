@@ -5971,4 +5971,77 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-user-section function
 </tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QNQWVfnmpX7Cfokftr8nHH -->
+## TOOL RESULT:
+
+ID: toolu_01QNQWVfnmpX7Cfokftr8nHH
+
+<tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-user-section function
+</tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UoVk9PjA3x7FPRiRQNvTzz
+
+### file-path
+
+<tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+greger-tree-sitter.el
+</tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+
+### original-content
+
+<tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from SECTION-NODE."
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+
+### new-content
+
+<tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from a ## SYSTEM: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+
+PROCESSING:
+  1. Gets the system_section child node
+  2. Finds the section_content within it  
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"system\") (content . \"extracted text content\"))
+  
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## SYSTEM:
+  
+  You are a helpful assistant.
+
+EXAMPLE OUTPUT:
+  ((role . \"system\") (content . \"You are a helpful assistant.\"))"
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+
+### git-commit-message
+
+<tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+Document greger-tree-sitter--extract-system-section function
+</tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UoVk9PjA3x7FPRiRQNvTzz -->
