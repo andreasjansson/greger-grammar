@@ -213,17 +213,13 @@ module.exports = grammar({
     ),
 
     tool_param_block: $ => seq(
-      "<tool.",
-      field("tool_id", $.identifier),
-      ">",
+      $.tool_block_start,
       "\n",
       field("content", repeat(choice(
-        $.tool_content_line,
+        $.tool_block_content,
         "\n"
       ))),
-      "</tool.",
-      field("tool_id", $.identifier),
-      ">"
+      $.tool_block_end
     ),
 
     tool_result_id_line: $ => seq(
