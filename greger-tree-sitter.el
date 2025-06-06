@@ -114,8 +114,8 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-thinking-section (section-node)
   "Extract thinking content and return as assistant message."
-  (let ((content-node (treesit-node-child-by-field-name
-                       (treesit-node-child section-node 0) "content")))
+  (let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
     `((role . "assistant")
       (content . (((type . "thinking")
                    (thinking . ,(if content-node

@@ -8790,4 +8790,57 @@ greger-tree-sitter.el
 Fix system section content extraction
 </tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WCi9dnn1jCxqvDjwusBKbL -->
+## TOOL RESULT:
+
+ID: toolu_01WCi9dnn1jCxqvDjwusBKbL
+
+<tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix system section content extraction
+</tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01X6dunBiLHX4P1v3SVCiRdP
+
+### file-path
+
+<tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+greger-tree-sitter.el
+</tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+
+### original-content
+
+<tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking content and return as assistant message."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  ""))))))))
+</tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+
+### new-content
+
+<tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking content and return as assistant message."
+  (let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  ""))))))))
+</tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+
+### git-commit-message
+
+<tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+Fix thinking section content extraction
+</tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01X6dunBiLHX4P1v3SVCiRdP -->
