@@ -334,11 +334,11 @@
             },
             {
               "type": "SYMBOL",
-              "name": "cite_tag"
+              "name": "html_comment"
             },
             {
               "type": "SYMBOL",
-              "name": "html_comment"
+              "name": "line_with_cite"
             },
             {
               "type": "SYMBOL",
@@ -350,6 +350,47 @@
             }
           ]
         }
+      }
+    },
+    "line_with_cite": {
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "[^<\\n#]+"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "SYMBOL",
+            "name": "cite_tag"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "[^<\\n]*"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": "\n"
+          }
+        ]
       }
     },
     "system_content": {
@@ -699,37 +740,41 @@
       }
     },
     "cite_tag": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<cite>"
-        },
-        {
-          "type": "FIELD",
-          "name": "content",
-          "content": {
-            "type": "REPEAT",
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "<cite>"
+          },
+          {
+            "type": "FIELD",
+            "name": "content",
             "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "PATTERN",
-                  "value": "[^<\\n]+"
-                },
-                {
-                  "type": "STRING",
-                  "value": "\n"
-                }
-              ]
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "PATTERN",
+                    "value": "[^<\\n]+"
+                  },
+                  {
+                    "type": "STRING",
+                    "value": "\n"
+                  }
+                ]
+              }
             }
+          },
+          {
+            "type": "STRING",
+            "value": "</cite>"
           }
-        },
-        {
-          "type": "STRING",
-          "value": "</cite>"
-        }
-      ]
+        ]
+      }
     },
     "html_comment": {
       "type": "SEQ",
