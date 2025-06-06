@@ -2,6 +2,7 @@
 #include <tree_sitter/alloc.h>
 #include <string.h>
 #include <wctype.h>
+#include <stdio.h>
 
 enum TokenType {
   TOOL_BLOCK_START,
