@@ -1,4 +1,5 @@
 #include <tree_sitter/parser.h>
+#include <tree_sitter/alloc.h>
 #include <string.h>
 #include <wctype.h>
 
@@ -22,13 +23,15 @@ static void skip(TSLexer *lexer) {
 }
 
 void *tree_sitter_greger_external_scanner_create() {
-  Scanner *scanner = calloc(1, sizeof(Scanner));
+  Scanner *scanner = ts_malloc(sizeof(Scanner));
+  scanner->in_tool_block = false;
+  scanner->tool_id[0] = '\0';
   return scanner;
 }
 
 void tree_sitter_greger_external_scanner_destroy(void *payload) {
   Scanner *scanner = (Scanner *)payload;
-  free(scanner);
+  ts_free(scanner);
 }
 
 unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
@@ -48,8 +51,12 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
   Scanner *scanner = (Scanner *)payload;
   if (length > 0 && buffer[0] == 1) {
     scanner->in_tool_block = true;
-    memcpy(scanner->tool_id, buffer + 1, length - 1);
-    scanner->tool_id[length - 1] = '\0';
+    if (length > 1) {
+      memcpy(scanner->tool_id, buffer + 1, length - 1);
+      scanner->tool_id[length - 1] = '\0';
+    } else {
+      scanner->tool_id[0] = '\0';
+    }
   } else {
     scanner->in_tool_block = false;
     scanner->tool_id[0] = '\0';
