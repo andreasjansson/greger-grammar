@@ -176,11 +176,13 @@ module.exports = grammar({
     line_with_cite_tags: $ => prec(-2, seq(
       repeat1(choice(
         $.cite_tag,
-        /[^#\n<]+/,  // Text that doesn't start special chars
-        /<(?!cite>)/  // < that's not starting a cite tag
+        $.text_fragment
       )),
       "\n"
     )),
+
+    // Fragment of text that's not a cite tag
+    text_fragment: $ => /[^#\n<]+/,
 
     cite_tag: $ => seq(
       "<cite>",
