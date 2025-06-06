@@ -1,220 +1,184 @@
+// Token definitions for complex patterns
+const SECTION_HEADER = token(choice(
+  '## USER:',
+  '## SYSTEM:',
+  '## ASSISTANT:',
+  '## THINKING:',
+  '## TOOL USE:',
+  '## TOOL RESULT:',
+  '## SERVER TOOL USE:',
+  '## SERVER TOOL RESULT:',
+  '## CITATIONS:'
+));
+
+const CODE_BLOCK = token(seq(
+  '```',
+  optional(/[^\n]*/), // language
+  /\n/,
+  repeat(choice(
+    /[^`\n]+/,
+    /`[^`]/,
+    /``[^`]/,
+    /\n/
+  )),
+  '```'
+));
+
+const HTML_COMMENT = token(seq(
+  '<!--',
+  repeat(choice(
+    /[^-]+/,
+    /-[^-]/,
+    /--[^>]/
+  )),
+  '-->'
+));
+
+const TOOL_TAG_OPEN = token(seq('<tool.', /[^\s>]+/, '>'));
+const TOOL_TAG_CLOSE = token(seq('</tool.', /[^\s>]+/, '>'));
+
+const INCLUDE_TAG = token(seq(
+  '<include',
+  optional(seq(/\s+/, 'code')),
+  '>',
+  /[^<\n]+/,
+  '</include>'
+));
+
+const SAFE_SHELL_COMMANDS_OPEN = token('<safe-shell-commands>');
+const SAFE_SHELL_COMMANDS_CLOSE = token('</safe-shell-commands>');
+
+const CITE_OPEN = token('<cite>');
+const CITE_CLOSE = token('</cite>');
+
+const TOOL_NAME_LINE = token(seq('Name:', /\s+/, /[^\s\n]+/));
+const TOOL_ID_LINE = token(seq('ID:', /\s+/, /[^\s\n]+/));
+const TOOL_PARAMETER_HEADER = token(seq('###', /\s+/, /[^\s\n]+/));
+
 module.exports = grammar({
   name: 'greger',
 
   extras: $ => [
-    /[ \t\r]/
-  ],
-
-  externals: $ => [
-    $._section_end,
-    $._text_content
+    /\s/
   ],
 
   rules: {
-    document: $ => seq(
-      optional($.untagged_content),
-      repeat($.section)
-    ),
-
-    untagged_content: $ => repeat1(choice(
-      $.text_line,
-      $.code_block,
-      $.html_comment,
-      /\n/
+    document: $ => repeat(choice(
+      $.section,
+      $.content_block,
+      $.untagged_text
     )),
 
-    section: $ => choice(
-      $.user_section,
-      $.system_section,
-      $.assistant_section,
-      $.thinking_section,
-      $.tool_use_section,
-      $.tool_result_section,
-      $.server_tool_use_section,
-      $.server_tool_result_section,
-      $.citations_section
+    section: $ => seq(
+      field('header', $.section_header),
+      optional(field('content', $.section_content))
     ),
 
-    user_section: $ => seq(
-      '## USER:',
-      /\n/,
-      optional($.section_content)
+    section_header: $ => choice(
+      $.user_header,
+      $.system_header,
+      $.assistant_header,
+      $.thinking_header,
+      $.tool_use_header,
+      $.tool_result_header,
+      $.server_tool_use_header,
+      $.server_tool_result_header,
+      $.citations_header
     ),
 
-    system_section: $ => seq(
-      '## SYSTEM:',
-      /\n/,
-      optional($.section_content)
-    ),
-
-    assistant_section: $ => seq(
-      '## ASSISTANT:',
-      /\n/,
-      optional($.section_content)
-    ),
-
-    thinking_section: $ => seq(
-      '## THINKING:',
-      /\n/,
-      optional($.section_content)
-    ),
-
-    citations_section: $ => seq(
-      '## CITATIONS:',
-      /\n/,
-      optional($.section_content)
-    ),
-
-    tool_use_section: $ => seq(
-      '## TOOL USE:',
-      /\n/,
-      optional($.tool_use_content)
-    ),
-
-    tool_result_section: $ => seq(
-      '## TOOL RESULT:',
-      /\n/,
-      optional($.tool_result_content)
-    ),
-
-    server_tool_use_section: $ => seq(
-      '## SERVER TOOL USE:',
-      /\n/,
-      optional($.tool_use_content)
-    ),
-
-    server_tool_result_section: $ => seq(
-      '## SERVER TOOL RESULT:',
-      /\n/,
-      optional($.tool_result_content)
-    ),
+    user_header: $ => '## USER:',
+    system_header: $ => '## SYSTEM:',
+    assistant_header: $ => '## ASSISTANT:',
+    thinking_header: $ => '## THINKING:',
+    tool_use_header: $ => '## TOOL USE:',
+    tool_result_header: $ => '## TOOL RESULT:',
+    server_tool_use_header: $ => '## SERVER TOOL USE:',
+    server_tool_result_header: $ => '## SERVER TOOL RESULT:',
+    citations_header: $ => '## CITATIONS:',
 
     section_content: $ => repeat1(choice(
-      $.text_line,
+      $.content_block,
+      $.tool_element,
+      $.text_line
+    )),
+
+    content_block: $ => choice(
       $.code_block,
       $.html_comment,
       $.include_tag,
-      $.safe_shell_commands_tag,
-      /\n/
-    )),
+      $.safe_shell_commands_block,
+      $.cite_block
+    ),
 
-    tool_use_content: $ => repeat1(choice(
+    tool_element: $ => choice(
       $.tool_name_line,
       $.tool_id_line,
       $.tool_parameter,
-      $.text_line,
-      $.code_block,
-      $.html_comment,
-      /\n/
-    )),
-
-    tool_result_content: $ => repeat1(choice(
-      $.tool_id_line,
-      $.tool_output,
-      $.text_line,
-      $.code_block,
-      /\n/
-    )),
-
-    tool_name_line: $ => seq(
-      'Name:',
-      /[ \t]+/,
-      field('name', $.identifier),
-      /\n/
+      $.tool_output_block
     ),
 
-    tool_id_line: $ => seq(
-      'ID:',
-      /[ \t]+/,
-      field('id', $.identifier),
-      /\n/
+    code_block: $ => CODE_BLOCK,
+    html_comment: $ => HTML_COMMENT,
+    include_tag: $ => INCLUDE_TAG,
+
+    safe_shell_commands_block: $ => seq(
+      SAFE_SHELL_COMMANDS_OPEN,
+      repeat($.text_line),
+      SAFE_SHELL_COMMANDS_CLOSE
     ),
+
+    cite_block: $ => seq(
+      CITE_OPEN,
+      repeat(choice(
+        $.text_content,
+        $.inline_code
+      )),
+      CITE_CLOSE
+    ),
+
+    tool_name_line: $ => TOOL_NAME_LINE,
+    tool_id_line: $ => TOOL_ID_LINE,
 
     tool_parameter: $ => seq(
-      '###',
-      /[ \t]+/,
-      field('name', $.identifier),
-      /\n/,
-      optional($.parameter_value)
+      field('header', $.tool_parameter_header),
+      optional(field('value', $.tool_parameter_value))
     ),
 
-    parameter_value: $ => seq(
-      '<tool.',
-      field('id', $.identifier),
-      '>',
-      /\n/,
-      $._text_content,
-      '</tool.',
-      field('id', $.identifier),
-      '>',
-      /\n/
+    tool_parameter_header: $ => TOOL_PARAMETER_HEADER,
+
+    tool_parameter_value: $ => seq(
+      $.tool_tag_open,
+      repeat(choice(
+        $.text_line,
+        $.code_block
+      )),
+      $.tool_tag_close
     ),
 
-    tool_output: $ => seq(
-      '<tool.',
-      field('id', $.identifier),
-      '>',
-      /\n/,
-      $._text_content,
-      '</tool.',
-      field('id', $.identifier),
-      '>',
-      /\n/
+    tool_output_block: $ => seq(
+      $.tool_tag_open,
+      repeat(choice(
+        $.text_line,
+        $.code_block
+      )),
+      $.tool_tag_close
+    ),
+
+    tool_tag_open: $ => TOOL_TAG_OPEN,
+    tool_tag_close: $ => TOOL_TAG_CLOSE,
+
+    inline_code: $ => choice(
+      seq('`', /[^`\n]*/, '`'),
+      seq('``', /[^`\n]*/, '``')
     ),
 
     text_line: $ => seq(
-      $._text_content,
+      optional($.text_content),
       /\n/
     ),
 
-    code_block: $ => seq(
-      '```',
-      optional(field('language', $.identifier)),
-      /\n/,
-      repeat(choice(
-        $.code_line,
-        /\n/
-      )),
-      '```',
-      /\n/
-    ),
+    untagged_text: $ => $.text_line,
 
-    code_line: $ => seq(
-      /[^\n]*/,
-      /\n/
-    ),
-
-    html_comment: $ => seq(
-      '<!--',
-      repeat(choice(
-        /[^-]/,
-        /-[^-]/,
-        /--[^>]/
-      )),
-      '-->',
-      /\n/
-    ),
-
-    include_tag: $ => seq(
-      '<include',
-      optional(seq(/[ \t]+/, 'code')),
-      '>',
-      field('path', /[^<\n]+/),
-      '</include>',
-      /\n/
-    ),
-
-    safe_shell_commands_tag: $ => seq(
-      '<safe-shell-commands>',
-      /\n/,
-      repeat(seq(
-        /[^\n<]+/,
-        /\n/
-      )),
-      '</safe-shell-commands>',
-      /\n/
-    ),
-
-    identifier: $ => /[^\s\n]+/
+    text_content: $ => /[^\n]+/
   }
 });
