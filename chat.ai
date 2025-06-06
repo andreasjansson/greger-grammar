@@ -5635,4 +5635,98 @@ for direct use."
 Document greger-tree-sitter--extract-dialog function
 </tool.toolu_01TrBrb4upAoRjBj4iPbMBNC>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TrBrb4upAoRjBj4iPbMBNC -->
+## TOOL RESULT:
+
+ID: toolu_01TrBrb4upAoRjBj4iPbMBNC
+
+<tool.toolu_01TrBrb4upAoRjBj4iPbMBNC>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-dialog function
+</tool.toolu_01TrBrb4upAoRjBj4iPbMBNC>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MJJExe49xs2y1wmnW1UsMh
+
+### file-path
+
+<tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+greger-tree-sitter.el
+</tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+
+### original-content
+
+<tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+(defun greger-tree-sitter--reorder-assistant-blocks (blocks)
+  "Reorder assistant content BLOCKS to put server_tool_use first, then web_search_tool_result, then others."
+  (let ((server-tool-use '())
+        (web-search-tool-result '())
+        (other-blocks '()))
+
+    ;; Categorize blocks
+    (dolist (block blocks)
+      (let ((type (alist-get 'type block)))
+        (cond
+         ((equal type "server_tool_use")
+          (push block server-tool-use))
+         ((equal type "web_search_tool_result")
+          (push block web-search-tool-result))
+         (t
+          (push block other-blocks)))))
+
+    ;; Return in desired order: server_tool_use, web_search_tool_result, others
+    (append (nreverse server-tool-use)
+            (nreverse web-search-tool-result)
+            (nreverse other-blocks))))
+</tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+
+### new-content
+
+<tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+(defun greger-tree-sitter--reorder-assistant-blocks (blocks)
+  "Reorder assistant content BLOCKS to match expected greger format order.
+
+INPUT:
+  BLOCKS - A list of content block objects, each with a 'type field
+
+PROCESSING:
+  Categorizes blocks by type and reorders them to match the expected format:
+  1. server_tool_use blocks (tool calls made by assistant)
+  2. web_search_tool_result blocks (results from server tools) 
+  3. All other blocks (text, thinking, etc.) in original order
+
+OUTPUT:
+  Returns the same list of blocks but reordered. This ensures that tool
+  usage appears before tool results, which appears before response text,
+  matching the expected conversation flow.
+
+INTERNAL FUNCTION: Used during assistant message processing to ensure
+proper block ordering for compatibility with greger.el expectations."
+  (let ((server-tool-use '())
+        (web-search-tool-result '())
+        (other-blocks '()))
+
+    ;; Categorize blocks
+    (dolist (block blocks)
+      (let ((type (alist-get 'type block)))
+        (cond
+         ((equal type "server_tool_use")
+          (push block server-tool-use))
+         ((equal type "web_search_tool_result")
+          (push block web-search-tool-result))
+         (t
+          (push block other-blocks)))))
+
+    ;; Return in desired order: server_tool_use, web_search_tool_result, others
+    (append (nreverse server-tool-use)
+            (nreverse web-search-tool-result)
+            (nreverse other-blocks))))
+</tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+
+### git-commit-message
+
+<tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+Document greger-tree-sitter--reorder-assistant-blocks function
+</tool.toolu_01MJJExe49xs2y1wmnW1UsMh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MJJExe49xs2y1wmnW1UsMh -->

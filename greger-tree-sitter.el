@@ -123,7 +123,24 @@ for direct use."
     (nreverse messages)))
 
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
-  "Reorder assistant content BLOCKS to put server_tool_use first, then web_search_tool_result, then others."
+  "Reorder assistant content BLOCKS to match expected greger format order.
+
+INPUT:
+  BLOCKS - A list of content block objects, each with a 'type field
+
+PROCESSING:
+  Categorizes blocks by type and reorders them to match the expected format:
+  1. server_tool_use blocks (tool calls made by assistant)
+  2. web_search_tool_result blocks (results from server tools)
+  3. All other blocks (text, thinking, etc.) in original order
+
+OUTPUT:
+  Returns the same list of blocks but reordered. This ensures that tool
+  usage appears before tool results, which appears before response text,
+  matching the expected conversation flow.
+
+INTERNAL FUNCTION: Used during assistant message processing to ensure
+proper block ordering for compatibility with greger.el expectations."
   (let ((server-tool-use '())
         (web-search-tool-result '())
         (other-blocks '()))
