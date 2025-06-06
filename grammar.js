@@ -100,8 +100,8 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
-      $.line_with_cite,
-      $.text_line,
+      prec(1, $.line_with_cite),
+      prec(2, $.text_line),
       $.newline
     )),
 
