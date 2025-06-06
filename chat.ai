@@ -10185,4 +10185,149 @@ tool_result_block: $ => seq(
 Simplify tool result block - let scanner handle newlines
 </tool.toolu_01HUHHLmicfAjktKEEAJmQyf>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HUHHLmicfAjktKEEAJmQyf -->
+## TOOL RESULT:
+
+ID: toolu_01HUHHLmicfAjktKEEAJmQyf
+
+<tool.toolu_01HUHHLmicfAjktKEEAJmQyf>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify tool result block - let scanner handle newlines
+</tool.toolu_01HUHHLmicfAjktKEEAJmQyf>
+
+## ASSISTANT:
+
+Now let's test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0186ashJ8NciiHqMbwbWm6Mk
+
+### command
+
+<tool.toolu_0186ashJ8NciiHqMbwbWm6Mk>
+tree-sitter generate
+</tool.toolu_0186ashJ8NciiHqMbwbWm6Mk>
+
+## TOOL RESULT:
+
+ID: toolu_0186ashJ8NciiHqMbwbWm6Mk
+
+<tool.toolu_0186ashJ8NciiHqMbwbWm6Mk>
+Command executed successfully:
+(no output)
+</tool.toolu_0186ashJ8NciiHqMbwbWm6Mk>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Y8jvg6aT9mhGoFwUJEgjvE
+
+### command
+
+<tool.toolu_01Y8jvg6aT9mhGoFwUJEgjvE>
+tree-sitter parse test_complex.greger
+</tool.toolu_01Y8jvg6aT9mhGoFwUJEgjvE>
+
+## TOOL RESULT:
+
+ID: toolu_01Y8jvg6aT9mhGoFwUJEgjvE
+
+<tool.toolu_01Y8jvg6aT9mhGoFwUJEgjvE>
+Command failed with exit code 1: Warning: You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+(source_file [0, 0] - [26, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (tool_use_section [4, 0] - [15, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 15]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 13]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 17]
+          param_name: (identifier [9, 4] - [9, 8])
+          param_value: (tool_param_block [11, 0] - [13, 17]
+            (tool_block_start [11, 0] - [11, 16])
+            (ERROR [11, 16] - [12, 9]
+              (identifier [12, 0] - [12, 9]))
+            (tool_block_end [13, 0] - [13, 17])))
+        (newline [13, 17] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [23, 0]
+    (tool_result_section [15, 0] - [23, 0]
+      (tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [23, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 13]))
+        (tool_result_block [19, 0] - [21, 17]
+          (tool_block_start [19, 0] - [19, 16])
+          (ERROR [19, 16] - [20, 13]
+            (ERROR [20, 5] - [20, 6])
+            (ERROR [20, 12] - [20, 13]))
+          (tool_block_end [21, 0] - [21, 17]))
+        (newline [21, 17] - [22, 0])
+        (newline [22, 0] - [23, 0]))))
+  (section [23, 0] - [26, 0]
+    (assistant_section [23, 0] - [26, 0]
+      (assistant_header [23, 0] - [24, 0])
+      (section_content [24, 0] - [26, 0]
+        (newline [24, 0] - [25, 0])
+        (line [25, 0] - [26, 0])))))
+test_complex.greger	Parse:    1.02 ms	   261 bytes/ms	(ERROR [11, 16] - [12, 9])
+
+</tool.toolu_01Y8jvg6aT9mhGoFwUJEgjvE>
+
+## ASSISTANT:
+
+I can see the external scanner is working correctly - it's matching the tool blocks properly. The ERROR nodes are happening because the grammar expects only `tool_block_content` inside the blocks, but there are other tokens being parsed.
+
+The issue is that inside the tool blocks, Tree-sitter is trying to parse the content as regular tokens instead of just as content. I need to improve my scanner to consume all the content correctly.
+
+Let me create a simple test case first to verify the basic functionality:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01MaqLnuH3QaN732MsabWgTK
+
+### file-path
+
+<tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+./test_simple_tool.greger
+</tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+
+### contents
+
+<tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+## TOOL USE:
+
+Name: test-tool
+ID: tool_123
+
+### param
+
+<tool.tool_123>
+simple content
+</tool.tool_123>
+</tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+
+### git-commit-message
+
+<tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+Add simple tool test case
+</tool.toolu_01MaqLnuH3QaN732MsabWgTK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MaqLnuH3QaN732MsabWgTK -->
