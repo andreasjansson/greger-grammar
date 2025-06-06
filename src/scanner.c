@@ -2,7 +2,6 @@
 #include <tree_sitter/alloc.h>
 #include <string.h>
 #include <wctype.h>
-#include <stdio.h>
 
 enum TokenType {
   TOOL_BLOCK_START,
@@ -158,50 +157,13 @@ static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
   return false;
 }
 
-static bool is_matching_closing_tag(TSLexer *lexer, Scanner *scanner) {
-  if (!scanner->in_tool_block) return false;
-  if (lexer->lookahead != '<') return false;
-
-  // We need to check if this is exactly "</tool.{current_tool_id}>"
-  // without consuming any characters
-
-  // Create the expected closing tag
-  char expected[80];
-  snprintf(expected, sizeof(expected), "</tool.%s>", scanner->current_tool_id);
-
-  // Save lexer state
-  TSLexer saved_lexer = *lexer;
-
-  // Check each character of the expected closing tag
-  for (int i = 0; expected[i] != '\0'; i++) {
-    if (lexer->lookahead != expected[i]) {
-      *lexer = saved_lexer;
-      return false;
-    }
-    advance(lexer);
-  }
-
-  // If we got here, it matches
-  *lexer = saved_lexer;
-  return true;
-}
-
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
 
-  // Consume characters one by one until we find our matching closing tag
-  while (lexer->lookahead) {
-    // Check for the start of a potential closing tag
-    if (lexer->lookahead == '<') {
-      // Look ahead to see if this is our closing tag
-      if (is_matching_closing_tag(lexer, scanner)) {
-        // Stop here, let the closing tag be parsed separately
-        break;
-      }
-    }
-
+  // Simple approach: consume until we see '<'
+  while (lexer->lookahead && lexer->lookahead != '<') {
     advance(lexer);
     has_content = true;
   }
