@@ -6201,4 +6201,137 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-thinking-section function
 </tool.toolu_01CVPAVQu1Gz3zuyy7hBNnDY>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CVPAVQu1Gz3zuyy7hBNnDY -->
+## TOOL RESULT:
+
+ID: toolu_01CVPAVQu1Gz3zuyy7hBNnDY
+
+<tool.toolu_01CVPAVQu1Gz3zuyy7hBNnDY>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-thinking-section function
+</tool.toolu_01CVPAVQu1Gz3zuyy7hBNnDY>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013YePMik3VEAav2nYCPob8c
+
+### file-path
+
+<tool.toolu_013YePMik3VEAav2nYCPob8c>
+greger-tree-sitter.el
+</tool.toolu_013YePMik3VEAav2nYCPob8c>
+
+### original-content
+
+<tool.toolu_013YePMik3VEAav2nYCPob8c>
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use and return as assistant message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+
+    ;; Extract tool name, ID, and parameters
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_name_line")
+              (setq tool-name (treesit-node-text
+                               (treesit-node-child-by-field-name child "name"))))
+             ((equal (treesit-node-type child) "tool_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_parameter")
+              (let ((param-name (treesit-node-text
+                                 (treesit-node-child-by-field-name child "param_name")))
+                    (param-value (greger-tree-sitter--extract-tool-param-value child)))
+                (push (cons (intern param-name) param-value) parameters))))))))
+
+    `((role . "assistant")
+      (content . (((type . "tool_use")
+                   (id . ,tool-id)
+                   (name . ,tool-name)
+                   (input . ,(nreverse parameters))))))))
+</tool.toolu_013YePMik3VEAav2nYCPob8c>
+
+### new-content
+
+<tool.toolu_013YePMik3VEAav2nYCPob8c>
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use from a ## TOOL USE: section and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL USE: section
+
+PROCESSING:
+  1. Extracts tool name from \"Name: tool-name\" line
+  2. Extracts tool ID from \"ID: tool-id\" line  
+  3. Extracts parameters from \"### param-name\" sections with <tool.id>content</tool.id> blocks
+  4. Converts parameter names to symbols for the input alist
+
+OUTPUT:
+  Returns an assistant message object with a tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"tool_use\")
+                (id . \"tool-id\")  
+                (name . \"tool-name\")
+                (input . ((param1 . \"value1\") (param2 . \"value2\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## TOOL USE:
+  
+  Name: read-file
+  ID: toolu_123
+  
+  ### path
+  
+  <tool.toolu_123>
+  hello.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"tool_use\")
+                (id . \"toolu_123\")
+                (name . \"read-file\") 
+                (input . ((path . \"hello.txt\")))))))"
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+
+    ;; Extract tool name, ID, and parameters
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_name_line")
+              (setq tool-name (treesit-node-text
+                               (treesit-node-child-by-field-name child "name"))))
+             ((equal (treesit-node-type child) "tool_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_parameter")
+              (let ((param-name (treesit-node-text
+                                 (treesit-node-child-by-field-name child "param_name")))
+                    (param-value (greger-tree-sitter--extract-tool-param-value child)))
+                (push (cons (intern param-name) param-value) parameters))))))))
+
+    `((role . "assistant")
+      (content . (((type . "tool_use")
+                   (id . ,tool-id)
+                   (name . ,tool-name)
+                   (input . ,(nreverse parameters))))))))
+</tool.toolu_013YePMik3VEAav2nYCPob8c>
+
+### git-commit-message
+
+<tool.toolu_013YePMik3VEAav2nYCPob8c>
+Document greger-tree-sitter--extract-tool-use-section function
+</tool.toolu_013YePMik3VEAav2nYCPob8c>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013YePMik3VEAav2nYCPob8c -->

@@ -366,7 +366,43 @@ EXAMPLE OUTPUT:
                                   ""))))))))
 
 (defun greger-tree-sitter--extract-tool-use-section (section-node)
-  "Extract tool use and return as assistant message."
+  "Extract tool use from a ## TOOL USE: section and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL USE: section
+
+PROCESSING:
+  1. Extracts tool name from \"Name: tool-name\" line
+  2. Extracts tool ID from \"ID: tool-id\" line
+  3. Extracts parameters from \"### param-name\" sections with <tool.id>content</tool.id> blocks
+  4. Converts parameter names to symbols for the input alist
+
+OUTPUT:
+  Returns an assistant message object with a tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"tool_use\")
+                (id . \"tool-id\")
+                (name . \"tool-name\")
+                (input . ((param1 . \"value1\") (param2 . \"value2\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## TOOL USE:
+
+  Name: read-file
+  ID: toolu_123
+
+  ### path
+
+  <tool.toolu_123>
+  hello.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"tool_use\")
+                (id . \"toolu_123\")
+                (name . \"read-file\")
+                (input . ((path . \"hello.txt\")))))))"
   (let* ((tool-section (treesit-node-child section-node 0))
          (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
          (tool-name nil)
