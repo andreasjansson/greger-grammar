@@ -318,7 +318,7 @@ module.exports = grammar({
 
     // Basic patterns
     line: $ => seq(
-      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      /[^\n#]+/,  // Any line that doesn't start with # (headers)
       "\n"
     ),
 

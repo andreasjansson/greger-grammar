@@ -5834,4 +5834,53 @@ grammar.js
 Fix content parsing precedence conflicts
 </tool.toolu_01NXkBaHDyLhPmZhSfJLrPDK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NXkBaHDyLhPmZhSfJLrPDK -->
+## TOOL RESULT:
+
+ID: toolu_01NXkBaHDyLhPmZhSfJLrPDK
+
+<tool.toolu_01NXkBaHDyLhPmZhSfJLrPDK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix content parsing precedence conflicts
+</tool.toolu_01NXkBaHDyLhPmZhSfJLrPDK>
+
+## ASSISTANT:
+
+Now let me fix the `line` rule to be less restrictive:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HYJYahEL5aZ2YNp9xmBPRn
+
+### file-path
+
+<tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+grammar.js
+</tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+
+### original-content
+
+<tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+// Basic patterns
+    line: $ => seq(
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
+      "\n"
+    ),
+</tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+
+### new-content
+
+<tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+// Basic patterns
+    line: $ => seq(
+      /[^\n#]+/,  // Any line that doesn't start with # (headers)
+      "\n"
+    ),
+</tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+
+### git-commit-message
+
+<tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+Simplify line rule to avoid conflicts
+</tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HYJYahEL5aZ2YNp9xmBPRn -->
