@@ -658,7 +658,21 @@ looking for specific types of child nodes."
     found))
 
 (defun greger-tree-sitter--get-all-sections (root-node)
-  "Get all section nodes from ROOT-NODE."
+  "Extract all section nodes from ROOT-NODE in document order.
+
+INPUT:
+  ROOT-NODE - Tree-sitter root node (typically a \"source_file\" node)
+
+PROCESSING:
+  Iterates through all direct children of the root node and collects
+  those with type \"section\". Maintains document order.
+
+OUTPUT:
+  Returns a list of section nodes in the order they appear in the document.
+  Each section corresponds to a ## HEADER: block in the greger format.
+
+INTERNAL FUNCTION: Similar to greger-tree-sitter--get-sections but used
+in the main parsing flow for multi-section documents."
   (let ((sections '())
         (child-count (treesit-node-child-count root-node)))
     (dotimes (i child-count)

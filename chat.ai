@@ -7503,4 +7503,71 @@ looking for specific types of child nodes."
 Document greger-tree-sitter--find-child-by-type function
 </tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SSmoKDJWtuxYhQvHjvjP9o -->
+## TOOL RESULT:
+
+ID: toolu_01SSmoKDJWtuxYhQvHjvjP9o
+
+<tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--find-child-by-type function
+</tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Ht2CUt3CxHa2FV13hHpHWJ
+
+### file-path
+
+<tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+greger-tree-sitter.el
+</tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+
+### original-content
+
+<tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+</tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+
+### new-content
+
+<tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Extract all section nodes from ROOT-NODE in document order.
+
+INPUT:
+  ROOT-NODE - Tree-sitter root node (typically a \"source_file\" node)
+
+PROCESSING:
+  Iterates through all direct children of the root node and collects
+  those with type \"section\". Maintains document order.
+
+OUTPUT:
+  Returns a list of section nodes in the order they appear in the document.
+  Each section corresponds to a ## HEADER: block in the greger format.
+
+INTERNAL FUNCTION: Similar to greger-tree-sitter--get-sections but used
+in the main parsing flow for multi-section documents."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+</tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+
+### git-commit-message
+
+<tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+Document greger-tree-sitter--get-all-sections function
+</tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ht2CUt3CxHa2FV13hHpHWJ -->
