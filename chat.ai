@@ -5883,4 +5883,109 @@ grammar.js
 Simplify line rule to avoid conflicts
 </tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HYJYahEL5aZ2YNp9xmBPRn -->
+## TOOL RESULT:
+
+ID: toolu_01HYJYahEL5aZ2YNp9xmBPRn
+
+<tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify line rule to avoid conflicts
+</tool.toolu_01HYJYahEL5aZ2YNp9xmBPRn>
+
+## ASSISTANT:
+
+Let me regenerate the parser and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011fu5PJxeH5at4Wf2crGhBe
+
+### command
+
+<tool.toolu_011fu5PJxeH5at4Wf2crGhBe>
+tree-sitter generate
+</tool.toolu_011fu5PJxeH5at4Wf2crGhBe>
+
+## TOOL RESULT:
+
+ID: toolu_011fu5PJxeH5at4Wf2crGhBe
+
+<tool.toolu_011fu5PJxeH5at4Wf2crGhBe>
+Command executed successfully:
+(no output)
+</tool.toolu_011fu5PJxeH5at4Wf2crGhBe>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VgV2yvX7a1g2oBGEXLXeXN
+
+### command
+
+<tool.toolu_01VgV2yvX7a1g2oBGEXLXeXN>
+tree-sitter parse test_simple.greger
+</tool.toolu_01VgV2yvX7a1g2oBGEXLXeXN>
+
+## TOOL RESULT:
+
+ID: toolu_01VgV2yvX7a1g2oBGEXLXeXN
+
+<tool.toolu_01VgV2yvX7a1g2oBGEXLXeXN>
+Command failed with exit code 1: (source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 19])
+        (newline [2, 19] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (ERROR [6, 0] - [6, 35])
+        (newline [6, 35] - [7, 0])))))
+test_simple.greger	Parse:    1.24 ms	    66 bytes/ms	(ERROR [2, 0] - [2, 19])
+
+</tool.toolu_01VgV2yvX7a1g2oBGEXLXeXN>
+
+## ASSISTANT:
+
+Still getting errors. Let me look at the conflicts in the grammar. The issue might be that the line rule still conflicts with other rules. Let me add better conflict resolution:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0153H3L89oEMJfLgwrVxwvM4
+
+### file-path
+
+<tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+grammar.js
+</tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+
+### original-content
+
+<tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+conflicts: $ => [
+    // Add conflicts here if needed
+  ],
+</tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+
+### new-content
+
+<tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+conflicts: $ => [
+    [$.line, $.line_with_cite],
+  ],
+</tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+
+### git-commit-message
+
+<tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+Add conflict resolution for line parsing
+</tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0153H3L89oEMJfLgwrVxwvM4 -->
