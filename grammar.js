@@ -69,10 +69,10 @@ module.exports = grammar({
       $.untagged_text
     )),
 
-    section: $ => seq(
+    section: $ => prec.left(seq(
       field('header', $.section_header),
       optional(field('content', $.section_content))
-    ),
+    )),
 
     section_header: $ => choice(
       $.user_header,
