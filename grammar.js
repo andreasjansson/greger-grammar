@@ -106,8 +106,8 @@ module.exports = grammar({
       $.inline_code,
       $.include_tag,
       $.html_comment,
-      $.line_with_cite,
-      $.line,
+      prec(2, $.line_with_cite),
+      prec(1, $.line),
       $.newline
     )),
 

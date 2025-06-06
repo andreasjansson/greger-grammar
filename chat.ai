@@ -5988,4 +5988,79 @@ conflicts: $ => [
 Add conflict resolution for line parsing
 </tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0153H3L89oEMJfLgwrVxwvM4 -->
+## TOOL RESULT:
+
+ID: toolu_0153H3L89oEMJfLgwrVxwvM4
+
+<tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflict resolution for line parsing
+</tool.toolu_0153H3L89oEMJfLgwrVxwvM4>
+
+## ASSISTANT:
+
+Let me also simplify the content rule and use precedence properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01H1EUj1LqgAVobodYsW8KaX
+
+### file-path
+
+<tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+grammar.js
+</tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+
+### original-content
+
+<tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+// Content types
+    content: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_cite,
+      $.line,
+      $.newline
+    )),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+      "\n"
+    ),
+</tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+
+### new-content
+
+<tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+// Content types
+    content: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      prec(2, $.line_with_cite),
+      prec(1, $.line),
+      $.newline
+    )),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+      "\n"
+    ),
+</tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+
+### git-commit-message
+
+<tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+Add precedence to resolve line parsing conflicts
+</tool.toolu_01H1EUj1LqgAVobodYsW8KaX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01H1EUj1LqgAVobodYsW8KaX -->
