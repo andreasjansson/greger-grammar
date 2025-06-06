@@ -20,6 +20,10 @@ module.exports = grammar({
     $.tool_block_content,
   ],
 
+  conflicts: $ => [
+    [$.content, $.content_with_citations],
+  ],
+
   rules: {
     source_file: $ => seq(
       optional($.content),
