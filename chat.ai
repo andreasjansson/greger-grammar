@@ -6937,4 +6937,210 @@ grammar.js
 Simplify section choices - remove complex citation handling
 </tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RqUub2yRbDJVXHN4n97VUV -->
+## TOOL RESULT:
+
+ID: toolu_01RqUub2yRbDJVXHN4n97VUV
+
+<tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify section choices - remove complex citation handling
+</tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PU8pKTt72Zt4E4CQrhUZ8j
+
+### file-path
+
+<tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+grammar.js
+</tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+
+### original-content
+
+<tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+// Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content))
+    )),
+
+    // Citations that appear without preceding cite tags  
+    citations_without_text: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+      "\n",
+      repeat($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    )),
+</tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+
+### new-content
+
+<tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+</tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+
+### git-commit-message
+
+<tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+Replace complex citation rules with simple citations_section
+</tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+
+## TOOL RESULT:
+
+ID: toolu_01PU8pKTt72Zt4E4CQrhUZ8j
+
+<tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/grammar.js -- Try again!
+</tool.toolu_01PU8pKTt72Zt4E4CQrhUZ8j>
+
+## ASSISTANT:
+
+Let me check the current state of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012GyQ47TyCGUWmfzhewXHPR
+
+### path
+
+<tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+grammar.js
+</tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+
+### start-line
+
+<tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+45
+</tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+
+### end-line
+
+<tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+90
+</tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+
+## TOOL RESULT:
+
+ID: toolu_012GyQ47TyCGUWmfzhewXHPR
+
+<tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+    user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    tool_use_section: $ => seq(
+      $.tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    tool_result_section: $ => seq(
+      $.tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+</tool.toolu_012GyQ47TyCGUWmfzhewXHPR>
+
+## ASSISTANT:
+
+I see the issue - some rules were removed but not replaced. Let me add back the citations_section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018UNMEmpeWRuCkoiXsQ3frV
+
+### file-path
+
+<tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+grammar.js
+</tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+
+### original-content
+
+<tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+</tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+
+### new-content
+
+<tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+</tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+
+### git-commit-message
+
+<tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+Add back citations_section rule
+</tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018UNMEmpeWRuCkoiXsQ3frV -->
