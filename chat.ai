@@ -8975,4 +8975,139 @@ grammar.js
 Add precedence to content choices to prefer text_line
 </tool.toolu_01VjZa8nVNNzhk5SzNYfMMjh>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VjZa8nVNNzhk5SzNYfMMjh -->
+## TOOL RESULT:
+
+ID: toolu_01VjZa8nVNNzhk5SzNYfMMjh
+
+<tool.toolu_01VjZa8nVNNzhk5SzNYfMMjh>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to content choices to prefer text_line
+</tool.toolu_01VjZa8nVNNzhk5SzNYfMMjh>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Ab295hn9u3HSjXUVDycKD2
+
+### command
+
+<tool.toolu_01Ab295hn9u3HSjXUVDycKD2>
+tree-sitter generate
+</tool.toolu_01Ab295hn9u3HSjXUVDycKD2>
+
+## TOOL RESULT:
+
+ID: toolu_01Ab295hn9u3HSjXUVDycKD2
+
+<tool.toolu_01Ab295hn9u3HSjXUVDycKD2>
+Command executed successfully:
+Warning: unnecessary conflicts
+  `line_with_cite`, `text_line`
+
+</tool.toolu_01Ab295hn9u3HSjXUVDycKD2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SbTQ3yPvoHLUnq2cFQJDB5
+
+### command
+
+<tool.toolu_01SbTQ3yPvoHLUnq2cFQJDB5>
+tree-sitter parse test_simple.greger
+</tool.toolu_01SbTQ3yPvoHLUnq2cFQJDB5>
+
+## TOOL RESULT:
+
+ID: toolu_01SbTQ3yPvoHLUnq2cFQJDB5
+
+<tool.toolu_01SbTQ3yPvoHLUnq2cFQJDB5>
+Command failed with exit code 1: (source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 19])
+        (newline [2, 19] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (ERROR [6, 0] - [6, 35])
+        (newline [6, 35] - [7, 0])))))
+test_simple.greger	Parse:    2.31 ms	    35 bytes/ms	(ERROR [2, 0] - [2, 19])
+
+</tool.toolu_01SbTQ3yPvoHLUnq2cFQJDB5>
+
+## ASSISTANT:
+
+Let me try a different approach. Let me remove the line_with_cite for now and just focus on getting basic text parsing working:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YRdvu4MFpbGxjUygZ6paQt
+
+### file-path
+
+<tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+grammar.js
+</tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+
+### original-content
+
+<tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+// Content types
+    content: $ => repeat1(choice(
+      prec(1, $.line_with_cite),
+      prec(2, $.text_line),
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      "\n"
+    ),
+
+    // Simple text line - any non-empty line that doesn't start with ##
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+
+### new-content
+
+<tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    // Simple text line - any non-empty line
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+</tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+
+### git-commit-message
+
+<tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+Temporarily remove cite handling to fix basic text parsing
+</tool.toolu_01YRdvu4MFpbGxjUygZ6paQt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YRdvu4MFpbGxjUygZ6paQt -->
