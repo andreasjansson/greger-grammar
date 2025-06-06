@@ -654,7 +654,37 @@ EXAMPLE OUTPUT:
     (nreverse sections)))
 
 (defun greger-tree-sitter--process-sections-with-citations (sections)
-  "Process SECTIONS and handle citation associations."
+  "Process conversation SECTIONS and handle citation associations.
+
+INPUT:
+  SECTIONS - List of tree-sitter section nodes representing the parsed conversation
+
+PROCESSING:
+  This is the core function that handles the complex citation workflow:
+
+  1. Iterates through sections in order
+  2. Groups assistant-related sections together (assistant, thinking, tool_use, etc.)
+  3. When a ## CITATIONS: section is encountered, associates those citations
+     with any <cite> tags in the pending assistant content blocks
+  4. Flushes assistant blocks when non-assistant sections are encountered
+  5. Reorders final assistant blocks to put tools first, then text
+
+  Section handling:
+  - user_section, system_section → flush assistant blocks, add as separate message
+  - assistant_section, thinking_section, tool_use_section, server_tool_use_section,
+    server_tool_result_section → accumulate as assistant content blocks
+  - citations_section → associate with pending assistant blocks containing <cite> tags
+  - tool_result_section → flush assistant blocks, add as user message
+
+OUTPUT:
+  Returns a list of complete message objects where:
+  - Each message has role and content fields
+  - Assistant messages have structured content blocks
+  - Citations are properly linked to cited text blocks
+  - Tool sequences are properly ordered
+
+INTERNAL FUNCTION: This implements the complex citation parsing logic that
+makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
   (let ((messages '())
         (current-assistant-blocks '())
         (i 0))
