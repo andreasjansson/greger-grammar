@@ -9067,4 +9067,323 @@ tool_result_block: $ => seq(
 Simplify tool result block structure
 </tool.toolu_016jz3j3jtZCQeMsi1AhxueD>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016jz3j3jtZCQeMsi1AhxueD -->
+## TOOL RESULT:
+
+ID: toolu_016jz3j3jtZCQeMsi1AhxueD
+
+<tool.toolu_016jz3j3jtZCQeMsi1AhxueD>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify tool result block structure
+</tool.toolu_016jz3j3jtZCQeMsi1AhxueD>
+
+## ASSISTANT:
+
+Now I need to update the scanner to handle multi-line content properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01C2ese2pH73d48b7sdjRyZz
+
+### file-path
+
+<tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+./src/scanner.c
+</tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+
+### original-content
+
+<tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Skip any leading whitespace on the same line
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    skip(lexer);
+  }
+
+  // If we hit a newline immediately, don't consume it as content
+  if (lexer->lookahead == '\n') {
+    return false;
+  }
+
+  // Scan until we hit a potential end tag or newline
+  bool has_content = false;
+  while (lexer->lookahead && lexer->lookahead != '\n') {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+      
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+
+### new-content
+
+<tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+  
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+      
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+
+### git-commit-message
+
+<tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+Update tool content scanner to handle multi-line content
+</tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+
+## TOOL RESULT:
+
+ID: toolu_01C2ese2pH73d48b7sdjRyZz
+
+<tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01C2ese2pH73d48b7sdjRyZz>
+
+## ASSISTANT:
+
+Let me check what the scanner file looks like now:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RV3rJE9KarLZFbg5tKnP5x
+
+### path
+
+<tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+./src/scanner.c
+</tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+
+### start-line
+
+<tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+145
+</tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+
+### end-line
+
+<tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+185
+</tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+
+## TOOL RESULT:
+
+ID: toolu_01RV3rJE9KarLZFbg5tKnP5x
+
+<tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+
+  return false;
+}
+
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Skip any leading whitespace on the same line
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    skip(lexer);
+  }
+
+  // If we hit a newline immediately, don't consume it as content
+  if (lexer->lookahead == '\n') {
+    return false;
+  }
+
+  // Scan until we hit a potential end tag or newline
+  bool has_content = false;
+  while (lexer->lookahead && lexer->lookahead != '\n') {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+</tool.toolu_01RV3rJE9KarLZFbg5tKnP5x>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TNqceiBCfDXbufdgTXWGFh
+
+### file-path
+
+<tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+./src/scanner.c
+</tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+
+### original-content
+
+<tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Skip any leading whitespace on the same line
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    skip(lexer);
+  }
+
+  // If we hit a newline immediately, don't consume it as content
+  if (lexer->lookahead == '\n') {
+    return false;
+  }
+
+  // Scan until we hit a potential end tag or newline
+  bool has_content = false;
+  while (lexer->lookahead && lexer->lookahead != '\n') {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+
+### new-content
+
+<tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+  
+  // Scan everything until we find the matching closing tag
+  while (lexer->lookahead) {
+    // Check if we're at the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+      
+      if (scan_tool_end(lexer, scanner)) {
+        // This is our closing tag, don't consume it
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        break;
+      } else {
+        // Not our closing tag, restore and continue
+        *lexer = saved_lexer;
+        *scanner = saved_scanner;
+        advance(lexer);
+        has_content = true;
+      }
+    } else {
+      advance(lexer);
+      has_content = true;
+    }
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+
+### git-commit-message
+
+<tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+Update tool content scanner to handle multi-line content
+</tool.toolu_01TNqceiBCfDXbufdgTXWGFh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TNqceiBCfDXbufdgTXWGFh -->
