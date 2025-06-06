@@ -106,7 +106,7 @@ module.exports = grammar({
     // Simple text line - any non-empty line
     text_line: $ => seq(
       /[^\n]+/, // Any non-empty line
-      "\n"
+      optional("\n") // Newline is optional (for end-of-file)
     ),
 
     system_content: $ => repeat1(choice(
