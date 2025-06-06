@@ -9196,4 +9196,704 @@ conflicts: $ => [
 Remove conflicts since line_with_cite is removed
 </tool.toolu_013Ur2CUCV2w4n8oJ3hKd9Bk>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013Ur2CUCV2w4n8oJ3hKd9Bk -->
+## TOOL RESULT:
+
+ID: toolu_013Ur2CUCV2w4n8oJ3hKd9Bk
+
+<tool.toolu_013Ur2CUCV2w4n8oJ3hKd9Bk>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove conflicts since line_with_cite is removed
+</tool.toolu_013Ur2CUCV2w4n8oJ3hKd9Bk>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YDAdr4vvrj4QgrWTL2NLeX
+
+### command
+
+<tool.toolu_01YDAdr4vvrj4QgrWTL2NLeX>
+tree-sitter generate
+</tool.toolu_01YDAdr4vvrj4QgrWTL2NLeX>
+
+## TOOL RESULT:
+
+ID: toolu_01YDAdr4vvrj4QgrWTL2NLeX
+
+<tool.toolu_01YDAdr4vvrj4QgrWTL2NLeX>
+Command executed successfully:
+(no output)
+</tool.toolu_01YDAdr4vvrj4QgrWTL2NLeX>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CATXDPN9T5LvZCx73ZPyzr
+
+### command
+
+<tool.toolu_01CATXDPN9T5LvZCx73ZPyzr>
+tree-sitter parse test_simple.greger
+</tool.toolu_01CATXDPN9T5LvZCx73ZPyzr>
+
+## TOOL RESULT:
+
+ID: toolu_01CATXDPN9T5LvZCx73ZPyzr
+
+<tool.toolu_01CATXDPN9T5LvZCx73ZPyzr>
+Command executed successfully:
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (text_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (text_line [6, 0] - [7, 0])))))
+
+</tool.toolu_01CATXDPN9T5LvZCx73ZPyzr>
+
+## ASSISTANT:
+
+Great! Basic text parsing is now working. Let me run the simple test to see if the conversion is working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QA32QQACWSrxLBuPXAgu7S
+
+### command
+
+<tool.toolu_01QA32QQACWSrxLBuPXAgu7S>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01QA32QQACWSrxLBuPXAgu7S>
+
+## TOOL RESULT:
+
+ID: toolu_01QA32QQACWSrxLBuPXAgu7S
+
+<tool.toolu_01QA32QQACWSrxLBuPXAgu7S>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Actual:
+(((role . "user")
+  (content . "")))
+
+
+=== Testing: system-and-user ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "What's the weather like?")))
+
+
+Actual:
+(((role . "user")
+  (content . ""))
+ ((role . "system")
+  (content . "You are a helpful assistant.")))
+
+
+=== Testing: simple-conversation ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content . "Hi there! How can I help you today?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Hello")))
+
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))))
+ ((role . "user")
+  (content . "What's 2+2?")))
+
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content . "Read the file hello.txt")))
+
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content . "Search for python files containing 'def main'")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))))
+ ((role . "user")
+  (content . "who's the current king of sweden?")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content . "List files and read the first one")))
+
+
+=== Testing: tool-use-multiline-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content . "I've created a new Python script file with a basic Hello World program.")))
+
+
+Actual:
+(((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content . "Write a new Python file")))
+
+
+=== Testing: thinking-only ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "I need to consider all the options carefully before responding.")))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . ""))))
+ ((role . "user")
+  (content . "Let me think about this")))
+
+
+=== Testing: tool-use-only ===
+❌ FAILED (0.023s)
+
+Expected:
+(((role . "user")
+  (content . "Read a file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt"))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt")))))
+ ((role . "user")
+  (content . "Read a file")))
+
+
+=== Testing: citations-basic ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))))
+ ((role . "user")
+  (content . "When was Claude Shannon born?")))
+
+
+=== Testing: citations-after-tool-result ===
+❌ FAILED (0.003s)
+
+Expected:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789"))))))
+ ((role . "user")
+  (content . "What's the current weather?")))
+
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))))
+ ((role . "user")
+  (content . "Tell me about Einstein and Newton")))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 0
+Failed: 14
+
+❌ FAILED TESTS:
+  - simple-user-message
+  - system-and-user
+  - simple-conversation
+  - thinking-section
+  - tool-use-single-param
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - tool-use-multiline-params
+  - thinking-only
+  - tool-use-only
+  - citations-basic
+  - citations-after-tool-result
+  - citations-multiple
+
+</tool.toolu_01QA32QQACWSrxLBuPXAgu7S>
+
+## ASSISTANT:
+
+Good progress! I can see that:
+
+1. **Message ordering is still reversed** - this is the main issue
+2. **Content extraction is empty** for some cases - the first test shows content is empty instead of "Hello, how are you?"
+3. **Numeric values** - tool parameters like `context-lines` should be 2 not "2"
+
+Let me look at the issue with content extraction first. The simple-user-message test shows content is empty, which suggests the `greger-tree-sitter--extract-content` function isn't working properly. Let me check what the tree looks like:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01X4VWjgosiNrjkGjik6iAFk
+
+### path
+
+<tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+debug_simple.greger
+</tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+
+### contents
+
+<tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+## USER:
+
+Hello, how are you?
+</tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+
+### git-commit-message
+
+<tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+Add debug file for simple case
+</tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+
+## TOOL RESULT:
+
+ID: toolu_01X4VWjgosiNrjkGjik6iAFk
+
+<tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+Error executing tool: Required parameter missing: file-path
+</tool.toolu_01X4VWjgosiNrjkGjik6iAFk>
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_0122M7tSDCDZZySk4cWUhVUC
+
+### file-path
+
+<tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+debug_simple.greger
+</tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+
+### contents
+
+<tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+## USER:
+
+Hello, how are you?
+</tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+
+### git-commit-message
+
+<tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+Add debug file for simple case
+</tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0122M7tSDCDZZySk4cWUhVUC -->
