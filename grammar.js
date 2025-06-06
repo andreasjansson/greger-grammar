@@ -143,6 +143,11 @@ module.exports = grammar({
       $.newline
     )),
 
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+
 
 
 
