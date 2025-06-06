@@ -4618,4 +4618,161 @@ Encrypted index: ghi789")
 Update test-citations.el with all citation tests and multiline string format
 </tool.toolu_01ULeMQkowSPUc2bXgyTg8WC>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ULeMQkowSPUc2bXgyTg8WC -->
+## TOOL RESULT:
+
+ID: toolu_01ULeMQkowSPUc2bXgyTg8WC
+
+<tool.toolu_01ULeMQkowSPUc2bXgyTg8WC>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/test-citations.el with 10226 characters. Successfully staged 2 file(s) and committed with message: Update test-citations.el with all citation tests and multiline string format
+</tool.toolu_01ULeMQkowSPUc2bXgyTg8WC>
+
+## ASSISTANT:
+
+Now let's run the comprehensive citation tests to see how they perform:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012JY1uUjwSA9WFZDbkqSjQM
+
+### command
+
+<tool.toolu_012JY1uUjwSA9WFZDbkqSjQM>
+emacs --batch -l test-citations.el
+</tool.toolu_012JY1uUjwSA9WFZDbkqSjQM>
+
+## TOOL RESULT:
+
+ID: toolu_012JY1uUjwSA9WFZDbkqSjQM
+
+<tool.toolu_012JY1uUjwSA9WFZDbkqSjQM>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+✅ Citations-basic test PASSED!
+
+=== Testing citations-after-tool-result ===
+✅ Citations-after-tool-result test PASSED!
+
+=== Testing citations-multiple ===
+✅ Citations-multiple test PASSED!
+
+=== All citation tests completed ===
+
+</tool.toolu_012JY1uUjwSA9WFZDbkqSjQM>
+
+## ASSISTANT:
+
+Excellent! All three citation tests are passing. Let me also run a quick test to see what the actual output looks like for the multiple citations test to make sure it's handling the complex case correctly:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01RDxqJjh1ZhB5wszYygG18e
+
+### file-path
+
+<tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+debug-multiple-citations.el
+</tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+
+### contents
+
+<tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+;;; debug-multiple-citations.el --- Debug multiple citations output -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-multiple-citations ()
+  "Debug the multiple citations case to see detailed output."
+  (let ((markdown "## USER:
+
+Tell me about Einstein and Newton
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_789
+
+### query
+
+<tool.srvtoolu_789>
+Einstein Newton physics
+</tool.srvtoolu_789>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_789
+
+<tool.srvtoolu_789>
+Search results about Einstein and Newton
+</tool.srvtoolu_789>
+
+## ASSISTANT:
+
+<cite>Einstein developed the theory of relativity</cite>
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while <cite>Newton formulated the laws of motion</cite>
+
+## CITATIONS:
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789"))
+
+    (message "\n=== Debugging multiple citations ===")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse markdown)))
+          (message "Number of messages: %d" (length result))
+          (dotimes (i (length result))
+            (let ((msg (nth i result)))
+              (message "\nMessage %d:" (1+ i))
+              (message "  Role: %s" (alist-get 'role msg))
+              (let ((content (alist-get 'content msg)))
+                (if (stringp content)
+                    (message "  Content: %s" content)
+                  (progn
+                    (message "  Content blocks: %d" (length content))
+                    (dotimes (j (length content))
+                      (let ((block (nth j content)))
+                        (message "    Block %d:" (1+ j))
+                        (message "      Type: %s" (alist-get 'type block))
+                        (when (string= (alist-get 'type block) "text")
+                          (message "      Text: %s" (alist-get 'text block))
+                          (when (alist-get 'citations block)
+                            (message "      Citations: %d" (length (alist-get 'citations block)))))
+                        (when (string= (alist-get 'type block) "server_tool_use")
+                          (message "      ID: %s" (alist-get 'id block))
+                          (message "      Name: %s" (alist-get 'name block)))
+                        (when (string= (alist-get 'type block) "web_search_tool_result")
+                          (message "      Tool Use ID: %s" (alist-get 'tool_use_id block)))))))))))
+      (error
+       (message "❌ Error: %s" (error-message-string err))
+       nil))))
+
+;; Run debug
+(if (treesit-ready-p 'greger)
+    (debug-multiple-citations)
+  (message "Tree-sitter greger parser not available"))
+</tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+
+### git-commit-message
+
+<tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+Add debug script for multiple citations to inspect output structure
+</tool.toolu_01RDxqJjh1ZhB5wszYygG18e>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RDxqJjh1ZhB5wszYygG18e -->
