@@ -3565,4 +3565,225 @@ module.exports = grammar({
 Create comprehensive tree-sitter grammar for greger format
 </tool.toolu_011Ti81ieV6aFS5r4wzRdLCE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011Ti81ieV6aFS5r4wzRdLCE -->
+## TOOL RESULT:
+
+ID: toolu_011Ti81ieV6aFS5r4wzRdLCE
+
+<tool.toolu_011Ti81ieV6aFS5r4wzRdLCE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Create comprehensive tree-sitter grammar for greger format
+</tool.toolu_011Ti81ieV6aFS5r4wzRdLCE>
+
+## ASSISTANT:
+
+Now let's generate the parser and test it:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MJJ2iuoh4NXf3pjCpciEWf
+
+### command
+
+<tool.toolu_01MJJ2iuoh4NXf3pjCpciEWf>
+tree-sitter generate
+</tool.toolu_01MJJ2iuoh4NXf3pjCpciEWf>
+
+## TOOL RESULT:
+
+ID: toolu_01MJJ2iuoh4NXf3pjCpciEWf
+
+<tool.toolu_01MJJ2iuoh4NXf3pjCpciEWf>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      user_header  •  '##'  …
+    
+    Possible interpretations:
+    
+      1:  (user_section  user_header  •  _content)
+      2:  (user_section  user_header)  •  '##'  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `user_section`
+      2:  Add a conflict for these rules: `user_section`
+    
+
+</tool.toolu_01MJJ2iuoh4NXf3pjCpciEWf>
+
+## ASSISTANT:
+
+The grammar has conflicts. Let me fix this by making the content parsing more explicit:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01F43V9d9eeSo7nBdedyWCV3
+
+### file-path
+
+<tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+./grammar.js
+</tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+
+### original-content
+
+<tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+  rules: {
+    source_file: $ => seq(
+      optional($.untagged_content),
+      repeat($.section)
+    ),
+
+    // Content before any section headers is treated as user content
+    untagged_content: $ => $._content,
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      optional($._content)
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional($._system_content)
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional($._content)
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      optional($._content)
+    ),
+
+    tool_use_section: $ => seq(
+      $.tool_use_header,
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat($.tool_parameter)
+    ),
+
+    tool_result_section: $ => seq(
+      $.tool_result_header,
+      optional($.tool_result_id),
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat($.tool_parameter)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_id),
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      repeat($.citation_entry)
+    ),
+</tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+
+### new-content
+
+<tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+  rules: {
+    source_file: $ => seq(
+      optional($.untagged_content),
+      repeat($.section)
+    ),
+
+    // Content before any section headers is treated as user content
+    untagged_content: $ => field("content", $._section_content),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      field("content", optional($._section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      field("content", optional($._system_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      field("content", optional($._section_content))
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      field("content", optional($._section_content))
+    ),
+
+    tool_use_section: $ => seq(
+      $.tool_use_header,
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat($.tool_parameter)
+    ),
+
+    tool_result_section: $ => seq(
+      $.tool_result_header,
+      optional($.tool_result_id),
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat($.tool_parameter)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_id),
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      repeat($.citation_entry)
+    ),
+</tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+
+### git-commit-message
+
+<tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+Fix grammar conflicts by restructuring content rules
+</tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F43V9d9eeSo7nBdedyWCV3 -->

@@ -22,7 +22,7 @@ module.exports = grammar({
     ),
 
     // Content before any section headers is treated as user content
-    untagged_content: $ => $._content,
+    untagged_content: $ => field("content", $._section_content),
 
     section: $ => choice(
       $.user_section,
@@ -38,22 +38,22 @@ module.exports = grammar({
 
     user_section: $ => seq(
       $.user_header,
-      optional($._content)
+      field("content", optional($._section_content))
     ),
 
     system_section: $ => seq(
       $.system_header,
-      optional($._system_content)
+      field("content", optional($._system_content))
     ),
 
     assistant_section: $ => seq(
       $.assistant_header,
-      optional($._content)
+      field("content", optional($._section_content))
     ),
 
     thinking_section: $ => seq(
       $.thinking_header,
-      optional($._content)
+      field("content", optional($._section_content))
     ),
 
     tool_use_section: $ => seq(
