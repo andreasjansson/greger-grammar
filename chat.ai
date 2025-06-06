@@ -7848,4 +7848,73 @@ processing. May be used in older/simpler citation workflows."
 Document greger-tree-sitter--message-has-cite-tags function
 </tool.toolu_01CvnbuVc2hq5QWcQUVyD5Yu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CvnbuVc2hq5QWcQUVyD5Yu -->
+## TOOL RESULT:
+
+ID: toolu_01CvnbuVc2hq5QWcQUVyD5Yu
+
+<tool.toolu_01CvnbuVc2hq5QWcQUVyD5Yu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--message-has-cite-tags function
+</tool.toolu_01CvnbuVc2hq5QWcQUVyD5Yu>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Vm2K4SZAAb6XJCEbF2vR1d
+
+### file-path
+
+<tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+greger-tree-sitter.el
+</tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+
+### original-content
+
+<tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+(defun greger-tree-sitter--associate-citations (message citations)
+  "Associate CITATIONS with cited text in MESSAGE."
+  ;; This is complex - we need to parse the content and split it by cite tags
+  (let ((content (alist-get 'content message)))
+    (when (stringp content)
+      (setf (alist-get 'content message)
+            (greger-tree-sitter--parse-content-with-citations content citations))))
+  message)
+</tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+
+### new-content
+
+<tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+(defun greger-tree-sitter--associate-citations (message citations)
+  "Associate CITATIONS with cited text in MESSAGE (legacy function).
+
+INPUT:
+  MESSAGE - A message object with string content containing <cite> tags
+  CITATIONS - List of citation objects to associate
+
+PROCESSING:
+  1. Checks if content is a string
+  2. If so, parses it with greger-tree-sitter--parse-content-with-citations
+  3. Replaces the string content with structured content blocks
+
+OUTPUT:
+  Returns the modified message with structured content blocks instead
+  of string content.
+
+LEGACY FUNCTION: This function provides simple citation association for
+messages with string content. The main citation processing now happens
+in greger-tree-sitter--process-sections-with-citations which handles
+more complex cases with mixed content blocks."
+  ;; This is complex - we need to parse the content and split it by cite tags
+  (let ((content (alist-get 'content message)))
+    (when (stringp content)
+      (setf (alist-get 'content message)
+            (greger-tree-sitter--parse-content-with-citations content citations))))
+  message)
+</tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+
+### git-commit-message
+
+<tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+Document greger-tree-sitter--associate-citations function
+</tool.toolu_01Vm2K4SZAAb6XJCEbF2vR1d>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Vm2K4SZAAb6XJCEbF2vR1d -->

@@ -1016,7 +1016,25 @@ processing. May be used in older/simpler citation workflows."
          (string-match-p "<cite>" content))))
 
 (defun greger-tree-sitter--associate-citations (message citations)
-  "Associate CITATIONS with cited text in MESSAGE."
+  "Associate CITATIONS with cited text in MESSAGE (legacy function).
+
+INPUT:
+  MESSAGE - A message object with string content containing <cite> tags
+  CITATIONS - List of citation objects to associate
+
+PROCESSING:
+  1. Checks if content is a string
+  2. If so, parses it with greger-tree-sitter--parse-content-with-citations
+  3. Replaces the string content with structured content blocks
+
+OUTPUT:
+  Returns the modified message with structured content blocks instead
+  of string content.
+
+LEGACY FUNCTION: This function provides simple citation association for
+messages with string content. The main citation processing now happens
+in greger-tree-sitter--process-sections-with-citations which handles
+more complex cases with mixed content blocks."
   ;; This is complex - we need to parse the content and split it by cite tags
   (let ((content (alist-get 'content message)))
     (when (stringp content)
