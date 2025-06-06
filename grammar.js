@@ -99,8 +99,8 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
-      $.text_line,
-      $.final_text_line,
+      prec(2, $.text_line),
+      prec(1, $.final_text_line),
       $.newline
     )),
 

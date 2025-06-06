@@ -11283,4 +11283,115 @@ grammar.js
 Add separate rule for final text line without newline
 </tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RJXx2bQZnskuqCuLq4GifT -->
+## TOOL RESULT:
+
+ID: toolu_01RJXx2bQZnskuqCuLq4GifT
+
+<tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add separate rule for final text line without newline
+</tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WFvsKxyP1UJDcJMjer4E2q
+
+### command
+
+<tool.toolu_01WFvsKxyP1UJDcJMjer4E2q>
+tree-sitter generate
+</tool.toolu_01WFvsKxyP1UJDcJMjer4E2q>
+
+## TOOL RESULT:
+
+ID: toolu_01WFvsKxyP1UJDcJMjer4E2q
+
+<tool.toolu_01WFvsKxyP1UJDcJMjer4E2q>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+
+      'text_line_token1'  •  '
+    '  …
+
+    Possible interpretations:
+
+      1:  (final_text_line  'text_line_token1')  •  '
+    '  …
+      2:  (text_line  'text_line_token1'  •  '
+    ')
+
+    Possible resolutions:
+
+      1:  Specify a higher precedence in `text_line` than in the other rules.
+      2:  Specify a higher precedence in `final_text_line` than in the other rules.
+      3:  Specify a left or right associativity in `final_text_line`
+      4:  Add a conflict for these rules: `text_line`, `final_text_line`
+
+
+</tool.toolu_01WFvsKxyP1UJDcJMjer4E2q>
+
+## ASSISTANT:
+
+There's still a conflict. Let me add precedence to prefer text_line over final_text_line:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012J3XEu1mU2cWAAXJEvrkHc
+
+### file-path
+
+<tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+grammar.js
+</tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+
+### original-content
+
+<tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.final_text_line,
+      $.newline
+    )),
+
+    // Text line with newline
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+
+    // Final text line without newline (for end of file or section)
+    final_text_line: $ => /[^\n]+/,
+</tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+
+### new-content
+
+<tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.text_line),
+      prec(1, $.final_text_line),
+      $.newline
+    )),
+
+    // Text line with newline
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+
+    // Final text line without newline (for end of file or section)
+    final_text_line: $ => /[^\n]+/,
+</tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+
+### git-commit-message
+
+<tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+Add precedence to prefer text_line over final_text_line
+</tool.toolu_012J3XEu1mU2cWAAXJEvrkHc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012J3XEu1mU2cWAAXJEvrkHc -->
