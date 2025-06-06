@@ -332,7 +332,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
       (let ((child-count (treesit-node-child-count entry-node)))
         (dotimes (i child-count)
           (let ((child (treesit-node-child entry-node i)))
-            (message "Processing child %d: type=%s" i (treesit-node-type child))
+
             (cond
              ((equal (treesit-node-type child) "citation_title")
               (let ((title-node (treesit-node-child-by-field-name child "title")))
