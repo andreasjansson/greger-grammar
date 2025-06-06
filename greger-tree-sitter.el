@@ -42,6 +42,10 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
      (t
       (error "Unknown root node type: %s" (treesit-node-type root-node))))
 
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
     (nreverse messages)))
 
 (defun greger-tree-sitter--get-sections (root-node)
