@@ -81,7 +81,26 @@ ERRORS:
       (greger-tree-sitter--extract-dialog parser text))))
 
 (defun greger-tree-sitter--extract-dialog (parser text)
-  "Extract dialog messages from the parsed PARSER with TEXT."
+  "Extract dialog messages from the parsed tree-sitter PARSER with original TEXT.
+
+INPUT:
+  PARSER - A tree-sitter parser object that has parsed the greger text
+  TEXT - The original text string (currently unused but kept for compatibility)
+
+PROCESSING:
+  1. Gets the root node from the parser
+  2. Handles two cases:
+     - source_file: Multiple sections (full conversation)
+     - section: Single section (partial conversation)
+  3. For multiple sections, processes them with citation handling
+  4. For single section, extracts just that section
+
+OUTPUT:
+  Returns a list of message objects in the same format as greger-tree-sitter-parse.
+  Messages are returned in the order they appear in the input text.
+
+INTERNAL FUNCTION: This is called by greger-tree-sitter-parse and not intended
+for direct use."
   (let ((root-node (treesit-parser-root-node parser))
         (messages '())
         (pending-citations nil))
