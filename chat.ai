@@ -8739,4 +8739,55 @@ greger-tree-sitter.el
 Fix assistant section content extraction
 </tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019PmkSP9rMPQ3DcNkY3PQks -->
+## TOOL RESULT:
+
+ID: toolu_019PmkSP9rMPQ3DcNkY3PQks
+
+<tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix assistant section content extraction
+</tool.toolu_019PmkSP9rMPQ3DcNkY3PQks>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WCi9dnn1jCxqvDjwusBKbL
+
+### file-path
+
+<tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+greger-tree-sitter.el
+</tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+
+### original-content
+
+<tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from SECTION-NODE."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+
+### new-content
+
+<tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from SECTION-NODE."
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+
+### git-commit-message
+
+<tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+Fix system section content extraction
+</tool.toolu_01WCi9dnn1jCxqvDjwusBKbL>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WCi9dnn1jCxqvDjwusBKbL -->

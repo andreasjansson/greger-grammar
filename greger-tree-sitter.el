@@ -96,8 +96,8 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-system-section (section-node)
   "Extract system message from SECTION-NODE."
-  (let ((content-node (treesit-node-child-by-field-name
-                       (treesit-node-child section-node 0) "content")))
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
     `((role . "system")
       (content . ,(if content-node
                       (greger-tree-sitter--extract-content content-node)
