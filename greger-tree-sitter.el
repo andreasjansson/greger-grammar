@@ -1071,7 +1071,21 @@ INTERNAL FUNCTION: Core citation parsing logic used by citation association func
     (nreverse parts)))
 
 (defun greger-tree-sitter--extract-content (content-node)
-  "Extract plain text content from CONTENT-NODE."
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts the raw text from the node and trims leading/trailing whitespace.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
   (if content-node
       (string-trim (treesit-node-text content-node))
     ""))
