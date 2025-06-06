@@ -371,8 +371,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                       (setq encrypted-index (string-trim (match-string 1 text)))
                       )))))))))
 
-      (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S"
-               url title cited-text encrypted-index)
+
       `((type . "web_search_result_location")
         (url . ,url)
         (title . ,title)
