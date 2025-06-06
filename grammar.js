@@ -40,7 +40,6 @@ module.exports = grammar({
 
     content_line: $ => seq(
       choice(
-        $.text_content,
         $.tool_name,
         $.tool_id,
         $.tool_parameter_header,
@@ -51,7 +50,8 @@ module.exports = grammar({
         $.html_comment_end,
         $.include_tag,
         $.safe_shell_commands_open,
-        $.safe_shell_commands_close
+        $.safe_shell_commands_close,
+        $.text_content
       ),
       /\n/
     ),
