@@ -9108,4 +9108,138 @@ greger-tree-sitter.el
 Remove final citation debug message
 </tool.toolu_01UQbBorp8gqTPmrDxjEJn5m>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UQbBorp8gqTPmrDxjEJn5m -->
+## TOOL RESULT:
+
+ID: toolu_01UQbBorp8gqTPmrDxjEJn5m
+
+<tool.toolu_01UQbBorp8gqTPmrDxjEJn5m>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove final citation debug message
+</tool.toolu_01UQbBorp8gqTPmrDxjEJn5m>
+
+## ASSISTANT:
+
+Now let me test to make sure it still works:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PtM2om4Kemt2Z4ahF5pC6T
+
+### command
+
+<tool.toolu_01PtM2om4Kemt2Z4ahF5pC6T>
+emacs --batch -l test-citations.el
+</tool.toolu_01PtM2om4Kemt2Z4ahF5pC6T>
+
+## TOOL RESULT:
+
+ID: toolu_01PtM2om4Kemt2Z4ahF5pC6T
+
+<tool.toolu_01PtM2om4Kemt2Z4ahF5pC6T>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+Parsed result: (((role . "assistant") (content ((type . "web_search_tool_result") (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (content . "[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]")) ((type . "server_tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date"))) ((type . "text") (text . "Based on the search results,")) ((type . "text") (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title . "Claude Shannon - Wikipedia") (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...") (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01PtM2om4Kemt2Z4ahF5pC6T>
+
+## ASSISTANT:
+
+Perfect! It's working without the debug messages. Now I can see that we're successfully:
+
+1. ✅ Parsing all the sections correctly
+2. ✅ Combining server tool use, server tool result, assistant sections into a single assistant message
+3. ✅ Extracting citations with all the details (title, cited_text, encrypted_index) 
+4. ✅ Associating citations with the text that has `<cite>` tags
+5. ✅ Parsing the cited text and regular text into separate content blocks
+
+The main differences from the expected structure are:
+
+1. **Content block order**: Our order is [web_search_tool_result, server_tool_use, text, text] but expected is [server_tool_use, web_search_tool_result, text, text]
+2. **JSON parsing**: The web_search_tool_result content should be parsed JSON, not a raw string
+
+Let me fix the ordering issue. The problem is that we're processing sections in the wrong order. Looking at our section processing, the server_tool_result_section comes before the assistant_section, so it gets added first. I need to fix this ordering:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MPhPB7RXUSjANQtgjqj7vX
+
+### file-path
+
+<tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+greger-tree-sitter.el
+</tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+
+### original-content
+
+<tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+</tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+
+### new-content
+
+<tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+;; Assistant-related sections - collect content blocks in the right order
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Server tool result - add to current assistant blocks (but preserve order)
+         ((equal section-type "server_tool_result_section")
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (when (listp content)
+                  ;; Insert server tool result after server tool use if it exists
+                  (let ((server-tool-use-pos
+                         (cl-position-if (lambda (block)
+                                           (equal (alist-get 'type block) "server_tool_use"))
+                                         current-assistant-blocks)))
+                    (if server-tool-use-pos
+                        ;; Insert after server tool use
+                        (setq current-assistant-blocks
+                              (append (cl-subseq current-assistant-blocks 0 (1+ server-tool-use-pos))
+                                      content
+                                      (cl-subseq current-assistant-blocks (1+ server-tool-use-pos))))
+                      ;; No server tool use found, just append
+                      (setq current-assistant-blocks (append current-assistant-blocks content)))))))))
+</tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+
+### git-commit-message
+
+<tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+Fix ordering of server tool result blocks to come after server tool use
+</tool.toolu_01MPhPB7RXUSjANQtgjqj7vX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MPhPB7RXUSjANQtgjqj7vX -->

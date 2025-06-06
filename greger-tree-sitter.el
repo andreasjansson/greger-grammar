@@ -251,9 +251,9 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message (push message messages))))
 
-         ;; Assistant-related sections - collect content blocks
+         ;; Assistant-related sections - collect content blocks in the right order
          ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
-                                 "server_tool_use_section" "server_tool_result_section"))
+                                 "server_tool_use_section"))
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message
               (let ((content (alist-get 'content message)))
@@ -263,6 +263,26 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                   ;; Convert string content to text block
                   (when (and (stringp content) (> (length (string-trim content)) 0))
                     (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Server tool result - add to current assistant blocks (but preserve order)
+         ((equal section-type "server_tool_result_section")
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (when (listp content)
+                  ;; Insert server tool result after server tool use if it exists
+                  (let ((server-tool-use-pos
+                         (cl-position-if (lambda (block)
+                                           (equal (alist-get 'type block) "server_tool_use"))
+                                         current-assistant-blocks)))
+                    (if server-tool-use-pos
+                        ;; Insert after server tool use
+                        (setq current-assistant-blocks
+                              (append (cl-subseq current-assistant-blocks 0 (1+ server-tool-use-pos))
+                                      content
+                                      (cl-subseq current-assistant-blocks (1+ server-tool-use-pos))))
+                      ;; No server tool use found, just append
+                      (setq current-assistant-blocks (append current-assistant-blocks content)))))))))
 
          ;; Citations section - associate with pending assistant blocks
          ((equal section-type "citations_section")
