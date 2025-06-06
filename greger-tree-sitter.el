@@ -579,7 +579,42 @@ EXAMPLE OUTPUT:
     result))
 
 (defun greger-tree-sitter--extract-server-tool-result-section (section-node)
-  "Extract server tool result and return as assistant message."
+  "Extract server tool result from a ## SERVER TOOL RESULT: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL RESULT: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-result-section to extract basic structure
+  2. Changes role from \"user\" to \"assistant\" (server results are part of assistant flow)
+  3. Changes content type from \"tool_result\" to \"web_search_tool_result\"
+  4. Attempts to parse content as JSON, falling back to string if parsing fails
+
+OUTPUT:
+  Returns an assistant message object with a web_search_tool_result content block:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . parsed-json-or-string)))))
+
+  The content field will contain either:
+  - Parsed JSON as an alist/list structure if content is valid JSON
+  - Original string content if JSON parsing fails
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL RESULT:
+
+  ID: srvtoolu_123
+
+  <tool.srvtoolu_123>
+  [{\"title\": \"Example\", \"url\": \"https://example.com\"}]
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"srvtoolu_123\")
+                (content . (((title . \"Example\") (url . \"https://example.com\"))))))))"
   (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
     ;; Change role to assistant and type to web_search_tool_result
     (when result

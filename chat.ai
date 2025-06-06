@@ -6714,4 +6714,112 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-server-tool-use-section function
 </tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Q35ddM1aiou4dh1qR4LCxc -->
+## TOOL RESULT:
+
+ID: toolu_01Q35ddM1aiou4dh1qR4LCxc
+
+<tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-server-tool-use-section function
+</tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012mfPxVv8fHcGdhGSV89R1q
+
+### file-path
+
+<tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+greger-tree-sitter.el
+</tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+
+### original-content
+
+<tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result")
+          ;; Try to parse JSON content
+          (let ((content-text (alist-get 'content (car content))))
+            (when (stringp content-text)
+              (condition-case nil
+                  (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+                    (setf (alist-get 'content (car content)) parsed-json))
+                (error
+                 ;; If JSON parsing fails, keep as string
+                 nil)))))))
+    result))
+</tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+
+### new-content
+
+<tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result from a ## SERVER TOOL RESULT: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL RESULT: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-result-section to extract basic structure
+  2. Changes role from \"user\" to \"assistant\" (server results are part of assistant flow)
+  3. Changes content type from \"tool_result\" to \"web_search_tool_result\"
+  4. Attempts to parse content as JSON, falling back to string if parsing fails
+
+OUTPUT:
+  Returns an assistant message object with a web_search_tool_result content block:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . parsed-json-or-string)))))
+
+  The content field will contain either:
+  - Parsed JSON as an alist/list structure if content is valid JSON
+  - Original string content if JSON parsing fails
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL RESULT:
+  
+  ID: srvtoolu_123
+  
+  <tool.srvtoolu_123>
+  [{\"title\": \"Example\", \"url\": \"https://example.com\"}]
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"srvtoolu_123\")
+                (content . (((title . \"Example\") (url . \"https://example.com\"))))))))"
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result")
+          ;; Try to parse JSON content
+          (let ((content-text (alist-get 'content (car content))))
+            (when (stringp content-text)
+              (condition-case nil
+                  (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+                    (setf (alist-get 'content (car content)) parsed-json))
+                (error
+                 ;; If JSON parsing fails, keep as string
+                 nil)))))))
+    result))
+</tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+
+### git-commit-message
+
+<tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+Document greger-tree-sitter--extract-server-tool-result-section function
+</tool.toolu_012mfPxVv8fHcGdhGSV89R1q>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012mfPxVv8fHcGdhGSV89R1q -->
