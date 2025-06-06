@@ -364,7 +364,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                 (if index-node
                     (progn
                       (setq encrypted-index (string-trim (treesit-node-text index-node)))
-                      (message "Set encrypted-index to: %S" encrypted-index))
+                      )
                   ;; Fallback: try to extract from the text after "Encrypted index:"
                   (let ((text (treesit-node-text child)))
                     (when (string-match "Encrypted index:[ \t]*\\(.*\\)" text)
