@@ -65,6 +65,54 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
   }
 }
 
+// Check if the current position looks like our closing tag without advancing
+static bool lookahead_for_closing_tag(TSLexer *lexer, Scanner *scanner) {
+  // Save the current position
+  lexer->mark_end(lexer);
+
+  // Check if we have "</tool.ID>"
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '/') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID and check if it matches our current one
+  char end_id[64];
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+
+  end_id[id_len] = '\0';
+
+  // Reset position back to the mark (the '<')
+  // Note: We consumed past the closing tag for checking, but tree-sitter
+  // will reset the position since we're just checking
+  return strcmp(scanner->current_tool_id, end_id) == 0;
+}
+
 static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
   // Expect "<tool."
   if (lexer->lookahead != '<') return false;
@@ -162,8 +210,12 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 
   bool has_content = false;
 
-  // Simple approach: consume until we see '<'
-  while (lexer->lookahead && lexer->lookahead != '<') {
+  // Consume characters until we see our closing tag
+  while (lexer->lookahead) {
+    if (lexer->lookahead == '<' && lookahead_for_closing_tag(lexer, scanner)) {
+      // We've hit our closing tag, stop consuming content
+      break;
+    }
     advance(lexer);
     has_content = true;
   }
@@ -179,22 +231,29 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
-  // Handle tool block content first (don't skip whitespace for content)
+  // Try to handle end tokens first when we're in a tool block
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    // Skip whitespace for end tokens
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    if (scan_tool_end(lexer, scanner)) {
+      return true;
+    }
+  }
+
+  // Handle tool block content (don't skip whitespace for content)
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
     return scan_tool_content(lexer, scanner);
   }
 
-  // Skip whitespace for start/end tokens
+  // Skip whitespace for start tokens
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
 
   if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
     return scan_tool_start(lexer, scanner);
-  }
-
-  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
-    return scan_tool_end(lexer, scanner);
   }
 
   return false;
