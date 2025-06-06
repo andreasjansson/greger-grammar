@@ -84,10 +84,7 @@ module.exports = grammar({
       optional($.tool_result_content)
     ),
 
-    citations_section: $ => seq(
-      $.citations_header,
-      optional($.citations_content)
-    ),
+
 
     // Headers - simple tokens
     user_header: $ => /##[ \t]*USER:[ \t]*\n/,
