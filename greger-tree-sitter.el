@@ -472,7 +472,40 @@ to extract individual parameter values."
       "")))
 
 (defun greger-tree-sitter--extract-tool-result-section (section-node)
-  "Extract tool result and return as user message."
+  "Extract tool result from a ## TOOL RESULT: section and return as user message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL RESULT: section
+
+PROCESSING:
+  1. Extracts tool ID from \"ID: tool-id\" line
+  2. Extracts result content from <tool.id>content</tool.id> block
+  3. Creates a user message with tool_result content block
+
+OUTPUT:
+  Returns a user message object with a tool_result content block:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . \"result content\")))))
+
+  Tool results are considered user messages because they represent
+  external system responses that the assistant receives.
+
+EXAMPLE INPUT SECTION:
+  ## TOOL RESULT:
+
+  ID: toolu_123
+
+  <tool.toolu_123>
+  File contents: Hello, world!
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"toolu_123\")
+                (content . \"File contents: Hello, world!\")))))"
   (let* ((tool-section (treesit-node-child section-node 0))
          (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
          (tool-id nil)

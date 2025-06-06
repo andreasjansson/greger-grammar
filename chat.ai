@@ -6415,4 +6415,122 @@ to extract individual parameter values."
 Document greger-tree-sitter--extract-tool-param-value function
 </tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01M9fe9qZ42ux9mAwJKwXXzp -->
+## TOOL RESULT:
+
+ID: toolu_01M9fe9qZ42ux9mAwJKwXXzp
+
+<tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-tool-param-value function
+</tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01BJQCgkqy2yQeGsu9cYGzLS
+
+### file-path
+
+<tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+greger-tree-sitter.el
+</tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+
+### original-content
+
+<tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+(defun greger-tree-sitter--extract-tool-result-section (section-node)
+  "Extract tool result and return as user message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
+         (tool-id nil)
+         (result-content ""))
+
+    ;; Extract tool ID and result content
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_result_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_result_block")
+              (let ((content-node (treesit-node-child-by-field-name child "content")))
+                (when content-node
+                  (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,tool-id)
+                   (content . ,result-content)))))))
+</tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+
+### new-content
+
+<tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+(defun greger-tree-sitter--extract-tool-result-section (section-node)
+  "Extract tool result from a ## TOOL RESULT: section and return as user message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL RESULT: section
+
+PROCESSING:
+  1. Extracts tool ID from \"ID: tool-id\" line
+  2. Extracts result content from <tool.id>content</tool.id> block
+  3. Creates a user message with tool_result content block
+
+OUTPUT:
+  Returns a user message object with a tool_result content block:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . \"result content\")))))
+
+  Tool results are considered user messages because they represent
+  external system responses that the assistant receives.
+
+EXAMPLE INPUT SECTION:
+  ## TOOL RESULT:
+  
+  ID: toolu_123
+  
+  <tool.toolu_123>
+  File contents: Hello, world!
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"toolu_123\")
+                (content . \"File contents: Hello, world!\")))))"
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
+         (tool-id nil)
+         (result-content ""))
+
+    ;; Extract tool ID and result content
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_result_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_result_block")
+              (let ((content-node (treesit-node-child-by-field-name child "content")))
+                (when content-node
+                  (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,tool-id)
+                   (content . ,result-content)))))))
+</tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+
+### git-commit-message
+
+<tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+Document greger-tree-sitter--extract-tool-result-section function
+</tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01BJQCgkqy2yQeGsu9cYGzLS -->
