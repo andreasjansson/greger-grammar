@@ -149,20 +149,34 @@ static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
+  // Skip any leading whitespace on the same line
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    skip(lexer);
+  }
+
+  // If we hit a newline immediately, don't consume it as content
+  if (lexer->lookahead == '\n') {
+    return false;
+  }
+
   // Scan until we hit a potential end tag or newline
   bool has_content = false;
   while (lexer->lookahead && lexer->lookahead != '\n') {
     // Check if we're at the start of a potential closing tag
-    if (lexer->lookahead == '<' && lexer->lookahead != 0) {
+    if (lexer->lookahead == '<') {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
+      Scanner saved_scanner = *scanner;
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
+        *scanner = saved_scanner;
         break;
       } else {
         // Not our closing tag, restore and continue
         *lexer = saved_lexer;
+        *scanner = saved_scanner;
         advance(lexer);
         has_content = true;
       }
