@@ -9525,4 +9525,114 @@ greger-tree-sitter.el
 Add function to reorder assistant content blocks
 </tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UpNouJzpne5dF3NNBWVaJs -->
+## TOOL RESULT:
+
+ID: toolu_01UpNouJzpne5dF3NNBWVaJs
+
+<tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add function to reorder assistant content blocks
+</tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Qi3hgSwfNirWJXzCYmPK5n
+
+### command
+
+<tool.toolu_01Qi3hgSwfNirWJXzCYmPK5n>
+emacs --batch -l test-citations.el
+</tool.toolu_01Qi3hgSwfNirWJXzCYmPK5n>
+
+## TOOL RESULT:
+
+ID: toolu_01Qi3hgSwfNirWJXzCYmPK5n
+
+<tool.toolu_01Qi3hgSwfNirWJXzCYmPK5n>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+Parsed result: (((role . "assistant") (content ((type . "server_tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date"))) ((type . "web_search_tool_result") (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (content . "[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]")) ((type . "text") (text . "Based on the search results,")) ((type . "text") (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title . "Claude Shannon - Wikipedia") (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...") (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01Qi3hgSwfNirWJXzCYmPK5n>
+
+## ASSISTANT:
+
+Excellent! Now we have the correct ordering:
+
+1. ✅ `server_tool_use` first
+2. ✅ `web_search_tool_result` second  
+3. ✅ text blocks with citations last
+
+This is much closer to the expected structure. Now I just need to handle the JSON parsing for the web_search_tool_result content. Looking at the expected structure, the content should be parsed JSON rather than a raw string.
+
+Looking at the expected output more carefully from the test-greger-parser.el, I can see that the `web_search_tool_result` content should have a parsed JSON structure. Let me update the server tool result extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012MMTYVkKtHrGZivBsfmGUi
+
+### file-path
+
+<tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+greger-tree-sitter.el
+</tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+
+### original-content
+
+<tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result"))))
+    result))
+</tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+
+### new-content
+
+<tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result")
+          ;; Try to parse JSON content
+          (let ((content-text (alist-get 'content (car content))))
+            (when (stringp content-text)
+              (condition-case nil
+                  (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+                    (setf (alist-get 'content (car content)) parsed-json))
+                (error
+                 ;; If JSON parsing fails, keep as string
+                 nil)))))))
+    result))
+</tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+
+### git-commit-message
+
+<tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+Add JSON parsing for web_search_tool_result content
+</tool.toolu_012MMTYVkKtHrGZivBsfmGUi>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012MMTYVkKtHrGZivBsfmGUi -->

@@ -224,7 +224,16 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
       (setf (alist-get 'role result) "assistant")
       (let ((content (alist-get 'content result)))
         (when (and content (> (length content) 0))
-          (setf (alist-get 'type (car content)) "web_search_tool_result"))))
+          (setf (alist-get 'type (car content)) "web_search_tool_result")
+          ;; Try to parse JSON content
+          (let ((content-text (alist-get 'content (car content))))
+            (when (stringp content-text)
+              (condition-case nil
+                  (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+                    (setf (alist-get 'content (car content)) parsed-json))
+                (error
+                 ;; If JSON parsing fails, keep as string
+                 nil)))))))
     result))
 
 (defun greger-tree-sitter--find-child-by-type (node type)
