@@ -7800,4 +7800,163 @@ greger-tree-sitter.el
 Fix tree structure navigation in dialog extraction
 </tool.toolu_01QVmYwNAK9cKeJhbNRmuQMr>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QVmYwNAK9cKeJhbNRmuQMr -->
+## TOOL RESULT:
+
+ID: toolu_01QVmYwNAK9cKeJhbNRmuQMr
+
+<tool.toolu_01QVmYwNAK9cKeJhbNRmuQMr>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tree structure navigation in dialog extraction
+</tool.toolu_01QVmYwNAK9cKeJhbNRmuQMr>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S98MtYDgHc6pKJDZAotsn6
+
+### command
+
+<tool.toolu_01S98MtYDgHc6pKJDZAotsn6>
+emacs --batch -l test-dialog-conversion.el
+</tool.toolu_01S98MtYDgHc6pKJDZAotsn6>
+
+## TOOL RESULT:
+
+ID: toolu_01S98MtYDgHc6pKJDZAotsn6
+
+<tool.toolu_01S98MtYDgHc6pKJDZAotsn6>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing: simple-user-message ===
+DEBUG: Source file node type: section
+DEBUG: Source file child count: 1
+DEBUG: Child 0 type: user_section
+❌ FAIL
+Expected: (((role . "user") (content . "Hello, how are you?")))
+Actual:   nil
+
+=== Testing: simple-conversation ===
+DEBUG: Source file node type: section
+DEBUG: Source file child count: 1
+DEBUG: Child 0 type: user_section
+❌ FAIL
+Expected: (((role . "user") (content . "Hello")) ((role . "assistant") (content . "Hi there! How can I help you today?")))
+Actual:   nil
+
+=== Testing: tool-use-simple ===
+DEBUG: Source file node type: section
+DEBUG: Source file child count: 1
+DEBUG: Child 0 type: tool_use_section
+❌ FAIL
+Expected: (((role . "assistant") (content ((type . "tool_use") (id . "toolu_123") (name . "read-file") (input (path . "hello.txt"))))))
+Actual:   nil
+
+=== Testing: tool-result-simple ===
+DEBUG: Source file node type: section
+DEBUG: Source file child count: 1
+DEBUG: Child 0 type: tool_result_section
+❌ FAIL
+Expected: (((role . "user") (content ((type . "tool_result") (tool_use_id . "toolu_123") (content . "Hello, world!")))))
+Actual:   nil
+
+=== Testing: thinking-section ===
+DEBUG: Source file node type: section
+DEBUG: Source file child count: 1
+DEBUG: Child 0 type: thinking_section
+❌ FAIL
+Expected: (((role . "assistant") (content ((type . "thinking") (thinking . "This is a simple question.")))))
+Actual:   nil
+
+=== SUMMARY ===
+Passed: 0/5 tests
+💥 Some tests failed
+
+</tool.toolu_01S98MtYDgHc6pKJDZAotsn6>
+
+## ASSISTANT:
+
+I see the issue now! The tree structure is different than expected. The root node is directly a "section", not a "source_file". This suggests that each test is only parsing one section. The issue is that our tree parsing is off. Let me fix the extraction logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016siFvDARzCD187nW6zJWy6
+
+### file-path
+
+<tool.toolu_016siFvDARzCD187nW6zJWy6>
+greger-tree-sitter.el
+</tool.toolu_016siFvDARzCD187nW6zJWy6>
+
+### original-content
+
+<tool.toolu_016siFvDARzCD187nW6zJWy6>
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((source-file-node (treesit-node-child tree 0))
+        (messages '()))
+
+    (message "DEBUG: Source file node type: %s" (treesit-node-type source-file-node))
+    (message "DEBUG: Source file child count: %d" (treesit-node-child-count source-file-node))
+
+    ;; Handle untagged content at the beginning (treated as user message)
+    (when-let ((untagged (treesit-node-child-by-field-name source-file-node "content")))
+      (message "DEBUG: Found untagged content")
+      (push `((role . "user")
+              (content . ,(greger-tree-sitter--extract-content untagged)))
+            messages))
+
+    ;; Process all sections - they should be direct children of source_file
+    (let ((child-count (treesit-node-child-count source-file-node)))
+      (dotimes (i child-count)
+        (let ((child (treesit-node-child source-file-node i)))
+          (message "DEBUG: Child %d type: %s" i (treesit-node-type child))
+          (when (equal (treesit-node-type child) "section")
+            (when-let ((message (greger-tree-sitter--extract-section child)))
+              (message "DEBUG: Extracted message: %S" message)
+              (push message messages))))))
+
+    (nreverse messages)))
+</tool.toolu_016siFvDARzCD187nW6zJWy6>
+
+### new-content
+
+<tool.toolu_016siFvDARzCD187nW6zJWy6>
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((root-node (treesit-node-child tree 0))
+        (messages '()))
+
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
+     
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (message "DEBUG: Single section")
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+     
+     (t
+      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_016siFvDARzCD187nW6zJWy6>
+
+### git-commit-message
+
+<tool.toolu_016siFvDARzCD187nW6zJWy6>
+Fix handling of single vs multiple sections in tree parsing
+</tool.toolu_016siFvDARzCD187nW6zJWy6>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016siFvDARzCD187nW6zJWy6 -->

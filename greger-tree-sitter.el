@@ -23,28 +23,31 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-dialog (tree)
   "Extract dialog messages from the parsed TREE."
-  (let ((source-file-node (treesit-node-child tree 0))
+  (let ((root-node (treesit-node-child tree 0))
         (messages '()))
 
-    (message "DEBUG: Source file node type: %s" (treesit-node-type source-file-node))
-    (message "DEBUG: Source file child count: %d" (treesit-node-child-count source-file-node))
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
 
-    ;; Handle untagged content at the beginning (treated as user message)
-    (when-let ((untagged (treesit-node-child-by-field-name source-file-node "content")))
-      (message "DEBUG: Found untagged content")
-      (push `((role . "user")
-              (content . ,(greger-tree-sitter--extract-content untagged)))
-            messages))
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
 
-    ;; Process all sections - they should be direct children of source_file
-    (let ((child-count (treesit-node-child-count source-file-node)))
-      (dotimes (i child-count)
-        (let ((child (treesit-node-child source-file-node i)))
-          (message "DEBUG: Child %d type: %s" i (treesit-node-type child))
-          (when (equal (treesit-node-type child) "section")
-            (when-let ((message (greger-tree-sitter--extract-section child)))
-              (message "DEBUG: Extracted message: %S" message)
-              (push message messages))))))
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (message "DEBUG: Single section")
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
 
     (nreverse messages)))
 
