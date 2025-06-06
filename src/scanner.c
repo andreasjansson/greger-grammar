@@ -12,8 +12,6 @@ enum TokenType {
 typedef struct {
   char current_tool_id[64];
   bool in_tool_block;
-  bool in_citations_context;
-  bool has_cite_tag;
 } Scanner;
 
 static void advance(TSLexer *lexer) {
