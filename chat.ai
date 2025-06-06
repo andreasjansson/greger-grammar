@@ -8864,4 +8864,156 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 Improve tool content scanning to handle whitespace and lookahead better
 </tool.toolu_01HVJhmz8fvcEELX5bcDr1W5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HVJhmz8fvcEELX5bcDr1W5 -->
+## TOOL RESULT:
+
+ID: toolu_01HVJhmz8fvcEELX5bcDr1W5
+
+<tool.toolu_01HVJhmz8fvcEELX5bcDr1W5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Improve tool content scanning to handle whitespace and lookahead better
+</tool.toolu_01HVJhmz8fvcEELX5bcDr1W5>
+
+## ASSISTANT:
+
+Now let me regenerate and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WMjsGKEWuBJWAMGcNuQEKS
+
+### command
+
+<tool.toolu_01WMjsGKEWuBJWAMGcNuQEKS>
+tree-sitter generate
+</tool.toolu_01WMjsGKEWuBJWAMGcNuQEKS>
+
+## TOOL RESULT:
+
+ID: toolu_01WMjsGKEWuBJWAMGcNuQEKS
+
+<tool.toolu_01WMjsGKEWuBJWAMGcNuQEKS>
+Command executed successfully:
+(no output)
+</tool.toolu_01WMjsGKEWuBJWAMGcNuQEKS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014imVmf3v9Cn58iACuPewWn
+
+### command
+
+<tool.toolu_014imVmf3v9Cn58iACuPewWn>
+tree-sitter parse test_complex.greger
+</tool.toolu_014imVmf3v9Cn58iACuPewWn>
+
+## TOOL RESULT:
+
+ID: toolu_014imVmf3v9Cn58iACuPewWn
+
+<tool.toolu_014imVmf3v9Cn58iACuPewWn>
+Command failed with exit code 1: Warning: You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+(source_file [0, 0] - [26, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (tool_use_section [4, 0] - [15, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 15]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 13]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 17]
+          param_name: (identifier [9, 4] - [9, 8])
+          param_value: (tool_param_block [11, 0] - [13, 17]
+            (tool_block_start [11, 0] - [11, 16])
+            (ERROR [12, 0] - [12, 9]
+              (identifier [12, 0] - [12, 9]))
+            (tool_block_end [13, 0] - [13, 17])))
+        (newline [13, 17] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [23, 0]
+    (tool_result_section [15, 0] - [23, 0]
+      (tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [23, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 13]))
+        (tool_result_block [19, 0] - [21, 17]
+          (tool_block_start [19, 0] - [19, 16])
+          (ERROR [20, 0] - [20, 13]
+            (ERROR [20, 5] - [20, 6])
+            (ERROR [20, 12] - [20, 13]))
+          (tool_block_end [21, 0] - [21, 17]))
+        (newline [21, 17] - [22, 0])
+        (newline [22, 0] - [23, 0]))))
+  (section [23, 0] - [26, 0]
+    (assistant_section [23, 0] - [26, 0]
+      (assistant_header [23, 0] - [24, 0])
+      (section_content [24, 0] - [26, 0]
+        (newline [24, 0] - [25, 0])
+        (line [25, 0] - [26, 0])))))
+test_complex.greger	Parse:    0.88 ms	   302 bytes/ms	(ERROR [12, 0] - [12, 9])
+
+</tool.toolu_014imVmf3v9Cn58iACuPewWn>
+
+## ASSISTANT:
+
+The issue is that the content inside the tool blocks isn't being properly handled by the external scanner. I think the problem is that we need to make the grammar more explicit about how content is parsed within tool blocks. Let me create a simpler approach by improving how we handle the tool block content in the grammar itself:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JE6N19aHDKWn3EcXtgFgSQ
+
+### file-path
+
+<tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+./grammar.js
+</tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+
+### original-content
+
+<tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      "\n",
+      field("content", repeat(choice(
+        $.tool_block_content,
+        "\n"
+      ))),
+      $.tool_block_end
+    ),
+</tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+
+### new-content
+
+<tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      "\n",
+      field("content", optional($.tool_block_content)),
+      "\n",
+      $.tool_block_end
+    ),
+</tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+
+### git-commit-message
+
+<tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+Simplify tool param block structure
+</tool.toolu_01JE6N19aHDKWn3EcXtgFgSQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JE6N19aHDKWn3EcXtgFgSQ -->
