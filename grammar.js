@@ -151,11 +151,11 @@ module.exports = grammar({
     ),
 
     // Assistant section that contains cite tags and is followed by citations
-    assistant_section_with_citations: $ => seq(
+    assistant_section_with_citations: $ => prec(1, seq(
       $.assistant_header,
       optional(alias($.content_with_citations, $.section_content)),
       $.citations_section
-    ),
+    )),
 
     // Content that contains cite tags
     content_with_citations: $ => prec(-1, repeat1(choice(
