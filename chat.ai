@@ -13248,4 +13248,157 @@ Hi there! How can I help you today?
 Completely rewrite debug test with proper parentheses
 </tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Rf4wDPqzKrTkqNpUYVA5de -->
+## TOOL RESULT:
+
+ID: toolu_01Rf4wDPqzKrTkqNpUYVA5de
+
+<tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Completely rewrite debug test with proper parentheses
+</tool.toolu_01Rf4wDPqzKrTkqNpUYVA5de>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Puv1zgkT8P4tsUvMfYSpwW
+
+### command
+
+<tool.toolu_01Puv1zgkT8P4tsUvMfYSpwW>
+emacs --batch -l debug-test.el
+</tool.toolu_01Puv1zgkT8P4tsUvMfYSpwW>
+
+## TOOL RESULT:
+
+ID: toolu_01Puv1zgkT8P4tsUvMfYSpwW
+
+<tool.toolu_01Puv1zgkT8P4tsUvMfYSpwW>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Tree structure:
+Root node type: source_file
+Child count: 2
+
+Extracted sections:
+Section 0: user_section
+Section 1: assistant_section
+
+Processed sections result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?")))))
+
+
+Final parsed result:
+(((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?"))))
+ ((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 2
+Message role: assistant
+Message role: user
+
+</tool.toolu_01Puv1zgkT8P4tsUvMfYSpwW>
+
+## ASSISTANT:
+
+Perfect! Now I can see exactly what's happening:
+
+1. **Section processing result** (from `greger-tree-sitter--process-sections-with-citations`):
+   ```
+   [user: "Hello", assistant: "Hi there! How can I help you today?"]
+   ```
+   This is CORRECT order!
+
+2. **Final parsed result** (from `greger-tree-sitter-parse`):
+   ```
+   [assistant: "Hi there! How can I help you today?", user: "Hello"]
+   ```
+   This is WRONG order!
+
+So the issue is NOT in `greger-tree-sitter--process-sections-with-citations`. That function is working correctly. The issue is somewhere else in the parsing chain.
+
+The `greger-tree-sitter-parse` function calls `greger-tree-sitter--extract-dialog`, which calls `greger-tree-sitter--process-sections-with-citations`. So the issue must be in `greger-tree-sitter--extract-dialog` or in the final return.
+
+Let me check the `greger-tree-sitter--extract-dialog` function. Looking at it again:
+
+```elisp
+(defun greger-tree-sitter--extract-dialog (parser text)
+  ...
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '())
+        (pending-citations nil))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+```
+
+Aha! There's the bug! In the final line: `(nreverse messages)`.
+
+The `greger-tree-sitter--process-sections-with-citations` function already returns the messages in the correct order. But then `greger-tree-sitter--extract-dialog` calls `(nreverse messages)` on the result, which reverses them again!
+
+The `nreverse` should only be used when messages are built using `push` (which prepends). But `greger-tree-sitter--process-sections-with-citations` uses `push` internally and then calls `nreverse` to fix the order. So the messages are already in the correct order when returned.
+
+Let me fix this by removing the extra `nreverse`:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018XmA5PYB65Hx5BJuuXuszX
+
+### file-path
+
+<tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+greger-tree-sitter.el
+</tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+
+### original-content
+
+<tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+    (nreverse messages)
+</tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+
+### new-content
+
+<tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+    messages
+</tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+
+### git-commit-message
+
+<tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+Fix message order by removing extra nreverse
+</tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018XmA5PYB65Hx5BJuuXuszX -->

@@ -145,7 +145,7 @@ for direct use."
      (t
       (error "Unknown root node type: %s" (treesit-node-type root-node))))
 
-    (nreverse messages)))
+    messages))
 
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
   "Reorder assistant content BLOCKS to match expected greger format order.
