@@ -8843,4 +8843,108 @@ greger-tree-sitter.el
 Fix thinking section content extraction
 </tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01X6dunBiLHX4P1v3SVCiRdP -->
+## TOOL RESULT:
+
+ID: toolu_01X6dunBiLHX4P1v3SVCiRdP
+
+<tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix thinking section content extraction
+</tool.toolu_01X6dunBiLHX4P1v3SVCiRdP>
+
+## ASSISTANT:
+
+Now let me fix the tool extraction functions. I need to check the actual structure of tool sections:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QWwAnrfFnFJAQL5ujvpekE
+
+### command
+
+<tool.toolu_01QWwAnrfFnFJAQL5ujvpekE>
+echo "## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>" > temp_tool.greger && tree-sitter parse temp_tool.greger
+</tool.toolu_01QWwAnrfFnFJAQL5ujvpekE>
+
+## TOOL RESULT:
+
+ID: toolu_01QWwAnrfFnFJAQL5ujvpekE
+
+<tool.toolu_01QWwAnrfFnFJAQL5ujvpekE>
+Command executed successfully:
+(source_file [0, 0] - [10, 0]
+  (section [0, 0] - [10, 0]
+    (tool_use_section [0, 0] - [10, 0]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [10, 0]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 15]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 13]))
+        (newline [4, 0] - [5, 0])
+        (tool_parameter [5, 0] - [9, 17]
+          param_name: (identifier [5, 4] - [5, 8])
+          param_value: (tool_param_block [7, 0] - [9, 17]
+            (tool_block_start [7, 0] - [7, 16])
+            content: (tool_block_content [8, 0] - [9, 0])
+            (tool_block_end [9, 0] - [9, 17])))
+        (newline [9, 17] - [10, 0])))))
+
+</tool.toolu_01QWwAnrfFnFJAQL5ujvpekE>
+
+## ASSISTANT:
+
+Perfect! Now I can see that tool use sections have `tool_use_content` instead of `section_content`. Let me fix the tool extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Vf7ZT1CggUndLp4xGZ9ymj
+
+### file-path
+
+<tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+greger-tree-sitter.el
+</tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+
+### original-content
+
+<tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use and return as assistant message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (treesit-node-child-by-field-name tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+</tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+
+### new-content
+
+<tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use and return as assistant message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+</tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+
+### git-commit-message
+
+<tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+Fix tool use section content extraction
+</tool.toolu_01Vf7ZT1CggUndLp4xGZ9ymj>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Vf7ZT1CggUndLp4xGZ9ymj -->

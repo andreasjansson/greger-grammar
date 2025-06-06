@@ -125,7 +125,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--extract-tool-use-section (section-node)
   "Extract tool use and return as assistant message."
   (let* ((tool-section (treesit-node-child section-node 0))
-         (tool-content (treesit-node-child-by-field-name tool-section "tool_use_content"))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
          (tool-name nil)
          (tool-id nil)
          (parameters '()))
