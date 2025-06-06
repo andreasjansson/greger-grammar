@@ -11136,4 +11136,151 @@ debug-test.el
 Add tree structure debugging to see what tree-sitter parses
 </tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Y1BH7QpHJRWQURAhQHJXwm -->
+## TOOL RESULT:
+
+ID: toolu_01Y1BH7QpHJRWQURAhQHJXwm
+
+<tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add tree structure debugging to see what tree-sitter parses
+</tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014orRxXGAYKswJXkPwQ9qmK
+
+### command
+
+<tool.toolu_014orRxXGAYKswJXkPwQ9qmK>
+emacs --batch -l debug-test.el
+</tool.toolu_014orRxXGAYKswJXkPwQ9qmK>
+
+## TOOL RESULT:
+
+ID: toolu_014orRxXGAYKswJXkPwQ9qmK
+
+<tool.toolu_014orRxXGAYKswJXkPwQ9qmK>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+Tree structure:
+Root node type: source_file
+Child count: 3
+Child 0: section [## USER:
+
+Hello
+
+]
+Child 1: section [## ASSISTANT:
+
+]
+Child 2: ERROR [Hi there! How can I help you today?]
+
+Parsed result:
+(((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 1
+First message role: user
+First message content: "Hello"
+
+</tool.toolu_014orRxXGAYKswJXkPwQ9qmK>
+
+## ASSISTANT:
+
+Perfect! Now I can see the issue clearly. The tree-sitter is parsing the assistant header correctly, but the assistant content "Hi there! How can I help you today?" is being parsed as an ERROR node, not as part of the assistant section.
+
+This means my grammar change broke something. The issue is that the assistant section is not capturing the content that doesn't end with a newline.
+
+The problem is that the `section_content` still expects proper text_line or newline nodes, but the assistant content without a trailing newline doesn't match either.
+
+Let me check how the content rule interacts with the optional newline. The issue might be that when there's no newline at the end, the text doesn't get captured by the content rule.
+
+Looking at the content rule:
+
+```javascript
+content: $ => repeat1(choice(
+  $.text_line,
+  $.newline
+)),
+```
+
+And the text_line rule now has optional newline. But if the file ends without a newline, the text_line rule will match the content but without consuming the newline, leaving the text_line as the last thing in the section. That should work.
+
+The issue might be that the assistant section structure expects section_content to end properly. Let me check if the issue is in how the section boundaries are defined.
+
+Looking at the tree output:
+- Child 0: `section [## USER:\n\nHello\n\n]` - This works properly
+- Child 1: `section [## ASSISTANT:\n\n]` - This only contains the header and the newlines
+- Child 2: `ERROR [Hi there! How can I help you today?]` - The content is outside the section
+
+This suggests that the assistant_section rule is not capturing the content properly when there's no trailing newline.
+
+Let me check if the issue is that the content rule is not matching at all. The content rule requires `repeat1`, which means it needs at least one match. If the text_line doesn't match because of the newline issue, then the content rule fails entirely.
+
+Let me try a different approach. Instead of making the newline optional in text_line, let me create two different text line rules - one for lines with newlines and one for the final line:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RJXx2bQZnskuqCuLq4GifT
+
+### file-path
+
+<tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+grammar.js
+</tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+
+### original-content
+
+<tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    // Simple text line - any non-empty line
+    text_line: $ => prec.right(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n") // Newline is optional (for end-of-file)
+    )),
+</tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+
+### new-content
+
+<tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.final_text_line,
+      $.newline
+    )),
+
+    // Text line with newline
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+
+    // Final text line without newline (for end of file or section)
+    final_text_line: $ => /[^\n]+/,
+</tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+
+### git-commit-message
+
+<tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+Add separate rule for final text line without newline
+</tool.toolu_01RJXx2bQZnskuqCuLq4GifT>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RJXx2bQZnskuqCuLq4GifT -->
