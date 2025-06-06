@@ -286,6 +286,10 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
       (setq i (1+ i)))
 
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
     (nreverse messages)))
 
 (defun greger-tree-sitter--get-section-type (section-node)

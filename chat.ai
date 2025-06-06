@@ -12,6 +12,7 @@ tree-sitter parse test_nested_tools.greger
 tree-sitter parse test_comprehensive.greger
 tree-sitter parse test_citations.greger
 tree-sitter parse -d pretty test_citations.greger
+emacs --batch -l test-citations.el
 </safe-shell-commands>
 
 Here's a guide to using tree-sitter: https://www.jonashietala.se/blog/2024/03/19/lets_create_a_tree-sitter_grammar/
@@ -4645,4 +4646,302 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
 Add more debugging to test function
 </tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DCg67hbS6h7LcEDy76GY7e -->
+## TOOL RESULT:
+
+ID: toolu_01DCg67hbS6h7LcEDy76GY7e
+
+<tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-citations.el. Successfully staged 2 file(s) and committed with message: Add more debugging to test function
+</tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PCUbZnarmCXcXFitEtrAEa
+
+### command
+
+<tool.toolu_01PCUbZnarmCXcXFitEtrAEa>
+emacs --batch -l test-citations.el
+</tool.toolu_01PCUbZnarmCXcXFitEtrAEa>
+
+## TOOL RESULT:
+
+ID: toolu_01PCUbZnarmCXcXFitEtrAEa
+
+<tool.toolu_01PCUbZnarmCXcXFitEtrAEa>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+❌ Error: Symbol’s value as variable is void: current-assistant-blocks
+
+</tool.toolu_01PCUbZnarmCXcXFitEtrAEa>
+
+## ASSISTANT:
+
+Let me check if there's an issue with the function definition - perhaps the issue is in the closure or something. Let me reload and check:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01X7U8HL8Fb41pK2vB3HJBVV
+
+### path
+
+<tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+greger-tree-sitter.el
+</tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+
+### start-line
+
+<tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+227
+</tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+
+### end-line
+
+<tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+250
+</tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+
+## TOOL RESULT:
+
+ID: toolu_01X7U8HL8Fb41pK2vB3HJBVV
+
+<tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (current-assistant-blocks '())
+        (i 0))
+
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; User section - flush any pending assistant blocks and add user message
+         ((equal section-type "user_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; System section - flush any pending assistant blocks and add system message
+</tool.toolu_01X7U8HL8Fb41pK2vB3HJBVV>
+
+## ASSISTANT:
+
+The let statement looks correct. Let me check if there's an issue with the rest of the function by looking at the structure:
+
+
+## ASSISTANT:
+
+ Maybe there's a missing paren somewhere. Let me search for where the function ends:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_018v5ivZU2AE8NnfyjnadPmM
+
+### pattern
+
+<tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+nreverse messages
+</tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+
+### path
+
+<tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+greger-tree-sitter.el
+</tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+
+### context-lines
+
+<tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+3
+</tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+
+## TOOL RESULT:
+
+ID: toolu_018v5ivZU2AE8NnfyjnadPmM
+
+<tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+46-    (when current-assistant-blocks
+47-      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+48-
+49:    (nreverse messages)))
+50-
+51-(defun greger-tree-sitter--get-sections (root-node)
+52-  "Get all section nodes from ROOT-NODE."
+--
+286-
+287-      (setq i (1+ i)))
+288-
+289:    (nreverse messages)))
+290-
+291-(defun greger-tree-sitter--get-section-type (section-node)
+292-  "Get the type of a section node."
+
+</tool.toolu_018v5ivZU2AE8NnfyjnadPmM>
+
+## ASSISTANT:
+
+It looks like there are multiple `(nreverse messages)` statements. Let me look at the broader structure of this function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011jenHk8VuAK7Ej8avfKV6M
+
+### path
+
+<tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+greger-tree-sitter.el
+</tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+
+### start-line
+
+<tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+280
+</tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+
+### end-line
+
+<tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+310
+</tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+
+## TOOL RESULT:
+
+ID: toolu_011jenHk8VuAK7Ej8avfKV6M
+
+<tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+         ((equal section-type "tool_result_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a section node."
+  (treesit-node-type (treesit-node-child section-node 0)))
+
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+  "Associate CITATIONS with content blocks that have cite tags."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Extract citations from a citations section."
+</tool.toolu_011jenHk8VuAK7Ej8avfKV6M>
+
+## ASSISTANT:
+
+I see the issue! There's missing the flush logic at the end. Let me find where exactly it is:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01V37dez6ifkikKERKQL6YWE
+
+### path
+
+<tool.toolu_01V37dez6ifkikKERKQL6YWE>
+greger-tree-sitter.el
+</tool.toolu_01V37dez6ifkikKERKQL6YWE>
+
+### start-line
+
+<tool.toolu_01V37dez6ifkikKERKQL6YWE>
+285
+</tool.toolu_01V37dez6ifkikKERKQL6YWE>
+
+### end-line
+
+<tool.toolu_01V37dez6ifkikKERKQL6YWE>
+295
+</tool.toolu_01V37dez6ifkikKERKQL6YWE>
+
+## TOOL RESULT:
+
+ID: toolu_01V37dez6ifkikKERKQL6YWE
+
+<tool.toolu_01V37dez6ifkikKERKQL6YWE>
+            (when message (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a section node."
+  (treesit-node-type (treesit-node-child section-node 0)))
+
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+</tool.toolu_01V37dez6ifkikKERKQL6YWE>
+
+## ASSISTANT:
+
+The flush logic is missing! Let me add it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018TuvEtd1Hgvx3DtbKEsopu
+
+### file-path
+
+<tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+greger-tree-sitter.el
+</tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+
+### original-content
+
+<tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+</tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+
+### new-content
+
+<tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+      (setq i (1+ i)))
+
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
+    (nreverse messages)))
+</tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+
+### git-commit-message
+
+<tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+Add missing flush logic for remaining assistant blocks
+</tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018TuvEtd1Hgvx3DtbKEsopu -->
