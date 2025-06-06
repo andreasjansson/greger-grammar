@@ -2,6 +2,58 @@
 
 (load-file "./greger-tree-sitter.el")
 
+(defun test-complex-workflow ()
+  "Test a complex workflow with thinking, tool use, and multiple responses."
+  (let* ((markdown "## USER:
+
+who's the current king of sweden?
+
+## THINKING:
+
+The user is asking about the current king of Sweden.
+
+## TOOL USE:
+
+Name: search
+ID: toolu_123
+
+### query
+
+<tool.toolu_123>
+current king of Sweden 2024
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Carl XVI Gustaf
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The current King of Sweden is **Carl XVI Gustaf**.")
+         (expected '(((role . "user") (content . "who's the current king of sweden?"))
+                     ((role . "assistant") (content . (((type . "thinking") (thinking . "The user is asking about the current king of Sweden.")) ((type . "tool_use") (id . "toolu_123") (name . "search") (input . ((query . "current king of Sweden 2024")))))))
+                     ((role . "user") (content . (((type . "tool_result") (tool_use_id . "toolu_123") (content . "Carl XVI Gustaf")))))
+                     ((role . "assistant") (content . "The current King of Sweden is **Carl XVI Gustaf**.")))))
+    (message "\n=== Testing: complex-workflow ===")
+    (condition-case err
+        (let ((actual (greger-tree-sitter-parse markdown)))
+          (if (equal actual expected)
+              (progn
+                (message "✅ PASS")
+                t)
+            (progn
+              (message "❌ FAIL")
+              (message "Expected: %S" expected)
+              (message "Actual:   %S" actual)
+              nil)))
+      (error
+       (message "❌ ERROR: %s" err)
+       nil))))
+
 ;; Test tool use with multiple parameters
 (defun test-tool-multiple-params ()
   "Test tool use with multiple parameters."
@@ -100,6 +152,7 @@ ID: toolu_calc
         (test-tool-multiple-params)
         (test-full-conversation)
         (test-thinking-with-tools)
+        (test-complex-workflow)
         (message "✅ All complex tests completed successfully"))
     (error
      (message "❌ Complex test error: %s" err))))

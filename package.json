@@ -3,19 +3,31 @@
   "version": "0.1.0",
   "description": "Tree-sitter grammar for Greger markdown format",
   "main": "bindings/node",
+  "types": "bindings/node",
   "keywords": [
     "parser",
     "tree-sitter",
     "markdown",
     "greger"
   ],
+  "files": [
+    "grammar.js",
+    "binding.gyp",
+    "prebuilds/**",
+    "bindings/node/*",
+    "queries/*",
+    "src/**",
+    "*.wasm"
+  ],
   "author": "Andreas Jansson",
   "license": "MIT",
   "dependencies": {
-    "nan": "^2.17.0"
+    "node-addon-api": "^8.0.0",
+    "node-gyp-build": "^4.8.1"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.20.0"
+    "tree-sitter-cli": "^0.20.0",
+    "prebuildify": "^6.0.1"
   },
   "peerDependencies": {
     "tree-sitter": "^0.20.0"
@@ -27,5 +39,12 @@
         "greger"
       ]
     }
-  ]
+  ],
+  "scripts": {
+    "install": "node-gyp-build",
+    "prestart": "tree-sitter build --wasm",
+    "start": "tree-sitter playground",
+    "test": "node --test bindings/node/*_test.js",
+    "prebuildify": "prebuildify --napi --strip"
+  }
 }

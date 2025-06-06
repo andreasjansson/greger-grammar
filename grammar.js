@@ -110,7 +110,6 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.include_tag,
-      $.cite_tag,
       $.html_comment,
       $.line,
       $.newline
