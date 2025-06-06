@@ -357,7 +357,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                   (let ((text (treesit-node-text child)))
                     (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
                       (setq cited-text (string-trim (match-string 1 text)))
-                      (message "Extracted cited-text from text: %S" cited-text))))))
+                      )))))
              ((equal (treesit-node-type child) "citation_index")
               (let ((index-node (treesit-node-child-by-field-name child "index")))
                 (message "Found citation_index, index-node: %S" index-node)
