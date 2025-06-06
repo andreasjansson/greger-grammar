@@ -7143,4 +7143,99 @@ server_tool_result_section: $ => seq(
 Add back citations_section rule
 </tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018UNMEmpeWRuCkoiXsQ3frV -->
+## TOOL RESULT:
+
+ID: toolu_018UNMEmpeWRuCkoiXsQ3frV
+
+<tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add back citations_section rule
+</tool.toolu_018UNMEmpeWRuCkoiXsQ3frV>
+
+## ASSISTANT:
+
+Now let me also make sure that cite_tag is part of the regular content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Cpd18qwHbtt2xGE2kSrS21
+
+### path
+
+<tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+grammar.js
+</tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+
+### start-line
+
+<tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+105
+</tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+
+### end-line
+
+<tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+120
+</tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+
+## TOOL RESULT:
+
+ID: toolu_01Cpd18qwHbtt2xGE2kSrS21
+
+<tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+
+    system_content: $ => prec(-1, repeat1(choice(
+      $.safe_shell_commands,
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line,
+</tool.toolu_01Cpd18qwHbtt2xGE2kSrS21>
+
+## ASSISTANT:
+
+Good! `cite_tag` is already included in the regular `content` rule. Now let's remove the conflicts that are no longer needed:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011YFMTY4JBJjraNDFnTHxzH
+
+### file-path
+
+<tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+grammar.js
+</tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+
+### original-content
+
+<tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+conflicts: $ => [
+    [$.content, $.content_with_citations],
+  ],
+</tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+
+### new-content
+
+<tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+conflicts: $ => [
+    // Add conflicts here if needed
+  ],
+</tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+
+### git-commit-message
+
+<tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+Remove unnecessary conflicts
+</tool.toolu_011YFMTY4JBJjraNDFnTHxzH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011YFMTY4JBJjraNDFnTHxzH -->
