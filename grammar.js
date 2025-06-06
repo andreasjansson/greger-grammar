@@ -134,21 +134,7 @@ module.exports = grammar({
       $.newline
     ))),
 
-    // Special tags and blocks
-    safe_shell_commands: $ => seq(
-      "<safe-shell-commands>",
-      "\n",
-      repeat(choice(/[^\n<]+/, "\n")),
-      "</safe-shell-commands>"
-    ),
 
-    include_tag: $ => seq(
-      "<include",
-      optional(/[ \t]+code/),
-      ">",
-      field("path", /[^<>\n]+/),
-      "</include>"
-    ),
 
 
 
