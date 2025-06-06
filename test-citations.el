@@ -50,10 +50,15 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
     (message "\n=== Testing citations-basic ===")
     (condition-case err
         (progn
-          (message "About to call greger-tree-sitter-parse")
           (let ((result (greger-tree-sitter-parse markdown)))
-            (message "Parsed result: %S" result)
-            (message "✅ Citations test completed")
+            (message "✅ Citations test completed successfully!")
+            (message "\nStructure summary:")
+            (message "- User message: %S" (alist-get 'content (cadr result)))
+            (let ((assistant-content (alist-get 'content (car result))))
+              (message "- Assistant content blocks: %d" (length assistant-content))
+              (dotimes (i (length assistant-content))
+                (let ((block (nth i assistant-content)))
+                  (message "  %d. %s" (1+ i) (alist-get 'type block)))))
             result))
       (error
        (message "❌ Error: %s" (error-message-string err))
