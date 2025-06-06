@@ -11,6 +11,19 @@ Hello
 Hi there! How can I help you today?"))
   (message "Input text:")
   (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child)))))))
+
   (message "\nParsed result:")
   (let ((result (greger-tree-sitter-parse test-text)))
     (pp result)

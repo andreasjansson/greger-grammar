@@ -10997,4 +10997,143 @@ grammar.js
 Add right precedence to text_line to resolve conflict
 </tool.toolu_01R2nThtuhw419jCc36586bW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01R2nThtuhw419jCc36586bW -->
+## TOOL RESULT:
+
+ID: toolu_01R2nThtuhw419jCc36586bW
+
+<tool.toolu_01R2nThtuhw419jCc36586bW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add right precedence to text_line to resolve conflict
+</tool.toolu_01R2nThtuhw419jCc36586bW>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013rJPz1WRjgJA4DtaszoHak
+
+### command
+
+<tool.toolu_013rJPz1WRjgJA4DtaszoHak>
+tree-sitter generate
+</tool.toolu_013rJPz1WRjgJA4DtaszoHak>
+
+## TOOL RESULT:
+
+ID: toolu_013rJPz1WRjgJA4DtaszoHak
+
+<tool.toolu_013rJPz1WRjgJA4DtaszoHak>
+Command executed successfully:
+(no output)
+</tool.toolu_013rJPz1WRjgJA4DtaszoHak>
+
+## ASSISTANT:
+
+Now let me test with the debug case:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DY9zEGzKa7uS8n2Uit1vuX
+
+### command
+
+<tool.toolu_01DY9zEGzKa7uS8n2Uit1vuX>
+emacs --batch -l debug-test.el
+</tool.toolu_01DY9zEGzKa7uS8n2Uit1vuX>
+
+## TOOL RESULT:
+
+ID: toolu_01DY9zEGzKa7uS8n2Uit1vuX
+
+<tool.toolu_01DY9zEGzKa7uS8n2Uit1vuX>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+Parsed result:
+(((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 1
+First message role: user
+First message content: "Hello"
+
+</tool.toolu_01DY9zEGzKa7uS8n2Uit1vuX>
+
+## ASSISTANT:
+
+Still only getting one message. Let me check what the tree-sitter parser is generating. But I can't use the shell command directly. Let me modify the debug script to show the tree structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Y1BH7QpHJRWQURAhQHJXwm
+
+### file-path
+
+<tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+debug-test.el
+</tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+
+### original-content
+
+<tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+  (message "Input text:")
+  (message "%s" test-text)
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+
+### new-content
+
+<tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+        (dotimes (i (treesit-node-child-count root-node))
+          (let ((child (treesit-node-child root-node i)))
+            (message "Child %d: %s [%s]" i (treesit-node-type child) (treesit-node-text child)))))))
+
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+
+### git-commit-message
+
+<tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+Add tree structure debugging to see what tree-sitter parses
+</tool.toolu_01Y1BH7QpHJRWQURAhQHJXwm>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Y1BH7QpHJRWQURAhQHJXwm -->
