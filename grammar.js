@@ -113,9 +113,9 @@ module.exports = grammar({
       "\n"
     ),
 
-    // Simple text line - any non-empty line that doesn't start with ## and doesn't contain <cite>
+    // Simple text line - any non-empty line that doesn't start with ##
     text_line: $ => seq(
-      /[^#<\n][^\n]*/, // First char can't be # or <, rest can be anything
+      /[^\n]+/, // Any non-empty line
       "\n"
     ),
 
