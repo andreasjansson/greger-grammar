@@ -18,6 +18,8 @@ module.exports = grammar({
     $.tool_block_start,
     $.tool_block_end,
     $.tool_block_content,
+    $.citations_context_start,
+    $.citations_context_end,
   ],
 
   rules: {

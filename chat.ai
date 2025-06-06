@@ -11304,4 +11304,55 @@ grammar.js
 Add citations_with_text option to assistant sections
 </tool.toolu_018vaBCDySsseY6uysnfc9Uy>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018vaBCDySsseY6uysnfc9Uy -->
+## TOOL RESULT:
+
+ID: toolu_018vaBCDySsseY6uysnfc9Uy
+
+<tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citations_with_text option to assistant sections
+</tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+
+## ASSISTANT:
+
+Now I need to define the `citations_with_text` and `citations_without_text` rules. This is complex because I need to use the external scanner to detect when we're in a citation context:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01287Q2mpDKs1J6RcaD1XirW
+
+### file-path
+
+<tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+grammar.js
+</tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+
+### original-content
+
+<tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+  ],
+</tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+
+### new-content
+
+<tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $.citations_context_start,
+    $.citations_context_end,
+  ],
+</tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+
+### git-commit-message
+
+<tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+Add citation context externals
+</tool.toolu_01287Q2mpDKs1J6RcaD1XirW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01287Q2mpDKs1J6RcaD1XirW -->
