@@ -8,6 +8,8 @@
 
 (require 'treesit)
 
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
 (defun greger-tree-sitter-parse (text)
   "Parse TEXT using tree-sitter and return the dialog structure.
 Returns the same format as `greger-parser-parse-dialog-messages-only'."
@@ -24,16 +26,24 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
   (let ((root-node (treesit-node-child tree 0))
         (messages '()))
 
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+    (message "DEBUG: Root node child count: %d" (treesit-node-child-count root-node))
+
     ;; Handle untagged content at the beginning (treated as user message)
     (when-let ((untagged (treesit-node-child-by-field-name root-node "content")))
+      (message "DEBUG: Found untagged content")
       (push `((role . "user")
               (content . ,(greger-tree-sitter--extract-content untagged)))
             messages))
 
     ;; Process all sections
-    (dolist (section-node (greger-tree-sitter--get-sections root-node))
-      (when-let ((message (greger-tree-sitter--extract-section section-node)))
-        (push message messages)))
+    (let ((sections (greger-tree-sitter--get-sections root-node)))
+      (message "DEBUG: Found %d sections" (length sections))
+      (dolist (section-node sections)
+        (message "DEBUG: Processing section type: %s" (treesit-node-type section-node))
+        (when-let ((message (greger-tree-sitter--extract-section section-node)))
+          (message "DEBUG: Extracted message: %S" message)
+          (push message messages))))
 
     (nreverse messages)))
 
