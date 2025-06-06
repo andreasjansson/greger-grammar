@@ -26,13 +26,10 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
   (let ((root-node (treesit-parser-root-node parser))
         (messages '()))
 
-    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
-
     ;; Check if we have a source_file or just a section
     (cond
      ((equal (treesit-node-type root-node) "source_file")
       ;; Multiple sections case
-      (message "DEBUG: Multiple sections in source_file")
       (let ((child-count (treesit-node-child-count root-node)))
         (dotimes (i child-count)
           (let ((child (treesit-node-child root-node i)))

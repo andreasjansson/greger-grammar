@@ -9132,4 +9132,112 @@ greger-tree-sitter.el
 Fix tool result section content extraction
 </tool.toolu_01M74WPmKEiPfZefVJ6xThGU>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01M74WPmKEiPfZefVJ6xThGU -->
+## TOOL RESULT:
+
+ID: toolu_01M74WPmKEiPfZefVJ6xThGU
+
+<tool.toolu_01M74WPmKEiPfZefVJ6xThGU>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tool result section content extraction
+</tool.toolu_01M74WPmKEiPfZefVJ6xThGU>
+
+## ASSISTANT:
+
+Now let me run the tests again to see if they're working better:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GaSWruL6HrtdyrfUCGjdcu
+
+### command
+
+<tool.toolu_01GaSWruL6HrtdyrfUCGjdcu>
+emacs --batch -l test-dialog-conversion.el
+</tool.toolu_01GaSWruL6HrtdyrfUCGjdcu>
+
+## TOOL RESULT:
+
+ID: toolu_01GaSWruL6HrtdyrfUCGjdcu
+
+<tool.toolu_01GaSWruL6HrtdyrfUCGjdcu>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing: simple-user-message ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-30>
+✅ PASS
+
+=== Testing: simple-conversation ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-18>
+✅ PASS
+
+=== Testing: tool-use-simple ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+✅ PASS
+
+=== Testing: tool-result-simple ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+✅ PASS
+
+=== Testing: thinking-section ===
+DEBUG: Root node type: source_file
+DEBUG: Multiple sections in source_file
+✅ PASS
+
+=== SUMMARY ===
+Passed: 5/5 tests
+🎉 All tests passed!
+
+</tool.toolu_01GaSWruL6HrtdyrfUCGjdcu>
+
+## ASSISTANT:
+
+Excellent! All tests are now passing! Let me clean up the debug output and add a few more comprehensive tests to make sure the integration is robust:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011BdCdkpZ5xydV8CmcLZGnY
+
+### file-path
+
+<tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+greger-tree-sitter.el
+</tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+
+### original-content
+
+<tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+</tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+
+### new-content
+
+<tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+</tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+
+### git-commit-message
+
+<tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+Remove debug output from dialog extraction
+</tool.toolu_011BdCdkpZ5xydV8CmcLZGnY>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011BdCdkpZ5xydV8CmcLZGnY -->
