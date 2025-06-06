@@ -818,7 +818,46 @@ metadata that gets linked to <cite> tags."
     (nreverse citations)))
 
 (defun greger-tree-sitter--extract-citation-entry (entry-node)
-  "Extract a single citation entry."
+  "Extract a single citation entry from ENTRY-NODE.
+
+INPUT:
+  ENTRY-NODE - Tree-sitter node representing one citation entry (### URL and its fields)
+
+PROCESSING:
+  1. Extracts URL from the field name (### https://... line)
+  2. Iterates through child nodes to find:
+     - citation_title nodes → extracts title after \"Title:\"
+     - citation_text nodes → extracts text after \"Cited text:\"
+     - citation_index nodes → extracts index after \"Encrypted index:\"
+  3. Uses field names when available, falls back to regex extraction
+  4. Trims whitespace from all extracted values
+
+OUTPUT:
+  Returns a citation object:
+  ((type . \"web_search_result_location\")
+   (url . \"extracted-url\")
+   (title . \"extracted-title\")
+   (cited_text . \"extracted-cited-text\")
+   (encrypted_index . \"extracted-index\"))
+
+  All fields will be present but may be nil/empty if not found in the input.
+
+EXAMPLE INPUT:
+  ### https://example.com
+
+  Title: Example Website
+  Cited text: Relevant quote from the website
+  Encrypted index: abc123
+
+EXAMPLE OUTPUT:
+  ((type . \"web_search_result_location\")
+   (url . \"https://example.com\")
+   (title . \"Example Website\")
+   (cited_text . \"Relevant quote from the website\")
+   (encrypted_index . \"abc123\"))
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-citations-section
+to process individual citation entries."
   (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
         (title nil)
         (cited-text nil)
