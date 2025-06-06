@@ -5829,4 +5829,149 @@ tool_param_block: $ => seq(
 Remove optional newline from tool param block
 </tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KFZdZfjP1ZnLnJEyYJG3P5 -->
+## TOOL RESULT:
+
+ID: toolu_01KFZdZfjP1ZnLnJEyYJG3P5
+
+<tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove optional newline from tool param block
+</tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GrHPTvhrndsc3VY7A6ePVH
+
+### command
+
+<tool.toolu_01GrHPTvhrndsc3VY7A6ePVH>
+tree-sitter generate
+</tool.toolu_01GrHPTvhrndsc3VY7A6ePVH>
+
+## TOOL RESULT:
+
+ID: toolu_01GrHPTvhrndsc3VY7A6ePVH
+
+<tool.toolu_01GrHPTvhrndsc3VY7A6ePVH>
+Command executed successfully:
+(no output)
+</tool.toolu_01GrHPTvhrndsc3VY7A6ePVH>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TRe6WTe2PMPi56UyR2G7Yj
+
+### command
+
+<tool.toolu_01TRe6WTe2PMPi56UyR2G7Yj>
+tree-sitter parse test_complex.greger
+</tool.toolu_01TRe6WTe2PMPi56UyR2G7Yj>
+
+## TOOL RESULT:
+
+ID: toolu_01TRe6WTe2PMPi56UyR2G7Yj
+
+<tool.toolu_01TRe6WTe2PMPi56UyR2G7Yj>
+Command failed with exit code 1: Warning: You have not configured any parser directories!
+Please run `tree-sitter init-config` and edit the resulting
+configuration file to indicate where we should look for
+language grammars.
+
+(source_file [0, 0] - [25, 32]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (tool_use_section [4, 0] - [15, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          (identifier [6, 6] - [6, 15]))
+        (tool_id_line [7, 0] - [8, 0]
+          (identifier [7, 4] - [7, 13]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 17]
+          (identifier [9, 4] - [9, 8])
+          (tool_param_block [11, 0] - [13, 17]
+            (identifier [11, 6] - [11, 15])
+            (identifier [13, 7] - [13, 16])))
+        (newline [13, 17] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [19, 0]
+    (tool_result_section [15, 0] - [19, 0]
+      (tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [19, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          (identifier [17, 4] - [17, 13]))
+        (newline [18, 0] - [19, 0]))))
+  (ERROR [19, 0] - [25, 32]
+    (identifier [19, 6] - [19, 15])
+    (line [20, 0] - [21, 0])
+    (line [21, 0] - [22, 0])
+    (newline [22, 0] - [23, 0])
+    (ERROR [23, 0] - [24, 0]
+      (assistant_header [23, 0] - [24, 0]))
+    (newline [24, 0] - [25, 0])))
+test_complex.greger	Parse:    0.08 ms	  3151 bytes/ms	(ERROR [19, 0] - [25, 32])
+
+</tool.toolu_01TRe6WTe2PMPi56UyR2G7Yj>
+
+## ASSISTANT:
+
+Great progress! It's parsing the tool use section correctly, including the parameter block. Now it needs to handle the tool result block properly. Let me fix that:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EFi3ytPfxdm9veJBASZBbQ
+
+### file-path
+
+<tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+./grammar.js
+</tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+
+### original-content
+
+<tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+tool_result_block: $ => seq(
+      "<tool.",
+      $.identifier,
+      ">",
+      "\n",
+      repeat(choice($.line, $.newline)),
+      "</tool.",
+      $.identifier,
+      ">"
+    ),
+</tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+
+### new-content
+
+<tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+tool_result_block: $ => seq(
+      "<tool.",
+      $.identifier,
+      ">",
+      "\n",
+      repeat(choice(/[^\n<]+/, "\n")),
+      "</tool.",
+      $.identifier,
+      ">"
+    ),
+</tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+
+### git-commit-message
+
+<tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+Fix tool result block parsing to match tool param block
+</tool.toolu_01EFi3ytPfxdm9veJBASZBbQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EFi3ytPfxdm9veJBASZBbQ -->

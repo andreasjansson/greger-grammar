@@ -161,7 +161,7 @@ module.exports = grammar({
       $.identifier,
       ">",
       "\n",
-      repeat(choice($.line, $.newline)),
+      repeat(choice(/[^\n<]+/, "\n")),
       "</tool.",
       $.identifier,
       ">"
