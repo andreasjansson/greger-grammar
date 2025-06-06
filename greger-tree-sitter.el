@@ -162,7 +162,22 @@ proper block ordering for compatibility with greger.el expectations."
             (nreverse other-blocks))))
 
 (defun greger-tree-sitter--get-sections (root-node)
-  "Get all section nodes from ROOT-NODE."
+  "Extract all section nodes from ROOT-NODE tree.
+
+INPUT:
+  ROOT-NODE - A tree-sitter node representing the root of a parsed document
+
+PROCESSING:
+  Iterates through all child nodes of the root and collects those with
+  type \"section\". Sections correspond to ## USER:, ## ASSISTANT:, etc.
+
+OUTPUT:
+  Returns a list of tree-sitter section nodes in the order they appear
+  in the document.
+
+INTERNAL FUNCTION: Helper for extracting sections from parsed trees.
+Note: This function is similar to greger-tree-sitter--get-all-sections
+but may have subtle differences in usage."
   (let ((sections '())
         (child-count (treesit-node-child-count root-node)))
     (dotimes (i child-count)
