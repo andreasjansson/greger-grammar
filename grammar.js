@@ -39,7 +39,7 @@ module.exports = grammar({
 
     system_section: $ => seq(
       $.system_header,
-      optional(alias($.content, $.section_content))
+      optional(alias($.system_content, $.section_content))
     ),
 
     assistant_section: $ => seq(
@@ -88,8 +88,24 @@ module.exports = grammar({
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
     citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    // Content - anything that doesn't start a new section
+    // Content types
     content: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+
+    system_content: $ => prec(-1, repeat1(choice(
+      $.safe_shell_commands,
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
       $.line,
       $.newline
     ))),
@@ -108,81 +124,156 @@ module.exports = grammar({
     )),
 
     citations_content: $ => repeat1(choice(
-      $.citation_url_line,
-      $.citation_metadata_line,
-      $.line,
+      $.citation_entry,
       $.newline
     )),
+
+    // Special tags and blocks
+    safe_shell_commands: $ => seq(
+      "<safe-shell-commands>",
+      "\n",
+      repeat(choice(/[^\n<]+/, "\n")),
+      "</safe-shell-commands>"
+    ),
+
+    include_tag: $ => seq(
+      "<include",
+      optional(/[ \t]+code/),
+      ">",
+      field("path", /[^<>\n]+/),
+      "</include>"
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    html_comment: $ => seq(
+      "<!--",
+      repeat(choice(/[^-\n]+/, seq("-", /[^-\n]/), "\n")),
+      "-->"
+    ),
+
+    // Code blocks
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_block
+    ),
+
+    triple_backtick_block: $ => seq(
+      "```",
+      optional(field("language", /[a-zA-Z]+/)),
+      "\n",
+      field("content", repeat(choice(/[^`\n]+/, "`", "``", "\n"))),
+      "```"
+    ),
+
+    single_backtick_block: $ => seq(
+      "``",
+      field("content", repeat(choice(/[^`\n]+/, "\n"))),
+      "``"
+    ),
+
+    inline_code: $ => seq(
+      "`",
+      field("content", /[^`\n]+/),
+      "`"
+    ),
 
     // Tool-specific patterns
     tool_name_line: $ => seq(
       "Name:",
       /[ \t]*/,
-      $.identifier,
+      field("name", $.identifier),
       "\n"
     ),
 
     tool_id_line: $ => seq(
       "ID:",
       /[ \t]*/,
-      $.identifier,
+      field("id", $.identifier),
       "\n"
     ),
 
     tool_parameter: $ => seq(
       "###",
       /[ \t]*/,
-      $.identifier,
+      field("param_name", $.identifier),
       "\n",
       "\n",
-      $.tool_param_block
+      field("param_value", $.tool_param_block)
     ),
 
     tool_param_block: $ => seq(
       "<tool.",
-      $.identifier,
+      field("tool_id", $.identifier),
       ">",
       "\n",
-      repeat(choice(/[^\n<]+/, "\n")),
+      field("content", repeat(choice(/[^\n<]+/, "\n"))),
       "</tool.",
-      $.identifier,
+      field("tool_id", $.identifier),
       ">"
     ),
 
     tool_result_id_line: $ => seq(
       "ID:",
       /[ \t]*/,
-      $.identifier,
+      field("id", $.identifier),
       "\n"
     ),
 
     tool_result_block: $ => seq(
       "<tool.",
-      $.identifier,
+      field("tool_id", $.identifier),
       ">",
       "\n",
-      repeat(choice(/[^\n<]+/, "\n")),
+      field("content", repeat(choice(/[^\n<]+/, "\n"))),
       "</tool.",
-      $.identifier,
+      field("tool_id", $.identifier),
       ">"
     ),
 
-    citation_url_line: $ => seq(
-      /###[ \t]*/,
-      $.url,
+    // Citation patterns
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
       "\n"
     ),
 
-    citation_metadata_line: $ => seq(
-      choice("Title:", "Cited text:", "Encrypted index:"),
+    citation_text: $ => seq(
+      "Cited text:",
       /[ \t]*/,
-      /[^\n]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
       "\n"
     ),
 
     // Basic patterns
     line: $ => seq(
-      prec(-2, /[^#\n][^\n]*/),  // Lines that don't start with # (which could be headers)
+      prec(-2, /[^#\n<`][^\n]*/),  // Lines that don't start with special chars
       "\n"
     ),
 
