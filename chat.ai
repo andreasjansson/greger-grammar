@@ -1,0 +1,25 @@
+## SYSTEM:
+
+<safe-shell-commands>
+tree-sitter generate
+tree-sitter parse test_simple.greger
+</safe-shell-commands>
+
+Here's a guide to using tree-sitter: https://www.jonashietala.se/blog/2024/03/19/lets_create_a_tree-sitter_grammar/
+
+Elisp example: https://raw.githubusercontent.com/Wilfred/tree-sitter-elisp/12b547b470a4213dc63a20c7bd2db988d85c7693/grammar.js
+Go example: https://raw.githubusercontent.com/tree-sitter/tree-sitter-go/5e73f476efafe5c768eda19bbe877f188ded6144/grammar.js
+
+treesit.el: /opt/homebrew/Cellar/emacs-plus@29/29.0.90/share/emacs/29.0.91/lisp/treesit.el (large file, don't read it all at once)
+
+## USER:
+
+I want to make a custom tree-sitter grammar for the markdown-like format described in ~/projects/greger.el/test/test-greger-parser.el. When parsing the greger syntax, it should return the elisp forms in test-greger-parser.el. Effectively I want to replace the underlying implementation of `greger-parser-parse-dialog-messages-only` with a tree-sitter based grammar.
+
+I want to work on the grammar in isolation here in a clean repo before integrating into greger.el.
+
+I have installed the tree-sitter CLI. Write me a grammar and tell me how to use it in elisp, and how test it manually. Once that's done I want you to write me a small test before running the full test-greger-parser.el on it.
+
+Important: Make sure the parsed content matches the forms in the parser-test!
+
+Make sure you read the elisp and go examples so you see what complex parsing looks like.

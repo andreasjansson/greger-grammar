@@ -1,0 +1,333 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
+  "name": "greger",
+  "rules": {
+    "document": {
+      "type": "REPEAT",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "section_header"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "content_line"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "empty_line"
+          }
+        ]
+      }
+    },
+    "section_header": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "## USER:"
+        },
+        {
+          "type": "STRING",
+          "value": "## SYSTEM:"
+        },
+        {
+          "type": "STRING",
+          "value": "## ASSISTANT:"
+        },
+        {
+          "type": "STRING",
+          "value": "## THINKING:"
+        },
+        {
+          "type": "STRING",
+          "value": "## TOOL USE:"
+        },
+        {
+          "type": "STRING",
+          "value": "## TOOL RESULT:"
+        },
+        {
+          "type": "STRING",
+          "value": "## SERVER TOOL USE:"
+        },
+        {
+          "type": "STRING",
+          "value": "## SERVER TOOL RESULT:"
+        },
+        {
+          "type": "STRING",
+          "value": "## CITATIONS:"
+        }
+      ]
+    },
+    "content_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "tool_name_line"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "tool_id_line"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "tool_parameter_header"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "tool_tag"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "code_fence"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "html_comment_marker"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "include_tag"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "safe_shell_tag"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "cite_tag"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "text_content"
+            }
+          ]
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\n"
+        }
+      ]
+    },
+    "empty_line": {
+      "type": "PATTERN",
+      "value": "\\n"
+    },
+    "tool_name_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "Name:"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[ \\t]+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[^\\s\\n]+"
+        }
+      ]
+    },
+    "tool_id_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "ID:"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[ \\t]+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[^\\s\\n]+"
+        }
+      ]
+    },
+    "tool_parameter_header": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "###"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[ \\t]+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[^\\s\\n]+"
+        }
+      ]
+    },
+    "tool_tag": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "<tool."
+            },
+            {
+              "type": "PATTERN",
+              "value": "[^\\s>]+"
+            },
+            {
+              "type": "STRING",
+              "value": ">"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "</tool."
+            },
+            {
+              "type": "PATTERN",
+              "value": "[^\\s>]+"
+            },
+            {
+              "type": "STRING",
+              "value": ">"
+            }
+          ]
+        }
+      ]
+    },
+    "code_fence": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "```"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "[^\\n]*"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "html_comment_marker": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<!--"
+        },
+        {
+          "type": "STRING",
+          "value": "-->"
+        }
+      ]
+    },
+    "include_tag": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<include"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[ \\t]+"
+                },
+                {
+                  "type": "STRING",
+                  "value": "code"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ">"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[^<\\n]+"
+        },
+        {
+          "type": "STRING",
+          "value": "</include>"
+        }
+      ]
+    },
+    "safe_shell_tag": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<safe-shell-commands>"
+        },
+        {
+          "type": "STRING",
+          "value": "</safe-shell-commands>"
+        }
+      ]
+    },
+    "cite_tag": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<cite>"
+        },
+        {
+          "type": "STRING",
+          "value": "</cite>"
+        }
+      ]
+    },
+    "text_content": {
+      "type": "PATTERN",
+      "value": "[^\\n]+"
+    }
+  },
+  "extras": [
+    {
+      "type": "PATTERN",
+      "value": "[ \\t\\r]"
+    }
+  ],
+  "conflicts": [],
+  "precedences": [],
+  "externals": [],
+  "inline": [],
+  "supertypes": [],
+  "reserved": {}
+}
