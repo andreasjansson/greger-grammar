@@ -10908,4 +10908,93 @@ grammar.js
 Make newline optional in text_line to handle end-of-file
 </tool.toolu_016oftUoKncM6sd19avqCjPF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016oftUoKncM6sd19avqCjPF -->
+## TOOL RESULT:
+
+ID: toolu_016oftUoKncM6sd19avqCjPF
+
+<tool.toolu_016oftUoKncM6sd19avqCjPF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make newline optional in text_line to handle end-of-file
+</tool.toolu_016oftUoKncM6sd19avqCjPF>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VK1xE51ATDR8cY4LDiqru4
+
+### command
+
+<tool.toolu_01VK1xE51ATDR8cY4LDiqru4>
+tree-sitter generate
+</tool.toolu_01VK1xE51ATDR8cY4LDiqru4>
+
+## TOOL RESULT:
+
+ID: toolu_01VK1xE51ATDR8cY4LDiqru4
+
+<tool.toolu_01VK1xE51ATDR8cY4LDiqru4>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+
+      'text_line_token1'  •  '
+    '  …
+
+    Possible interpretations:
+
+      1:  (text_line  'text_line_token1'  •  '
+    ')
+      2:  (text_line  'text_line_token1')  •  '
+    '  …
+
+    Possible resolutions:
+
+      1:  Specify a left or right associativity in `text_line`
+      2:  Add a conflict for these rules: `text_line`
+
+
+</tool.toolu_01VK1xE51ATDR8cY4LDiqru4>
+
+## ASSISTANT:
+
+The optional newline creates a conflict. Let me try a different approach using precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01R2nThtuhw419jCc36586bW
+
+### file-path
+
+<tool.toolu_01R2nThtuhw419jCc36586bW>
+grammar.js
+</tool.toolu_01R2nThtuhw419jCc36586bW>
+
+### original-content
+
+<tool.toolu_01R2nThtuhw419jCc36586bW>
+// Simple text line - any non-empty line
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n") // Newline is optional (for end-of-file)
+    ),
+</tool.toolu_01R2nThtuhw419jCc36586bW>
+
+### new-content
+
+<tool.toolu_01R2nThtuhw419jCc36586bW>
+// Simple text line - any non-empty line
+    text_line: $ => prec.right(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n") // Newline is optional (for end-of-file)
+    )),
+</tool.toolu_01R2nThtuhw419jCc36586bW>
+
+### git-commit-message
+
+<tool.toolu_01R2nThtuhw419jCc36586bW>
+Add right precedence to text_line to resolve conflict
+</tool.toolu_01R2nThtuhw419jCc36586bW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01R2nThtuhw419jCc36586bW -->
