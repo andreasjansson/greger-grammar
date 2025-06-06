@@ -8644,4 +8644,115 @@ conflicts: $ => [
 Add conflict resolution for text vs cite lines
 </tool.toolu_01BZQ78VZ99Rx6aNnpH8Ja8p>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01BZQ78VZ99Rx6aNnpH8Ja8p -->
+## TOOL RESULT:
+
+ID: toolu_01BZQ78VZ99Rx6aNnpH8Ja8p
+
+<tool.toolu_01BZQ78VZ99Rx6aNnpH8Ja8p>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflict resolution for text vs cite lines
+</tool.toolu_01BZQ78VZ99Rx6aNnpH8Ja8p>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0192ZXW6mzEgwJr7SVQCnoN8
+
+### command
+
+<tool.toolu_0192ZXW6mzEgwJr7SVQCnoN8>
+tree-sitter generate
+</tool.toolu_0192ZXW6mzEgwJr7SVQCnoN8>
+
+## TOOL RESULT:
+
+ID: toolu_0192ZXW6mzEgwJr7SVQCnoN8
+
+<tool.toolu_0192ZXW6mzEgwJr7SVQCnoN8>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      citations_header  '###'  'tool_name_line_token1'  url  '
+    '  '
+    '  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  citations_header  (citation_entry  '###'  'tool_name_line_token1'  url  '
+    '  '
+    '  •  citation_entry_repeat1)
+      2:  citations_header  (citation_entry  '###'  'tool_name_line_token1'  url  '
+    '  '
+    ')  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `citation_entry`
+      2:  Add a conflict for these rules: `citation_entry`
+    
+
+</tool.toolu_0192ZXW6mzEgwJr7SVQCnoN8>
+
+## ASSISTANT:
+
+There's a conflict with citation entries. Let me fix this by adding precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TUWNqiSapR2mmK92W6BGe7
+
+### file-path
+
+<tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+grammar.js
+</tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+
+### original-content
+
+<tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+// Citation patterns
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+</tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+
+### new-content
+
+<tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+// Citation patterns
+    citation_entry: $ => prec.left(seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    )),
+</tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+
+### git-commit-message
+
+<tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+Add left precedence to citation_entry to resolve conflicts
+</tool.toolu_01TUWNqiSapR2mmK92W6BGe7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TUWNqiSapR2mmK92W6BGe7 -->
