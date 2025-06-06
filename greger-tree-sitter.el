@@ -45,6 +45,28 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
     (nreverse messages)))
 
+(defun greger-tree-sitter--reorder-assistant-blocks (blocks)
+  "Reorder assistant content BLOCKS to put server_tool_use first, then web_search_tool_result, then others."
+  (let ((server-tool-use '())
+        (web-search-tool-result '())
+        (other-blocks '()))
+
+    ;; Categorize blocks
+    (dolist (block blocks)
+      (let ((type (alist-get 'type block)))
+        (cond
+         ((equal type "server_tool_use")
+          (push block server-tool-use))
+         ((equal type "web_search_tool_result")
+          (push block web-search-tool-result))
+         (t
+          (push block other-blocks)))))
+
+    ;; Return in desired order: server_tool_use, web_search_tool_result, others
+    (append (nreverse server-tool-use)
+            (nreverse web-search-tool-result)
+            (nreverse other-blocks))))
+
 (defun greger-tree-sitter--get-sections (root-node)
   "Get all section nodes from ROOT-NODE."
   (let ((sections '())

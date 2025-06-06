@@ -9462,4 +9462,67 @@ greger-tree-sitter.el
 Add reordering of assistant blocks before creating message
 </tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LQaQJq1NS3kcUYfPsJKAAR -->
+## TOOL RESULT:
+
+ID: toolu_01LQaQJq1NS3kcUYfPsJKAAR
+
+<tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add reordering of assistant blocks before creating message
+</tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+
+## ASSISTANT:
+
+Now let me add the reordering function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UpNouJzpne5dF3NNBWVaJs
+
+### file-path
+
+<tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+greger-tree-sitter.el
+</tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+
+### original-content
+
+<tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+(nreverse messages)))
+</tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+
+### new-content
+
+<tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+(nreverse messages)))
+
+(defun greger-tree-sitter--reorder-assistant-blocks (blocks)
+  "Reorder assistant content BLOCKS to put server_tool_use first, then web_search_tool_result, then others."
+  (let ((server-tool-use '())
+        (web-search-tool-result '())
+        (other-blocks '()))
+    
+    ;; Categorize blocks
+    (dolist (block blocks)
+      (let ((type (alist-get 'type block)))
+        (cond
+         ((equal type "server_tool_use")
+          (push block server-tool-use))
+         ((equal type "web_search_tool_result")
+          (push block web-search-tool-result))
+         (t
+          (push block other-blocks)))))
+    
+    ;; Return in desired order: server_tool_use, web_search_tool_result, others
+    (append (nreverse server-tool-use)
+            (nreverse web-search-tool-result)
+            (nreverse other-blocks))))
+</tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+
+### git-commit-message
+
+<tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+Add function to reorder assistant content blocks
+</tool.toolu_01UpNouJzpne5dF3NNBWVaJs>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UpNouJzpne5dF3NNBWVaJs -->
