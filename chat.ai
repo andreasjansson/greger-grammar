@@ -4052,4 +4052,238 @@ greger-tree-sitter.el
 Add function to associate citations with content blocks
 </tool.toolu_01E6Cak5qeHVc2GRkaZfNxtu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01E6Cak5qeHVc2GRkaZfNxtu -->
+## TOOL RESULT:
+
+ID: toolu_01E6Cak5qeHVc2GRkaZfNxtu
+
+<tool.toolu_01E6Cak5qeHVc2GRkaZfNxtu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add function to associate citations with content blocks
+</tool.toolu_01E6Cak5qeHVc2GRkaZfNxtu>
+
+
+## ASSISTANT:
+
+Now let me replace the main processing function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AvgPbeWjiMGTgBWqAbkHmr
+
+### file-path
+
+<tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+greger-tree-sitter.el
+</tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+
+### original-content
+
+<tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; Citations section - check if previous message needs citations
+         ((equal section-type "citations_section")
+          (when (and messages
+                     (greger-tree-sitter--message-has-cite-tags (car messages)))
+            ;; Associate citations with the last message
+            (let ((citations (greger-tree-sitter--extract-citations-section section))
+                  (last-message (car messages)))
+              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
+
+         ;; Regular section
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (push message messages))))))
+
+      (setq i (1+ i)))
+</tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+
+### new-content
+
+<tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; User section - flush any pending assistant blocks and add user message
+         ((equal section-type "user_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; System section - flush any pending assistant blocks and add system message
+         ((equal section-type "system_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find the last text block that might have cite tags
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+
+         ;; Tool result section - add as user message
+         ((equal section-type "tool_result_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages)))))
+
+      (setq i (1+ i)))
+</tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+
+### git-commit-message
+
+<tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+Update section processing loop to group assistant content
+</tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+
+## TOOL RESULT:
+
+ID: toolu_01AvgPbeWjiMGTgBWqAbkHmr
+
+<tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 0, new has balance 1. They must be equal
+</tool.toolu_01AvgPbeWjiMGTgBWqAbkHmr>
+
+## ASSISTANT:
+
+Let me check the exact structure of the function. I think there's a mismatched parenthesis somewhere:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SirmatNJgzaLmWmbHz5wer
+
+### path
+
+<tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+greger-tree-sitter.el
+</tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+
+### start-line
+
+<tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+227
+</tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+
+### end-line
+
+<tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+270
+</tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+
+## TOOL RESULT:
+
+ID: toolu_01SirmatNJgzaLmWmbHz5wer
+
+<tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (i 0))
+
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; Citations section - check if previous message needs citations
+         ((equal section-type "citations_section")
+          (when (and messages
+                     (greger-tree-sitter--message-has-cite-tags (car messages)))
+            ;; Associate citations with the last message
+            (let ((citations (greger-tree-sitter--extract-citations-section section))
+                  (last-message (car messages)))
+              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
+
+         ;; Regular section
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a section node."
+  (treesit-node-type (treesit-node-child section-node 0)))
+
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+  "Associate CITATIONS with content blocks that have cite tags."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+</tool.toolu_01SirmatNJgzaLmWmbHz5wer>
+
+## ASSISTANT:
+
+I need to add the variable to the let statement too. Let me do this step by step. First, let me update the let statement:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EwCbr63FYxYUeCv5iTpJQU
+
+### file-path
+
+<tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+greger-tree-sitter.el
+</tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+
+### original-content
+
+<tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+  (let ((messages '())
+        (i 0))
+</tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+
+### new-content
+
+<tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+  (let ((messages '())
+        (current-assistant-blocks '())
+        (i 0))
+</tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+
+### git-commit-message
+
+<tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+Add current-assistant-blocks variable to let statement
+</tool.toolu_01EwCbr63FYxYUeCv5iTpJQU>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EwCbr63FYxYUeCv5iTpJQU -->

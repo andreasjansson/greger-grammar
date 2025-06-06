@@ -227,6 +227,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--process-sections-with-citations (sections)
   "Process SECTIONS and handle citation associations."
   (let ((messages '())
+        (current-assistant-blocks '())
         (i 0))
 
     (while (< i (length sections))
