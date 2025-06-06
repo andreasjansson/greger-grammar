@@ -21,6 +21,7 @@ module.exports = grammar({
   ],
 
   conflicts: $ => [
+    [$.text_line, $.final_text_line],
   ],
 
   rules: {
