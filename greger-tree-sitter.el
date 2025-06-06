@@ -257,6 +257,20 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
   "Get the type of a section node."
   (treesit-node-type (treesit-node-child section-node 0)))
 
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+  "Associate CITATIONS with content blocks that have cite tags."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+
 (defun greger-tree-sitter--extract-citations-section (section-node)
   "Extract citations from a citations section."
   (let* ((citations-section (treesit-node-child section-node 0))
