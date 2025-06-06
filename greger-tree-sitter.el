@@ -285,7 +285,9 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
     ;; Flush any remaining assistant blocks
     (when current-assistant-blocks
-      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+      ;; Reorder assistant blocks to put server_tool_use first, then web_search_tool_result, then text blocks
+      (let ((reordered-blocks (greger-tree-sitter--reorder-assistant-blocks (nreverse current-assistant-blocks))))
+        (push `((role . "assistant") (content . ,reordered-blocks)) messages)))
 
     (nreverse messages)))
 

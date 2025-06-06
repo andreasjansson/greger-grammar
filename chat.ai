@@ -9415,4 +9415,51 @@ greger-tree-sitter.el
 Simplify assistant section processing and handle ordering later
 </tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Nj5G7N7q12poMBPL5EW7xH -->
+## TOOL RESULT:
+
+ID: toolu_01Nj5G7N7q12poMBPL5EW7xH
+
+<tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify assistant section processing and handle ordering later
+</tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+
+## ASSISTANT:
+
+Now let me add a reordering function at the end to fix the order:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LQaQJq1NS3kcUYfPsJKAAR
+
+### file-path
+
+<tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+greger-tree-sitter.el
+</tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+
+### original-content
+
+<tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+</tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+
+### new-content
+
+<tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      ;; Reorder assistant blocks to put server_tool_use first, then web_search_tool_result, then text blocks
+      (let ((reordered-blocks (greger-tree-sitter--reorder-assistant-blocks (nreverse current-assistant-blocks))))
+        (push `((role . "assistant") (content . ,reordered-blocks)) messages)))
+</tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+
+### git-commit-message
+
+<tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+Add reordering of assistant blocks before creating message
+</tool.toolu_01LQaQJq1NS3kcUYfPsJKAAR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LQaQJq1NS3kcUYfPsJKAAR -->
