@@ -2,7 +2,18 @@
 
 ;;; Commentary:
 ;; This file provides tree-sitter parsing for the greger conversation format.
-;; It can be used as a replacement for the regex-based parser in greger.el.
+;; It parses markdown-like conversation logs with sections like ## USER:, ## ASSISTANT:,
+;; ## TOOL USE:, etc., and converts them to structured dialog messages.
+;;
+;; The main entry point is `greger-tree-sitter-parse' which takes a markdown string
+;; and returns a list of message objects compatible with greger.el's format.
+;;
+;; Key features:
+;; - Parses user, assistant, system, thinking sections
+;; - Handles tool use and tool result sections
+;; - Supports server tool use and web search tool results
+;; - Parses citations (<cite>...</cite> tags with ## CITATIONS: sections)
+;; - Converts content to structured format with content blocks
 
 ;;; Code:
 

@@ -4868,3 +4868,571 @@ The parser correctly produces:
 The tree-sitter grammar is now successfully replicating the behavior of `greger-parser-parse-dialog-messages-only` for citation parsing, which was the complex requirement you wanted to implement!
 
 ## USER:
+
+Document all the functions in greger-tree-sitter.el, what the input actually represents, what the output is, in some detail.
+
+## ASSISTANT:
+
+I'll document all the functions in greger-tree-sitter.el with detailed descriptions of inputs, outputs, and behavior.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TN5tqMtquvjZ4UWWcdNMej
+
+### path
+
+<tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+greger-tree-sitter.el
+</tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+
+### include-line-numbers
+
+<tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+true
+</tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+
+## TOOL RESULT:
+
+ID: toolu_01TN5tqMtquvjZ4UWWcdNMej
+
+<tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+  1: ;;; greger-tree-sitter.el --- Tree-sitter integration for greger format -*- lexical-binding: t -*-
+  2: 
+  3: ;;; Commentary:
+  4: ;; This file provides tree-sitter parsing for the greger conversation format.
+  5: ;; It can be used as a replacement for the regex-based parser in greger.el.
+  6: 
+  7: ;;; Code:
+  8: 
+  9: (require 'treesit)
+ 10: (require 'cl-lib)
+ 11: 
+ 12: (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+ 13: 
+ 14: (defun greger-tree-sitter-parse (text)
+ 15:   "Parse TEXT using tree-sitter and return the dialog structure.
+ 16: Returns the same format as `greger-parser-parse-dialog-messages-only'."
+ 17:   (unless (treesit-ready-p 'greger)
+ 18:     (error "Tree-sitter greger parser not available"))
+ 19: 
+ 20:   (with-temp-buffer
+ 21:     (insert text)
+ 22:     (let ((parser (treesit-parser-create 'greger)))
+ 23:       (greger-tree-sitter--extract-dialog parser text))))
+ 24: 
+ 25: (defun greger-tree-sitter--extract-dialog (parser text)
+ 26:   "Extract dialog messages from the parsed PARSER with TEXT."
+ 27:   (let ((root-node (treesit-parser-root-node parser))
+ 28:         (messages '())
+ 29:         (pending-citations nil))
+ 30: 
+ 31:     ;; Check if we have a source_file or just a section
+ 32:     (cond
+ 33:      ((equal (treesit-node-type root-node) "source_file")
+ 34:       ;; Multiple sections case - process sections and handle citations
+ 35:       (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+ 36:         (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+ 37: 
+ 38:      ((equal (treesit-node-type root-node) "section")
+ 39:       ;; Single section case
+ 40:       (when-let ((message (greger-tree-sitter--extract-section root-node)))
+ 41:         (push message messages)))
+ 42: 
+ 43:      (t
+ 44:       (error "Unknown root node type: %s" (treesit-node-type root-node))))
+ 45: 
+ 46:     (nreverse messages)))
+ 47: 
+ 48: (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
+ 49:   "Reorder assistant content BLOCKS to put server_tool_use first, then web_search_tool_result, then others."
+ 50:   (let ((server-tool-use '())
+ 51:         (web-search-tool-result '())
+ 52:         (other-blocks '()))
+ 53: 
+ 54:     ;; Categorize blocks
+ 55:     (dolist (block blocks)
+ 56:       (let ((type (alist-get 'type block)))
+ 57:         (cond
+ 58:          ((equal type "server_tool_use")
+ 59:           (push block server-tool-use))
+ 60:          ((equal type "web_search_tool_result")
+ 61:           (push block web-search-tool-result))
+ 62:          (t
+ 63:           (push block other-blocks)))))
+ 64: 
+ 65:     ;; Return in desired order: server_tool_use, web_search_tool_result, others
+ 66:     (append (nreverse server-tool-use)
+ 67:             (nreverse web-search-tool-result)
+ 68:             (nreverse other-blocks))))
+ 69: 
+ 70: (defun greger-tree-sitter--get-sections (root-node)
+ 71:   "Get all section nodes from ROOT-NODE."
+ 72:   (let ((sections '())
+ 73:         (child-count (treesit-node-child-count root-node)))
+ 74:     (dotimes (i child-count)
+ 75:       (let ((child (treesit-node-child root-node i)))
+ 76:         (when (equal (treesit-node-type child) "section")
+ 77:           (push child sections))))
+ 78:     (nreverse sections)))
+ 79: 
+ 80: (defun greger-tree-sitter--extract-section (section-node)
+ 81:   "Extract a dialog message from a SECTION-NODE."
+ 82:   (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+ 83:     (cond
+ 84:      ((equal section-type "user_section")
+ 85:       (greger-tree-sitter--extract-user-section section-node))
+ 86:      ((equal section-type "system_section")
+ 87:       (greger-tree-sitter--extract-system-section section-node))
+ 88:      ((equal section-type "assistant_section")
+ 89:       (greger-tree-sitter--extract-assistant-section section-node))
+ 90:      ((equal section-type "thinking_section")
+ 91:       (greger-tree-sitter--extract-thinking-section section-node))
+ 92:      ((equal section-type "tool_use_section")
+ 93:       (greger-tree-sitter--extract-tool-use-section section-node))
+ 94:      ((equal section-type "tool_result_section")
+ 95:       (greger-tree-sitter--extract-tool-result-section section-node))
+ 96:      ((equal section-type "server_tool_use_section")
+ 97:       (greger-tree-sitter--extract-server-tool-use-section section-node))
+ 98:      ((equal section-type "server_tool_result_section")
+ 99:       (greger-tree-sitter--extract-server-tool-result-section section-node))
+100:      (t nil))))
+101: 
+102: (defun greger-tree-sitter--extract-user-section (section-node)
+103:   "Extract user message from SECTION-NODE."
+104:   (let* ((user-section-node (treesit-node-child section-node 0))
+105:          (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+106: 
+107:     `((role . "user")
+108:       (content . ,(if content-node
+109:                       (greger-tree-sitter--extract-content content-node)
+110:                     "")))))
+111: 
+112: (defun greger-tree-sitter--extract-system-section (section-node)
+113:   "Extract system message from SECTION-NODE."
+114:   (let* ((system-section-node (treesit-node-child section-node 0))
+115:          (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+116:     `((role . "system")
+117:       (content . ,(if content-node
+118:                       (greger-tree-sitter--extract-content content-node)
+119:                     "")))))
+120: 
+121: (defun greger-tree-sitter--extract-assistant-section (section-node)
+122:   "Extract assistant message from SECTION-NODE."
+123:   (let* ((assistant-section-node (treesit-node-child section-node 0))
+124:          (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+125:     `((role . "assistant")
+126:       (content . ,(if content-node
+127:                       (greger-tree-sitter--extract-content content-node)
+128:                     "")))))
+129: 
+130: (defun greger-tree-sitter--extract-thinking-section (section-node)
+131:   "Extract thinking content and return as assistant message."
+132:   (let* ((thinking-section-node (treesit-node-child section-node 0))
+133:          (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+134:     `((role . "assistant")
+135:       (content . (((type . "thinking")
+136:                    (thinking . ,(if content-node
+137:                                     (greger-tree-sitter--extract-content content-node)
+138:                                   ""))))))))
+139: 
+140: (defun greger-tree-sitter--extract-tool-use-section (section-node)
+141:   "Extract tool use and return as assistant message."
+142:   (let* ((tool-section (treesit-node-child section-node 0))
+143:          (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_use_content"))
+144:          (tool-name nil)
+145:          (tool-id nil)
+146:          (parameters '()))
+147: 
+148:     ;; Extract tool name, ID, and parameters
+149:     (when tool-content
+150:       (let ((child-count (treesit-node-child-count tool-content)))
+151:         (dotimes (i child-count)
+152:           (let ((child (treesit-node-child tool-content i)))
+153:             (cond
+154:              ((equal (treesit-node-type child) "tool_name_line")
+155:               (setq tool-name (treesit-node-text
+156:                                (treesit-node-child-by-field-name child "name"))))
+157:              ((equal (treesit-node-type child) "tool_id_line")
+158:               (setq tool-id (treesit-node-text
+159:                              (treesit-node-child-by-field-name child "id"))))
+160:              ((equal (treesit-node-type child) "tool_parameter")
+161:               (let ((param-name (treesit-node-text
+162:                                  (treesit-node-child-by-field-name child "param_name")))
+163:                     (param-value (greger-tree-sitter--extract-tool-param-value child)))
+164:                 (push (cons (intern param-name) param-value) parameters))))))))
+165: 
+166:     `((role . "assistant")
+167:       (content . (((type . "tool_use")
+168:                    (id . ,tool-id)
+169:                    (name . ,tool-name)
+170:                    (input . ,(nreverse parameters))))))))
+171: 
+172: (defun greger-tree-sitter--extract-tool-param-value (param-node)
+173:   "Extract the value from a tool parameter node."
+174:   (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+175:     (if param-block
+176:         (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+177:           (if content-node
+178:               (string-trim (treesit-node-text content-node))
+179:             ""))
+180:       "")))
+181: 
+182: (defun greger-tree-sitter--extract-tool-result-section (section-node)
+183:   "Extract tool result and return as user message."
+184:   (let* ((tool-section (treesit-node-child section-node 0))
+185:          (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
+186:          (tool-id nil)
+187:          (result-content ""))
+188: 
+189:     ;; Extract tool ID and result content
+190:     (when tool-content
+191:       (let ((child-count (treesit-node-child-count tool-content)))
+192:         (dotimes (i child-count)
+193:           (let ((child (treesit-node-child tool-content i)))
+194:             (cond
+195:              ((equal (treesit-node-type child) "tool_result_id_line")
+196:               (setq tool-id (treesit-node-text
+197:                              (treesit-node-child-by-field-name child "id"))))
+198:              ((equal (treesit-node-type child) "tool_result_block")
+199:               (let ((content-node (treesit-node-child-by-field-name child "content")))
+200:                 (when content-node
+201:                   (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+202: 
+203:     `((role . "user")
+204:       (content . (((type . "tool_result")
+205:                    (tool_use_id . ,tool-id)
+206:                    (content . ,result-content)))))))
+207: 
+208: (defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+209:   "Extract server tool use and return as assistant message."
+210:   ;; Similar to tool_use but with server_tool_use type
+211:   (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+212:     ;; Change the type to server_tool_use
+213:     (when result
+214:       (let ((content (alist-get 'content result)))
+215:         (when (and content (> (length content) 0))
+216:           (setf (alist-get 'type (car content)) "server_tool_use"))))
+217:     result))
+218: 
+219: (defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+220:   "Extract server tool result and return as assistant message."
+221:   (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+222:     ;; Change role to assistant and type to web_search_tool_result
+223:     (when result
+224:       (setf (alist-get 'role result) "assistant")
+225:       (let ((content (alist-get 'content result)))
+226:         (when (and content (> (length content) 0))
+227:           (setf (alist-get 'type (car content)) "web_search_tool_result")
+228:           ;; Try to parse JSON content
+229:           (let ((content-text (alist-get 'content (car content))))
+230:             (when (stringp content-text)
+231:               (condition-case nil
+232:                   (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+233:                     (setf (alist-get 'content (car content)) parsed-json))
+234:                 (error
+235:                  ;; If JSON parsing fails, keep as string
+236:                  nil)))))))
+237:     result))
+238: 
+239: (defun greger-tree-sitter--find-child-by-type (node type)
+240:   "Find the first child of NODE with the given TYPE."
+241:   (let ((child-count (treesit-node-child-count node))
+242:         (found nil))
+243:     (dotimes (i child-count)
+244:       (let ((child (treesit-node-child node i)))
+245:         (when (and (not found) (equal (treesit-node-type child) type))
+246:           (setq found child))))
+247:     found))
+248: 
+249: (defun greger-tree-sitter--get-all-sections (root-node)
+250:   "Get all section nodes from ROOT-NODE."
+251:   (let ((sections '())
+252:         (child-count (treesit-node-child-count root-node)))
+253:     (dotimes (i child-count)
+254:       (let ((child (treesit-node-child root-node i)))
+255:         (when (equal (treesit-node-type child) "section")
+256:           (push child sections))))
+257:     (nreverse sections)))
+258: 
+259: (defun greger-tree-sitter--process-sections-with-citations (sections)
+260:   "Process SECTIONS and handle citation associations."
+261:   (let ((messages '())
+262:         (current-assistant-blocks '())
+263:         (i 0))
+264: 
+265:     (while (< i (length sections))
+266:       (let* ((section (nth i sections))
+267:              (section-type (greger-tree-sitter--get-section-type section)))
+268: 
+269:         (cond
+270:          ;; User section - flush any pending assistant blocks and add user message
+271:          ((equal section-type "user_section")
+272:           (when current-assistant-blocks
+273:             (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+274:             (setq current-assistant-blocks '()))
+275:           (let ((message (greger-tree-sitter--extract-section section)))
+276:             (when message (push message messages))))
+277: 
+278:          ;; System section - flush any pending assistant blocks and add system message
+279:          ((equal section-type "system_section")
+280:           (when current-assistant-blocks
+281:             (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+282:             (setq current-assistant-blocks '()))
+283:           (let ((message (greger-tree-sitter--extract-section section)))
+284:             (when message (push message messages))))
+285: 
+286:          ;; Assistant-related sections - collect content blocks
+287:          ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+288:                                  "server_tool_use_section" "server_tool_result_section"))
+289:           (let ((message (greger-tree-sitter--extract-section section)))
+290:             (when message
+291:               (let ((content (alist-get 'content message)))
+292:                 (if (listp content)
+293:                     ;; Add all content blocks
+294:                     (setq current-assistant-blocks (append current-assistant-blocks content))
+295:                   ;; Convert string content to text block
+296:                   (when (and (stringp content) (> (length (string-trim content)) 0))
+297:                     (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+298: 
+299:          ;; Citations section - associate with pending assistant blocks
+300:          ((equal section-type "citations_section")
+301:           (when current-assistant-blocks
+302:             (let ((citations (greger-tree-sitter--extract-citations-section section)))
+303:               ;; Find the last text block that might have cite tags
+304:               (setq current-assistant-blocks
+305:                     (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+306: 
+307:          ;; Tool result section - add as user message
+308:          ((equal section-type "tool_result_section")
+309:           (when current-assistant-blocks
+310:             (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+311:             (setq current-assistant-blocks '()))
+312:           (let ((message (greger-tree-sitter--extract-section section)))
+313:             (when message (push message messages))))))
+314: 
+315:       (setq i (1+ i)))
+316: 
+317:     ;; Flush any remaining assistant blocks
+318:     (when current-assistant-blocks
+319:       ;; Reorder assistant blocks to put server_tool_use first, then web_search_tool_result, then text blocks
+320:       (let ((reordered-blocks (greger-tree-sitter--reorder-assistant-blocks (nreverse current-assistant-blocks))))
+321:         (push `((role . "assistant") (content . ,reordered-blocks)) messages)))
+322: 
+323:     (nreverse messages)))
+324: 
+325: (defun greger-tree-sitter--get-section-type (section-node)
+326:   "Get the type of a section node."
+327:   (treesit-node-type (treesit-node-child section-node 0)))
+328: 
+329: (defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+330:   "Associate CITATIONS with content blocks that have cite tags."
+331:   (let ((result '()))
+332:     (dolist (block content-blocks)
+333:       (if (and (equal (alist-get 'type block) "text")
+334:                (string-match-p "<cite>" (alist-get 'text block "")))
+335:           ;; This text block has cite tags - parse it with citations
+336:           (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+337:                                 (alist-get 'text block) citations)))
+338:             (setq result (append result parsed-blocks)))
+339:         ;; Regular block - add as is
+340:         (push block result)))
+341:     (nreverse result)))
+342: 
+343: (defun greger-tree-sitter--extract-citations-section (section-node)
+344:   "Extract citations from a citations section."
+345:   (let* ((citations-section (treesit-node-child section-node 0))
+346:          (citations-content (greger-tree-sitter--find-child-by-type citations-section "citations_content"))
+347:          (citations '()))
+348: 
+349:     (when citations-content
+350:       (let ((child-count (treesit-node-child-count citations-content)))
+351:         (dotimes (i child-count)
+352:           (let ((child (treesit-node-child citations-content i)))
+353:             (when (equal (treesit-node-type child) "citation_entry")
+354:               (push (greger-tree-sitter--extract-citation-entry child) citations))))))
+355: 
+356:     (nreverse citations)))
+357: 
+358: (defun greger-tree-sitter--extract-citation-entry (entry-node)
+359:   "Extract a single citation entry."
+360:   (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+361:         (title nil)
+362:         (cited-text nil)
+363:         (encrypted-index nil))
+364: 
+365:     (let ((url (if url-node (treesit-node-text url-node) "")))
+366:       (let ((child-count (treesit-node-child-count entry-node)))
+367:         (dotimes (i child-count)
+368:           (let ((child (treesit-node-child entry-node i)))
+369: 
+370:             (cond
+371:              ((equal (treesit-node-type child) "citation_title")
+372:               (let ((title-node (treesit-node-child-by-field-name child "title")))
+373: 
+374:                 (if title-node
+375:                     (progn
+376:                       (setq title (string-trim (treesit-node-text title-node)))
+377:                       )
+378:                   ;; Fallback: try to extract from the text after "Title:"
+379:                   (let ((text (treesit-node-text child)))
+380:                     (when (string-match "Title:[ \t]*\\(.*\\)" text)
+381:                       (setq title (string-trim (match-string 1 text)))
+382:                       )))))
+383:              ((equal (treesit-node-type child) "citation_text")
+384:               (let ((text-node (treesit-node-child-by-field-name child "text")))
+385: 
+386:                 (if text-node
+387:                     (progn
+388:                       (setq cited-text (string-trim (treesit-node-text text-node)))
+389:                       )
+390:                   ;; Fallback: try to extract from the text after "Cited text:"
+391:                   (let ((text (treesit-node-text child)))
+392:                     (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
+393:                       (setq cited-text (string-trim (match-string 1 text)))
+394:                       )))))
+395:              ((equal (treesit-node-type child) "citation_index")
+396:               (let ((index-node (treesit-node-child-by-field-name child "index")))
+397: 
+398:                 (if index-node
+399:                     (progn
+400:                       (setq encrypted-index (string-trim (treesit-node-text index-node)))
+401:                       )
+402:                   ;; Fallback: try to extract from the text after "Encrypted index:"
+403:                   (let ((text (treesit-node-text child)))
+404:                     (when (string-match "Encrypted index:[ \t]*\\(.*\\)" text)
+405:                       (setq encrypted-index (string-trim (match-string 1 text)))
+406:                       )))))))))
+407: 
+408: 
+409:       `((type . "web_search_result_location")
+410:         (url . ,url)
+411:         (title . ,title)
+412:         (cited_text . ,cited-text)
+413:         (encrypted_index . ,encrypted-index)))))
+414: 
+415: (defun greger-tree-sitter--message-has-cite-tags (message)
+416:   "Check if MESSAGE content contains cite tags."
+417:   (let ((content (alist-get 'content message)))
+418:     (and (stringp content)
+419:          (string-match-p "<cite>" content))))
+420: 
+421: (defun greger-tree-sitter--associate-citations (message citations)
+422:   "Associate CITATIONS with cited text in MESSAGE."
+423:   ;; This is complex - we need to parse the content and split it by cite tags
+424:   (let ((content (alist-get 'content message)))
+425:     (when (stringp content)
+426:       (setf (alist-get 'content message)
+427:             (greger-tree-sitter--parse-content-with-citations content citations))))
+428:   message)
+429: 
+430: (defun greger-tree-sitter--parse-content-with-citations (content citations)
+431:   "Parse CONTENT and create content blocks with citations."
+432:   (let ((parts '())
+433:         (current-pos 0))
+434: 
+435:     ;; Find all cite tags and split content accordingly
+436:     (while (string-match "<cite>\\(.*?\\)</cite>" content current-pos)
+437:       (let ((before-cite (substring content current-pos (match-beginning 0)))
+438:             (cite-text (match-string 1 content))
+439:             (after-match (match-end 0)))
+440: 
+441:         ;; Add text before cite if any
+442:         (when (> (length (string-trim before-cite)) 0)
+443:           (push `((type . "text") (text . ,(string-trim before-cite))) parts))
+444: 
+445:         ;; Add cited text with citations
+446:         (push `((type . "text")
+447:                 (text . ,cite-text)
+448:                 (citations . ,citations)) parts)
+449: 
+450:         (setq current-pos after-match)))
+451: 
+452:     ;; Add remaining text after last cite
+453:     (let ((remaining (substring content current-pos)))
+454:       (when (> (length (string-trim remaining)) 0)
+455:         (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+456: 
+457:     (nreverse parts)))
+458: 
+459: (defun greger-tree-sitter--extract-content (content-node)
+460:   "Extract plain text content from CONTENT-NODE."
+461:   (if content-node
+462:       (string-trim (treesit-node-text content-node))
+463:     ""))
+464: 
+465: ;; Test function
+466: (defun greger-tree-sitter-test ()
+467:   "Test the tree-sitter parser with a simple example."
+468:   (interactive)
+469:   (let ((test-text "## USER:
+470: 
+471: Hello, how are you?
+472: 
+473: ## ASSISTANT:
+474: 
+475: Hi there! How can I help you today?"))
+476:     (message "Parsed result: %S" (greger-tree-sitter-parse test-text))))
+477: 
+478: (provide 'greger-tree-sitter)
+479: 
+480: ;;; greger-tree-sitter.el ends here
+</tool.toolu_01TN5tqMtquvjZ4UWWcdNMej>
+
+## ASSISTANT:
+
+Now I'll add comprehensive documentation to the file:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KnLfEfETfWanbqQkKu1hbg
+
+### file-path
+
+<tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+greger-tree-sitter.el
+</tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+
+### original-content
+
+<tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+;;; greger-tree-sitter.el --- Tree-sitter integration for greger format -*- lexical-binding: t -*-
+
+;;; Commentary:
+;; This file provides tree-sitter parsing for the greger conversation format.
+;; It can be used as a replacement for the regex-based parser in greger.el.
+
+;;; Code:
+</tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+
+### new-content
+
+<tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+;;; greger-tree-sitter.el --- Tree-sitter integration for greger format -*- lexical-binding: t -*-
+
+;;; Commentary:
+;; This file provides tree-sitter parsing for the greger conversation format.
+;; It parses markdown-like conversation logs with sections like ## USER:, ## ASSISTANT:,
+;; ## TOOL USE:, etc., and converts them to structured dialog messages.
+;;
+;; The main entry point is `greger-tree-sitter-parse' which takes a markdown string
+;; and returns a list of message objects compatible with greger.el's format.
+;;
+;; Key features:
+;; - Parses user, assistant, system, thinking sections
+;; - Handles tool use and tool result sections
+;; - Supports server tool use and web search tool results
+;; - Parses citations (<cite>...</cite> tags with ## CITATIONS: sections)
+;; - Converts content to structured format with content blocks
+
+;;; Code:
+</tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+
+### git-commit-message
+
+<tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+Add comprehensive commentary to greger-tree-sitter.el
+</tool.toolu_01KnLfEfETfWanbqQkKu1hbg>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KnLfEfETfWanbqQkKu1hbg -->
