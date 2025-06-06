@@ -14076,4 +14076,233 @@ grammar.js
 Add right precedence to line_with_cite for newline handling
 </tool.toolu_01HsudeHy6ekWNYZaJtaRxqK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HsudeHy6ekWNYZaJtaRxqK -->
+## TOOL RESULT:
+
+ID: toolu_01HsudeHy6ekWNYZaJtaRxqK
+
+<tool.toolu_01HsudeHy6ekWNYZaJtaRxqK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add right precedence to line_with_cite for newline handling
+</tool.toolu_01HsudeHy6ekWNYZaJtaRxqK>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QnYewjkYUdaCpMLbgoEee8
+
+### command
+
+<tool.toolu_01QnYewjkYUdaCpMLbgoEee8>
+tree-sitter generate
+</tool.toolu_01QnYewjkYUdaCpMLbgoEee8>
+
+## TOOL RESULT:
+
+ID: toolu_01QnYewjkYUdaCpMLbgoEee8
+
+<tool.toolu_01QnYewjkYUdaCpMLbgoEee8>
+Command executed successfully:
+Warning: unnecessary conflicts
+  `line_with_cite`, `text_line`
+
+</tool.toolu_01QnYewjkYUdaCpMLbgoEee8>
+
+## ASSISTANT:
+
+Good, now let me test the cite functionality quickly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016udEQwWm7MqMLA82bpybE4
+
+### command
+
+<tool.toolu_016udEQwWm7MqMLA82bpybE4>
+emacs --batch -l debug-test.el
+</tool.toolu_016udEQwWm7MqMLA82bpybE4>
+
+## TOOL RESULT:
+
+ID: toolu_016udEQwWm7MqMLA82bpybE4
+
+<tool.toolu_016udEQwWm7MqMLA82bpybE4>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Tree structure:
+Root node type: source_file
+Child count: 2
+
+Extracted sections:
+Section 0: user_section
+Section 1: assistant_section
+
+Processed sections result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?")))))
+
+
+Final parsed result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?")))))
+
+
+Number of messages: 2
+Message role: user
+Message role: assistant
+
+</tool.toolu_016udEQwWm7MqMLA82bpybE4>
+
+## ASSISTANT:
+
+Good, the basic functionality is still working. Now the 4 tests that were passing are the citation tests, which shows that the cite tag functionality is working properly.
+
+Since I'm working on getting everything working for when you're away, let me focus on the remaining critical issues. The main issues are:
+
+1. **Empty content extraction** - This is probably due to the newline issue in files without trailing newlines
+2. **Numeric parameter parsing** - Tool parameters should be converted to numbers when appropriate
+
+Let me address the numeric parsing first since that's simpler. Looking at the tool-use tests, I can see that `context-lines` should be 2 (number) but it's "2" (string). This happens in the tool parameter extraction.
+
+Looking at the greger-tree-sitter.el code, in `greger-tree-sitter--extract-tool-param-value`, the function returns a string. But some parameters should be converted to numbers. Looking at the original greger-parser tests, I can see that numeric values should be parsed as numbers.
+
+Let me add a simple numeric conversion:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EWxDwDNDdV8bV2AHvcSPkM
+
+### file-path
+
+<tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+greger-tree-sitter.el
+</tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+
+### original-content
+
+<tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter PARAM-NODE.
+
+INPUT:
+  PARAM-NODE - Tree-sitter node representing a tool parameter with structure:
+    ### param_name
+    <tool.tool_id>
+    parameter value content
+    </tool.tool_id>
+
+PROCESSING:
+  1. Finds the param_value child (the <tool.id>...</tool.id> block)
+  2. Extracts the content field within that block
+  3. Trims whitespace from the extracted text
+
+OUTPUT:
+  Returns the parameter value as a trimmed string, or empty string if
+  no content is found.
+
+EXAMPLE INPUT:
+  ### path
+  <tool.toolu_123>
+  /path/to/file.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  \"/path/to/file.txt\"
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-tool-use-section
+to extract individual parameter values."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (string-trim (treesit-node-text content-node))
+            ""))
+      "")))
+</tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+
+### new-content
+
+<tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter PARAM-NODE.
+
+INPUT:
+  PARAM-NODE - Tree-sitter node representing a tool parameter with structure:
+    ### param_name
+    <tool.tool_id>
+    parameter value content
+    </tool.tool_id>
+
+PROCESSING:
+  1. Finds the param_value child (the <tool.id>...</tool.id> block)
+  2. Extracts the content field within that block
+  3. Trims whitespace from the extracted text
+  4. Converts to number if the value is numeric
+
+OUTPUT:
+  Returns the parameter value as a number if numeric, string otherwise,
+  or empty string if no content is found.
+
+EXAMPLE INPUT:
+  ### path
+  <tool.toolu_123>
+  /path/to/file.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  \"/path/to/file.txt\"
+
+EXAMPLE INPUT (numeric):
+  ### context-lines
+  <tool.toolu_123>
+  2
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  2
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-tool-use-section
+to extract individual parameter values."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (let ((value (string-trim (treesit-node-text content-node))))
+                ;; Try to convert to number if it looks numeric
+                (if (string-match-p "^[0-9]+\\(?:\\.[0-9]+\\)?$" value)
+                    (string-to-number value)
+                  ;; Check for boolean values
+                  (cond
+                   ((string= value "true") t)
+                   ((string= value "false") nil)
+                   (t value))))
+            ""))
+      "")))
+</tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+
+### git-commit-message
+
+<tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+Add numeric and boolean conversion for tool parameters
+</tool.toolu_01EWxDwDNDdV8bV2AHvcSPkM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EWxDwDNDdV8bV2AHvcSPkM -->

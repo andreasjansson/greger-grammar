@@ -472,10 +472,11 @@ PROCESSING:
   1. Finds the param_value child (the <tool.id>...</tool.id> block)
   2. Extracts the content field within that block
   3. Trims whitespace from the extracted text
+  4. Converts to number if the value is numeric
 
 OUTPUT:
-  Returns the parameter value as a trimmed string, or empty string if
-  no content is found.
+  Returns the parameter value as a number if numeric, string otherwise,
+  or empty string if no content is found.
 
 EXAMPLE INPUT:
   ### path
@@ -486,13 +487,30 @@ EXAMPLE INPUT:
 EXAMPLE OUTPUT:
   \"/path/to/file.txt\"
 
+EXAMPLE INPUT (numeric):
+  ### context-lines
+  <tool.toolu_123>
+  2
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  2
+
 INTERNAL FUNCTION: Used by greger-tree-sitter--extract-tool-use-section
 to extract individual parameter values."
   (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
     (if param-block
         (let ((content-node (treesit-node-child-by-field-name param-block "content")))
           (if content-node
-              (string-trim (treesit-node-text content-node))
+              (let ((value (string-trim (treesit-node-text content-node))))
+                ;; Try to convert to number if it looks numeric
+                (if (string-match-p "^[0-9]+\\(?:\\.[0-9]+\\)?$" value)
+                    (string-to-number value)
+                  ;; Check for boolean values
+                  (cond
+                   ((string= value "true") t)
+                   ((string= value "false") nil)
+                   (t value))))
             ""))
       "")))
 
