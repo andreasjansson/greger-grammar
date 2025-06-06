@@ -995,7 +995,22 @@ to process individual citation entries."
         (encrypted_index . ,encrypted-index)))))
 
 (defun greger-tree-sitter--message-has-cite-tags (message)
-  "Check if MESSAGE content contains cite tags."
+  "Check if MESSAGE content contains <cite> tags.
+
+INPUT:
+  MESSAGE - A message object with 'content field
+
+PROCESSING:
+  Checks if the content field is a string and contains \"<cite>\" substring.
+
+OUTPUT:
+  Returns t if the message content contains cite tags, nil otherwise.
+
+  Note: This function only works with string content, not structured
+  content blocks. It's used for simple cite tag detection.
+
+INTERNAL FUNCTION: Utility for determining if a message needs citation
+processing. May be used in older/simpler citation workflows."
   (let ((content (alist-get 'content message)))
     (and (stringp content)
          (string-match-p "<cite>" content))))
