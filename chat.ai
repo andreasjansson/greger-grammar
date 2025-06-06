@@ -13401,4 +13401,545 @@ greger-tree-sitter.el
 Fix message order by removing extra nreverse
 </tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018XmA5PYB65Hx5BJuuXuszX -->
+## TOOL RESULT:
+
+ID: toolu_018XmA5PYB65Hx5BJuuXuszX
+
+<tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix message order by removing extra nreverse
+</tool.toolu_018XmA5PYB65Hx5BJuuXuszX>
+
+
+## ASSISTANT:
+
+Now let me test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RLrmgkQg7vDj2LLD9kTpPC
+
+### command
+
+<tool.toolu_01RLrmgkQg7vDj2LLD9kTpPC>
+emacs --batch -l debug-test.el
+</tool.toolu_01RLrmgkQg7vDj2LLD9kTpPC>
+
+## TOOL RESULT:
+
+ID: toolu_01RLrmgkQg7vDj2LLD9kTpPC
+
+<tool.toolu_01RLrmgkQg7vDj2LLD9kTpPC>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Tree structure:
+Root node type: source_file
+Child count: 2
+
+Extracted sections:
+Section 0: user_section
+Section 1: assistant_section
+
+Processed sections result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?")))))
+
+
+Final parsed result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?")))))
+
+
+Number of messages: 2
+Message role: user
+Message role: assistant
+
+</tool.toolu_01RLrmgkQg7vDj2LLD9kTpPC>
+
+## ASSISTANT:
+
+Excellent! The order is now correct: user first, then assistant. Let me test with the full test suite to see how many issues this fixes:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01T9fWmQdPnsqPK7hBGeSStW
+
+### command
+
+<tool.toolu_01T9fWmQdPnsqPK7hBGeSStW>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01T9fWmQdPnsqPK7hBGeSStW>
+
+## TOOL RESULT:
+
+ID: toolu_01T9fWmQdPnsqPK7hBGeSStW
+
+<tool.toolu_01T9fWmQdPnsqPK7hBGeSStW>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Actual:
+(((role . "user")
+  (content . "")))
+
+
+=== Testing: system-and-user ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "What's the weather like?")))
+
+
+Actual:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "")))
+
+
+=== Testing: simple-conversation ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content . "Hi there! How can I help you today?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Hello")))
+
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools.")))))
+
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!")))))
+
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():")))))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content")))))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1.")))))
+
+
+=== Testing: tool-use-multiline-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content . "I've created a new Python script file with a basic Hello World program.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters.")))))
+
+
+=== Testing: thinking-only ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "I need to consider all the options carefully before responding.")))))
+
+
+Actual:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "")))))
+
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.032s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 4
+Failed: 10
+
+❌ FAILED TESTS:
+  - simple-user-message
+  - system-and-user
+  - simple-conversation
+  - thinking-section
+  - tool-use-single-param
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - tool-use-multiline-params
+  - thinking-only
+
+</tool.toolu_01T9fWmQdPnsqPK7hBGeSStW>
+
+## ASSISTANT:
+
+Excellent progress! The order fix helped a lot:
+
+✅ **PASSED: 4 tests** (including all 3 citation tests!)
+❌ **FAILED: 10 tests**
+
+The main remaining issues I can see are:
+
+1. **Empty content** - Some messages have empty content where they should have text (like "simple-user-message")
+2. **Missing assistant messages** - Some tests are missing the final assistant response
+3. **Numeric values** - Tool parameters like `context-lines` should be 2 not "2"
+4. **Empty thinking content** - "thinking-only" test shows thinking with empty content
+5. **Assistant content block order** - In "complex-workflow", thinking and tool_use blocks are in wrong order
+
+Since I got the citation tests working, that means the complex parsing is working. Let me focus on the empty content issue first.
+
+Looking at "simple-user-message", it expects content "Hello, how are you?" but gets empty content. This suggests that the content extraction for simple text lines without newlines at the end is still broken.
+
+The "simple-conversation" test is also missing the assistant message, which suggests the newline issue is still affecting some cases.
+
+Let me now add back the cite tag support since that's working in the citation tests. I need to restore the ability to parse `<cite>` tags:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GLNC19CvZWx9qKQNgUraYd
+
+### file-path
+
+<tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+grammar.js
+</tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+
+### original-content
+
+<tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n")
+    )),
+</tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+
+### new-content
+
+<tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.line_with_cite),
+      prec(1, $.text_line),
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    ),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n")
+    )),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+
+### git-commit-message
+
+<tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+Restore cite tag support for citation functionality
+</tool.toolu_01GLNC19CvZWx9qKQNgUraYd>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GLNC19CvZWx9qKQNgUraYd -->
