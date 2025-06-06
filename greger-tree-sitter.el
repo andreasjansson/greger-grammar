@@ -43,7 +43,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
         (push message messages)))
 
      (t
-      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
 
     (nreverse messages)))
 
