@@ -178,13 +178,13 @@ module.exports = grammar({
     )),
 
     // A cited text segment followed by its citations
-    citations_with_text: $ => prec(2, seq(
+    citations_with_text: $ => prec.left(2, seq(
       field("text", $.cite_tag),
-      optional($.newline),
-      optional(seq(
+      repeat($.newline),
+      seq(
         $.citations_header,
         field("citations", $.citations_content)
-      ))
+      )
     )),
 
     cite_tag: $ => seq(

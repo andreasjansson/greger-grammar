@@ -4564,4 +4564,97 @@ conflicts: $ => [
 Add conflict for content vs citations_with_text
 </tool.toolu_01VnzmwkgKaYSdiB12Krayy1>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VnzmwkgKaYSdiB12Krayy1 -->
+## TOOL RESULT:
+
+ID: toolu_01VnzmwkgKaYSdiB12Krayy1
+
+<tool.toolu_01VnzmwkgKaYSdiB12Krayy1>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflict for content vs citations_with_text
+</tool.toolu_01VnzmwkgKaYSdiB12Krayy1>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BsMGQaw3CoUTjeRERSB67m
+
+### command
+
+<tool.toolu_01BsMGQaw3CoUTjeRERSB67m>
+tree-sitter generate
+</tool.toolu_01BsMGQaw3CoUTjeRERSB67m>
+
+## TOOL RESULT:
+
+ID: toolu_01BsMGQaw3CoUTjeRERSB67m
+
+<tool.toolu_01BsMGQaw3CoUTjeRERSB67m>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      assistant_header  cite_tag  newline  •  citations_header  …
+    
+    Possible interpretations:
+    
+      1:  assistant_header  (citations_with_text  cite_tag  newline  •  citations_header  citations_content)  (precedence: 2)
+      2:  assistant_header  (citations_with_text  cite_tag  newline)  •  citations_header  …                  (precedence: 2)
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `citations_with_text`
+      2:  Add a conflict for these rules: `citations_with_text`
+    
+
+</tool.toolu_01BsMGQaw3CoUTjeRERSB67m>
+
+## ASSISTANT:
+
+The issue is that there's ambiguity about whether a citations_header after a cite_tag should be part of the citations_with_text or separate. Let me fix this by making the grammar more explicit:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011zR54NEKD3xZKsnpQ6hfzR
+
+### file-path
+
+<tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+grammar.js
+</tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+
+### original-content
+
+<tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+// A cited text segment followed by its citations
+    citations_with_text: $ => prec(2, seq(
+      field("text", $.cite_tag),
+      optional($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    )),
+</tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+
+### new-content
+
+<tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+// A cited text segment followed by its citations
+    citations_with_text: $ => prec.left(2, seq(
+      field("text", $.cite_tag),
+      repeat($.newline),
+      seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      )
+    )),
+</tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+
+### git-commit-message
+
+<tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+Make citations_with_text left associative and require citations
+</tool.toolu_011zR54NEKD3xZKsnpQ6hfzR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011zR54NEKD3xZKsnpQ6hfzR -->
