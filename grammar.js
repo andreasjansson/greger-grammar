@@ -105,11 +105,19 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.include_tag,
-      $.cite_tag,
       $.html_comment,
+      $.line_with_cite,
       $.line,
       $.newline
     ))),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => prec(1, seq(
+      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+      "\n"
+    )),
 
     system_content: $ => prec(-1, repeat1(choice(
       $.safe_shell_commands,

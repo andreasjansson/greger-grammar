@@ -7533,4 +7533,75 @@ cite_tag: $ => prec(1, seq(
 Add precedence to cite_tag
 </tool.toolu_01KWKNZRKZFnj3gKHdn1Y6YH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KWKNZRKZFnj3gKHdn1Y6YH -->
+## TOOL RESULT:
+
+ID: toolu_01KWKNZRKZFnj3gKHdn1Y6YH
+
+<tool.toolu_01KWKNZRKZFnj3gKHdn1Y6YH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to cite_tag
+</tool.toolu_01KWKNZRKZFnj3gKHdn1Y6YH>
+
+## ASSISTANT:
+
+
+
+But that won't help because the problem is that the line rule matches the entire line first, and then tree-sitter doesn't look for cite tags within it.
+
+The real issue is that I need to parse lines that contain cite tags differently. Let me create a specific rule for lines that can contain cite tags:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YNu2JzxFaRWfYeUrPdobkC
+
+### file-path
+
+<tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+grammar.js
+</tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+
+### original-content
+
+<tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+// Content types
+    content: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+</tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+
+### new-content
+
+<tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+// Content types
+    content: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_cite,
+      $.line,
+      $.newline
+    ))),
+
+    // Line that contains cite tags mixed with regular text
+    line_with_cite: $ => prec(1, seq(
+      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+      "\n"
+    )),
+</tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+
+### git-commit-message
+
+<tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+Add line_with_cite rule to handle mixed content
+</tool.toolu_01YNu2JzxFaRWfYeUrPdobkC>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YNu2JzxFaRWfYeUrPdobkC -->
