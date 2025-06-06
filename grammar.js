@@ -1,14 +1,19 @@
 module.exports = grammar({
   name: 'greger',
 
+  word: $ => $.identifier,
+
   extras: $ => [
-    /[ \t\r]/
+    /[ \t]/
   ],
 
   rules: {
-    document: $ => seq(
-      optional($.untagged_content),
-      repeat($.section)
+    document: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.content_line,
+      $.empty_line
     ),
 
     section: $ => choice(
@@ -23,201 +28,86 @@ module.exports = grammar({
       $.citations_section
     ),
 
-    user_section: $ => seq(
-      '## USER:',
-      optional(/\n/),
-      optional($.content)
-    ),
+    user_section: $ => '## USER:',
+    system_section: $ => '## SYSTEM:',
+    assistant_section: $ => '## ASSISTANT:',
+    thinking_section: $ => '## THINKING:',
+    citations_section: $ => '## CITATIONS:',
+    tool_use_section: $ => '## TOOL USE:',
+    tool_result_section: $ => '## TOOL RESULT:',
+    server_tool_use_section: $ => '## SERVER TOOL USE:',
+    server_tool_result_section: $ => '## SERVER TOOL RESULT:',
 
-    system_section: $ => seq(
-      '## SYSTEM:',
-      optional(/\n/),
-      optional($.content)
-    ),
-
-    assistant_section: $ => seq(
-      '## ASSISTANT:',
-      optional(/\n/),
-      optional($.content)
-    ),
-
-    thinking_section: $ => seq(
-      '## THINKING:',
-      optional(/\n/),
-      optional($.content)
-    ),
-
-    citations_section: $ => seq(
-      '## CITATIONS:',
-      optional(/\n/),
-      optional($.content)
-    ),
-
-    tool_use_section: $ => seq(
-      '## TOOL USE:',
-      optional(/\n/),
-      optional($.tool_use_content)
-    ),
-
-    tool_result_section: $ => seq(
-      '## TOOL RESULT:',
-      optional(/\n/),
-      optional($.tool_result_content)
-    ),
-
-    server_tool_use_section: $ => seq(
-      '## SERVER TOOL USE:',
-      optional(/\n/),
-      optional($.tool_use_content)
-    ),
-
-    server_tool_result_section: $ => seq(
-      '## SERVER TOOL RESULT:',
-      optional(/\n/),
-      optional($.tool_result_content)
-    ),
-
-    content: $ => repeat1(choice(
-      $.text_line,
-      $.empty_line,
-      $.code_block,
-      $.html_comment,
-      $.include_tag,
-      $.safe_shell_commands_tag
-    )),
-
-    tool_use_content: $ => repeat1(choice(
-      $.tool_name_line,
-      $.tool_id_line,
-      $.tool_parameter,
-      $.text_line,
-      $.empty_line
-    )),
-
-    tool_result_content: $ => repeat1(choice(
-      $.tool_id_line,
-      $.tool_output,
-      $.text_line,
-      $.empty_line
-    )),
-
-    untagged_content: $ => repeat1(choice(
-      $.text_line,
-      $.empty_line
-    )),
-
-    text_line: $ => seq(
-      /[^\n#]+/,
+    content_line: $ => seq(
+      choice(
+        $.text_content,
+        $.tool_name,
+        $.tool_id,
+        $.tool_parameter_header,
+        $.tool_tag_open,
+        $.tool_tag_close,
+        $.code_fence,
+        $.html_comment_start,
+        $.html_comment_end,
+        $.include_tag,
+        $.safe_shell_commands_open,
+        $.safe_shell_commands_close
+      ),
       /\n/
     ),
 
     empty_line: $ => /\n/,
 
-    tool_name_line: $ => seq(
+    text_content: $ => /[^\n]+/,
+
+    tool_name: $ => seq(
       'Name:',
       /[ \t]+/,
-      $.identifier,
-      /\n/
+      $.identifier
     ),
 
-    tool_id_line: $ => seq(
+    tool_id: $ => seq(
       'ID:',
       /[ \t]+/,
-      $.identifier,
-      /\n/
+      $.identifier
     ),
 
-    tool_parameter: $ => seq(
+    tool_parameter_header: $ => seq(
       '###',
       /[ \t]+/,
-      $.identifier,
-      /\n/,
-      optional($.parameter_value)
+      $.identifier
     ),
 
-    parameter_value: $ => seq(
+    tool_tag_open: $ => seq(
       '<tool.',
       $.identifier,
-      '>',
-      /\n/,
-      repeat(choice(
-        $.parameter_line,
-        $.empty_line
-      )),
+      '>'
+    ),
+
+    tool_tag_close: $ => seq(
       '</tool.',
       $.identifier,
-      '>',
-      /\n/
+      '>'
     ),
 
-    parameter_line: $ => seq(
-      /[^\n<]+/,
-      /\n/
+    code_fence: $ => choice(
+      seq('```', optional($.identifier)),
+      '```'
     ),
 
-    tool_output: $ => seq(
-      '<tool.',
-      $.identifier,
-      '>',
-      /\n/,
-      repeat(choice(
-        $.output_line,
-        $.empty_line
-      )),
-      '</tool.',
-      $.identifier,
-      '>',
-      /\n/
-    ),
-
-    output_line: $ => seq(
-      /[^\n<]+/,
-      /\n/
-    ),
-
-    code_block: $ => seq(
-      '```',
-      optional($.identifier),
-      /\n/,
-      repeat(choice(
-        $.code_line,
-        $.empty_line
-      )),
-      '```',
-      /\n/
-    ),
-
-    code_line: $ => seq(
-      /[^\n]+/,
-      /\n/
-    ),
-
-    html_comment: $ => seq(
-      '<!--',
-      repeat(/[^>]/),
-      '-->',
-      /\n/
-    ),
+    html_comment_start: $ => '<!--',
+    html_comment_end: $ => '-->',
 
     include_tag: $ => seq(
       '<include',
       optional(seq(/[ \t]+/, 'code')),
       '>',
       /[^<\n]+/,
-      '</include>',
-      /\n/
+      '</include>'
     ),
 
-    safe_shell_commands_tag: $ => seq(
-      '<safe-shell-commands>',
-      /\n/,
-      repeat(seq(
-        /[^\n<]+/,
-        /\n/
-      )),
-      '</safe-shell-commands>',
-      /\n/
-    ),
+    safe_shell_commands_open: $ => '<safe-shell-commands>',
+    safe_shell_commands_close: $ => '</safe-shell-commands>',
 
     identifier: $ => /[^\s\n]+/
   }
