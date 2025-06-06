@@ -855,7 +855,39 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
   message)
 
 (defun greger-tree-sitter--parse-content-with-citations (content citations)
-  "Parse CONTENT and create content blocks with citations."
+  "Parse CONTENT string and create content blocks with CITATIONS attached to cited text.
+
+INPUT:
+  CONTENT - String containing text with <cite>...</cite> tags
+  CITATIONS - List of citation objects to associate with cited text
+
+PROCESSING:
+  1. Scans content for <cite>text</cite> patterns using regex matching
+  2. Splits content into separate text blocks:
+     - Text before citations (if any) → text block without citations
+     - Text inside <cite> tags → text block with citations attached
+     - Text after citations (if any) → text block without citations
+  3. Removes the <cite> tags themselves, keeping only the inner text
+  4. Trims whitespace from all text blocks
+
+OUTPUT:
+  Returns a list of content block objects:
+  (((type . \"text\") (text . \"text before cite\"))
+   ((type . \"text\") (text . \"cited text\") (citations . citations-list))
+   ((type . \"text\") (text . \"text after cite\")))
+
+  Empty text blocks are filtered out.
+
+EXAMPLE INPUT:
+  CONTENT: \"Based on research, <cite>the sky is blue</cite> according to science.\"
+  CITATIONS: (((type . \"web_search_result_location\") (url . \"http://example.com\") ...))
+
+EXAMPLE OUTPUT:
+  (((type . \"text\") (text . \"Based on research,\"))
+   ((type . \"text\") (text . \"the sky is blue\") (citations . citations-list))
+   ((type . \"text\") (text . \"according to science.\")))
+
+INTERNAL FUNCTION: Core citation parsing logic used by citation association functions."
   (let ((parts '())
         (current-pos 0))
 
