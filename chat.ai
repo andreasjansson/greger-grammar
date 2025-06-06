@@ -9583,4 +9583,82 @@ tool_result_content: $ => seq(
 Fix tool result content structure to match actual format
 </tool.toolu_01SRdpZ5QaPtSn5HReBjN3ye>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SRdpZ5QaPtSn5HReBjN3ye -->
+## TOOL RESULT:
+
+ID: toolu_01SRdpZ5QaPtSn5HReBjN3ye
+
+<tool.toolu_01SRdpZ5QaPtSn5HReBjN3ye>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix tool result content structure to match actual format
+</tool.toolu_01SRdpZ5QaPtSn5HReBjN3ye>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LsTHNQ1fjwnXBLtJ5D8iKs
+
+### command
+
+<tool.toolu_01LsTHNQ1fjwnXBLtJ5D8iKs>
+tree-sitter generate
+</tool.toolu_01LsTHNQ1fjwnXBLtJ5D8iKs>
+
+## TOOL RESULT:
+
+ID: toolu_01LsTHNQ1fjwnXBLtJ5D8iKs
+
+<tool.toolu_01LsTHNQ1fjwnXBLtJ5D8iKs>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    The rule `tool_result_content` matches the empty string.
+    
+    Tree-sitter does not support syntactic rules that match the empty string
+    unless they are used only as the grammar's start rule.
+    
+
+</tool.toolu_01LsTHNQ1fjwnXBLtJ5D8iKs>
+
+## ASSISTANT:
+
+Let me fix that by making it not match empty strings:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QmxjiiVzWaP7XTsaFVtmhq
+
+### file-path
+
+<tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+./grammar.js
+</tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+
+### original-content
+
+<tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+tool_result_content: $ => seq(
+      optional($.newline),
+      optional($.tool_result_id_line),
+      optional($.newline),
+      optional($.tool_result_block),
+      repeat($.newline)
+    ),
+</tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+
+### new-content
+
+<tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+tool_result_content: $ => repeat1(choice(
+      $.tool_result_id_line,
+      $.tool_result_block,
+      $.newline
+    )),
+</tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+
+### git-commit-message
+
+<tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+Revert tool result content to avoid empty string match
+</tool.toolu_01QmxjiiVzWaP7XTsaFVtmhq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QmxjiiVzWaP7XTsaFVtmhq -->

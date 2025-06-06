@@ -123,13 +123,11 @@ module.exports = grammar({
       $.newline
     )),
 
-    tool_result_content: $ => seq(
-      optional($.newline),
-      optional($.tool_result_id_line),
-      optional($.newline),
-      optional($.tool_result_block),
-      repeat($.newline)
-    ),
+    tool_result_content: $ => repeat1(choice(
+      $.tool_result_id_line,
+      $.tool_result_block,
+      $.newline
+    )),
 
     citations_content: $ => repeat1(choice(
       $.citation_entry,
