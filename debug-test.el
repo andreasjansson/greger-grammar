@@ -2,9 +2,13 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(let ((test-text (with-temp-buffer
-                   (insert-file-contents "test_simple.greger")
-                   (buffer-string))))
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
   (message "Input text:")
   (message "%s" test-text)
   (message "\nParsed result:")

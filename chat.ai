@@ -10562,4 +10562,180 @@ Hi there!"))
 Use existing test file instead
 </tool.toolu_018ZaSpNUeyXQCKSMX6gA2dQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018ZaSpNUeyXQCKSMX6gA2dQ -->
+## TOOL RESULT:
+
+ID: toolu_018ZaSpNUeyXQCKSMX6gA2dQ
+
+<tool.toolu_018ZaSpNUeyXQCKSMX6gA2dQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Use existing test file instead
+</tool.toolu_018ZaSpNUeyXQCKSMX6gA2dQ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01L8M1kf9TtBJvqaqc5FaFJM
+
+### command
+
+<tool.toolu_01L8M1kf9TtBJvqaqc5FaFJM>
+emacs --batch -l debug-test.el
+</tool.toolu_01L8M1kf9TtBJvqaqc5FaFJM>
+
+## TOOL RESULT:
+
+ID: toolu_01L8M1kf9TtBJvqaqc5FaFJM
+
+<tool.toolu_01L8M1kf9TtBJvqaqc5FaFJM>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+
+Parsed result:
+(((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "Hi there! How can I help you today?"))))
+ ((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Number of messages: 2
+First message role: assistant
+First message content: (((type . "text") (text . "Hi there! How can I help you today?")))
+Second message role: user
+Second message content: "Hello, how are you?"
+
+</tool.toolu_01L8M1kf9TtBJvqaqc5FaFJM>
+
+## ASSISTANT:
+
+Aha! Now I can see the issue clearly:
+
+1. **Messages are in reverse order** - assistant comes first, then user
+2. **Content structure is different** - assistant content is wrapped in content blocks with type "text", while user content is a plain string
+
+The order issue is the main problem. The messages should be:
+1. user: "Hello, how are you?" 
+2. assistant: "Hi there! How can I help you today?"
+
+But they're coming out as:
+1. assistant: "Hi there! How can I help you today?"
+2. user: "Hello, how are you?"
+
+This confirms that there's an issue in the message ordering logic in `greger-tree-sitter--process-sections-with-citations`. Let me look at that function more carefully.
+
+The issue is likely that the assistant message is being added to the messages list when the next section (which would be another user section or end of file) is encountered, but it's being pushed before the user section gets processed.
+
+Looking at the logic again:
+
+```elisp
+;; When encountering user_section:
+(when current-assistant-blocks
+  (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+  (setq current-assistant-blocks '()))
+(let ((message (greger-tree-sitter--extract-section section)))
+  (when message (push message messages)))
+```
+
+The issue is that when processing the assistant section, it gets added to `current-assistant-blocks`, but it's only flushed to `messages` when the NEXT section is encountered. So the assistant message gets added after the next user message has been processed.
+
+But wait, that's not quite right either. Let me trace through what should happen:
+
+1. Process USER section → adds user message to messages
+2. Process ASSISTANT section → adds assistant content to current-assistant-blocks  
+3. End of file → flushes current-assistant-blocks to messages
+
+So the final messages list would be [user, assistant] before nreverse, and [assistant, user] after nreverse. But that's backwards!
+
+I think the issue is that the final flush happens with a push, so it's actually:
+1. USER section processed → messages = [user]
+2. ASSISTANT section processed → current-assistant-blocks = [assistant-content]
+3. End of file → push assistant to messages → messages = [assistant, user]
+4. nreverse → messages = [user, assistant]
+
+That should be correct. But I'm seeing [assistant, user] in the output, which suggests the nreverse isn't happening or there's another issue.
+
+Let me check if the issue is in the final flushing logic. Looking at the end of `greger-tree-sitter--process-sections-with-citations`:
+
+```elisp
+;; Flush any remaining assistant blocks
+(when current-assistant-blocks
+  ;; Reorder assistant blocks to put server_tool_use first, then web_search_tool_result, then text blocks
+  (let ((reordered-blocks (greger-tree-sitter--reorder-assistant-blocks (nreverse current-assistant-blocks))))
+    (push `((role . "assistant") (content . ,reordered-blocks)) messages)))
+
+(nreverse messages)
+```
+
+This looks correct. The issue might be elsewhere.
+
+Wait, let me double-check the actual output. In my debug output, I see:
+
+```
+First message role: assistant
+Second message role: user
+```
+
+This means the assistant message is first in the list, which suggests the nreverse is not working as expected, OR there's something else going on.
+
+Actually, let me check if the issue is in how I'm interpreting the test results. Looking at the actual test failure from earlier:
+
+```
+Expected:
+(((role . "user") (content . "Hello"))
+ ((role . "assistant") (content . "Hi there! How can I help you today?")))
+
+Actual:
+(((role . "user") (content . "Hello")))
+```
+
+Wait, this shows the user message is first in the expected output, and the assistant message is missing entirely. That's different from what I'm seeing in my debug test where the assistant is first.
+
+Let me check what's different between my test and the failing test. The failing test "simple-conversation" has different content. Let me run that specific test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01P5tNkfjw2pshNec2yGHuw7
+
+### file-path
+
+<tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+debug-test.el
+</tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+
+### original-content
+
+<tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+(let ((test-text (with-temp-buffer
+                   (insert-file-contents "test_simple.greger")
+                   (buffer-string))))
+</tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+
+### new-content
+
+<tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+</tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+
+### git-commit-message
+
+<tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+Test the exact simple-conversation case
+</tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01P5tNkfjw2pshNec2yGHuw7 -->
