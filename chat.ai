@@ -7570,4 +7570,67 @@ in the main parsing flow for multi-section documents."
 Document greger-tree-sitter--get-all-sections function
 </tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ht2CUt3CxHa2FV13hHpHWJ -->
+## TOOL RESULT:
+
+ID: toolu_01Ht2CUt3CxHa2FV13hHpHWJ
+
+<tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--get-all-sections function
+</tool.toolu_01Ht2CUt3CxHa2FV13hHpHWJ>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PriQ7gG5kRxBGT1MK2bS2Q
+
+### file-path
+
+<tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+greger-tree-sitter.el
+</tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+
+### original-content
+
+<tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a section node."
+  (treesit-node-type (treesit-node-child section-node 0)))
+</tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+
+### new-content
+
+<tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+(defun greger-tree-sitter--get-section-type (section-node)
+  "Get the type of a SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - A tree-sitter section node
+
+PROCESSING:
+  Gets the type of the first child node, which indicates what kind of
+  section this is (user_section, assistant_section, citations_section, etc.)
+
+OUTPUT:
+  Returns a string representing the section type:
+  - \"user_section\" for ## USER: sections
+  - \"assistant_section\" for ## ASSISTANT: sections
+  - \"system_section\" for ## SYSTEM: sections
+  - \"thinking_section\" for ## THINKING: sections
+  - \"tool_use_section\" for ## TOOL USE: sections
+  - \"tool_result_section\" for ## TOOL RESULT: sections
+  - \"server_tool_use_section\" for ## SERVER TOOL USE: sections
+  - \"server_tool_result_section\" for ## SERVER TOOL RESULT: sections
+  - \"citations_section\" for ## CITATIONS: sections
+
+INTERNAL FUNCTION: Used by section processing logic to dispatch to
+appropriate extraction functions."
+  (treesit-node-type (treesit-node-child section-node 0)))
+</tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+
+### git-commit-message
+
+<tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+Document greger-tree-sitter--get-section-type function
+</tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PriQ7gG5kRxBGT1MK2bS2Q -->

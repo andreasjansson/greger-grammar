@@ -778,7 +778,29 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
     (nreverse messages)))
 
 (defun greger-tree-sitter--get-section-type (section-node)
-  "Get the type of a section node."
+  "Get the type of a SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - A tree-sitter section node
+
+PROCESSING:
+  Gets the type of the first child node, which indicates what kind of
+  section this is (user_section, assistant_section, citations_section, etc.)
+
+OUTPUT:
+  Returns a string representing the section type:
+  - \"user_section\" for ## USER: sections
+  - \"assistant_section\" for ## ASSISTANT: sections
+  - \"system_section\" for ## SYSTEM: sections
+  - \"thinking_section\" for ## THINKING: sections
+  - \"tool_use_section\" for ## TOOL USE: sections
+  - \"tool_result_section\" for ## TOOL RESULT: sections
+  - \"server_tool_use_section\" for ## SERVER TOOL USE: sections
+  - \"server_tool_result_section\" for ## SERVER TOOL RESULT: sections
+  - \"citations_section\" for ## CITATIONS: sections
+
+INTERNAL FUNCTION: Used by section processing logic to dispatch to
+appropriate extraction functions."
   (treesit-node-type (treesit-node-child section-node 0)))
 
 (defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
