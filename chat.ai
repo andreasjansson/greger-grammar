@@ -11727,4 +11727,66 @@ assistant_section: $ => seq(
 Revert assistant section changes
 </tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FeomT6j4cWao8hWNgsCFGX -->
+## TOOL RESULT:
+
+ID: toolu_01FeomT6j4cWao8hWNgsCFGX
+
+<tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert assistant section changes
+</tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+
+## ASSISTANT:
+
+Let me think of a simpler approach. I can modify the section parsing to recognize when an assistant section is followed by a citations section, and treat this as a special case:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NUL5nYLtA3ceddKLicuCsf
+
+### file-path
+
+<tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+grammar.js
+</tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+
+### original-content
+
+<tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+</tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+
+### new-content
+
+<tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+      $.assistant_section_with_citations,
+    ),
+</tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+
+### git-commit-message
+
+<tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+Add assistant section with citations option
+</tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NUL5nYLtA3ceddKLicuCsf -->
