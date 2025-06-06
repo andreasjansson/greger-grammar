@@ -158,32 +158,9 @@ module.exports = grammar({
     // Assistant section that contains cite tags and is followed by citations
     assistant_section_with_citations: $ => prec(1, seq(
       $.assistant_header,
-      optional(alias($.content_with_citations, $.section_content)),
+      optional(alias($.content, $.section_content)),
       $.citations_section
     )),
-
-    // Content that contains cite tags
-    content_with_citations: $ => prec(-1, repeat1(choice(
-      $.code_block,
-      $.inline_code,
-      $.include_tag,
-      $.cite_tag,
-      $.html_comment,
-      $.line_with_cite_tags,
-      $.newline
-    ))),
-
-    // Line that can contain cite tags
-    line_with_cite_tags: $ => prec(-2, seq(
-      repeat1(choice(
-        $.cite_tag,
-        $.text_fragment
-      )),
-      "\n"
-    )),
-
-    // Fragment of text that's not a cite tag
-    text_fragment: $ => /[^#\n<]+/,
 
     cite_tag: $ => seq(
       "<cite>",

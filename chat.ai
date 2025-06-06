@@ -12491,4 +12491,115 @@ conflicts: $ => [
 Add more conflict resolutions
 </tool.toolu_01VggYVM8aA52Hk9D43bCw1A>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VggYVM8aA52Hk9D43bCw1A -->
+## TOOL RESULT:
+
+ID: toolu_01VggYVM8aA52Hk9D43bCw1A
+
+<tool.toolu_01VggYVM8aA52Hk9D43bCw1A>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add more conflict resolutions
+</tool.toolu_01VggYVM8aA52Hk9D43bCw1A>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015Vuup11ALwHvP4Tn6L9ULS
+
+### command
+
+<tool.toolu_015Vuup11ALwHvP4Tn6L9ULS>
+tree-sitter generate
+</tool.toolu_015Vuup11ALwHvP4Tn6L9ULS>
+
+## TOOL RESULT:
+
+ID: toolu_015Vuup11ALwHvP4Tn6L9ULS
+
+<tool.toolu_015Vuup11ALwHvP4Tn6L9ULS>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      assistant_header  cite_tag  •  text_fragment  …
+    
+    Possible interpretations:
+    
+      1:  assistant_header  (content_with_citations_repeat1  cite_tag)  •  text_fragment  …
+      2:  assistant_header  (line_with_cite_tags_repeat1  cite_tag)  •  text_fragment  …
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `content_with_citations_repeat1` than in the other rules.
+      2:  Specify a higher precedence in `line_with_cite_tags_repeat1` than in the other rules.
+      3:  Add a conflict for these rules: `content_with_citations`, `line_with_cite_tags`
+    
+
+</tool.toolu_015Vuup11ALwHvP4Tn6L9ULS>
+
+## ASSISTANT:
+
+This is getting complex with multiple layers of conflicts. Let me try a simpler approach - I'll modify the existing cite_tag rule to be more integrated with the content parsing rather than creating a separate content type:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012TrPQ483yHB4dtpVT4uBAr
+
+### file-path
+
+<tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+grammar.js
+</tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+
+### original-content
+
+<tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+// Assistant section that contains cite tags and is followed by citations
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content)),
+      $.citations_section
+    )),
+
+    // Content that contains cite tags
+    content_with_citations: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line_with_cite_tags,
+      $.newline
+    ))),
+
+    // Line that can contain cite tags
+    line_with_cite_tags: $ => prec(-2, seq(
+      repeat1(choice(
+        $.cite_tag,
+        $.text_fragment
+      )),
+      "\n"
+    )),
+
+    // Fragment of text that's not a cite tag
+    text_fragment: $ => /[^#\n<]+/,
+</tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+
+### new-content
+
+<tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+// Assistant section that contains cite tags and is followed by citations
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content)),
+      $.citations_section
+    )),
+</tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+
+### git-commit-message
+
+<tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+Simplify to use regular content in assistant section with citations
+</tool.toolu_012TrPQ483yHB4dtpVT4uBAr>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012TrPQ483yHB4dtpVT4uBAr -->
