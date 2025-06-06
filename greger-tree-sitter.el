@@ -227,7 +227,6 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--process-sections-with-citations (sections)
   "Process SECTIONS and handle citation associations."
   (let ((messages '())
-        (pending-citations nil)
         (i 0))
 
     (while (< i (length sections))
@@ -235,19 +234,19 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
              (section-type (greger-tree-sitter--get-section-type section)))
 
         (cond
-         ;; Citations section - store for association with previous message
+         ;; Citations section - check if previous message needs citations
          ((equal section-type "citations_section")
-          (setq pending-citations (greger-tree-sitter--extract-citations-section section)))
+          (when (and messages
+                     (greger-tree-sitter--message-has-cite-tags (car messages)))
+            ;; Associate citations with the last message
+            (let ((citations (greger-tree-sitter--extract-citations-section section))
+                  (last-message (car messages)))
+              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
 
-         ;; Regular section - check if it has cite tags
+         ;; Regular section
          (t
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message
-              ;; If this message has cite tags and we have pending citations, associate them
-              (when (and pending-citations
-                         (greger-tree-sitter--message-has-cite-tags message))
-                (setq message (greger-tree-sitter--associate-citations message pending-citations))
-                (setq pending-citations nil))
               (push message messages))))))
 
       (setq i (1+ i)))

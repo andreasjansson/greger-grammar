@@ -3209,4 +3209,101 @@ greger-tree-sitter.el
 Keep the existing section processing logic
 </tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Upv3yqyuswfjqYgsaBw9gb -->
+## TOOL RESULT:
+
+ID: toolu_01Upv3yqyuswfjqYgsaBw9gb
+
+<tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Keep the existing section processing logic
+</tool.toolu_01Upv3yqyuswfjqYgsaBw9gb>
+
+
+## ASSISTANT:
+
+Now I need to improve the `greger-tree-sitter--process-sections-with-citations` function to properly handle the case where we have server tool use, server tool result, assistant section with cite tags, and then a citations section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HE3skjLKqNJ5vtYcnK6kjt
+
+### file-path
+
+<tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+greger-tree-sitter.el
+</tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+
+### original-content
+
+<tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (pending-citations nil)
+        (i 0))
+
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; Citations section - store for association with previous message
+         ((equal section-type "citations_section")
+          (setq pending-citations (greger-tree-sitter--extract-citations-section section)))
+
+         ;; Regular section - check if it has cite tags
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              ;; If this message has cite tags and we have pending citations, associate them
+              (when (and pending-citations
+                         (greger-tree-sitter--message-has-cite-tags message))
+                (setq message (greger-tree-sitter--associate-citations message pending-citations))
+                (setq pending-citations nil))
+              (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+</tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+
+### new-content
+
+<tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (i 0))
+
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+
+        (cond
+         ;; Citations section - check if previous message needs citations
+         ((equal section-type "citations_section")
+          (when (and messages
+                     (greger-tree-sitter--message-has-cite-tags (car messages)))
+            ;; Associate citations with the last message
+            (let ((citations (greger-tree-sitter--extract-citations-section section))
+                  (last-message (car messages)))
+              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
+
+         ;; Regular section
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (push message messages))))))
+
+      (setq i (1+ i)))
+
+    (nreverse messages)))
+</tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+
+### git-commit-message
+
+<tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+Improve citation processing to associate with previous message
+</tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HE3skjLKqNJ5vtYcnK6kjt -->
