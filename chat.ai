@@ -14318,4 +14318,120 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 Improve tool content scanning logic
 </tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017Q1dRYdJ35BK65tQCmz1yV -->
+## TOOL RESULT:
+
+ID: toolu_017Q1dRYdJ35BK65tQCmz1yV
+
+<tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Improve tool content scanning logic
+</tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+
+## ASSISTANT:
+
+Now let's test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CXCwrRGqpgtmqvS4Z4rjZf
+
+### command
+
+<tool.toolu_01CXCwrRGqpgtmqvS4Z4rjZf>
+tree-sitter generate
+</tool.toolu_01CXCwrRGqpgtmqvS4Z4rjZf>
+
+## TOOL RESULT:
+
+ID: toolu_01CXCwrRGqpgtmqvS4Z4rjZf
+
+<tool.toolu_01CXCwrRGqpgtmqvS4Z4rjZf>
+Command executed successfully:
+(no output)
+</tool.toolu_01CXCwrRGqpgtmqvS4Z4rjZf>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016ZaiStVM4DqqkYtchCFZ6E
+
+### command
+
+<tool.toolu_016ZaiStVM4DqqkYtchCFZ6E>
+tree-sitter parse test_complex.greger
+</tool.toolu_016ZaiStVM4DqqkYtchCFZ6E>
+
+## TOOL RESULT:
+
+ID: toolu_016ZaiStVM4DqqkYtchCFZ6E
+
+<tool.toolu_016ZaiStVM4DqqkYtchCFZ6E>
+Command failed with exit code 1: (source_file [0, 0] - [24, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [24, 0]
+    (tool_use_section [4, 0] - [24, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [24, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 15]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 13]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [24, 0]
+          param_name: (identifier [9, 4] - [9, 8])
+          param_value: (tool_param_block [11, 0] - [24, 0]
+            (tool_block_start [11, 0] - [11, 16])
+            content: (tool_block_content [11, 16] - [13, 16])
+            content: (tool_block_content [13, 16] - [20, 16])
+            content: (tool_block_content [20, 16] - [24, 0])
+            (tool_block_end [24, 0] - [24, 0])))))))
+test_complex.greger	Parse:    0.07 ms	  3779 bytes/ms	(MISSING tool_block_end [24, 0] - [24, 0])
+
+</tool.toolu_016ZaiStVM4DqqkYtchCFZ6E>
+
+## ASSISTANT:
+
+The same issue persists. The problem is that the content is being consumed all the way to line 24, but the actual closing tag should be on line 13. Let me check if there's an issue with the file structure or if my scanner isn't correctly identifying the tool ID.
+
+Let me create a minimal test case to debug this:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01LCaefcSq3uCAdNfXftSZRQ
+
+### file-path
+
+<tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+./test_minimal.greger
+</tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+
+### contents
+
+<tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+## TOOL USE:
+
+Name: test
+ID: abc
+
+### param
+
+<tool.abc>
+hello
+</tool.abc>
+</tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+
+### git-commit-message
+
+<tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+Add minimal test case for debugging
+</tool.toolu_01LCaefcSq3uCAdNfXftSZRQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LCaefcSq3uCAdNfXftSZRQ -->
