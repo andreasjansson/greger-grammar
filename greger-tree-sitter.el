@@ -369,7 +369,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                   (let ((text (treesit-node-text child)))
                     (when (string-match "Encrypted index:[ \t]*\\(.*\\)" text)
                       (setq encrypted-index (string-trim (match-string 1 text)))
-                      (message "Extracted encrypted-index from text: %S" encrypted-index))))))))))
+                      )))))))))
 
       (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S"
                url title cited-text encrypted-index)
