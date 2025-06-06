@@ -3786,4 +3786,94 @@ ID: toolu_01F43V9d9eeSo7nBdedyWCV3
 Fix grammar conflicts by restructuring content rules
 </tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F43V9d9eeSo7nBdedyWCV3 -->
+## TOOL RESULT:
+
+ID: toolu_01F43V9d9eeSo7nBdedyWCV3
+
+<tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix grammar conflicts by restructuring content rules
+</tool.toolu_01F43V9d9eeSo7nBdedyWCV3>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EpHo9dAUvUg1XEtkJSenLt
+
+### file-path
+
+<tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+./grammar.js
+</tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+
+### original-content
+
+<tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+    // System content (can contain safe-shell-commands)
+    _system_content: $ => repeat1(choice(
+      $.safe_shell_commands,
+      $.include_tag,
+      $._content_line,
+      $._newline
+    )),
+
+    safe_shell_commands: $ => seq(
+      $._newline,
+      "<safe-shell-commands>",
+      $._newline,
+      field("commands", repeat(seq($._line_content, $._newline))),
+      "</safe-shell-commands>"
+    ),
+
+    // Content handling - need to be careful about code blocks
+    _content: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $._content_line,
+      $._newline
+    )),
+</tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+
+### new-content
+
+<tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+    // System content (can contain safe-shell-commands)
+    _system_content: $ => $._section_content_with_metadata,
+
+    _section_content_with_metadata: $ => repeat1(choice(
+      $.safe_shell_commands,
+      $.include_tag,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+      $._content_line,
+      $._newline
+    )),
+
+    safe_shell_commands: $ => seq(
+      $._newline,
+      "<safe-shell-commands>",
+      $._newline,
+      field("commands", repeat(seq($._line_content, $._newline))),
+      "</safe-shell-commands>"
+    ),
+
+    // Content handling - need to be careful about code blocks
+    _section_content: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $._content_line,
+      $._newline
+    )),
+</tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+
+### git-commit-message
+
+<tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+Separate system content from regular content
+</tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EpHo9dAUvUg1XEtkJSenLt -->

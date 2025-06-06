@@ -171,9 +171,14 @@ module.exports = grammar({
     ),
 
     // System content (can contain safe-shell-commands)
-    _system_content: $ => repeat1(choice(
+    _system_content: $ => $._section_content_with_metadata,
+
+    _section_content_with_metadata: $ => repeat1(choice(
       $.safe_shell_commands,
       $.include_tag,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
       $._content_line,
       $._newline
     )),
@@ -187,7 +192,7 @@ module.exports = grammar({
     ),
 
     // Content handling - need to be careful about code blocks
-    _content: $ => repeat1(choice(
+    _section_content: $ => repeat1(choice(
       $.code_block,
       $.inline_code,
       $.include_tag,
