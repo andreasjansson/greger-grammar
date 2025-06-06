@@ -6533,4 +6533,185 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-tool-result-section function
 </tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01BJQCgkqy2yQeGsu9cYGzLS -->
+## TOOL RESULT:
+
+ID: toolu_01BJQCgkqy2yQeGsu9cYGzLS
+
+<tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-tool-result-section function
+</tool.toolu_01BJQCgkqy2yQeGsu9cYGzLS>
+
+## ASSISTANT:
+
+Now let me continue documenting the remaining functions. Let me check what's left:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RwNecZQTpV9NmCmE2Ersi5
+
+### path
+
+<tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+greger-tree-sitter.el
+</tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+
+### start-line
+
+<tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+250
+</tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+
+### end-line
+
+<tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+300
+</tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+
+## TOOL RESULT:
+
+ID: toolu_01RwNecZQTpV9NmCmE2Ersi5
+
+<tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+EXAMPLE INPUT SECTION:
+  ## USER:
+
+  Hello, how are you?
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))"
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from a ## SYSTEM: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+
+PROCESSING:
+  1. Gets the system_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"system\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## SYSTEM:
+
+  You are a helpful assistant.
+
+EXAMPLE OUTPUT:
+  ((role . \"system\") (content . \"You are a helpful assistant.\"))"
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from a ## ASSISTANT: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## ASSISTANT: section
+</tool.toolu_01RwNecZQTpV9NmCmE2Ersi5>
+
+## ASSISTANT:
+
+Let me continue documenting the citation-related functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Q35ddM1aiou4dh1qR4LCxc
+
+### file-path
+
+<tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+greger-tree-sitter.el
+</tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+
+### original-content
+
+<tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+(defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+  "Extract server tool use and return as assistant message."
+  ;; Similar to tool_use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+    ;; Change the type to server_tool_use
+    (when result
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_use"))))
+    result))
+</tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+
+### new-content
+
+<tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+(defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+  "Extract server tool use from a ## SERVER TOOL USE: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL USE: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-use-section to extract basic tool structure
+  2. Changes the content block type from \"tool_use\" to \"server_tool_use\"
+  
+  Server tool use has the same structure as regular tool use but represents
+  tools called on the server side rather than client side.
+
+OUTPUT:
+  Returns an assistant message object with a server_tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"tool-id\")
+                (name . \"tool-name\")
+                (input . ((param . \"value\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL USE:
+  
+  Name: web_search  
+  ID: srvtoolu_123
+  
+  ### query
+  
+  <tool.srvtoolu_123>
+  search terms
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"srvtoolu_123\")
+                (name . \"web_search\")
+                (input . ((query . \"search terms\")))))))"
+  ;; Similar to tool_use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+    ;; Change the type to server_tool_use
+    (when result
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_use"))))
+    result))
+</tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+
+### git-commit-message
+
+<tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+Document greger-tree-sitter--extract-server-tool-use-section function
+</tool.toolu_01Q35ddM1aiou4dh1qR4LCxc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Q35ddM1aiou4dh1qR4LCxc -->

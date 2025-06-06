@@ -531,7 +531,44 @@ EXAMPLE OUTPUT:
                    (content . ,result-content)))))))
 
 (defun greger-tree-sitter--extract-server-tool-use-section (section-node)
-  "Extract server tool use and return as assistant message."
+  "Extract server tool use from a ## SERVER TOOL USE: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL USE: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-use-section to extract basic tool structure
+  2. Changes the content block type from \"tool_use\" to \"server_tool_use\"
+
+  Server tool use has the same structure as regular tool use but represents
+  tools called on the server side rather than client side.
+
+OUTPUT:
+  Returns an assistant message object with a server_tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"tool-id\")
+                (name . \"tool-name\")
+                (input . ((param . \"value\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL USE:
+
+  Name: web_search
+  ID: srvtoolu_123
+
+  ### query
+
+  <tool.srvtoolu_123>
+  search terms
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"srvtoolu_123\")
+                (name . \"web_search\")
+                (input . ((query . \"search terms\")))))))"
   ;; Similar to tool_use but with server_tool_use type
   (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
     ;; Change the type to server_tool_use
