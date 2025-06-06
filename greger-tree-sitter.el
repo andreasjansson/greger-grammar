@@ -212,6 +212,16 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
           (setf (alist-get 'type (car content)) "server_tool_result"))))
     result))
 
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+
 (defun greger-tree-sitter--extract-content (content-node)
   "Extract plain text content from CONTENT-NODE."
   (if content-node

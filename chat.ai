@@ -8230,4 +8230,63 @@ greger-tree-sitter.el
 Use helper function to find section_content child node
 </tool.toolu_018uXR6o4kCMqQs2r2ruuJMU>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018uXR6o4kCMqQs2r2ruuJMU -->
+## TOOL RESULT:
+
+ID: toolu_018uXR6o4kCMqQs2r2ruuJMU
+
+<tool.toolu_018uXR6o4kCMqQs2r2ruuJMU>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Use helper function to find section_content child node
+</tool.toolu_018uXR6o4kCMqQs2r2ruuJMU>
+
+## ASSISTANT:
+
+Now I need to add the helper function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017ii585Yq5EYj5rt3p7XTU4
+
+### file-path
+
+<tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+greger-tree-sitter.el
+</tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+
+### original-content
+
+<tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE."
+  (if content-node
+      (string-trim (treesit-node-text content-node))
+    ""))
+</tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+
+### new-content
+
+<tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE."
+  (if content-node
+      (string-trim (treesit-node-text content-node))
+    ""))
+</tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+
+### git-commit-message
+
+<tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+Add helper function to find child nodes by type
+</tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017ii585Yq5EYj5rt3p7XTU4 -->
