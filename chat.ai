@@ -13694,4 +13694,208 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Simplify scanner to use single tool ID instead of stack
 </tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FZVbxCYs8U5k3ijLDa4gcr -->
+## TOOL RESULT:
+
+ID: toolu_01FZVbxCYs8U5k3ijLDa4gcr
+
+<tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/src/scanner.c with 6528 characters. Successfully staged 2 file(s) and committed with message: Simplify scanner to use single tool ID instead of stack
+</tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+
+
+## ASSISTANT:
+
+Now let's test it:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SwbHygQ16ecKc3Nh4nKNSC
+
+### command
+
+<tool.toolu_01SwbHygQ16ecKc3Nh4nKNSC>
+tree-sitter generate
+</tool.toolu_01SwbHygQ16ecKc3Nh4nKNSC>
+
+## TOOL RESULT:
+
+ID: toolu_01SwbHygQ16ecKc3Nh4nKNSC
+
+<tool.toolu_01SwbHygQ16ecKc3Nh4nKNSC>
+Command executed successfully:
+(no output)
+</tool.toolu_01SwbHygQ16ecKc3Nh4nKNSC>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PmLnbPWvnnNFwHn4R9v5wp
+
+### command
+
+<tool.toolu_01PmLnbPWvnnNFwHn4R9v5wp>
+tree-sitter parse test_simple_tool.greger
+</tool.toolu_01PmLnbPWvnnNFwHn4R9v5wp>
+
+## TOOL RESULT:
+
+ID: toolu_01PmLnbPWvnnNFwHn4R9v5wp
+
+<tool.toolu_01PmLnbPWvnnNFwHn4R9v5wp>
+Command failed with exit code 1: (source_file [0, 0] - [9, 16]
+  (section [0, 0] - [5, 0]
+    (tool_use_section [0, 0] - [5, 0]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [5, 0]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 15]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 12]))
+        (newline [4, 0] - [5, 0]))))
+  (ERROR [5, 0] - [9, 16]
+    (identifier [5, 4] - [5, 9])
+    (tool_block_start [7, 0] - [7, 15])
+    (tool_block_content [7, 15] - [9, 15])))
+test_simple_tool.greger	Parse:    0.31 ms	   327 bytes/ms	(ERROR [5, 0] - [9, 16])
+
+</tool.toolu_01PmLnbPWvnnNFwHn4R9v5wp>
+
+## ASSISTANT:
+
+The scanner is working correctly now - I can see `tool_block_start` and `tool_block_content` are being produced. The issue is that the grammar structure isn't recognizing the tool parameter correctly. Let me check the test file again and fix the grammar structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TakMmQ67TuhyWMSp2kXuWZ
+
+### path
+
+<tool.toolu_01TakMmQ67TuhyWMSp2kXuWZ>
+./test_simple_tool.greger
+</tool.toolu_01TakMmQ67TuhyWMSp2kXuWZ>
+
+## TOOL RESULT:
+
+ID: toolu_01TakMmQ67TuhyWMSp2kXuWZ
+
+<tool.toolu_01TakMmQ67TuhyWMSp2kXuWZ>
+## TOOL USE:
+
+Name: test-tool
+ID: tool_123
+
+### param
+
+<tool.tool_123>
+simple content
+</tool.tool_123>
+</tool.toolu_01TakMmQ67TuhyWMSp2kXuWZ>
+
+## ASSISTANT:
+
+The issue is that the grammar expects the tool parameter to be recognized, but it's not being parsed as part of the tool_use_content. The problem might be that I need to be more explicit about when the external scanner should be active.
+
+Looking at the parse tree, the tool parameter line `### param` is being parsed as an `identifier` instead of as a `tool_parameter`. This suggests the grammar isn't matching the tool parameter structure correctly.
+
+Let me test with the more complex nested tools file to see if the core scanning works:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0169HaTcNFXK7FArAEcFajiw
+
+### command
+
+<tool.toolu_0169HaTcNFXK7FArAEcFajiw>
+tree-sitter parse test_nested_tools.greger
+</tool.toolu_0169HaTcNFXK7FArAEcFajiw>
+
+## TOOL RESULT:
+
+ID: toolu_0169HaTcNFXK7FArAEcFajiw
+
+<tool.toolu_0169HaTcNFXK7FArAEcFajiw>
+Command failed with exit code 1: (source_file [0, 0] - [58, 59]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [58, 59]
+    (tool_use_section [4, 0] - [58, 59]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [58, 59]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 16]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [58, 59]
+          param_name: (identifier [9, 4] - [9, 12])
+          param_value: (tool_param_block [11, 0] - [58, 59]
+            (tool_block_start [11, 0] - [11, 19])
+            (ERROR [11, 19] - [54, 19]
+              (tool_block_content [11, 19] - [13, 19])
+              (tool_block_content [13, 20] - [41, 19])
+              (tool_block_content [41, 20] - [54, 19]))
+            content: (tool_block_content [54, 19] - [58, 59])
+            (tool_block_end [58, 59] - [58, 59])))))))
+test_nested_tools.greger	Parse:    0.76 ms	  1207 bytes/ms	(ERROR [11, 19] - [54, 19])
+
+</tool.toolu_0169HaTcNFXK7FArAEcFajiw>
+
+## ASSISTANT:
+
+Excellent! This is much better. I can see that:
+
+1. The tool parameter is now being recognized correctly
+2. The tool_block_start and tool_block_end are working
+3. The tool_block_content is being produced correctly
+4. Most importantly, the nested tool content is correctly captured as content without breaking the parsing!
+
+The ERROR is because the grammar expects only one `tool_block_content` token, but the scanner is producing multiple ones. This is because newlines are being treated as separate tokens. Let me fix this by adjusting the grammar to handle this better:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013zyHuJ6X7cSyRBAaeV2bKQ
+
+### file-path
+
+<tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+./grammar.js
+</tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+
+### original-content
+
+<tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      field("content", optional($.tool_block_content)),
+      $.tool_block_end
+    ),
+</tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+
+### new-content
+
+<tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+tool_param_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+</tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+
+### git-commit-message
+
+<tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+Allow multiple tool_block_content tokens in param blocks
+</tool.toolu_013zyHuJ6X7cSyRBAaeV2bKQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013zyHuJ6X7cSyRBAaeV2bKQ -->
