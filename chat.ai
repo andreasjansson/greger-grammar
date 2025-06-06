@@ -4856,4 +4856,227 @@ conflicts: $ => [
 Remove unnecessary conflicts
 </tool.toolu_01CDKRVZ1sprnCFecs5LPWTy>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CDKRVZ1sprnCFecs5LPWTy -->
+## TOOL RESULT:
+
+ID: toolu_01CDKRVZ1sprnCFecs5LPWTy
+
+<tool.toolu_01CDKRVZ1sprnCFecs5LPWTy>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove unnecessary conflicts
+</tool.toolu_01CDKRVZ1sprnCFecs5LPWTy>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Psv61ekYWxq7V7HRqFGg4K
+
+### command
+
+<tool.toolu_01Psv61ekYWxq7V7HRqFGg4K>
+tree-sitter generate
+</tool.toolu_01Psv61ekYWxq7V7HRqFGg4K>
+
+## TOOL RESULT:
+
+ID: toolu_01Psv61ekYWxq7V7HRqFGg4K
+
+<tool.toolu_01Psv61ekYWxq7V7HRqFGg4K>
+Command executed successfully:
+(no output)
+</tool.toolu_01Psv61ekYWxq7V7HRqFGg4K>
+
+## ASSISTANT:
+
+Great! Now let's test it:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PRLVzk95uAPhjDn2z4B6Dn
+
+### command
+
+<tool.toolu_01PRLVzk95uAPhjDn2z4B6Dn>
+tree-sitter parse test_citations.greger
+</tool.toolu_01PRLVzk95uAPhjDn2z4B6Dn>
+
+## TOOL RESULT:
+
+ID: toolu_01PRLVzk95uAPhjDn2z4B6Dn
+
+<tool.toolu_01PRLVzk95uAPhjDn2z4B6Dn>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section_with_citations [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (line [33, 0] - [34, 0])
+        (newline [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_without_text [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    0.55 ms	  2005 bytes/ms	(MISSING "\n" [41, 49] - [41, 49])
+
+</tool.toolu_01PRLVzk95uAPhjDn2z4B6Dn>
+
+## ASSISTANT:
+
+I see the issue. The assistant section is being parsed correctly as `assistant_section_with_citations` but it's not detecting the `<cite>` tag. The problem is that the current content in line 33 (which contains the cite tag) is being parsed as a regular line instead of being recognized as a cite tag.
+
+Let me check what the line contains:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0117AzD5bD3hUp9qHj4b3AMj
+
+### path
+
+<tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+test_citations.greger
+</tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+
+### start-line
+
+<tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+33
+</tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+
+### end-line
+
+<tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+35
+</tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+
+## TOOL RESULT:
+
+ID: toolu_0117AzD5bD3hUp9qHj4b3AMj
+
+<tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+</tool.toolu_0117AzD5bD3hUp9qHj4b3AMj>
+
+## ASSISTANT:
+
+The issue is that my `cite_tag` rule is not properly matching this line because it has text before the `<cite>` tag. The grammar expects `citations_with_text` to start with a `cite_tag`, but the line contains "Based on the search results, " before the tag.
+
+I need to modify the grammar to handle text with embedded cite tags. Let me revise the approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013ZUc3a6Cfodps4Ezx2eMxn
+
+### file-path
+
+<tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+grammar.js
+</tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+
+### original-content
+
+<tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+// Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.citations_with_text,
+      $.line,
+      $.newline
+    )),
+
+    // A cited text segment followed by its citations
+    citations_with_text: $ => prec.left(2, seq(
+      field("text", $.cite_tag),
+      repeat($.newline),
+      seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      )
+    )),
+</tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+
+### new-content
+
+<tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+// Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+      "\n",
+      repeat($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    )),
+</tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+
+### git-commit-message
+
+<tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+Support cite tags embedded in lines
+</tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013ZUc3a6Cfodps4Ezx2eMxn -->

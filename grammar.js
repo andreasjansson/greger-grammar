@@ -169,19 +169,22 @@ module.exports = grammar({
       $.inline_code,
       $.include_tag,
       $.html_comment,
-      $.citations_with_text,
+      $.line_with_citations,
       $.line,
       $.newline
     )),
 
-    // A cited text segment followed by its citations
-    citations_with_text: $ => prec.left(2, seq(
-      field("text", $.cite_tag),
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+      "\n",
       repeat($.newline),
-      seq(
+      optional(seq(
         $.citations_header,
         field("citations", $.citations_content)
-      )
+      ))
     )),
 
     cite_tag: $ => seq(
