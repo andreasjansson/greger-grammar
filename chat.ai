@@ -9873,4 +9873,130 @@ Hi there! How can I help you today?"))
 Add debug script to investigate parsing issues
 </tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NGJ4TR8MBbqbWxDT3iFrQz -->
+## TOOL RESULT:
+
+ID: toolu_01NGJ4TR8MBbqbWxDT3iFrQz
+
+<tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug-simple.el with 1284 characters. Successfully staged 2 file(s) and committed with message: Add debug script to investigate parsing issues
+</tool.toolu_01NGJ4TR8MBbqbWxDT3iFrQz>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DNvevqbxZJ25hSfwG8sMBK
+
+### command
+
+<tool.toolu_01DNvevqbxZJ25hSfwG8sMBK>
+emacs --batch -l debug-simple.el
+</tool.toolu_01DNvevqbxZJ25hSfwG8sMBK>
+
+## TOOL RESULT:
+
+ID: toolu_01DNvevqbxZJ25hSfwG8sMBK
+
+<tool.toolu_01DNvevqbxZJ25hSfwG8sMBK>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Debugging simple user message ===
+Input: "## USER:
+
+Hello, how are you?"
+Raw result: (((role . "user") (content . "")))
+Reversed result: (((role . "user") (content . "")))
+
+=== Debugging simple conversation ===
+Input: "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"
+Raw result: (((role . "user") (content . "Hello")))
+Number of messages: 1
+First message: ((role . "user") (content . "Hello"))
+
+=== Debug completed ===
+
+</tool.toolu_01DNvevqbxZJ25hSfwG8sMBK>
+
+## ASSISTANT:
+
+I can see the issues clearly now:
+
+1. **Simple user message**: The content extraction is failing - it's returning empty string instead of "Hello, how are you?"
+2. **Simple conversation**: Only the user message is being parsed, the assistant message is completely missing
+
+These suggest issues with our tree-sitter grammar or extraction logic. Let me check the grammar files to see if there are issues with how we're parsing content:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AfEcxzJ8Q2VhaA8inS6f66
+
+### command
+
+<tool.toolu_01AfEcxzJ8Q2VhaA8inS6f66>
+tree-sitter parse test_minimal.greger
+</tool.toolu_01AfEcxzJ8Q2VhaA8inS6f66>
+
+## TOOL RESULT:
+
+ID: toolu_01AfEcxzJ8Q2VhaA8inS6f66
+
+<tool.toolu_01AfEcxzJ8Q2VhaA8inS6f66>
+Command executed successfully:
+(source_file [0, 0] - [9, 11]
+  (section [0, 0] - [9, 11]
+    (tool_use_section [0, 0] - [9, 11]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [9, 11]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 10]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 7]))
+        (newline [4, 0] - [5, 0])
+        (tool_parameter [5, 0] - [9, 11]
+          param_name: (identifier [5, 4] - [5, 9])
+          param_value: (tool_param_block [7, 0] - [9, 11]
+            (tool_block_start [7, 0] - [7, 10])
+            content: (tool_block_content [8, 0] - [9, 0])
+            (tool_block_end [9, 0] - [9, 11])))))))
+
+</tool.toolu_01AfEcxzJ8Q2VhaA8inS6f66>
+
+## ASSISTANT:
+
+Let me check a simple user section:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_019i7RY9aH4A4Qz2eQw81nJH
+
+### file-path
+
+<tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+test_simple_user.greger
+</tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+
+### contents
+
+<tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+## USER:
+
+Hello, how are you?
+</tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+
+### git-commit-message
+
+<tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+Add simple user test case for grammar debugging
+</tool.toolu_019i7RY9aH4A4Qz2eQw81nJH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019i7RY9aH4A4Qz2eQw81nJH -->
