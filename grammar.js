@@ -211,7 +211,10 @@ module.exports = grammar({
       field("tool_id", $.identifier),
       ">",
       "\n",
-      field("content", repeat(choice(/[^\n<]+/, "\n"))),
+      field("content", repeat(choice(
+        $.tool_content_line,
+        "\n"
+      ))),
       "</tool.",
       field("tool_id", $.identifier),
       ">"
