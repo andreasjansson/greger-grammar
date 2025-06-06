@@ -11677,4 +11677,54 @@ typedef struct {
 Revert scanner struct changes
 </tool.toolu_0143XymnPGN9VD83RVpZSgsH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0143XymnPGN9VD83RVpZSgsH -->
+## TOOL RESULT:
+
+ID: toolu_0143XymnPGN9VD83RVpZSgsH
+
+<tool.toolu_0143XymnPGN9VD83RVpZSgsH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert scanner struct changes
+</tool.toolu_0143XymnPGN9VD83RVpZSgsH>
+
+## ASSISTANT:
+
+Now let me implement this properly using just the context-free grammar. The idea is to have the grammar recognize when content contains cite tags and expect a citations section to follow:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FeomT6j4cWao8hWNgsCFGX
+
+### file-path
+
+<tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+grammar.js
+</tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+
+### original-content
+
+<tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+assistant_section: $ => seq(
+      $.assistant_header,
+      optional(choice(
+        alias($.content, $.section_content),
+        $.citations_with_text
+      ))
+    ),
+</tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+
+### new-content
+
+<tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+</tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+
+### git-commit-message
+
+<tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+Revert assistant section changes
+</tool.toolu_01FeomT6j4cWao8hWNgsCFGX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FeomT6j4cWao8hWNgsCFGX -->

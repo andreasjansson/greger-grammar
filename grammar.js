@@ -50,10 +50,7 @@ module.exports = grammar({
 
     assistant_section: $ => seq(
       $.assistant_header,
-      optional(choice(
-        alias($.content, $.section_content),
-        $.citations_with_text
-      ))
+      optional(alias($.content, $.section_content))
     ),
 
     thinking_section: $ => seq(
