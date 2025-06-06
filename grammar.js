@@ -102,20 +102,13 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
-      $.code_block,
-      $.inline_code,
-      $.include_tag,
-      $.html_comment,
-      prec(2, $.line_with_cite),
-      prec(1, $.line),
+      $.text_line,
       $.newline
     )),
 
-    // Line that contains cite tags mixed with regular text
-    line_with_cite: $ => seq(
-      optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
-      $.cite_tag,
-      optional(/[^<\n]*/),  // Text after cite tag (not containing < )
+    // Simple text line - any non-empty line that doesn't start with ##
+    text_line: $ => seq(
+      /[^#\n]([^\n]*)/, // First char can't be #, rest can be anything
       "\n"
     ),
 
