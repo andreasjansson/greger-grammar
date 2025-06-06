@@ -352,7 +352,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                 (if text-node
                     (progn
                       (setq cited-text (string-trim (treesit-node-text text-node)))
-                      (message "Set cited-text to: %S" cited-text))
+                      )
                   ;; Fallback: try to extract from the text after "Cited text:"
                   (let ((text (treesit-node-text child)))
                     (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
