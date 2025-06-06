@@ -35,7 +35,7 @@
                                   (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
                                   (content . "Some search result content about Claude Shannon"))
                                  ((type . "text")
-                                  (text . "Based on the search results, "))
+                                  (text . "Based on the search results,"))
                                  ((type . "text")
                                   (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
                                   (citations . (((type . "web_search_result_location")
