@@ -11426,4 +11426,55 @@ cite_tag: $ => seq(
 Add citation parsing rules to grammar
 </tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JYeJHiwEmkpiPv3pmdEWvo -->
+## TOOL RESULT:
+
+ID: toolu_01JYeJHiwEmkpiPv3pmdEWvo
+
+<tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citation parsing rules to grammar
+</tool.toolu_01JYeJHiwEmkpiPv3pmdEWvo>
+
+## ASSISTANT:
+
+Now I need to update the external scanner to handle citation contexts. This is quite complex because I need to track when we encounter `<cite>` and then look ahead for `## CITATIONS:`:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SC8auHCkh4PTgQciMBLLrd
+
+### file-path
+
+<tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+src/scanner.c
+</tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+
+### original-content
+
+<tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+};
+</tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+
+### new-content
+
+<tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+  CITATIONS_CONTEXT_START,
+  CITATIONS_CONTEXT_END,
+};
+</tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+
+### git-commit-message
+
+<tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+Add citation context tokens to scanner
+</tool.toolu_01SC8auHCkh4PTgQciMBLLrd>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SC8auHCkh4PTgQciMBLLrd -->
