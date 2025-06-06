@@ -10231,4 +10231,97 @@ Hi there!"))
 Test with two sections debug
 </tool.toolu_01TqsNAdo9Lq8vH6FicfXnY8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TqsNAdo9Lq8vH6FicfXnY8 -->
+## TOOL RESULT:
+
+ID: toolu_01TqsNAdo9Lq8vH6FicfXnY8
+
+<tool.toolu_01TqsNAdo9Lq8vH6FicfXnY8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Test with two sections debug
+</tool.toolu_01TqsNAdo9Lq8vH6FicfXnY8>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TzqMDBSrGbTZNkmxo53rW7
+
+### command
+
+<tool.toolu_01TzqMDBSrGbTZNkmxo53rW7>
+emacs --batch -l debug-test.el
+</tool.toolu_01TzqMDBSrGbTZNkmxo53rW7>
+
+## TOOL RESULT:
+
+ID: toolu_01TzqMDBSrGbTZNkmxo53rW7
+
+<tool.toolu_01TzqMDBSrGbTZNkmxo53rW7>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!
+
+Parsed result:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+First message role: user
+First message content: "Hello, how are you?"
+
+</tool.toolu_01TzqMDBSrGbTZNkmxo53rW7>
+
+## ASSISTANT:
+
+Interesting! The assistant message is missing even though tree-sitter parsed it correctly. This suggests there's an issue in the elisp processing logic where the assistant section is not being converted to a message.
+
+Let me add more debugging to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017zP8qbN3WUdMwvoewKkKDh
+
+### file-path
+
+<tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+debug-test.el
+</tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+
+### original-content
+
+<tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nFirst message role: %s" (alist-get 'role (car result)))
+    (message "First message content: %S" (alist-get 'content (car result))))
+</tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+
+### new-content
+
+<tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (when (> (length result) 0)
+      (message "First message role: %s" (alist-get 'role (car result)))
+      (message "First message content: %S" (alist-get 'content (car result))))
+    (when (> (length result) 1)
+      (message "Second message role: %s" (alist-get 'role (cadr result)))
+      (message "Second message content: %S" (alist-get 'content (cadr result)))))
+</tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+
+### git-commit-message
+
+<tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+Add more debugging to see message count
+</tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017zP8qbN3WUdMwvoewKkKDh -->
