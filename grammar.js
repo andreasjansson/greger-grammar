@@ -130,7 +130,8 @@ module.exports = grammar({
     ),
 
     tool_parameter: $ => seq(
-      /###[ \t]*/,
+      "###",
+      /[ \t]*/,
       $.identifier,
       "\n",
       "\n",
@@ -142,10 +143,11 @@ module.exports = grammar({
       $.identifier,
       ">",
       "\n",
-      repeat(choice($.line, $.newline)),
+      repeat(choice(/[^\n<]+/, "\n")),
       "</tool.",
       $.identifier,
-      ">"
+      ">",
+      optional("\n")
     ),
 
     tool_result_id_line: $ => seq(
