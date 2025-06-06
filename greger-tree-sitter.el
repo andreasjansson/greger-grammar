@@ -768,7 +768,42 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
     (nreverse result)))
 
 (defun greger-tree-sitter--extract-citations-section (section-node)
-  "Extract citations from a citations section."
+  "Extract citations from a ## CITATIONS: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## CITATIONS: section
+
+PROCESSING:
+  1. Finds the citations_content within the section
+  2. Iterates through all citation_entry children
+  3. Extracts each citation entry using greger-tree-sitter--extract-citation-entry
+
+OUTPUT:
+  Returns a list of citation objects, each with fields:
+  - type: \"web_search_result_location\"
+  - url: The URL from ### https://... line
+  - title: Text after \"Title:\" line
+  - cited_text: Text after \"Cited text:\" line
+  - encrypted_index: Text after \"Encrypted index:\" line
+
+EXAMPLE INPUT SECTION:
+  ## CITATIONS:
+
+  ### https://example.com
+
+  Title: Example Site
+  Cited text: This is the relevant text from the source
+  Encrypted index: abc123def
+
+EXAMPLE OUTPUT:
+  (((type . \"web_search_result_location\")
+    (url . \"https://example.com\")
+    (title . \"Example Site\")
+    (cited_text . \"This is the relevant text from the source\")
+    (encrypted_index . \"abc123def\")))
+
+INTERNAL FUNCTION: Used by citation association logic to extract citation
+metadata that gets linked to <cite> tags."
   (let* ((citations-section (treesit-node-child section-node 0))
          (citations-content (greger-tree-sitter--find-child-by-type citations-section "citations_content"))
          (citations '()))
