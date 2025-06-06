@@ -348,9 +348,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                       )))))
              ((equal (treesit-node-type child) "citation_text")
               (let ((text-node (treesit-node-child-by-field-name child "text")))
-                (message "Found citation_text, text-node: %S" text-node)
-                (message "Children count: %d" (treesit-node-child-count child))
-                (message "Full citation_text text: %S" (treesit-node-text child))
+
                 (if text-node
                     (progn
                       (setq cited-text (string-trim (treesit-node-text text-node)))
