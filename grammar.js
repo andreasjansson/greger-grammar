@@ -303,11 +303,7 @@ module.exports = grammar({
       "\n"
     ),
 
-    // Basic patterns
-    line: $ => seq(
-      /[^\n#]+/,  // Any line that doesn't start with # (headers)
-      "\n"
-    ),
+
 
     // Tool content line - anything except closing tool tag
     tool_content_line: $ => prec(-1, /[^\n]+/),
