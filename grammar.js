@@ -106,12 +106,12 @@ module.exports = grammar({
     )),
 
     // Line with cite tags
-    line_with_cite: $ => seq(
+    line_with_cite: $ => prec.right(seq(
       optional(/[^<\n#]+/), // Text before cite tag
       $.cite_tag,
       optional(/[^<\n]*/),  // Text after cite tag
       optional("\n")
-    ),
+    )),
 
     // Text line - any non-empty line, newline optional for EOF
     text_line: $ => prec.left(seq(
