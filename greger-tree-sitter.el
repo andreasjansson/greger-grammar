@@ -294,7 +294,34 @@ EXAMPLE OUTPUT:
                     "")))))
 
 (defun greger-tree-sitter--extract-assistant-section (section-node)
-  "Extract assistant message from SECTION-NODE."
+  "Extract assistant message from a ## ASSISTANT: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## ASSISTANT: section
+
+PROCESSING:
+  1. Gets the assistant_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"assistant\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+  Note: This function extracts basic assistant content. In practice, assistant
+  sections often get processed by greger-tree-sitter--process-sections-with-citations
+  which may convert the string content to structured content blocks if the text
+  contains <cite> tags or other special formatting.
+
+EXAMPLE INPUT SECTION:
+  ## ASSISTANT:
+
+  I'm doing well, thank you for asking!
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\") (content . \"I'm doing well, thank you for asking!\"))"
   (let* ((assistant-section-node (treesit-node-child section-node 0))
          (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
     `((role . "assistant")

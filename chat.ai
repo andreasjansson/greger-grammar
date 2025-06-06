@@ -6044,4 +6044,82 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-system-section function
 </tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UoVk9PjA3x7FPRiRQNvTzz -->
+## TOOL RESULT:
+
+ID: toolu_01UoVk9PjA3x7FPRiRQNvTzz
+
+<tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-system-section function
+</tool.toolu_01UoVk9PjA3x7FPRiRQNvTzz>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VbKBbLjULAwpKTiYyvUAiv
+
+### file-path
+
+<tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+greger-tree-sitter.el
+</tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+
+### original-content
+
+<tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from SECTION-NODE."
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+
+### new-content
+
+<tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from a ## ASSISTANT: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## ASSISTANT: section
+
+PROCESSING:
+  1. Gets the assistant_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"assistant\") (content . \"extracted text content\"))
+  
+  If no content is found, content will be an empty string.
+  
+  Note: This function extracts basic assistant content. In practice, assistant
+  sections often get processed by greger-tree-sitter--process-sections-with-citations
+  which may convert the string content to structured content blocks if the text
+  contains <cite> tags or other special formatting.
+
+EXAMPLE INPUT SECTION:
+  ## ASSISTANT:
+  
+  I'm doing well, thank you for asking!
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\") (content . \"I'm doing well, thank you for asking!\"))"
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+
+### git-commit-message
+
+<tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+Document greger-tree-sitter--extract-assistant-section function
+</tool.toolu_01VbKBbLjULAwpKTiYyvUAiv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VbKBbLjULAwpKTiYyvUAiv -->
