@@ -231,6 +231,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   // Consume everything until we find our matching closing tag
   while (lexer->lookahead) {
     if (is_matching_closing_tag(lexer, scanner)) {
+      // Stop here, don't consume the closing tag
       break;
     }
 
