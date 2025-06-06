@@ -10827,4 +10827,423 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
 Add citation parsing test
 </tool.toolu_01RjSYB5bBoFM5tgw2j2KSQo>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RjSYB5bBoFM5tgw2j2KSQo -->
+## TOOL RESULT:
+
+ID: toolu_01RjSYB5bBoFM5tgw2j2KSQo
+
+<tool.toolu_01RjSYB5bBoFM5tgw2j2KSQo>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/test-citations.el with 1118 characters. Successfully staged 2 file(s) and committed with message: Add citation parsing test
+</tool.toolu_01RjSYB5bBoFM5tgw2j2KSQo>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017teXo8V4yLL9jBLqebcDKD
+
+### command
+
+<tool.toolu_017teXo8V4yLL9jBLqebcDKD>
+emacs --batch -l test-citations.el
+</tool.toolu_017teXo8V4yLL9jBLqebcDKD>
+
+## TOOL RESULT:
+
+ID: toolu_017teXo8V4yLL9jBLqebcDKD
+
+<tool.toolu_017teXo8V4yLL9jBLqebcDKD>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+❌ Error: (wrong-type-argument stringp nil)
+
+</tool.toolu_017teXo8V4yLL9jBLqebcDKD>
+
+## ASSISTANT:
+
+There's an error. Let me add some debug output to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ALm6zKtwk7Q6cfP5Anb6VA
+
+### file-path
+
+<tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+greger-tree-sitter.el
+</tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+
+### original-content
+
+<tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url (treesit-node-text (treesit-node-child-by-field-name entry-node "url")))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+</tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+
+### new-content
+
+<tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+    
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+</tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+
+### git-commit-message
+
+<tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+Fix citation entry URL extraction
+</tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+
+## TOOL RESULT:
+
+ID: toolu_01ALm6zKtwk7Q6cfP5Anb6VA
+
+<tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 2, new has balance 3. They must be equal
+</tool.toolu_01ALm6zKtwk7Q6cfP5Anb6VA>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NFYYDif8iRJZFeygL5Dvcp
+
+### file-path
+
+<tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+greger-tree-sitter.el
+</tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+
+### original-content
+
+<tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url (treesit-node-text (treesit-node-child-by-field-name entry-node "url")))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+    
+    (let ((child-count (treesit-node-child-count entry-node)))
+      (dotimes (i child-count)
+        (let ((child (treesit-node-child entry-node i)))
+          (cond
+           ((equal (treesit-node-type child) "citation_title")
+            (setq title (string-trim (treesit-node-text 
+                                     (treesit-node-child-by-field-name child "title")))))
+           ((equal (treesit-node-type child) "citation_text")
+            (setq cited-text (string-trim (treesit-node-text 
+                                          (treesit-node-child-by-field-name child "text")))))
+           ((equal (treesit-node-type child) "citation_index")
+            (setq encrypted-index (string-trim (treesit-node-text 
+                                               (treesit-node-child-by-field-name child "index")))))))))
+    
+    `((type . "web_search_result_location")
+      (url . ,url)
+      (title . ,title)
+      (cited_text . ,cited-text)
+      (encrypted_index . ,encrypted-index))))
+</tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+
+### new-content
+
+<tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+    
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+      
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+
+### git-commit-message
+
+<tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+Fix citation entry extraction with proper null checks
+</tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+
+## TOOL RESULT:
+
+ID: toolu_01NFYYDif8iRJZFeygL5Dvcp
+
+<tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01NFYYDif8iRJZFeygL5Dvcp>
+
+## ASSISTANT:
+
+Let me check what the current content looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01YCXXBMK5qbQ2m3hydayxYJ
+
+### path
+
+<tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+greger-tree-sitter.el
+</tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+
+### start-line
+
+<tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+200
+</tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+
+### end-line
+
+<tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+230
+</tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+
+## TOOL RESULT:
+
+ID: toolu_01YCXXBMK5qbQ2m3hydayxYJ
+
+<tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_result"))))
+    result))
+
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (pending-citations nil)
+</tool.toolu_01YCXXBMK5qbQ2m3hydayxYJ>
+
+## ASSISTANT:
+
+Let me find the citation extraction function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01EshrjPe1Tix2VZfYRhM64X
+
+### pattern
+
+<tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+extract-citation-entry
+</tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+
+### path
+
+<tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+greger-tree-sitter.el
+</tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+
+## TOOL RESULT:
+
+ID: toolu_01EshrjPe1Tix2VZfYRhM64X
+
+<tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+272:              (push (greger-tree-sitter--extract-citation-entry child) citations))))))
+276:(defun greger-tree-sitter--extract-citation-entry (entry-node)
+
+</tool.toolu_01EshrjPe1Tix2VZfYRhM64X>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01ScnoRS6u2GYyPeD5fbYg4z
+
+### path
+
+<tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+greger-tree-sitter.el
+</tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+
+### start-line
+
+<tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+276
+</tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+
+### end-line
+
+<tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+305
+</tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+
+## TOOL RESULT:
+
+ID: toolu_01ScnoRS6u2GYyPeD5fbYg4z
+
+<tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url (treesit-node-text (treesit-node-child-by-field-name entry-node "url")))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((child-count (treesit-node-child-count entry-node)))
+      (dotimes (i child-count)
+        (let ((child (treesit-node-child entry-node i)))
+          (cond
+           ((equal (treesit-node-type child) "citation_title")
+            (setq title (string-trim (treesit-node-text
+                                     (treesit-node-child-by-field-name child "title")))))
+           ((equal (treesit-node-type child) "citation_text")
+            (setq cited-text (string-trim (treesit-node-text
+                                          (treesit-node-child-by-field-name child "text")))))
+           ((equal (treesit-node-type child) "citation_index")
+            (setq encrypted-index (string-trim (treesit-node-text
+                                               (treesit-node-child-by-field-name child "index")))))))))
+
+    `((type . "web_search_result_location")
+      (url . ,url)
+      (title . ,title)
+      (cited_text . ,cited-text)
+      (encrypted_index . ,encrypted-index))))
+
+(defun greger-tree-sitter--message-has-cite-tags (message)
+  "Check if MESSAGE content contains cite tags."
+  (let ((content (alist-get 'content message)))
+</tool.toolu_01ScnoRS6u2GYyPeD5fbYg4z>
+
+## ASSISTANT:
+
+Now I can fix the issue:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HimMd5pxjCVBSBtXvAZnt1
+
+### file-path
+
+<tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+greger-tree-sitter.el
+</tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+
+### original-content
+
+<tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url (treesit-node-text (treesit-node-child-by-field-name entry-node "url")))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((child-count (treesit-node-child-count entry-node)))
+      (dotimes (i child-count)
+        (let ((child (treesit-node-child entry-node i)))
+          (cond
+           ((equal (treesit-node-type child) "citation_title")
+            (setq title (string-trim (treesit-node-text
+                                     (treesit-node-child-by-field-name child "title")))))
+           ((equal (treesit-node-type child) "citation_text")
+            (setq cited-text (string-trim (treesit-node-text
+                                          (treesit-node-child-by-field-name child "text")))))
+           ((equal (treesit-node-type child) "citation_index")
+            (setq encrypted-index (string-trim (treesit-node-text
+                                               (treesit-node-child-by-field-name child "index")))))))))
+
+    `((type . "web_search_result_location")
+      (url . ,url)
+      (title . ,title)
+      (cited_text . ,cited-text)
+      (encrypted_index . ,encrypted-index))))
+</tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+
+### new-content
+
+<tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+    
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+      
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+
+### git-commit-message
+
+<tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+Fix citation entry extraction with proper null checks
+</tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HimMd5pxjCVBSBtXvAZnt1 -->

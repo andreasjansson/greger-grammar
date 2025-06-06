@@ -275,30 +275,34 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-citation-entry (entry-node)
   "Extract a single citation entry."
-  (let ((url (treesit-node-text (treesit-node-child-by-field-name entry-node "url")))
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
         (title nil)
         (cited-text nil)
         (encrypted-index nil))
 
-    (let ((child-count (treesit-node-child-count entry-node)))
-      (dotimes (i child-count)
-        (let ((child (treesit-node-child entry-node i)))
-          (cond
-           ((equal (treesit-node-type child) "citation_title")
-            (setq title (string-trim (treesit-node-text
-                                     (treesit-node-child-by-field-name child "title")))))
-           ((equal (treesit-node-type child) "citation_text")
-            (setq cited-text (string-trim (treesit-node-text
-                                          (treesit-node-child-by-field-name child "text")))))
-           ((equal (treesit-node-type child) "citation_index")
-            (setq encrypted-index (string-trim (treesit-node-text
-                                               (treesit-node-child-by-field-name child "index")))))))))
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
 
-    `((type . "web_search_result_location")
-      (url . ,url)
-      (title . ,title)
-      (cited_text . ,cited-text)
-      (encrypted_index . ,encrypted-index))))
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
 
 (defun greger-tree-sitter--message-has-cite-tags (message)
   "Check if MESSAGE content contains cite tags."
