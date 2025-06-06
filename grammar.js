@@ -139,10 +139,10 @@ module.exports = grammar({
     tool_name_line: $ => TOOL_NAME_LINE,
     tool_id_line: $ => TOOL_ID_LINE,
 
-    tool_parameter: $ => seq(
+    tool_parameter: $ => prec.left(seq(
       field('header', $.tool_parameter_header),
       optional(field('value', $.tool_parameter_value))
-    ),
+    )),
 
     tool_parameter_header: $ => TOOL_PARAMETER_HEADER,
 
