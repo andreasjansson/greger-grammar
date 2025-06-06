@@ -8,7 +8,8 @@ Hello
 
 ## ASSISTANT:
 
-Hi there! How can I help you today?"))
+Hi there! How can I help you today?
+"))
   (message "Input text:")
   (message "%s" test-text)
 
