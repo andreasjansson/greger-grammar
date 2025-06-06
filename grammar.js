@@ -150,37 +150,29 @@ module.exports = grammar({
       "</include>"
     ),
 
-    // Citation parsing
-    citations_with_text: $ => seq(
-      $.citations_context_start,
-      repeat(choice(
-        $.text_before_cite,
-        $.cite_tag,
-        $.text_after_cite,
-        $.newline
-      )),
-      $.citations_context_end,
-      $.citations_entries
+    // Assistant section that contains cite tags and is followed by citations
+    assistant_section_with_citations: $ => seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content)),
+      $.citations_section
     ),
 
-    citations_without_text: $ => seq(
-      $.citations_header,
-      $.citations_entries
-    ),
-
-    text_before_cite: $ => /[^<\n#]+/,
-    text_after_cite: $ => /[^#\n]+/,
+    // Content that contains cite tags
+    content_with_citations: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
 
     cite_tag: $ => seq(
       "<cite>",
       field("content", repeat(choice(/[^<\n]+/, "\n"))),
       "</cite>"
     ),
-
-    citations_entries: $ => repeat1(choice(
-      $.citation_entry,
-      $.newline
-    )),
 
     html_comment: $ => seq(
       "<!--",

@@ -11789,4 +11789,93 @@ section: $ => choice(
 Add assistant section with citations option
 </tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NUL5nYLtA3ceddKLicuCsf -->
+## TOOL RESULT:
+
+ID: toolu_01NUL5nYLtA3ceddKLicuCsf
+
+<tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add assistant section with citations option
+</tool.toolu_01NUL5nYLtA3ceddKLicuCsf>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MNp1AyJaGSV4mL5gm6i1Eg
+
+### file-path
+
+<tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+grammar.js
+</tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+
+### original-content
+
+<tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+// Citation parsing
+    citations_with_text: $ => seq(
+      $.citations_context_start,
+      repeat(choice(
+        $.text_before_cite,
+        $.cite_tag,
+        $.text_after_cite,
+        $.newline
+      )),
+      $.citations_context_end,
+      $.citations_entries
+    ),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      $.citations_entries
+    ),
+
+    text_before_cite: $ => /[^<\n#]+/,
+    text_after_cite: $ => /[^#\n]+/,
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    citations_entries: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+</tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+
+### new-content
+
+<tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+// Assistant section that contains cite tags and is followed by citations
+    assistant_section_with_citations: $ => seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content)),
+      $.citations_section
+    ),
+
+    // Content that contains cite tags
+    content_with_citations: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+
+### git-commit-message
+
+<tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+Add assistant section with citations rule
+</tool.toolu_01MNp1AyJaGSV4mL5gm6i1Eg>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MNp1AyJaGSV4mL5gm6i1Eg -->
