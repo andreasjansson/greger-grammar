@@ -11,8 +11,13 @@ module.exports = grammar({
   name: "greger",
 
   extras: $ => [
-    // Don't treat newlines as whitespace since they're significant
     /[ \t]/,
+  ],
+
+  word: $ => $.identifier,
+
+  conflicts: $ => [
+    [$.user_section, $.system_section, $.assistant_section, $.thinking_section, $.tool_use_section, $.tool_result_section, $.server_tool_use_section, $.server_tool_result_section, $.citations_section],
   ],
 
   rules: {
@@ -22,7 +27,7 @@ module.exports = grammar({
     ),
 
     // Content before any section headers is treated as user content
-    untagged_content: $ => field("content", $._section_content),
+    untagged_content: $ => prec.left($._content_until_section),
 
     section: $ => choice(
       $.user_section,
@@ -36,56 +41,50 @@ module.exports = grammar({
       $.citations_section,
     ),
 
-    user_section: $ => seq(
+    user_section: $ => prec.left(seq(
       $.user_header,
-      field("content", optional($._section_content))
-    ),
+      optional($._content_until_section)
+    )),
 
-    system_section: $ => seq(
+    system_section: $ => prec.left(seq(
       $.system_header,
-      field("content", optional($._system_content))
-    ),
+      optional($._system_content_until_section)
+    )),
 
-    assistant_section: $ => seq(
+    assistant_section: $ => prec.left(seq(
       $.assistant_header,
-      field("content", optional($._section_content))
-    ),
+      optional($._content_until_section)
+    )),
 
-    thinking_section: $ => seq(
+    thinking_section: $ => prec.left(seq(
       $.thinking_header,
-      field("content", optional($._section_content))
-    ),
+      optional($._content_until_section)
+    )),
 
-    tool_use_section: $ => seq(
+    tool_use_section: $ => prec.left(seq(
       $.tool_use_header,
-      optional($.tool_name),
-      optional($.tool_id),
-      repeat($.tool_parameter)
-    ),
+      optional($._tool_use_content)
+    )),
 
-    tool_result_section: $ => seq(
+    tool_result_section: $ => prec.left(seq(
       $.tool_result_header,
-      optional($.tool_result_id),
-      optional($.tool_result_content)
-    ),
+      optional($._tool_result_content)
+    )),
 
-    server_tool_use_section: $ => seq(
+    server_tool_use_section: $ => prec.left(seq(
       $.server_tool_use_header,
-      optional($.tool_name),
-      optional($.tool_id),
-      repeat($.tool_parameter)
-    ),
+      optional($._tool_use_content)
+    )),
 
-    server_tool_result_section: $ => seq(
+    server_tool_result_section: $ => prec.left(seq(
       $.server_tool_result_header,
-      optional($.tool_result_id),
-      optional($.tool_result_content)
-    ),
+      optional($._tool_result_content)
+    )),
 
-    citations_section: $ => seq(
+    citations_section: $ => prec.left(seq(
       $.citations_header,
-      repeat($.citation_entry)
-    ),
+      optional($._citations_content)
+    )),
 
     // Headers
     user_header: $ => seq("##", /[ \t]*/, "USER:", $._newline),
