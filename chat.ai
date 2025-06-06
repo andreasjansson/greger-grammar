@@ -8384,4 +8384,81 @@ grammar.js
 Restore citations header
 </tool.toolu_01SUqoYbdE3PoHk4RoxBofG9>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SUqoYbdE3PoHk4RoxBofG9 -->
+## TOOL RESULT:
+
+ID: toolu_01SUqoYbdE3PoHk4RoxBofG9
+
+<tool.toolu_01SUqoYbdE3PoHk4RoxBofG9>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restore citations header
+</tool.toolu_01SUqoYbdE3PoHk4RoxBofG9>
+
+## ASSISTANT:
+
+Now let me restore the content rules but fix them properly. The issue is that I need to handle both basic text AND cite tags:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VjUjhdi9mN2xS3VcdXZL9q
+
+### file-path
+
+<tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+grammar.js
+</tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+
+### original-content
+
+<tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    // Simple text line - any non-empty line that doesn't start with ##
+    text_line: $ => seq(
+      /[^#\n]([^\n]*)/, // First char can't be #, rest can be anything
+      "\n"
+    ),
+</tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+
+### new-content
+
+<tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      "\n"
+    ),
+
+    // Simple text line - any non-empty line that doesn't start with ## and doesn't contain <cite>
+    text_line: $ => seq(
+      /[^#<\n][^\n]*/, // First char can't be # or <, rest can be anything
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+
+### git-commit-message
+
+<tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+Restore cite tag handling in content
+</tool.toolu_01VjUjhdi9mN2xS3VcdXZL9q>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VjUjhdi9mN2xS3VcdXZL9q -->

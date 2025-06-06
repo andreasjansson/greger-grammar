@@ -99,14 +99,30 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
+      $.line_with_cite,
       $.text_line,
       $.newline
     )),
 
-    // Simple text line - any non-empty line that doesn't start with ##
-    text_line: $ => seq(
-      /[^#\n]([^\n]*)/, // First char can't be #, rest can be anything
+    // Line with cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
       "\n"
+    ),
+
+    // Simple text line - any non-empty line that doesn't start with ## and doesn't contain <cite>
+    text_line: $ => seq(
+      /[^#<\n][^\n]*/, // First char can't be # or <, rest can be anything
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
     ),
 
     system_content: $ => repeat1(choice(
