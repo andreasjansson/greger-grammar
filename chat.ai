@@ -7432,4 +7432,75 @@ to process individual citation entries."
 Document greger-tree-sitter--extract-citation-entry function
 </tool.toolu_01CU7sdGa8Q3aPiANWD5rxzf>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CU7sdGa8Q3aPiANWD5rxzf -->
+## TOOL RESULT:
+
+ID: toolu_01CU7sdGa8Q3aPiANWD5rxzf
+
+<tool.toolu_01CU7sdGa8Q3aPiANWD5rxzf>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-citation-entry function
+</tool.toolu_01CU7sdGa8Q3aPiANWD5rxzf>
+
+## ASSISTANT:
+
+Now let me document the remaining utility functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SSmoKDJWtuxYhQvHjvjP9o
+
+### file-path
+
+<tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+greger-tree-sitter.el
+</tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+
+### original-content
+
+<tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+</tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+
+### new-content
+
+<tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE.
+
+INPUT:
+  NODE - A tree-sitter node to search within
+  TYPE - String representing the node type to find (e.g., \"section_content\")
+
+PROCESSING:
+  Iterates through all direct children of the node and returns the first
+  one that matches the specified type.
+
+OUTPUT:
+  Returns the first matching child node, or nil if no match is found.
+
+INTERNAL FUNCTION: Utility for navigating tree-sitter parse trees when
+looking for specific types of child nodes."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+</tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+
+### git-commit-message
+
+<tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+Document greger-tree-sitter--find-child-by-type function
+</tool.toolu_01SSmoKDJWtuxYhQvHjvjP9o>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SSmoKDJWtuxYhQvHjvjP9o -->

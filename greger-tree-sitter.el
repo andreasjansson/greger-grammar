@@ -634,7 +634,21 @@ EXAMPLE OUTPUT:
     result))
 
 (defun greger-tree-sitter--find-child-by-type (node type)
-  "Find the first child of NODE with the given TYPE."
+  "Find the first child of NODE with the given TYPE.
+
+INPUT:
+  NODE - A tree-sitter node to search within
+  TYPE - String representing the node type to find (e.g., \"section_content\")
+
+PROCESSING:
+  Iterates through all direct children of the node and returns the first
+  one that matches the specified type.
+
+OUTPUT:
+  Returns the first matching child node, or nil if no match is found.
+
+INTERNAL FUNCTION: Utility for navigating tree-sitter parse trees when
+looking for specific types of child nodes."
   (let ((child-count (treesit-node-child-count node))
         (found nil))
     (dotimes (i child-count)
