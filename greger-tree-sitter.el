@@ -196,12 +196,12 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--extract-server-tool-result-section (section-node)
   "Extract server tool result and return as assistant message."
   (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
-    ;; Change role to assistant and type to server_tool_result
+    ;; Change role to assistant and type to web_search_tool_result
     (when result
       (setf (alist-get 'role result) "assistant")
       (let ((content (alist-get 'content result)))
         (when (and content (> (length content) 0))
-          (setf (alist-get 'type (car content)) "server_tool_result"))))
+          (setf (alist-get 'type (car content)) "web_search_tool_result"))))
     result))
 
 (defun greger-tree-sitter--find-child-by-type (node type)

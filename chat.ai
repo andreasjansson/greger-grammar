@@ -3306,4 +3306,64 @@ greger-tree-sitter.el
 Improve citation processing to associate with previous message
 </tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HE3skjLKqNJ5vtYcnK6kjt -->
+## TOOL RESULT:
+
+ID: toolu_01HE3skjLKqNJ5vtYcnK6kjt
+
+<tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Improve citation processing to associate with previous message
+</tool.toolu_01HE3skjLKqNJ5vtYcnK6kjt>
+
+
+## ASSISTANT:
+
+Now I need to fix the server tool result processing. Looking at the expected output, server tool results should be part of the assistant message, not separate user messages. Let me update the server tool result extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011sZTizzn5a1QD9kN2ibN19
+
+### file-path
+
+<tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+greger-tree-sitter.el
+</tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+
+### original-content
+
+<tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to server_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_result"))))
+    result))
+</tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+
+### new-content
+
+<tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result"))))
+    result))
+</tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+
+### git-commit-message
+
+<tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+Change server_tool_result type to web_search_tool_result to match expected output
+</tool.toolu_011sZTizzn5a1QD9kN2ibN19>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011sZTizzn5a1QD9kN2ibN19 -->
