@@ -100,19 +100,15 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
-      prec(2, $.text_line),
-      prec(1, $.final_text_line),
+      $.text_line,
       $.newline
     )),
 
-    // Text line with newline
-    text_line: $ => seq(
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
       /[^\n]+/, // Any non-empty line
-      "\n"
-    ),
-
-    // Final text line without newline (for end of file or section)
-    final_text_line: $ => /[^\n]+/,
+      optional("\n")
+    )),
 
     system_content: $ => repeat1(choice(
       $.text_line,

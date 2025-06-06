@@ -11480,4 +11480,149 @@ conflicts: $ => [
 Add conflict resolution for text_line and final_text_line
 </tool.toolu_019icKvS6qh9sRfApahXDi7v>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019icKvS6qh9sRfApahXDi7v -->
+## TOOL RESULT:
+
+ID: toolu_019icKvS6qh9sRfApahXDi7v
+
+<tool.toolu_019icKvS6qh9sRfApahXDi7v>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflict resolution for text_line and final_text_line
+</tool.toolu_019icKvS6qh9sRfApahXDi7v>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FnzXWVYFncvRNXNpkgS78C
+
+### command
+
+<tool.toolu_01FnzXWVYFncvRNXNpkgS78C>
+tree-sitter generate
+</tool.toolu_01FnzXWVYFncvRNXNpkgS78C>
+
+## TOOL RESULT:
+
+ID: toolu_01FnzXWVYFncvRNXNpkgS78C
+
+<tool.toolu_01FnzXWVYFncvRNXNpkgS78C>
+Command executed successfully:
+(no output)
+</tool.toolu_01FnzXWVYFncvRNXNpkgS78C>
+
+## ASSISTANT:
+
+Now let me test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017WiaTREZCgQYzeUkwUPiZn
+
+### command
+
+<tool.toolu_017WiaTREZCgQYzeUkwUPiZn>
+emacs --batch -l debug-test.el
+</tool.toolu_017WiaTREZCgQYzeUkwUPiZn>
+
+## TOOL RESULT:
+
+ID: toolu_017WiaTREZCgQYzeUkwUPiZn
+
+<tool.toolu_017WiaTREZCgQYzeUkwUPiZn>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+Tree structure:
+Root node type: source_file
+Child count: 3
+Child 0: section [## USER:
+
+Hello
+
+]
+Child 1: section [## ASSISTANT:
+
+]
+Child 2: ERROR [Hi there! How can I help you today?]
+
+Parsed result:
+(((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 1
+First message role: user
+First message content: "Hello"
+
+</tool.toolu_017WiaTREZCgQYzeUkwUPiZn>
+
+## ASSISTANT:
+
+Still the same issue. The content is still being parsed as an ERROR. Let me try a different approach. Maybe the issue is that once a section ends (like with the user section), the parser doesn't know how to continue with content that follows.
+
+Let me look at this differently. The issue might be that the section boundaries are not defined correctly. When the parser sees `## ASSISTANT:`, it starts an assistant section, but it can't properly capture the content because it expects certain patterns.
+
+Let me simplify this and go back to the working approach with optional newlines, but fix the conflict differently:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AnCsXPukJ1SYADKdyNFDjf
+
+### file-path
+
+<tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+grammar.js
+</tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+
+### original-content
+
+<tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.text_line),
+      prec(1, $.final_text_line),
+      $.newline
+    )),
+
+    // Text line with newline
+    text_line: $ => seq(
+      /[^\n]+/, // Any non-empty line
+      "\n"
+    ),
+
+    // Final text line without newline (for end of file or section)
+    final_text_line: $ => /[^\n]+/,
+</tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+
+### new-content
+
+<tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+// Content types
+    content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n")
+    )),
+</tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+
+### git-commit-message
+
+<tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+Use left precedence to resolve text_line newline conflict
+</tool.toolu_01AnCsXPukJ1SYADKdyNFDjf>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AnCsXPukJ1SYADKdyNFDjf -->
