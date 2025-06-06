@@ -150,74 +150,7 @@ module.exports = grammar({
       "</include>"
     ),
 
-    // Citations that appear after an assistant section with cite tags
-    assistant_section_with_citations: $ => prec(1, seq(
-      $.assistant_header,
-      optional(alias($.content_with_citations, $.section_content))
-    )),
 
-    // Citations that appear without preceding cite tags
-    citations_without_text: $ => seq(
-      $.citations_header,
-      optional($.citations_content)
-    ),
-
-    // Content that may contain cite tags and subsequent citations
-    content_with_citations: $ => repeat1(choice(
-      $.text_line,
-      $.newline
-    )),
-
-    // A line that contains cite tags and may be followed by citations
-    line_with_citations: $ => prec.left(2, seq(
-      field("prefix", optional(/[^<\n]*/)),
-      field("cited_text", $.cite_tag),
-      field("suffix", optional(/[^\n]*/)),
-      "\n",
-      repeat($.newline),
-      optional(seq(
-        $.citations_header,
-        field("citations", $.citations_content)
-      ))
-    )),
-
-    cite_tag: $ => prec(1, seq(
-      "<cite>",
-      field("content", repeat(choice(/[^<\n]+/, "\n"))),
-      "</cite>"
-    )),
-
-    html_comment: $ => seq(
-      "<!--",
-      repeat(choice(/[^-\n]+/, seq("-", /[^-\n]/), "\n")),
-      "-->"
-    ),
-
-    // Code blocks
-    code_block: $ => choice(
-      $.triple_backtick_block,
-      $.single_backtick_block
-    ),
-
-    triple_backtick_block: $ => seq(
-      "```",
-      optional(field("language", /[a-zA-Z]+/)),
-      "\n",
-      field("content", repeat(choice(/[^`\n]+/, "`", "``", "\n"))),
-      "```"
-    ),
-
-    single_backtick_block: $ => seq(
-      "``",
-      field("content", repeat(choice(/[^`\n]+/, "\n"))),
-      "``"
-    ),
-
-    inline_code: $ => seq(
-      "`",
-      field("content", /[^`\n]+/),
-      "`"
-    ),
 
     // Tool-specific patterns
     tool_name_line: $ => seq(
