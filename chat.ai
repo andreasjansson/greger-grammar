@@ -7633,4 +7633,96 @@ appropriate extraction functions."
 Document greger-tree-sitter--get-section-type function
 </tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PriQ7gG5kRxBGT1MK2bS2Q -->
+## TOOL RESULT:
+
+ID: toolu_01PriQ7gG5kRxBGT1MK2bS2Q
+
+<tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--get-section-type function
+</tool.toolu_01PriQ7gG5kRxBGT1MK2bS2Q>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015LDuDESiHSKgZEdo9DtDnL
+
+### file-path
+
+<tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+greger-tree-sitter.el
+</tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+
+### original-content
+
+<tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+  "Associate CITATIONS with content blocks that have cite tags."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+</tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+
+### new-content
+
+<tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+(defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
+  "Associate CITATIONS with content blocks that contain <cite> tags.
+
+INPUT:
+  CONTENT-BLOCKS - List of content block objects (from assistant message)
+  CITATIONS - List of citation objects extracted from ## CITATIONS: section
+
+PROCESSING:
+  1. Iterates through content blocks
+  2. For text blocks containing <cite> tags:
+     - Parses the text to split by citation boundaries  
+     - Associates citations with the cited text portions
+     - Replaces the single block with multiple parsed blocks
+  3. For other blocks (no cite tags):
+     - Keeps them unchanged
+
+OUTPUT:
+  Returns a new list of content blocks where:
+  - Text blocks with <cite> tags are split into multiple text blocks
+  - Cited text blocks have citations attached
+  - Non-cited text blocks and other block types remain unchanged
+
+EXAMPLE INPUT:
+  CONTENT-BLOCKS: (((type . \"text\") (text . \"Hello <cite>world</cite>!\")))
+  CITATIONS: (((url . \"http://example.com\") ...))
+
+EXAMPLE OUTPUT:
+  (((type . \"text\") (text . \"Hello\"))
+   ((type . \"text\") (text . \"world\") (citations . citations-list))
+   ((type . \"text\") (text . \"!\")))
+
+INTERNAL FUNCTION: Core of the citation association logic that makes
+<cite> tags work with subsequent ## CITATIONS: sections."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+</tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+
+### git-commit-message
+
+<tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+Document greger-tree-sitter--associate-citations-with-blocks function
+</tool.toolu_015LDuDESiHSKgZEdo9DtDnL>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015LDuDESiHSKgZEdo9DtDnL -->

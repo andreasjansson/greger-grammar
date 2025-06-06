@@ -804,7 +804,38 @@ appropriate extraction functions."
   (treesit-node-type (treesit-node-child section-node 0)))
 
 (defun greger-tree-sitter--associate-citations-with-blocks (content-blocks citations)
-  "Associate CITATIONS with content blocks that have cite tags."
+  "Associate CITATIONS with content blocks that contain <cite> tags.
+
+INPUT:
+  CONTENT-BLOCKS - List of content block objects (from assistant message)
+  CITATIONS - List of citation objects extracted from ## CITATIONS: section
+
+PROCESSING:
+  1. Iterates through content blocks
+  2. For text blocks containing <cite> tags:
+     - Parses the text to split by citation boundaries
+     - Associates citations with the cited text portions
+     - Replaces the single block with multiple parsed blocks
+  3. For other blocks (no cite tags):
+     - Keeps them unchanged
+
+OUTPUT:
+  Returns a new list of content blocks where:
+  - Text blocks with <cite> tags are split into multiple text blocks
+  - Cited text blocks have citations attached
+  - Non-cited text blocks and other block types remain unchanged
+
+EXAMPLE INPUT:
+  CONTENT-BLOCKS: (((type . \"text\") (text . \"Hello <cite>world</cite>!\")))
+  CITATIONS: (((url . \"http://example.com\") ...))
+
+EXAMPLE OUTPUT:
+  (((type . \"text\") (text . \"Hello\"))
+   ((type . \"text\") (text . \"world\") (citations . citations-list))
+   ((type . \"text\") (text . \"!\")))
+
+INTERNAL FUNCTION: Core of the citation association logic that makes
+<cite> tags work with subsequent ## CITATIONS: sections."
   (let ((result '()))
     (dolist (block content-blocks)
       (if (and (equal (alist-get 'type block) "text")
