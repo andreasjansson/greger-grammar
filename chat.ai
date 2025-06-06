@@ -7924,38 +7924,38 @@ static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
   // Expect "<tool."
   if (lexer->lookahead != '<') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 't') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'l') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '.') return false;
   advance(lexer);
-  
+
   // Read the tool ID
   int id_len = 0;
-  while (lexer->lookahead && 
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
          id_len < 63) {
     scanner->tool_id[id_len++] = lexer->lookahead;
     advance(lexer);
   }
-  
+
   if (lexer->lookahead != '>') return false;
   advance(lexer);
-  
+
   scanner->tool_id[id_len] = '\0';
   scanner->in_tool_block = true;
-  
+
   lexer->result_symbol = TOOL_BLOCK_START;
   return true;
 }
@@ -7964,41 +7964,41 @@ static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
   // Expect "</tool."
   if (lexer->lookahead != '<') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '/') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 't') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'l') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '.') return false;
   advance(lexer);
-  
+
   // Read the tool ID and check if it matches
   char end_id[64];
   int id_len = 0;
-  while (lexer->lookahead && 
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
          id_len < 63) {
     end_id[id_len++] = lexer->lookahead;
     advance(lexer);
   }
-  
+
   if (lexer->lookahead != '>') return false;
   advance(lexer);
-  
+
   end_id[id_len] = '\0';
-  
+
   // Only match if the IDs are the same
   if (strcmp(scanner->tool_id, end_id) == 0) {
     scanner->in_tool_block = false;
@@ -8006,13 +8006,13 @@ static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
     lexer->result_symbol = TOOL_BLOCK_END;
     return true;
   }
-  
+
   return false;
 }
 
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
-  
+
   // Scan until we hit a potential end tag or newline
   bool has_content = false;
   while (lexer->lookahead && lexer->lookahead != '\n') {
@@ -8035,35 +8035,35 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       has_content = true;
     }
   }
-  
+
   if (has_content) {
     lexer->result_symbol = TOOL_BLOCK_CONTENT;
     return true;
   }
-  
+
   return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
-  
+
   // Skip whitespace
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
     return scan_tool_start(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     return scan_tool_end(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
     return scan_tool_content(lexer, scanner);
   }
-  
+
   return false;
 }
 </tool.toolu_012eL684XkJEB8bSFbNJ8Nt4>
@@ -8513,7 +8513,7 @@ ID: toolu_01FPJiapJV72AgBgznXjE5ad
 <tool.toolu_01FPJiapJV72AgBgznXjE5ad>
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
-  
+
   // Scan until we hit a potential end tag or newline
   bool has_content = false;
   while (lexer->lookahead && lexer->lookahead != '\n') {
@@ -8536,12 +8536,12 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       has_content = true;
     }
   }
-  
+
   if (has_content) {
     lexer->result_symbol = TOOL_BLOCK_CONTENT;
     return true;
   }
-  
+
   return false;
 }
 </tool.toolu_01FPJiapJV72AgBgznXjE5ad>
@@ -8551,17 +8551,17 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 <tool.toolu_01FPJiapJV72AgBgznXjE5ad>
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
-  
+
   // Skip any leading whitespace on the same line
   while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
     skip(lexer);
   }
-  
+
   // If we hit a newline immediately, don't consume it as content
   if (lexer->lookahead == '\n') {
     return false;
   }
-  
+
   // Scan until we hit a potential end tag or newline
   bool has_content = false;
   while (lexer->lookahead && lexer->lookahead != '\n') {
@@ -8570,7 +8570,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -8588,12 +8588,12 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       has_content = true;
     }
   }
-  
+
   if (has_content) {
     lexer->result_symbol = TOOL_BLOCK_CONTENT;
     return true;
   }
-  
+
   return false;
 }
 </tool.toolu_01FPJiapJV72AgBgznXjE5ad>
@@ -8830,7 +8830,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -9114,7 +9114,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -9149,7 +9149,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
@@ -9157,7 +9157,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -9344,7 +9344,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
@@ -9352,7 +9352,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -9611,10 +9611,10 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     The rule `tool_result_content` matches the empty string.
-    
+
     Tree-sitter does not support syntactic rules that match the empty string
     unless they are used only as the grammar's start rule.
-    
+
 
 </tool.toolu_01LsTHNQ1fjwnXBLtJ5D8iKs>
 
@@ -9790,7 +9790,7 @@ test_nested_tools.greger	Parse:    1.49 ms	   616 bytes/ms	(MISSING tool_block_e
 
 ## ASSISTANT:
 
-Great! The nested tools test is now parsing much better. The external scanner is correctly matching the tool block IDs and including all the nested content (including the fake tool blocks) as content within the real tool block. 
+Great! The nested tools test is now parsing much better. The external scanner is correctly matching the tool block IDs and including all the nested content (including the fake tool blocks) as content within the real tool block.
 
 ## USER:
 
@@ -9924,31 +9924,31 @@ ID: toolu_01KUdBcwaugYhwYkS7Fs8czt
 <tool.toolu_01KUdBcwaugYhwYkS7Fs8czt>
 Command executed successfully:
      1	## USER:
-     2	
+     2
      3	Test nested tool content
-     4	
+     4
      5	## TOOL USE:
-     6	
+     6
      7	Name: write-file
      8	ID: toolu_abc123
-     9	
+     9
     10	### filename
-    11	
+    11
     12	<tool.toolu_abc123>
     13	example.py
     14	</tool.toolu_abc123>
-    15	
+    15
     16	### content
-    17	
+    17
     18	<tool.toolu_abc123>
     19	Here's some tricky content that looks like tool blocks:
-    20	
+    20
     21	<tool.def456>
     22	This looks like a tool block but isn't!
     23	Name: fake-tool
     24	ID: fake_id
     25	</tool.def456>
-    26	
+    26
     27	Even more nested tool-like content:
     28	<tool.xyz789>
     29	nested content with ### parameters
@@ -9976,24 +9976,24 @@ ID: toolu_01G4wpWfMMAeJKPuEmakdwbu
 <tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
-  
+
   // Skip whitespace
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
     return scan_tool_start(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     return scan_tool_end(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
     return scan_tool_content(lexer, scanner);
   }
-  
+
   return false;
 }
 </tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
@@ -10003,7 +10003,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 <tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
-  
+
   if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
     // Skip whitespace only for tool block start
     while (iswspace(lexer->lookahead)) {
@@ -10011,7 +10011,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
     return scan_tool_start(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     // Skip whitespace only for tool block end
     while (iswspace(lexer->lookahead)) {
@@ -10019,11 +10019,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
     return scan_tool_end(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
     return scan_tool_content(lexer, scanner);
   }
-  
+
   return false;
 }
 </tool.toolu_01G4wpWfMMAeJKPuEmakdwbu>
@@ -10386,7 +10386,7 @@ The issue is clear now. The external scanner is correctly identifying the tool b
 
 Looking at the error, the scanner should be consuming everything between the start and end tags as a single `tool_block_content` token, but it's not doing that. Let me check what's happening in the scanner logic.
 
-The problem is in my `scan_tool_content` function - it needs to be called at the right time. Let me create a much simpler and more robust approach. 
+The problem is in my `scan_tool_content` function - it needs to be called at the right time. Let me create a much simpler and more robust approach.
 
 Given the complexity of getting the external scanner perfect, let me take a step back and create an Elisp integration example with the current working parser, and then we can iteratively improve it. The current parser is actually working quite well for the basic structure.
 
@@ -10421,7 +10421,7 @@ ID: toolu_011dztsvhGPkVeyGxEUJVcov
 Returns the same format as `greger-parser-parse-dialog-messages-only'."
   (unless (treesit-ready-p 'greger)
     (error "Tree-sitter greger parser not available"))
-  
+
   (with-temp-buffer
     (insert text)
     (let ((tree (treesit-parse-string text 'greger)))
@@ -10431,18 +10431,18 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
   "Extract dialog messages from the parsed TREE."
   (let ((root-node (treesit-node-child tree 0))
         (messages '()))
-    
+
     ;; Handle untagged content at the beginning (treated as user message)
     (when-let ((untagged (treesit-node-child-by-field-name root-node "content")))
-      (push `((role . "user") 
+      (push `((role . "user")
               (content . ,(greger-tree-sitter--extract-content untagged)))
             messages))
-    
+
     ;; Process all sections
     (dolist (section-node (greger-tree-sitter--get-sections root-node))
       (when-let ((message (greger-tree-sitter--extract-section section-node)))
         (push message messages)))
-    
+
     (nreverse messages)))
 
 (defun greger-tree-sitter--get-sections (root-node)
@@ -10479,7 +10479,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-user-section (section-node)
   "Extract user message from SECTION-NODE."
-  (let ((content-node (treesit-node-child-by-field-name 
+  (let ((content-node (treesit-node-child-by-field-name
                        (treesit-node-child section-node 0) "content")))
     `((role . "user")
       (content . ,(if content-node
@@ -10488,7 +10488,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-system-section (section-node)
   "Extract system message from SECTION-NODE."
-  (let ((content-node (treesit-node-child-by-field-name 
+  (let ((content-node (treesit-node-child-by-field-name
                        (treesit-node-child section-node 0) "content")))
     `((role . "system")
       (content . ,(if content-node
@@ -10497,7 +10497,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-assistant-section (section-node)
   "Extract assistant message from SECTION-NODE."
-  (let ((content-node (treesit-node-child-by-field-name 
+  (let ((content-node (treesit-node-child-by-field-name
                        (treesit-node-child section-node 0) "content")))
     `((role . "assistant")
       (content . ,(if content-node
@@ -10506,7 +10506,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-thinking-section (section-node)
   "Extract thinking content and return as assistant message."
-  (let ((content-node (treesit-node-child-by-field-name 
+  (let ((content-node (treesit-node-child-by-field-name
                        (treesit-node-child section-node 0) "content")))
     `((role . "assistant")
       (content . (((type . "thinking")
@@ -10521,7 +10521,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
          (tool-name nil)
          (tool-id nil)
          (parameters '()))
-    
+
     ;; Extract tool name, ID, and parameters
     (when tool-content
       (let ((child-count (treesit-node-child-count tool-content)))
@@ -10529,17 +10529,17 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
           (let ((child (treesit-node-child tool-content i)))
             (cond
              ((equal (treesit-node-type child) "tool_name_line")
-              (setq tool-name (treesit-node-text 
+              (setq tool-name (treesit-node-text
                                (treesit-node-child-by-field-name child "name"))))
              ((equal (treesit-node-type child) "tool_id_line")
-              (setq tool-id (treesit-node-text 
+              (setq tool-id (treesit-node-text
                              (treesit-node-child-by-field-name child "id"))))
              ((equal (treesit-node-type child) "tool_parameter")
-              (let ((param-name (treesit-node-text 
+              (let ((param-name (treesit-node-text
                                  (treesit-node-child-by-field-name child "param_name")))
                     (param-value (greger-tree-sitter--extract-tool-param-value child)))
                 (push (cons (intern param-name) param-value) parameters))))))))
-    
+
     `((role . "assistant")
       (content . (((type . "tool_use")
                    (id . ,tool-id)
@@ -10562,7 +10562,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
          (tool-content (treesit-node-child-by-field-name tool-section "tool_result_content"))
          (tool-id nil)
          (result-content ""))
-    
+
     ;; Extract tool ID and result content
     (when tool-content
       (let ((child-count (treesit-node-child-count tool-content)))
@@ -10570,13 +10570,13 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
           (let ((child (treesit-node-child tool-content i)))
             (cond
              ((equal (treesit-node-type child) "tool_result_id_line")
-              (setq tool-id (treesit-node-text 
+              (setq tool-id (treesit-node-text
                              (treesit-node-child-by-field-name child "id"))))
              ((equal (treesit-node-type child) "tool_result_block")
               (let ((content-node (treesit-node-child-by-field-name child "content")))
                 (when content-node
                   (setq result-content (string-trim (treesit-node-text content-node)))))))))))
-    
+
     `((role . "user")
       (content . (((type . "tool_result")
                    (tool_use_id . ,tool-id)
@@ -10676,32 +10676,32 @@ Hello, how are you?
 ## ASSISTANT:
 
 Hi there!"))
-    
+
     (message "Testing tree-sitter greger parser...")
-    
+
     ;; Check if parser is available
     (if (treesit-ready-p 'greger)
         (progn
           (message "Tree-sitter greger parser is ready!")
-          
+
           ;; Try to parse
           (condition-case err
               (let ((tree (treesit-parse-string test-text 'greger)))
                 (message "Parse successful!")
                 (message "Root node: %s" (treesit-node-type (treesit-node-child tree 0)))
-                
+
                 ;; Show the tree structure
                 (with-temp-buffer
                   (insert test-text)
                   (treesit-parser-create 'greger)
                   (message "Tree structure:")
                   (message "%s" (treesit-subtree-stat (treesit-node-child tree 0))))
-                
+
                 t)
             (error
              (message "Parse failed: %s" err)
              nil)))
-      
+
       (message "Tree-sitter greger parser not available")
       (message "Make sure the greger.so library is in your dynamic module path")
       nil)))
@@ -10751,7 +10751,7 @@ A tree-sitter grammar for parsing the greger conversation format, which is a mar
 The grammar supports parsing:
 
 - **Section Headers**: `## USER:`, `## ASSISTANT:`, `## SYSTEM:`, `## THINKING:`, etc.
-- **Tool Use**: Tool calls with parameters in `<tool.ID>` blocks  
+- **Tool Use**: Tool calls with parameters in `<tool.ID>` blocks
 - **Tool Results**: Tool responses with matching IDs
 - **Server Tool Use/Results**: Server-side tool operations
 - **Citations**: Reference sections with URLs and metadata
@@ -10784,7 +10784,7 @@ Only the matching `</tool.abc123>` closes the block.
 ## Test Files
 
 - `test_simple.greger` - Basic conversation
-- `test_complex.greger` - Tool use example  
+- `test_complex.greger` - Tool use example
 - `test_comprehensive.greger` - All features
 - `test_nested_tools.greger` - Nested tool content test
 
@@ -10817,7 +10817,7 @@ tree-sitter parse test_nested_tools.greger
 
 The grammar successfully parses:
 - ✅ Section headers and content
-- ✅ Tool use/result blocks with ID matching  
+- ✅ Tool use/result blocks with ID matching
 - ✅ Basic content types
 - ⚠️  Some content parsing needs refinement (minor ERROR nodes)
 
@@ -10828,7 +10828,7 @@ The core structure is working and can replace the regex-based parser in greger.e
 To use this as a replacement for the current parser:
 
 1. Build the tree-sitter grammar and install the `.so` file
-2. Load `greger-tree-sitter.el` 
+2. Load `greger-tree-sitter.el`
 3. Replace calls to `greger-parser-parse-dialog-messages-only` with `greger-tree-sitter-parse`
 
 The return format is identical, so it's a drop-in replacement.
@@ -10845,7 +10845,7 @@ This file includes all major features:
 - System content with safe shell commands
 - User content with citations and includes
 - Thinking sections
-- Server tool use and results  
+- Server tool use and results
 - Assistant responses with citations
 - Code blocks and comments
 - Citation metadata
@@ -10897,7 +10897,7 @@ Only the matching `</tool.abc123>` closes the block, preventing false matches.
 
 ### ✅ **Comprehensive Testing**
 - Simple conversation parsing
-- Complex tool use scenarios  
+- Complex tool use scenarios
 - Nested tool content (the tricky case you mentioned)
 - All features in one comprehensive test
 
@@ -11148,7 +11148,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
@@ -11156,7 +11156,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
       // Look ahead to see if this is our closing tag
       TSLexer saved_lexer = *lexer;
       Scanner saved_scanner = *scanner;
-      
+
       if (scan_tool_end(lexer, scanner)) {
         // This is our closing tag, don't consume it
         *lexer = saved_lexer;
@@ -11191,14 +11191,14 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
     if (lexer->lookahead == '<') {
       // Look ahead to see if this is our closing tag without modifying scanner state
       TSLexer saved_lexer = *lexer;
-      
+
       // Manually check for closing tag pattern
       advance(lexer);
       if (lexer->lookahead == '/') {
@@ -11213,19 +11213,19 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
                 advance(lexer);
                 if (lexer->lookahead == '.') {
                   advance(lexer);
-                  
+
                   // Check if the ID matches
                   char end_id[64];
                   int id_len = 0;
-                  while (lexer->lookahead && 
-                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-                          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+                  while (lexer->lookahead &&
+                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+                          lexer->lookahead == '-' || lexer->lookahead == '.') &&
                          id_len < 63) {
                     end_id[id_len++] = lexer->lookahead;
                     advance(lexer);
                   }
                   end_id[id_len] = '\0';
-                  
+
                   if (lexer->lookahead == '>' && strcmp(scanner->tool_id, end_id) == 0) {
                     // This is our closing tag, restore and stop
                     *lexer = saved_lexer;
@@ -11237,7 +11237,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
           }
         }
       }
-      
+
       // Not our closing tag, restore and continue
       *lexer = saved_lexer;
       advance(lexer);
@@ -11397,14 +11397,14 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
 
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     // Check if we're at the start of a potential closing tag
     if (lexer->lookahead == '<') {
       // Look ahead to see if this is our closing tag without modifying scanner state
       TSLexer saved_lexer = *lexer;
-      
+
       // Manually check for closing tag pattern
       advance(lexer);
       if (lexer->lookahead == '/') {
@@ -11419,19 +11419,19 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
                 advance(lexer);
                 if (lexer->lookahead == '.') {
                   advance(lexer);
-                  
+
                   // Check if the ID matches
                   char end_id[64];
                   int id_len = 0;
-                  while (lexer->lookahead && 
-                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-                          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+                  while (lexer->lookahead &&
+                         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+                          lexer->lookahead == '-' || lexer->lookahead == '.') &&
                          id_len < 63) {
                     end_id[id_len++] = lexer->lookahead;
                     advance(lexer);
                   }
                   end_id[id_len] = '\0';
-                  
+
                   if (lexer->lookahead == '>' && strcmp(scanner->tool_id, end_id) == 0) {
                     // This is our closing tag, restore and stop
                     *lexer = saved_lexer;
@@ -11443,7 +11443,7 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
           }
         }
       }
-      
+
       // Not our closing tag, restore and continue
       *lexer = saved_lexer;
       advance(lexer);
@@ -11592,19 +11592,19 @@ https://www.jonashietala.se/blog/2024/03/19/lets_create_a_tree-sitter_grammar
 ID: toolu_018RrdvKpeeiQ1jFPpaBJv8H
 
 <tool.toolu_018RrdvKpeeiQ1jFPpaBJv8H>
-    ~jonashietala.se  Archive  Series  Projects  Contact  About 
+    ~jonashietala.se  Archive  Series  Projects  Contact  About
 
-   Let's create a Tree-sitter grammar  ★ 
-    Published:  
-  March 19, 
-   2024 
-   Revised:  
-  January 29,  2025 
- 
- in 
- 1e17751 
-  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter 
-   
+   Let's create a Tree-sitter grammar  ★
+    Published:
+  March 19,
+   2024
+   Revised:
+  January 29,  2025
+
+ in
+ 1e17751
+  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter
+
   One of my favorite features in Neovim is the Tree-sitter integration.
 It allows for fast syntax highlighting that works well even in an error state (often the case when you’re editing code), and it has additional semantics (you can differentiate between function parameters and local variables).
   With  nvim-treesitter-textobjects  you can also jump between nodes (such as  ]c  to jump to next class) or target deletion ( cif  to delete the function body and enter insert mode).
@@ -11615,50 +11615,50 @@ and how do you create one for a language?
 There are some good tutorials on how to get started, but not on some more advanced things.
   I spent quite some time trying to figure it out—while refreshing my 10 year old knowledge of grammars—and decided to document some of my findings.
   The post spiraled out of control a little, and it will go through:
-  
+
 How to use an external scanner
 
-  
+
 Using Tree-sitter’s built-in conflicts resolution
 
-  
+
 Syntax highlighting with language injection
 
-  
+
 Use the grammar from Neovim for syntax highlighting and textobjects
 
-  
+
 Embed the grammar into this Blog for syntax highlighting
 
- 
+
  The source code for the complete grammar we’ll develop  can be found on GitHub .
   Our subset
   For the purpose of this blog post, we’ll implement a small subset of  Djot , where we’ll support:
-  
+
 Paragraphs
 
-  
+
 Divs
 
-  
+
 Code blocks
 
-  
+
 Emphasis
 
- 
+
  This will allow us to parse markup like this:
-  
- This is a 
- multiline  _ paragraph _ 
-  
-  ::: 
- This is a paragraph inside a div 
-  ::: 
- 
- ``` gleam 
- let  x  =  2 ; 
- ``` 
+
+ This is a
+ multiline  _ paragraph _
+
+  :::
+ This is a paragraph inside a div
+  :::
+
+ ``` gleam
+ let  x  =  2 ;
+ ```
 
 
   (Yes, the  sdjot  highlight uses our grammar.)
@@ -11667,73 +11667,73 @@ Emphasis
   The point of this post isn’t to go through how the Tree-sitter grammar description in  grammar.js  works.
 The  Tree-sitter docs  goes through how to get started.
 I named the project  sdjot  and this is the  grammar.js  we’ll start with:
-  
- module . exports  =  grammar ( { 
-   name :  " sdjot " , 
- 
+
+ module . exports  =  grammar ( {
+   name :  " sdjot " ,
+
   //  Skip carriage returns.
 
   //  We could skip spaces here as well, but the actual markup language
 
   //  has significant spaces in some places, so let's remove them here too.
 
-  extras :  ( _ )  = >  [ " \r " ] , 
- 
-   rules :  { 
-  document :  ( $ )  = >  repeat ( $ . _block ) , 
- 
+  extras :  ( _ )  = >  [ " \r " ] ,
+
+   rules :  {
+  document :  ( $ )  = >  repeat ( $ . _block ) ,
+
   //  All blocks should end with a newline, but we can also parse multiple newlines.
 
-  _block :  ( $ )  = >  choice ( $ . div ,  $ . code_block ,  $ . paragraph ,  " \n " ) , 
- 
+  _block :  ( $ )  = >  choice ( $ . div ,  $ . code_block ,  $ . paragraph ,  " \n " ) ,
+
   //  A div contains other blocks.
 
-  div :  ( $ )  = > 
-       prec . left ( seq ( $ . div_marker ,  " \n " ,  repeat ( $ . _block ) ,  $ . div_marker ,  " \n " ) ) , 
-  div_marker :  ( _ )  = >  " ::: " , 
- 
+  div :  ( $ )  = >
+       prec . left ( seq ( $ . div_marker ,  " \n " ,  repeat ( $ . _block ) ,  $ . div_marker ,  " \n " ) ) ,
+  div_marker :  ( _ )  = >  " ::: " ,
+
   //  Code blocks may have a language specifier.
 
-  code_block :  ( $ )  = > 
-       seq ( 
-         $ . code_block_marker , 
-         optional ( $ . language ) , 
-  " \n " , 
-         optional ( $ . code ) , 
-         $ . code_block_marker , 
-  ) , 
-  code_block_marker :  ( _ )  = >  " ``` " , 
-  code :  ( _ )  = >  repeat1 ( seq ( / [ ^ \n ] * /  ,  " \n " ) ) , 
-  language :  ( _ )  = >  / [ ^ \s ] + /  , 
- 
+  code_block :  ( $ )  = >
+       seq (
+         $ . code_block_marker ,
+         optional ( $ . language ) ,
+  " \n " ,
+         optional ( $ . code ) ,
+         $ . code_block_marker ,
+  ) ,
+  code_block_marker :  ( _ )  = >  " ``` " ,
+  code :  ( _ )  = >  repeat1 ( seq ( / [ ^ \n ] * /  ,  " \n " ) ) ,
+  language :  ( _ )  = >  / [ ^ \s ] + /  ,
+
   //  A paragraph contains inline content and is terminated by a blankline
 
   //  (two newlines in a row).
 
-  paragraph :  ( $ )  = >  seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  " \n " ) , 
- 
+  paragraph :  ( $ )  = >  seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  " \n " ) ,
+
   //  The markup parser could separate block and inline parsing into separate steps,
 
   //  but we'll do everything in one parser.
 
-  _inline :  ( $ )  = >  repeat1 ( choice ( $ . emphasis ,  $ . _text ) ) , 
-  emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
-  _text :  ( _ )  = >  / [ ^ \n ] /  , 
-  } , 
- } ) ; 
+  _inline :  ( $ )  = >  repeat1 ( choice ( $ . emphasis ,  $ . _text ) ) ,
+  emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
+  _text :  ( _ )  = >  / [ ^ \n ] /  ,
+  } ,
+ } ) ;
 
 
   It recognizes paragraphs with text and emphasis, and it identifies divs and code blocks.
   We can create an  example-file  with these contents:
-  
- ::: 
- A paragraph  _ with emphasis _  inside a div 
-  
-  ::: 
+
+ :::
+ A paragraph  _ with emphasis _  inside a div
+
+  :::
 
 
   And parse it with the  tree-sitter  cli:
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [5, 0]
@@ -11754,35 +11754,35 @@ I named the project  sdjot  and this is the  grammar.js  we’ll start with:
   Missing features
   But I told you it wasn’t supposed to be this easy, and there are features missing from our parser.
 Most notably:
-  
+
 There can be an arbitrary number of  : , allowing divs to be nested.
 
-  
+
 Closing a div should close other open blocks (divs and paragraphs in our case).
 
- 
+
  In essence, we need to be able to parse this:
-  
- ::: 
- Top-level div 
-  
-  :::: 
- A paragraph inside a second div, 
- both closed when the top-level div is closedj 
-  ::: 
+
+ :::
+ Top-level div
+
+  ::::
+ A paragraph inside a second div,
+ both closed when the top-level div is closedj
+  :::
 
 
   This is… Complicated.
   Sure, we can work around the varying levels of  :  with something hacky like enumerating the number of colons, using something like this:
-  
- div :  ( $ )  = >  choice ( $ . _div3 ,  $ . _div4 ,  $ . _div5 ,  $ . _div6 ,  $ . _div7 ,  $ . _div8 ) , 
- _div3 :  ( $ )  = >  seq ( / : {3} /  ,  $ . _inside_div ,  / : {3} /  ,  " \n " ) , 
- _div4 :  ( $ )  = >  seq ( / : {4} /  ,  $ . _inside_div ,  / : {4} /  ,  " \n " ) , 
- _div5 :  ( $ )  = >  seq ( / : {5} /  ,  $ . _inside_div ,  / : {5} /  ,  " \n " ) , 
- _div6 :  ( $ )  = >  seq ( / : {6} /  ,  $ . _inside_div ,  / : {6} /  ,  " \n " ) , 
- _div7 :  ( $ )  = >  seq ( / : {7} /  ,  $ . _inside_div ,  / : {7} /  ,  " \n " ) , 
- _div8 :  ( $ )  = >  seq ( / : {8} /  ,  $ . _inside_div ,  / : {8} /  ,  " \n " ) , 
- _inside_div :  ( $ )  = >  prec . left ( " \n " ,  repeat ( $ . _block ) ) , 
+
+ div :  ( $ )  = >  choice ( $ . _div3 ,  $ . _div4 ,  $ . _div5 ,  $ . _div6 ,  $ . _div7 ,  $ . _div8 ) ,
+ _div3 :  ( $ )  = >  seq ( / : {3} /  ,  $ . _inside_div ,  / : {3} /  ,  " \n " ) ,
+ _div4 :  ( $ )  = >  seq ( / : {4} /  ,  $ . _inside_div ,  / : {4} /  ,  " \n " ) ,
+ _div5 :  ( $ )  = >  seq ( / : {5} /  ,  $ . _inside_div ,  / : {5} /  ,  " \n " ) ,
+ _div6 :  ( $ )  = >  seq ( / : {6} /  ,  $ . _inside_div ,  / : {6} /  ,  " \n " ) ,
+ _div7 :  ( $ )  = >  seq ( / : {7} /  ,  $ . _inside_div ,  / : {7} /  ,  " \n " ) ,
+ _div8 :  ( $ )  = >  seq ( / : {8} /  ,  $ . _inside_div ,  / : {8} /  ,  " \n " ) ,
+ _inside_div :  ( $ )  = >  prec . left ( " \n " ,  repeat ( $ . _block ) ) ,
 
 
   But it’s not  neat , and automatically closing contained blocks is much harder (to my brain it seems impossible, but I’m no expert).
@@ -11794,130 +11794,130 @@ If you’re a masochist, you can take a look at it in  src/parser.c  after runni
   An external scanner is just some custom C code that’s inserted into the parser, and it allows us to override the parser precedence, keep track of a context state, or whatever else we might need or want to do.
   To get started the  official docs  was pretty good.
 Basically you need to:
-  
+
 Create a  src/scanner.c  and include it in  binding.gyp  bindings/rust/build.rs .
 
-  
+
 Setup  externals  tokens in  grammar.js  and a matching C enum in  scanner.c .
 
-  
+
 Define and implement five C functions.
 
- 
+
  Let’s take a look.
   Div markers closes open paragraphs
   Let’s start by closing a paragraph early when a  :::  is encountered.
 This is simpler because we can solve this without storing any state.
   When parsing  $.paragraph  we’ll give the parser a choice between ending the paragraph on a newline or on our new  $._close_paragraph  token:
-  
- paragraph :  ( $ )  = > 
-   seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  choice ( " \n " ,  $ . _close_paragraph ) ) , 
+
+ paragraph :  ( $ )  = >
+   seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  choice ( " \n " ,  $ . _close_paragraph ) ) ,
 
 
   $._close_paragraph  is handled by the external scanner, which is specified using the  externals  field:
-  
- externals :  ( $ )  = >  [ $ . _close_paragraph ] , 
+
+ externals :  ( $ )  = >  [ $ . _close_paragraph ] ,
 
 
   Now let’s turn our attention to  src/scanner.c .
 The tokens in  externals  gets assigned an incremented number, starting from 0…
 Just like an enum in C!
-  
+
  //  We only have a single element right now, but keep in mind that the order
 
  //  must match the `externals` array in `grammar.js`.
 
- typedef  enum  {  CLOSE_PARAGRAPH  }  TokenType ; 
+ typedef  enum  {  CLOSE_PARAGRAPH  }  TokenType ;
 
 
   The five functions we need to implement are these:
-  
+
  //  You should replace `sdjot` with whatever project name you chose.
 
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
   //  All the scanning goes here.
 
-  return  false ; 
- } 
- 
+  return  false ;
+ }
+
  //  If we need to allocate/deallocate state, we do it in these functions.
 
- void  * tree_sitter_sdjot_external_scanner_create ( )  {  return  NULL ;  } 
- void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {  } 
- 
+ void  * tree_sitter_sdjot_external_scanner_create ( )  {  return  NULL ;  }
+ void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {  }
+
  //  If we have state, we should load and save it in these functions.
 
- unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload , 
-  char  * buffer )  { 
-  return  0 ; 
- } 
- void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer , 
-  unsigned  length )  {  } 
+ unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload ,
+  char  * buffer )  {
+  return  0 ;
+ }
+ void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer ,
+  unsigned  length )  {  }
 
 
   Because we won’t use any state, we’ll only have to update the  scan  function.
   What you’re supposed to do is check  valid_symbols  for the tokens we can return at any point in time, and return  true  if any was found:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  { 
-  return  true ; 
-  } 
-  return  false ; 
- } 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  {
+  return  true ;
+  }
+  return  false ;
+ }
 
 
   To decide if we’re going to close the paragraph early, we’ll look ahead for any  ::: , and if so we’ll close it without consuming any characters.
 This might not be the most efficient solution because we’ll have to parse the  :::  again, but it gets the job done.
-  The matched token should be stored in 
+  The matched token should be stored in
  lexer -> result_symbol :
-  
- static  bool  parse_close_paragraph ( TSLexer  * lexer )  { 
+
+ static  bool  parse_close_paragraph ( TSLexer  * lexer )  {
   //  Mark the end before advancing so that the CLOSE_PARAGRAPH token doesn't
 
   //  consume any characters.
 
-   lexer -> mark_end ( lexer ) ; 
- 
-  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ; 
-  if  ( colons  >=  3 )  { 
-     lexer -> result_symbol  =  CLOSE_PARAGRAPH ; 
-  return  true ; 
-  }  else  { 
-  return  false ; 
-  } 
- } 
+   lexer -> mark_end ( lexer ) ;
+
+  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ;
+  if  ( colons  >=  3 )  {
+     lexer -> result_symbol  =  CLOSE_PARAGRAPH ;
+  return  true ;
+  }  else  {
+  return  false ;
+  }
+ }
 
 
   Note that the resulting token will mark any symbol we advance over as owned by that token.
 So  :::  would be marked as  _close_paragraph  (which will be ignored by the output since it begins with an underscore), instead of  div_marker .
 To prevent this, we turn  _close_paragraph  into a zero-width token by marking the end before advancing the lexer.
   How do we advance the lexer?
-We call 
+We call
  lexer -> advance :
-  
- static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  { 
-  uint8_t  count  =  0 ; 
-  while  ( lexer -> lookahead  ==  c )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  + + count ; 
-  } 
-  return  count ; 
- } 
+
+ static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  {
+  uint8_t  count  =  0 ;
+  while  ( lexer -> lookahead  ==  c )  {
+     lexer -> advance ( lexer ,  false ) ;
+  + + count ;
+  }
+  return  count ;
+ }
 
 
   This is almost all we can do with the lexer.
 We only process one character at a time, cannot look behind, and our only tool to look ahead is to  mark_end  at the correct place.
 (We can also query the current column position.)
   With this we have a working external scanner and div tags now close paragraphs:
-  
- ::: 
- A paragraph inside a div 
-  ::: 
+
+ :::
+ A paragraph inside a div
+  :::
 
 
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [4, 0]
@@ -11938,81 +11938,81 @@ We only process one character at a time, cannot look behind, and our only tool t
   Our strategy is this:
    A div can have a varying number of  :  that must match.
   Therefore we’ll parse colons in an external scanner and store it on a stack.
- 
+
    When we find a div marker, we’ll need to decide if it should start a new div, or close an existing one.
   We’ll look at the stack of open blocks and see if we find a match.
- 
+
    If we have need to close a nested div, that is if we want to close a div further down the stack, we need to close the nested div(s) first.
   Thus we’ll introduce a  block_close  marker that ends a div, and leave the ending div marker as optional.
- 
- 
+
+
  First we’ll ask the grammar to let the external scanner manage the begin and end tokens.
 We’ll use a  _block_close  marker to end the div, and leave the end marker optional.
 (You could probably use a  choice()  between the two, but this made more sense to me when I was implementing it.)
-  
- div :  ( $ )  = > 
-   prec . left ( 
-     seq ( 
+
+ div :  ( $ )  = >
+   prec . left (
+     seq (
   //  A rule starting with "_" will be hidden in the output,
 
   //  and we can use "alias" to rename rules.
 
-       alias ( $ . _div_marker_begin ,  $ . div_marker ) , 
-  " \n " , 
-       repeat ( $ . _block ) , 
-       $ . _block_close , 
-       optional ( alias ( $ . _div_marker_end ,  $ . div_marker ) ) 
-  ) 
-  ) , 
- 
- externals :  ( $ )  = >  [ 
-   $ . _close_paragraph , 
-   $ . _block_close , 
-   $ . _div_marker_begin , 
-   $ . _div_marker_end , 
- 
+       alias ( $ . _div_marker_begin ,  $ . div_marker ) ,
+  " \n " ,
+       repeat ( $ . _block ) ,
+       $ . _block_close ,
+       optional ( alias ( $ . _div_marker_end ,  $ . div_marker ) )
+  )
+  ) ,
+
+ externals :  ( $ )  = >  [
+   $ . _close_paragraph ,
+   $ . _block_close ,
+   $ . _div_marker_begin ,
+   $ . _div_marker_end ,
+
   //  This is used in the scanner internally,
 
   //  but shouldn't be used by the grammar.
 
-   $ . _ignored , 
- ] , 
+   $ . _ignored ,
+ ] ,
 
 
   And remember to update the list of external tokens in the scanner (order matters):
-  
- typedef  enum  { 
-   CLOSE_PARAGRAPH , 
-   BLOCK_CLOSE , 
-   DIV_MARKER_BEGIN , 
-   DIV_MARKER_END , 
+
+ typedef  enum  {
+   CLOSE_PARAGRAPH ,
+   BLOCK_CLOSE ,
+   DIV_MARKER_BEGIN ,
+   DIV_MARKER_END ,
    IGNORED
 
- }  TokenType ; 
+ }  TokenType ;
 
 
   Then to our stack of blocks.
   I used a  Block  type to keep track of the type and number of colons:
-  
+
  //  In a real implementation we'll have more block types.
 
- typedef  enum  {  DIV  }  BlockType ; 
- 
- typedef  struct  { 
-   BlockType type ; 
-  uint8_t  level ; 
- }  Block ; 
+ typedef  enum  {  DIV  }  BlockType ;
+
+ typedef  struct  {
+   BlockType type ;
+  uint8_t  level ;
+ }  Block ;
 
 
   I know that  level  isn’t the best name, but I couldn’t find a very good general name for the number of colons, indentation level, etc.
 With sum types you could model it in a clearer way, like this:
-  
- enum  Block  { 
-     Div  {  colons :  u32  } , 
-     Footnote  {  indent :  u32  } , 
+
+ enum  Block  {
+     Div  {  colons :  u32  } ,
+     Footnote  {  indent :  u32  } ,
   //  etc
 
- } 
+ }
 
 
    I will, in fact, claim that the difference between a bad programmer and a good one
@@ -12026,95 +12026,95 @@ It’s not truly difficult, but it’s annoying and bug-prone.
   Luckily, during the time I’m writing this blog post,  tree-sitter 0.22.1  was released with an array implementation.
 So now I don’t have to show you my shoddy stack implementation, and we can use their array for our stack instead.
   We’ll shove our  Array  of  Block*  into a  Scanner  struct, because we’ll need to track more data later:
-  
- #include  " tree_sitter/array.h " 
- 
- typedef  struct  { 
-  Array ( Block  * )  *  open_blocks ; 
- }  Scanner ; 
+
+ #include  " tree_sitter/array.h "
+
+ typedef  struct  {
+  Array ( Block  * )  *  open_blocks ;
+ }  Scanner ;
 
 
   When you manage state in tree-sitter, you need to do some data management in the  tree_sitter_  functions we defined earlier.
   Allocations are managed in the  _create  and  _destroy  functions.
 Also new for 0.22.1 is the recommendation to use  ts_  functions for allocations, to allow consumers to override the default allocator:
-  
- #include  " tree_sitter/alloc.h " 
- 
- void  * tree_sitter_sdjot_external_scanner_create ( )  { 
-   Scanner  * s  =  ( Scanner  * ) ts_malloc ( sizeof ( Scanner ) ) ; 
- 
+
+ #include  " tree_sitter/alloc.h "
+
+ void  * tree_sitter_sdjot_external_scanner_create ( )  {
+   Scanner  * s  =  ( Scanner  * ) ts_malloc ( sizeof ( Scanner ) ) ;
+
   //  This is how you create an empty array
 
-   s -> open_blocks  =  ts_malloc ( sizeof ( Array ( Block  * ) ) ) ; 
-  array_init ( s -> open_blocks ) ; 
- 
-  return  s ; 
- } 
- 
- void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
+   s -> open_blocks  =  ts_malloc ( sizeof ( Array ( Block  * ) ) ) ;
+  array_init ( s -> open_blocks ) ;
+
+  return  s ;
+ }
+
+ void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
   //  I haven't shown the allocation of the blocks yet,
 
   //  but keep in mind that `array_delete` does not deallocate any memory
 
   //  you store in the array itself.
 
-  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  { 
+  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  {
   //  I use `array_get` even though you can index the contents directly.
 
-  ts_free ( array_get ( s -> open_blocks ,  i ) ) ; 
-  } 
- 
+  ts_free ( array_get ( s -> open_blocks ,  i ) ) ;
+  }
+
   //  The array is a growable one, `array_delete` ensures that the
 
   //  memory is deleted.
 
-  array_delete ( s -> open_blocks ) ; 
- 
-  ts_free ( s ) ; 
- } 
+  array_delete ( s -> open_blocks ) ;
+
+  ts_free ( s ) ;
+ }
 
 
   I allocate the blocks in a  push_block  helper:
-  
- static  void  push_block ( Scanner  * s ,  BlockType  type ,  uint8_t  level )  { 
-   Block  * b  =  ts_malloc ( sizeof ( Block ) ) ; 
-   b -> type  =  type ; 
-   b -> level  =  level ; 
- 
+
+ static  void  push_block ( Scanner  * s ,  BlockType  type ,  uint8_t  level )  {
+   Block  * b  =  ts_malloc ( sizeof ( Block ) ) ;
+   b -> type  =  type ;
+   b -> level  =  level ;
+
   //  Grows the stack automatically.
 
-  array_push ( s -> open_blocks ,  b ) ; 
- } 
+  array_push ( s -> open_blocks ,  b ) ;
+ }
 
 
   You also need to define the serialize functions.
 These store and retrieve the managed state, to allow tree-sitter to backtrack.
-  
- unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload , 
-  char  * buffer )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
-  unsigned  size  =  0 ; 
-  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  { 
-     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ; 
-     buffer [ size + + ]  =  ( char ) b -> type ; 
-     buffer [ size + + ]  =  ( char ) b -> level ; 
-  } 
-  return  size ; 
- } 
- 
- void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer , 
-  unsigned  length )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
-  array_init ( s -> open_blocks ) ; 
-  size_t  size  =  0 ; 
-  while  ( size  <  length )  { 
-     BlockType type  =  ( BlockType ) buffer [ size + + ] ; 
-  uint8_t  level  =  ( uint8_t ) buffer [ size + + ] ; 
-  push_block ( s ,  type ,  level ) ; 
-  } 
- } 
+
+ unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload ,
+  char  * buffer )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+  unsigned  size  =  0 ;
+  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  {
+     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ;
+     buffer [ size + + ]  =  ( char ) b -> type ;
+     buffer [ size + + ]  =  ( char ) b -> level ;
+  }
+  return  size ;
+ }
+
+ void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer ,
+  unsigned  length )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+  array_init ( s -> open_blocks ) ;
+  size_t  size  =  0 ;
+  while  ( size  <  length )  {
+     BlockType type  =  ( BlockType ) buffer [ size + + ] ;
+  uint8_t  level  =  ( uint8_t ) buffer [ size + + ] ;
+  push_block ( s ,  type ,  level ) ;
+  }
+ }
 
 
   And that’s the (initial) state management taken care of!
@@ -12124,124 +12124,124 @@ Try  valgrind .
   Of course, we haven’t used our state yet.
 Let’s change that.
   First, let’s add the  parse_div  entry point to our scan function:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
   //  Paragraph needs to be closed before we try to close divs.
 
-  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  { 
-  return  true ; 
-  } 
- 
+  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  {
+  return  true ;
+  }
+
   //  Check `valid_symbols` inside `parse_div` because of multiple valid symbols.
 
-  if  ( parse_div ( s ,  lexer ,  valid_symbols ) )  { 
-  return  true ; 
-  } 
- 
-  return  false ; 
- } 
+  if  ( parse_div ( s ,  lexer ,  valid_symbols ) )  {
+  return  true ;
+  }
+
+  return  false ;
+ }
 
 
   Because advancing the lexer is primitive, and we cannot “go back a char”, it’s important to only advance it if we really need to.
 Therefore we always need to check  valid_symbols  before we continue:
-  
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
-  if  ( ! valid_symbols [ DIV_MARKER_BEGIN ]  &&  ! valid_symbols [ DIV_MARKER_END ] )  { 
-  return  false ; 
-  } 
- 
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
+  if  ( ! valid_symbols [ DIV_MARKER_BEGIN ]  &&  ! valid_symbols [ DIV_MARKER_END ] )  {
+  return  false ;
+  }
+
   //  ...
 
- } 
+ }
 
 
   Next we’ll need to consume all colons we’re at, and only continue if we see at least three:
-  
- static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  { 
-  uint8_t  count  =  0 ; 
-  while  ( lexer -> lookahead  ==  c )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  + + count ; 
-  } 
-  return  count ; 
- } 
- 
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
+
+ static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  {
+  uint8_t  count  =  0 ;
+  while  ( lexer -> lookahead  ==  c )  {
+     lexer -> advance ( lexer ,  false ) ;
+  + + count ;
+  }
+  return  count ;
+ }
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
   //  ...
 
- 
-  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ; 
-  if  ( colons  <  3 )  { 
-  return  false ; 
-  } 
- 
+
+  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ;
+  if  ( colons  <  3 )  {
+  return  false ;
+  }
+
   //  ...
 
- } 
+ }
 
 
   Opening a new div is simple; we push the block and register the number of colons:
-  
- push_block ( s ,  DIV ,  colons ) ; 
- lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
- return  true ; 
+
+ push_block ( s ,  DIV ,  colons ) ;
+ lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+ return  true ;
 
 
   But to the decide if we should open or close a div, we need a way to search through the stack.
 This function does that, while also returning how many blocks deep into the stack we found the div (which we’ll use shortly):
-  
+
  //  How many blocks from the top of the stack can we find a matching block?
 
  //  If it's directly on the top, returns 1.
 
  //  If it cannot be found, returns 0.
 
- static  size_t  number_of_blocks_from_top ( Scanner  * s ,  BlockType  type , 
-  uint8_t  level )  { 
-  for  ( int  i  =  s -> open_blocks -> size  -  1 ;  i  >=  0 ;  - - i )  { 
-     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ; 
-  if  ( b -> type  ==  type  &&  b -> level  ==  level )  { 
-  return  s -> open_blocks -> size  -  i ; 
-  } 
-  } 
-  return  0 ; 
- } 
- 
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
+ static  size_t  number_of_blocks_from_top ( Scanner  * s ,  BlockType  type ,
+  uint8_t  level )  {
+  for  ( int  i  =  s -> open_blocks -> size  -  1 ;  i  >=  0 ;  - - i )  {
+     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ;
+  if  ( b -> type  ==  type  &&  b -> level  ==  level )  {
+  return  s -> open_blocks -> size  -  i ;
+  }
+  }
+  return  0 ;
+ }
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
   //  ...
 
- 
-  size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ; 
- 
+
+  size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ;
+
   //  We could check if either DIV_MARKER_BEGIN or DIV_MARKER_END are valid here,
 
   //  but as the grammar is set up they're both always valid at the same time.
 
-  if  ( from_top  >  0 )  { 
+  if  ( from_top  >  0 )  {
   //  Close the current div, and all blocks above.
 
-  }  else  { 
+  }  else  {
   //  No matching div to close, let's open one.
 
-     lexer -> mark_end ( lexer ) ; 
-  push_block ( s ,  DIV ,  colons ) ; 
-     lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
-  return  true ; 
-  } 
- } 
+     lexer -> mark_end ( lexer ) ;
+  push_block ( s ,  DIV ,  colons ) ;
+     lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+  return  true ;
+  }
+ }
 
 
   But we have a problem: when we want to close the div, we want to be able to output multiple tokens.
   For example, with this type of input:
-  
- ::: 
- ::::: 
- ::::::: 
- text 
-  ::: 
+
+ :::
+ :::::
+ :::::::
+ text
+  :::
 
 
   We’ll have a stack of 3 divs when we see the closing  :::  marker:
@@ -12257,152 +12257,152 @@ This function does that, while also returning how many blocks deep into the stac
 But the scanner can only output a single token at a time.
   The way I solved this is by introducing more state to the Scanner.
 Specifically, I introduced a  blocks_to_close  variable that we’ll use to output  BLOCK_CLOSE , and some variables to output (and consume) the  DIV_MARKER_END .
-  
- typedef  struct  { 
-  Array ( Block  * )  *  open_blocks ; 
- 
+
+ typedef  struct  {
+  Array ( Block  * )  *  open_blocks ;
+
   //  How many BLOCK_CLOSE we should output right now?
 
-  uint8_t  blocks_to_close ; 
- 
+  uint8_t  blocks_to_close ;
+
   //  Delayed output of a token.
 
-   TokenType delayed_token ; 
+   TokenType delayed_token ;
   //  Allows us to consume the width of a delayed token.
 
-  uint8_t  delayed_token_width ; 
- }  Scanner ; 
+  uint8_t  delayed_token_width ;
+ }  Scanner ;
 
 
   We need to remember to update the create and serialize functions too.
   Serialize:
-  
- buffer [ size + + ]  =  ( char ) s -> blocks_to_close ; 
- buffer [ size + + ]  =  ( char ) s -> delayed_token ; 
- buffer [ size + + ]  =  ( char ) s -> delayed_token_width ; 
+
+ buffer [ size + + ]  =  ( char ) s -> blocks_to_close ;
+ buffer [ size + + ]  =  ( char ) s -> delayed_token ;
+ buffer [ size + + ]  =  ( char ) s -> delayed_token_width ;
 
 
   Deserialize:
-  
- s -> blocks_to_close  =  ( uint8_t ) buffer [ size + + ] ; 
- s -> delayed_token  =  ( TokenType ) buffer [ size + + ] ; 
- s -> delayed_token_width  =  ( uint8_t ) buffer [ size + + ] ; 
+
+ s -> blocks_to_close  =  ( uint8_t ) buffer [ size + + ] ;
+ s -> delayed_token  =  ( TokenType ) buffer [ size + + ] ;
+ s -> delayed_token_width  =  ( uint8_t ) buffer [ size + + ] ;
 
 
   We’ll use  IGNORED  as the unused token, so we’ll need to reset it when we create the scanner:
-  
- s -> blocks_to_close  =  0 ; 
- s -> delayed_token  =  IGNORED ; 
+
+ s -> blocks_to_close  =  0 ;
+ s -> delayed_token  =  IGNORED ;
 
 
   Now when we scan we should first check  blocks_to_close  and then  delayed_token , before we scan other things:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
-  if  ( valid_symbols [ BLOCK_CLOSE ]  &&  handle_blocks_to_close ( s ,  lexer ) )  { 
-  return  true ; 
-  } 
- 
-  if  ( output_delayed_token ( s ,  lexer ,  valid_symbols ) )  { 
-  return  true ; 
-  } 
- 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
+  if  ( valid_symbols [ BLOCK_CLOSE ]  &&  handle_blocks_to_close ( s ,  lexer ) )  {
+  return  true ;
+  }
+
+  if  ( output_delayed_token ( s ,  lexer ,  valid_symbols ) )  {
+  return  true ;
+  }
+
   //  Scan the other stuff
 
- } 
+ }
 
 
   When we see  blocks_to_close > 0 , we should output a  BLOCK_CLOSE  and remove the top block (with some sanity checks for good measure):
-  
- static  void  remove_block ( Scanner  * s )  { 
-  if  ( s -> open_blocks -> size  >  0 )  { 
-  ts_free ( array_pop ( s -> open_blocks ) ) ; 
-  if  ( s -> blocks_to_close  >  0 )  { 
-  - - s -> blocks_to_close ; 
-  } 
-  } 
- } 
- 
- static  bool  handle_blocks_to_close ( Scanner  * s ,  TSLexer  * lexer )  { 
-  if  ( s -> open_blocks -> size  ==  0 )  { 
-  return  false ; 
-  } 
- 
+
+ static  void  remove_block ( Scanner  * s )  {
+  if  ( s -> open_blocks -> size  >  0 )  {
+  ts_free ( array_pop ( s -> open_blocks ) ) ;
+  if  ( s -> blocks_to_close  >  0 )  {
+  - - s -> blocks_to_close ;
+  }
+  }
+ }
+
+ static  bool  handle_blocks_to_close ( Scanner  * s ,  TSLexer  * lexer )  {
+  if  ( s -> open_blocks -> size  ==  0 )  {
+  return  false ;
+  }
+
   //  If we reach eof with open blocks, we should close them all.
 
-  if  ( lexer -> eof ( lexer )  ||  s -> blocks_to_close  >  0 )  { 
-     lexer -> result_symbol  =  BLOCK_CLOSE ; 
-  remove_block ( s ) ; 
-  return  true ; 
-  } 
-  return  false ; 
- } 
+  if  ( lexer -> eof ( lexer )  ||  s -> blocks_to_close  >  0 )  {
+     lexer -> result_symbol  =  BLOCK_CLOSE ;
+  remove_block ( s ) ;
+  return  true ;
+  }
+  return  false ;
+ }
 
 
   With this we can output multiple  BLOCK_CLOSE , and now to handle delayed tokens:
-  
- static  bool  output_delayed_token ( Scanner  * s ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-  if  ( s -> delayed_token  ==  IGNORED  ||  ! valid_symbols [ s -> delayed_token ] )  { 
-  return  false ; 
-  } 
- 
-   lexer -> result_symbol  =  s -> delayed_token ; 
-   s -> delayed_token  =  IGNORED ; 
+
+ static  bool  output_delayed_token ( Scanner  * s ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+  if  ( s -> delayed_token  ==  IGNORED  ||  ! valid_symbols [ s -> delayed_token ] )  {
+  return  false ;
+  }
+
+   lexer -> result_symbol  =  s -> delayed_token ;
+   s -> delayed_token  =  IGNORED ;
   //  With `delayed_token_width` we can consume the ending `:::`, for example.
 
-  while  ( s -> delayed_token_width - - )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  } 
-   lexer -> mark_end ( lexer ) ; 
-  return  true ; 
- } 
+  while  ( s -> delayed_token_width - - )  {
+     lexer -> advance ( lexer ,  false ) ;
+  }
+   lexer -> mark_end ( lexer ) ;
+  return  true ;
+ }
 
 
   Another way to design this is to have a stack of delayed tokens and then just pop that.
 It’s certainly more powerful, I just happened to choose this way when I was playing around with it because it’s more explicit and it felt a little easier to follow what was happening.
   Either way, we can now implement the div end handling. In  parse_div :
-  
- size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ; 
- 
- if  ( from_top  >  0 )  { 
+
+ size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ;
+
+ if  ( from_top  >  0 )  {
   //  Found a div we should close.
 
-  close_blocks_with_final_token ( s ,  lexer ,  from_top ,  DIV_MARKER_END ,  colons ) ; 
-  return  true ; 
- }  else  { 
-   lexer -> mark_end ( lexer ) ; 
-  push_block ( s ,  DIV ,  colons ) ; 
-   lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
-  return  true ; 
- } 
+  close_blocks_with_final_token ( s ,  lexer ,  from_top ,  DIV_MARKER_END ,  colons ) ;
+  return  true ;
+ }  else  {
+   lexer -> mark_end ( lexer ) ;
+  push_block ( s ,  DIV ,  colons ) ;
+   lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+  return  true ;
+ }
 
 
   close_blocks_with_final_token  is a general helper that sets up the number of blocks to close and the final token:
-  
- static  void  close_blocks_with_final_token ( Scanner  * s ,  TSLexer  * lexer , 
-  size_t  count ,  TokenType  final , 
-  uint8_t  final_token_width )  { 
-  remove_block ( s ) ; 
-   s -> blocks_to_close  =  s -> blocks_to_close  +  count  -  1 ; 
-   lexer -> result_symbol  =  BLOCK_CLOSE ; 
-   s -> delayed_token  =  final ; 
-   s -> delayed_token_width  =  final_token_width ; 
- } 
+
+ static  void  close_blocks_with_final_token ( Scanner  * s ,  TSLexer  * lexer ,
+  size_t  count ,  TokenType  final ,
+  uint8_t  final_token_width )  {
+  remove_block ( s ) ;
+   s -> blocks_to_close  =  s -> blocks_to_close  +  count  -  1 ;
+   lexer -> result_symbol  =  BLOCK_CLOSE ;
+   s -> delayed_token  =  final ;
+   s -> delayed_token_width  =  final_token_width ;
+ }
 
 
   Now we can finally try to close divs:
-  
- ::::: 
- ::: 
- ::::::: 
- Divception 
-  ::: 
+
+ :::::
+ :::
+ :::::::
+ Divception
+  :::
 
 
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [6, 0]
@@ -12429,7 +12429,7 @@ It’s certainly more powerful, I just happened to choose this way when I was pl
   While I’m jumping to a working implementation directly in this post, when I first did this that was of course not the case.
 I found the  -d  argument useful to see what characters are consumed and what token is output in each step.
   Here’s a part of the output (when scanning the final  ::: ), with some comments to point out some interesting things:
-  
+
  $  tree-sitter  parse example-file -d
 
  ...
@@ -12498,13 +12498,13 @@ I’ve found that a deliberate process, where I look at a single character at a 
   Our grammar works pretty well, but there are issues you might want to fix.
 One issue, that took much longer to figure out than I care to admit, is adding a fallback to text when a markup rule doesn’t match.
   A simple example for our grammar is a single underscore in a paragraph:
-  
- a_b 
-  
+
+ a_b
+
 
 
   I’d assume this would produce a paragraph with text, but instead we get an error:
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [2, 0]
@@ -12517,49 +12517,49 @@ One issue, that took much longer to figure out than I care to admit, is adding a
 But for some reason, it doesn’t trigger for us.
   Let’s take a look.
 These are the relevant lines from the grammar:
-  
- _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ) ) , 
- emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
- _text :  ( _ )  = >  / [ ^ \n ] /  , 
+
+ _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ) ) ,
+ emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
+ _text :  ( _ )  = >  / [ ^ \n ] /  ,
 
 
-  When we try to match a  _  then the grammar can match either  emphasis  or  _text  because  _  matches both 
- " _ "  and 
+  When we try to match a  _  then the grammar can match either  emphasis  or  _text  because  _  matches both
+ " _ "  and
  / [ ^ \n ] /  .
 The issue seems to be that Tree-sitter doesn’t recognize this as a conflict.
   If we instead add a fallback with a  _  string then Tree-sitter will treat it as a conflict:
-  
- _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ,  $ . _fallback ) ) , 
- emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
+
+ _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ,  $ . _fallback ) ) ,
+ emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
  //  prec.dynamic() is used during conflict resolution to choose which
 
  //  branch to choose if multiple succeed.
 
- _fallback :  ( _ )  = >  prec . dynamic ( - 100 ,  " _ " ) , 
- _text :  ( _ )  = >  / [ ^ \n ] /  , 
+ _fallback :  ( _ )  = >  prec . dynamic ( - 100 ,  " _ " ) ,
+ _text :  ( _ )  = >  / [ ^ \n ] /  ,
 
 
   And when we call  tree-sitter generate  we’re made aware of the conflict:
-  
+
  $  tree-sitter  generate
 
  Unresolved conflict for symbol sequence:
 
- 
+
    '_'  •  '_'  …
 
- 
+
  Possible interpretations:
 
- 
+
    1:  (_fallback  '_')  •  '_'  …
 
    2:  (emphasis  '_'  •  _inline  '_')  (precedence: 0, associativity: Left)
 
- 
+
  Possible resolutions:
 
- 
+
    1:  Specify a higher precedence in `emphasis` than in the other rules.
 
    2:  Specify a higher precedence in `_fallback` than in the other rules.
@@ -12571,8 +12571,8 @@ The issue seems to be that Tree-sitter doesn’t recognize this as a conflict.
 
 
   What we want to do is mark them as a conflict that’s supposed to exist in the grammar using the  conflicts  field:
-  
- conflicts :  ( $ )  = >  [ [ $ . emphasis ,  $ . _fallback ] ] , 
+
+ conflicts :  ( $ )  = >  [ [ $ . emphasis ,  $ . _fallback ] ] ,
 
 
   And now we can parse paragraphs containing only a single  _  without errors.
@@ -12592,24 +12592,24 @@ Tree-sitter has a built-in test harness for this purpose.
 
  multiline _paragraph_
 
- 
+
  :::
 
  This is a paragraph inside a div
 
  :::
 
- 
+
  ```gleam
 
  let x = 2;
 
  ```
 
- 
+
  -------------------------------------------------------------------------------
 
- 
+
  (document
 
    (paragraph (emphasis))
@@ -12652,25 +12652,25 @@ Let’s end the post by seeing some things we can use it for.
   Syntax highlighting is made using queries from the  highlights.scm  file.
 It’s common to have it placed in the  src  directory in the same repository as the grammar, but it’s not required.
   Here’s an example  src/highlights.scm  file that highlights the different elements of our markup:
-  
- ( div_marker )  @ punctuation.delimiter 
- ( code_block_marker )  @ punctuation.delimiter 
- 
- ( emphasis  "_"  @ punctuation.delimiter )  @ markup.italic 
- ( language )  @ tag.attribute 
- 
- ( code_block )  @ markup.raw 
- ( paragraph )  @ markup 
+
+ ( div_marker )  @ punctuation.delimiter
+ ( code_block_marker )  @ punctuation.delimiter
+
+ ( emphasis  "_"  @ punctuation.delimiter )  @ markup.italic
+ ( language )  @ tag.attribute
+
+ ( code_block )  @ markup.raw
+ ( paragraph )  @ markup
 
 
   What colors to choose is a bit arbitrary, these works well enough I suppose.
   See the  documentation  for more details on how the queries and highlighting works.
   Language injection
   One big question I had when starting writing my grammar was how to mix multiple parsers in the same document, to for example highlight code blocks using the specified language:
-  
- ``` gleam 
- let  x  =  2 ; 
- ``` 
+
+ ``` gleam
+ let  x  =  2 ;
+ ```
 
 
   Turns out, this is quite straightforward.
@@ -12688,17 +12688,17 @@ It’s common to have it placed in the  src  directory in the same repository as
 
 
   Which we’ll use in  src/injections.scm  to specify that we want to parse  (code)  using the grammar specified in  (language) :
-  
- ( code_block 
-  ( language )  @ injection.language 
-  ( code )  @ injection.content ) 
+
+ ( code_block
+  ( language )  @ injection.language
+  ( code )  @ injection.content )
 
 
   When we’ll embed the grammar into a program with highlighting support, it will delegate the text inside the code block to the injected language.
   Using our grammar with Neovim
    I typically install Tree-sitter grammars in Neovim using  :TSInstall  provided by  nvim-treesitter .
 But you can  install local Tree-sitter grammars  as well:
-  
+
  local  parser_config  =  require ( " nvim-treesitter.parsers " ).get_parser_configs()
 
  parser_config.sdjot  =  {
@@ -12728,18 +12728,18 @@ But you can  install local Tree-sitter grammars  as well:
 
 
   Just make sure you have a  "tree-sitter"  section in the grammar’s  package.json :
-  
- " tree-sitter " :  [ 
-  { 
-  " scope " :  " source.sdjot " , 
-  " file-types " :  [ 
-  " sdj " 
-  ] , 
-  " injection-regex " :  " sdjot " , 
-  " highlights " :  [ 
-  " queries/highlights.scm " 
-  ] 
-  } 
+
+ " tree-sitter " :  [
+  {
+  " scope " :  " source.sdjot " ,
+  " file-types " :  [
+  " sdj "
+  ] ,
+  " injection-regex " :  " sdjot " ,
+  " highlights " :  [
+  " queries/highlights.scm "
+  ]
+  }
  ] ,
 
 
@@ -12747,7 +12747,7 @@ But you can  install local Tree-sitter grammars  as well:
   With this you can do  :TSInstall sjdot  and  :TSUpdate sdjot  when you make changes.
   :TSInstall  doesn’t install queries automatically though.
 What I did was symlink the queries directory into Neovims config directory:
-  
+
  ln  -s ~/code/tree-sitter-sdjot/queries ~/.config/nvim/queries/sdjot
 
 
@@ -12759,8 +12759,8 @@ It might be good to check out  :help treesitter-highlight-groups  if you want to
   I mentioned  nvim-treesitter-textobjects  as a good example of why Tree-sitter is about more than syntax highlighting.
   To make use of our grammar we can add some capture groups to  src/textobjects.scm .
 For example we can register our code blocks as “functions”:
-  
- ( code_block  ( code )  @ function.inner )  @ function.outer 
+
+ ( code_block  ( code )  @ function.inner )  @ function.outer
 
 
   The objects are arbitrary, but  @function  is one of the standard objects so I guess it might make sense.
@@ -12775,10 +12775,10 @@ Such as this blog!
   I’ve been wanting to add Tree-sitter powered highlighting to my blog for a while, and now I have an excuse to do just that.
   This blog is a static site generator written in Rust, and  tree-sitter-highlight  looks like a suitable library to try.
 Let’s add it to our  Cargo.toml :
-  
- [ dependencies ] 
- tree-sitter-highlight  =  "^0.20.0" 
- tree-sitter-sdjot  =  {  git  =  "https://github.com/treeman/tree-sitter-sdjot.git"  } 
+
+ [ dependencies ]
+ tree-sitter-highlight  =  "^0.20.0"
+ tree-sitter-sdjot  =  {  git  =  "https://github.com/treeman/tree-sitter-sdjot.git"  }
 
 
   I use a slightly older version because some other grammars I want depend on the older version, and it’s a big pain but they all need to use a matching version.
@@ -12786,116 +12786,116 @@ Bleh.
   According to the docs  we first need to setup a  HighlightConfiguration .
 I used  lazy_static!  to create a global map with configurations to be used by any parallel rendering on the blog.
 It’s not the most beautiful code I’ve written, but it gets the job done:
-  
+
  //  All highlights needs to be listed explicitly.
 
- static  HIGHLIGHT_NAMES :  & [ & str ]  =  & [ 
+ static  HIGHLIGHT_NAMES :  & [ & str ]  =  & [
   //  I have +100 entries here, this is for sdjot.
 
-  " markup " , 
-  " markup.italic " , 
-  " markup.raw " , 
-  " punctuation.delimiter " , 
-  " tag.attribute " , 
- ] ; 
- 
- lazy_static!  { 
-  static  ref  CONFIGS :  HashMap < String, HighlightConfiguration >  =  init_configurations ( ) ; 
- } 
- 
- fn  init_configurations ( )  ->  HashMap < String, HighlightConfiguration >  { 
-  [ 
+  " markup " ,
+  " markup.italic " ,
+  " markup.raw " ,
+  " punctuation.delimiter " ,
+  " tag.attribute " ,
+ ] ;
+
+ lazy_static!  {
+  static  ref  CONFIGS :  HashMap < String, HighlightConfiguration >  =  init_configurations ( ) ;
+ }
+
+ fn  init_configurations ( )  ->  HashMap < String, HighlightConfiguration >  {
+  [
   //  I have more languages here
 
-  ( 
-  " sdjot " , 
-  HighlightConfiguration :: new ( 
-  tree_sitter_sdjot :: language ( ) , 
-  tree_sitter_sdjot :: HIGHLIGHTS_QUERY , 
-  tree_sitter_sdjot :: INJECTIONS_QUERY , 
-  " " , 
-  ) 
-             . unwrap ( ) , 
-  ) , 
-  ] 
-     . into_iter ( ) 
-     . map ( | ( name ,  mut  config ) |  { 
-         config. configure ( & HIGHLIGHT_NAMES ) ; 
-  ( name. to_string ( ) ,  config ) 
-  } ) 
-     . collect ( ) 
- } 
+  (
+  " sdjot " ,
+  HighlightConfiguration :: new (
+  tree_sitter_sdjot :: language ( ) ,
+  tree_sitter_sdjot :: HIGHLIGHTS_QUERY ,
+  tree_sitter_sdjot :: INJECTIONS_QUERY ,
+  " " ,
+  )
+             . unwrap ( ) ,
+  ) ,
+  ]
+     . into_iter ( )
+     . map ( | ( name ,  mut  config ) |  {
+         config. configure ( & HIGHLIGHT_NAMES ) ;
+  ( name. to_string ( ) ,  config )
+  } )
+     . collect ( )
+ }
 
 
   Notice how all highlight names we’re interested in have to be explicitly specified.
 This is a big pain, especially if you’re going to include many larger grammars.
   The names can be filtered for with  ripgrep  with something like this:
-  
- rg  "@[ \w .]+"  -INo --trim highlights.scm  |  sort  |  uniq 
+
+ rg  "@[ \w .]+"  -INo --trim highlights.scm  |  sort  |  uniq
 
 
   I already have syntax highlighting via  syntect , so I wrap the highlighters in their own types:
-  
- enum  HighlighterType <'a>  { 
-     Syntect ( SyntectHighlighter < 'a > ) , 
-     Treesitter ( TreesitterHighlighter < 'a > ) , 
- } 
- 
- pub  struct  TreesitterHighlighter < 'a >  { 
+
+ enum  HighlighterType <'a>  {
+     Syntect ( SyntectHighlighter < 'a > ) ,
+     Treesitter ( TreesitterHighlighter < 'a > ) ,
+ }
+
+ pub  struct  TreesitterHighlighter < 'a >  {
   config :  & 'a  HighlightConfiguration,
 
- } 
- 
- impl < 'a >  TreesitterHighlighter < 'a >  { 
-  pub  fn  find ( lang_id :  & str )  ->  Option < Self >  { 
-  CONFIGS . get ( lang_id ) . map ( | config |  Self  {  config  } ) 
-  } 
- } 
+ }
+
+ impl < 'a >  TreesitterHighlighter < 'a >  {
+  pub  fn  find ( lang_id :  & str )  ->  Option < Self >  {
+  CONFIGS . get ( lang_id ) . map ( | config |  Self  {  config  } )
+  }
+ }
 
 
   The interesting part is of course the  highlight  method, that takes a string of code and applies syntax highlighting on it:
-  
- impl < 'a >  TreesitterHighlighter < 'a >  { 
-  pub  fn  highlight ( & self ,  code :  & str )  ->  Result < String >  { 
-  let  mut  highlighter  =  Highlighter :: new ( ) ; 
- 
-  let  highlights  =  highlighter. highlight ( self .config ,  code. as_bytes ( ) ,  None ,  | lang |  { 
+
+ impl < 'a >  TreesitterHighlighter < 'a >  {
+  pub  fn  highlight ( & self ,  code :  & str )  ->  Result < String >  {
+  let  mut  highlighter  =  Highlighter :: new ( ) ;
+
+  let  highlights  =  highlighter. highlight ( self .config ,  code. as_bytes ( ) ,  None ,  | lang |  {
   //  This callback handles language injection
 
   //  and should return a `HighlightConfiguration`.
 
-  let  res  =  CONFIGS . get ( lang ) ; 
-  if  ! res. is_some ( )  { 
-  warn! ( " Couldn't find treesitter grammar for `{lang}` to inject " ) ; 
-  } 
+  let  res  =  CONFIGS . get ( lang ) ;
+  if  ! res. is_some ( )  {
+  warn! ( " Couldn't find treesitter grammar for `{lang}` to inject " ) ;
+  }
              res
 
-  } ) ? ; 
- 
-  let  mut  renderer  =  HtmlRenderer :: new ( ) ; 
-         renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
+  } ) ? ;
+
+  let  mut  renderer  =  HtmlRenderer :: new ( ) ;
+         renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
   //  This should return a `&'a [u8]` with the same lifetime as `code`.
 
-  } ) ? ; 
-  let  res  =  renderer. lines ( ) . join ( " " ) ; 
-  Ok ( res ) 
-  } 
- } 
+  } ) ? ;
+  let  res  =  renderer. lines ( ) . join ( " " ) ;
+  Ok ( res )
+  }
+ }
 
 
   I want to point out the API in  HtmlRenderer , where we stumble upon a very annoying problem:
 what should we return from the callback, and how should we do that?
   What the callback does is inject the return value into the  span  element, like this:
-  
- < span  CALLBACK_RESULT  > highlight </ span > 
+
+ < span  CALLBACK_RESULT  > highlight </ span >
 
 
-  So we’d like to return something like 
+  So we’d like to return something like
  " class= \" markup italic \" " , using  attr  which is only a  usize  into  HIGHLIGHT_NAMES :
-  
- renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
-  format! ( r # "class=" {} " "# ,  HIGHLIGHT_NAMES [ attr. 0 ] . replace ( " . " ,  "  " ) ) . as_bytes ( ) 
- } ) ? ; 
+
+ renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
+  format! ( r # "class=" {} " "# ,  HIGHLIGHT_NAMES [ attr. 0 ] . replace ( " . " ,  "  " ) ) . as_bytes ( )
+ } ) ? ;
 
 
   Because we return a slice of bytes into a string that’s created inside the callback, of course the Rust compiler will be mad at us:
@@ -12926,29 +12926,29 @@ This surely isn’t a very unique requirement, to wrap the attribute in a  class
 One way to solve this is to store the generated strings in a container that outlives the callback, and reference that (yeah it’s a  Fn  callback, but there are hacky ways around that).
 Or you could, you know, write your own  HtmlRenderer .
   Or you could pre-generate the classes and reference them:
-  
- lazy_static!  { 
-  static  ref  CLASSES :  Vec < String >  =  HIGHLIGHT_NAMES 
-         . iter ( ) 
-         . map ( | name |  format! ( r # "class=" {} " "# ,  name. replace ( " . " ,  "  " ) ) ) 
-         . collect ( ) ; 
- } 
+
+ lazy_static!  {
+  static  ref  CLASSES :  Vec < String >  =  HIGHLIGHT_NAMES
+         . iter ( )
+         . map ( | name |  format! ( r # "class=" {} " "# ,  name. replace ( " . " ,  "  " ) ) )
+         . collect ( ) ;
+ }
 
 
-  
- renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
-  CLASSES [ attr. 0 ] . as_bytes ( ) 
- } ) ? ; 
+
+ renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
+  CLASSES [ attr. 0 ] . as_bytes ( )
+ } ) ? ;
 
 
   This should be the fastest option and is the one I currently use…
 But speed isn’t a bottleneck here and I’d rather just return a  String  with  format!  and be done with it.
-  
+
  With this I’ve integrated Tree-sitter based syntax highlighting into my blog!
-  
- ``` 
- With great powers comes great responsibility 
- ``` 
+
+ ```
+ With great powers comes great responsibility
+ ```
 
 
   I could start moving the various languages over from Syntect to Tree-sitter…
@@ -12956,15 +12956,15 @@ But I won’t.
   There are some issues:
    You need a compatible version of  tree-sitter  for all grammars.
   The more grammars you add the more painful the upgrade path becomes.
- 
+
    Syntect gives better highlighting for some languages (like Rust and C).
   Neovim has their own highlighter implementation and has made tweaks to certain grammars and gets much nicer highlighting than I got out of the box.
   Integrating that code into my site generator is probably possible, but not a rabbit hole I want to jump into right now.
- 
+
    The highlighter library feels a bit immature.
   A newer version broke the highlight groups I got from some grammars and I don’t see any support for how to add a language specific class to  span  for injected languages.
- 
- 
+
+
  Because of these issues I’ll evaluate what highlighter to use on a case-by-case basis, with Syntect as the default choice.
   Within edge-cases lies complexity
   If you’ve read the post to the end, congratulations.
@@ -12978,18 +12978,18 @@ This is especially true if you need to juggle multiple conflicting rules in the 
   (Even in our simple grammar there are bugs, but I don’t care to fix them.)
    The night is dark and full of terrors
 
-       Published:  
-  March 19, 
-   2024 
-   Revised:  
-  January 29,  2025 
- 
- in 
- 1e17751 
-  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter 
-   Previous    Next  
- 
-  
+       Published:
+  March 19,
+   2024
+   Revised:
+  January 29,  2025
+
+ in
+ 1e17751
+  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter
+   Previous    Next
+
+
 </tool.toolu_018RrdvKpeeiQ1jFPpaBJv8H>
 
 ## ASSISTANT:
@@ -13058,10 +13058,10 @@ void tree_sitter_greger_external_scanner_destroy(void *payload) {
 unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
   Scanner *scanner = (Scanner *)payload;
   unsigned size = 0;
-  
+
   // Write number of tool IDs
   buffer[size++] = (char)scanner->tool_ids->size;
-  
+
   // Write each tool ID
   for (size_t i = 0; i < scanner->tool_ids->size; ++i) {
     char *tool_id = *array_get(scanner->tool_ids, i);
@@ -13070,24 +13070,24 @@ unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buff
     memcpy(buffer + size, tool_id, id_len);
     size += id_len;
   }
-  
+
   return size;
 }
 
 void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
   Scanner *scanner = (Scanner *)payload;
-  
+
   // Clear existing data
   for (size_t i = 0; i < scanner->tool_ids->size; ++i) {
     ts_free(*array_get(scanner->tool_ids, i));
   }
   array_init(scanner->tool_ids);
-  
+
   if (length == 0) return;
-  
+
   unsigned pos = 0;
   size_t count = (size_t)buffer[pos++];
-  
+
   for (size_t i = 0; i < count && pos < length; ++i) {
     size_t id_len = (size_t)buffer[pos++];
     if (pos + id_len <= length) {
@@ -13104,91 +13104,91 @@ static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
   // Expect "<tool."
   if (lexer->lookahead != '<') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 't') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'l') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '.') return false;
   advance(lexer);
-  
+
   // Read the tool ID
   char tool_id[64];
   int id_len = 0;
-  while (lexer->lookahead && 
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
          id_len < 63) {
     tool_id[id_len++] = lexer->lookahead;
     advance(lexer);
   }
-  
+
   if (lexer->lookahead != '>') return false;
   advance(lexer);
-  
+
   tool_id[id_len] = '\0';
-  
+
   // Store the tool ID on the stack
   char *stored_id = ts_malloc(id_len + 1);
   strcpy(stored_id, tool_id);
   array_push(scanner->tool_ids, stored_id);
-  
+
   lexer->result_symbol = TOOL_BLOCK_START;
   return true;
 }
 
 static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
   if (scanner->tool_ids->size == 0) return false;
-  
+
   // Get the current tool ID from the top of the stack
   char *current_id = *array_get(scanner->tool_ids, scanner->tool_ids->size - 1);
-  
+
   // Expect "</tool."
   if (lexer->lookahead != '<') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '/') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 't') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'o') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != 'l') return false;
   advance(lexer);
-  
+
   if (lexer->lookahead != '.') return false;
   advance(lexer);
-  
+
   // Read the tool ID and check if it matches
   char end_id[64];
   int id_len = 0;
-  while (lexer->lookahead && 
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
          id_len < 63) {
     end_id[id_len++] = lexer->lookahead;
     advance(lexer);
   }
-  
+
   if (lexer->lookahead != '>') return false;
   advance(lexer);
-  
+
   end_id[id_len] = '\0';
-  
+
   // Only match if the IDs are the same
   if (strcmp(current_id, end_id) == 0) {
     // Pop the tool ID from the stack
@@ -13196,122 +13196,122 @@ static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
     lexer->result_symbol = TOOL_BLOCK_END;
     return true;
   }
-  
+
   return false;
 }
 
 static bool is_closing_tag(TSLexer *lexer, Scanner *scanner) {
   if (scanner->tool_ids->size == 0) return false;
   if (lexer->lookahead != '<') return false;
-  
+
   // Save lexer state for lookahead
   TSLexer saved_lexer = *lexer;
-  
+
   advance(lexer);
   if (lexer->lookahead != '/') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
   if (lexer->lookahead != 't') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
   if (lexer->lookahead != 'o') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
   if (lexer->lookahead != 'o') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
   if (lexer->lookahead != 'l') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
   if (lexer->lookahead != '.') {
     *lexer = saved_lexer;
     return false;
   }
-  
+
   advance(lexer);
-  
+
   // Check if the ID matches our current tool ID
   char *current_id = *array_get(scanner->tool_ids, scanner->tool_ids->size - 1);
-  
+
   char end_id[64];
   int id_len = 0;
-  while (lexer->lookahead && 
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' || 
-          lexer->lookahead == '-' || lexer->lookahead == '.') && 
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
          id_len < 63) {
     end_id[id_len++] = lexer->lookahead;
     advance(lexer);
   }
-  
+
   end_id[id_len] = '\0';
-  
+
   bool matches = (lexer->lookahead == '>' && strcmp(current_id, end_id) == 0);
-  
+
   // Restore lexer state
   *lexer = saved_lexer;
-  
+
   return matches;
 }
 
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   if (scanner->tool_ids->size == 0) return false;
-  
+
   bool has_content = false;
-  
+
   // Scan everything until we find the matching closing tag
   while (lexer->lookahead) {
     if (is_closing_tag(lexer, scanner)) {
       break;
     }
-    
+
     advance(lexer);
     has_content = true;
   }
-  
+
   if (has_content) {
     lexer->result_symbol = TOOL_BLOCK_CONTENT;
     return true;
   }
-  
+
   return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
-  
+
   // Handle tool block content first (don't skip whitespace for content)
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->tool_ids->size > 0) {
     return scan_tool_content(lexer, scanner);
   }
-  
+
   // Skip whitespace for start/end tokens
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_START]) {
     return scan_tool_start(lexer, scanner);
   }
-  
+
   if (valid_symbols[TOOL_BLOCK_END] && scanner->tool_ids->size > 0) {
     return scan_tool_end(lexer, scanner);
   }
-  
+
   return false;
 }
 </tool.toolu_01T1GwEK2VyQ4WuW4Vebz2iB>
@@ -13322,4 +13322,376 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Complete rewrite of scanner based on tree-sitter best practices
 </tool.toolu_01T1GwEK2VyQ4WuW4Vebz2iB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01T1GwEK2VyQ4WuW4Vebz2iB -->
+## TOOL RESULT:
+
+ID: toolu_01T1GwEK2VyQ4WuW4Vebz2iB
+
+<tool.toolu_01T1GwEK2VyQ4WuW4Vebz2iB>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/src/scanner.c with 7364 characters. Successfully staged 2 file(s) and committed with message: Complete rewrite of scanner based on tree-sitter best practices
+</tool.toolu_01T1GwEK2VyQ4WuW4Vebz2iB>
+
+## ASSISTANT:
+
+Now let's test the improved scanner:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JhbKaWKSTjdyeE8cQ4goXz
+
+### command
+
+<tool.toolu_01JhbKaWKSTjdyeE8cQ4goXz>
+tree-sitter generate
+</tool.toolu_01JhbKaWKSTjdyeE8cQ4goXz>
+
+## TOOL RESULT:
+
+ID: toolu_01JhbKaWKSTjdyeE8cQ4goXz
+
+<tool.toolu_01JhbKaWKSTjdyeE8cQ4goXz>
+Command executed successfully:
+(no output)
+</tool.toolu_01JhbKaWKSTjdyeE8cQ4goXz>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E1wstgcnJd1iSXWfMYyjtx
+
+### command
+
+<tool.toolu_01E1wstgcnJd1iSXWfMYyjtx>
+tree-sitter parse test_simple_tool.greger
+</tool.toolu_01E1wstgcnJd1iSXWfMYyjtx>
+
+## TOOL RESULT:
+
+ID: toolu_01E1wstgcnJd1iSXWfMYyjtx
+
+<tool.toolu_01E1wstgcnJd1iSXWfMYyjtx>
+Command failed with exit code 1: (source_file [0, 0] - [9, 16]
+  (section [0, 0] - [5, 0]
+    (tool_use_section [0, 0] - [5, 0]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [5, 0]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 15]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 12]))
+        (newline [4, 0] - [5, 0]))))
+  (ERROR [5, 0] - [9, 16]
+    (identifier [5, 4] - [5, 9])
+    (tool_block_start [7, 0] - [7, 15])
+    (tool_block_content [7, 15] - [9, 15])))
+test_simple_tool.greger	Parse:    1.04 ms       97 bytes/ms	(ERROR [5, 0] - [9, 16])
+
+</tool.toolu_01E1wstgcnJd1iSXWfMYyjtx>
+
+## ASSISTANT:
+
+Good progress! I can see the `tool_block_content` is now working, but there's still a structural issue. The problem is that the tool parameter isn't being recognized as part of the tool_use_content. Let me check what our simple tool file looks like:
+
+## USER:
+
+I notice you're using a stack of nested tool IDs. That's unnecessary. Anything inside a top level `<tool.ID>` (inside the right tool use or tool response section) should treat anything inside it as unparsed content and return it verbatim, even if it contains nested `<tool.ID>` blocks (those should be returned unparsed, verbatim)
+
+## ASSISTANT:
+
+You're absolutely right! I was overcomplicating it. Each tool block should just consume everything until it finds its own matching closing tag, regardless of any nested tool-like content. Let me simplify the scanner:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01FZVbxCYs8U5k3ijLDa4gcr
+
+### file-path
+
+<tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+./src/scanner.c
+</tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+
+### contents
+
+<tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+#include <tree_sitter/parser.h>
+#include <tree_sitter/alloc.h>
+#include <string.h>
+#include <wctype.h>
+
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+};
+
+typedef struct {
+  char current_tool_id[64];
+  bool in_tool_block;
+} Scanner;
+
+static void advance(TSLexer *lexer) {
+  lexer->advance(lexer, false);
+}
+
+static void skip(TSLexer *lexer) {
+  lexer->advance(lexer, true);
+}
+
+void *tree_sitter_greger_external_scanner_create() {
+  Scanner *scanner = ts_malloc(sizeof(Scanner));
+  scanner->current_tool_id[0] = '\0';
+  scanner->in_tool_block = false;
+  return scanner;
+}
+
+void tree_sitter_greger_external_scanner_destroy(void *payload) {
+  Scanner *scanner = (Scanner *)payload;
+  ts_free(scanner);
+}
+
+unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
+  Scanner *scanner = (Scanner *)payload;
+  size_t id_len = strlen(scanner->current_tool_id);
+
+  buffer[0] = scanner->in_tool_block ? 1 : 0;
+  buffer[1] = (char)id_len;
+  memcpy(buffer + 2, scanner->current_tool_id, id_len);
+
+  return 2 + id_len;
+}
+
+void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
+  Scanner *scanner = (Scanner *)payload;
+
+  if (length < 2) {
+    scanner->in_tool_block = false;
+    scanner->current_tool_id[0] = '\0';
+    return;
+  }
+
+  scanner->in_tool_block = buffer[0] == 1;
+  size_t id_len = (size_t)buffer[1];
+
+  if (length >= 2 + id_len && id_len < 63) {
+    memcpy(scanner->current_tool_id, buffer + 2, id_len);
+    scanner->current_tool_id[id_len] = '\0';
+  } else {
+    scanner->current_tool_id[0] = '\0';
+  }
+}
+
+static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
+  // Expect "<tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    scanner->current_tool_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  scanner->current_tool_id[id_len] = '\0';
+  scanner->in_tool_block = true;
+
+  lexer->result_symbol = TOOL_BLOCK_START;
+  return true;
+}
+
+static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Expect "</tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '/') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID and check if it matches our current one
+  char end_id[64];
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  end_id[id_len] = '\0';
+
+  // Only match if the IDs are the same as our current tool ID
+  if (strcmp(scanner->current_tool_id, end_id) == 0) {
+    scanner->in_tool_block = false;
+    scanner->current_tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_BLOCK_END;
+    return true;
+  }
+
+  return false;
+}
+
+static bool is_matching_closing_tag(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+  if (lexer->lookahead != '<') return false;
+
+  // Save lexer state for lookahead
+  TSLexer saved_lexer = *lexer;
+
+  advance(lexer);
+  if (lexer->lookahead != '/') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+  if (lexer->lookahead != 't') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+  if (lexer->lookahead != 'o') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+  if (lexer->lookahead != 'o') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+  if (lexer->lookahead != 'l') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+  if (lexer->lookahead != '.') {
+    *lexer = saved_lexer;
+    return false;
+  }
+
+  advance(lexer);
+
+  // Check if the ID matches our current tool ID
+  char end_id[64];
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  end_id[id_len] = '\0';
+
+  bool matches = (lexer->lookahead == '>' && strcmp(scanner->current_tool_id, end_id) == 0);
+
+  // Restore lexer state
+  *lexer = saved_lexer;
+
+  return matches;
+}
+
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Consume everything until we find our matching closing tag
+  while (lexer->lookahead) {
+    if (is_matching_closing_tag(lexer, scanner)) {
+      break;
+    }
+
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+
+  // Handle tool block content first (don't skip whitespace for content)
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  // Skip whitespace for start/end tokens
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    return scan_tool_start(lexer, scanner);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    return scan_tool_end(lexer, scanner);
+  }
+
+  return false;
+}
+</tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+
+### git-commit-message
+
+<tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+Simplify scanner to use single tool ID instead of stack
+</tool.toolu_01FZVbxCYs8U5k3ijLDa4gcr>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FZVbxCYs8U5k3ijLDa4gcr -->
