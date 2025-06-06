@@ -9896,4 +9896,162 @@ Hello, how are you?
 Add debug file for simple case
 </tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0122M7tSDCDZZySk4cWUhVUC -->
+## TOOL RESULT:
+
+ID: toolu_0122M7tSDCDZZySk4cWUhVUC
+
+<tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug_simple.greger with 29 characters. Successfully staged 2 file(s) and committed with message: Add debug file for simple case
+</tool.toolu_0122M7tSDCDZZySk4cWUhVUC>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AQ7qxopzkxvLs6sNFXbdKy
+
+### command
+
+<tool.toolu_01AQ7qxopzkxvLs6sNFXbdKy>
+tree-sitter parse debug_simple.greger
+</tool.toolu_01AQ7qxopzkxvLs6sNFXbdKy>
+
+## TOOL RESULT:
+
+ID: toolu_01AQ7qxopzkxvLs6sNFXbdKy
+
+<tool.toolu_01AQ7qxopzkxvLs6sNFXbdKy>
+Command failed with exit code 1: (source_file [0, 0] - [2, 19]
+  (section [0, 0] - [2, 19]
+    (user_section [0, 0] - [2, 19]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [2, 19]
+        (newline [1, 0] - [2, 0])
+        (text_line [2, 0] - [2, 19])))))
+debug_simple.greger	Parse:    0.58 ms	    50 bytes/ms	(MISSING "\n" [2, 19] - [2, 19])
+
+</tool.toolu_01AQ7qxopzkxvLs6sNFXbdKy>
+
+## ASSISTANT:
+
+I see! The problem is that the tree-sitter is parsing the content correctly (`text_line [2, 0] - [2, 19]` should be "Hello, how are you?"), but the elisp extraction function is not getting the content properly.
+
+The issue is likely in how `greger-tree-sitter--extract-content` works. Let me see what content it's actually extracting by checking the greger-tree-sitter.el file more carefully.
+
+Looking at the tree, I can see the `section_content` contains a `newline` and a `text_line`. The `greger-tree-sitter--extract-content` function should extract the text from this, but it's returning empty.
+
+Let me check the extraction logic. Looking at the first failing test, I suspect the issue is that the content extraction is getting the raw text but there might be an issue with whitespace trimming that's making it empty.
+
+The main issue seems to be that `treesit-node-text` on the `section_content` node is including the newline and potentially returning something that becomes empty after trimming.
+
+Let me fix the order issue first since that's clearer. I need to find where the messages are being reversed. Looking at the test output, I can see that messages are in reverse order. The issue is in the `greger-tree-sitter--process-sections-with-citations` function where it uses `push` to add messages.
+
+The function correctly uses `(nreverse messages)` at the end, but there might be an issue with how the individual sections are being processed. Let me look at the greger-tree-sitter.el more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QPxKDEDRw33aci1yaAUWY7
+
+### path
+
+<tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+greger-tree-sitter.el
+</tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+
+### start-line
+
+<tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+685
+</tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+
+### end-line
+
+<tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+715
+</tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+
+## TOOL RESULT:
+
+ID: toolu_01QPxKDEDRw33aci1yaAUWY7
+
+<tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Extract all section nodes from ROOT-NODE in document order.
+
+INPUT:
+  ROOT-NODE - Tree-sitter root node (typically a \"source_file\" node)
+
+PROCESSING:
+  Iterates through all direct children of the root node and collects
+  those with type \"section\". Maintains document order.
+
+OUTPUT:
+  Returns a list of section nodes in the order they appear in the document.
+  Each section corresponds to a ## HEADER: block in the greger format.
+
+INTERNAL FUNCTION: Similar to greger-tree-sitter--get-sections but used
+in the main parsing flow for multi-section documents."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process conversation SECTIONS and handle citation associations.
+
+INPUT:
+  SECTIONS - List of tree-sitter section nodes representing the parsed conversation
+
+PROCESSING:
+</tool.toolu_01QPxKDEDRw33aci1yaAUWY7>
+
+## ASSISTANT:
+
+I found the issue! In `greger-tree-sitter--get-all-sections`, it's using `push` to add sections and then `nreverse`, but this means the sections themselves are being collected in reverse order initially. However, that should be corrected by the `nreverse`. Let me check if there's another issue.
+
+Let me run a single simple test to debug this step by step:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_018JQ9BovPoxWTvCGtcHhZPD
+
+### file-path
+
+<tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+debug-test.el
+</tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+
+### contents
+
+<tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!"))
+  (message "Input text:")
+  (message "%s" test-text)
+  (message "\nParsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nFirst message role: %s" (alist-get 'role (car result)))
+    (message "First message content: %S" (alist-get 'content (car result)))))
+</tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+
+### git-commit-message
+
+<tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+Add debug test to check parsing step by step
+</tool.toolu_018JQ9BovPoxWTvCGtcHhZPD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018JQ9BovPoxWTvCGtcHhZPD -->
