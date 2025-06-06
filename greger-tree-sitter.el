@@ -332,20 +332,29 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
       (let ((child-count (treesit-node-child-count entry-node)))
         (dotimes (i child-count)
           (let ((child (treesit-node-child entry-node i)))
+            (message "Processing child %d: type=%s" i (treesit-node-type child))
             (cond
              ((equal (treesit-node-type child) "citation_title")
               (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (message "Found citation_title, title-node: %S" title-node)
                 (when title-node
-                  (setq title (string-trim (treesit-node-text title-node))))))
+                  (setq title (string-trim (treesit-node-text title-node)))
+                  (message "Set title to: %S" title))))
              ((equal (treesit-node-type child) "citation_text")
               (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (message "Found citation_text, text-node: %S" text-node)
                 (when text-node
-                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+                  (setq cited-text (string-trim (treesit-node-text text-node)))
+                  (message "Set cited-text to: %S" cited-text))))
              ((equal (treesit-node-type child) "citation_index")
               (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (message "Found citation_index, index-node: %S" index-node)
                 (when index-node
-                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+                  (setq encrypted-index (string-trim (treesit-node-text index-node)))
+                  (message "Set encrypted-index to: %S" encrypted-index))))))))
 
+      (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S"
+               url title cited-text encrypted-index)
       `((type . "web_search_result_location")
         (url . ,url)
         (title . ,title)

@@ -7445,4 +7445,112 @@ greger-tree-sitter.el
 Keep citation extraction function as is for now
 </tool.toolu_01UiayCqPUie8sif58qE9kVz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UiayCqPUie8sif58qE9kVz -->
+## TOOL RESULT:
+
+ID: toolu_01UiayCqPUie8sif58qE9kVz
+
+<tool.toolu_01UiayCqPUie8sif58qE9kVz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Keep citation extraction function as is for now
+</tool.toolu_01UiayCqPUie8sif58qE9kVz>
+
+## ASSISTANT:
+
+Let me add some debugging to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QqLUPeqndNy4z5SPpimK5E
+
+### file-path
+
+<tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+greger-tree-sitter.el
+</tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+
+### original-content
+
+<tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+
+### new-content
+
+<tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (message "Processing child %d: type=%s" i (treesit-node-type child))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (message "Found citation_title, title-node: %S" title-node)
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node)))
+                  (message "Set title to: %S" title))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (message "Found citation_text, text-node: %S" text-node)
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node)))
+                  (message "Set cited-text to: %S" cited-text))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (message "Found citation_index, index-node: %S" index-node)
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node)))
+                  (message "Set encrypted-index to: %S" encrypted-index))))))))
+
+      (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S" 
+               url title cited-text encrypted-index)
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+
+### git-commit-message
+
+<tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+Add debugging to citation extraction
+</tool.toolu_01QqLUPeqndNy4z5SPpimK5E>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QqLUPeqndNy4z5SPpimK5E -->
