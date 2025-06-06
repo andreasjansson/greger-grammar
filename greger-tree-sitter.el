@@ -351,9 +351,17 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
              ((equal (treesit-node-type child) "citation_text")
               (let ((text-node (treesit-node-child-by-field-name child "text")))
                 (message "Found citation_text, text-node: %S" text-node)
-                (when text-node
-                  (setq cited-text (string-trim (treesit-node-text text-node)))
-                  (message "Set cited-text to: %S" cited-text))))
+                (message "Children count: %d" (treesit-node-child-count child))
+                (message "Full citation_text text: %S" (treesit-node-text child))
+                (if text-node
+                    (progn
+                      (setq cited-text (string-trim (treesit-node-text text-node)))
+                      (message "Set cited-text to: %S" cited-text))
+                  ;; Fallback: try to extract from the text after "Cited text:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
+                      (setq cited-text (string-trim (match-string 1 text)))
+                      (message "Extracted cited-text from text: %S" cited-text))))))
              ((equal (treesit-node-type child) "citation_index")
               (let ((index-node (treesit-node-child-by-field-name child "index")))
                 (message "Found citation_index, index-node: %S" index-node)
