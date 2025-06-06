@@ -10184,4 +10184,68 @@ grammar.js
 Add citation context parsing to grammar
 </tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019uHa9gBRtLwHZ7HhkRnnb5 -->
+## TOOL RESULT:
+
+ID: toolu_019uHa9gBRtLwHZ7HhkRnnb5
+
+<tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citation context parsing to grammar
+</tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+
+## ASSISTANT:
+
+Actually, this approach is getting too complex for the grammar. Let me take a different approach - I'll handle the citation parsing logic in the Elisp layer where I have more control over the state. The tree-sitter grammar can parse the basic structure, and then I'll post-process it to handle the citation associations.
+
+Let me revert that change and instead focus on improving the Elisp logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TxXxTzDBoEUK274uoFxMVt
+
+### file-path
+
+<tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+grammar.js
+</tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+
+### original-content
+
+<tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    // Special citation contexts
+    text_with_citations: $ => seq(
+      repeat(choice(
+        $.text_before_cite,
+        $.cite_tag,
+        $.text_after_cite
+      )),
+      $.citations_section
+    ),
+
+    text_before_cite: $ => /[^<\n#]+/,
+    text_after_cite: $ => /[^#\n]+/,
+</tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+
+### new-content
+
+<tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+
+### git-commit-message
+
+<tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+Revert complex citation grammar changes
+</tool.toolu_01TxXxTzDBoEUK274uoFxMVt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TxXxTzDBoEUK274uoFxMVt -->

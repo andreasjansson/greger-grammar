@@ -155,19 +155,6 @@ module.exports = grammar({
       "</cite>"
     ),
 
-    // Special citation contexts
-    text_with_citations: $ => seq(
-      repeat(choice(
-        $.text_before_cite,
-        $.cite_tag,
-        $.text_after_cite
-      )),
-      $.citations_section
-    ),
-
-    text_before_cite: $ => /[^<\n#]+/,
-    text_after_cite: $ => /[^#\n]+/,
-
     html_comment: $ => seq(
       "<!--",
       repeat(choice(/[^-\n]+/, seq("-", /[^-\n]/), "\n")),
