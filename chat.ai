@@ -9933,3 +9933,255 @@ The grammar now correctly parses and converts to the expected dialog format:
 The tree-sitter grammar is now ready to be integrated into greger.el as a replacement for the regex-based parser! It provides the same output format while offering better performance, error handling, and maintainability.
 
 ## USER:
+
+Now try to reproduce the "citations-basic" test from test-greger-parser.el.
+
+This is very complex actually.
+
+I want you to parse it such that, if `<cite>...</cite>` is encountered anywhere on a line, it starts parsing a new "citations_with_text" object. The content inside `<cite>...</cite>` should be a "text" field on the "citations_with_text" object. After `</cite>` you should assume just whitespace until you encounter `## CITATIONS:` at the start of a new line. Then you should parse those citations and place each entry as an "entry" field on the "citations_with_text" object.
+
+If you encounter a `## CITATIONS:` when you're not parsing "citations_with_text", make a new "citations_without_text" object and add the "entry"s to that.
+
+That should make the markdown to dialog conversion fairly easy, since cited text should be part of the same content entry as the citations (look at the expected value on line 725 of test-greger-parser.el
+
+## ASSISTANT:
+
+Looking at the "citations-basic" test case, I can see this is indeed very complex. Let me examine the expected structure first:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016TvS5VVZjB7cC3xzsHEXBg
+
+### path
+
+<tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+
+### start-line
+
+<tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+720
+</tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+
+### end-line
+
+<tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+750
+</tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+
+## TOOL RESULT:
+
+ID: toolu_016TvS5VVZjB7cC3xzsHEXBg
+
+<tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+                                                                    (title . "Claude Shannon - Wikipedia")
+                                                                    (encrypted_content . "EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...")
+                                                                    (page_age . "April 30, 2025")))))
+                                                      ((type . "text")
+                                                       (text . "Based on the search results, "))
+                                                      ((type . "text")
+                                                       (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+                                                       (citations . (((type . "web_search_result_location")
+                                                                      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                                      (title . "Claude Shannon - Wikipedia")
+                                                                      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+                                                                      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))))))))
+
+    ;; Citations immediately after tool result
+    (:name "citations-after-tool-result"
+           :markdown "## USER:
+
+What's the current weather?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_456
+
+### query
+
+<tool.srvtoolu_456>
+current weather
+</tool.srvtoolu_456>
+
+## SERVER TOOL RESULT:
+</tool.toolu_016TvS5VVZjB7cC3xzsHEXBg>
+
+## ASSISTANT:
+
+Let me look at the actual citations-basic test case:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013B18nsJPGedN5Fhi97hW79
+
+### path
+
+<tool.toolu_013B18nsJPGedN5Fhi97hW79>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_013B18nsJPGedN5Fhi97hW79>
+
+### start-line
+
+<tool.toolu_013B18nsJPGedN5Fhi97hW79>
+650
+</tool.toolu_013B18nsJPGedN5Fhi97hW79>
+
+### end-line
+
+<tool.toolu_013B18nsJPGedN5Fhi97hW79>
+725
+</tool.toolu_013B18nsJPGedN5Fhi97hW79>
+
+## TOOL RESULT:
+
+ID: toolu_013B18nsJPGedN5Fhi97hW79
+
+<tool.toolu_013B18nsJPGedN5Fhi97hW79>
+Sunny and warm today
+</tool.srvtoolu_456>
+
+## ASSISTANT:
+
+It looks like it's sunny and warm today!"
+           :dialog (((role . "user") (content . "What's the weather like?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_456")
+                                                       (name . "web_search")
+                                                       (input . ((query . "weather"))))
+                                                      ((type . "server_tool_result")
+                                                       (tool_use_id . "srvtoolu_456")
+                                                       (content . "Sunny and warm today"))
+                                                      ((type . "text")
+                                                       (text . "It looks like it's sunny and warm today!")))))))
+
+    ;; Citation parsing test cases
+    (:name "citations-basic"
+           :markdown "## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## ASSISTANT:
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."
+           :dialog (((role . "user") (content . "When was Claude Shannon born?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                                       (name . "web_search")
+                                                       (input . ((query . "claude shannon birth date"))))
+                                                      ((type . "web_search_tool_result")
+                                                       (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                                       (content . (((type . "web_search_result")
+                                                                    (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                                    (title . "Claude Shannon - Wikipedia")
+                                                                    (encrypted_content . "EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...")
+                                                                    (page_age . "April 30, 2025")))))
+                                                      ((type . "text")
+                                                       (text . "Based on the search results, "))
+                                                      ((type . "text")
+</tool.toolu_013B18nsJPGedN5Fhi97hW79>
+
+## ASSISTANT:
+
+Now I understand the structure! The key insight is that when `<cite>` is encountered, it should create a text block with citations attached. Let me analyze the expected output:
+
+1. The `<cite>...</cite>` content becomes a `text` type with a `citations` field
+2. The citations that follow in the `## CITATIONS:` section get attached to that text
+3. Regular text without citations becomes separate `text` blocks
+
+This is very complex because it requires:
+1. Stateful parsing that remembers when we're in a citation context
+2. Lookahead to find the corresponding citations section
+3. Association between cited text and citation entries
+
+Let me implement this step by step. First, I need to modify the grammar to handle this citation parsing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019uHa9gBRtLwHZ7HhkRnnb5
+
+### file-path
+
+<tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+grammar.js
+</tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+
+### original-content
+
+<tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+
+### new-content
+
+<tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    // Special citation contexts
+    text_with_citations: $ => seq(
+      repeat(choice(
+        $.text_before_cite,
+        $.cite_tag,
+        $.text_after_cite
+      )),
+      $.citations_section
+    ),
+
+    text_before_cite: $ => /[^<\n#]+/,
+    text_after_cite: $ => /[^#\n]+/,
+</tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+
+### git-commit-message
+
+<tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+Add citation context parsing to grammar
+</tool.toolu_019uHa9gBRtLwHZ7HhkRnnb5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019uHa9gBRtLwHZ7HhkRnnb5 -->
