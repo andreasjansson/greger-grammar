@@ -9284,4 +9284,135 @@ greger-tree-sitter.el
 Add cl-lib requirement for cl-subseq and cl-position-if
 </tool.toolu_018WRMdnPrHW2Z4EKQd5oic4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018WRMdnPrHW2Z4EKQd5oic4 -->
+## TOOL RESULT:
+
+ID: toolu_018WRMdnPrHW2Z4EKQd5oic4
+
+<tool.toolu_018WRMdnPrHW2Z4EKQd5oic4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add cl-lib requirement for cl-subseq and cl-position-if
+</tool.toolu_018WRMdnPrHW2Z4EKQd5oic4>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GojdxzBk64iQqTRcvSHz5o
+
+### command
+
+<tool.toolu_01GojdxzBk64iQqTRcvSHz5o>
+emacs --batch -l test-citations.el
+</tool.toolu_01GojdxzBk64iQqTRcvSHz5o>
+
+## TOOL RESULT:
+
+ID: toolu_01GojdxzBk64iQqTRcvSHz5o
+
+<tool.toolu_01GojdxzBk64iQqTRcvSHz5o>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+Parsed result: (((role . "assistant") (content ((type . "web_search_tool_result") (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (content . "[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]")) ((type . "server_tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date"))) ((type . "text") (text . "Based on the search results,")) ((type . "text") (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title . "Claude Shannon - Wikipedia") (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...") (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01GojdxzBk64iQqTRcvSHz5o>
+
+## ASSISTANT:
+
+The ordering is still wrong. Let me check why. I think the issue is that the sections are being processed in the order they appear in the source file, and I need to fix the logic. Let me debug this differently by understanding the section order:
+
+The order is:
+1. user_section
+2. server_tool_use_section 
+3. server_tool_result_section
+4. assistant_section
+5. citations_section
+
+But I want:
+- server_tool_use first
+- server_tool_result second  
+- text blocks from assistant_section next
+
+The problem is that I'm processing server_tool_result_section before assistant_section. Let me adjust the logic to collect all assistant-related blocks first, then reorder them:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Nj5G7N7q12poMBPL5EW7xH
+
+### file-path
+
+<tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+greger-tree-sitter.el
+</tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+
+### original-content
+
+<tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+;; Assistant-related sections - collect content blocks in the right order
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Server tool result - add to current assistant blocks (but preserve order)
+         ((equal section-type "server_tool_result_section")
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (when (listp content)
+                  ;; Insert server tool result after server tool use if it exists
+                  (let ((server-tool-use-pos
+                         (cl-position-if (lambda (block)
+                                           (equal (alist-get 'type block) "server_tool_use"))
+                                         current-assistant-blocks)))
+                    (if server-tool-use-pos
+                        ;; Insert after server tool use
+                        (setq current-assistant-blocks
+                              (append (cl-subseq current-assistant-blocks 0 (1+ server-tool-use-pos))
+                                      content
+                                      (cl-subseq current-assistant-blocks (1+ server-tool-use-pos))))
+                      ;; No server tool use found, just append
+                      (setq current-assistant-blocks (append current-assistant-blocks content)))))))))
+</tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+
+### new-content
+
+<tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+</tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+
+### git-commit-message
+
+<tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+Simplify assistant section processing and handle ordering later
+</tool.toolu_01Nj5G7N7q12poMBPL5EW7xH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Nj5G7N7q12poMBPL5EW7xH -->
