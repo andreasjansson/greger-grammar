@@ -168,9 +168,19 @@ module.exports = grammar({
       $.include_tag,
       $.cite_tag,
       $.html_comment,
-      $.line,
+      $.line_with_cite_tags,
       $.newline
     ))),
+
+    // Line that can contain cite tags
+    line_with_cite_tags: $ => prec(-2, seq(
+      repeat1(choice(
+        $.cite_tag,
+        /[^#\n<]+/,  // Text that doesn't start special chars
+        /<(?!cite>)/  // < that's not starting a cite tag
+      )),
+      "\n"
+    )),
 
     cite_tag: $ => seq(
       "<cite>",

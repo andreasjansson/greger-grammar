@@ -12149,4 +12149,174 @@ module.exports = grammar({
 Add conflicts section to grammar
 </tool.toolu_01HTzwTXFevoa8qdbuM9DUwg>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HTzwTXFevoa8qdbuM9DUwg -->
+## TOOL RESULT:
+
+ID: toolu_01HTzwTXFevoa8qdbuM9DUwg
+
+<tool.toolu_01HTzwTXFevoa8qdbuM9DUwg>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflicts section to grammar
+</tool.toolu_01HTzwTXFevoa8qdbuM9DUwg>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017C3awFp2TNRG6ysPGeKriz
+
+### command
+
+<tool.toolu_017C3awFp2TNRG6ysPGeKriz>
+tree-sitter generate
+</tool.toolu_017C3awFp2TNRG6ysPGeKriz>
+
+## TOOL RESULT:
+
+ID: toolu_017C3awFp2TNRG6ysPGeKriz
+
+<tool.toolu_017C3awFp2TNRG6ysPGeKriz>
+Command executed successfully:
+(no output)
+</tool.toolu_017C3awFp2TNRG6ysPGeKriz>
+
+## ASSISTANT:
+
+Great! Now let me test if this works with the citations example:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XMd7BZu8WKuFrddEQSTqxz
+
+### command
+
+<tool.toolu_01XMd7BZu8WKuFrddEQSTqxz>
+tree-sitter parse test_citations.greger
+</tool.toolu_01XMd7BZu8WKuFrddEQSTqxz>
+
+## TOOL RESULT:
+
+ID: toolu_01XMd7BZu8WKuFrddEQSTqxz
+
+<tool.toolu_01XMd7BZu8WKuFrddEQSTqxz>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [41, 49]
+    (assistant_section_with_citations [31, 0] - [41, 49]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (line [33, 0] - [34, 0])
+        (newline [34, 0] - [35, 0]))
+      (citations_section [35, 0] - [41, 49]
+        (citations_header [35, 0] - [36, 0])
+        (citations_content [36, 0] - [41, 49]
+          (newline [36, 0] - [37, 0])
+          (citation_entry [37, 0] - [41, 49]
+            url: (url [37, 4] - [37, 48])
+            (citation_title [39, 0] - [40, 0])
+            (citation_text [40, 0] - [41, 0])
+            (citation_index [41, 0] - [41, 49])))))))
+test_citations.greger	Parse:    0.79 ms	  1385 bytes/ms	(MISSING "\n" [41, 49] - [41, 49])
+
+</tool.toolu_01XMd7BZu8WKuFrddEQSTqxz>
+
+## ASSISTANT:
+
+Excellent! It's working! The grammar is now correctly parsing the assistant section with citations as `assistant_section_with_citations`. However, I notice that the cite tags aren't being parsed within the content yet - it's still just showing as a regular line. Let me check why the `content_with_citations` isn't picking up the cite tags.
+
+The issue is that the `line` rule in `content_with_citations` is consuming the entire line including the cite tags. I need to make the cite tag parsing take precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Kh1syLjAeSSKoPj7HRMSHm
+
+### file-path
+
+<tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+grammar.js
+</tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+
+### original-content
+
+<tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+// Content that contains cite tags
+    content_with_citations: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line,
+      $.newline
+    ))),
+</tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+
+### new-content
+
+<tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+// Content that contains cite tags
+    content_with_citations: $ => prec(-1, repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.cite_tag,
+      $.html_comment,
+      $.line_with_cite_tags,
+      $.newline
+    ))),
+
+    // Line that can contain cite tags
+    line_with_cite_tags: $ => prec(-2, seq(
+      repeat1(choice(
+        $.cite_tag,
+        /[^#\n<]+/,  // Text that doesn't start special chars
+        /<(?!cite>)/  // < that's not starting a cite tag
+      )),
+      "\n"
+    )),
+</tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+
+### git-commit-message
+
+<tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+Add line parsing that recognizes cite tags
+</tool.toolu_01Kh1syLjAeSSKoPj7HRMSHm>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Kh1syLjAeSSKoPj7HRMSHm -->
