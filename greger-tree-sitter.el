@@ -83,8 +83,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
   "Extract user message from SECTION-NODE."
   (let* ((user-section-node (treesit-node-child section-node 0))
          (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
-    (message "DEBUG: User section node type: %s" (treesit-node-type user-section-node))
-    (message "DEBUG: Content node: %S" content-node)
+
     `((role . "user")
       (content . ,(if content-node
                       (greger-tree-sitter--extract-content content-node)
