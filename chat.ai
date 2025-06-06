@@ -8289,4 +8289,103 @@ greger-tree-sitter.el
 Add helper function to find child nodes by type
 </tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017ii585Yq5EYj5rt3p7XTU4 -->
+## TOOL RESULT:
+
+ID: toolu_017ii585Yq5EYj5rt3p7XTU4
+
+<tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add helper function to find child nodes by type
+</tool.toolu_017ii585Yq5EYj5rt3p7XTU4>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017e5zCwybXeErUKzV9pwoCp
+
+### command
+
+<tool.toolu_017e5zCwybXeErUKzV9pwoCp>
+emacs --batch -l test-dialog-conversion.el 2>&1 | head -20
+</tool.toolu_017e5zCwybXeErUKzV9pwoCp>
+
+## TOOL RESULT:
+
+ID: toolu_017e5zCwybXeErUKzV9pwoCp
+
+<tool.toolu_017e5zCwybXeErUKzV9pwoCp>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing: simple-user-message ===
+DEBUG: Root node type: section
+DEBUG: Single section
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-30>
+❌ ERROR: (error Selecting deleted buffer)
+
+=== Testing: simple-conversation ===
+DEBUG: Root node type: section
+DEBUG: Single section
+DEBUG: User section node type: user_section
+DEBUG: Content node: #<treesit-node section_content in 10-18>
+❌ ERROR: (error Selecting deleted buffer)
+
+=== Testing: tool-use-simple ===
+DEBUG: Root node type: section
+DEBUG: Single section
+❌ FAIL
+
+</tool.toolu_017e5zCwybXeErUKzV9pwoCp>
+
+## ASSISTANT:
+
+There's an issue with the buffer being deleted. This is because the treesit-node-text function needs the buffer to still be alive. Let me fix this by extracting the text while the buffer is still active:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_014XPZnQeW9RahMkcZgQAk8Z
+
+### file-path
+
+<tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+greger-tree-sitter.el
+</tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+
+### original-content
+
+<tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+(defun greger-tree-sitter-parse (text)
+  "Parse TEXT using tree-sitter and return the dialog structure.
+Returns the same format as `greger-parser-parse-dialog-messages-only'."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((tree (treesit-parse-string text 'greger)))
+      (greger-tree-sitter--extract-dialog tree))))
+</tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+
+### new-content
+
+<tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+(defun greger-tree-sitter-parse (text)
+  "Parse TEXT using tree-sitter and return the dialog structure.
+Returns the same format as `greger-parser-parse-dialog-messages-only'."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+</tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+
+### git-commit-message
+
+<tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+Use parser with buffer context to avoid deleted buffer issues
+</tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014XPZnQeW9RahMkcZgQAk8Z -->

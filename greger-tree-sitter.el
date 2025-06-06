@@ -18,8 +18,8 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
   (with-temp-buffer
     (insert text)
-    (let ((tree (treesit-parse-string text 'greger)))
-      (greger-tree-sitter--extract-dialog tree))))
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
 
 (defun greger-tree-sitter--extract-dialog (tree)
   "Extract dialog messages from the parsed TREE."
