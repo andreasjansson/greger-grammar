@@ -14,6 +14,12 @@ module.exports = grammar({
     /[ \t]/,
   ],
 
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+  ],
+
   rules: {
     source_file: $ => seq(
       optional($.content),

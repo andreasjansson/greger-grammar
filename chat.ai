@@ -8074,4 +8074,65 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Add external scanner for proper tool block ID matching
 </tool.toolu_012eL684XkJEB8bSFbNJ8Nt4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012eL684XkJEB8bSFbNJ8Nt4 -->
+## TOOL RESULT:
+
+ID: toolu_012eL684XkJEB8bSFbNJ8Nt4
+
+<tool.toolu_012eL684XkJEB8bSFbNJ8Nt4>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/src/scanner.c with 5165 characters. Successfully staged 2 file(s) and committed with message: Add external scanner for proper tool block ID matching
+</tool.toolu_012eL684XkJEB8bSFbNJ8Nt4>
+
+## ASSISTANT:
+
+Now I need to update the grammar to use the external scanner:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QBUtkixuGPqFizubPGYEdR
+
+### file-path
+
+<tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+./grammar.js
+</tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+
+### original-content
+
+<tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  rules: {
+</tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+
+### new-content
+
+<tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+  ],
+
+  rules: {
+</tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+
+### git-commit-message
+
+<tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+Add external scanner symbols to grammar
+</tool.toolu_01QBUtkixuGPqFizubPGYEdR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QBUtkixuGPqFizubPGYEdR -->
