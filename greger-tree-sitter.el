@@ -239,20 +239,50 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
              (section-type (greger-tree-sitter--get-section-type section)))
 
         (cond
-         ;; Citations section - check if previous message needs citations
-         ((equal section-type "citations_section")
-          (when (and messages
-                     (greger-tree-sitter--message-has-cite-tags (car messages)))
-            ;; Associate citations with the last message
-            (let ((citations (greger-tree-sitter--extract-citations-section section))
-                  (last-message (car messages)))
-              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
+         ;; User section - flush any pending assistant blocks and add user message
+         ((equal section-type "user_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
 
-         ;; Regular section
-         (t
+         ;; System section - flush any pending assistant blocks and add system message
+         ((equal section-type "system_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message
-              (push message messages))))))
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find the last text block that might have cite tags
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+
+         ;; Tool result section - add as user message
+         ((equal section-type "tool_result_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))))
 
       (setq i (1+ i)))
 

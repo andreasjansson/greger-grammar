@@ -4332,4 +4332,104 @@ greger-tree-sitter.el
 Add logic to flush remaining assistant blocks
 </tool.toolu_01LduUTYbcAD2UgPpCNr2sNJ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LduUTYbcAD2UgPpCNr2sNJ -->
+## TOOL RESULT:
+
+ID: toolu_01LduUTYbcAD2UgPpCNr2sNJ
+
+<tool.toolu_01LduUTYbcAD2UgPpCNr2sNJ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add logic to flush remaining assistant blocks
+</tool.toolu_01LduUTYbcAD2UgPpCNr2sNJ>
+
+
+## ASSISTANT:
+
+Now let me update the section processing logic. Let me replace just the cond part:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017WfaGCauvspNJET72M78zM
+
+### file-path
+
+<tool.toolu_017WfaGCauvspNJET72M78zM>
+greger-tree-sitter.el
+</tool.toolu_017WfaGCauvspNJET72M78zM>
+
+### original-content
+
+<tool.toolu_017WfaGCauvspNJET72M78zM>
+(cond
+         ;; Citations section - check if previous message needs citations
+         ((equal section-type "citations_section")
+          (when (and messages
+                     (greger-tree-sitter--message-has-cite-tags (car messages)))
+            ;; Associate citations with the last message
+            (let ((citations (greger-tree-sitter--extract-citations-section section))
+                  (last-message (car messages)))
+              (setcar messages (greger-tree-sitter--associate-citations last-message citations)))))
+
+         ;; Regular section
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (push message messages)))))
+</tool.toolu_017WfaGCauvspNJET72M78zM>
+
+### new-content
+
+<tool.toolu_017WfaGCauvspNJET72M78zM>
+(cond
+         ;; User section - flush any pending assistant blocks and add user message
+         ((equal section-type "user_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; System section - flush any pending assistant blocks and add system message
+         ((equal section-type "system_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Convert string content to text block
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find the last text block that might have cite tags
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+
+         ;; Tool result section - add as user message
+         ((equal section-type "tool_result_section")
+          (when current-assistant-blocks
+            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages)))))
+</tool.toolu_017WfaGCauvspNJET72M78zM>
+
+### git-commit-message
+
+<tool.toolu_017WfaGCauvspNJET72M78zM>
+Replace section processing logic to group assistant content blocks
+</tool.toolu_017WfaGCauvspNJET72M78zM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017WfaGCauvspNJET72M78zM -->
