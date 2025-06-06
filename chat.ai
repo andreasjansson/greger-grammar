@@ -4335,4 +4335,93 @@ grammar.js
 Add precedence to assistant_section_with_citations
 </tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012aWBtW4Q7rwzW2jTZPchAc -->
+## TOOL RESULT:
+
+ID: toolu_012aWBtW4Q7rwzW2jTZPchAc
+
+<tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to assistant_section_with_citations
+</tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+
+## ASSISTANT:
+
+Let's test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TF5BXiLqrPy3QmnecX1YWV
+
+### command
+
+<tool.toolu_01TF5BXiLqrPy3QmnecX1YWV>
+tree-sitter generate
+</tool.toolu_01TF5BXiLqrPy3QmnecX1YWV>
+
+## TOOL RESULT:
+
+ID: toolu_01TF5BXiLqrPy3QmnecX1YWV
+
+<tool.toolu_01TF5BXiLqrPy3QmnecX1YWV>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      assistant_header  include_tag  •  user_header  …
+    
+    Possible interpretations:
+    
+      1:  assistant_header  (content_repeat1  include_tag)  •  user_header  …
+      2:  assistant_header  (content_with_citations_repeat1  include_tag)  •  user_header  …
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `content_repeat1` than in the other rules.
+      2:  Specify a higher precedence in `content_with_citations_repeat1` than in the other rules.
+      3:  Add a conflict for these rules: `content`, `content_with_citations`
+    
+
+</tool.toolu_01TF5BXiLqrPy3QmnecX1YWV>
+
+## ASSISTANT:
+
+I need to add a conflict for content vs content_with_citations:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012DNwBimaEoPKKFEYbsZLsJ
+
+### file-path
+
+<tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+grammar.js
+</tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+
+### original-content
+
+<tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+  conflicts: $ => [
+    [$.citations_with_text, $.citations_without_text],
+    [$.assistant_section, $.assistant_section_with_citations],
+  ],
+</tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+
+### new-content
+
+<tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+  conflicts: $ => [
+    [$.citations_with_text, $.citations_without_text],
+    [$.assistant_section, $.assistant_section_with_citations],
+    [$.content, $.content_with_citations],
+  ],
+</tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+
+### git-commit-message
+
+<tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+Add conflict for content vs content_with_citations
+</tool.toolu_012DNwBimaEoPKKFEYbsZLsJ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012DNwBimaEoPKKFEYbsZLsJ -->
