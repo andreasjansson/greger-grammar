@@ -360,7 +360,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                       )))))
              ((equal (treesit-node-type child) "citation_index")
               (let ((index-node (treesit-node-child-by-field-name child "index")))
-                (message "Found citation_index, index-node: %S" index-node)
+
                 (if index-node
                     (progn
                       (setq encrypted-index (string-trim (treesit-node-text index-node)))
