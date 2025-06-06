@@ -4432,4 +4432,217 @@ greger-tree-sitter.el
 Replace section processing logic to group assistant content blocks
 </tool.toolu_017WfaGCauvspNJET72M78zM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017WfaGCauvspNJET72M78zM -->
+## TOOL RESULT:
+
+ID: toolu_017WfaGCauvspNJET72M78zM
+
+<tool.toolu_017WfaGCauvspNJET72M78zM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Replace section processing logic to group assistant content blocks
+</tool.toolu_017WfaGCauvspNJET72M78zM>
+
+
+## ASSISTANT:
+
+Now let me run the test to see how we're doing:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BfZ4cGBQxi8aUbMmUS3Phk
+
+### command
+
+<tool.toolu_01BfZ4cGBQxi8aUbMmUS3Phk>
+emacs --batch -l test-citations.el
+</tool.toolu_01BfZ4cGBQxi8aUbMmUS3Phk>
+
+## TOOL RESULT:
+
+ID: toolu_01BfZ4cGBQxi8aUbMmUS3Phk
+
+<tool.toolu_01BfZ4cGBQxi8aUbMmUS3Phk>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+❌ Error: (void-variable current-assistant-blocks)
+
+</tool.toolu_01BfZ4cGBQxi8aUbMmUS3Phk>
+
+## ASSISTANT:
+
+It looks like there's still an issue with the variable scope. Let me check the function structure again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Eo1GtimkrTpMRU4ficr7cC
+
+### path
+
+<tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+greger-tree-sitter.el
+</tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+
+### start-line
+
+<tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+225
+</tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+
+### end-line
+
+<tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+235
+</tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+
+## TOOL RESULT:
+
+ID: toolu_01Eo1GtimkrTpMRU4ficr7cC
+
+<tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process SECTIONS and handle citation associations."
+  (let ((messages '())
+        (current-assistant-blocks '())
+        (i 0))
+</tool.toolu_01Eo1GtimkrTpMRU4ficr7cC>
+
+## ASSISTANT:
+
+The let statement looks correct. Let me check if I need to regenerate the parser:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015u2gaGKy9YERw1sRWFoCqb
+
+### command
+
+<tool.toolu_015u2gaGKy9YERw1sRWFoCqb>
+tree-sitter generate
+</tool.toolu_015u2gaGKy9YERw1sRWFoCqb>
+
+## TOOL RESULT:
+
+ID: toolu_015u2gaGKy9YERw1sRWFoCqb
+
+<tool.toolu_015u2gaGKy9YERw1sRWFoCqb>
+Command executed successfully:
+(no output)
+</tool.toolu_015u2gaGKy9YERw1sRWFoCqb>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015oowgkcdZBhU4WxpSVSezb
+
+### command
+
+<tool.toolu_015oowgkcdZBhU4WxpSVSezb>
+bash build.sh
+</tool.toolu_015oowgkcdZBhU4WxpSVSezb>
+
+## TOOL RESULT:
+
+ID: toolu_015oowgkcdZBhU4WxpSVSezb
+
+<tool.toolu_015oowgkcdZBhU4WxpSVSezb>
+Command executed successfully:
+(no output)
+</tool.toolu_015oowgkcdZBhU4WxpSVSezb>
+
+## ASSISTANT:
+
+Let me try running the test again with a smaller debug version:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DCg67hbS6h7LcEDy76GY7e
+
+### file-path
+
+<tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+test-citations.el
+</tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+
+### original-content
+
+<tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+(defun test-citations-basic ()
+  "Test the citations-basic case."
+  (let ((markdown "## USER:
+
+When was Claude Shannon born?
+
+## ASSISTANT:
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
+
+    (message "\n=== Testing citations-basic ===")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse markdown)))
+          (message "Parsed result: %S" result)
+          (message "✅ Citations test completed")
+          result)
+      (error
+       (message "❌ Error: %s" err)
+       nil))))
+</tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+
+### new-content
+
+<tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+(defun test-citations-basic ()
+  "Test the citations-basic case."
+  (let ((markdown "## USER:
+
+When was Claude Shannon born?
+
+## ASSISTANT:
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
+
+    (message "\n=== Testing citations-basic ===")
+    (condition-case err
+        (progn
+          (message "About to call greger-tree-sitter-parse")
+          (let ((result (greger-tree-sitter-parse markdown)))
+            (message "Parsed result: %S" result)
+            (message "✅ Citations test completed")
+            result))
+      (error
+       (message "❌ Error: %s" (error-message-string err))
+       nil))))
+</tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+
+### git-commit-message
+
+<tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+Add more debugging to test function
+</tool.toolu_01DCg67hbS6h7LcEDy76GY7e>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DCg67hbS6h7LcEDy76GY7e -->

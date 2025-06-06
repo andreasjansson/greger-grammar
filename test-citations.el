@@ -22,12 +22,14 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))
 
     (message "\n=== Testing citations-basic ===")
     (condition-case err
-        (let ((result (greger-tree-sitter-parse markdown)))
-          (message "Parsed result: %S" result)
-          (message "✅ Citations test completed")
-          result)
+        (progn
+          (message "About to call greger-tree-sitter-parse")
+          (let ((result (greger-tree-sitter-parse markdown)))
+            (message "Parsed result: %S" result)
+            (message "✅ Citations test completed")
+            result))
       (error
-       (message "❌ Error: %s" err)
+       (message "❌ Error: %s" (error-message-string err))
        nil))))
 
 ;; Run test
