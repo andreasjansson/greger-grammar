@@ -227,9 +227,7 @@ module.exports = grammar({
 
     tool_result_block: $ => seq(
       $.tool_block_start,
-      "\n",
       field("content", optional($.tool_block_content)),
-      "\n",
       $.tool_block_end
     ),
 
