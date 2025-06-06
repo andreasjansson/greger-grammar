@@ -231,7 +231,29 @@ INTERNAL FUNCTION: Central dispatcher for section extraction."
      (t nil))))
 
 (defun greger-tree-sitter--extract-user-section (section-node)
-  "Extract user message from SECTION-NODE."
+  "Extract user message from a ## USER: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## USER: section
+
+PROCESSING:
+  1. Gets the user_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"user\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## USER:
+
+  Hello, how are you?
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))"
   (let* ((user-section-node (treesit-node-child section-node 0))
          (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
 

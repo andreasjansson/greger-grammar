@@ -5896,4 +5896,79 @@ INTERNAL FUNCTION: Central dispatcher for section extraction."
 Document greger-tree-sitter--extract-section function
 </tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WAMEeyyKnpnP2p2aJGafXN -->
+## TOOL RESULT:
+
+ID: toolu_01WAMEeyyKnpnP2p2aJGafXN
+
+<tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-section function
+</tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QNQWVfnmpX7Cfokftr8nHH
+
+### file-path
+
+<tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+greger-tree-sitter.el
+</tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+
+### original-content
+
+<tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user message from SECTION-NODE."
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+
+### new-content
+
+<tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user message from a ## USER: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## USER: section
+
+PROCESSING:
+  1. Gets the user_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"user\") (content . \"extracted text content\"))
+  
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## USER:
+  
+  Hello, how are you?
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))"
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+</tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+
+### git-commit-message
+
+<tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+Document greger-tree-sitter--extract-user-section function
+</tool.toolu_01QNQWVfnmpX7Cfokftr8nHH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QNQWVfnmpX7Cfokftr8nHH -->
