@@ -98,14 +98,12 @@ module.exports = grammar({
       $.tool_name_line,
       $.tool_id_line,
       $.tool_parameter,
-      $.line,
       $.newline
     )),
 
     tool_result_content: $ => repeat1(choice(
       $.tool_result_id_line,
       $.tool_result_block,
-      $.line,
       $.newline
     )),
 
