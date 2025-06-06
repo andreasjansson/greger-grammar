@@ -228,11 +228,15 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 
   bool has_content = false;
 
-  // Consume everything until we find our matching closing tag
+  // Consume characters one by one until we find our matching closing tag
   while (lexer->lookahead) {
-    if (is_matching_closing_tag(lexer, scanner)) {
-      // Stop here, don't consume the closing tag
-      break;
+    // Check for the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      if (is_matching_closing_tag(lexer, scanner)) {
+        // Stop here, let the closing tag be parsed separately
+        break;
+      }
     }
 
     advance(lexer);

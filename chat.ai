@@ -14182,4 +14182,140 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 Fix tool content scanner to not consume closing tag
 </tool.toolu_01F7huJf2WJw81VaKUU8PQmM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F7huJf2WJw81VaKUU8PQmM -->
+## TOOL RESULT:
+
+ID: toolu_01F7huJf2WJw81VaKUU8PQmM
+
+<tool.toolu_01F7huJf2WJw81VaKUU8PQmM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix tool content scanner to not consume closing tag
+</tool.toolu_01F7huJf2WJw81VaKUU8PQmM>
+
+## ASSISTANT:
+
+Actually, that's already what the code was doing. The real issue might be that the scanner is being called too many times and producing multiple `tool_block_content` tokens when it should produce just one. Let me examine the content more carefully.
+
+Looking at the parse tree, the scanner is producing multiple `tool_block_content` tokens, and the last one spans all the way to the end, which suggests it's consuming the closing tag as content.
+
+The issue might be in the `is_matching_closing_tag` function. Let me add some debugging or fix the logic. Actually, let me check what the content of the test file looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RoPBuYXRbvG18JhJEoesRW
+
+### path
+
+<tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+./test_complex.greger
+</tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+
+### start-line
+
+<tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+11
+</tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+
+### end-line
+
+<tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+15
+</tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+
+## TOOL RESULT:
+
+ID: toolu_01RoPBuYXRbvG18JhJEoesRW
+
+<tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+</tool.toolu_01RoPBuYXRbvG18JhJEoesRW>
+
+## ASSISTANT:
+
+I see the issue now! The content parsing spans to line 24, but the closing tag is on line 13. This suggests the scanner isn't properly recognizing `</tool.toolu_123>` as the closing tag.
+
+Let me check if there's an issue with the ID matching in the `is_matching_closing_tag` function. The problem might be that the scanner state isn't being preserved correctly, or there's a bug in the lookahead logic.
+
+Let me simplify the content scanning approach. Instead of trying to be clever with lookahead, let me make the scanner more explicit about when to stop:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017Q1dRYdJ35BK65tQCmz1yV
+
+### file-path
+
+<tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+./src/scanner.c
+</tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+
+### original-content
+
+<tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Consume everything until we find our matching closing tag
+  while (lexer->lookahead) {
+    if (is_matching_closing_tag(lexer, scanner)) {
+      // Stop here, don't consume the closing tag
+      break;
+    }
+
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+
+### new-content
+
+<tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Consume characters one by one until we find our matching closing tag
+  while (lexer->lookahead) {
+    // Check for the start of a potential closing tag
+    if (lexer->lookahead == '<') {
+      // Look ahead to see if this is our closing tag
+      if (is_matching_closing_tag(lexer, scanner)) {
+        // Stop here, let the closing tag be parsed separately
+        break;
+      }
+    }
+
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+</tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+
+### git-commit-message
+
+<tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+Improve tool content scanning logic
+</tool.toolu_017Q1dRYdJ35BK65tQCmz1yV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017Q1dRYdJ35BK65tQCmz1yV -->
