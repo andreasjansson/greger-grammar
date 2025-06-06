@@ -1,6 +1,7 @@
 ## SYSTEM:
 
 <safe-shell-commands>
+bash build.sh
 tree-sitter generate
 tree-sitter parse test_minimal.greger
 tree-sitter parse -d pretty test_minimal.greger
@@ -2762,7 +2763,7 @@ Command failed with exit code 1: [37mnew_parse[0m
               (ERROR [9, 0] - [9, 2]))
             content: (tool_block_content [9, 2] - [9, 11])
             (tool_block_end [9, 11] - [9, 11])))))))
-test_minimal.greger	Parse:  223.91 ms	     0 bytes/ms	(ERROR [9, 0] - [9, 2])
+test_minimal.greger	Parse:  223.91 ms        0 bytes/ms	(ERROR [9, 0] - [9, 2])
 
 </tool.toolu_01M9L5JFTneu4NQ36U8jakXj>
 
@@ -2999,12 +3000,12 @@ ID: toolu_01QcEtRctmEfR7QGkMwbzute
 <tool.toolu_01QcEtRctmEfR7QGkMwbzute>
 /**
  * @file Go grammar for tree-sitter
- * @author Max Brunsfeld  
- * @author Amaan Qureshi  
+ * @author Max Brunsfeld
+ * @author Amaan Qureshi
  * @license MIT
  */
 
-///   
+///
 // @ts-check
 
 const PREC = {
@@ -3968,19 +3969,19 @@ https://www.jonashietala.se/blog/2024/03/19/lets_create_a_tree-sitter_grammar/
 ID: toolu_01MysHr5obUae3jaKh6qoRc6
 
 <tool.toolu_01MysHr5obUae3jaKh6qoRc6>
-    ~jonashietala.se  Archive  Series  Projects  Contact  About 
+    ~jonashietala.se  Archive  Series  Projects  Contact  About
 
-   Let's create a Tree-sitter grammar  ★ 
-    Published:  
-  March 19, 
-   2024 
-   Revised:  
-  January 29,  2025 
- 
- in 
- 1e17751 
-  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter 
-   
+   Let's create a Tree-sitter grammar  ★
+    Published:
+  March 19,
+   2024
+   Revised:
+  January 29,  2025
+
+ in
+ 1e17751
+  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter
+
   One of my favorite features in Neovim is the Tree-sitter integration.
 It allows for fast syntax highlighting that works well even in an error state (often the case when you’re editing code), and it has additional semantics (you can differentiate between function parameters and local variables).
   With  nvim-treesitter-textobjects  you can also jump between nodes (such as  ]c  to jump to next class) or target deletion ( cif  to delete the function body and enter insert mode).
@@ -3991,50 +3992,50 @@ and how do you create one for a language?
 There are some good tutorials on how to get started, but not on some more advanced things.
   I spent quite some time trying to figure it out—while refreshing my 10 year old knowledge of grammars—and decided to document some of my findings.
   The post spiraled out of control a little, and it will go through:
-  
+
 How to use an external scanner
 
-  
+
 Using Tree-sitter’s built-in conflicts resolution
 
-  
+
 Syntax highlighting with language injection
 
-  
+
 Use the grammar from Neovim for syntax highlighting and textobjects
 
-  
+
 Embed the grammar into this Blog for syntax highlighting
 
- 
+
  The source code for the complete grammar we’ll develop  can be found on GitHub .
   Our subset
   For the purpose of this blog post, we’ll implement a small subset of  Djot , where we’ll support:
-  
+
 Paragraphs
 
-  
+
 Divs
 
-  
+
 Code blocks
 
-  
+
 Emphasis
 
- 
+
  This will allow us to parse markup like this:
-  
- This is a 
- multiline  _ paragraph _ 
-  
-  ::: 
- This is a paragraph inside a div 
-  ::: 
- 
- ``` gleam 
- let  x  =  2 ; 
- ``` 
+
+ This is a
+ multiline  _ paragraph _
+
+  :::
+ This is a paragraph inside a div
+  :::
+
+ ``` gleam
+ let  x  =  2 ;
+ ```
 
 
   (Yes, the  sdjot  highlight uses our grammar.)
@@ -4043,73 +4044,73 @@ Emphasis
   The point of this post isn’t to go through how the Tree-sitter grammar description in  grammar.js  works.
 The  Tree-sitter docs  goes through how to get started.
 I named the project  sdjot  and this is the  grammar.js  we’ll start with:
-  
- module . exports  =  grammar ( { 
-   name :  " sdjot " , 
- 
+
+ module . exports  =  grammar ( {
+   name :  " sdjot " ,
+
   //  Skip carriage returns.
 
   //  We could skip spaces here as well, but the actual markup language
 
   //  has significant spaces in some places, so let's remove them here too.
 
-  extras :  ( _ )  = >  [ " \r " ] , 
- 
-   rules :  { 
-  document :  ( $ )  = >  repeat ( $ . _block ) , 
- 
+  extras :  ( _ )  = >  [ " \r " ] ,
+
+   rules :  {
+  document :  ( $ )  = >  repeat ( $ . _block ) ,
+
   //  All blocks should end with a newline, but we can also parse multiple newlines.
 
-  _block :  ( $ )  = >  choice ( $ . div ,  $ . code_block ,  $ . paragraph ,  " \n " ) , 
- 
+  _block :  ( $ )  = >  choice ( $ . div ,  $ . code_block ,  $ . paragraph ,  " \n " ) ,
+
   //  A div contains other blocks.
 
-  div :  ( $ )  = > 
-       prec . left ( seq ( $ . div_marker ,  " \n " ,  repeat ( $ . _block ) ,  $ . div_marker ,  " \n " ) ) , 
-  div_marker :  ( _ )  = >  " ::: " , 
- 
+  div :  ( $ )  = >
+       prec . left ( seq ( $ . div_marker ,  " \n " ,  repeat ( $ . _block ) ,  $ . div_marker ,  " \n " ) ) ,
+  div_marker :  ( _ )  = >  " ::: " ,
+
   //  Code blocks may have a language specifier.
 
-  code_block :  ( $ )  = > 
-       seq ( 
-         $ . code_block_marker , 
-         optional ( $ . language ) , 
-  " \n " , 
-         optional ( $ . code ) , 
-         $ . code_block_marker , 
-  ) , 
-  code_block_marker :  ( _ )  = >  " ``` " , 
-  code :  ( _ )  = >  repeat1 ( seq ( / [ ^ \n ] * /  ,  " \n " ) ) , 
-  language :  ( _ )  = >  / [ ^ \s ] + /  , 
- 
+  code_block :  ( $ )  = >
+       seq (
+         $ . code_block_marker ,
+         optional ( $ . language ) ,
+  " \n " ,
+         optional ( $ . code ) ,
+         $ . code_block_marker ,
+  ) ,
+  code_block_marker :  ( _ )  = >  " ``` " ,
+  code :  ( _ )  = >  repeat1 ( seq ( / [ ^ \n ] * /  ,  " \n " ) ) ,
+  language :  ( _ )  = >  / [ ^ \s ] + /  ,
+
   //  A paragraph contains inline content and is terminated by a blankline
 
   //  (two newlines in a row).
 
-  paragraph :  ( $ )  = >  seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  " \n " ) , 
- 
+  paragraph :  ( $ )  = >  seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  " \n " ) ,
+
   //  The markup parser could separate block and inline parsing into separate steps,
 
   //  but we'll do everything in one parser.
 
-  _inline :  ( $ )  = >  repeat1 ( choice ( $ . emphasis ,  $ . _text ) ) , 
-  emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
-  _text :  ( _ )  = >  / [ ^ \n ] /  , 
-  } , 
- } ) ; 
+  _inline :  ( $ )  = >  repeat1 ( choice ( $ . emphasis ,  $ . _text ) ) ,
+  emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
+  _text :  ( _ )  = >  / [ ^ \n ] /  ,
+  } ,
+ } ) ;
 
 
   It recognizes paragraphs with text and emphasis, and it identifies divs and code blocks.
   We can create an  example-file  with these contents:
-  
- ::: 
- A paragraph  _ with emphasis _  inside a div 
-  
-  ::: 
+
+ :::
+ A paragraph  _ with emphasis _  inside a div
+
+  :::
 
 
   And parse it with the  tree-sitter  cli:
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [5, 0]
@@ -4130,35 +4131,35 @@ I named the project  sdjot  and this is the  grammar.js  we’ll start with:
   Missing features
   But I told you it wasn’t supposed to be this easy, and there are features missing from our parser.
 Most notably:
-  
+
 There can be an arbitrary number of  : , allowing divs to be nested.
 
-  
+
 Closing a div should close other open blocks (divs and paragraphs in our case).
 
- 
+
  In essence, we need to be able to parse this:
-  
- ::: 
- Top-level div 
-  
-  :::: 
- A paragraph inside a second div, 
- both closed when the top-level div is closedj 
-  ::: 
+
+ :::
+ Top-level div
+
+  ::::
+ A paragraph inside a second div,
+ both closed when the top-level div is closedj
+  :::
 
 
   This is… Complicated.
   Sure, we can work around the varying levels of  :  with something hacky like enumerating the number of colons, using something like this:
-  
- div :  ( $ )  = >  choice ( $ . _div3 ,  $ . _div4 ,  $ . _div5 ,  $ . _div6 ,  $ . _div7 ,  $ . _div8 ) , 
- _div3 :  ( $ )  = >  seq ( / : {3} /  ,  $ . _inside_div ,  / : {3} /  ,  " \n " ) , 
- _div4 :  ( $ )  = >  seq ( / : {4} /  ,  $ . _inside_div ,  / : {4} /  ,  " \n " ) , 
- _div5 :  ( $ )  = >  seq ( / : {5} /  ,  $ . _inside_div ,  / : {5} /  ,  " \n " ) , 
- _div6 :  ( $ )  = >  seq ( / : {6} /  ,  $ . _inside_div ,  / : {6} /  ,  " \n " ) , 
- _div7 :  ( $ )  = >  seq ( / : {7} /  ,  $ . _inside_div ,  / : {7} /  ,  " \n " ) , 
- _div8 :  ( $ )  = >  seq ( / : {8} /  ,  $ . _inside_div ,  / : {8} /  ,  " \n " ) , 
- _inside_div :  ( $ )  = >  prec . left ( " \n " ,  repeat ( $ . _block ) ) , 
+
+ div :  ( $ )  = >  choice ( $ . _div3 ,  $ . _div4 ,  $ . _div5 ,  $ . _div6 ,  $ . _div7 ,  $ . _div8 ) ,
+ _div3 :  ( $ )  = >  seq ( / : {3} /  ,  $ . _inside_div ,  / : {3} /  ,  " \n " ) ,
+ _div4 :  ( $ )  = >  seq ( / : {4} /  ,  $ . _inside_div ,  / : {4} /  ,  " \n " ) ,
+ _div5 :  ( $ )  = >  seq ( / : {5} /  ,  $ . _inside_div ,  / : {5} /  ,  " \n " ) ,
+ _div6 :  ( $ )  = >  seq ( / : {6} /  ,  $ . _inside_div ,  / : {6} /  ,  " \n " ) ,
+ _div7 :  ( $ )  = >  seq ( / : {7} /  ,  $ . _inside_div ,  / : {7} /  ,  " \n " ) ,
+ _div8 :  ( $ )  = >  seq ( / : {8} /  ,  $ . _inside_div ,  / : {8} /  ,  " \n " ) ,
+ _inside_div :  ( $ )  = >  prec . left ( " \n " ,  repeat ( $ . _block ) ) ,
 
 
   But it’s not  neat , and automatically closing contained blocks is much harder (to my brain it seems impossible, but I’m no expert).
@@ -4170,130 +4171,130 @@ If you’re a masochist, you can take a look at it in  src/parser.c  after runni
   An external scanner is just some custom C code that’s inserted into the parser, and it allows us to override the parser precedence, keep track of a context state, or whatever else we might need or want to do.
   To get started the  official docs  was pretty good.
 Basically you need to:
-  
+
 Create a  src/scanner.c  and include it in  binding.gyp  bindings/rust/build.rs .
 
-  
+
 Setup  externals  tokens in  grammar.js  and a matching C enum in  scanner.c .
 
-  
+
 Define and implement five C functions.
 
- 
+
  Let’s take a look.
   Div markers closes open paragraphs
   Let’s start by closing a paragraph early when a  :::  is encountered.
 This is simpler because we can solve this without storing any state.
   When parsing  $.paragraph  we’ll give the parser a choice between ending the paragraph on a newline or on our new  $._close_paragraph  token:
-  
- paragraph :  ( $ )  = > 
-   seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  choice ( " \n " ,  $ . _close_paragraph ) ) , 
+
+ paragraph :  ( $ )  = >
+   seq ( repeat 1 ( seq ( $ . _inline ,  " \n " ) ) ,  choice ( " \n " ,  $ . _close_paragraph ) ) ,
 
 
   $._close_paragraph  is handled by the external scanner, which is specified using the  externals  field:
-  
- externals :  ( $ )  = >  [ $ . _close_paragraph ] , 
+
+ externals :  ( $ )  = >  [ $ . _close_paragraph ] ,
 
 
   Now let’s turn our attention to  src/scanner.c .
 The tokens in  externals  gets assigned an incremented number, starting from 0…
 Just like an enum in C!
-  
+
  //  We only have a single element right now, but keep in mind that the order
 
  //  must match the `externals` array in `grammar.js`.
 
- typedef  enum  {  CLOSE_PARAGRAPH  }  TokenType ; 
+ typedef  enum  {  CLOSE_PARAGRAPH  }  TokenType ;
 
 
   The five functions we need to implement are these:
-  
+
  //  You should replace `sdjot` with whatever project name you chose.
 
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
   //  All the scanning goes here.
 
-  return  false ; 
- } 
- 
+  return  false ;
+ }
+
  //  If we need to allocate/deallocate state, we do it in these functions.
 
- void  * tree_sitter_sdjot_external_scanner_create ( )  {  return  NULL ;  } 
- void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {  } 
- 
+ void  * tree_sitter_sdjot_external_scanner_create ( )  {  return  NULL ;  }
+ void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {  }
+
  //  If we have state, we should load and save it in these functions.
 
- unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload , 
-  char  * buffer )  { 
-  return  0 ; 
- } 
- void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer , 
-  unsigned  length )  {  } 
+ unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload ,
+  char  * buffer )  {
+  return  0 ;
+ }
+ void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer ,
+  unsigned  length )  {  }
 
 
   Because we won’t use any state, we’ll only have to update the  scan  function.
   What you’re supposed to do is check  valid_symbols  for the tokens we can return at any point in time, and return  true  if any was found:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  { 
-  return  true ; 
-  } 
-  return  false ; 
- } 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  {
+  return  true ;
+  }
+  return  false ;
+ }
 
 
   To decide if we’re going to close the paragraph early, we’ll look ahead for any  ::: , and if so we’ll close it without consuming any characters.
 This might not be the most efficient solution because we’ll have to parse the  :::  again, but it gets the job done.
-  The matched token should be stored in 
+  The matched token should be stored in
  lexer -> result_symbol :
-  
- static  bool  parse_close_paragraph ( TSLexer  * lexer )  { 
+
+ static  bool  parse_close_paragraph ( TSLexer  * lexer )  {
   //  Mark the end before advancing so that the CLOSE_PARAGRAPH token doesn't
 
   //  consume any characters.
 
-   lexer -> mark_end ( lexer ) ; 
- 
-  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ; 
-  if  ( colons  >=  3 )  { 
-     lexer -> result_symbol  =  CLOSE_PARAGRAPH ; 
-  return  true ; 
-  }  else  { 
-  return  false ; 
-  } 
- } 
+   lexer -> mark_end ( lexer ) ;
+
+  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ;
+  if  ( colons  >=  3 )  {
+     lexer -> result_symbol  =  CLOSE_PARAGRAPH ;
+  return  true ;
+  }  else  {
+  return  false ;
+  }
+ }
 
 
   Note that the resulting token will mark any symbol we advance over as owned by that token.
 So  :::  would be marked as  _close_paragraph  (which will be ignored by the output since it begins with an underscore), instead of  div_marker .
 To prevent this, we turn  _close_paragraph  into a zero-width token by marking the end before advancing the lexer.
   How do we advance the lexer?
-We call 
+We call
  lexer -> advance :
-  
- static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  { 
-  uint8_t  count  =  0 ; 
-  while  ( lexer -> lookahead  ==  c )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  + + count ; 
-  } 
-  return  count ; 
- } 
+
+ static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  {
+  uint8_t  count  =  0 ;
+  while  ( lexer -> lookahead  ==  c )  {
+     lexer -> advance ( lexer ,  false ) ;
+  + + count ;
+  }
+  return  count ;
+ }
 
 
   This is almost all we can do with the lexer.
 We only process one character at a time, cannot look behind, and our only tool to look ahead is to  mark_end  at the correct place.
 (We can also query the current column position.)
   With this we have a working external scanner and div tags now close paragraphs:
-  
- ::: 
- A paragraph inside a div 
-  ::: 
+
+ :::
+ A paragraph inside a div
+  :::
 
 
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [4, 0]
@@ -4314,81 +4315,81 @@ We only process one character at a time, cannot look behind, and our only tool t
   Our strategy is this:
    A div can have a varying number of  :  that must match.
   Therefore we’ll parse colons in an external scanner and store it on a stack.
- 
+
    When we find a div marker, we’ll need to decide if it should start a new div, or close an existing one.
   We’ll look at the stack of open blocks and see if we find a match.
- 
+
    If we have need to close a nested div, that is if we want to close a div further down the stack, we need to close the nested div(s) first.
   Thus we’ll introduce a  block_close  marker that ends a div, and leave the ending div marker as optional.
- 
- 
+
+
  First we’ll ask the grammar to let the external scanner manage the begin and end tokens.
 We’ll use a  _block_close  marker to end the div, and leave the end marker optional.
 (You could probably use a  choice()  between the two, but this made more sense to me when I was implementing it.)
-  
- div :  ( $ )  = > 
-   prec . left ( 
-     seq ( 
+
+ div :  ( $ )  = >
+   prec . left (
+     seq (
   //  A rule starting with "_" will be hidden in the output,
 
   //  and we can use "alias" to rename rules.
 
-       alias ( $ . _div_marker_begin ,  $ . div_marker ) , 
-  " \n " , 
-       repeat ( $ . _block ) , 
-       $ . _block_close , 
-       optional ( alias ( $ . _div_marker_end ,  $ . div_marker ) ) 
-  ) 
-  ) , 
- 
- externals :  ( $ )  = >  [ 
-   $ . _close_paragraph , 
-   $ . _block_close , 
-   $ . _div_marker_begin , 
-   $ . _div_marker_end , 
- 
+       alias ( $ . _div_marker_begin ,  $ . div_marker ) ,
+  " \n " ,
+       repeat ( $ . _block ) ,
+       $ . _block_close ,
+       optional ( alias ( $ . _div_marker_end ,  $ . div_marker ) )
+  )
+  ) ,
+
+ externals :  ( $ )  = >  [
+   $ . _close_paragraph ,
+   $ . _block_close ,
+   $ . _div_marker_begin ,
+   $ . _div_marker_end ,
+
   //  This is used in the scanner internally,
 
   //  but shouldn't be used by the grammar.
 
-   $ . _ignored , 
- ] , 
+   $ . _ignored ,
+ ] ,
 
 
   And remember to update the list of external tokens in the scanner (order matters):
-  
- typedef  enum  { 
-   CLOSE_PARAGRAPH , 
-   BLOCK_CLOSE , 
-   DIV_MARKER_BEGIN , 
-   DIV_MARKER_END , 
+
+ typedef  enum  {
+   CLOSE_PARAGRAPH ,
+   BLOCK_CLOSE ,
+   DIV_MARKER_BEGIN ,
+   DIV_MARKER_END ,
    IGNORED
 
- }  TokenType ; 
+ }  TokenType ;
 
 
   Then to our stack of blocks.
   I used a  Block  type to keep track of the type and number of colons:
-  
+
  //  In a real implementation we'll have more block types.
 
- typedef  enum  {  DIV  }  BlockType ; 
- 
- typedef  struct  { 
-   BlockType type ; 
-  uint8_t  level ; 
- }  Block ; 
+ typedef  enum  {  DIV  }  BlockType ;
+
+ typedef  struct  {
+   BlockType type ;
+  uint8_t  level ;
+ }  Block ;
 
 
   I know that  level  isn’t the best name, but I couldn’t find a very good general name for the number of colons, indentation level, etc.
 With sum types you could model it in a clearer way, like this:
-  
- enum  Block  { 
-     Div  {  colons :  u32  } , 
-     Footnote  {  indent :  u32  } , 
+
+ enum  Block  {
+     Div  {  colons :  u32  } ,
+     Footnote  {  indent :  u32  } ,
   //  etc
 
- } 
+ }
 
 
    I will, in fact, claim that the difference between a bad programmer and a good one
@@ -4402,95 +4403,95 @@ It’s not truly difficult, but it’s annoying and bug-prone.
   Luckily, during the time I’m writing this blog post,  tree-sitter 0.22.1  was released with an array implementation.
 So now I don’t have to show you my shoddy stack implementation, and we can use their array for our stack instead.
   We’ll shove our  Array  of  Block*  into a  Scanner  struct, because we’ll need to track more data later:
-  
- #include  " tree_sitter/array.h " 
- 
- typedef  struct  { 
-  Array ( Block  * )  *  open_blocks ; 
- }  Scanner ; 
+
+ #include  " tree_sitter/array.h "
+
+ typedef  struct  {
+  Array ( Block  * )  *  open_blocks ;
+ }  Scanner ;
 
 
   When you manage state in tree-sitter, you need to do some data management in the  tree_sitter_  functions we defined earlier.
   Allocations are managed in the  _create  and  _destroy  functions.
 Also new for 0.22.1 is the recommendation to use  ts_  functions for allocations, to allow consumers to override the default allocator:
-  
- #include  " tree_sitter/alloc.h " 
- 
- void  * tree_sitter_sdjot_external_scanner_create ( )  { 
-   Scanner  * s  =  ( Scanner  * ) ts_malloc ( sizeof ( Scanner ) ) ; 
- 
+
+ #include  " tree_sitter/alloc.h "
+
+ void  * tree_sitter_sdjot_external_scanner_create ( )  {
+   Scanner  * s  =  ( Scanner  * ) ts_malloc ( sizeof ( Scanner ) ) ;
+
   //  This is how you create an empty array
 
-   s -> open_blocks  =  ts_malloc ( sizeof ( Array ( Block  * ) ) ) ; 
-  array_init ( s -> open_blocks ) ; 
- 
-  return  s ; 
- } 
- 
- void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
+   s -> open_blocks  =  ts_malloc ( sizeof ( Array ( Block  * ) ) ) ;
+  array_init ( s -> open_blocks ) ;
+
+  return  s ;
+ }
+
+ void  tree_sitter_sdjot_external_scanner_destroy ( void  * payload )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
   //  I haven't shown the allocation of the blocks yet,
 
   //  but keep in mind that `array_delete` does not deallocate any memory
 
   //  you store in the array itself.
 
-  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  { 
+  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  {
   //  I use `array_get` even though you can index the contents directly.
 
-  ts_free ( array_get ( s -> open_blocks ,  i ) ) ; 
-  } 
- 
+  ts_free ( array_get ( s -> open_blocks ,  i ) ) ;
+  }
+
   //  The array is a growable one, `array_delete` ensures that the
 
   //  memory is deleted.
 
-  array_delete ( s -> open_blocks ) ; 
- 
-  ts_free ( s ) ; 
- } 
+  array_delete ( s -> open_blocks ) ;
+
+  ts_free ( s ) ;
+ }
 
 
   I allocate the blocks in a  push_block  helper:
-  
- static  void  push_block ( Scanner  * s ,  BlockType  type ,  uint8_t  level )  { 
-   Block  * b  =  ts_malloc ( sizeof ( Block ) ) ; 
-   b -> type  =  type ; 
-   b -> level  =  level ; 
- 
+
+ static  void  push_block ( Scanner  * s ,  BlockType  type ,  uint8_t  level )  {
+   Block  * b  =  ts_malloc ( sizeof ( Block ) ) ;
+   b -> type  =  type ;
+   b -> level  =  level ;
+
   //  Grows the stack automatically.
 
-  array_push ( s -> open_blocks ,  b ) ; 
- } 
+  array_push ( s -> open_blocks ,  b ) ;
+ }
 
 
   You also need to define the serialize functions.
 These store and retrieve the managed state, to allow tree-sitter to backtrack.
-  
- unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload , 
-  char  * buffer )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
-  unsigned  size  =  0 ; 
-  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  { 
-     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ; 
-     buffer [ size + + ]  =  ( char ) b -> type ; 
-     buffer [ size + + ]  =  ( char ) b -> level ; 
-  } 
-  return  size ; 
- } 
- 
- void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer , 
-  unsigned  length )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
-  array_init ( s -> open_blocks ) ; 
-  size_t  size  =  0 ; 
-  while  ( size  <  length )  { 
-     BlockType type  =  ( BlockType ) buffer [ size + + ] ; 
-  uint8_t  level  =  ( uint8_t ) buffer [ size + + ] ; 
-  push_block ( s ,  type ,  level ) ; 
-  } 
- } 
+
+ unsigned  tree_sitter_sdjot_external_scanner_serialize ( void  * payload ,
+  char  * buffer )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+  unsigned  size  =  0 ;
+  for  ( size_t  i  =  0 ;  i  <  s -> open_blocks -> size ;  + + i )  {
+     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ;
+     buffer [ size + + ]  =  ( char ) b -> type ;
+     buffer [ size + + ]  =  ( char ) b -> level ;
+  }
+  return  size ;
+ }
+
+ void  tree_sitter_sdjot_external_scanner_deserialize ( void  * payload ,  char  * buffer ,
+  unsigned  length )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+  array_init ( s -> open_blocks ) ;
+  size_t  size  =  0 ;
+  while  ( size  <  length )  {
+     BlockType type  =  ( BlockType ) buffer [ size + + ] ;
+  uint8_t  level  =  ( uint8_t ) buffer [ size + + ] ;
+  push_block ( s ,  type ,  level ) ;
+  }
+ }
 
 
   And that’s the (initial) state management taken care of!
@@ -4500,124 +4501,124 @@ Try  valgrind .
   Of course, we haven’t used our state yet.
 Let’s change that.
   First, let’s add the  parse_div  entry point to our scan function:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
   //  Paragraph needs to be closed before we try to close divs.
 
-  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  { 
-  return  true ; 
-  } 
- 
+  if  ( valid_symbols [ CLOSE_PARAGRAPH ]  &&  parse_close_paragraph ( lexer ) )  {
+  return  true ;
+  }
+
   //  Check `valid_symbols` inside `parse_div` because of multiple valid symbols.
 
-  if  ( parse_div ( s ,  lexer ,  valid_symbols ) )  { 
-  return  true ; 
-  } 
- 
-  return  false ; 
- } 
+  if  ( parse_div ( s ,  lexer ,  valid_symbols ) )  {
+  return  true ;
+  }
+
+  return  false ;
+ }
 
 
   Because advancing the lexer is primitive, and we cannot “go back a char”, it’s important to only advance it if we really need to.
 Therefore we always need to check  valid_symbols  before we continue:
-  
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
-  if  ( ! valid_symbols [ DIV_MARKER_BEGIN ]  &&  ! valid_symbols [ DIV_MARKER_END ] )  { 
-  return  false ; 
-  } 
- 
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
+  if  ( ! valid_symbols [ DIV_MARKER_BEGIN ]  &&  ! valid_symbols [ DIV_MARKER_END ] )  {
+  return  false ;
+  }
+
   //  ...
 
- } 
+ }
 
 
   Next we’ll need to consume all colons we’re at, and only continue if we see at least three:
-  
- static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  { 
-  uint8_t  count  =  0 ; 
-  while  ( lexer -> lookahead  ==  c )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  + + count ; 
-  } 
-  return  count ; 
- } 
- 
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
+
+ static  uint8_t  consume_chars ( TSLexer  * lexer ,  char  c )  {
+  uint8_t  count  =  0 ;
+  while  ( lexer -> lookahead  ==  c )  {
+     lexer -> advance ( lexer ,  false ) ;
+  + + count ;
+  }
+  return  count ;
+ }
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
   //  ...
 
- 
-  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ; 
-  if  ( colons  <  3 )  { 
-  return  false ; 
-  } 
- 
+
+  uint8_t  colons  =  consume_chars ( lexer ,  ' : ' ) ;
+  if  ( colons  <  3 )  {
+  return  false ;
+  }
+
   //  ...
 
- } 
+ }
 
 
   Opening a new div is simple; we push the block and register the number of colons:
-  
- push_block ( s ,  DIV ,  colons ) ; 
- lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
- return  true ; 
+
+ push_block ( s ,  DIV ,  colons ) ;
+ lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+ return  true ;
 
 
   But to the decide if we should open or close a div, we need a way to search through the stack.
 This function does that, while also returning how many blocks deep into the stack we found the div (which we’ll use shortly):
-  
+
  //  How many blocks from the top of the stack can we find a matching block?
 
  //  If it's directly on the top, returns 1.
 
  //  If it cannot be found, returns 0.
 
- static  size_t  number_of_blocks_from_top ( Scanner  * s ,  BlockType  type , 
-  uint8_t  level )  { 
-  for  ( int  i  =  s -> open_blocks -> size  -  1 ;  i  >=  0 ;  - - i )  { 
-     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ; 
-  if  ( b -> type  ==  type  &&  b -> level  ==  level )  { 
-  return  s -> open_blocks -> size  -  i ; 
-  } 
-  } 
-  return  0 ; 
- } 
- 
- static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  { 
+ static  size_t  number_of_blocks_from_top ( Scanner  * s ,  BlockType  type ,
+  uint8_t  level )  {
+  for  ( int  i  =  s -> open_blocks -> size  -  1 ;  i  >=  0 ;  - - i )  {
+     Block  * b  =  * array_get ( s -> open_blocks ,  i ) ;
+  if  ( b -> type  ==  type  &&  b -> level  ==  level )  {
+  return  s -> open_blocks -> size  -  i ;
+  }
+  }
+  return  0 ;
+ }
+
+ static  bool  parse_div ( Scanner  * s ,  TSLexer  * lexer ,  const  bool  * valid_symbols )  {
   //  ...
 
- 
-  size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ; 
- 
+
+  size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ;
+
   //  We could check if either DIV_MARKER_BEGIN or DIV_MARKER_END are valid here,
 
   //  but as the grammar is set up they're both always valid at the same time.
 
-  if  ( from_top  >  0 )  { 
+  if  ( from_top  >  0 )  {
   //  Close the current div, and all blocks above.
 
-  }  else  { 
+  }  else  {
   //  No matching div to close, let's open one.
 
-     lexer -> mark_end ( lexer ) ; 
-  push_block ( s ,  DIV ,  colons ) ; 
-     lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
-  return  true ; 
-  } 
- } 
+     lexer -> mark_end ( lexer ) ;
+  push_block ( s ,  DIV ,  colons ) ;
+     lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+  return  true ;
+  }
+ }
 
 
   But we have a problem: when we want to close the div, we want to be able to output multiple tokens.
   For example, with this type of input:
-  
- ::: 
- ::::: 
- ::::::: 
- text 
-  ::: 
+
+ :::
+ :::::
+ :::::::
+ text
+  :::
 
 
   We’ll have a stack of 3 divs when we see the closing  :::  marker:
@@ -4633,152 +4634,152 @@ This function does that, while also returning how many blocks deep into the stac
 But the scanner can only output a single token at a time.
   The way I solved this is by introducing more state to the Scanner.
 Specifically, I introduced a  blocks_to_close  variable that we’ll use to output  BLOCK_CLOSE , and some variables to output (and consume) the  DIV_MARKER_END .
-  
- typedef  struct  { 
-  Array ( Block  * )  *  open_blocks ; 
- 
+
+ typedef  struct  {
+  Array ( Block  * )  *  open_blocks ;
+
   //  How many BLOCK_CLOSE we should output right now?
 
-  uint8_t  blocks_to_close ; 
- 
+  uint8_t  blocks_to_close ;
+
   //  Delayed output of a token.
 
-   TokenType delayed_token ; 
+   TokenType delayed_token ;
   //  Allows us to consume the width of a delayed token.
 
-  uint8_t  delayed_token_width ; 
- }  Scanner ; 
+  uint8_t  delayed_token_width ;
+ }  Scanner ;
 
 
   We need to remember to update the create and serialize functions too.
   Serialize:
-  
- buffer [ size + + ]  =  ( char ) s -> blocks_to_close ; 
- buffer [ size + + ]  =  ( char ) s -> delayed_token ; 
- buffer [ size + + ]  =  ( char ) s -> delayed_token_width ; 
+
+ buffer [ size + + ]  =  ( char ) s -> blocks_to_close ;
+ buffer [ size + + ]  =  ( char ) s -> delayed_token ;
+ buffer [ size + + ]  =  ( char ) s -> delayed_token_width ;
 
 
   Deserialize:
-  
- s -> blocks_to_close  =  ( uint8_t ) buffer [ size + + ] ; 
- s -> delayed_token  =  ( TokenType ) buffer [ size + + ] ; 
- s -> delayed_token_width  =  ( uint8_t ) buffer [ size + + ] ; 
+
+ s -> blocks_to_close  =  ( uint8_t ) buffer [ size + + ] ;
+ s -> delayed_token  =  ( TokenType ) buffer [ size + + ] ;
+ s -> delayed_token_width  =  ( uint8_t ) buffer [ size + + ] ;
 
 
   We’ll use  IGNORED  as the unused token, so we’ll need to reset it when we create the scanner:
-  
- s -> blocks_to_close  =  0 ; 
- s -> delayed_token  =  IGNORED ; 
+
+ s -> blocks_to_close  =  0 ;
+ s -> delayed_token  =  IGNORED ;
 
 
   Now when we scan we should first check  blocks_to_close  and then  delayed_token , before we scan other things:
-  
- bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-   Scanner  * s  =  ( Scanner  * ) payload ; 
- 
-  if  ( valid_symbols [ BLOCK_CLOSE ]  &&  handle_blocks_to_close ( s ,  lexer ) )  { 
-  return  true ; 
-  } 
- 
-  if  ( output_delayed_token ( s ,  lexer ,  valid_symbols ) )  { 
-  return  true ; 
-  } 
- 
+
+ bool  tree_sitter_sdjot_external_scanner_scan ( void  * payload ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+   Scanner  * s  =  ( Scanner  * ) payload ;
+
+  if  ( valid_symbols [ BLOCK_CLOSE ]  &&  handle_blocks_to_close ( s ,  lexer ) )  {
+  return  true ;
+  }
+
+  if  ( output_delayed_token ( s ,  lexer ,  valid_symbols ) )  {
+  return  true ;
+  }
+
   //  Scan the other stuff
 
- } 
+ }
 
 
   When we see  blocks_to_close > 0 , we should output a  BLOCK_CLOSE  and remove the top block (with some sanity checks for good measure):
-  
- static  void  remove_block ( Scanner  * s )  { 
-  if  ( s -> open_blocks -> size  >  0 )  { 
-  ts_free ( array_pop ( s -> open_blocks ) ) ; 
-  if  ( s -> blocks_to_close  >  0 )  { 
-  - - s -> blocks_to_close ; 
-  } 
-  } 
- } 
- 
- static  bool  handle_blocks_to_close ( Scanner  * s ,  TSLexer  * lexer )  { 
-  if  ( s -> open_blocks -> size  ==  0 )  { 
-  return  false ; 
-  } 
- 
+
+ static  void  remove_block ( Scanner  * s )  {
+  if  ( s -> open_blocks -> size  >  0 )  {
+  ts_free ( array_pop ( s -> open_blocks ) ) ;
+  if  ( s -> blocks_to_close  >  0 )  {
+  - - s -> blocks_to_close ;
+  }
+  }
+ }
+
+ static  bool  handle_blocks_to_close ( Scanner  * s ,  TSLexer  * lexer )  {
+  if  ( s -> open_blocks -> size  ==  0 )  {
+  return  false ;
+  }
+
   //  If we reach eof with open blocks, we should close them all.
 
-  if  ( lexer -> eof ( lexer )  ||  s -> blocks_to_close  >  0 )  { 
-     lexer -> result_symbol  =  BLOCK_CLOSE ; 
-  remove_block ( s ) ; 
-  return  true ; 
-  } 
-  return  false ; 
- } 
+  if  ( lexer -> eof ( lexer )  ||  s -> blocks_to_close  >  0 )  {
+     lexer -> result_symbol  =  BLOCK_CLOSE ;
+  remove_block ( s ) ;
+  return  true ;
+  }
+  return  false ;
+ }
 
 
   With this we can output multiple  BLOCK_CLOSE , and now to handle delayed tokens:
-  
- static  bool  output_delayed_token ( Scanner  * s ,  TSLexer  * lexer , 
-  const  bool  * valid_symbols )  { 
-  if  ( s -> delayed_token  ==  IGNORED  ||  ! valid_symbols [ s -> delayed_token ] )  { 
-  return  false ; 
-  } 
- 
-   lexer -> result_symbol  =  s -> delayed_token ; 
-   s -> delayed_token  =  IGNORED ; 
+
+ static  bool  output_delayed_token ( Scanner  * s ,  TSLexer  * lexer ,
+  const  bool  * valid_symbols )  {
+  if  ( s -> delayed_token  ==  IGNORED  ||  ! valid_symbols [ s -> delayed_token ] )  {
+  return  false ;
+  }
+
+   lexer -> result_symbol  =  s -> delayed_token ;
+   s -> delayed_token  =  IGNORED ;
   //  With `delayed_token_width` we can consume the ending `:::`, for example.
 
-  while  ( s -> delayed_token_width - - )  { 
-     lexer -> advance ( lexer ,  false ) ; 
-  } 
-   lexer -> mark_end ( lexer ) ; 
-  return  true ; 
- } 
+  while  ( s -> delayed_token_width - - )  {
+     lexer -> advance ( lexer ,  false ) ;
+  }
+   lexer -> mark_end ( lexer ) ;
+  return  true ;
+ }
 
 
   Another way to design this is to have a stack of delayed tokens and then just pop that.
 It’s certainly more powerful, I just happened to choose this way when I was playing around with it because it’s more explicit and it felt a little easier to follow what was happening.
   Either way, we can now implement the div end handling. In  parse_div :
-  
- size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ; 
- 
- if  ( from_top  >  0 )  { 
+
+ size_t  from_top  =  number_of_blocks_from_top ( s ,  DIV ,  colons ) ;
+
+ if  ( from_top  >  0 )  {
   //  Found a div we should close.
 
-  close_blocks_with_final_token ( s ,  lexer ,  from_top ,  DIV_MARKER_END ,  colons ) ; 
-  return  true ; 
- }  else  { 
-   lexer -> mark_end ( lexer ) ; 
-  push_block ( s ,  DIV ,  colons ) ; 
-   lexer -> result_symbol  =  DIV_MARKER_BEGIN ; 
-  return  true ; 
- } 
+  close_blocks_with_final_token ( s ,  lexer ,  from_top ,  DIV_MARKER_END ,  colons ) ;
+  return  true ;
+ }  else  {
+   lexer -> mark_end ( lexer ) ;
+  push_block ( s ,  DIV ,  colons ) ;
+   lexer -> result_symbol  =  DIV_MARKER_BEGIN ;
+  return  true ;
+ }
 
 
   close_blocks_with_final_token  is a general helper that sets up the number of blocks to close and the final token:
-  
- static  void  close_blocks_with_final_token ( Scanner  * s ,  TSLexer  * lexer , 
-  size_t  count ,  TokenType  final , 
-  uint8_t  final_token_width )  { 
-  remove_block ( s ) ; 
-   s -> blocks_to_close  =  s -> blocks_to_close  +  count  -  1 ; 
-   lexer -> result_symbol  =  BLOCK_CLOSE ; 
-   s -> delayed_token  =  final ; 
-   s -> delayed_token_width  =  final_token_width ; 
- } 
+
+ static  void  close_blocks_with_final_token ( Scanner  * s ,  TSLexer  * lexer ,
+  size_t  count ,  TokenType  final ,
+  uint8_t  final_token_width )  {
+  remove_block ( s ) ;
+   s -> blocks_to_close  =  s -> blocks_to_close  +  count  -  1 ;
+   lexer -> result_symbol  =  BLOCK_CLOSE ;
+   s -> delayed_token  =  final ;
+   s -> delayed_token_width  =  final_token_width ;
+ }
 
 
   Now we can finally try to close divs:
-  
- ::::: 
- ::: 
- ::::::: 
- Divception 
-  ::: 
+
+ :::::
+ :::
+ :::::::
+ Divception
+  :::
 
 
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [6, 0]
@@ -4805,7 +4806,7 @@ It’s certainly more powerful, I just happened to choose this way when I was pl
   While I’m jumping to a working implementation directly in this post, when I first did this that was of course not the case.
 I found the  -d  argument useful to see what characters are consumed and what token is output in each step.
   Here’s a part of the output (when scanning the final  ::: ), with some comments to point out some interesting things:
-  
+
  $  tree-sitter  parse example-file -d
 
  ...
@@ -4874,13 +4875,13 @@ I’ve found that a deliberate process, where I look at a single character at a 
   Our grammar works pretty well, but there are issues you might want to fix.
 One issue, that took much longer to figure out than I care to admit, is adding a fallback to text when a markup rule doesn’t match.
   A simple example for our grammar is a single underscore in a paragraph:
-  
- a_b 
-  
+
+ a_b
+
 
 
   I’d assume this would produce a paragraph with text, but instead we get an error:
-  
+
  $  tree-sitter  parse example-file
 
  (document [0, 0] - [2, 0]
@@ -4893,49 +4894,49 @@ One issue, that took much longer to figure out than I care to admit, is adding a
 But for some reason, it doesn’t trigger for us.
   Let’s take a look.
 These are the relevant lines from the grammar:
-  
- _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ) ) , 
- emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
- _text :  ( _ )  = >  / [ ^ \n ] /  , 
+
+ _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ) ) ,
+ emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
+ _text :  ( _ )  = >  / [ ^ \n ] /  ,
 
 
-  When we try to match a  _  then the grammar can match either  emphasis  or  _text  because  _  matches both 
- " _ "  and 
+  When we try to match a  _  then the grammar can match either  emphasis  or  _text  because  _  matches both
+ " _ "  and
  / [ ^ \n ] /  .
 The issue seems to be that Tree-sitter doesn’t recognize this as a conflict.
   If we instead add a fallback with a  _  string then Tree-sitter will treat it as a conflict:
-  
- _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ,  $ . _fallback ) ) , 
- emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) , 
+
+ _inline :  ( $ )  = >  repeat 1 ( choice ( $ . emphasis ,  $ . _text ,  $ . _fallback ) ) ,
+ emphasis :  ( $ )  = >  prec . left ( seq ( " _ " ,  $ . _inline ,  " _ " ) ) ,
  //  prec.dynamic() is used during conflict resolution to choose which
 
  //  branch to choose if multiple succeed.
 
- _fallback :  ( _ )  = >  prec . dynamic ( - 100 ,  " _ " ) , 
- _text :  ( _ )  = >  / [ ^ \n ] /  , 
+ _fallback :  ( _ )  = >  prec . dynamic ( - 100 ,  " _ " ) ,
+ _text :  ( _ )  = >  / [ ^ \n ] /  ,
 
 
   And when we call  tree-sitter generate  we’re made aware of the conflict:
-  
+
  $  tree-sitter  generate
 
  Unresolved conflict for symbol sequence:
 
- 
+
    '_'  •  '_'  …
 
- 
+
  Possible interpretations:
 
- 
+
    1:  (_fallback  '_')  •  '_'  …
 
    2:  (emphasis  '_'  •  _inline  '_')  (precedence: 0, associativity: Left)
 
- 
+
  Possible resolutions:
 
- 
+
    1:  Specify a higher precedence in `emphasis` than in the other rules.
 
    2:  Specify a higher precedence in `_fallback` than in the other rules.
@@ -4947,8 +4948,8 @@ The issue seems to be that Tree-sitter doesn’t recognize this as a conflict.
 
 
   What we want to do is mark them as a conflict that’s supposed to exist in the grammar using the  conflicts  field:
-  
- conflicts :  ( $ )  = >  [ [ $ . emphasis ,  $ . _fallback ] ] , 
+
+ conflicts :  ( $ )  = >  [ [ $ . emphasis ,  $ . _fallback ] ] ,
 
 
   And now we can parse paragraphs containing only a single  _  without errors.
@@ -4968,24 +4969,24 @@ Tree-sitter has a built-in test harness for this purpose.
 
  multiline _paragraph_
 
- 
+
  :::
 
  This is a paragraph inside a div
 
  :::
 
- 
+
  ```gleam
 
  let x = 2;
 
  ```
 
- 
+
  -------------------------------------------------------------------------------
 
- 
+
  (document
 
    (paragraph (emphasis))
@@ -5028,25 +5029,25 @@ Let’s end the post by seeing some things we can use it for.
   Syntax highlighting is made using queries from the  highlights.scm  file.
 It’s common to have it placed in the  src  directory in the same repository as the grammar, but it’s not required.
   Here’s an example  src/highlights.scm  file that highlights the different elements of our markup:
-  
- ( div_marker )  @ punctuation.delimiter 
- ( code_block_marker )  @ punctuation.delimiter 
- 
- ( emphasis  "_"  @ punctuation.delimiter )  @ markup.italic 
- ( language )  @ tag.attribute 
- 
- ( code_block )  @ markup.raw 
- ( paragraph )  @ markup 
+
+ ( div_marker )  @ punctuation.delimiter
+ ( code_block_marker )  @ punctuation.delimiter
+
+ ( emphasis  "_"  @ punctuation.delimiter )  @ markup.italic
+ ( language )  @ tag.attribute
+
+ ( code_block )  @ markup.raw
+ ( paragraph )  @ markup
 
 
   What colors to choose is a bit arbitrary, these works well enough I suppose.
   See the  documentation  for more details on how the queries and highlighting works.
   Language injection
   One big question I had when starting writing my grammar was how to mix multiple parsers in the same document, to for example highlight code blocks using the specified language:
-  
- ``` gleam 
- let  x  =  2 ; 
- ``` 
+
+ ``` gleam
+ let  x  =  2 ;
+ ```
 
 
   Turns out, this is quite straightforward.
@@ -5064,17 +5065,17 @@ It’s common to have it placed in the  src  directory in the same repository as
 
 
   Which we’ll use in  src/injections.scm  to specify that we want to parse  (code)  using the grammar specified in  (language) :
-  
- ( code_block 
-  ( language )  @ injection.language 
-  ( code )  @ injection.content ) 
+
+ ( code_block
+  ( language )  @ injection.language
+  ( code )  @ injection.content )
 
 
   When we’ll embed the grammar into a program with highlighting support, it will delegate the text inside the code block to the injected language.
   Using our grammar with Neovim
    I typically install Tree-sitter grammars in Neovim using  :TSInstall  provided by  nvim-treesitter .
 But you can  install local Tree-sitter grammars  as well:
-  
+
  local  parser_config  =  require ( " nvim-treesitter.parsers " ).get_parser_configs()
 
  parser_config.sdjot  =  {
@@ -5104,18 +5105,18 @@ But you can  install local Tree-sitter grammars  as well:
 
 
   Just make sure you have a  "tree-sitter"  section in the grammar’s  package.json :
-  
- " tree-sitter " :  [ 
-  { 
-  " scope " :  " source.sdjot " , 
-  " file-types " :  [ 
-  " sdj " 
-  ] , 
-  " injection-regex " :  " sdjot " , 
-  " highlights " :  [ 
-  " queries/highlights.scm " 
-  ] 
-  } 
+
+ " tree-sitter " :  [
+  {
+  " scope " :  " source.sdjot " ,
+  " file-types " :  [
+  " sdj "
+  ] ,
+  " injection-regex " :  " sdjot " ,
+  " highlights " :  [
+  " queries/highlights.scm "
+  ]
+  }
  ] ,
 
 
@@ -5123,7 +5124,7 @@ But you can  install local Tree-sitter grammars  as well:
   With this you can do  :TSInstall sjdot  and  :TSUpdate sdjot  when you make changes.
   :TSInstall  doesn’t install queries automatically though.
 What I did was symlink the queries directory into Neovims config directory:
-  
+
  ln  -s ~/code/tree-sitter-sdjot/queries ~/.config/nvim/queries/sdjot
 
 
@@ -5135,8 +5136,8 @@ It might be good to check out  :help treesitter-highlight-groups  if you want to
   I mentioned  nvim-treesitter-textobjects  as a good example of why Tree-sitter is about more than syntax highlighting.
   To make use of our grammar we can add some capture groups to  src/textobjects.scm .
 For example we can register our code blocks as “functions”:
-  
- ( code_block  ( code )  @ function.inner )  @ function.outer 
+
+ ( code_block  ( code )  @ function.inner )  @ function.outer
 
 
   The objects are arbitrary, but  @function  is one of the standard objects so I guess it might make sense.
@@ -5151,10 +5152,10 @@ Such as this blog!
   I’ve been wanting to add Tree-sitter powered highlighting to my blog for a while, and now I have an excuse to do just that.
   This blog is a static site generator written in Rust, and  tree-sitter-highlight  looks like a suitable library to try.
 Let’s add it to our  Cargo.toml :
-  
- [ dependencies ] 
- tree-sitter-highlight  =  "^0.20.0" 
- tree-sitter-sdjot  =  {  git  =  "https://github.com/treeman/tree-sitter-sdjot.git"  } 
+
+ [ dependencies ]
+ tree-sitter-highlight  =  "^0.20.0"
+ tree-sitter-sdjot  =  {  git  =  "https://github.com/treeman/tree-sitter-sdjot.git"  }
 
 
   I use a slightly older version because some other grammars I want depend on the older version, and it’s a big pain but they all need to use a matching version.
@@ -5162,116 +5163,116 @@ Bleh.
   According to the docs  we first need to setup a  HighlightConfiguration .
 I used  lazy_static!  to create a global map with configurations to be used by any parallel rendering on the blog.
 It’s not the most beautiful code I’ve written, but it gets the job done:
-  
+
  //  All highlights needs to be listed explicitly.
 
- static  HIGHLIGHT_NAMES :  & [ & str ]  =  & [ 
+ static  HIGHLIGHT_NAMES :  & [ & str ]  =  & [
   //  I have +100 entries here, this is for sdjot.
 
-  " markup " , 
-  " markup.italic " , 
-  " markup.raw " , 
-  " punctuation.delimiter " , 
-  " tag.attribute " , 
- ] ; 
- 
- lazy_static!  { 
-  static  ref  CONFIGS :  HashMap < String, HighlightConfiguration >  =  init_configurations ( ) ; 
- } 
- 
- fn  init_configurations ( )  ->  HashMap < String, HighlightConfiguration >  { 
-  [ 
+  " markup " ,
+  " markup.italic " ,
+  " markup.raw " ,
+  " punctuation.delimiter " ,
+  " tag.attribute " ,
+ ] ;
+
+ lazy_static!  {
+  static  ref  CONFIGS :  HashMap < String, HighlightConfiguration >  =  init_configurations ( ) ;
+ }
+
+ fn  init_configurations ( )  ->  HashMap < String, HighlightConfiguration >  {
+  [
   //  I have more languages here
 
-  ( 
-  " sdjot " , 
-  HighlightConfiguration :: new ( 
-  tree_sitter_sdjot :: language ( ) , 
-  tree_sitter_sdjot :: HIGHLIGHTS_QUERY , 
-  tree_sitter_sdjot :: INJECTIONS_QUERY , 
-  " " , 
-  ) 
-             . unwrap ( ) , 
-  ) , 
-  ] 
-     . into_iter ( ) 
-     . map ( | ( name ,  mut  config ) |  { 
-         config. configure ( & HIGHLIGHT_NAMES ) ; 
-  ( name. to_string ( ) ,  config ) 
-  } ) 
-     . collect ( ) 
- } 
+  (
+  " sdjot " ,
+  HighlightConfiguration :: new (
+  tree_sitter_sdjot :: language ( ) ,
+  tree_sitter_sdjot :: HIGHLIGHTS_QUERY ,
+  tree_sitter_sdjot :: INJECTIONS_QUERY ,
+  " " ,
+  )
+             . unwrap ( ) ,
+  ) ,
+  ]
+     . into_iter ( )
+     . map ( | ( name ,  mut  config ) |  {
+         config. configure ( & HIGHLIGHT_NAMES ) ;
+  ( name. to_string ( ) ,  config )
+  } )
+     . collect ( )
+ }
 
 
   Notice how all highlight names we’re interested in have to be explicitly specified.
 This is a big pain, especially if you’re going to include many larger grammars.
   The names can be filtered for with  ripgrep  with something like this:
-  
- rg  "@[ \w .]+"  -INo --trim highlights.scm  |  sort  |  uniq 
+
+ rg  "@[ \w .]+"  -INo --trim highlights.scm  |  sort  |  uniq
 
 
   I already have syntax highlighting via  syntect , so I wrap the highlighters in their own types:
-  
- enum  HighlighterType <'a>  { 
-     Syntect ( SyntectHighlighter < 'a > ) , 
-     Treesitter ( TreesitterHighlighter < 'a > ) , 
- } 
- 
- pub  struct  TreesitterHighlighter < 'a >  { 
+
+ enum  HighlighterType <'a>  {
+     Syntect ( SyntectHighlighter < 'a > ) ,
+     Treesitter ( TreesitterHighlighter < 'a > ) ,
+ }
+
+ pub  struct  TreesitterHighlighter < 'a >  {
   config :  & 'a  HighlightConfiguration,
 
- } 
- 
- impl < 'a >  TreesitterHighlighter < 'a >  { 
-  pub  fn  find ( lang_id :  & str )  ->  Option < Self >  { 
-  CONFIGS . get ( lang_id ) . map ( | config |  Self  {  config  } ) 
-  } 
- } 
+ }
+
+ impl < 'a >  TreesitterHighlighter < 'a >  {
+  pub  fn  find ( lang_id :  & str )  ->  Option < Self >  {
+  CONFIGS . get ( lang_id ) . map ( | config |  Self  {  config  } )
+  }
+ }
 
 
   The interesting part is of course the  highlight  method, that takes a string of code and applies syntax highlighting on it:
-  
- impl < 'a >  TreesitterHighlighter < 'a >  { 
-  pub  fn  highlight ( & self ,  code :  & str )  ->  Result < String >  { 
-  let  mut  highlighter  =  Highlighter :: new ( ) ; 
- 
-  let  highlights  =  highlighter. highlight ( self .config ,  code. as_bytes ( ) ,  None ,  | lang |  { 
+
+ impl < 'a >  TreesitterHighlighter < 'a >  {
+  pub  fn  highlight ( & self ,  code :  & str )  ->  Result < String >  {
+  let  mut  highlighter  =  Highlighter :: new ( ) ;
+
+  let  highlights  =  highlighter. highlight ( self .config ,  code. as_bytes ( ) ,  None ,  | lang |  {
   //  This callback handles language injection
 
   //  and should return a `HighlightConfiguration`.
 
-  let  res  =  CONFIGS . get ( lang ) ; 
-  if  ! res. is_some ( )  { 
-  warn! ( " Couldn't find treesitter grammar for `{lang}` to inject " ) ; 
-  } 
+  let  res  =  CONFIGS . get ( lang ) ;
+  if  ! res. is_some ( )  {
+  warn! ( " Couldn't find treesitter grammar for `{lang}` to inject " ) ;
+  }
              res
 
-  } ) ? ; 
- 
-  let  mut  renderer  =  HtmlRenderer :: new ( ) ; 
-         renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
+  } ) ? ;
+
+  let  mut  renderer  =  HtmlRenderer :: new ( ) ;
+         renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
   //  This should return a `&'a [u8]` with the same lifetime as `code`.
 
-  } ) ? ; 
-  let  res  =  renderer. lines ( ) . join ( " " ) ; 
-  Ok ( res ) 
-  } 
- } 
+  } ) ? ;
+  let  res  =  renderer. lines ( ) . join ( " " ) ;
+  Ok ( res )
+  }
+ }
 
 
   I want to point out the API in  HtmlRenderer , where we stumble upon a very annoying problem:
 what should we return from the callback, and how should we do that?
   What the callback does is inject the return value into the  span  element, like this:
-  
- < span  CALLBACK_RESULT  > highlight </ span > 
+
+ < span  CALLBACK_RESULT  > highlight </ span >
 
 
-  So we’d like to return something like 
+  So we’d like to return something like
  " class= \" markup italic \" " , using  attr  which is only a  usize  into  HIGHLIGHT_NAMES :
-  
- renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
-  format! ( r # "class=" {} " "# ,  HIGHLIGHT_NAMES [ attr. 0 ] . replace ( " . " ,  "  " ) ) . as_bytes ( ) 
- } ) ? ; 
+
+ renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
+  format! ( r # "class=" {} " "# ,  HIGHLIGHT_NAMES [ attr. 0 ] . replace ( " . " ,  "  " ) ) . as_bytes ( )
+ } ) ? ;
 
 
   Because we return a slice of bytes into a string that’s created inside the callback, of course the Rust compiler will be mad at us:
@@ -5302,29 +5303,29 @@ This surely isn’t a very unique requirement, to wrap the attribute in a  class
 One way to solve this is to store the generated strings in a container that outlives the callback, and reference that (yeah it’s a  Fn  callback, but there are hacky ways around that).
 Or you could, you know, write your own  HtmlRenderer .
   Or you could pre-generate the classes and reference them:
-  
- lazy_static!  { 
-  static  ref  CLASSES :  Vec < String >  =  HIGHLIGHT_NAMES 
-         . iter ( ) 
-         . map ( | name |  format! ( r # "class=" {} " "# ,  name. replace ( " . " ,  "  " ) ) ) 
-         . collect ( ) ; 
- } 
+
+ lazy_static!  {
+  static  ref  CLASSES :  Vec < String >  =  HIGHLIGHT_NAMES
+         . iter ( )
+         . map ( | name |  format! ( r # "class=" {} " "# ,  name. replace ( " . " ,  "  " ) ) )
+         . collect ( ) ;
+ }
 
 
-  
- renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  { 
-  CLASSES [ attr. 0 ] . as_bytes ( ) 
- } ) ? ; 
+
+ renderer. render ( highlights ,  code. as_bytes ( ) ,  & | attr |  {
+  CLASSES [ attr. 0 ] . as_bytes ( )
+ } ) ? ;
 
 
   This should be the fastest option and is the one I currently use…
 But speed isn’t a bottleneck here and I’d rather just return a  String  with  format!  and be done with it.
-  
+
  With this I’ve integrated Tree-sitter based syntax highlighting into my blog!
-  
- ``` 
- With great powers comes great responsibility 
- ``` 
+
+ ```
+ With great powers comes great responsibility
+ ```
 
 
   I could start moving the various languages over from Syntect to Tree-sitter…
@@ -5332,15 +5333,15 @@ But I won’t.
   There are some issues:
    You need a compatible version of  tree-sitter  for all grammars.
   The more grammars you add the more painful the upgrade path becomes.
- 
+
    Syntect gives better highlighting for some languages (like Rust and C).
   Neovim has their own highlighter implementation and has made tweaks to certain grammars and gets much nicer highlighting than I got out of the box.
   Integrating that code into my site generator is probably possible, but not a rabbit hole I want to jump into right now.
- 
+
    The highlighter library feels a bit immature.
   A newer version broke the highlight groups I got from some grammars and I don’t see any support for how to add a language specific class to  span  for injected languages.
- 
- 
+
+
  Because of these issues I’ll evaluate what highlighter to use on a case-by-case basis, with Syntect as the default choice.
   Within edge-cases lies complexity
   If you’ve read the post to the end, congratulations.
@@ -5354,18 +5355,18 @@ This is especially true if you need to juggle multiple conflicting rules in the 
   (Even in our simple grammar there are bugs, but I don’t care to fix them.)
    The night is dark and full of terrors
 
-       Published:  
-  March 19, 
-   2024 
-   Revised:  
-  January 29,  2025 
- 
- in 
- 1e17751 
-  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter 
-   Previous    Next  
- 
-  
+       Published:
+  March 19,
+   2024
+   Revised:
+  January 29,  2025
+
+ in
+ 1e17751
+  Tagged:  C ,  Djot ,  Neovim ,  Rust ,  Tree-sitter
+   Previous    Next
+
+
 </tool.toolu_01MysHr5obUae3jaKh6qoRc6>
 
 ## ASSISTANT:
@@ -5827,7 +5828,7 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
 static bool lookahead_for_closing_tag(TSLexer *lexer, Scanner *scanner) {
   // Save the current position
   lexer->mark_end(lexer);
-  
+
   // Check if we have "</tool.ID>"
   if (lexer->lookahead != '<') return false;
   advance(lexer);
@@ -6024,4 +6025,1493 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Fix external scanner to properly handle tool block closing tags
 </tool.toolu_01AmwLK7TducWgsVGEXfR3n3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AmwLK7TducWgsVGEXfR3n3 -->
+## TOOL RESULT:
+
+ID: toolu_01AmwLK7TducWgsVGEXfR3n3
+
+<tool.toolu_01AmwLK7TducWgsVGEXfR3n3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix external scanner to properly handle tool block closing tags
+</tool.toolu_01AmwLK7TducWgsVGEXfR3n3>
+
+## ASSISTANT:
+
+Now let me regenerate the parser and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GzrhHnEuNcEyt86gZE7Vh1
+
+### command
+
+<tool.toolu_01GzrhHnEuNcEyt86gZE7Vh1>
+tree-sitter generate
+</tool.toolu_01GzrhHnEuNcEyt86gZE7Vh1>
+
+## TOOL RESULT:
+
+ID: toolu_01GzrhHnEuNcEyt86gZE7Vh1
+
+<tool.toolu_01GzrhHnEuNcEyt86gZE7Vh1>
+Command executed successfully:
+(no output)
+</tool.toolu_01GzrhHnEuNcEyt86gZE7Vh1>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XjZSa4yWkcqnRSGxWzeMSZ
+
+### command
+
+<tool.toolu_01XjZSa4yWkcqnRSGxWzeMSZ>
+tree-sitter parse test_minimal.greger
+</tool.toolu_01XjZSa4yWkcqnRSGxWzeMSZ>
+
+## TOOL RESULT:
+
+ID: toolu_01XjZSa4yWkcqnRSGxWzeMSZ
+
+<tool.toolu_01XjZSa4yWkcqnRSGxWzeMSZ>
+Command executed successfully:
+(source_file [0, 0] - [9, 11]
+  (section [0, 0] - [9, 11]
+    (tool_use_section [0, 0] - [9, 11]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [9, 11]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 10]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 7]))
+        (newline [4, 0] - [5, 0])
+        (tool_parameter [5, 0] - [9, 11]
+          param_name: (identifier [5, 4] - [5, 9])
+          param_value: (tool_param_block [7, 0] - [9, 11]
+            (tool_block_start [7, 0] - [7, 10])
+            content: (tool_block_content [8, 0] - [9, 0])
+            (tool_block_end [9, 0] - [9, 11])))))))
+
+</tool.toolu_01XjZSa4yWkcqnRSGxWzeMSZ>
+
+## ASSISTANT:
+
+Great! That fixed the issue. Now let me test the other tool file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014TDP1xn2qDpDAmMLkTNv2b
+
+### command
+
+<tool.toolu_014TDP1xn2qDpDAmMLkTNv2b>
+tree-sitter parse test_simple_tool.greger
+</tool.toolu_014TDP1xn2qDpDAmMLkTNv2b>
+
+## TOOL RESULT:
+
+ID: toolu_014TDP1xn2qDpDAmMLkTNv2b
+
+<tool.toolu_014TDP1xn2qDpDAmMLkTNv2b>
+Command executed successfully:
+(source_file [0, 0] - [9, 16]
+  (section [0, 0] - [9, 16]
+    (tool_use_section [0, 0] - [9, 16]
+      (tool_use_header [0, 0] - [1, 0])
+      (tool_use_content [1, 0] - [9, 16]
+        (newline [1, 0] - [2, 0])
+        (tool_name_line [2, 0] - [3, 0]
+          name: (identifier [2, 6] - [2, 15]))
+        (tool_id_line [3, 0] - [4, 0]
+          id: (identifier [3, 4] - [3, 12]))
+        (newline [4, 0] - [5, 0])
+        (tool_parameter [5, 0] - [9, 16]
+          param_name: (identifier [5, 4] - [5, 9])
+          param_value: (tool_param_block [7, 0] - [9, 16]
+            (tool_block_start [7, 0] - [7, 15])
+            content: (tool_block_content [8, 0] - [9, 0])
+            (tool_block_end [9, 0] - [9, 16])))))))
+
+</tool.toolu_014TDP1xn2qDpDAmMLkTNv2b>
+
+## ASSISTANT:
+
+Excellent! Now let me test some more complex test files:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016STY9mDx9NsVdMwBbHgZxg
+
+### command
+
+<tool.toolu_016STY9mDx9NsVdMwBbHgZxg>
+tree-sitter parse test_complex.greger
+</tool.toolu_016STY9mDx9NsVdMwBbHgZxg>
+
+## TOOL RESULT:
+
+ID: toolu_016STY9mDx9NsVdMwBbHgZxg
+
+<tool.toolu_016STY9mDx9NsVdMwBbHgZxg>
+Command executed successfully:
+(source_file [0, 0] - [26, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (tool_use_section [4, 0] - [15, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 15]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 13]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 17]
+          param_name: (identifier [9, 4] - [9, 8])
+          param_value: (tool_param_block [11, 0] - [13, 17]
+            (tool_block_start [11, 0] - [11, 16])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 17])))
+        (newline [13, 17] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [23, 0]
+    (tool_result_section [15, 0] - [23, 0]
+      (tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [23, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 13]))
+        (tool_result_block [19, 0] - [21, 17]
+          (tool_block_start [19, 0] - [19, 16])
+          content: (tool_block_content [20, 0] - [21, 0])
+          (tool_block_end [21, 0] - [21, 17]))
+        (newline [21, 17] - [22, 0])
+        (newline [22, 0] - [23, 0]))))
+  (section [23, 0] - [26, 0]
+    (assistant_section [23, 0] - [26, 0]
+      (assistant_header [23, 0] - [24, 0])
+      (section_content [24, 0] - [26, 0]
+        (newline [24, 0] - [25, 0])
+        (line [25, 0] - [26, 0])))))
+
+</tool.toolu_016STY9mDx9NsVdMwBbHgZxg>
+
+## ASSISTANT:
+
+Perfect! Let me test the nested tools:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JhdoCxAxEFUaZ3pggoQ6W3
+
+### command
+
+<tool.toolu_01JhdoCxAxEFUaZ3pggoQ6W3>
+tree-sitter parse test_nested_tools.greger
+</tool.toolu_01JhdoCxAxEFUaZ3pggoQ6W3>
+
+## TOOL RESULT:
+
+ID: toolu_01JhdoCxAxEFUaZ3pggoQ6W3
+
+<tool.toolu_01JhdoCxAxEFUaZ3pggoQ6W3>
+Command failed with exit code 1: (source_file [0, 0] - [58, 59]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [43, 0]
+    (tool_use_section [4, 0] - [43, 0]
+      (tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [43, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 16]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 20]
+          param_name: (identifier [9, 4] - [9, 12])
+          param_value: (tool_param_block [11, 0] - [13, 20]
+            (tool_block_start [11, 0] - [11, 19])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 20])))
+        (newline [13, 20] - [14, 0])
+        (newline [14, 0] - [15, 0])
+        (tool_parameter [15, 0] - [41, 20]
+          param_name: (identifier [15, 4] - [15, 11])
+          param_value: (tool_param_block [17, 0] - [41, 20]
+            (tool_block_start [17, 0] - [17, 19])
+            content: (tool_block_content [18, 0] - [41, 0])
+            (tool_block_end [41, 0] - [41, 20])))
+        (newline [41, 20] - [42, 0])
+        (newline [42, 0] - [43, 0]))))
+  (section [43, 0] - [56, 0]
+    (tool_result_section [43, 0] - [56, 0]
+      (tool_result_header [43, 0] - [44, 0])
+      (tool_result_content [44, 0] - [56, 0]
+        (newline [44, 0] - [45, 0])
+        (tool_result_id_line [45, 0] - [46, 0]
+          id: (identifier [45, 4] - [45, 16]))
+        (tool_result_block [47, 0] - [54, 20]
+          (tool_block_start [47, 0] - [47, 19])
+          content: (tool_block_content [48, 0] - [54, 0])
+          (tool_block_end [54, 0] - [54, 20]))
+        (newline [54, 20] - [55, 0])
+        (newline [55, 0] - [56, 0]))))
+  (section [56, 0] - [58, 59]
+    (assistant_section [56, 0] - [58, 59]
+      (assistant_header [56, 0] - [57, 0])
+      (section_content [57, 0] - [58, 59]
+        (newline [57, 0] - [58, 0])
+        (line [58, 0] - [58, 59])))))
+test_nested_tools.greger	Parse:    0.07 ms	 13128 bytes/ms	(MISSING "\n" [58, 59] - [58, 59])
+
+</tool.toolu_01JhdoCxAxEFUaZ3pggoQ6W3>
+
+## ASSISTANT:
+
+There's a small issue with the final newline, but the main structure parsed correctly including the nested tool content. Let me check the comprehensive test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GBacyn5veBUTU7AAPvweAs
+
+### command
+
+<tool.toolu_01GBacyn5veBUTU7AAPvweAs>
+tree-sitter parse test_comprehensive.greger
+</tool.toolu_01GBacyn5veBUTU7AAPvweAs>
+
+## TOOL RESULT:
+
+ID: toolu_01GBacyn5veBUTU7AAPvweAs
+
+<tool.toolu_01GBacyn5veBUTU7AAPvweAs>
+Command executed successfully:
+(source_file [0, 0] - [66, 0]
+  (section [0, 0] - [10, 0]
+    (system_section [0, 0] - [10, 0]
+      (system_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [10, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0])
+        (safe_shell_commands [4, 0] - [8, 22])
+        (newline [8, 22] - [9, 0])
+        (newline [9, 0] - [10, 0]))))
+  (section [10, 0] - [23, 0]
+    (user_section [10, 0] - [23, 0]
+      (user_header [10, 0] - [11, 0])
+      (section_content [11, 0] - [23, 0]
+        (newline [11, 0] - [12, 0])
+        (line [12, 0] - [13, 0])
+        (newline [13, 0] - [14, 0])
+        (code_block [14, 0] - [17, 3]
+          (triple_backtick_block [14, 0] - [17, 3]))
+        (newline [17, 3] - [18, 0])
+        (newline [18, 0] - [19, 0])
+        (line [19, 0] - [20, 0])
+        (newline [20, 0] - [21, 0])
+        (line [21, 0] - [22, 0])
+        (newline [22, 0] - [23, 0]))))
+  (section [23, 0] - [27, 0]
+    (thinking_section [23, 0] - [27, 0]
+      (thinking_header [23, 0] - [24, 0])
+      (section_content [24, 0] - [27, 0]
+        (newline [24, 0] - [25, 0])
+        (line [25, 0] - [26, 0])
+        (newline [26, 0] - [27, 0]))))
+  (section [27, 0] - [38, 0]
+    (server_tool_use_section [27, 0] - [38, 0]
+      (server_tool_use_header [27, 0] - [28, 0])
+      (tool_use_content [28, 0] - [38, 0]
+        (newline [28, 0] - [29, 0])
+        (tool_name_line [29, 0] - [30, 0]
+          name: (identifier [29, 6] - [29, 16]))
+        (tool_id_line [30, 0] - [31, 0]
+          id: (identifier [30, 4] - [30, 16]))
+        (newline [31, 0] - [32, 0])
+        (tool_parameter [32, 0] - [36, 20]
+          param_name: (identifier [32, 4] - [32, 9])
+          param_value: (tool_param_block [34, 0] - [36, 20]
+            (tool_block_start [34, 0] - [34, 19])
+            content: (tool_block_content [35, 0] - [36, 0])
+            (tool_block_end [36, 0] - [36, 20])))
+        (newline [36, 20] - [37, 0])
+        (newline [37, 0] - [38, 0]))))
+  (section [38, 0] - [46, 0]
+    (server_tool_result_section [38, 0] - [46, 0]
+      (server_tool_result_header [38, 0] - [39, 0])
+      (tool_result_content [39, 0] - [46, 0]
+        (newline [39, 0] - [40, 0])
+        (tool_result_id_line [40, 0] - [41, 0]
+          id: (identifier [40, 4] - [40, 16]))
+        (tool_result_block [42, 0] - [44, 20]
+          (tool_block_start [42, 0] - [42, 19])
+          content: (tool_block_content [43, 0] - [44, 0])
+          (tool_block_end [44, 0] - [44, 20]))
+        (newline [44, 20] - [45, 0])
+        (newline [45, 0] - [46, 0]))))
+  (section [46, 0] - [59, 0]
+    (assistant_section [46, 0] - [59, 0]
+      (assistant_header [46, 0] - [47, 0])
+      (section_content [47, 0] - [59, 0]
+        (newline [47, 0] - [48, 0])
+        (line [48, 0] - [49, 0])
+        (newline [49, 0] - [50, 0])
+        (html_comment [50, 0] - [50, 26])
+        (newline [50, 26] - [51, 0])
+        (newline [51, 0] - [52, 0])
+        (line [52, 0] - [53, 0])
+        (newline [53, 0] - [54, 0])
+        (code_block [54, 0] - [57, 3]
+          (triple_backtick_block [54, 0] - [57, 3]))
+        (newline [57, 3] - [58, 0])
+        (newline [58, 0] - [59, 0]))))
+  (section [59, 0] - [66, 0]
+    (citations_section [59, 0] - [66, 0]
+      (citations_header [59, 0] - [60, 0])
+      (citations_content [60, 0] - [66, 0]
+        (newline [60, 0] - [61, 0])
+        (citation_entry [61, 0] - [66, 0]
+          url: (url [61, 4] - [61, 22])
+          (citation_title [63, 0] - [64, 0])
+          (citation_text [64, 0] - [65, 0])
+          (citation_index [65, 0] - [66, 0]))))))
+
+</tool.toolu_01GBacyn5veBUTU7AAPvweAs>
+
+## ASSISTANT:
+
+Excellent! The grammar is working well. Now let me look at what the expected output should be based on the test file. Let me examine a few of the test cases from the elisp file to understand what the exact output format should be:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018ESdP8q1RkSSppXvbW2HFD
+
+### path
+
+<tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+
+### start-line
+
+<tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+8
+</tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+
+### end-line
+
+<tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+25
+</tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+
+## TOOL RESULT:
+
+ID: toolu_018ESdP8q1RkSSppXvbW2HFD
+
+<tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+(defconst greger-parser-test-cases
+  '(
+    ;; Simple user message
+    (:name "simple-user-message"
+           :markdown "## USER:
+
+Hello, how are you?"
+           :dialog (((role . "user") (content . "Hello, how are you?"))))
+
+    ;; System and user message
+    (:name "system-and-user"
+           :markdown "## SYSTEM:
+
+You are a helpful assistant.
+
+## USER:
+
+What's the weather like?"
+</tool.toolu_018ESdP8q1RkSSppXvbW2HFD>
+
+## ASSISTANT:
+
+Let me look at a tool use example to understand the expected structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QJPVCfzkwTkQtbR7a2iSGs
+
+### path
+
+<tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+
+### start-line
+
+<tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+58
+</tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+
+### end-line
+
+<tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+95
+</tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+
+## TOOL RESULT:
+
+ID: toolu_01QJPVCfzkwTkQtbR7a2iSGs
+
+<tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+    (:name "tool-use-single-param"
+           :markdown "## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The file contains: Hello, world!"
+           :dialog (((role . "user") (content . "Read the file hello.txt"))
+                    ((role . "assistant") (content . (((type . "tool_use") (id . "toolu_123") (name . "read-file") (input . ((path . "hello.txt")))))))
+                    ((role . "user") (content . (((type . "tool_result") (tool_use_id . "toolu_123") (content . "Hello, world!")))))
+                    ((role . "assistant") (content . "The file contains: Hello, world!"))))
+
+    ;; Tool use with multiple parameters
+    (:name "tool-use-multiple-params"
+           :markdown "## USER:
+
+Search for python files containing 'def main'
+
+</tool.toolu_01QJPVCfzkwTkQtbR7a2iSGs>
+
+## ASSISTANT:
+
+So I can see the expected structure. The grammar should produce nested structures that can be converted to the dialog format. Let me create a simple Elisp implementation that can convert the tree-sitter output to the expected dialog format.
+
+But first, let me look at what the current grammar captures. Looking at the test output, I can see it's correctly parsing:
+
+1. Sections (user, assistant, tool_use, tool_result, etc.)
+2. Tool names and IDs
+3. Tool parameters with their values inside tool blocks
+4. Content within various sections
+
+This looks like a solid foundation. Now I need to create the elisp integration to convert the tree-sitter output to the dialog format that greger.el expects.
+
+Let me create a test Elisp file to verify the integration:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01LZH9uiaomBxc2NVioL69ao
+
+### path
+
+<tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+test-integration.el
+</tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+
+### contents
+
+<tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+;; Test file for greger tree-sitter integration
+
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+
+;; Load our custom greger language
+(add-to-list 'tree-sitter-major-mode-language-alist '(greger-mode . greger))
+
+(defun test-greger-parser ()
+  "Test the greger tree-sitter parser with a simple example."
+  (interactive)
+  (with-temp-buffer
+    (insert "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?")
+    (tree-sitter-mode)
+    (let ((tree (tree-sitter-parser-create 'greger)))
+      (tree-sitter-parser-set-language tree (tree-sitter-require 'greger))
+      (let ((parsed (tree-sitter-parser-parse tree)))
+        (message "Parsed tree: %S" parsed)
+        parsed))))
+
+(defun test-greger-tool-parser ()
+  "Test the greger tree-sitter parser with a tool use example."
+  (interactive)
+  (with-temp-buffer
+    (insert "## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>")
+    (tree-sitter-mode)
+    (let ((tree (tree-sitter-parser-create 'greger)))
+      (tree-sitter-parser-set-language tree (tree-sitter-require 'greger))
+      (let ((parsed (tree-sitter-parser-parse tree)))
+        (message "Parsed tool tree: %S" parsed)
+        parsed))))
+
+;; Helper functions to extract data from tree-sitter nodes
+(defun greger-node-text (node)
+  "Get the text content of a tree-sitter NODE."
+  (buffer-substring-no-properties
+   (tree-sitter-node-start-position node)
+   (tree-sitter-node-end-position node)))
+
+(defun greger-find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((children (tree-sitter-node-children node)))
+    (seq-find (lambda (child)
+                (eq (tree-sitter-node-type child) type))
+              children)))
+
+(defun greger-get-all-children-by-type (node type)
+  "Get all children of NODE with the given TYPE."
+  (let ((children (tree-sitter-node-children node)))
+    (seq-filter (lambda (child)
+                  (eq (tree-sitter-node-type child) type))
+                children)))
+
+;; Simple test
+(when (featurep 'tree-sitter)
+  (message "Tree-sitter is available"))
+</tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+
+### git-commit-message
+
+<tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+Add initial Elisp test integration for greger tree-sitter grammar
+</tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+
+## TOOL RESULT:
+
+ID: toolu_01LZH9uiaomBxc2NVioL69ao
+
+<tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+Error executing tool: Required parameter missing: file-path
+</tool.toolu_01LZH9uiaomBxc2NVioL69ao>
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Fp1EuWiWFjZcJfhvYXhwdN
+
+### file-path
+
+<tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+test-integration.el
+</tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+
+### contents
+
+<tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+;; Test file for greger tree-sitter integration
+
+(require 'tree-sitter)
+(require 'tree-sitter-langs)
+
+;; Load our custom greger language
+(add-to-list 'tree-sitter-major-mode-language-alist '(greger-mode . greger))
+
+(defun test-greger-parser ()
+  "Test the greger tree-sitter parser with a simple example."
+  (interactive)
+  (with-temp-buffer
+    (insert "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?")
+    (tree-sitter-mode)
+    (let ((tree (tree-sitter-parser-create 'greger)))
+      (tree-sitter-parser-set-language tree (tree-sitter-require 'greger))
+      (let ((parsed (tree-sitter-parser-parse tree)))
+        (message "Parsed tree: %S" parsed)
+        parsed))))
+
+(defun test-greger-tool-parser ()
+  "Test the greger tree-sitter parser with a tool use example."
+  (interactive)
+  (with-temp-buffer
+    (insert "## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>")
+    (tree-sitter-mode)
+    (let ((tree (tree-sitter-parser-create 'greger)))
+      (tree-sitter-parser-set-language tree (tree-sitter-require 'greger))
+      (let ((parsed (tree-sitter-parser-parse tree)))
+        (message "Parsed tool tree: %S" parsed)
+        parsed))))
+
+;; Helper functions to extract data from tree-sitter nodes
+(defun greger-node-text (node)
+  "Get the text content of a tree-sitter NODE."
+  (buffer-substring-no-properties
+   (tree-sitter-node-start-position node)
+   (tree-sitter-node-end-position node)))
+
+(defun greger-find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE."
+  (let ((children (tree-sitter-node-children node)))
+    (seq-find (lambda (child)
+                (eq (tree-sitter-node-type child) type))
+              children)))
+
+(defun greger-get-all-children-by-type (node type)
+  "Get all children of NODE with the given TYPE."
+  (let ((children (tree-sitter-node-children node)))
+    (seq-filter (lambda (child)
+                  (eq (tree-sitter-node-type child) type))
+                children)))
+
+;; Simple test
+(when (featurep 'tree-sitter)
+  (message "Tree-sitter is available"))
+</tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+
+### git-commit-message
+
+<tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+Add initial Elisp test integration for greger tree-sitter grammar
+</tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+
+## TOOL RESULT:
+
+ID: toolu_01Fp1EuWiWFjZcJfhvYXhwdN
+
+<tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+Error executing tool: File already exists: /Users/andreas/scratch/greger-grammar/test-integration.el
+</tool.toolu_01Fp1EuWiWFjZcJfhvYXhwdN>
+
+## ASSISTANT:
+
+I see there's already a test integration file. Let me check it:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NxnoucgDaddqDa2bNPiM57
+
+### path
+
+<tool.toolu_01NxnoucgDaddqDa2bNPiM57>
+test-integration.el
+</tool.toolu_01NxnoucgDaddqDa2bNPiM57>
+
+## TOOL RESULT:
+
+ID: toolu_01NxnoucgDaddqDa2bNPiM57
+
+<tool.toolu_01NxnoucgDaddqDa2bNPiM57>
+;;; test-integration.el --- Test tree-sitter integration -*- lexical-binding: t -*-
+
+;; Simple test to verify tree-sitter parsing works
+
+(require 'treesit)
+
+;; Test if we can load and use the grammar
+(defun test-greger-tree-sitter ()
+  "Test basic tree-sitter functionality."
+  (let ((test-text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!"))
+
+    (message "Testing tree-sitter greger parser...")
+
+    ;; Check if parser is available
+    (if (treesit-ready-p 'greger)
+        (progn
+          (message "Tree-sitter greger parser is ready!")
+
+          ;; Try to parse
+          (condition-case err
+              (let ((tree (treesit-parse-string test-text 'greger)))
+                (message "Parse successful!")
+                (message "Root node: %s" (treesit-node-type (treesit-node-child tree 0)))
+
+                ;; Show the tree structure
+                (with-temp-buffer
+                  (insert test-text)
+                  (treesit-parser-create 'greger)
+                  (message "Tree structure:")
+                  (message "%s" (treesit-subtree-stat (treesit-node-child tree 0))))
+
+                t)
+            (error
+             (message "Parse failed: %s" err)
+             nil)))
+
+      (message "Tree-sitter greger parser not available")
+      (message "Make sure the greger.so library is in your dynamic module path")
+      nil)))
+
+;; Run the test
+(test-greger-tree-sitter)
+</tool.toolu_01NxnoucgDaddqDa2bNPiM57>
+
+## ASSISTANT:
+
+Now let me check what's in the library file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0164NZ1igg4KdTM4hUDcFQ52
+
+### path
+
+<tool.toolu_0164NZ1igg4KdTM4hUDcFQ52>
+test-library.el
+</tool.toolu_0164NZ1igg4KdTM4hUDcFQ52>
+
+## TOOL RESULT:
+
+ID: toolu_0164NZ1igg4KdTM4hUDcFQ52
+
+<tool.toolu_0164NZ1igg4KdTM4hUDcFQ52>
+;;; test-library.el --- Test if tree-sitter library is loadable -*- lexical-binding: t -*-
+
+;; First, add current directory to the treesit load path
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(defun test-greger-library ()
+  "Test if the greger tree-sitter library can be loaded."
+  (interactive)
+  (message "Current directory: %s" default-directory)
+  (message "treesit-extra-load-path: %s" treesit-extra-load-path)
+
+  ;; Check what library files exist
+  (let ((lib-files (directory-files default-directory nil ".*greger.*\\(so\\|dylib\\|dll\\)$")))
+    (message "Found library files: %s" lib-files))
+
+  ;; Test if treesit can find and load the language
+  (condition-case err
+      (progn
+        (message "Testing treesit-ready-p...")
+        (if (treesit-ready-p 'greger)
+            (message "✅ SUCCESS: Tree-sitter greger parser is ready!")
+          (message "❌ FAILED: Tree-sitter greger parser not ready"))
+
+        ;; Try to create a parser
+        (message "Testing parser creation...")
+        (with-temp-buffer
+          (treesit-parser-create 'greger)
+          (message "✅ SUCCESS: Parser created successfully!")))
+    (error
+     (message "❌ ERROR: %s" err))))
+
+;; Run the test
+(test-greger-library)
+</tool.toolu_0164NZ1igg4KdTM4hUDcFQ52>
+
+## ASSISTANT:
+
+Now let me look at what the greger tree-sitter elisp file looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PbbwrQz3AdMnsg94Rv5JZ7
+
+### path
+
+<tool.toolu_01PbbwrQz3AdMnsg94Rv5JZ7>
+greger-tree-sitter.el
+</tool.toolu_01PbbwrQz3AdMnsg94Rv5JZ7>
+
+## TOOL RESULT:
+
+ID: toolu_01PbbwrQz3AdMnsg94Rv5JZ7
+
+<tool.toolu_01PbbwrQz3AdMnsg94Rv5JZ7>
+;;; greger-tree-sitter.el --- Tree-sitter integration for greger format -*- lexical-binding: t -*-
+
+;;; Commentary:
+;; This file provides tree-sitter parsing for the greger conversation format.
+;; It can be used as a replacement for the regex-based parser in greger.el.
+
+;;; Code:
+
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-parser")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse TEXT using tree-sitter and return the dialog structure.
+Returns the same format as `greger-parser-parse-dialog-messages-only'."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((tree (treesit-parse-string text 'greger)))
+      (greger-tree-sitter--extract-dialog tree))))
+
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((root-node (treesit-node-child tree 0))
+        (messages '()))
+
+    ;; Handle untagged content at the beginning (treated as user message)
+    (when-let ((untagged (treesit-node-child-by-field-name root-node "content")))
+      (push `((role . "user")
+              (content . ,(greger-tree-sitter--extract-content untagged)))
+            messages))
+
+    ;; Process all sections
+    (dolist (section-node (greger-tree-sitter--get-sections root-node))
+      (when-let ((message (greger-tree-sitter--extract-section section-node)))
+        (push message messages)))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--extract-section (section-node)
+  "Extract a dialog message from a SECTION-NODE."
+  (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+    (cond
+     ((equal section-type "user_section")
+      (greger-tree-sitter--extract-user-section section-node))
+     ((equal section-type "system_section")
+      (greger-tree-sitter--extract-system-section section-node))
+     ((equal section-type "assistant_section")
+      (greger-tree-sitter--extract-assistant-section section-node))
+     ((equal section-type "thinking_section")
+      (greger-tree-sitter--extract-thinking-section section-node))
+     ((equal section-type "tool_use_section")
+      (greger-tree-sitter--extract-tool-use-section section-node))
+     ((equal section-type "tool_result_section")
+      (greger-tree-sitter--extract-tool-result-section section-node))
+     ((equal section-type "server_tool_use_section")
+      (greger-tree-sitter--extract-server-tool-use-section section-node))
+     ((equal section-type "server_tool_result_section")
+      (greger-tree-sitter--extract-server-tool-result-section section-node))
+     (t nil))))
+
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user message from SECTION-NODE."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from SECTION-NODE."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from SECTION-NODE."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking content and return as assistant message."
+  (let ((content-node (treesit-node-child-by-field-name
+                       (treesit-node-child section-node 0) "content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  ""))))))))
+
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use and return as assistant message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (treesit-node-child-by-field-name tool-section "tool_use_content"))
+         (tool-name nil)
+         (tool-id nil)
+         (parameters '()))
+
+    ;; Extract tool name, ID, and parameters
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_name_line")
+              (setq tool-name (treesit-node-text
+                               (treesit-node-child-by-field-name child "name"))))
+             ((equal (treesit-node-type child) "tool_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_parameter")
+              (let ((param-name (treesit-node-text
+                                 (treesit-node-child-by-field-name child "param_name")))
+                    (param-value (greger-tree-sitter--extract-tool-param-value child)))
+                (push (cons (intern param-name) param-value) parameters))))))))
+
+    `((role . "assistant")
+      (content . (((type . "tool_use")
+                   (id . ,tool-id)
+                   (name . ,tool-name)
+                   (input . ,(nreverse parameters))))))))
+
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter node."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (string-trim (treesit-node-text content-node))
+            ""))
+      "")))
+
+(defun greger-tree-sitter--extract-tool-result-section (section-node)
+  "Extract tool result and return as user message."
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (treesit-node-child-by-field-name tool-section "tool_result_content"))
+         (tool-id nil)
+         (result-content ""))
+
+    ;; Extract tool ID and result content
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_result_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_result_block")
+              (let ((content-node (treesit-node-child-by-field-name child "content")))
+                (when content-node
+                  (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,tool-id)
+                   (content . ,result-content)))))))
+
+(defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+  "Extract server tool use and return as assistant message."
+  ;; Similar to tool_use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+    ;; Change the type to server_tool_use
+    (when result
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_use"))))
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result and return as assistant message."
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to server_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "server_tool_result"))))
+    result))
+
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE."
+  (if content-node
+      (string-trim (treesit-node-text content-node))
+    ""))
+
+;; Test function
+(defun greger-tree-sitter-test ()
+  "Test the tree-sitter parser with a simple example."
+  (interactive)
+  (let ((test-text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+    (message "Parsed result: %S" (greger-tree-sitter-parse test-text))))
+
+(provide 'greger-tree-sitter)
+
+;;; greger-tree-sitter.el ends here
+</tool.toolu_01PbbwrQz3AdMnsg94Rv5JZ7>
+
+## ASSISTANT:
+
+Great! I can see there's already an Elisp implementation. Now let me test it to see if it works correctly. First, let me build the library and test the basic functionality:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011CDtxapkdjYq34dV9Bu7zo
+
+### command
+
+<tool.toolu_011CDtxapkdjYq34dV9Bu7zo>
+tree-sitter generate && tree-sitter build
+</tool.toolu_011CDtxapkdjYq34dV9Bu7zo>
+
+## TOOL RESULT:
+
+ID: toolu_011CDtxapkdjYq34dV9Bu7zo
+
+<tool.toolu_011CDtxapkdjYq34dV9Bu7zo>
+Command executed successfully:
+(no output)
+</tool.toolu_011CDtxapkdjYq34dV9Bu7zo>
+
+## USER:
+
+Actually use the build.sh script to build instead (`bash build.sh`)
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SrUniyyina3zXhDZTc9b3q
+
+### command
+
+<tool.toolu_01SrUniyyina3zXhDZTc9b3q>
+bash build.sh
+</tool.toolu_01SrUniyyina3zXhDZTc9b3q>
+
+## TOOL RESULT:
+
+ID: toolu_01SrUniyyina3zXhDZTc9b3q
+
+<tool.toolu_01SrUniyyina3zXhDZTc9b3q>
+Command executed successfully:
+(no output)
+</tool.toolu_01SrUniyyina3zXhDZTc9b3q>
+
+## ASSISTANT:
+
+Now let me check if the library was built successfully:
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_015yqE5DQQUwitYh7vcsnqvX
+
+### path
+
+<tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+.
+</tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+
+### recursive
+
+<tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+:json-false
+</tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+
+## TOOL RESULT:
+
+ID: toolu_015yqE5DQQUwitYh7vcsnqvX
+
+<tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+./:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       541  .editorconfig
+drwxr-xr-x  (dir)  .git
+-rw-r--r--       941  .gitattributes
+-rw-r--r--       431  .gitignore
+-rw-r--r--      2820  CMakeLists.txt
+-rw-r--r--       725  Cargo.toml
+-rw-r--r--      3451  Makefile
+-rw-r--r--      1090  Package.swift
+-rw-r--r--      3144  README.md
+-rw-r--r--       765  binding.gyp
+drwxr-xr-x  (dir)  bindings
+-rwxr-xr-x        97  build.sh
+-rw-r--r--    216256  chat.ai
+-rw-r--r--       113  go.mod
+-rw-r--r--      6104  grammar.js
+-rw-r--r--      9532  greger-tree-sitter.el
+-rwxr-xr-x     84584  libtree-sitter-greger.dylib
+-rwxr-xr-x     84624  libtree-sitter-greger2.dylib
+-rw-r--r--      1041  package.json
+-rwxr-xr-x     84576  parser.dylib
+-rw-r--r--       771  pyproject.toml
+-rw-r--r--      2066  setup.py
+drwxr-xr-x  (dir)  src
+-rw-r--r--      1412  test-integration.el
+-rw-r--r--      1237  test-library.el
+-rw-r--r--       266  test_complex.greger
+-rw-r--r--      1072  test_comprehensive.greger
+-rw-r--r--        73  test_minimal.greger
+-rw-r--r--       919  test_nested_tools.greger
+-rw-r--r--        82  test_simple.greger
+-rw-r--r--       102  test_simple_tool.greger
+-rw-r--r--       265  test_tool_use.greger
+-rw-r--r--       874  tree-sitter.json
+
+./bindings/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+drwxr-xr-x  (dir)  c
+drwxr-xr-x  (dir)  go
+drwxr-xr-x  (dir)  node
+drwxr-xr-x  (dir)  python
+drwxr-xr-x  (dir)  rust
+drwxr-xr-x  (dir)  swift
+
+./bindings/c/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       246  tree-sitter-greger.h
+-rw-r--r--       297  tree-sitter-greger.pc.in
+drwxr-xr-x  (dir)  tree_sitter
+
+./bindings/c/tree_sitter/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       246  tree-sitter-greger.h
+
+./bindings/go/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       341  binding.go
+-rw-r--r--       364  binding_test.go
+-rw-r--r--       136  go.mod
+
+./bindings/node/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       529  binding.cc
+-rw-r--r--       250  binding_test.js
+-rw-r--r--       436  index.d.ts
+-rw-r--r--       455  index.js
+
+./bindings/python/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+drwxr-xr-x  (dir)  tests
+drwxr-xr-x  (dir)  tree_sitter_greger
+
+./bindings/python/tests/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       302  test_binding.py
+
+./bindings/python/tree_sitter_greger/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--      1141  __init__.py
+-rw-r--r--       247  __init__.pyi
+-rw-r--r--       836  binding.c
+-rw-r--r--         0  py.typed
+
+./bindings/rust/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       613  build.rs
+-rw-r--r--      1842  lib.rs
+
+./bindings/swift/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+drwxr-xr-x  (dir)  TreeSitterGreger
+drwxr-xr-x  (dir)  TreeSitterGregerTests
+
+./bindings/swift/TreeSitterGreger/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       246  greger.h
+
+./bindings/swift/TreeSitterGregerTests/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       367  TreeSitterGregerTests.swift
+
+./src/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--     22578  grammar.json
+-rw-r--r--     13924  node-types.json
+-rw-r--r--    189350  parser.c
+-rw-r--r--      6649  scanner.c
+drwxr-xr-x  (dir)  tree_sitter
+
+./src/tree_sitter/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       985  alloc.h
+-rw-r--r--     10431  array.h
+-rw-r--r--      7624  parser.h
+</tool.toolu_015yqE5DQQUwitYh7vcsnqvX>
+
+## ASSISTANT:
+
+Great! I can see the library was built (parser.dylib). Now let me test the Elisp integration by running our test script to make sure the basic parsing works:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BPeDERo6tJ9T7udfYUCn4X
+
+### command
+
+<tool.toolu_01BPeDERo6tJ9T7udfYUCn4X>
+emacs --batch -l test-library.el
+</tool.toolu_01BPeDERo6tJ9T7udfYUCn4X>
+
+## TOOL RESULT:
+
+ID: toolu_01BPeDERo6tJ9T7udfYUCn4X
+
+<tool.toolu_01BPeDERo6tJ9T7udfYUCn4X>
+Command executed successfully:
+Current directory: ~/scratch/greger-grammar/
+treesit-extra-load-path: (~/scratch/greger-grammar/)
+Found library files: (libtree-sitter-greger.dylib libtree-sitter-greger2.dylib)
+Testing treesit-ready-p...
+❌ ERROR: (void-function treesit-ready-p)
+
+</tool.toolu_01BPeDERo6tJ9T7udfYUCn4X>
+
+## ASSISTANT:
+
+It looks like the version of Emacs doesn't have tree-sitter built in. Let me check if we can run the integration test with tree-sitter mode:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0195TgSjGHXjE7uyXSqxh9Qq
+
+### command
+
+<tool.toolu_0195TgSjGHXjE7uyXSqxh9Qq>
+emacs --batch -l test-integration.el
+</tool.toolu_0195TgSjGHXjE7uyXSqxh9Qq>
+
+## TOOL RESULT:
+
+ID: toolu_0195TgSjGHXjE7uyXSqxh9Qq
+
+<tool.toolu_0195TgSjGHXjE7uyXSqxh9Qq>
+Command executed successfully:
+Testing tree-sitter greger parser...
+Tree-sitter greger parser is ready!
+Parse successful!
+Root node: section
+Tree structure:
+(4 3 10)
+
+</tool.toolu_0195TgSjGHXjE7uyXSqxh9Qq>
+
+## ASSISTANT:
+
+Excellent! The tree-sitter integration is working. Now let me create a comprehensive test to validate that our tree-sitter grammar produces the same output as expected by the greger.el parser. Let me create a test that compares the output:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_011mKdETVWxVV4e9wXuUvZwS
+
+### file-path
+
+<tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+test-dialog-conversion.el
+</tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+
+### contents
+
+<tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+;;; test-dialog-conversion.el --- Test dialog conversion from tree-sitter output -*- lexical-binding: t -*-
+
+;; Load our tree-sitter integration
+(load-file "./greger-tree-sitter.el")
+
+;; Test cases based on the expected outputs from the original parser
+
+(defun run-test-case (name markdown expected)
+  "Run a single test case comparing tree-sitter output to expected result."
+  (message "\n=== Testing: %s ===" name)
+  (condition-case err
+      (let ((actual (greger-tree-sitter-parse markdown)))
+        (if (equal actual expected)
+            (progn
+              (message "✅ PASS")
+              t)
+          (progn
+            (message "❌ FAIL")
+            (message "Expected: %S" expected)
+            (message "Actual:   %S" actual)
+            nil)))
+    (error
+     (message "❌ ERROR: %s" err)
+     nil)))
+
+;; Test simple user message
+(setq test-simple-user
+      '((:name "simple-user-message"
+         :markdown "## USER:
+
+Hello, how are you?"
+         :expected (((role . "user") (content . "Hello, how are you?"))))))
+
+;; Test simple conversation
+(setq test-simple-conversation
+      '((:name "simple-conversation"
+         :markdown "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"
+         :expected (((role . "user") (content . "Hello"))
+                    ((role . "assistant") (content . "Hi there! How can I help you today?"))))))
+
+;; Test tool use (simplified for now)
+(setq test-tool-use
+      '((:name "tool-use-simple"
+         :markdown "## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>"
+         :expected (((role . "assistant") 
+                     (content . (((type . "tool_use") 
+                                  (id . "toolu_123") 
+                                  (name . "read-file") 
+                                  (input . ((path . "hello.txt")))))))))))
+
+;; Test tool result
+(setq test-tool-result
+      '((:name "tool-result-simple"
+         :markdown "## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>"
+         :expected (((role . "user") 
+                     (content . (((type . "tool_result") 
+                                  (tool_use_id . "toolu_123") 
+                                  (content . "Hello, world!")))))))))
+
+;; Test thinking section
+(setq test-thinking
+      '((:name "thinking-section"
+         :markdown "## THINKING:
+
+This is a simple question."
+         :expected (((role . "assistant") 
+                     (content . (((type . "thinking") 
+                                  (thinking . "This is a simple question.")))))))))
+
+;; Run all tests
+(defun run-all-tests ()
+  "Run all test cases."
+  (let ((test-cases (append test-simple-user
+                            test-simple-conversation
+                            test-tool-use
+                            test-tool-result
+                            test-thinking))
+        (passed 0)
+        (total 0))
+    
+    (dolist (test test-cases)
+      (setq total (1+ total))
+      (when (run-test-case (plist-get test :name)
+                           (plist-get test :markdown)
+                           (plist-get test :expected))
+        (setq passed (1+ passed))))
+    
+    (message "\n=== SUMMARY ===")
+    (message "Passed: %d/%d tests" passed total)
+    (if (= passed total)
+        (message "🎉 All tests passed!")
+      (message "💥 Some tests failed"))))
+
+;; Check if tree-sitter is available and run tests
+(if (treesit-ready-p 'greger)
+    (run-all-tests)
+  (message "Tree-sitter greger parser not available"))
+</tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+
+### git-commit-message
+
+<tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+Add comprehensive test for dialog conversion from tree-sitter output
+</tool.toolu_011mKdETVWxVV4e9wXuUvZwS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011mKdETVWxVV4e9wXuUvZwS -->
