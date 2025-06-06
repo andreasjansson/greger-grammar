@@ -167,7 +167,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--extract-tool-result-section (section-node)
   "Extract tool result and return as user message."
   (let* ((tool-section (treesit-node-child section-node 0))
-         (tool-content (treesit-node-child-by-field-name tool-section "tool_result_content"))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
          (tool-id nil)
          (result-content ""))
 
