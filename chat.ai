@@ -7812,4 +7812,336 @@ greger-tree-sitter.el
 Fix parentheses in citation index extraction
 </tool.toolu_01DU2CxqhRDtum6ZbHYu6sfA>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DU2CxqhRDtum6ZbHYu6sfA -->
+## TOOL RESULT:
+
+ID: toolu_01DU2CxqhRDtum6ZbHYu6sfA
+
+<tool.toolu_01DU2CxqhRDtum6ZbHYu6sfA>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix parentheses in citation index extraction
+</tool.toolu_01DU2CxqhRDtum6ZbHYu6sfA>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01H1KMYzctFVN2ra8x3Wzm4V
+
+### command
+
+<tool.toolu_01H1KMYzctFVN2ra8x3Wzm4V>
+emacs --batch -l test-citations.el
+</tool.toolu_01H1KMYzctFVN2ra8x3Wzm4V>
+
+## TOOL RESULT:
+
+ID: toolu_01H1KMYzctFVN2ra8x3Wzm4V
+
+<tool.toolu_01H1KMYzctFVN2ra8x3Wzm4V>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+Processing child 0: type=###
+Processing child 1: type=url
+Processing child 2: type=
+
+Processing child 3: type=
+
+Processing child 4: type=citation_title
+Found citation_title, title-node: nil
+Processing child 5: type=citation_text
+Found citation_text, text-node: nil
+Processing child 6: type=citation_index
+Found citation_index, index-node: nil
+Extracted encrypted-index from text: "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."
+Final citation: url="https://en.wikipedia.org/wiki/Claude_Shannon" title=nil cited-text=nil encrypted-index="Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."
+Parsed result: (((role . "assistant") (content ((type . "web_search_tool_result") (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (content . "[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]")) ((type . "server_tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date"))) ((type . "text") (text . "Based on the search results,")) ((type . "text") (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title) (cited_text) (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01H1KMYzctFVN2ra8x3Wzm4V>
+
+## ASSISTANT:
+
+Great! The encrypted-index is now being extracted correctly. I need to add children count debugging to the other nodes to see why they're not being extracted:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AmozpPTKRhyGZZPRWCQ2vW
+
+### file-path
+
+<tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+greger-tree-sitter.el
+</tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+
+### original-content
+
+<tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (message "Found citation_text, text-node: %S" text-node)
+                (if text-node
+                    (progn
+                      (setq cited-text (string-trim (treesit-node-text text-node)))
+                      (message "Set cited-text to: %S" cited-text))
+                  ;; Fallback: try to extract from the text after "Cited text:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
+                      (setq cited-text (string-trim (match-string 1 text)))
+                      (message "Extracted cited-text from text: %S" cited-text))))))
+</tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+
+### new-content
+
+<tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (message "Found citation_text, text-node: %S" text-node)
+                (message "Children count: %d" (treesit-node-child-count child))
+                (if text-node
+                    (progn
+                      (setq cited-text (string-trim (treesit-node-text text-node)))
+                      (message "Set cited-text to: %S" cited-text))
+                  ;; Fallback: try to extract from the text after "Cited text:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Cited text:[ \t]*\\(.*\\)" text)
+                      (setq cited-text (string-trim (match-string 1 text)))
+                      (message "Extracted cited-text from text: %S" cited-text))))))
+</tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+
+### git-commit-message
+
+<tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+Add children count debugging to citation_text
+</tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+
+## TOOL RESULT:
+
+ID: toolu_01AmozpPTKRhyGZZPRWCQ2vW
+
+<tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01AmozpPTKRhyGZZPRWCQ2vW>
+
+## ASSISTANT:
+
+Let me check the current content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QB8pcbjGYsmHa2tu9gQxTJ
+
+### path
+
+<tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+greger-tree-sitter.el
+</tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+
+### start-line
+
+<tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+350
+</tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+
+### end-line
+
+<tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+390
+</tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+
+## TOOL RESULT:
+
+ID: toolu_01QB8pcbjGYsmHa2tu9gQxTJ
+
+<tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (message "Found citation_index, index-node: %S" index-node)
+                (if index-node
+                    (progn
+                      (setq encrypted-index (string-trim (treesit-node-text index-node)))
+                      (message "Set encrypted-index to: %S" encrypted-index))
+                  ;; Fallback: try to extract from the text after "Encrypted index:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Encrypted index:[ \t]*\\(.*\\)" text)
+                      (setq encrypted-index (string-trim (match-string 1 text)))
+                      (message "Extracted encrypted-index from text: %S" encrypted-index))))))))))
+
+      (message "Final citation: url=%S title=%S cited-text=%S encrypted-index=%S"
+               url title cited-text encrypted-index)
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+
+(defun greger-tree-sitter--message-has-cite-tags (message)
+  "Check if MESSAGE content contains cite tags."
+  (let ((content (alist-get 'content message)))
+    (and (stringp content)
+         (string-match-p "<cite>" content))))
+
+(defun greger-tree-sitter--associate-citations (message citations)
+  "Associate CITATIONS with cited text in MESSAGE."
+  ;; This is complex - we need to parse the content and split it by cite tags
+  (let ((content (alist-get 'content message)))
+    (when (stringp content)
+      (setf (alist-get 'content message)
+            (greger-tree-sitter--parse-content-with-citations content citations))))
+  message)
+
+(defun greger-tree-sitter--parse-content-with-citations (content citations)
+  "Parse CONTENT and create content blocks with citations."
+  (let ((parts '())
+        (current-pos 0))
+
+    ;; Find all cite tags and split content accordingly
+</tool.toolu_01QB8pcbjGYsmHa2tu9gQxTJ>
+
+## ASSISTANT:
+
+The fallback extraction is working for the encrypted index. Since we are successfully getting that value, the issue must be that the title and cited text lines don't match our regex patterns. Let me run the test one more time to see exactly what text we're getting:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JfJgkCpiva7E348eX5n1Z8
+
+### file-path
+
+<tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+greger-tree-sitter.el
+</tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+
+### original-content
+
+<tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+Found citation_title, title-node: nil
+                (message "Children count: %d" (treesit-node-child-count child))
+</tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+
+### new-content
+
+<tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+Found citation_title, title-node: nil
+                (message "Children count: %d" (treesit-node-child-count child))
+                (message "Full citation_title text: %S" (treesit-node-text child))
+</tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+
+### git-commit-message
+
+<tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+Add text content debugging for citation_title
+</tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+
+## TOOL RESULT:
+
+ID: toolu_01JfJgkCpiva7E348eX5n1Z8
+
+<tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01JfJgkCpiva7E348eX5n1Z8>
+
+## ASSISTANT:
+
+Let me search for the exact text in the function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01LLkjwmg2ZegJKoHTNDjCht
+
+### pattern
+
+<tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+Found citation_title
+</tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+
+### path
+
+<tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+greger-tree-sitter.el
+</tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+
+### context-lines
+
+<tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+3
+</tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+
+## TOOL RESULT:
+
+ID: toolu_01LLkjwmg2ZegJKoHTNDjCht
+
+<tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+336-            (cond
+337-             ((equal (treesit-node-type child) "citation_title")
+338-              (let ((title-node (treesit-node-child-by-field-name child "title")))
+339:                (message "Found citation_title, title-node: %S" title-node)
+340-                (when title-node
+341-                  (setq title (string-trim (treesit-node-text title-node)))
+342-                  (message "Set title to: %S" title))))
+
+</tool.toolu_01LLkjwmg2ZegJKoHTNDjCht>
+
+## ASSISTANT:
+
+I see the issue - I didn't update all the citation extractions to use the fallback approach. Let me add the debugging properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FawnLTLhgN7W9c5ohH2Sih
+
+### file-path
+
+<tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+greger-tree-sitter.el
+</tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+
+### original-content
+
+<tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (message "Found citation_title, title-node: %S" title-node)
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node)))
+                  (message "Set title to: %S" title))))
+</tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+
+### new-content
+
+<tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (message "Found citation_title, title-node: %S" title-node)
+                (message "Children count: %d" (treesit-node-child-count child))
+                (message "Full citation_title text: %S" (treesit-node-text child))
+                (if title-node
+                    (progn
+                      (setq title (string-trim (treesit-node-text title-node)))
+                      (message "Set title to: %S" title))
+                  ;; Fallback: try to extract from the text after "Title:"
+                  (let ((text (treesit-node-text child)))
+                    (when (string-match "Title:[ \t]*\\(.*\\)" text)
+                      (setq title (string-trim (match-string 1 text)))
+                      (message "Extracted title from text: %S" title))))))
+</tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+
+### git-commit-message
+
+<tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+Add fallback extraction for citation_title
+</tool.toolu_01FawnLTLhgN7W9c5ohH2Sih>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FawnLTLhgN7W9c5ohH2Sih -->
