@@ -101,7 +101,7 @@ module.exports = grammar({
     citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
     // Content types
-    content: $ => prec(-1, repeat1(choice(
+    content: $ => repeat1(choice(
       $.code_block,
       $.inline_code,
       $.include_tag,
@@ -109,15 +109,15 @@ module.exports = grammar({
       $.line_with_cite,
       $.line,
       $.newline
-    ))),
+    )),
 
     // Line that contains cite tags mixed with regular text
-    line_with_cite: $ => prec(1, seq(
+    line_with_cite: $ => seq(
       optional(/[^<\n#]+/), // Text before cite tag (not starting with < or #)
       $.cite_tag,
       optional(/[^<\n]*/),  // Text after cite tag (not containing < )
       "\n"
-    )),
+    ),
 
     system_content: $ => prec(-1, repeat1(choice(
       $.safe_shell_commands,
