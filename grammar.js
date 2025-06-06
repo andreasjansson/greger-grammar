@@ -251,10 +251,10 @@ module.exports = grammar({
     _code_line: $ => seq($._line_content, $._newline),
     _code_line_inline: $ => /[^\n`]+/,
 
-    _line_content: $ => repeat1(choice(
+    _line_content: $ => prec(-1, repeat1(choice(
       /[^\n#<]/,
       seq("#", /[^#\n]/),
-      seq("##", /[^A-Z \t\n]/),
+      seq("##", optional(/[ \t]*/), /[^A-Z\n]/),
       seq("<", /[^s!/\n]/),
       seq("<s", /[^a\n]/),
       seq("<sa", /[^f\n]/),
@@ -262,7 +262,7 @@ module.exports = grammar({
       seq("<safe", /[-a-z]/),
       seq("<!", /[^-\n]/),
       seq("<!-", /[^-\n]/)
-    )),
+    ))),
 
     _tool_line_content: $ => repeat1(choice(
       /[^\n<]/,

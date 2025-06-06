@@ -3876,4 +3876,67 @@ ID: toolu_01EpHo9dAUvUg1XEtkJSenLt
 Separate system content from regular content
 </tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EpHo9dAUvUg1XEtkJSenLt -->
+## TOOL RESULT:
+
+ID: toolu_01EpHo9dAUvUg1XEtkJSenLt
+
+<tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Separate system content from regular content
+</tool.toolu_01EpHo9dAUvUg1XEtkJSenLt>
+
+## ASSISTANT:
+
+Let me also simplify the content matching to avoid conflicts and make it more predictable:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KgyHowSQHtCvSKJGQksN3m
+
+### file-path
+
+<tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+./grammar.js
+</tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+
+### original-content
+
+<tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+    _line_content: $ => repeat1(choice(
+      /[^\n#<]/,
+      seq("#", /[^#\n]/),
+      seq("##", /[^A-Z \t\n]/),
+      seq("<", /[^s!/\n]/),
+      seq("<s", /[^a\n]/),
+      seq("<sa", /[^f\n]/),
+      seq("<saf", /[^e\n]/),
+      seq("<safe", /[-a-z]/),
+      seq("<!", /[^-\n]/),
+      seq("<!-", /[^-\n]/)
+    )),
+</tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+
+### new-content
+
+<tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+    _line_content: $ => prec(-1, repeat1(choice(
+      /[^\n#<]/,
+      seq("#", /[^#\n]/),
+      seq("##", optional(/[ \t]*/), /[^A-Z\n]/),
+      seq("<", /[^s!/\n]/),
+      seq("<s", /[^a\n]/),
+      seq("<sa", /[^f\n]/),
+      seq("<saf", /[^e\n]/),
+      seq("<safe", /[-a-z]/),
+      seq("<!", /[^-\n]/),
+      seq("<!-", /[^-\n]/)
+    ))),
+</tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+
+### git-commit-message
+
+<tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+Add precedence and fix header matching
+</tool.toolu_01KgyHowSQHtCvSKJGQksN3m>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KgyHowSQHtCvSKJGQksN3m -->
