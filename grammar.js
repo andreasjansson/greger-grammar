@@ -146,8 +146,7 @@ module.exports = grammar({
       repeat(choice(/[^\n<]+/, "\n")),
       "</tool.",
       $.identifier,
-      ">",
-      optional("\n")
+      ">"
     ),
 
     tool_result_id_line: $ => seq(

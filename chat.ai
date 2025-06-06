@@ -5721,4 +5721,112 @@ tool_parameter: $ => seq(
 Fix tool parameter block parsing
 </tool.toolu_01FJHmtfw7HprCZkwaPXpX9x>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FJHmtfw7HprCZkwaPXpX9x -->
+## TOOL RESULT:
+
+ID: toolu_01FJHmtfw7HprCZkwaPXpX9x
+
+<tool.toolu_01FJHmtfw7HprCZkwaPXpX9x>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix tool parameter block parsing
+</tool.toolu_01FJHmtfw7HprCZkwaPXpX9x>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014sjP9KxZF1ciMxazNr61E2
+
+### command
+
+<tool.toolu_014sjP9KxZF1ciMxazNr61E2>
+tree-sitter generate
+</tool.toolu_014sjP9KxZF1ciMxazNr61E2>
+
+## TOOL RESULT:
+
+ID: toolu_014sjP9KxZF1ciMxazNr61E2
+
+<tool.toolu_014sjP9KxZF1ciMxazNr61E2>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      tool_use_header  '###'  'tool_name_line_token1'  identifier  '
+    '  '
+    '  '<tool.'  identifier  '>'  '
+    '  '</tool.'  identifier  '>'  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  tool_use_header  '###'  'tool_name_line_token1'  identifier  '
+    '  '
+    '  (tool_param_block  '<tool.'  identifier  '>'  '
+    '  '</tool.'  identifier  '>'  •  '
+    ')
+      2:  tool_use_header  '###'  'tool_name_line_token1'  identifier  '
+    '  '
+    '  (tool_param_block  '<tool.'  identifier  '>'  '
+    '  '</tool.'  identifier  '>')  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `tool_param_block`
+      2:  Add a conflict for these rules: `tool_param_block`
+    
+
+</tool.toolu_014sjP9KxZF1ciMxazNr61E2>
+
+## ASSISTANT:
+
+Let me simplify the tool parameter block and remove the optional newline:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KFZdZfjP1ZnLnJEyYJG3P5
+
+### file-path
+
+<tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+./grammar.js
+</tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+
+### original-content
+
+<tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+tool_param_block: $ => seq(
+      "<tool.",
+      $.identifier,
+      ">",
+      "\n",
+      repeat(choice(/[^\n<]+/, "\n")),
+      "</tool.",
+      $.identifier,
+      ">",
+      optional("\n")
+    ),
+</tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+
+### new-content
+
+<tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+tool_param_block: $ => seq(
+      "<tool.",
+      $.identifier,
+      ">",
+      "\n",
+      repeat(choice(/[^\n<]+/, "\n")),
+      "</tool.",
+      $.identifier,
+      ">"
+    ),
+</tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+
+### git-commit-message
+
+<tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+Remove optional newline from tool param block
+</tool.toolu_01KFZdZfjP1ZnLnJEyYJG3P5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KFZdZfjP1ZnLnJEyYJG3P5 -->
