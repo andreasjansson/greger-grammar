@@ -188,7 +188,12 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
-  // Skip whitespace
+  // For tool block content, don't skip whitespace - it's part of the content
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  // For start/end tags, skip whitespace
   while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
@@ -199,10 +204,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     return scan_tool_end(lexer, scanner);
-  }
-
-  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
-    return scan_tool_content(lexer, scanner);
   }
 
   return false;
