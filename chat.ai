@@ -4169,4 +4169,77 @@ module.exports = grammar({
 Update grammar for citation handling
 </tool.toolu_01JZht3qkpR7ZBd2Czq6pb3j>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JZht3qkpR7ZBd2Czq6pb3j -->
+## TOOL RESULT:
+
+ID: toolu_01JZht3qkpR7ZBd2Czq6pb3j
+
+<tool.toolu_01JZht3qkpR7ZBd2Czq6pb3j>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update grammar for citation handling
+</tool.toolu_01JZht3qkpR7ZBd2Czq6pb3j>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WHiTYXCbyTmsYB5JHt7YiU
+
+### file-path
+
+<tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+grammar.js
+</tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+
+### original-content
+
+<tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+    // Assistant section that contains cite tags and is followed by citations
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content)),
+      $.citations_section
+    )),
+</tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+
+### new-content
+
+<tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+    // Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content))
+    ),
+
+    // Citations that appear without preceding cite tags  
+    citations_without_text: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.citations_with_text,
+      $.line,
+      $.newline
+    )),
+
+    // A cited text segment followed by its citations
+    citations_with_text: $ => seq(
+      field("text", $.cite_tag),
+      optional($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    ),
+</tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+
+### git-commit-message
+
+<tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+Add citation structures to grammar
+</tool.toolu_01WHiTYXCbyTmsYB5JHt7YiU>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WHiTYXCbyTmsYB5JHt7YiU -->

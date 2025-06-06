@@ -155,12 +155,38 @@ module.exports = grammar({
       "</include>"
     ),
 
-    // Assistant section that contains cite tags and is followed by citations
-    assistant_section_with_citations: $ => prec(1, seq(
+    // Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => seq(
       $.assistant_header,
-      optional(alias($.content, $.section_content)),
-      $.citations_section
+      optional(alias($.content_with_citations, $.section_content))
+    ),
+
+    // Citations that appear without preceding cite tags
+    citations_without_text: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Content that may contain cite tags and subsequent citations
+    content_with_citations: $ => repeat1(choice(
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.citations_with_text,
+      $.line,
+      $.newline
     )),
+
+    // A cited text segment followed by its citations
+    citations_with_text: $ => seq(
+      field("text", $.cite_tag),
+      optional($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    ),
 
     cite_tag: $ => seq(
       "<cite>",
