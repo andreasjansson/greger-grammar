@@ -330,7 +330,33 @@ EXAMPLE OUTPUT:
                     "")))))
 
 (defun greger-tree-sitter--extract-thinking-section (section-node)
-  "Extract thinking content and return as assistant message."
+  "Extract thinking content from a ## THINKING: section and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## THINKING: section
+
+PROCESSING:
+  1. Gets the thinking_section child node
+  2. Finds the section_content within it
+  3. Extracts text content and wraps it in a thinking content block
+
+OUTPUT:
+  Returns an assistant message object with a thinking content block:
+  ((role . \"assistant\")
+   (content . (((type . \"thinking\") (thinking . \"extracted text\")))))
+
+  Thinking sections are treated as assistant internal thoughts, so they
+  always produce assistant messages with structured content.
+
+EXAMPLE INPUT SECTION:
+  ## THINKING:
+
+  I need to think about this carefully before responding.
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"thinking\")
+                (thinking . \"I need to think about this carefully before responding.\")))))"
   (let* ((thinking-section-node (treesit-node-child section-node 0))
          (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
     `((role . "assistant")
