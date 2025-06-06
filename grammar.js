@@ -39,8 +39,7 @@ module.exports = grammar({
       $.tool_result_section,
       $.server_tool_use_section,
       $.server_tool_result_section,
-      $.citations_without_text,
-      $.assistant_section_with_citations,
+      $.citations_section,
     ),
 
     user_section: $ => seq(

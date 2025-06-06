@@ -5079,4 +5079,1862 @@ grammar.js
 Support cite tags embedded in lines
 </tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013ZUc3a6Cfodps4Ezx2eMxn -->
+## TOOL RESULT:
+
+ID: toolu_013ZUc3a6Cfodps4Ezx2eMxn
+
+<tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Support cite tags embedded in lines
+</tool.toolu_013ZUc3a6Cfodps4Ezx2eMxn>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E7hYEuxNJN6CNtyEYpzdsW
+
+### command
+
+<tool.toolu_01E7hYEuxNJN6CNtyEYpzdsW>
+tree-sitter generate
+</tool.toolu_01E7hYEuxNJN6CNtyEYpzdsW>
+
+## TOOL RESULT:
+
+ID: toolu_01E7hYEuxNJN6CNtyEYpzdsW
+
+<tool.toolu_01E7hYEuxNJN6CNtyEYpzdsW>
+Command executed successfully:
+(no output)
+</tool.toolu_01E7hYEuxNJN6CNtyEYpzdsW>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01EdQazY6G4q7djQMJ4PTybV
+
+### command
+
+<tool.toolu_01EdQazY6G4q7djQMJ4PTybV>
+tree-sitter parse test_citations.greger
+</tool.toolu_01EdQazY6G4q7djQMJ4PTybV>
+
+## TOOL RESULT:
+
+ID: toolu_01EdQazY6G4q7djQMJ4PTybV
+
+<tool.toolu_01EdQazY6G4q7djQMJ4PTybV>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (ERROR [0, 0] - [32, 0]
+    (section [0, 0] - [4, 0]
+      (user_section [0, 0] - [4, 0]
+        (user_header [0, 0] - [1, 0])
+        (section_content [1, 0] - [4, 0]
+          (newline [1, 0] - [2, 0])
+          (line [2, 0] - [3, 0])
+          (newline [3, 0] - [4, 0]))))
+    (section [4, 0] - [15, 0]
+      (server_tool_use_section [4, 0] - [15, 0]
+        (server_tool_use_header [4, 0] - [5, 0])
+        (tool_use_content [5, 0] - [15, 0]
+          (newline [5, 0] - [6, 0])
+          (tool_name_line [6, 0] - [7, 0]
+            name: (identifier [6, 6] - [6, 16]))
+          (tool_id_line [7, 0] - [8, 0]
+            id: (identifier [7, 4] - [7, 37]))
+          (newline [8, 0] - [9, 0])
+          (tool_parameter [9, 0] - [13, 41]
+            param_name: (identifier [9, 4] - [9, 9])
+            param_value: (tool_param_block [11, 0] - [13, 41]
+              (tool_block_start [11, 0] - [11, 40])
+              content: (tool_block_content [12, 0] - [13, 0])
+              (tool_block_end [13, 0] - [13, 41])))
+          (newline [13, 41] - [14, 0])
+          (newline [14, 0] - [15, 0]))))
+    (section [15, 0] - [31, 0]
+      (server_tool_result_section [15, 0] - [31, 0]
+        (server_tool_result_header [15, 0] - [16, 0])
+        (tool_result_content [16, 0] - [31, 0]
+          (newline [16, 0] - [17, 0])
+          (tool_result_id_line [17, 0] - [18, 0]
+            id: (identifier [17, 4] - [17, 37]))
+          (tool_result_block [19, 0] - [29, 41]
+            (tool_block_start [19, 0] - [19, 40])
+            content: (tool_block_content [20, 0] - [29, 0])
+            (tool_block_end [29, 0] - [29, 41]))
+          (newline [29, 41] - [30, 0])
+          (newline [30, 0] - [31, 0]))))
+    (assistant_header [31, 0] - [32, 0]))
+  (content [32, 0] - [35, 0]
+    (newline [32, 0] - [33, 0])
+    (line [33, 0] - [34, 0])
+    (newline [34, 0] - [35, 0]))
+  (section [35, 0] - [41, 49]
+    (citations_without_text [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    0.55 ms	  1990 bytes/ms	(ERROR [0, 0] - [32, 0])
+
+</tool.toolu_01EdQazY6G4q7djQMJ4PTybV>
+
+## ASSISTANT:
+
+There's an error. The issue seems to be that there are conflicts in the grammar. Let me simplify the approach. Instead of trying to parse citations contextually, let me create a simpler approach where I parse the assistant section to look for cite tags, and then let the consumer of the parse tree associate the citations with the cited text.
+
+Let me go back to a simpler approach and just focus on correctly parsing the cite tags within the content:
+
+## USER:
+
+Note that `tree-sitter parse -d pretty test_citations.greger` will give you debug output that can help you debug things.
+
+## ASSISTANT:
+
+Good tip! Let me use the debug output to understand what's happening:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01253BQuVbxzXgYJ3rRmEA2U
+
+### command
+
+<tool.toolu_01253BQuVbxzXgYJ3rRmEA2U>
+tree-sitter parse -d pretty test_citations.greger
+</tool.toolu_01253BQuVbxzXgYJ3rRmEA2U>
+
+## TOOL RESULT:
+
+ID: toolu_01253BQuVbxzXgYJ3rRmEA2U
+
+<tool.toolu_01253BQuVbxzXgYJ3rRmEA2U>
+Command failed with exit code 1: [37mnew_parse[0m
+[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
+[37mlex_internal state:214, row:0, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:user_header, size:9[0m
+[37mshift state:7[0m
+[37mprocess version:0, version_count:1, state:7, row:1, col:0[0m
+[37mlex_internal state:214, row:1, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:81[0m
+[37mprocess version:0, version_count:1, state:81, row:2, col:0[0m
+[37mlex_internal state:214, row:2, column:0[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'?'[0m
+[37mlexed_lookahead sym:line_token1, size:29[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:195[0m
+[37mprocess version:0, version_count:1, state:195, row:2, col:29[0m
+[37mlex_internal state:0, row:2, column:29[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:100[0m
+[37mprocess version:0, version_count:1, state:100, row:3, col:0[0m
+[37mlex_internal state:214, row:3, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:line, child_count:2[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mshift state:81[0m
+[37mprocess version:0, version_count:1, state:81, row:4, col:0[0m
+[37mlex_internal state:214, row:4, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'V'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:server_tool_use_header, size:20[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mreduce sym:content, child_count:1[0m
+[37mreduce sym:user_section, child_count:2[0m
+[37mreduce sym:section, child_count:1[0m
+[37mshift state:37[0m
+[37mprocess version:0, version_count:1, state:37, row:5, col:0[0m
+[37mlex_internal state:213, row:5, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:103[0m
+[37mprocess version:0, version_count:1, state:103, row:6, col:0[0m
+[37mlex_internal state:213, row:6, column:0[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:Name:, size:5[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:201[0m
+[37mprocess version:0, version_count:1, state:201, row:6, col:5[0m
+[37mlex_internal state:596, row:6, column:5[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:200[0m
+[37mprocess version:0, version_count:1, state:200, row:6, col:6[0m
+[37mlex_internal state:210, row:6, column:6[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+[37mlexed_lookahead sym:identifier, size:10[0m
+[37mshift state:209[0m
+[37mprocess version:0, version_count:1, state:209, row:6, col:16[0m
+[37mlex_internal state:0, row:6, column:16[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:112[0m
+[37mprocess version:0, version_count:1, state:112, row:7, col:0[0m
+[37mlex_internal state:213, row:7, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:ID:, size:3[0m
+[37mreduce sym:tool_name_line, child_count:4[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mshift state:206[0m
+[37mprocess version:0, version_count:1, state:206, row:7, col:3[0m
+[37mlex_internal state:596, row:7, column:3[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:221[0m
+[37mprocess version:0, version_count:1, state:221, row:7, col:4[0m
+[37mlex_internal state:210, row:7, column:4[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:identifier, size:33[0m
+[37mshift state:211[0m
+[37mprocess version:0, version_count:1, state:211, row:7, col:37[0m
+[37mlex_internal state:0, row:7, column:37[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:113[0m
+[37mprocess version:0, version_count:1, state:113, row:8, col:0[0m
+[37mlex_internal state:213, row:8, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:tool_id_line, child_count:4[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mshift state:103[0m
+[37mprocess version:0, version_count:1, state:103, row:9, col:0[0m
+[37mlex_internal state:213, row:9, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:###, size:3[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mshift state:207[0m
+[37mprocess version:0, version_count:1, state:207, row:9, col:3[0m
+[37mlex_internal state:596, row:9, column:3[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:202[0m
+[37mprocess version:0, version_count:1, state:202, row:9, col:4[0m
+[37mlex_internal state:210, row:9, column:4[0m
+  [37mconsume character:'q'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+[37mlexed_lookahead sym:identifier, size:5[0m
+[37mshift state:212[0m
+[37mprocess version:0, version_count:1, state:212, row:9, col:9[0m
+[37mlex_internal state:0, row:9, column:9[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:219[0m
+[37mprocess version:0, version_count:1, state:219, row:10, col:0[0m
+[37mlex_internal state:0, row:10, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:177[0m
+[37mprocess version:0, version_count:1, state:177, row:11, col:0[0m
+[37mlex_external state:2, row:11, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:tool_block_start, size:40[0m
+[37mshift state:171[0m
+[37mprocess version:0, version_count:1, state:171, row:11, col:40[0m
+[37mlex_external state:3, row:11, column:40[0m
+  [37mskip character:10[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:tool_block_content, size:27[0m
+[37mshift state:169[0m
+[37mprocess version:0, version_count:1, state:169, row:13, col:0[0m
+[37mlex_external state:3, row:13, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:tool_block_end, size:41[0m
+[37mshift state:115[0m
+[37mprocess version:0, version_count:1, state:115, row:13, col:41[0m
+[37mlex_internal state:213, row:13, column:41[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:tool_param_block, child_count:3[0m
+[37mreduce sym:tool_parameter, child_count:6[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mshift state:103[0m
+[37mprocess version:0, version_count:1, state:103, row:14, col:0[0m
+[37mlex_internal state:213, row:14, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mshift state:103[0m
+[37mprocess version:0, version_count:1, state:103, row:15, col:0[0m
+[37mlex_internal state:213, row:15, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'V'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:server_tool_result_header, size:23[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:tool_use_content_repeat1, child_count:2[0m
+[37mreduce sym:tool_use_content, child_count:1[0m
+[37mreduce sym:server_tool_use_section, child_count:2[0m
+[37mreduce sym:section, child_count:1[0m
+[37mreduce sym:source_file_repeat1, child_count:2[0m
+[37mshift state:76[0m
+[37mprocess version:0, version_count:1, state:76, row:16, col:0[0m
+[37mlex_external state:2, row:16, column:0[0m
+  [37mskip character:10[0m
+[37mlex_internal state:213, row:16, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:119[0m
+[37mprocess version:0, version_count:1, state:119, row:17, col:0[0m
+[37mlex_external state:2, row:17, column:0[0m
+[37mlex_internal state:213, row:17, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:ID:, size:3[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:191[0m
+[37mprocess version:0, version_count:1, state:191, row:17, col:3[0m
+[37mlex_internal state:596, row:17, column:3[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:197[0m
+[37mprocess version:0, version_count:1, state:197, row:17, col:4[0m
+[37mlex_internal state:210, row:17, column:4[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:identifier, size:33[0m
+[37mshift state:223[0m
+[37mprocess version:0, version_count:1, state:223, row:17, col:37[0m
+[37mlex_internal state:0, row:17, column:37[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:117[0m
+[37mprocess version:0, version_count:1, state:117, row:18, col:0[0m
+[37mlex_external state:2, row:18, column:0[0m
+  [37mskip character:10[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:tool_block_start, size:41[0m
+[37mreduce sym:tool_result_id_line, child_count:4[0m
+[37mreduce sym:tool_result_content_repeat1, child_count:2[0m
+[37mshift state:170[0m
+[37mprocess version:0, version_count:1, state:170, row:19, col:40[0m
+[37mlex_external state:3, row:19, column:40[0m
+  [37mskip character:10[0m
+  [37mconsume character:'['[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'{'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'-'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'q'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'f'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'}'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:']'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:tool_block_content, size:274[0m
+[37mshift state:172[0m
+[37mprocess version:0, version_count:1, state:172, row:29, col:0[0m
+[37mlex_external state:3, row:29, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:tool_block_end, size:41[0m
+[37mshift state:118[0m
+[37mprocess version:0, version_count:1, state:118, row:29, col:41[0m
+[37mlex_external state:2, row:29, column:41[0m
+  [37mskip character:10[0m
+  [37mskip character:10[0m
+[37mlex_internal state:213, row:29, column:41[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:tool_result_block, child_count:3[0m
+[37mreduce sym:tool_result_content_repeat1, child_count:2[0m
+[37mshift state:119[0m
+[37mprocess version:0, version_count:1, state:119, row:30, col:0[0m
+[37mlex_external state:2, row:30, column:0[0m
+  [37mskip character:10[0m
+[37mlex_internal state:213, row:30, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:tool_result_content_repeat1, child_count:2[0m
+[37mshift state:119[0m
+[37mprocess version:0, version_count:1, state:119, row:31, col:0[0m
+[37mlex_external state:2, row:31, column:0[0m
+[37mlex_internal state:213, row:31, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:assistant_header, size:14[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:tool_result_content_repeat1, child_count:2[0m
+[37mreduce sym:tool_result_content, child_count:1[0m
+[37mreduce sym:server_tool_result_section, child_count:2[0m
+[37mreduce sym:section, child_count:1[0m
+[37mreduce sym:source_file_repeat1, child_count:2[0m
+[37mshift state:2[0m
+[37mprocess version:0, version_count:1, state:2, row:32, col:0[0m
+[37mlex_internal state:440, row:32, column:0[0m
+[37mlexed_lookahead sym:line_with_citations_token1, size:0[0m
+[37mshift state:180[0m
+[37mprocess version:0, version_count:1, state:180, row:32, col:0[0m
+[37mlex_internal state:0, row:32, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mdetect_error lookahead:
+[0m
+[37mresume version:0[0m
+[37mrecover_to_previous state:1, depth:4[0m
+[37mskip_token symbol:
+[0m
+[37mprocess version:0, version_count:2, state:0, row:33, col:0[0m
+[37mlex_external state:1, row:33, column:0[0m
+[37mlex_internal state:0, row:33, column:0[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+[37mlexed_lookahead sym:triple_backtick_block_token1, size:5[0m
+[37mskip_token symbol:triple_backtick_block_token1[0m
+[31mprocess version:1, version_count:2, state:1, row:32, col:0[0m
+[31mlex_internal state:214, row:32, column:0[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:\n, size:1[0m
+[31mshift state:81[0m
+[31mprocess version:1, version_count:2, state:81, row:33, col:0[0m
+[31mlex_internal state:214, row:33, column:0[0m
+  [31mconsume character:'B'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'d'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'h'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'h'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'u'[0m
+  [31mconsume character:'l'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:','[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'<'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'>'[0m
+  [31mconsume character:'C'[0m
+  [31mconsume character:'l'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'u'[0m
+  [31mconsume character:'d'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'S'[0m
+  [31mconsume character:'h'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'w'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'b'[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'A'[0m
+  [31mconsume character:'p'[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'l'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'3'[0m
+  [31mconsume character:'0'[0m
+  [31mconsume character:','[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'1'[0m
+  [31mconsume character:'9'[0m
+  [31mconsume character:'1'[0m
+  [31mconsume character:'6'[0m
+  [31mconsume character:','[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'P'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'k'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'y'[0m
+  [31mconsume character:','[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'M'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'h'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'g'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'n'[0m
+  [31mconsume character:'<'[0m
+  [31mconsume character:'/'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'>'[0m
+[31mlexed_lookahead sym:line_token1, size:106[0m
+[31mreduce sym:newline, child_count:1[0m
+[31mshift state:195[0m
+[31mcondense[0m
+[37mprocess version:0, version_count:2, state:195, row:33, col:106[0m
+[37mlex_internal state:0, row:33, column:106[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:100[0m
+[31mprocess version:1, version_count:2, state:0, row:33, col:5[0m
+[31mlex_external state:1, row:33, column:5[0m
+  [31mskip character:' '[0m
+[31mlex_internal state:0, row:33, column:5[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'o'[0m
+  [31mconsume character:'n'[0m
+[31mlexed_lookahead sym:triple_backtick_block_token1, size:3[0m
+[31mskip_token symbol:triple_backtick_block_token1[0m
+[31mprocess version:1, version_count:2, state:0, row:33, col:8[0m
+[31mlex_external state:1, row:33, column:8[0m
+  [31mskip character:' '[0m
+[31mlex_internal state:0, row:33, column:8[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'h'[0m
+  [31mconsume character:'e'[0m
+[31mlexed_lookahead sym:triple_backtick_block_token1, size:4[0m
+[31mskip_token symbol:triple_backtick_block_token1[0m
+[31mprocess version:1, version_count:2, state:0, row:33, col:12[0m
+[31mlex_external state:1, row:33, column:12[0m
+  [31mskip character:' '[0m
+[31mlex_internal state:0, row:33, column:12[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'a'[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'h'[0m
+[31mlexed_lookahead sym:triple_backtick_block_token1, size:7[0m
+[31mskip_token symbol:triple_backtick_block_token1[0m
+[31mprocess version:1, version_count:2, state:0, row:33, col:19[0m
+[31mlex_external state:1, row:33, column:19[0m
+  [31mskip character:' '[0m
+[31mlex_internal state:0, row:33, column:19[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'r'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'s'[0m
+  [31mconsume character:'u'[0m
+  [31mconsume character:'l'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'s'[0m
+[31mlexed_lookahead sym:triple_backtick_block_token1, size:8[0m
+[31mskip_token symbol:triple_backtick_block_token1[0m
+[31mprocess version:1, version_count:2, state:0, row:33, col:27[0m
+[31mlex_external state:1, row:33, column:27[0m
+[31mlex_internal state:0, row:33, column:27[0m
+[31mskip_unrecognized_character[0m
+  [31mconsume character:','[0m
+[31mlex_external state:1, row:33, column:28[0m
+  [31mskip character:' '[0m
+  [31mconsume character:'<'[0m
+[31mlex_internal state:0, row:33, column:28[0m
+  [31mconsume character:' '[0m
+  [31mconsume character:'<'[0m
+  [31mconsume character:'c'[0m
+  [31mconsume character:'i'[0m
+  [31mconsume character:'t'[0m
+  [31mconsume character:'e'[0m
+  [31mconsume character:'>'[0m
+[31mlexed_lookahead sym:ERROR, size:1[0m
+[31mdetect_error lookahead:ERROR[0m
+[31mcondense[0m
+[37mprocess version:0, version_count:1, state:100, row:34, col:0[0m
+[37mlex_internal state:214, row:34, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mreduce sym:line, child_count:2[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mshift state:81[0m
+[37mprocess version:0, version_count:1, state:81, row:35, col:0[0m
+[37mlex_internal state:214, row:35, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:citations_header, size:14[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mreduce sym:content, child_count:1[0m
+[37mshift state:105[0m
+[37mprocess version:0, version_count:1, state:105, row:36, col:0[0m
+[37mlex_internal state:0, row:36, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:103[0m
+[37mprocess version:0, version_count:1, state:103, row:37, col:0[0m
+[37mlex_internal state:213, row:37, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:###, size:3[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:222[0m
+[37mprocess version:0, version_count:1, state:222, row:37, col:3[0m
+[37mlex_internal state:596, row:37, column:3[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:192[0m
+[37mprocess version:0, version_count:1, state:192, row:37, col:4[0m
+[37mlex_internal state:213, row:37, column:4[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+[37mlexed_lookahead sym:url, size:44[0m
+[37mshift state:224[0m
+[37mprocess version:0, version_count:1, state:224, row:37, col:48[0m
+[37mlex_internal state:0, row:37, column:48[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:220[0m
+[37mprocess version:0, version_count:1, state:220, row:38, col:0[0m
+[37mlex_internal state:0, row:38, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:39[0m
+[37mprocess version:0, version_count:1, state:39, row:39, col:0[0m
+[37mlex_internal state:213, row:39, column:0[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:Title:, size:6[0m
+[37mshift state:229[0m
+[37mprocess version:0, version_count:1, state:229, row:39, col:6[0m
+[37mlex_internal state:596, row:39, column:6[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:248[0m
+[37mprocess version:0, version_count:1, state:248, row:39, col:7[0m
+[37mlex_internal state:209, row:39, column:7[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'-'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+[37mlexed_lookahead sym:citation_title_token1, size:26[0m
+[37mshift state:194[0m
+[37mprocess version:0, version_count:1, state:194, row:39, col:33[0m
+[37mlex_internal state:0, row:39, column:33[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:109[0m
+[37mprocess version:0, version_count:1, state:109, row:40, col:0[0m
+[37mlex_internal state:213, row:40, column:0[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:Cited text:, size:11[0m
+[37mreduce sym:citation_title, child_count:4[0m
+[37mshift state:230[0m
+[37mprocess version:0, version_count:1, state:230, row:40, col:11[0m
+[37mlex_internal state:596, row:40, column:11[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:253[0m
+[37mprocess version:0, version_count:1, state:253, row:40, col:12[0m
+[37mlex_internal state:209, row:40, column:12[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'('[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'9'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'6'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:8211[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'F'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:')'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+[37mlexed_lookahead sym:citation_title_token1, size:155[0m
+[37mshift state:196[0m
+[37mprocess version:0, version_count:1, state:196, row:40, col:167[0m
+[37mlex_internal state:0, row:40, column:167[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:106[0m
+[37mprocess version:0, version_count:1, state:106, row:41, col:0[0m
+[37mlex_internal state:213, row:41, column:0[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:Encrypted index:, size:16[0m
+[37mreduce sym:citation_text, child_count:4[0m
+[37mreduce sym:citation_entry_repeat1, child_count:2[0m
+[37mshift state:232[0m
+[37mprocess version:0, version_count:1, state:232, row:41, col:16[0m
+[37mlex_internal state:596, row:41, column:16[0m
+  [37mconsume character:' '[0m
+[37mlexed_lookahead sym:tool_name_line_token1, size:1[0m
+[37mshift state:190[0m
+[37mprocess version:0, version_count:1, state:190, row:41, col:17[0m
+[37mlex_internal state:209, row:41, column:17[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'8'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'J'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+[37mlexed_lookahead sym:citation_title_token1, size:32[0m
+[37mshift state:198[0m
+[37mprocess version:0, version_count:1, state:198, row:41, col:49[0m
+[37mlex_internal state:0, row:41, column:49[0m
+[37mlexed_lookahead sym:end, size:0[0m
+[37mdetect_error lookahead:end[0m
+[37mresume version:0[0m
+[37mrecover_with_missing symbol:
+, state:34[0m
+[37mrecover_eof[0m
+[31mprocess version:1, version_count:5, state:34, row:41, col:49[0m
+[31mreduce sym:citation_entry, child_count:6[0m
+[31mreduce sym:citations_content_repeat1, child_count:2[0m
+[34mprocess version:2, version_count:5, state:110, row:41, col:49[0m
+[34mreduce sym:citations_content, child_count:1[0m
+[34mreduce sym:citations_without_text, child_count:2[0m
+[32mprocess version:3, version_count:5, state:120, row:41, col:49[0m
+[32mreduce sym:section, child_count:1[0m
+[36mprocess version:4, version_count:5, state:22, row:41, col:49[0m
+[36mreduce sym:source_file, child_count:2[0m
+[36maccept[0m
+[36mselect_smaller_error symbol:source_file, over_symbol:ERROR[0m
+[36mdone[0m
+(source_file [0, 0] - [41, 49]
+  (ERROR [0, 0] - [32, 0]
+    (section [0, 0] - [4, 0]
+      (user_section [0, 0] - [4, 0]
+        (user_header [0, 0] - [1, 0])
+        (section_content [1, 0] - [4, 0]
+          (newline [1, 0] - [2, 0])
+          (line [2, 0] - [3, 0])
+          (newline [3, 0] - [4, 0]))))
+    (section [4, 0] - [15, 0]
+      (server_tool_use_section [4, 0] - [15, 0]
+        (server_tool_use_header [4, 0] - [5, 0])
+        (tool_use_content [5, 0] - [15, 0]
+          (newline [5, 0] - [6, 0])
+          (tool_name_line [6, 0] - [7, 0]
+            name: (identifier [6, 6] - [6, 16]))
+          (tool_id_line [7, 0] - [8, 0]
+            id: (identifier [7, 4] - [7, 37]))
+          (newline [8, 0] - [9, 0])
+          (tool_parameter [9, 0] - [13, 41]
+            param_name: (identifier [9, 4] - [9, 9])
+            param_value: (tool_param_block [11, 0] - [13, 41]
+              (tool_block_start [11, 0] - [11, 40])
+              content: (tool_block_content [12, 0] - [13, 0])
+              (tool_block_end [13, 0] - [13, 41])))
+          (newline [13, 41] - [14, 0])
+          (newline [14, 0] - [15, 0]))))
+    (section [15, 0] - [31, 0]
+      (server_tool_result_section [15, 0] - [31, 0]
+        (server_tool_result_header [15, 0] - [16, 0])
+        (tool_result_content [16, 0] - [31, 0]
+          (newline [16, 0] - [17, 0])
+          (tool_result_id_line [17, 0] - [18, 0]
+            id: (identifier [17, 4] - [17, 37]))
+          (tool_result_block [19, 0] - [29, 41]
+            (tool_block_start [19, 0] - [19, 40])
+            content: (tool_block_content [20, 0] - [29, 0])
+            (tool_block_end [29, 0] - [29, 41]))
+          (newline [29, 41] - [30, 0])
+          (newline [30, 0] - [31, 0]))))
+    (assistant_header [31, 0] - [32, 0]))
+  (content [32, 0] - [35, 0]
+    (newline [32, 0] - [33, 0])
+    (line [33, 0] - [34, 0])
+    (newline [34, 0] - [35, 0]))
+  (section [35, 0] - [41, 49]
+    (citations_without_text [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse: 1580.16 ms	     0 bytes/ms	(ERROR [0, 0] - [32, 0])
+
+</tool.toolu_01253BQuVbxzXgYJ3rRmEA2U>
+
+## ASSISTANT:
+
+Excellent! This debug output is very helpful. I can see what's happening:
+
+1. The parser correctly parses the USER, SERVER TOOL USE, and SERVER TOOL RESULT sections
+2. When it gets to the ASSISTANT header at row 31, col 0, it starts parsing that
+3. But then there's a problem with parsing the content with citations. Looking at the debug output, I can see:
+
+```
+process version:0, version_count:1, state:2, row:32, col:0
+lex_internal state:440, row:32, column:0
+lexed_lookahead sym:line_with_citations_token1, size:0
+```
+
+The issue is that `line_with_citations_token1` has size 0, which means my regex `/[^<\n]*/` for the prefix is matching an empty string, but then there's no cite tag immediately following.
+
+Let me check what's on line 33 (the line with the cite tag):
+
+The line is: `Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>`
+
+The issue is that my `line_with_citations` rule expects:
+1. Optional prefix: `/[^<\n]*/` → "Based on the search results, "
+2. cite_tag: should match `<cite>...content...</cite>`
+3. Optional suffix: `/[^\n]*/` → empty in this case
+4. newline
+
+But looking at the debug output, the problem is that the assistant_section_with_citations is being tried but failing because it's looking for `content_with_citations` which includes `line_with_citations`, but there's a conflict or issue with the parsing.
+
+Let me simplify this. Instead of trying to be clever with complex parsing, let me just focus on correctly parsing cite tags within regular content, and then let the consumer of the parse tree figure out the associations.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RqUub2yRbDJVXHN4n97VUV
+
+### file-path
+
+<tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+grammar.js
+</tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+
+### original-content
+
+<tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_without_text,
+      $.assistant_section_with_citations,
+    ),
+</tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+
+### new-content
+
+<tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+</tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+
+### git-commit-message
+
+<tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+Simplify section choices - remove complex citation handling
+</tool.toolu_01RqUub2yRbDJVXHN4n97VUV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RqUub2yRbDJVXHN4n97VUV -->
