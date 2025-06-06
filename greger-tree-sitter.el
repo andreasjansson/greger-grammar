@@ -23,27 +23,28 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 
 (defun greger-tree-sitter--extract-dialog (tree)
   "Extract dialog messages from the parsed TREE."
-  (let ((root-node (treesit-node-child tree 0))
+  (let ((source-file-node (treesit-node-child tree 0))
         (messages '()))
 
-    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
-    (message "DEBUG: Root node child count: %d" (treesit-node-child-count root-node))
+    (message "DEBUG: Source file node type: %s" (treesit-node-type source-file-node))
+    (message "DEBUG: Source file child count: %d" (treesit-node-child-count source-file-node))
 
     ;; Handle untagged content at the beginning (treated as user message)
-    (when-let ((untagged (treesit-node-child-by-field-name root-node "content")))
+    (when-let ((untagged (treesit-node-child-by-field-name source-file-node "content")))
       (message "DEBUG: Found untagged content")
       (push `((role . "user")
               (content . ,(greger-tree-sitter--extract-content untagged)))
             messages))
 
-    ;; Process all sections
-    (let ((sections (greger-tree-sitter--get-sections root-node)))
-      (message "DEBUG: Found %d sections" (length sections))
-      (dolist (section-node sections)
-        (message "DEBUG: Processing section type: %s" (treesit-node-type section-node))
-        (when-let ((message (greger-tree-sitter--extract-section section-node)))
-          (message "DEBUG: Extracted message: %S" message)
-          (push message messages))))
+    ;; Process all sections - they should be direct children of source_file
+    (let ((child-count (treesit-node-child-count source-file-node)))
+      (dotimes (i child-count)
+        (let ((child (treesit-node-child source-file-node i)))
+          (message "DEBUG: Child %d type: %s" i (treesit-node-type child))
+          (when (equal (treesit-node-type child) "section")
+            (when-let ((message (greger-tree-sitter--extract-section child)))
+              (message "DEBUG: Extracted message: %S" message)
+              (push message messages))))))
 
     (nreverse messages)))
 
