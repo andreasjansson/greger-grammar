@@ -378,10 +378,6 @@
             },
             {
               "type": "SYMBOL",
-              "name": "cite_tag"
-            },
-            {
-              "type": "SYMBOL",
               "name": "html_comment"
             },
             {
@@ -441,19 +437,23 @@
       }
     },
     "citations_content": {
-      "type": "REPEAT1",
+      "type": "PREC_LEFT",
+      "value": 0,
       "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "citation_entry"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "newline"
-          }
-        ]
+        "type": "REPEAT1",
+        "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "citation_entry"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "newline"
+            }
+          ]
+        }
       }
     },
     "safe_shell_commands": {
@@ -525,6 +525,178 @@
           "value": "</include>"
         }
       ]
+    },
+    "assistant_section_with_citations": {
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "assistant_header"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "content_with_citations"
+                },
+                "named": true,
+                "value": "section_content"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "citations_without_text": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "citations_header"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "citations_content"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "content_with_citations": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "code_block"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "inline_code"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "include_tag"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "html_comment"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "line_with_citations"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "line"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "newline"
+          }
+        ]
+      }
+    },
+    "line_with_citations": {
+      "type": "PREC_LEFT",
+      "value": 2,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "prefix",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[^<\\n]*"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "cited_text",
+            "content": {
+              "type": "SYMBOL",
+              "name": "cite_tag"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "suffix",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[^\\n]*"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "\n"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "SYMBOL",
+              "name": "newline"
+            }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "citations_header"
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "citations",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "citations_content"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
     },
     "cite_tag": {
       "type": "SEQ",
