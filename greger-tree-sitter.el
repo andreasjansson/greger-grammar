@@ -24,18 +24,15 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 (defun greger-tree-sitter--extract-dialog (parser text)
   "Extract dialog messages from the parsed PARSER with TEXT."
   (let ((root-node (treesit-parser-root-node parser))
-        (messages '()))
+        (messages '())
+        (pending-citations nil))
 
     ;; Check if we have a source_file or just a section
     (cond
      ((equal (treesit-node-type root-node) "source_file")
-      ;; Multiple sections case
-      (let ((child-count (treesit-node-child-count root-node)))
-        (dotimes (i child-count)
-          (let ((child (treesit-node-child root-node i)))
-            (when (equal (treesit-node-type child) "section")
-              (when-let ((message (greger-tree-sitter--extract-section child)))
-                (push message messages)))))))
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
 
      ((equal (treesit-node-type root-node) "section")
       ;; Single section case

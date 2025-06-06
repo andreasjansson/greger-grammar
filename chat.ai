@@ -10324,4 +10324,177 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
 Add test file for citations parsing
 </tool.toolu_01HdFWEpviW2pfEaTrR2DtQE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HdFWEpviW2pfEaTrR2DtQE -->
+## TOOL RESULT:
+
+ID: toolu_01HdFWEpviW2pfEaTrR2DtQE
+
+<tool.toolu_01HdFWEpviW2pfEaTrR2DtQE>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/test_citations.greger with 1096 characters. Successfully staged 2 file(s) and committed with message: Add test file for citations parsing
+</tool.toolu_01HdFWEpviW2pfEaTrR2DtQE>
+
+## ASSISTANT:
+
+Let me see how this parses with the current grammar:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HViQhTA9JuVfgik2iYFDsh
+
+### command
+
+<tool.toolu_01HViQhTA9JuVfgik2iYFDsh>
+tree-sitter generate && tree-sitter parse test_citations.greger
+</tool.toolu_01HViQhTA9JuVfgik2iYFDsh>
+
+## TOOL RESULT:
+
+ID: toolu_01HViQhTA9JuVfgik2iYFDsh
+
+<tool.toolu_01HViQhTA9JuVfgik2iYFDsh>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (line [33, 0] - [34, 0])
+        (newline [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_section [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    0.74 ms	  1473 bytes/ms	(MISSING "\n" [41, 49] - [41, 49])
+
+</tool.toolu_01HViQhTA9JuVfgik2iYFDsh>
+
+## ASSISTANT:
+
+Good! The grammar is parsing the basic structure correctly. Now I can see that:
+
+1. The assistant section content contains the cite tag on line 33
+2. The citations section is parsed separately as a different section
+
+The challenge is to associate the cite tag in the assistant section with the citations that follow. I need to implement this logic in the Elisp layer.
+
+Let me create a more sophisticated content extraction that can handle citations:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UiqjhbnPBDJc3QqWjRwiKH
+
+### file-path
+
+<tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+greger-tree-sitter.el
+</tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+
+### original-content
+
+<tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '()))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+
+### new-content
+
+<tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '())
+        (pending-citations nil))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+
+### git-commit-message
+
+<tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+Restructure dialog extraction to handle citations
+</tool.toolu_01UiqjhbnPBDJc3QqWjRwiKH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UiqjhbnPBDJc3QqWjRwiKH -->
