@@ -10738,4 +10738,87 @@ Hi there! How can I help you today?"))
 Test the exact simple-conversation case
 </tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01P5tNkfjw2pshNec2yGHuw7 -->
+## TOOL RESULT:
+
+ID: toolu_01P5tNkfjw2pshNec2yGHuw7
+
+<tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Test the exact simple-conversation case
+</tool.toolu_01P5tNkfjw2pshNec2yGHuw7>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FshYQuQJ9VrpUSNZpdE5Jq
+
+### command
+
+<tool.toolu_01FshYQuQJ9VrpUSNZpdE5Jq>
+emacs --batch -l debug-test.el
+</tool.toolu_01FshYQuQJ9VrpUSNZpdE5Jq>
+
+## TOOL RESULT:
+
+ID: toolu_01FshYQuQJ9VrpUSNZpdE5Jq
+
+<tool.toolu_01FshYQuQJ9VrpUSNZpdE5Jq>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+
+Parsed result:
+(((role . "user")
+  (content . "Hello")))
+
+
+Number of messages: 1
+First message role: user
+First message content: "Hello"
+
+</tool.toolu_01FshYQuQJ9VrpUSNZpdE5Jq>
+
+## ASSISTANT:
+
+Now I can reproduce the exact issue! The assistant message is missing entirely. The difference is that this test case doesn't have a trailing newline after the assistant content.
+
+The issue is that the assistant section is not being flushed because there's no newline at the end. The grammar expects text_line to end with "\n", but if the file doesn't end with a newline, the assistant content doesn't get parsed as a text_line.
+
+Let me verify this by checking the tree-sitter parse:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01NhYDSVMCjjrGPVBVHBgrmJ
+
+### file-path
+
+<tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+test_simple_conversation.greger
+</tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+
+### contents
+
+<tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+</tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+
+### git-commit-message
+
+<tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+Add test file for simple conversation
+</tool.toolu_01NhYDSVMCjjrGPVBVHBgrmJ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NhYDSVMCjjrGPVBVHBgrmJ -->
