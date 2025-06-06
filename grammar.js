@@ -60,23 +60,23 @@ module.exports = grammar({
 
     text_content: $ => /[^\n]+/,
 
-    tool_name: $ => seq(
+    tool_name: $ => prec(1, seq(
       'Name:',
       /[ \t]+/,
       $.identifier
-    ),
+    )),
 
-    tool_id: $ => seq(
+    tool_id: $ => prec(1, seq(
       'ID:',
       /[ \t]+/,
       $.identifier
-    ),
+    )),
 
-    tool_parameter_header: $ => seq(
+    tool_parameter_header: $ => prec(1, seq(
       '###',
       /[ \t]+/,
       $.identifier
-    ),
+    )),
 
     tool_tag_open: $ => seq(
       '<tool.',
