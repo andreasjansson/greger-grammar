@@ -6985,4 +6985,464 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
 Update test file to match test-citations.el content
 </tool.toolu_01DvZ1RvpwfvvAjd1pKhnqdG>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DvZ1RvpwfvvAjd1pKhnqdG -->
+## TOOL RESULT:
+
+ID: toolu_01DvZ1RvpwfvvAjd1pKhnqdG
+
+<tool.toolu_01DvZ1RvpwfvvAjd1pKhnqdG>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_citations.greger. Successfully staged 2 file(s) and committed with message: Update test file to match test-citations.el content
+</tool.toolu_01DvZ1RvpwfvvAjd1pKhnqdG>
+
+## ASSISTANT:
+
+Now let me test the updated file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Tgq7c9ZXHRHaKxoiaL6six
+
+### command
+
+<tool.toolu_01Tgq7c9ZXHRHaKxoiaL6six>
+emacs --batch -l test-citations.el
+</tool.toolu_01Tgq7c9ZXHRHaKxoiaL6six>
+
+## TOOL RESULT:
+
+ID: toolu_01Tgq7c9ZXHRHaKxoiaL6six
+
+<tool.toolu_01Tgq7c9ZXHRHaKxoiaL6six>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+About to call greger-tree-sitter-parse
+Parsed result: (((role . "assistant") (content ((type . "web_search_tool_result") (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (content . "[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]")) ((type . "server_tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date"))) ((type . "text") (text . "Based on the search results,")) ((type . "text") (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title) (cited_text) (encrypted_index)))))) ((role . "user") (content . "When was Claude Shannon born?")))
+✅ Citations test completed
+
+</tool.toolu_01Tgq7c9ZXHRHaKxoiaL6six>
+
+## ASSISTANT:
+
+Great progress! Now I can see we're getting the structure, but there are still a few issues:
+
+1. The content blocks are in the wrong order (should be server_tool_use first, then web_search_tool_result, then text blocks)
+2. The citation details (title, cited_text, encrypted_index) are empty
+3. We need to parse the JSON content from the tool result and extract the proper citation information
+
+Let me check the citation extraction code. First, let me look at the current extraction:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01HqJaAex3YtnaGYUxX3mdNd
+
+### path
+
+<tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+greger-tree-sitter.el
+</tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+
+### start-line
+
+<tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+320
+</tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+
+### end-line
+
+<tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+350
+</tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+
+## TOOL RESULT:
+
+ID: toolu_01HqJaAex3YtnaGYUxX3mdNd
+
+<tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+              (push (greger-tree-sitter--extract-citation-entry child) citations))))))
+
+    (nreverse citations)))
+
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+
+      `((type . "web_search_result_location")
+        (url . ,url)
+</tool.toolu_01HqJaAex3YtnaGYUxX3mdNd>
+
+## ASSISTANT:
+
+I see the issue. The citation extraction is working, but the values aren't being set properly. Let me check the tree-sitter parse output to see what field names are actually available:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Py71WiXUQPhjWv4fkVnoLH
+
+### command
+
+<tool.toolu_01Py71WiXUQPhjWv4fkVnoLH>
+tree-sitter parse test_citations.greger
+</tool.toolu_01Py71WiXUQPhjWv4fkVnoLH>
+
+## TOOL RESULT:
+
+ID: toolu_01Py71WiXUQPhjWv4fkVnoLH
+
+<tool.toolu_01Py71WiXUQPhjWv4fkVnoLH>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 29])
+        (newline [2, 29] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (line [33, 0] - [34, 0])
+        (newline [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_section [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    1.20 ms	   931 bytes/ms	(ERROR [2, 0] - [2, 29])
+
+</tool.toolu_01Py71WiXUQPhjWv4fkVnoLH>
+
+## ASSISTANT:
+
+The issue is still that there's an ERROR in parsing the user section. The line with "When was Claude Shannon born?" is not being parsed correctly. Let me check the grammar to see if I can improve the handling of regular text.
+
+But first, let me check the citation details. I can see that the parse tree has citation_title, citation_text, and citation_index nodes, but they don't have the field names being accessed. Let me look at the grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013d4iK3JHx54pUBYZQsb6Ui
+
+### path
+
+<tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+grammar.js
+</tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+
+### start-line
+
+<tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+180
+</tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+
+### end-line
+
+<tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+200
+</tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+
+## TOOL RESULT:
+
+ID: toolu_013d4iK3JHx54pUBYZQsb6Ui
+
+<tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+      $.code_block,
+      $.inline_code,
+      $.include_tag,
+      $.html_comment,
+      $.line_with_citations,
+      $.line,
+      $.newline
+    )),
+
+    // A line that contains cite tags and may be followed by citations
+    line_with_citations: $ => prec.left(2, seq(
+      field("prefix", optional(/[^<\n]*/)),
+      field("cited_text", $.cite_tag),
+      field("suffix", optional(/[^\n]*/)),
+      "\n",
+      repeat($.newline),
+      optional(seq(
+        $.citations_header,
+        field("citations", $.citations_content)
+      ))
+    )),
+</tool.toolu_013d4iK3JHx54pUBYZQsb6Ui>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01N7ZfLuVkmgoDKKbnEBMvKZ
+
+### path
+
+<tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+grammar.js
+</tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+
+### start-line
+
+<tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+220
+</tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+
+### end-line
+
+<tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+250
+</tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+
+## TOOL RESULT:
+
+ID: toolu_01N7ZfLuVkmgoDKKbnEBMvKZ
+
+<tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+    triple_backtick_block: $ => seq(
+      "```",
+      optional(field("language", /[a-zA-Z]+/)),
+      "\n",
+      field("content", repeat(choice(/[^`\n]+/, "`", "``", "\n"))),
+      "```"
+    ),
+
+    single_backtick_block: $ => seq(
+      "``",
+      field("content", repeat(choice(/[^`\n]+/, "\n"))),
+      "``"
+    ),
+
+    inline_code: $ => seq(
+      "`",
+      field("content", /[^`\n]+/),
+      "`"
+    ),
+
+    // Tool-specific patterns
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", $.identifier),
+      "\n"
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+</tool.toolu_01N7ZfLuVkmgoDKKbnEBMvKZ>
+
+## ASSISTANT:
+
+Let me find the citation patterns:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01TToGvWZK7Qnky9pUBAqzQh
+
+### pattern
+
+<tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+citation_title
+</tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+
+### path
+
+<tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+grammar.js
+</tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+
+### context-lines
+
+<tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+5
+</tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+
+## TOOL RESULT:
+
+ID: toolu_01TToGvWZK7Qnky9pUBAqzQh
+
+<tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+286-      /[ \t]*/,
+287-      field("url", $.url),
+288-      "\n",
+289-      "\n",
+290-      repeat(choice(
+291:        $.citation_title,
+292-        $.citation_text,
+293-        $.citation_index,
+294-        $.newline
+295-      ))
+296-    )),
+297-
+298:    citation_title: $ => seq(
+299-      "Title:",
+300-      /[ \t]*/,
+301-      field("title", /[^\n]+/),
+302-      "\n"
+303-    ),
+
+</tool.toolu_01TToGvWZK7Qnky9pUBAqzQh>
+
+## ASSISTANT:
+
+I can see that the grammar does have the correct field names. Let me check the extraction code again. The issue might be that I'm not correctly finding the field nodes. Let me see if we need to adjust the extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UiayCqPUie8sif58qE9kVz
+
+### file-path
+
+<tool.toolu_01UiayCqPUie8sif58qE9kVz>
+greger-tree-sitter.el
+</tool.toolu_01UiayCqPUie8sif58qE9kVz>
+
+### original-content
+
+<tool.toolu_01UiayCqPUie8sif58qE9kVz>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01UiayCqPUie8sif58qE9kVz>
+
+### new-content
+
+<tool.toolu_01UiayCqPUie8sif58qE9kVz>
+(defun greger-tree-sitter--extract-citation-entry (entry-node)
+  "Extract a single citation entry."
+  (let ((url-node (treesit-node-child-by-field-name entry-node "url"))
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+
+    (let ((url (if url-node (treesit-node-text url-node) "")))
+      (let ((child-count (treesit-node-child-count entry-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child entry-node i)))
+            (cond
+             ((equal (treesit-node-type child) "citation_title")
+              (let ((title-node (treesit-node-child-by-field-name child "title")))
+                (when title-node
+                  (setq title (string-trim (treesit-node-text title-node))))))
+             ((equal (treesit-node-type child) "citation_text")
+              (let ((text-node (treesit-node-child-by-field-name child "text")))
+                (when text-node
+                  (setq cited-text (string-trim (treesit-node-text text-node))))))
+             ((equal (treesit-node-type child) "citation_index")
+              (let ((index-node (treesit-node-child-by-field-name child "index")))
+                (when index-node
+                  (setq encrypted-index (string-trim (treesit-node-text index-node))))))))))
+
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
+</tool.toolu_01UiayCqPUie8sif58qE9kVz>
+
+### git-commit-message
+
+<tool.toolu_01UiayCqPUie8sif58qE9kVz>
+Keep citation extraction function as is for now
+</tool.toolu_01UiayCqPUie8sif58qE9kVz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UiayCqPUie8sif58qE9kVz -->
