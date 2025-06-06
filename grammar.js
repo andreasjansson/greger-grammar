@@ -26,60 +26,51 @@ module.exports = grammar({
     ),
 
     // Basic sections
-    user_section: $ => prec.left(seq(
+    user_section: $ => seq(
       '## USER:',
-      /\n/,
       repeat($.section_item)
-    )),
+    ),
 
-    system_section: $ => prec.left(seq(
+    system_section: $ => seq(
       '## SYSTEM:',
-      /\n/,
       repeat($.section_item)
-    )),
+    ),
 
-    assistant_section: $ => prec.left(seq(
+    assistant_section: $ => seq(
       '## ASSISTANT:',
-      /\n/,
       repeat($.section_item)
-    )),
+    ),
 
-    thinking_section: $ => prec.left(seq(
+    thinking_section: $ => seq(
       '## THINKING:',
-      /\n/,
       repeat($.section_item)
-    )),
+    ),
 
-    citations_section: $ => prec.left(seq(
+    citations_section: $ => seq(
       '## CITATIONS:',
-      /\n/,
       repeat($.section_item)
-    )),
+    ),
 
     // Tool sections
-    tool_use_section: $ => prec.left(seq(
+    tool_use_section: $ => seq(
       '## TOOL USE:',
-      /\n/,
       repeat($.tool_use_item)
-    )),
+    ),
 
-    tool_result_section: $ => prec.left(seq(
+    tool_result_section: $ => seq(
       '## TOOL RESULT:',
-      /\n/,
       repeat($.tool_result_item)
-    )),
+    ),
 
-    server_tool_use_section: $ => prec.left(seq(
+    server_tool_use_section: $ => seq(
       '## SERVER TOOL USE:',
-      /\n/,
       repeat($.tool_use_item)
-    )),
+    ),
 
-    server_tool_result_section: $ => prec.left(seq(
+    server_tool_result_section: $ => seq(
       '## SERVER TOOL RESULT:',
-      /\n/,
       repeat($.tool_result_item)
-    )),
+    ),
 
     // Section items
     section_item: $ => choice(
