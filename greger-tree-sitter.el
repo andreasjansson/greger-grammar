@@ -434,7 +434,35 @@ EXAMPLE OUTPUT:
                    (input . ,(nreverse parameters))))))))
 
 (defun greger-tree-sitter--extract-tool-param-value (param-node)
-  "Extract the value from a tool parameter node."
+  "Extract the value from a tool parameter PARAM-NODE.
+
+INPUT:
+  PARAM-NODE - Tree-sitter node representing a tool parameter with structure:
+    ### param_name
+    <tool.tool_id>
+    parameter value content
+    </tool.tool_id>
+
+PROCESSING:
+  1. Finds the param_value child (the <tool.id>...</tool.id> block)
+  2. Extracts the content field within that block
+  3. Trims whitespace from the extracted text
+
+OUTPUT:
+  Returns the parameter value as a trimmed string, or empty string if
+  no content is found.
+
+EXAMPLE INPUT:
+  ### path
+  <tool.toolu_123>
+  /path/to/file.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  \"/path/to/file.txt\"
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-tool-use-section
+to extract individual parameter values."
   (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
     (if param-block
         (let ((content-node (treesit-node-child-by-field-name param-block "content")))

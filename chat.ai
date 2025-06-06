@@ -6334,4 +6334,85 @@ EXAMPLE OUTPUT:
 Document greger-tree-sitter--extract-tool-use-section function
 </tool.toolu_013YePMik3VEAav2nYCPob8c>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013YePMik3VEAav2nYCPob8c -->
+## TOOL RESULT:
+
+ID: toolu_013YePMik3VEAav2nYCPob8c
+
+<tool.toolu_013YePMik3VEAav2nYCPob8c>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--extract-tool-use-section function
+</tool.toolu_013YePMik3VEAav2nYCPob8c>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01M9fe9qZ42ux9mAwJKwXXzp
+
+### file-path
+
+<tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+greger-tree-sitter.el
+</tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+
+### original-content
+
+<tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter node."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (string-trim (treesit-node-text content-node))
+            ""))
+      "")))
+</tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+
+### new-content
+
+<tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+(defun greger-tree-sitter--extract-tool-param-value (param-node)
+  "Extract the value from a tool parameter PARAM-NODE.
+
+INPUT:
+  PARAM-NODE - Tree-sitter node representing a tool parameter with structure:
+    ### param_name
+    <tool.tool_id>
+    parameter value content
+    </tool.tool_id>
+
+PROCESSING:
+  1. Finds the param_value child (the <tool.id>...</tool.id> block)
+  2. Extracts the content field within that block
+  3. Trims whitespace from the extracted text
+
+OUTPUT:
+  Returns the parameter value as a trimmed string, or empty string if
+  no content is found.
+
+EXAMPLE INPUT:
+  ### path
+  <tool.toolu_123>
+  /path/to/file.txt
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  \"/path/to/file.txt\"
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-tool-use-section
+to extract individual parameter values."
+  (let ((param-block (treesit-node-child-by-field-name param-node "param_value")))
+    (if param-block
+        (let ((content-node (treesit-node-child-by-field-name param-block "content")))
+          (if content-node
+              (string-trim (treesit-node-text content-node))
+            ""))
+      "")))
+</tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+
+### git-commit-message
+
+<tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+Document greger-tree-sitter--extract-tool-param-value function
+</tool.toolu_01M9fe9qZ42ux9mAwJKwXXzp>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01M9fe9qZ42ux9mAwJKwXXzp -->
