@@ -7602,4 +7602,62 @@ tool_param_block: $ => seq(
 Fix tool param block to use proper content parsing
 </tool.toolu_01Md8sPELbVuE6dw9Hghmn57>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Md8sPELbVuE6dw9Hghmn57 -->
+## TOOL RESULT:
+
+ID: toolu_01Md8sPELbVuE6dw9Hghmn57
+
+<tool.toolu_01Md8sPELbVuE6dw9Hghmn57>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix tool param block to use proper content parsing
+</tool.toolu_01Md8sPELbVuE6dw9Hghmn57>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01726H9oUcrCbfDcdDZKH1B8
+
+### file-path
+
+<tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+./grammar.js
+</tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+
+### original-content
+
+<tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+tool_result_block: $ => seq(
+      "<tool.",
+      field("tool_id", $.identifier),
+      ">",
+      "\n",
+      field("content", repeat(choice(/[^\n<]+/, "\n"))),
+      "</tool.",
+      field("tool_id", $.identifier),
+      ">"
+    ),
+</tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+
+### new-content
+
+<tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+tool_result_block: $ => seq(
+      "<tool.",
+      field("tool_id", $.identifier),
+      ">",
+      "\n",
+      field("content", repeat(choice(
+        $.tool_content_line,
+        "\n"
+      ))),
+      "</tool.",
+      field("tool_id", $.identifier),
+      ">"
+    ),
+</tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+
+### git-commit-message
+
+<tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+Fix tool result block to use proper content parsing
+</tool.toolu_01726H9oUcrCbfDcdDZKH1B8>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01726H9oUcrCbfDcdDZKH1B8 -->
