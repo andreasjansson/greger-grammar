@@ -112,15 +112,10 @@ module.exports = grammar({
       "\n"
     ),
 
-    system_content: $ => prec(-1, repeat1(choice(
-      $.safe_shell_commands,
-      $.code_block,
-      $.inline_code,
-      $.include_tag,
-      $.html_comment,
-      $.line,
+    system_content: $ => repeat1(choice(
+      $.text_line,
       $.newline
-    ))),
+    )),
 
     tool_use_content: $ => repeat1(choice(
       $.tool_name_line,
