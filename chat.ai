@@ -8085,4 +8085,111 @@ citations_content: $ => prec.left(repeat1(choice(
 Remove citations content rule
 </tool.toolu_012kEc8jmdcLLnmhzVpUthZa>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012kEc8jmdcLLnmhzVpUthZa -->
+## TOOL RESULT:
+
+ID: toolu_012kEc8jmdcLLnmhzVpUthZa
+
+<tool.toolu_012kEc8jmdcLLnmhzVpUthZa>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove citations content rule
+</tool.toolu_012kEc8jmdcLLnmhzVpUthZa>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01R7BYqZQPkrJTUVeEVo3XYb
+
+### pattern
+
+<tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+citation_
+</tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+
+### path
+
+<tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+grammar.js
+</tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+
+## TOOL RESULT:
+
+ID: toolu_01R7BYqZQPkrJTUVeEVo3XYb
+
+<tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+173:    citation_entry: $ => prec.left(seq(
+180:        $.citation_title,
+181:        $.citation_text,
+182:        $.citation_index,
+187:    citation_title: $ => seq(
+194:    citation_text: $ => seq(
+201:    citation_index: $ => seq(
+
+</tool.toolu_01R7BYqZQPkrJTUVeEVo3XYb>
+
+## ASSISTANT:
+
+Let me remove all the citation-related rules:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ADd5qjFXXpWvimaPtH1hwq
+
+### file-path
+
+<tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+grammar.js
+</tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+
+### original-content
+
+<tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+// Citation patterns
+    citation_entry: $ => prec.left(seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    )),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+</tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+
+### new-content
+
+<tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+
+</tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+
+### git-commit-message
+
+<tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+Remove all citation pattern rules
+</tool.toolu_01ADd5qjFXXpWvimaPtH1hwq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ADd5qjFXXpWvimaPtH1hwq -->
