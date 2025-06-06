@@ -230,17 +230,13 @@ module.exports = grammar({
     ),
 
     tool_result_block: $ => seq(
-      "<tool.",
-      field("tool_id", $.identifier),
-      ">",
+      $.tool_block_start,
       "\n",
       field("content", repeat(choice(
-        $.tool_content_line,
+        $.tool_block_content,
         "\n"
       ))),
-      "</tool.",
-      field("tool_id", $.identifier),
-      ">"
+      $.tool_block_end
     ),
 
     // Citation patterns
