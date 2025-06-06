@@ -340,7 +340,7 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
                 (if title-node
                     (progn
                       (setq title (string-trim (treesit-node-text title-node)))
-                      (message "Set title to: %S" title))
+                      )
                   ;; Fallback: try to extract from the text after "Title:"
                   (let ((text (treesit-node-text child)))
                     (when (string-match "Title:[ \t]*\\(.*\\)" text)
