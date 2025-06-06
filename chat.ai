@@ -10324,4 +10324,118 @@ debug-test.el
 Add more debugging to see message count
 </tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017zP8qbN3WUdMwvoewKkKDh -->
+## TOOL RESULT:
+
+ID: toolu_017zP8qbN3WUdMwvoewKkKDh
+
+<tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add more debugging to see message count
+</tool.toolu_017zP8qbN3WUdMwvoewKkKDh>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013ULrXdK7rFTheXx7k5mtk4
+
+### command
+
+<tool.toolu_013ULrXdK7rFTheXx7k5mtk4>
+emacs --batch -l debug-test.el
+</tool.toolu_013ULrXdK7rFTheXx7k5mtk4>
+
+## TOOL RESULT:
+
+ID: toolu_013ULrXdK7rFTheXx7k5mtk4
+
+<tool.toolu_013ULrXdK7rFTheXx7k5mtk4>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Input text:
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!
+
+Parsed result:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Number of messages: 1
+First message role: user
+First message content: "Hello, how are you?"
+
+</tool.toolu_013ULrXdK7rFTheXx7k5mtk4>
+
+## ASSISTANT:
+
+The assistant message is definitely being lost somewhere. Let me check if the issue is in the `greger-tree-sitter--process-sections-with-citations` function. Since tree-sitter is parsing both sections correctly, the issue must be in the conversion logic.
+
+Looking at the logic, I suspect the issue might be that the assistant section is being processed but not added to the messages list properly. Let me look at the logic again.
+
+In `greger-tree-sitter--process-sections-with-citations`, when it encounters an assistant section, it should add it to `current-assistant-blocks`. But looking at the test output from earlier runs, I noticed something: the order is reversed AND some sections are missing.
+
+Looking at the test output again, in the "simple-conversation" test, the expected was:
+```
+user: "Hello"
+assistant: "Hi there! How can I help you today?"
+```
+
+But the actual was:
+```
+user: "Hello"
+```
+
+The assistant message is completely missing. But in other tests like "tool-use-single-param", I can see assistant messages are present but in the wrong order.
+
+Let me check if there's an issue with how the content is being extracted. The problem might be that empty content is causing the message to be filtered out.
+
+Looking at the `greger-tree-sitter--extract-assistant-section` function, if the content is empty, it might not be creating a proper message. Let me check what happens when content is empty.
+
+Let me first check if it's an issue with the trailing newline. The tree-sitter parse shows `(MISSING "\n" [6, 9] - [6, 9])` which suggests the file doesn't end with a newline. Let me fix the test file:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HYCLMQpwMeQKc81DvD3oD7
+
+### file-path
+
+<tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+debug_two_sections.greger
+</tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+
+### original-content
+
+<tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!
+</tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+
+### new-content
+
+<tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there!
+</tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+
+### git-commit-message
+
+<tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+Add trailing newline to fix parsing
+</tool.toolu_01HYCLMQpwMeQKc81DvD3oD7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HYCLMQpwMeQKc81DvD3oD7 -->
