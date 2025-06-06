@@ -4944,4 +4944,170 @@ greger-tree-sitter.el
 Add missing flush logic for remaining assistant blocks
 </tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018TuvEtd1Hgvx3DtbKEsopu -->
+## TOOL RESULT:
+
+ID: toolu_018TuvEtd1Hgvx3DtbKEsopu
+
+<tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add missing flush logic for remaining assistant blocks
+</tool.toolu_018TuvEtd1Hgvx3DtbKEsopu>
+
+## ASSISTANT:
+
+Wait, I think I understand the problem. There's still an earlier `(nreverse messages)))` that needs to be removed. Let me check:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01GhuaiGwbqM3M1xuxiPH958
+
+### path
+
+<tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+greger-tree-sitter.el
+</tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+
+### start-line
+
+<tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+40
+</tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+
+### end-line
+
+<tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+55
+</tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+
+## TOOL RESULT:
+
+ID: toolu_01GhuaiGwbqM3M1xuxiPH958
+
+<tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+</tool.toolu_01GhuaiGwbqM3M1xuxiPH958>
+
+## ASSISTANT:
+
+Ah! The issue is that `current-assistant-blocks` is not in scope in the main function. Let me check the function structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018F9e6usfFynWqG5iPokSec
+
+### path
+
+<tool.toolu_018F9e6usfFynWqG5iPokSec>
+greger-tree-sitter.el
+</tool.toolu_018F9e6usfFynWqG5iPokSec>
+
+### start-line
+
+<tool.toolu_018F9e6usfFynWqG5iPokSec>
+20
+</tool.toolu_018F9e6usfFynWqG5iPokSec>
+
+### end-line
+
+<tool.toolu_018F9e6usfFynWqG5iPokSec>
+50
+</tool.toolu_018F9e6usfFynWqG5iPokSec>
+
+## TOOL RESULT:
+
+ID: toolu_018F9e6usfFynWqG5iPokSec
+
+<tool.toolu_018F9e6usfFynWqG5iPokSec>
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '())
+        (pending-citations nil))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
+    (nreverse messages)))
+
+</tool.toolu_018F9e6usfFynWqG5iPokSec>
+
+## ASSISTANT:
+
+Yes! That's the problem. The `current-assistant-blocks` variable is only defined in the `greger-tree-sitter--process-sections-with-citations` function, but I'm trying to use it in the main `greger-tree-sitter--extract-dialog` function. Let me remove this incorrect flush logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HWEXq9Mnttj5jM3nHjNfKh
+
+### file-path
+
+<tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+greger-tree-sitter.el
+</tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+
+### original-content
+
+<tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages))
+
+    (nreverse messages)))
+</tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+
+### new-content
+
+<tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+
+### git-commit-message
+
+<tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+Remove incorrect flush logic from main function
+</tool.toolu_01HWEXq9Mnttj5jM3nHjNfKh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HWEXq9Mnttj5jM3nHjNfKh -->
