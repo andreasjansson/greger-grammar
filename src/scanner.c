@@ -161,66 +161,28 @@ static bool is_matching_closing_tag(TSLexer *lexer, Scanner *scanner) {
   if (!scanner->in_tool_block) return false;
   if (lexer->lookahead != '<') return false;
 
-  // Save lexer state for lookahead
+  // We need to check if this is exactly "</tool.{current_tool_id}>"
+  // without consuming any characters
+
+  // Create the expected closing tag
+  char expected[80];
+  snprintf(expected, sizeof(expected), "</tool.%s>", scanner->current_tool_id);
+
+  // Save lexer state
   TSLexer saved_lexer = *lexer;
 
-  advance(lexer);
-  if (lexer->lookahead != '/') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-  if (lexer->lookahead != 't') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-  if (lexer->lookahead != 'o') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-  if (lexer->lookahead != 'o') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-  if (lexer->lookahead != 'l') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-  if (lexer->lookahead != '.') {
-    *lexer = saved_lexer;
-    return false;
-  }
-
-  advance(lexer);
-
-  // Check if the ID matches our current tool ID
-  char end_id[64];
-  int id_len = 0;
-  while (lexer->lookahead &&
-         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
-          lexer->lookahead == '-' || lexer->lookahead == '.') &&
-         id_len < 63) {
-    end_id[id_len++] = lexer->lookahead;
+  // Check each character of the expected closing tag
+  for (int i = 0; expected[i] != '\0'; i++) {
+    if (lexer->lookahead != expected[i]) {
+      *lexer = saved_lexer;
+      return false;
+    }
     advance(lexer);
   }
 
-  end_id[id_len] = '\0';
-
-  bool matches = (lexer->lookahead == '>' && strcmp(scanner->current_tool_id, end_id) == 0);
-
-  // Restore lexer state
+  // If we got here, it matches
   *lexer = saved_lexer;
-
-  return matches;
+  return true;
 }
 
 static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
