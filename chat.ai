@@ -11522,4 +11522,67 @@ typedef struct {
 Add citation context state to scanner
 </tool.toolu_01T3Jr9AuMsvMn3ZJyua5JmN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01T3Jr9AuMsvMn3ZJyua5JmN -->
+## TOOL RESULT:
+
+ID: toolu_01T3Jr9AuMsvMn3ZJyua5JmN
+
+<tool.toolu_01T3Jr9AuMsvMn3ZJyua5JmN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add citation context state to scanner
+</tool.toolu_01T3Jr9AuMsvMn3ZJyua5JmN>
+
+## USER:
+
+Hmm, why do you need an external scanner for this? I'm not convinced you do. The citation logic is not a context free grammar.
+
+## ASSISTANT:
+
+You're absolutely right! I was overcomplicating this. Citation parsing doesn't require context-sensitive grammar features - it can be handled with a regular context-free grammar.
+
+Let me think through this more clearly:
+
+1. When we see `<cite>...</cite>` in content, we know there should be a `## CITATIONS:` section following
+2. We can parse this as a sequence: content with cite tags + citations section
+3. This is perfectly expressible in a context-free grammar
+
+Let me revert the external scanner changes and implement this properly in the grammar:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AVUWQM6FCDR54pKmHJ716b
+
+### file-path
+
+<tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+grammar.js
+</tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+
+### original-content
+
+<tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $.citations_context_start,
+    $.citations_context_end,
+  ],
+</tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+
+### new-content
+
+<tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+  ],
+</tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+
+### git-commit-message
+
+<tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+Remove citation context externals - not needed
+</tool.toolu_01AVUWQM6FCDR54pKmHJ716b>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AVUWQM6FCDR54pKmHJ716b -->
