@@ -187,7 +187,29 @@ but may have subtle differences in usage."
     (nreverse sections)))
 
 (defun greger-tree-sitter--extract-section (section-node)
-  "Extract a dialog message from a SECTION-NODE."
+  "Extract a dialog message from a tree-sitter SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - A tree-sitter node representing a single conversation section
+                 (e.g., ## USER:, ## ASSISTANT:, ## TOOL USE:, etc.)
+
+PROCESSING:
+  1. Determines the section type by examining the first child node
+  2. Dispatches to the appropriate extraction function based on type:
+     - user_section → user message with string content
+     - assistant_section → assistant message with string content
+     - thinking_section → assistant message with thinking content block
+     - tool_use_section → assistant message with tool_use content block
+     - tool_result_section → user message with tool_result content block
+     - server_tool_use_section → assistant message with server_tool_use block
+     - server_tool_result_section → assistant message with web_search_tool_result block
+     - system_section → system message with string content
+
+OUTPUT:
+  Returns a message object with 'role and 'content fields, or nil if the
+  section type is not recognized.
+
+INTERNAL FUNCTION: Central dispatcher for section extraction."
   (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
     (cond
      ((equal section-type "user_section")

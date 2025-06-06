@@ -5797,4 +5797,103 @@ but may have subtle differences in usage."
 Document greger-tree-sitter--get-sections function
 </tool.toolu_01CkdqL4E9bYLY72hammN36Q>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CkdqL4E9bYLY72hammN36Q -->
+## TOOL RESULT:
+
+ID: toolu_01CkdqL4E9bYLY72hammN36Q
+
+<tool.toolu_01CkdqL4E9bYLY72hammN36Q>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Document greger-tree-sitter--get-sections function
+</tool.toolu_01CkdqL4E9bYLY72hammN36Q>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WAMEeyyKnpnP2p2aJGafXN
+
+### file-path
+
+<tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+greger-tree-sitter.el
+</tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+
+### original-content
+
+<tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+(defun greger-tree-sitter--extract-section (section-node)
+  "Extract a dialog message from a SECTION-NODE."
+  (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+    (cond
+     ((equal section-type "user_section")
+      (greger-tree-sitter--extract-user-section section-node))
+     ((equal section-type "system_section")
+      (greger-tree-sitter--extract-system-section section-node))
+     ((equal section-type "assistant_section")
+      (greger-tree-sitter--extract-assistant-section section-node))
+     ((equal section-type "thinking_section")
+      (greger-tree-sitter--extract-thinking-section section-node))
+     ((equal section-type "tool_use_section")
+      (greger-tree-sitter--extract-tool-use-section section-node))
+     ((equal section-type "tool_result_section")
+      (greger-tree-sitter--extract-tool-result-section section-node))
+     ((equal section-type "server_tool_use_section")
+      (greger-tree-sitter--extract-server-tool-use-section section-node))
+     ((equal section-type "server_tool_result_section")
+      (greger-tree-sitter--extract-server-tool-result-section section-node))
+     (t nil))))
+</tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+
+### new-content
+
+<tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+(defun greger-tree-sitter--extract-section (section-node)
+  "Extract a dialog message from a tree-sitter SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - A tree-sitter node representing a single conversation section
+                 (e.g., ## USER:, ## ASSISTANT:, ## TOOL USE:, etc.)
+
+PROCESSING:
+  1. Determines the section type by examining the first child node
+  2. Dispatches to the appropriate extraction function based on type:
+     - user_section → user message with string content
+     - assistant_section → assistant message with string content  
+     - thinking_section → assistant message with thinking content block
+     - tool_use_section → assistant message with tool_use content block
+     - tool_result_section → user message with tool_result content block
+     - server_tool_use_section → assistant message with server_tool_use block
+     - server_tool_result_section → assistant message with web_search_tool_result block
+     - system_section → system message with string content
+
+OUTPUT:
+  Returns a message object with 'role and 'content fields, or nil if the
+  section type is not recognized.
+
+INTERNAL FUNCTION: Central dispatcher for section extraction."
+  (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+    (cond
+     ((equal section-type "user_section")
+      (greger-tree-sitter--extract-user-section section-node))
+     ((equal section-type "system_section")
+      (greger-tree-sitter--extract-system-section section-node))
+     ((equal section-type "assistant_section")
+      (greger-tree-sitter--extract-assistant-section section-node))
+     ((equal section-type "thinking_section")
+      (greger-tree-sitter--extract-thinking-section section-node))
+     ((equal section-type "tool_use_section")
+      (greger-tree-sitter--extract-tool-use-section section-node))
+     ((equal section-type "tool_result_section")
+      (greger-tree-sitter--extract-tool-result-section section-node))
+     ((equal section-type "server_tool_use_section")
+      (greger-tree-sitter--extract-server-tool-use-section section-node))
+     ((equal section-type "server_tool_result_section")
+      (greger-tree-sitter--extract-server-tool-result-section section-node))
+     (t nil))))
+</tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+
+### git-commit-message
+
+<tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+Document greger-tree-sitter--extract-section function
+</tool.toolu_01WAMEeyyKnpnP2p2aJGafXN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WAMEeyyKnpnP2p2aJGafXN -->
