@@ -133,10 +133,10 @@ module.exports = grammar({
       $.newline
     )),
 
-    citations_content: $ => repeat1(choice(
+    citations_content: $ => prec.left(repeat1(choice(
       $.citation_entry,
       $.newline
-    )),
+    ))),
 
     // Special tags and blocks
     safe_shell_commands: $ => seq(
