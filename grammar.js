@@ -62,6 +62,12 @@ module.exports = grammar({
     /\s/
   ],
 
+  conflicts: $ => [
+    [$.section, $.content_block],
+    [$.section_content, $.content_block],
+    [$.tool_parameter, $.tool_output_block]
+  ],
+
   rules: {
     document: $ => repeat(choice(
       $.section,
