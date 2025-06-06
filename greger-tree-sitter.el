@@ -1125,7 +1125,20 @@ the actual text content within sections."
 
 ;; Test function
 (defun greger-tree-sitter-test ()
-  "Test the tree-sitter parser with a simple example."
+  "Test the tree-sitter parser with a simple example.
+
+This interactive function demonstrates basic usage of the greger tree-sitter
+parser by parsing a simple conversation and displaying the result.
+
+USAGE:
+  M-x greger-tree-sitter-test
+
+OUTPUT:
+  Displays the parsed message structure in the *Messages* buffer.
+
+TEST CASE:
+  Parses a basic USER/ASSISTANT conversation to verify the parser is
+  working correctly."
   (interactive)
   (let ((test-text "## USER:
 
