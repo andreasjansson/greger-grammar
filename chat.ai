@@ -4286,4 +4286,53 @@ grammar.js
 Remove old citations_section rule
 </tool.toolu_01SgvojNat59fktUNc4JLPef>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SgvojNat59fktUNc4JLPef -->
+## TOOL RESULT:
+
+ID: toolu_01SgvojNat59fktUNc4JLPef
+
+<tool.toolu_01SgvojNat59fktUNc4JLPef>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove old citations_section rule
+</tool.toolu_01SgvojNat59fktUNc4JLPef>
+
+## ASSISTANT:
+
+Let me also add precedence to prefer assistant sections with citations:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012aWBtW4Q7rwzW2jTZPchAc
+
+### file-path
+
+<tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+grammar.js
+</tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+
+### original-content
+
+<tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+// Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content))
+    ),
+</tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+
+### new-content
+
+<tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+// Citations that appear after an assistant section with cite tags
+    assistant_section_with_citations: $ => prec(1, seq(
+      $.assistant_header,
+      optional(alias($.content_with_citations, $.section_content))
+    )),
+</tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+
+### git-commit-message
+
+<tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+Add precedence to assistant_section_with_citations
+</tool.toolu_012aWBtW4Q7rwzW2jTZPchAc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012aWBtW4Q7rwzW2jTZPchAc -->

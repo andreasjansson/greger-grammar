@@ -153,10 +153,10 @@ module.exports = grammar({
     ),
 
     // Citations that appear after an assistant section with cite tags
-    assistant_section_with_citations: $ => seq(
+    assistant_section_with_citations: $ => prec(1, seq(
       $.assistant_header,
       optional(alias($.content_with_citations, $.section_content))
-    ),
+    )),
 
     // Citations that appear without preceding cite tags
     citations_without_text: $ => seq(
