@@ -58,7 +58,7 @@ module.exports = grammar({
 
     empty_line: $ => /\n/,
 
-    text_content: $ => /[^\n]+/,
+    text_content: $ => /[^\n#<]+/,
 
     tool_name: $ => prec(1, seq(
       'Name:',
