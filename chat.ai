@@ -11246,4 +11246,62 @@ greger-tree-sitter.el
 Fix citation entry extraction with proper null checks
 </tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HimMd5pxjCVBSBtXvAZnt1 -->
+## TOOL RESULT:
+
+ID: toolu_01HimMd5pxjCVBSBtXvAZnt1
+
+<tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix citation entry extraction with proper null checks
+</tool.toolu_01HimMd5pxjCVBSBtXvAZnt1>
+
+## USER:
+
+I think you're going down the wrong path here. I want the citation parsing logic I described to be handled in the grammar itself, not in elisp, because it'll be a lot more efficient in the grammar.
+
+## ASSISTANT:
+
+You're absolutely right! Handling the citation parsing logic in the grammar itself will be much more efficient and cleaner. Let me redesign the grammar to handle the citation context parsing as you described.
+
+The key insight is that when we encounter `<cite>...</cite>`, we need to enter a special parsing state that expects a `## CITATIONS:` section to follow, and these should be parsed as a unified structure.
+
+Let me modify the grammar to handle this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018vaBCDySsseY6uysnfc9Uy
+
+### file-path
+
+<tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+grammar.js
+</tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+
+### original-content
+
+<tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+</tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+
+### new-content
+
+<tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(choice(
+        alias($.content, $.section_content),
+        $.citations_with_text
+      ))
+    ),
+</tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+
+### git-commit-message
+
+<tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+Add citations_with_text option to assistant sections
+</tool.toolu_018vaBCDySsseY6uysnfc9Uy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018vaBCDySsseY6uysnfc9Uy -->
