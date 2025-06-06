@@ -21,9 +21,9 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
     (let ((parser (treesit-parser-create 'greger)))
       (greger-tree-sitter--extract-dialog parser text))))
 
-(defun greger-tree-sitter--extract-dialog (tree)
-  "Extract dialog messages from the parsed TREE."
-  (let ((root-node (treesit-node-child tree 0))
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
         (messages '()))
 
     (message "DEBUG: Root node type: %s" (treesit-node-type root-node))

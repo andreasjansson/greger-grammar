@@ -8388,4 +8388,260 @@ Returns the same format as `greger-parser-parse-dialog-messages-only'."
 Use parser with buffer context to avoid deleted buffer issues
 </tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_014XPZnQeW9RahMkcZgQAk8Z -->
+## TOOL RESULT:
+
+ID: toolu_014XPZnQeW9RahMkcZgQAk8Z
+
+<tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Use parser with buffer context to avoid deleted buffer issues
+</tool.toolu_014XPZnQeW9RahMkcZgQAk8Z>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WQdbJ2hE6uq5MJny4jcm3h
+
+### file-path
+
+<tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+greger-tree-sitter.el
+</tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+
+### original-content
+
+<tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((root-node (treesit-node-child tree 0))
+        (messages '()))
+
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
+     
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (message "DEBUG: Single section")
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+     
+     (t
+      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+
+### new-content
+
+<tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '()))
+
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
+     
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (message "DEBUG: Single section")
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+     
+     (t
+      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+</tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+
+### git-commit-message
+
+<tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+Update dialog extraction to use parser root node
+</tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+
+## TOOL RESULT:
+
+ID: toolu_01WQdbJ2hE6uq5MJny4jcm3h
+
+<tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01WQdbJ2hE6uq5MJny4jcm3h>
+
+## ASSISTANT:
+
+Let me look at the current content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01DPVk3YpHwZ3MXaGHsfCNfP
+
+### path
+
+<tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+greger-tree-sitter.el
+</tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+
+### start-line
+
+<tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+30
+</tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+
+### end-line
+
+<tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+60
+</tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+
+## TOOL RESULT:
+
+ID: toolu_01DPVk3YpHwZ3MXaGHsfCNfP
+
+<tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+      (let ((child-count (treesit-node-child-count root-node)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child root-node i)))
+            (when (equal (treesit-node-type child) "section")
+              (when-let ((message (greger-tree-sitter--extract-section child)))
+                (push message messages)))))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (message "DEBUG: Single section")
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (message "DEBUG: Unknown root node type: %s" (treesit-node-type root-node))))
+
+    (nreverse messages)))
+
+(defun greger-tree-sitter--get-sections (root-node)
+  "Get all section nodes from ROOT-NODE."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+</tool.toolu_01DPVk3YpHwZ3MXaGHsfCNfP>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0193qJh2qmZaPV6BANKMMMAc
+
+### path
+
+<tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+greger-tree-sitter.el
+</tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+
+### start-line
+
+<tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+15
+</tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+
+### end-line
+
+<tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+35
+</tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+
+## TOOL RESULT:
+
+ID: toolu_0193qJh2qmZaPV6BANKMMMAc
+
+<tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+Returns the same format as `greger-parser-parse-dialog-messages-only'."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((root-node (treesit-node-child tree 0))
+        (messages '()))
+
+    (message "DEBUG: Root node type: %s" (treesit-node-type root-node))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case
+      (message "DEBUG: Multiple sections in source_file")
+</tool.toolu_0193qJh2qmZaPV6BANKMMMAc>
+
+## ASSISTANT:
+
+I see the issue - I updated the function call but not the function signature. Let me fix it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EQkHVw9xgAmX45XpRSXvSB
+
+### file-path
+
+<tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+greger-tree-sitter.el
+</tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+
+### original-content
+
+<tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+(defun greger-tree-sitter--extract-dialog (tree)
+  "Extract dialog messages from the parsed TREE."
+  (let ((root-node (treesit-node-child tree 0))
+        (messages '()))
+</tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+
+### new-content
+
+<tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed PARSER with TEXT."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '()))
+</tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+
+### git-commit-message
+
+<tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+Fix function signature for extract-dialog
+</tool.toolu_01EQkHVw9xgAmX45XpRSXvSB>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EQkHVw9xgAmX45XpRSXvSB -->
