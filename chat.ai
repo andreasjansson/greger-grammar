@@ -12187,125 +12187,556 @@ Just a minor missing newline at the end, but that's not a problem.
 
 Let me now check some server tool cases:
 
+## USER:
+
+No, that's not working. Remember this:
+
+### Citation parsing logic
+
+If `<cite>...</cite>` is encountered anywhere on a line, it starts parsing a new "citations_with_text" object. The content inside `<cite>...</cite>` should be a "text" field on the "citations_with_text" object. After `</cite>` you should assume just whitespace until you encounter `## CITATIONS:` at the start of a new line. Then you should parse those citations and place each entry as an "entry" field on the "citations_with_text" object. If you encounter a `## CITATIONS:` when you're not parsing "citations_with_text", make a new "citations_without_text" object and add the "entry"s to that.
+
+Anything inside tool use blocks should be unparsed, returned verbatim. Anything inside triple-backticks or single-backticks should be unparsed, returned verbatim.
+
+
+## ASSISTANT:
+
+You're absolutely right! I'm not implementing the citation parsing logic correctly. Currently I'm parsing `<cite>` tags as separate elements within content and treating `## CITATIONS:` as a separate section, but according to the specification:
+
+1. When `<cite>...</cite>` is encountered, it should start parsing a new "citations_with_text" object
+2. The content inside `<cite>...</cite>` should be a "text" field on that object
+3. After `</cite>`, everything until `## CITATIONS:` should be considered part of the same object
+4. The citations under `## CITATIONS:` should be "entry" fields on that same "citations_with_text" object
+
+And I also haven't implemented the code block handling yet (triple-backticks should be unparsed/verbatim).
+
+Let me rework the grammar to properly handle the citation logic. I need to:
+
+1. Create `citations_with_text` and `citations_without_text` as top-level section types
+2. Make them handle the flow from `<cite>` through to `## CITATIONS:`
+3. Add code block handling to prevent parsing section headers inside backticks
+
+Let me first look at some example grammars to see how they handle similar constructs:
+
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_015ZxBqsk6tqJ5d6NXuHTAcF
+ID: toolu_01A27cZigqrLpqGUsnuP42u9
 
 ### path
 
-<tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
-~/projects/greger.el/test/test-greger-parser.el
-</tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
+<tool.toolu_01A27cZigqrLpqGUsnuP42u9>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01A27cZigqrLpqGUsnuP42u9>
 
 ### start-line
 
-<tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
-600
-</tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
+<tool.toolu_01A27cZigqrLpqGUsnuP42u9>
+150
+</tool.toolu_01A27cZigqrLpqGUsnuP42u9>
 
 ### end-line
 
-<tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
-650
-</tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
+<tool.toolu_01A27cZigqrLpqGUsnuP42u9>
+250
+</tool.toolu_01A27cZigqrLpqGUsnuP42u9>
 
 ## TOOL RESULT:
 
-ID: toolu_015ZxBqsk6tqJ5d6NXuHTAcF
+ID: toolu_01A27cZigqrLpqGUsnuP42u9
 
-<tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
-## SERVER TOOL RESULT:
+<tool.toolu_01A27cZigqrLpqGUsnuP42u9>
+            choice($._newline, $._eof),
+        ),
 
-ID: srvtoolu_123
+        // An indented code block. An indented code block is made up of indented chunks and blank
+        // lines. The indented chunks are handeled by the external scanner.
+        //
+        // https://github.github.com/gfm/#indented-code-blocks
+        indented_code_block: $ => prec.right(seq($._indented_chunk, repeat(choice($._indented_chunk, $._blank_line)))),
+        _indented_chunk: $ => seq($._indented_chunk_start, repeat(choice($._line, $._newline)), $._block_close, optional($.block_continuation)),
 
-<tool.srvtoolu_123>
-[
-  {
-    \"title\": \"Weather in San Francisco\",
-    \"url\": \"https://weather.com/sf\",
-    \"content\": \"Sunny, 72°F\"
-  }
-]
-</tool.srvtoolu_123>
+        // A fenced code block. Fenced code blocks are mainly handled by the external scanner. In
+        // case of backtick code blocks the external scanner also checks that the info string is
+        // proper.
+        //
+        // https://github.github.com/gfm/#fenced-code-blocks
+        fenced_code_block: $ => prec.right(choice(
+            seq(
+                alias($._fenced_code_block_start_backtick, $.fenced_code_block_delimiter),
+                optional($._whitespace),
+                optional($.info_string),
+                $._newline,
+                optional($.code_fence_content),
+                optional(seq(alias($._fenced_code_block_end_backtick, $.fenced_code_block_delimiter), $._close_block, $._newline)),
+                $._block_close,
+            ),
+            seq(
+                alias($._fenced_code_block_start_tilde, $.fenced_code_block_delimiter),
+                optional($._whitespace),
+                optional($.info_string),
+                $._newline,
+                optional($.code_fence_content),
+                optional(seq(alias($._fenced_code_block_end_tilde, $.fenced_code_block_delimiter), $._close_block, $._newline)),
+                $._block_close,
+            ),
+        )),
+        code_fence_content: $ => repeat1(choice($._newline, $._line)),
+        info_string: $ => choice(
+            seq($.language, repeat(choice($._line, $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+            seq(
+                repeat1(choice('{', '}')),
+                optional(choice(
+                    seq($.language, repeat(choice($._line, $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+                    seq($._whitespace, repeat(choice($._line, $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+                ))
+            )
+        ),
+        language: $ => prec.right(repeat1(choice($._word, common.punctuation_without($, ['{', '}', ',']), $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+
+        // An HTML block. We do not emit addition nodes relating to the kind or structure or of the
+        // html block as this is best done using language injections and a proper html parsers.
+        //
+        // See the `build_html_block` function for more information.
+        // See the spec for the different kinds of html blocks.
+        //
+        // https://github.github.com/gfm/#html-blocks
+        html_block: $ => prec(1, seq(optional($._whitespace), choice(
+            $._html_block_1,
+            $._html_block_2,
+            $._html_block_3,
+            $._html_block_4,
+            $._html_block_5,
+            $._html_block_6,
+            $._html_block_7,
+        ))),
+        _html_block_1: $ => build_html_block($,
+            // new RegExp(
+            //     '[ \t]*<' + regex_case_insensitive_list(HTML_TAG_NAMES_RULE_1) + '([\\r\\n]|[ \\t>][^<\\r\\n]*(\\n|\\r\\n?)?)'
+            // ),
+            $._html_block_1_start,
+            $._html_block_1_end,
+            true
+        ),
+        _html_block_2: $ => build_html_block($, $._html_block_2_start, '-->', true),
+        _html_block_3: $ => build_html_block($, $._html_block_3_start, '?>', true),
+        _html_block_4: $ => build_html_block($, $._html_block_4_start, '>', true),
+        _html_block_5: $ => build_html_block($, $._html_block_5_start, ']]>', true),
+        _html_block_6: $ => build_html_block(
+            $,
+            $._html_block_6_start,
+            seq($._newline, $._blank_line),
+            true
+        ),
+        _html_block_7: $ => build_html_block(
+            $,
+            $._html_block_7_start,
+            seq($._newline, $._blank_line),
+            false
+        ),
+
+        // A link reference definition. We need to make sure that this is not mistaken for a
+        // paragraph or indented chunk. The `$._no_indented_chunk` token is used to tell the
+        // external scanner not to allow indented chunks when the `$.link_title` of the link
+        // reference definition would be valid.
+        //
+        // https://github.github.com/gfm/#link-reference-definitions
+        link_reference_definition: $ => prec.dynamic(PRECEDENCE_LEVEL_LINK, seq(
+            optional($._whitespace),
+            $.link_label,
+            ':',
+            optional(seq(optional($._whitespace), optional(seq($._soft_line_break, optional($._whitespace))))),
+            $.link_destination,
+</tool.toolu_01A27cZigqrLpqGUsnuP42u9>
 
 ## ASSISTANT:
 
-The current weather in San Francisco is sunny and 72°F."
-           :dialog (((role . "user") (content . "Search for current weather in San Francisco"))
-                    ((role . "assistant") (content . (((type . "server_tool_use")
-                                                       (id . "srvtoolu_123")
-                                                       (name . "web_search")
-                                                       (input . ((query . "current weather San Francisco"))))
-                                                      ((type . "server_tool_result")
-                                                       (tool_use_id . "srvtoolu_123")
-                                                       (content . (((title . "Weather in San Francisco")
-                                                                    (url . "https://weather.com/sf")
-                                                                    (content . "Sunny, 72°F")))))
-                                                      ((type . "text") (text . "The current weather in San Francisco is sunny and 72°F.")))))))
-
-    (:name "server-tool-use-string-result"
-           :markdown "## USER:
-
-What's the weather like?
-
-## SERVER TOOL USE:
-
-Name: web_search
-ID: srvtoolu_456
-
-### query
-
-<tool.srvtoolu_456>
-weather
-</tool.srvtoolu_456>
-
-## SERVER TOOL RESULT:
-
-ID: srvtoolu_456
-
-<tool.srvtoolu_456>
-Sunny and warm today
-</tool.toolu_015ZxBqsk6tqJ5d6NXuHTAcF>
-
-## ASSISTANT:
-
-Let me test the server tool use case:
+Let me also look at the rst grammar to see how it handles complex content:
 
 ## TOOL USE:
 
-Name: str-replace
-ID: toolu_012fRs4wSwmfrbssx9BjLdSX
+Name: read-file
+ID: toolu_01H73RWpFGzxTECKAk5D8gq9
 
-### file-path
+### path
 
-<tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
-debug.greger
-</tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
+<tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/scanner.c
+</tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
 
-### original-content
+### start-line
 
-<tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
-## USER:
+<tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+1
+</tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+
+### end-line
+
+<tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+100
+</tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+
+## TOOL RESULT:
+
+ID: toolu_01H73RWpFGzxTECKAk5D8gq9
+
+<tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+#include "tree_sitter/parser.h"
+
+#include "tree_sitter_rst/scanner.c"
+#include "tree_sitter_rst/tokens.h"
+
+void* tree_sitter_rst_external_scanner_create()
+{
+  return new_rst_scanner();
+}
+
+void tree_sitter_rst_external_scanner_destroy(void* payload)
+{
+  destroy_rst_scanner(payload);
+}
+
+unsigned tree_sitter_rst_external_scanner_serialize(
+    void* payload,
+    char* buffer)
+{
+  RSTScanner* scanner = payload;
+  return scanner->serialize(scanner, buffer);
+}
+
+void tree_sitter_rst_external_scanner_deserialize(
+    void* payload,
+    const char* buffer,
+    unsigned length)
+{
+  RSTScanner* scanner = payload;
+  scanner->deserialize(scanner, buffer, length);
+}
+
+bool tree_sitter_rst_external_scanner_scan(
+    void* payload,
+    TSLexer* lexer,
+    const bool* valid_symbols)
+{
+  RSTScanner* scanner = (RSTScanner*)payload;
+  scanner->lexer = lexer;
+  scanner->valid_symbols = valid_symbols;
+  scanner->lookahead = lexer->lookahead;
+  scanner->previous = lexer->lookahead;
+  return scanner->scan(scanner);
+}
+</tool.toolu_01H73RWpFGzxTECKAk5D8gq9>
+
+## ASSISTANT:
+
+Let me look at a simpler example and understand the citation requirements better. I need to revise my approach completely. Let me first correct my understanding by looking at what the elisp test expects:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013iU845J92YvzQqAkfe9uWv
+
+### path
+
+<tool.toolu_013iU845J92YvzQqAkfe9uWv>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_013iU845J92YvzQqAkfe9uWv>
+
+### start-line
+
+<tool.toolu_013iU845J92YvzQqAkfe9uWv>
+445
+</tool.toolu_013iU845J92YvzQqAkfe9uWv>
+
+### end-line
+
+<tool.toolu_013iU845J92YvzQqAkfe9uWv>
+485
+</tool.toolu_013iU845J92YvzQqAkfe9uWv>
+
+## TOOL RESULT:
+
+ID: toolu_013iU845J92YvzQqAkfe9uWv
+
+<tool.toolu_013iU845J92YvzQqAkfe9uWv>
+How do I use backticks in markdown?
+
+## ASSISTANT:
+
+You can use triple backticks:
+
+```
+Here's how to show `inline code` in a code block:
+Use single backticks around `your code`.
+```
+
+Does that help?"
+           :dialog (((role . "user") (content . "How do I use backticks in markdown?"))
+                    ((role . "assistant") (content . "You can use triple backticks:\n\n```\nHere's how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?"))))
+
+    (:name "tool-use-complex-params"
+           :markdown "## USER:
+
+Test complex parameters
+
+## TOOL USE:
+
+Name: complex-tool
+ID: toolu_complex
+
+### string_param
+
+<tool.toolu_complex>
+hello world
+</tool.toolu_complex>
+
+### number_param
+
+<tool.toolu_complex>
+42
+</tool.toolu_complex>
+
+### float_param
+
+<tool.toolu_complex>
+3.14
+</tool.toolu_013iU845J92YvzQqAkfe9uWv>
+
+## ASSISTANT:
+
+Let me look at the citation test cases specifically:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013dBQnj22Fsdw5fr31dfyuM
+
+### path
+
+<tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+
+### start-line
+
+<tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+550
+</tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+
+### end-line
+
+<tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+600
+</tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+
+## TOOL RESULT:
+
+ID: toolu_013dBQnj22Fsdw5fr31dfyuM
+
+<tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+
+bar
+</tool.tool_123>
+
+## ASSISTANT:
+
+File written successfully."
+           :dialog (((role . "assistant") (content . (((type . "tool_use") (id . "tool_123") (name . "write-file") (input . ((content . "foo\n\n\nbar")))))))
+                    ((role . "user") (content . (((type . "tool_result") (tool_use_id . "tool_123") (content . "foo\n\n\nbar")))))
+                    ((role . "assistant") (content . "File written successfully."))))
+
+    (:name "html-comments"
+           :markdown "## USER:
 
 Here's some code:
 
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
 ```
+<!-- comment should be included -->
 ## ASSISTANT:
 This should not be parsed as a section header
 ## TOOL USE:
 Neither should this
 ```
 
-What do you think?
-</tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
+What do you think?"
+           :dialog (((role . "user") (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
 
-### new-content
+    ;; Server tool use and result test cases
+    (:name "server-tool-use-basic"
+           :markdown "## USER:
 
-<tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
-## USER:
+Search for current weather in San Francisco
 
-What's the weather like?
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_123
+
+### query
+
+<tool.srvtoolu_123>
+current weather San Francisco
+</tool.srvtoolu_123>
+
+## SERVER TOOL RESULT:
+</tool.toolu_013dBQnj22Fsdw5fr31dfyuM>
+
+## ASSISTANT:
+
+And look for the citations specifically:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01N2SwHPQ1BiYLV6qDSzjPea
+
+### path
+
+<tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+
+### start-line
+
+<tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+650
+</tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+
+### end-line
+
+<tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+720
+</tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+
+## TOOL RESULT:
+
+ID: toolu_01N2SwHPQ1BiYLV6qDSzjPea
+
+<tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+Sunny and warm today
+</tool.srvtoolu_456>
+
+## ASSISTANT:
+
+It looks like it's sunny and warm today!"
+           :dialog (((role . "user") (content . "What's the weather like?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_456")
+                                                       (name . "web_search")
+                                                       (input . ((query . "weather"))))
+                                                      ((type . "server_tool_result")
+                                                       (tool_use_id . "srvtoolu_456")
+                                                       (content . "Sunny and warm today"))
+                                                      ((type . "text")
+                                                       (text . "It looks like it's sunny and warm today!")))))))
+
+    ;; Citation parsing test cases
+    (:name "citations-basic"
+           :markdown "## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## ASSISTANT:
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."
+           :dialog (((role . "user") (content . "When was Claude Shannon born?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                                       (name . "web_search")
+                                                       (input . ((query . "claude shannon birth date"))))
+                                                      ((type . "web_search_tool_result")
+                                                       (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                                       (content . (((type . "web_search_result")
+                                                                    (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                                    (title . "Claude Shannon - Wikipedia")
+</tool.toolu_01N2SwHPQ1BiYLV6qDSzjPea>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Xx8wvrMxCR2FdhJGgRqh2V
+
+### path
+
+<tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+
+### start-line
+
+<tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+720
+</tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+
+### end-line
+
+<tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+760
+</tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+
+## TOOL RESULT:
+
+ID: toolu_01Xx8wvrMxCR2FdhJGgRqh2V
+
+<tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
+                                                                    (title . "Claude Shannon - Wikipedia")
+                                                                    (encrypted_content . "EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...")
+                                                                    (page_age . "April 30, 2025")))))
+                                                      ((type . "text")
+                                                       (text . "Based on the search results, "))
+                                                      ((type . "text")
+                                                       (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+                                                       (citations . (((type . "web_search_result_location")
+                                                                      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                                      (title . "Claude Shannon - Wikipedia")
+                                                                      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+                                                                      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))))))))
+
+    ;; Citations immediately after tool result
+    (:name "citations-after-tool-result"
+           :markdown "## USER:
+
+What's the current weather?
 
 ## SERVER TOOL USE:
 
@@ -12315,7 +12746,7 @@ ID: srvtoolu_456
 ### query
 
 <tool.srvtoolu_456>
-weather
+current weather
 </tool.srvtoolu_456>
 
 ## SERVER TOOL RESULT:
@@ -12323,18 +12754,72 @@ weather
 ID: srvtoolu_456
 
 <tool.srvtoolu_456>
-Sunny and warm today
-</tool.srvtoolu_456>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://weather.com\",
+    \"title\": \"Weather.com\",
+    \"encrypted_content\": \"abc123...\",
+</tool.toolu_01Xx8wvrMxCR2FdhJGgRqh2V>
 
 ## ASSISTANT:
 
-It looks like it's sunny and warm today!
-</tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
+Now I understand! Looking at the expected output, the citation handling is very sophisticated:
+
+1. The `<cite>` tag creates a "text" content block with a "citations" field
+2. The citation information from `## CITATIONS:` gets parsed and attached to that text block
+3. It's not about creating new top-level section types, but about associating citation metadata with text that contains `<cite>` tags
+
+And looking at the code block test, I can see the expectation is that everything inside backticks (including section headers) should be treated as plain text content, not parsed as structure.
+
+This is much more complex than what I've implemented. The current simple approach won't work. I need to:
+
+1. Implement code block handling first (since that blocks structural parsing)
+2. Implement proper citation-aware content parsing
+3. Make the grammar understand the complex relationship between `<cite>` tags and subsequent `## CITATIONS:` sections
+
+Let me start over with a more targeted approach. For now, let me focus on making the basic cases work really well, and then gradually add the advanced features.
+
+Let me start by adding code block support to prevent section headers inside backticks from being parsed:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01E5t7sbDfEMwMrBe1Ca3Z3S
+
+### file-path
+
+<tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+src/scanner.c
+</tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+
+### original-content
+
+<tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+  TEXT,
+};
+</tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+
+### new-content
+
+<tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+  TEXT,
+  CODE_BLOCK,
+};
+</tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
 
 ### git-commit-message
 
-<tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
-Test server tool use case
-</tool.toolu_012fRs4wSwmfrbssx9BjLdSX>
+<tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
+Add code block token to scanner
+</tool.toolu_01E5t7sbDfEMwMrBe1Ca3Z3S>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012fRs4wSwmfrbssx9BjLdSX -->
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01E5t7sbDfEMwMrBe1Ca3Z3S -->
