@@ -927,8 +927,8 @@ INTERNAL FUNCTION: Core of the citation association logic that makes
                                 (alist-get 'text block) citations)))
             (setq result (append result parsed-blocks)))
         ;; Regular block - add as is
-        (push block result)))
-    (nreverse result)))
+        (setq result (append result (list block)))))
+    result))
 
 (defun greger-tree-sitter--extract-citations-section (section-node)
   "Extract citations from a ## CITATIONS: SECTION-NODE.

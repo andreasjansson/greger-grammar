@@ -5621,4 +5621,753 @@ greger-tree-sitter.el
 Fix content extraction to include cite_tag nodes
 </tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FXitQGSCc1GzduMLfwfk8N -->
+## TOOL RESULT:
+
+ID: toolu_01FXitQGSCc1GzduMLfwfk8N
+
+<tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix content extraction to include cite_tag nodes
+</tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+
+
+## ASSISTANT:
+
+Now let me test this fix:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NXRC58wR6HEF3hDYHHH34o
+
+### command
+
+<tool.toolu_01NXRC58wR6HEF3hDYHHH34o>
+emacs --batch -l test-citations.el
+</tool.toolu_01NXRC58wR6HEF3hDYHHH34o>
+
+## TOOL RESULT:
+
+ID: toolu_01NXRC58wR6HEF3hDYHHH34o
+
+<tool.toolu_01NXRC58wR6HEF3hDYHHH34o>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+❌ Citations-basic test FAILED!
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Some search result content about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ4OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Some search result content about Claude Shannon"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ4OWJmZi1lNm.."))))
+   ((type . "text")
+    (text . "Based on the search results,"))))
+ ((role . "user")
+  (content . "When was Claude Shannon born?")))
+
+
+=== Testing citations-after-tool-result ===
+❌ Citations-after-tool-result test FAILED!
+
+Expected:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Search results about current weather"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Search results about current weather"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789"))))))
+ ((role . "user")
+  (content . "What's the current weather?")))
+
+
+=== Testing citations-multiple ===
+❌ Citations-multiple test FAILED!
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Search results about Einstein and Newton"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Search results about Einstein and Newton"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))))
+ ((role . "user")
+  (content . "Tell me about Einstein and Newton")))
+
+
+=== All citation tests completed ===
+
+</tool.toolu_01NXRC58wR6HEF3hDYHHH34o>
+
+## ASSISTANT:
+
+Great progress! The citations are now working! I can see that:
+
+1. **Citations are being parsed and associated correctly** - The `citations` field is now present with proper citation objects
+2. **The `<cite>` tags are being processed** - The cited text is being extracted and associated with citations
+
+However, there are still two issues:
+
+1. **Message order is wrong**: User messages are appearing at the end instead of the beginning
+2. **Text block order is sometimes wrong**: In the multiple citations test, the order is different than expected
+
+Let me fix the message ordering issue first. The problem seems to be that messages are being added in reverse order. I'm using `push` to add messages, which adds them to the front of the list, then `nreverse` at the end.
+
+Looking at the expected vs actual for citations-basic:
+
+Expected order:
+1. User message
+2. Assistant message (with citations)
+
+Actual order:
+1. Assistant message (with citations)
+2. User message
+
+This suggests that the user message is being processed AFTER the assistant message, which shouldn't happen if they're processed in document order.
+
+Let me run the full test suite to see how much progress I've made:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Eng2iWYfZoZuJVw13HKdVB
+
+### command
+
+<tool.toolu_01Eng2iWYfZoZuJVw13HKdVB>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01Eng2iWYfZoZuJVw13HKdVB>
+
+## TOOL RESULT:
+
+ID: toolu_01Eng2iWYfZoZuJVw13HKdVB
+
+<tool.toolu_01Eng2iWYfZoZuJVw13HKdVB>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))
+   ((type . "text")
+    (text . "Based on the search results,")))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.026s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456")))))))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 12
+Failed: 2
+
+❌ FAILED TESTS:
+  - citations-basic
+  - citations-multiple
+
+</tool.toolu_01Eng2iWYfZoZuJVw13HKdVB>
+
+## ASSISTANT:
+
+Fantastic! I'm now at 12/14 tests passing! The citations are working properly now. The remaining issues are much smaller:
+
+1. **citations-basic**: The text block order is wrong - I'm getting the cited text first, then the non-cited text, but it should be the opposite
+2. **citations-multiple**: Similar text block ordering issue
+
+Looking at the citations-basic case:
+
+Expected order:
+1. "Based on the search results,"
+2. "Claude Shannon was born..." (with citations)
+
+Actual order:
+1. "Claude Shannon was born..." (with citations)
+2. "Based on the search results,"
+
+This suggests that when I parse the text with `<cite>` tags, the order is getting reversed. The issue is likely in the `greger-tree-sitter--parse-content-with-citations` function.
+
+Let me examine that function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019E5mn2swCjscPZmaRGidBY
+
+### path
+
+<tool.toolu_019E5mn2swCjscPZmaRGidBY>
+greger-tree-sitter.el
+</tool.toolu_019E5mn2swCjscPZmaRGidBY>
+
+### start-line
+
+<tool.toolu_019E5mn2swCjscPZmaRGidBY>
+1120
+</tool.toolu_019E5mn2swCjscPZmaRGidBY>
+
+### end-line
+
+<tool.toolu_019E5mn2swCjscPZmaRGidBY>
+1160
+</tool.toolu_019E5mn2swCjscPZmaRGidBY>
+
+## TOOL RESULT:
+
+ID: toolu_019E5mn2swCjscPZmaRGidBY
+
+<tool.toolu_019E5mn2swCjscPZmaRGidBY>
+  ;; This is complex - we need to parse the content and split it by cite tags
+  (let ((content (alist-get 'content message)))
+    (when (stringp content)
+      (setf (alist-get 'content message)
+            (greger-tree-sitter--parse-content-with-citations content citations))))
+  message)
+
+(defun greger-tree-sitter--parse-content-with-citations (content citations)
+  "Parse CONTENT string and create content blocks with CITATIONS attached to cited text.
+
+INPUT:
+  CONTENT - String containing text with <cite>...</cite> tags
+  CITATIONS - List of citation objects to associate with cited text
+
+PROCESSING:
+  1. Scans content for <cite>text</cite> patterns using regex matching
+  2. Splits content into separate text blocks:
+     - Text before citations (if any) → text block without citations
+     - Text inside <cite> tags → text block with citations attached
+     - Text after citations (if any) → text block without citations
+  3. Removes the <cite> tags themselves, keeping only the inner text
+  4. Trims whitespace from all text blocks
+
+OUTPUT:
+  Returns a list of content block objects:
+  (((type . \"text\") (text . \"text before cite\"))
+   ((type . \"text\") (text . \"cited text\") (citations . citations-list))
+   ((type . \"text\") (text . \"text after cite\")))
+
+  Empty text blocks are filtered out.
+
+EXAMPLE INPUT:
+  CONTENT: \"Based on research, <cite>the sky is blue</cite> according to science.\"
+  CITATIONS: (((type . \"web_search_result_location\") (url . \"http://example.com\") ...))
+
+EXAMPLE OUTPUT:
+  (((type . \"text\") (text . \"Based on research,\"))
+   ((type . \"text\") (text . \"the sky is blue\") (citations . citations-list))
+   ((type . \"text\") (text . \"according to science.\")))
+
+INTERNAL FUNCTION: Core citation parsing logic used by citation association functions."
+</tool.toolu_019E5mn2swCjscPZmaRGidBY>
+
+## ASSISTANT:
+
+Let me see the actual implementation:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MmRXRT79PYWCrrVwS69zJX
+
+### path
+
+<tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+greger-tree-sitter.el
+</tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+
+### start-line
+
+<tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+1155
+</tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+
+### end-line
+
+<tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+1185
+</tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+
+## TOOL RESULT:
+
+ID: toolu_01MmRXRT79PYWCrrVwS69zJX
+
+<tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+EXAMPLE OUTPUT:
+  (((type . \"text\") (text . \"Based on research,\"))
+   ((type . \"text\") (text . \"the sky is blue\") (citations . citations-list))
+   ((type . \"text\") (text . \"according to science.\")))
+
+INTERNAL FUNCTION: Core citation parsing logic used by citation association functions."
+  (let ((parts '())
+        (current-pos 0))
+
+    ;; Find all cite tags and split content accordingly
+    (while (string-match "<cite>\\(.*?\\)</cite>" content current-pos)
+      (let ((before-cite (substring content current-pos (match-beginning 0)))
+            (cite-text (match-string 1 content))
+            (after-match (match-end 0)))
+
+        ;; Add text before cite if any
+        (when (> (length (string-trim before-cite)) 0)
+          (push `((type . "text") (text . ,(string-trim before-cite))) parts))
+
+        ;; Add cited text with citations
+        (push `((type . "text")
+                (text . ,cite-text)
+                (citations . ,citations)) parts)
+
+        (setq current-pos after-match)))
+
+    ;; Add remaining text after last cite
+    (let ((remaining (substring content current-pos)))
+      (when (> (length (string-trim remaining)) 0)
+        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+
+</tool.toolu_01MmRXRT79PYWCrrVwS69zJX>
+
+## ASSISTANT:
+
+There's the issue! I'm using `push` to add the parts, which adds them to the front of the list, reversing the order. Then I `nreverse` at the end. But the order is still wrong because I'm processing from left to right but building the list backwards.
+
+Let me see the rest of the function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VXNe7JuzVXHoWTkizpQAnh
+
+### path
+
+<tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+greger-tree-sitter.el
+</tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+
+### start-line
+
+<tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+1180
+</tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+
+### end-line
+
+<tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+1190
+</tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+
+## TOOL RESULT:
+
+ID: toolu_01VXNe7JuzVXHoWTkizpQAnh
+
+<tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+
+    ;; Add remaining text after last cite
+    (let ((remaining (substring content current-pos)))
+      (when (> (length (string-trim remaining)) 0)
+        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+
+    (nreverse parts)))
+
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+</tool.toolu_01VXNe7JuzVXHoWTkizpQAnh>
+
+## ASSISTANT:
+
+I see! I am doing `(nreverse parts)` at the end, which should give me the correct order. But the order is still wrong, which means the issue might be elsewhere.
+
+Let me think about this. For the citations-basic test case, the original content should be:
+
+"Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>"
+
+When parsed, this should give:
+1. "Based on the search results," (no citations)
+2. "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan" (with citations)
+
+But I'm getting the opposite order. Let me check if the issue is in the `greger-tree-sitter--associate-citations-with-blocks` function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TxZPWXHB4GPgv6dBW9eeZD
+
+### path
+
+<tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+greger-tree-sitter.el
+</tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+
+### start-line
+
+<tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+920
+</tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+
+### end-line
+
+<tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+940
+</tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+
+## TOOL RESULT:
+
+ID: toolu_01TxZPWXHB4GPgv6dBW9eeZD
+
+<tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+<cite> tags work with subsequent ## CITATIONS: sections."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Extract citations from a ## CITATIONS: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## CITATIONS: section
+
+PROCESSING:
+  1. Finds the citations_content within the section
+</tool.toolu_01TxZPWXHB4GPgv6dBW9eeZD>
+
+## ASSISTANT:
+
+There's another issue! In the `greger-tree-sitter--associate-citations-with-blocks` function, I'm using `push` for regular blocks (which puts them at the front) but `append` for parsed blocks (which keeps them in order). Then I do `nreverse` at the end.
+
+This mixed approach is causing the ordering issues. Let me fix this to be consistent:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019rpiJUWgho2UtehmE8czT4
+
+### file-path
+
+<tool.toolu_019rpiJUWgho2UtehmE8czT4>
+greger-tree-sitter.el
+</tool.toolu_019rpiJUWgho2UtehmE8czT4>
+
+### original-content
+
+<tool.toolu_019rpiJUWgho2UtehmE8czT4>
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result))
+</tool.toolu_019rpiJUWgho2UtehmE8czT4>
+
+### new-content
+
+<tool.toolu_019rpiJUWgho2UtehmE8czT4>
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (setq result (append result (list block)))))
+    result)
+</tool.toolu_019rpiJUWgho2UtehmE8czT4>
+
+### git-commit-message
+
+<tool.toolu_019rpiJUWgho2UtehmE8czT4>
+Fix citation block ordering by using consistent append instead of push/nreverse
+</tool.toolu_019rpiJUWgho2UtehmE8czT4>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019rpiJUWgho2UtehmE8czT4 -->
