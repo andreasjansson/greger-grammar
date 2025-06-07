@@ -6346,4 +6346,171 @@ When was Claude Shannon born?"))
 Update debug test to check content extraction
 </tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HfCV9aXA4QPCikeZDQRVAp -->
+## TOOL RESULT:
+
+ID: toolu_01HfCV9aXA4QPCikeZDQRVAp
+
+<tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1305 characters. Successfully staged 2 file(s) and committed with message: Update debug test to check content extraction
+</tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01A84PVsnHVhh4r6qphNAFAd
+
+### command
+
+<tool.toolu_01A84PVsnHVhh4r6qphNAFAd>
+emacs --batch -l debug-test.el
+</tool.toolu_01A84PVsnHVhh4r6qphNAFAd>
+
+## TOOL RESULT:
+
+ID: toolu_01A84PVsnHVhh4r6qphNAFAd
+
+<tool.toolu_01A84PVsnHVhh4r6qphNAFAd>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing content extraction ===
+Testing content extraction...
+Content node type: content
+Content node text: "
+When was Claude Shannon born?"
+Content node children count: 1
+  Content child 0: type=
+ text="
+"
+
+</tool.toolu_01A84PVsnHVhh4r6qphNAFAd>
+
+## ASSISTANT:
+
+Interesting! The content node has:
+1. The text "When was Claude Shannon born?" (which is what we want)
+2. One child that appears to be a newline
+
+But the `greger-tree-sitter--extract-content` function is looking for "content_line" children. Let me fix this by updating the function to handle the actual structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017V55qCF74KsG9vUbku5zJK
+
+### file-path
+
+<tool.toolu_017V55qCF74KsG9vUbku5zJK>
+greger-tree-sitter.el
+</tool.toolu_017V55qCF74KsG9vUbku5zJK>
+
+### original-content
+
+<tool.toolu_017V55qCF74KsG9vUbku5zJK>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Try to extract text from content_line children first
+            (let ((line-child-count (treesit-node-child-count child))
+                  (line-texts '()))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-texts))))
+              ;; If no text children found, extract from the content_line directly
+              (if line-texts
+                  (push (string-join (nreverse line-texts) "") text-parts)
+                (let ((line-text (treesit-node-text child)))
+                  ;; Remove trailing newline and check if there's content
+                  (when (and line-text (> (length line-text) 0))
+                    (setq line-text (string-trim-right line-text "\n"))
+                    (when (> (length line-text) 0)
+                      (push line-text text-parts)))))))))
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) "\n"))
+        ""))))
+</tool.toolu_017V55qCF74KsG9vUbku5zJK>
+
+### new-content
+
+<tool.toolu_017V55qCF74KsG9vUbku5zJK>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text content directly from the content node, handling both
+  direct text and text within child nodes like _text and cite_tag.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      ;; First try to get text directly from content node
+      (let ((direct-text (treesit-node-text content-node)))
+        (when direct-text
+          (setq direct-text (string-trim direct-text))
+          (when (> (length direct-text) 0)
+            (push direct-text text-parts))))
+
+      ;; Also collect from special child nodes like cite_tag
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (cond
+           ((equal child-type "cite_tag")
+            ;; Extract cited text for basic content extraction
+            (let ((cited-text-node (treesit-node-child-by-field-name child "cited_text")))
+              (when cited-text-node
+                (let ((cited-text (treesit-node-text cited-text-node)))
+                  (when cited-text
+                    (push (format "<cite>%s</cite>" cited-text) text-parts))))))
+           ((equal child-type "_text")
+            ;; Handle _text nodes
+            (let ((text (treesit-node-text child)))
+              (when (and text (> (length (string-trim text)) 0))
+                (push (string-trim text) text-parts)))))))
+
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) "\n"))
+        ""))))
+</tool.toolu_017V55qCF74KsG9vUbku5zJK>
+
+### git-commit-message
+
+<tool.toolu_017V55qCF74KsG9vUbku5zJK>
+Fix content extraction to handle actual tree structure
+</tool.toolu_017V55qCF74KsG9vUbku5zJK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017V55qCF74KsG9vUbku5zJK -->

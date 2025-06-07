@@ -1706,8 +1706,8 @@ INPUT:
   CONTENT-NODE - Tree-sitter node representing section content
 
 PROCESSING:
-  Extracts text from content_line nodes, joining multiple lines with spaces.
-  Each content_line contains text tokens that need to be concatenated.
+  Extracts text content directly from the content node, handling both
+  direct text and text within child nodes like _text and cite_tag.
 
 OUTPUT:
   Returns the trimmed text content as a string, or empty string if the
@@ -1720,27 +1720,31 @@ the actual text content within sections."
       ""
     (let ((text-parts '())
           (child-count (treesit-node-child-count content-node)))
+      ;; First try to get text directly from content node
+      (let ((direct-text (treesit-node-text content-node)))
+        (when direct-text
+          (setq direct-text (string-trim direct-text))
+          (when (> (length direct-text) 0)
+            (push direct-text text-parts))))
+
+      ;; Also collect from special child nodes like cite_tag
       (dotimes (i child-count)
         (let* ((child (treesit-node-child content-node i))
                (child-type (treesit-node-type child)))
-          (when (equal child-type "content_line")
-            ;; Try to extract text from content_line children first
-            (let ((line-child-count (treesit-node-child-count child))
-                  (line-texts '()))
-              (dotimes (j line-child-count)
-                (let* ((line-child (treesit-node-child child j))
-                       (line-child-type (treesit-node-type line-child)))
-                  (when (equal line-child-type "text")
-                    (push (treesit-node-text line-child) line-texts))))
-              ;; If no text children found, extract from the content_line directly
-              (if line-texts
-                  (push (string-join (nreverse line-texts) "") text-parts)
-                (let ((line-text (treesit-node-text child)))
-                  ;; Remove trailing newline and check if there's content
-                  (when (and line-text (> (length line-text) 0))
-                    (setq line-text (string-trim-right line-text "\n"))
-                    (when (> (length line-text) 0)
-                      (push line-text text-parts)))))))))
+          (cond
+           ((equal child-type "cite_tag")
+            ;; Extract cited text for basic content extraction
+            (let ((cited-text-node (treesit-node-child-by-field-name child "cited_text")))
+              (when cited-text-node
+                (let ((cited-text (treesit-node-text cited-text-node)))
+                  (when cited-text
+                    (push (format "<cite>%s</cite>" cited-text) text-parts))))))
+           ((equal child-type "_text")
+            ;; Handle _text nodes
+            (let ((text (treesit-node-text child)))
+              (when (and text (> (length (string-trim text)) 0))
+                (push (string-trim text) text-parts)))))))
+
       (if text-parts
           (string-trim (string-join (nreverse text-parts) "\n"))
         ""))))
