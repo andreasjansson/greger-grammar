@@ -154,9 +154,10 @@ INPUT:
   BLOCKS - List of content block objects accumulated for an assistant message
 
 PROCESSING:
-  Decides whether to return simple string content or structured content blocks:
-  1. If there's only one text block with no citations → return simple string
-  2. If there are multiple blocks, or citations, or non-text blocks → return content blocks
+  1. Converts citations_with_text and citations_without_text blocks to expected format
+  2. Decides whether to return simple string content or structured content blocks:
+     - If there's only one text block with no citations → return simple string
+     - If there are multiple blocks, or citations, or non-text blocks → return content blocks
   3. Reorders blocks appropriately when returning content blocks
 
 OUTPUT:
@@ -170,19 +171,20 @@ LOGIC:
 
 INTERNAL FUNCTION: Used by greger-tree-sitter--process-sections-with-citations
 to determine the final format of assistant content."
-  (cond
-   ;; No blocks - return empty string
-   ((null blocks) "")
+  (let ((converted-blocks (greger-tree-sitter--convert-citation-blocks blocks)))
+    (cond
+     ;; No blocks - return empty string
+     ((null converted-blocks) "")
 
-   ;; Single text block with no citations - return simple string
-   ((and (= (length blocks) 1)
-         (equal (alist-get 'type (car blocks)) "text")
-         (not (alist-get 'citations (car blocks))))
-    (alist-get 'text (car blocks)))
+     ;; Single text block with no citations - return simple string
+     ((and (= (length converted-blocks) 1)
+           (equal (alist-get 'type (car converted-blocks)) "text")
+           (not (alist-get 'citations (car converted-blocks))))
+      (alist-get 'text (car converted-blocks)))
 
-   ;; Multiple blocks or complex content - return content blocks
-   (t
-    (greger-tree-sitter--reorder-assistant-blocks blocks))))
+     ;; Multiple blocks or complex content - return content blocks
+     (t
+      (greger-tree-sitter--reorder-assistant-blocks converted-blocks)))))
 
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
   "Reorder assistant content BLOCKS to match expected greger format order.
