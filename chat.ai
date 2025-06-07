@@ -10697,4 +10697,224 @@ for direct use."
 Update extract-dialog to use citation transformation approach
 </tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ES6gDZ8e427Dce59vVeKq9 -->
+## TOOL RESULT:
+
+ID: toolu_01ES6gDZ8e427Dce59vVeKq9
+
+<tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Update extract-dialog to use citation transformation approach
+</tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+
+## ASSISTANT:
+
+Now let me implement the transformation function that follows your exact requirements:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UsZ7S17Hq8tpNhhcHQQK35
+
+### file-path
+
+<tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+greger-tree-sitter.el
+</tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+
+### original-content
+
+<tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+(defun greger-tree-sitter--get-all-sections (root-node)
+</tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+
+### new-content
+
+<tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+(defun greger-tree-sitter--transform-sections-for-citations (sections)
+  "Transform SECTIONS according to citation requirements.
+
+INPUT:
+  SECTIONS - List of raw tree-sitter section nodes
+
+PROCESSING:
+  Implements your exact requirements:
+  1. If <cite>...</cite> is encountered anywhere on a line, starts parsing a new citations_with_text object
+  2. Content inside <cite>...</cite> becomes 'text field on citations_with_text object  
+  3. After </cite>, assumes whitespace until ## CITATIONS: at start of new line
+  4. Parses those citations and places each entry as 'entry field on citations_with_text object
+  5. If ## CITATIONS: is encountered when not parsing citations_with_text, makes citations_without_text object
+
+OUTPUT:
+  Returns list of transformed section objects that include citations_with_text and citations_without_text."
+  (let ((result '())
+        (i 0))
+    
+    (while (< i (length sections))
+      (let* ((section (nth i sections))
+             (section-type (greger-tree-sitter--get-section-type section)))
+        
+        ;; Check if this section contains cite tags
+        (if (greger-tree-sitter--section-contains-cite-tags section)
+            ;; Found cite tags - look for following citations section
+            (let ((citations-section-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+              (if citations-section-idx
+                  ;; Found citations section - create citations_with_text
+                  (let* ((citations-section (nth citations-section-idx sections))
+                         (citations-with-text-obj (greger-tree-sitter--create-citations-with-text-section 
+                                                   section citations-section)))
+                    (push citations-with-text-obj result)
+                    ;; Skip the citations section since we consumed it
+                    (setq i citations-section-idx))
+                ;; No citations section found - treat as regular section
+                (push section result)))
+          
+          ;; Check if this is a standalone citations section
+          (if (equal section-type "citations_section")
+              ;; Check if it was already consumed by a citations_with_text
+              (let ((was-consumed (and (> i 0)
+                                       (greger-tree-sitter--section-contains-cite-tags (nth (1- i) sections)))))
+                (unless was-consumed
+                  ;; Standalone citations section - create citations_without_text
+                  (let ((citations-without-text-obj (greger-tree-sitter--create-citations-without-text-section section)))
+                    (push citations-without-text-obj result))))
+            ;; Regular section - pass through
+            (push section result))))
+      
+      (setq i (1+ i)))
+    
+    (nreverse result)))
+
+(defun greger-tree-sitter--section-contains-cite-tags (section)
+  "Check if SECTION contains <cite> tags anywhere on a line."
+  (let ((section-type (greger-tree-sitter--get-section-type section)))
+    (when (member section-type '("assistant_section" "thinking_section" "user_section" "system_section"))
+      (let ((content (greger-tree-sitter--get-raw-section-content section)))
+        (and content (string-match-p "<cite>" content))))))
+
+(defun greger-tree-sitter--get-raw-section-content (section)
+  "Get raw text content from SECTION node."
+  (let* ((section-child (treesit-node-child section 0))
+         (content-node (greger-tree-sitter--find-child-by-type section-child "section_content")))
+    (when content-node
+      (treesit-node-text content-node))))
+
+(defun greger-tree-sitter--create-citations-with-text-section (content-section citations-section)
+  "Create a citations_with_text section object from CONTENT-SECTION and CITATIONS-SECTION."
+  (let* ((content-text (greger-tree-sitter--get-raw-section-content content-section))
+         (citations (greger-tree-sitter--extract-citations-section citations-section))
+         (cite-texts (greger-tree-sitter--extract-cite-texts content-text)))
+    `((type . "citations_with_text")
+      (original-section . ,content-section)
+      (texts . ,cite-texts)
+      (entries . ,citations))))
+
+(defun greger-tree-sitter--extract-cite-texts (content)
+  "Extract all <cite>text</cite> content from CONTENT string."
+  (let ((texts '())
+        (start 0))
+    (while (string-match "<cite>\\(.*?\\)</cite>" content start)
+      (push (match-string 1 content) texts)
+      (setq start (match-end 0)))
+    (nreverse texts)))
+
+(defun greger-tree-sitter--create-citations-without-text-section (citations-section)
+  "Create a citations_without_text section object from CITATIONS-SECTION."
+  (let ((citations (greger-tree-sitter--extract-citations-section citations-section)))
+    `((type . "citations_without_text")
+     (original-section . ,citations-section)
+     (entries . ,citations))))
+
+(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+  "Process TRANSFORMED-SECTIONS that may include citations_with_text and citations_without_text."
+  (let ((messages '())
+        (current-assistant-blocks '()))
+    
+    (dolist (section transformed-sections)
+      (let ((section-type (if (listp section)
+                              (alist-get 'type section)
+                            (greger-tree-sitter--get-section-type section))))
+        
+        (cond
+         ((equal section-type "citations_with_text")
+          ;; Process citations_with_text
+          (let ((texts (alist-get 'texts section))
+                (entries (alist-get 'entries section))
+                (original-section (alist-get 'original-section section)))
+            ;; Extract any non-cite content from original section
+            (let ((blocks (greger-tree-sitter--extract-blocks-from-citations-with-text original-section texts entries)))
+              (setq current-assistant-blocks (append current-assistant-blocks blocks)))))
+         
+         ((equal section-type "citations_without_text")
+          ;; Process citations_without_text 
+          (let ((entries (alist-get 'entries section)))
+            (setq current-assistant-blocks 
+                  (append current-assistant-blocks 
+                          `(((type . "citations_without_text") (entries . ,entries)))))))
+         
+         ;; Handle regular sections (existing logic)
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((role (alist-get 'role message))
+                    (content (alist-get 'content message)))
+                
+                (cond
+                 ;; User/System sections - flush assistant blocks
+                 ((member role '("user" "system"))
+                  (when current-assistant-blocks
+                    (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                      (push `((role . "assistant") (content . ,assistant-content)) messages))
+                    (setq current-assistant-blocks '()))
+                  (push message messages))
+                 
+                 ;; Assistant sections - accumulate blocks
+                 ((equal role "assistant")
+                  (if (listp content)
+                      (setq current-assistant-blocks (append current-assistant-blocks content))
+                    (when (and (stringp content) (> (length (string-trim content)) 0))
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))))))
+    
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+        (push `((role . "assistant") (content . ,assistant-content)) messages)))
+    
+    (nreverse messages)))
+
+(defun greger-tree-sitter--extract-blocks-from-citations-with-text (section cite-texts entries)
+  "Extract content blocks from SECTION, creating citations_with_text blocks for CITE-TEXTS with ENTRIES."
+  (let* ((content (greger-tree-sitter--get-raw-section-content section))
+         (blocks '())
+         (pos 0))
+    
+    ;; Process content, splitting by cite tags
+    (dolist (cite-text cite-texts)
+      (let ((cite-pattern (concat "<cite>" (regexp-quote cite-text) "</cite>")))
+        (when (string-match cite-pattern content pos)
+          ;; Add any text before the cite tag
+          (let ((before-text (substring content pos (match-beginning 0))))
+            (when (> (length (string-trim before-text)) 0)
+              (push `((type . "text") (text . ,(string-trim before-text))) blocks)))
+          
+          ;; Add the citations_with_text block
+          (push `((type . "text") (text . ,cite-text) (citations . ,entries)) blocks)
+          
+          (setq pos (match-end 0)))))
+    
+    ;; Add any remaining text after last cite tag
+    (when (< pos (length content))
+      (let ((remaining-text (substring content pos)))
+        (when (> (length (string-trim remaining-text)) 0)
+          (push `((type . "text") (text . ,(string-trim remaining-text))) blocks))))
+    
+    (nreverse blocks)))
+
+(defun greger-tree-sitter--get-all-sections (root-node)
+</tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+
+### git-commit-message
+
+<tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+Implement citation transformation functions following exact requirements
+</tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UsZ7S17Hq8tpNhhcHQQK35 -->
