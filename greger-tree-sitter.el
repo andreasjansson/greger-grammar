@@ -1724,22 +1724,15 @@ the actual text content within sections."
         (let* ((child (treesit-node-child content-node i))
                (child-type (treesit-node-type child)))
           (when (equal child-type "content_line")
-            ;; Extract text from content_line children
-            (let ((line-text-parts '())
-                  (line-child-count (treesit-node-child-count child)))
-              (dotimes (j line-child-count)
-                (let* ((line-child (treesit-node-child child j))
-                       (line-child-type (treesit-node-type line-child)))
-                  (cond
-                   ((equal line-child-type "text")
-                    (push (treesit-node-text line-child) line-text-parts))
-                   ((equal line-child-type "cite_tag")
-                    ;; For cite tags, preserve the full tag for later processing
-                    (push (treesit-node-text line-child) line-text-parts)))))
-              (when line-text-parts
-                (push (string-join (nreverse line-text-parts) "") text-parts))))))
+            ;; Extract text from content_line directly if it has text content
+            (let ((line-text (treesit-node-text child)))
+              ;; Remove the trailing newline from each line
+              (when (and line-text (> (length line-text) 0))
+                (setq line-text (string-trim-right line-text "\n"))
+                (when (> (length line-text) 0)
+                  (push line-text text-parts)))))))
       (if text-parts
-          (string-trim (string-join (nreverse text-parts) " "))
+          (string-trim (string-join (nreverse text-parts) "\n"))
         ""))))
 
 ;; Test function
