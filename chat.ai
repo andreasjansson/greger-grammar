@@ -8640,4 +8640,262 @@ Creates structured blocks according to citations_with_text format."
 Add helper functions for smarter citation processing
 </tool.toolu_012m9j9bNHfRaMfiKsVsiSre>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012m9j9bNHfRaMfiKsVsiSre -->
+## TOOL RESULT:
+
+ID: toolu_012m9j9bNHfRaMfiKsVsiSre
+
+<tool.toolu_012m9j9bNHfRaMfiKsVsiSre>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add helper functions for smarter citation processing
+</tool.toolu_012m9j9bNHfRaMfiKsVsiSre>
+
+## ASSISTANT:
+
+Now let me test if the current tests still pass before making the complex changes:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TggTHsvhVQdGkgpmXLeFny
+
+### command
+
+<tool.toolu_01TggTHsvhVQdGkgpmXLeFny>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01TggTHsvhVQdGkgpmXLeFny>
+
+## TOOL RESULT:
+
+ID: toolu_01TggTHsvhVQdGkgpmXLeFny
+
+<tool.toolu_01TggTHsvhVQdGkgpmXLeFny>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.000s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,")))))
+
+
+=== Testing: citations-after-tool-result ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results")))))
+
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "while")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 11
+Failed: 3
+
+❌ FAILED TESTS:
+  - citations-basic
+  - citations-after-tool-result
+  - citations-multiple
+
+</tool.toolu_01TggTHsvhVQdGkgpmXLeFny>
+
+## ASSISTANT:
+
+I seem to have broken the citation parsing again. The issue is that when I updated the cite_tag extraction, it might have broken the content extraction. Let me check what's happening with the current extraction.
+
+Looking at the failure, it seems like the cited text is not being extracted at all. Let me check if the issue is in the cite_tag field extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01T2PA6Mtz1uq5hre4LKJAig
+
+### file-path
+
+<tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+greger-tree-sitter.el
+</tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+
+### original-content
+
+<tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+((equal line-child-type "cite_tag")
+                    ;; For cite tags, extract just the cited text (without the <cite></cite> tags)
+                    (let ((cited-text-node (treesit-node-child-by-field-name line-child "cited_text")))
+                      (when cited-text-node
+                        (push (concat "<cite>" (treesit-node-text cited-text-node) "</cite>") line-text-parts))))
+</tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+
+### new-content
+
+<tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+((equal line-child-type "cite_tag")
+                    ;; For cite tags, preserve the full tag for later processing
+                    (push (treesit-node-text line-child) line-text-parts))
+</tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+
+### git-commit-message
+
+<tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+Simplify cite_tag extraction to preserve full tag text
+</tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01T2PA6Mtz1uq5hre4LKJAig -->

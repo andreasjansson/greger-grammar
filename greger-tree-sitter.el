@@ -1248,10 +1248,8 @@ the actual text content within sections."
                    ((equal line-child-type "text")
                     (push (treesit-node-text line-child) line-text-parts))
                    ((equal line-child-type "cite_tag")
-                    ;; For cite tags, extract just the cited text (without the <cite></cite> tags)
-                    (let ((cited-text-node (treesit-node-child-by-field-name line-child "cited_text")))
-                      (when cited-text-node
-                        (push (concat "<cite>" (treesit-node-text cited-text-node) "</cite>") line-text-parts)))))))
+                    ;; For cite tags, preserve the full tag for later processing
+                    (push (treesit-node-text line-child) line-text-parts)))))
               (when line-text-parts
                 (push (string-join (nreverse line-text-parts) "") text-parts))))))
       (if text-parts
