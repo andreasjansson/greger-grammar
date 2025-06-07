@@ -12032,4 +12032,290 @@ debug-test.el
 Add detailed debugging of section content extraction
 </tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Qomx9Yhfk9ZAGhaapbKcPc -->
+## TOOL RESULT:
+
+ID: toolu_01Qomx9Yhfk9ZAGhaapbKcPc
+
+<tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add detailed debugging of section content extraction
+</tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NzS7rr6nSbigVh4Zur42Qr
+
+### command
+
+<tool.toolu_01NzS7rr6nSbigVh4Zur42Qr>
+emacs --batch -l debug-test.el
+</tool.toolu_01NzS7rr6nSbigVh4Zur42Qr>
+
+## TOOL RESULT:
+
+ID: toolu_01NzS7rr6nSbigVh4Zur42Qr
+
+<tool.toolu_01NzS7rr6nSbigVh4Zur42Qr>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 2
+  Root child 0: section
+  Root child 1: ERROR
+Sections found by get-all-sections: 1
+User section type: user_section
+Content node found: yes
+Content node type: section_content
+Content node children: 1
+  Content child 0: newline
+Extracted content: ’’
+
+</tool.toolu_01NzS7rr6nSbigVh4Zur42Qr>
+
+## ASSISTANT:
+
+Perfect! Now I can see the issue. The `section_content` has only 1 child, which is a `newline`. This means the `content_line` with the actual text is missing! 
+
+Looking back at my parsing, the structure should be:
+- section_content
+  - newline (empty line after header)
+  - content_line (contains the text)
+  - newline (end of content)
+
+But I'm only seeing the first newline. This suggests that the text content isn't being parsed as a `content_line`. Let me check if my external scanner is working properly.
+
+Looking at the parse trace I ran earlier, I could see the text "Hello, how are you?" was being parsed as `sym:text`, but it seems like it's not being included in the final tree. This suggests there might be an issue with how the scanner or grammar is handling the text token.
+
+Let me check if the issue is that the text is being parsed but not included in the content structure. The ERROR node at the end suggests that the parsing is failing partway through.
+
+Let me trace through what should happen:
+1. Parse `## USER:\n` as user_header
+2. Parse `\n` as newline 
+3. Parse `Hello, how are you?` as text token
+4. Parse `\n` as newline to complete content_line
+
+The issue might be that my external scanner is consuming text but the grammar isn't properly forming content_lines from it. Let me look at the grammar again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PZTfcadqA9fMEBhXN2TFkZ
+
+### path
+
+<tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+grammar.js
+</tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+
+### start-line
+
+<tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+100
+</tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+
+### end-line
+
+<tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+115
+</tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+
+## TOOL RESULT:
+
+ID: toolu_01PZTfcadqA9fMEBhXN2TFkZ
+
+<tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+</tool.toolu_01PZTfcadqA9fMEBhXN2TFkZ>
+
+## ASSISTANT:
+
+The grammar looks correct. The issue might be in my external scanner's text function. Looking at the RST implementation I studied, I notice they handle text differently. Let me check my text scanner implementation:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01FaupZ4bSa9QdXqmTaSzqcV
+
+### path
+
+<tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+src/scanner.c
+</tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+
+### start-line
+
+<tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+155
+</tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+
+### end-line
+
+<tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+175
+</tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+
+## TOOL RESULT:
+
+ID: toolu_01FaupZ4bSa9QdXqmTaSzqcV
+
+<tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+}
+
+static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Expect "</tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '/') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+</tool.toolu_01FaupZ4bSa9QdXqmTaSzqcV>
+
+## ASSISTANT:
+
+Let me find the scan_text function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01UMcqgSk7G5mDkFfPpC6Wt5
+
+### pattern
+
+<tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+scan_text
+</tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+
+### path
+
+<tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+src/scanner.c
+</tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+
+### context-lines
+
+<tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+10
+</tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+
+## TOOL RESULT:
+
+ID: toolu_01UMcqgSk7G5mDkFfPpC6Wt5
+
+<tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+222-  }
+223-
+224-  if (has_content) {
+225-    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+226-    return true;
+227-  }
+228-
+229-  return false;
+230-}
+231-
+232:static bool scan_text(TSLexer *lexer) {
+233-  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+234-    return false;
+235-  }
+236-
+237-  // Consume characters until we hit a delimiter
+238-  while (lexer->lookahead != '\0' &&
+239-         lexer->lookahead != '\n' &&
+240-         lexer->lookahead != '<' &&
+241-         lexer->lookahead != '#') {
+242-    advance(lexer);
+--
+260-    }
+261-  }
+262-
+263-  // Handle tool block content (don't skip whitespace for content)
+264-  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+265-    return scan_tool_content(lexer, scanner);
+266-  }
+267-
+268-  // Handle text tokens (don't skip whitespace for text)
+269-  if (valid_symbols[TEXT] && !scanner->in_tool_block) {
+270:    return scan_text(lexer);
+271-  }
+272-
+273-  // Skip whitespace for start tokens
+274-  while (iswspace(lexer->lookahead)) {
+275-    skip(lexer);
+276-  }
+277-
+278-  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+279-    return scan_tool_start(lexer, scanner);
+280-  }
+
+</tool.toolu_01UMcqgSk7G5mDkFfPpC6Wt5>
+
+## ASSISTANT:
+
+I found the issue! In my `scan_text` function, I'm returning `false` if the lookahead is `'\n'`, but that's too restrictive. The text should be parsed up to the newline, not reject the newline entirely.
+
+Looking at the RST parser behavior I studied, they handle text more carefully. Let me also check what happens after I scan text - I need to ensure that the newline can still be parsed as a separate token to complete the `content_line`.
+
+The issue is that my text scanner rejects text at the start if there's a newline. But actually, I think the issue might be deeper. Let me check what happens by adding some debug text that should definitely be parsed:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EsfNj1nsdWdQgfoMY7mEa1
+
+### file-path
+
+<tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+debug-test.el
+</tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+
+### original-content
+
+<tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+</tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+
+### new-content
+
+<tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello"))
+</tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+
+### git-commit-message
+
+<tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+Simplify debug text to minimal case
+</tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EsfNj1nsdWdQgfoMY7mEa1 -->

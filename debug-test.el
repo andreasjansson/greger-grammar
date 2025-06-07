@@ -5,7 +5,7 @@
 ;; Debug simple tree structure first
 (let ((text "## USER:
 
-Hello, how are you?"))
+Hello"))
   (with-temp-buffer
     (insert text)
     (let* ((parser (treesit-parser-create 'greger))
