@@ -5865,4 +5865,189 @@ greger-tree-sitter.el
 Fix system section to use correct content extraction function
 </tool.toolu_01MP7egmmbLza6euoo2TwcXp>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MP7egmmbLza6euoo2TwcXp -->
+## TOOL RESULT:
+
+ID: toolu_01MP7egmmbLza6euoo2TwcXp
+
+<tool.toolu_01MP7egmmbLza6euoo2TwcXp>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix system section to use correct content extraction function
+</tool.toolu_01MP7egmmbLza6euoo2TwcXp>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FB4iaxHCMpPQUQwGpNRx5g
+
+### command
+
+<tool.toolu_01FB4iaxHCMpPQUQwGpNRx5g>
+emacs --batch -l debug-test.el
+</tool.toolu_01FB4iaxHCMpPQUQwGpNRx5g>
+
+## TOOL RESULT:
+
+ID: toolu_01FB4iaxHCMpPQUQwGpNRx5g
+
+<tool.toolu_01FB4iaxHCMpPQUQwGpNRx5g>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing basic citation ===
+Testing basic citation...
+Parse result: (((role . "user") (content . "")) ((role . "assistant") (content . "")))
+First message: ((role . "user") (content . ""))
+Second message: ((role . "assistant") (content . ""))
+Second message content: ""
+
+</tool.toolu_01FB4iaxHCMpPQUQwGpNRx5g>
+
+## ASSISTANT:
+
+Still empty content. Let me look at the `greger-tree-sitter--extract-content` function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018ovoDwb7u8uhz7WRGwQcLK
+
+### path
+
+<tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+greger-tree-sitter.el
+</tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+
+### start-line
+
+<tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+1700
+</tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+
+### end-line
+
+<tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+1750
+</tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+
+## TOOL RESULT:
+
+ID: toolu_018ovoDwb7u8uhz7WRGwQcLK
+
+<tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+    (nreverse parts)))
+
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Try to extract text from content_line children first
+            (let ((line-child-count (treesit-node-child-count child))
+                  (line-texts '()))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-texts))))
+              ;; If no text children found, extract from the content_line directly
+              (if line-texts
+                  (push (string-join (nreverse line-texts) "") text-parts)
+                (let ((line-text (treesit-node-text child)))
+                  ;; Remove trailing newline and check if there's content
+                  (when (and line-text (> (length line-text) 0))
+                    (setq line-text (string-trim-right line-text "\n"))
+                    (when (> (length line-text) 0)
+                      (push line-text text-parts)))))))))
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) "\n"))
+        ""))))
+
+;; Test function
+(defun greger-tree-sitter-test ()
+  "Test the tree-sitter parser with a simple example.
+</tool.toolu_018ovoDwb7u8uhz7WRGwQcLK>
+
+## ASSISTANT:
+
+I see the issue! The function is looking for "content_line" nodes, but based on the tree-sitter parse output we saw earlier, the grammar is producing `_text` nodes directly within the content. Let me check what the actual content structure looks like:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01CsUyZk32nHetxnFQKRn9BD
+
+### file-path
+
+<tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+debug-test.el
+</tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+
+### contents
+
+<tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-tree-structure ()
+  "Test tree structure parsing."
+  (let ((text "## USER:
+
+When was Claude Shannon born?"))
+    (message "Testing tree structure...")
+    (condition-case err
+        (let ((parser (treesit-parser-create 'greger)))
+          (with-temp-buffer
+            (insert text)
+            (let* ((root-node (treesit-parser-root-node parser))
+                   (sections (greger-tree-sitter--get-all-sections root-node)))
+              (message "Root node type: %s" (treesit-node-type root-node))
+              (message "Number of sections: %d" (length sections))
+              (when sections
+                (let* ((first-section (car sections))
+                       (section-type (treesit-node-type (treesit-node-child first-section 0)))
+                       (user-section (treesit-node-child first-section 0))
+                       (content-node (greger-tree-sitter--find-child-by-type user-section "content")))
+                  (message "First section type: %s" section-type)
+                  (message "User section children count: %d" (treesit-node-child-count user-section))
+                  (dotimes (i (treesit-node-child-count user-section))
+                    (let ((child (treesit-node-child user-section i)))
+                      (message "  Child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))))
+                  (when content-node
+                    (message "Content node type: %s" (treesit-node-type content-node))
+                    (message "Content node children count: %d" (treesit-node-child-count content-node))
+                    (dotimes (i (treesit-node-child-count content-node))
+                      (let ((child (treesit-node-child content-node i)))
+                        (message "  Content child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))))))))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing tree structure ===")
+(test-tree-structure)
+</tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+
+### git-commit-message
+
+<tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+Update debug test to examine tree structure
+</tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CsUyZk32nHetxnFQKRn9BD -->
