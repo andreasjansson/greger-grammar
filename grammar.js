@@ -180,6 +180,7 @@ module.exports = grammar({
       $.citation_title_line,
       $.citation_text_line,
       $.citation_index_line,
+      $.empty_line,
     ),
 
     citation_entry_line: $ => seq(
