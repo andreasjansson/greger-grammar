@@ -208,5 +208,8 @@ module.exports = grammar({
       field("index", /[^\n]+/),
       "\n"
     ),
+
+    // Untagged content (content before any section headers)
+    untagged_content: $ => repeat1($.line),
   }
 });
