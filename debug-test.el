@@ -2,20 +2,19 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(defun test-thinking ()
-  "Test thinking functionality."
+(defun test-code-blocks ()
+  "Test code block functionality."
   (let ((text "## USER:
 
-What's 2+2?
+Here's some code:
 
-## THINKING:
-
-This is a simple arithmetic question. I can answer this directly.
-
+```
 ## ASSISTANT:
+This should not be parsed as a section header
+```
 
-2 + 2 = 4"))
-    (message "Testing thinking...")
+What do you think?"))
+    (message "Testing code blocks...")
     (condition-case err
         (let ((result (greger-tree-sitter-parse text)))
           (message "Parse result: %S" result)
@@ -24,5 +23,5 @@ This is a simple arithmetic question. I can answer this directly.
       (error
        (message "ERROR: %S" err)))))
 
-(message "=== Testing thinking ===")
-(test-thinking)
+(message "=== Testing code blocks ===")
+(test-code-blocks)

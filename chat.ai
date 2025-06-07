@@ -7226,4 +7226,290 @@ This is a simple arithmetic question. I can answer this directly.
 Update debug test to test thinking functionality
 </tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RvXjEssMHNoWB1Ekoyay6v -->
+## TOOL RESULT:
+
+ID: toolu_01RvXjEssMHNoWB1Ekoyay6v
+
+<tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 723 characters. Successfully staged 2 file(s) and committed with message: Update debug test to test thinking functionality
+</tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01ULyWwGw1Tt5o4cJyhwZsYu
+
+### command
+
+<tool.toolu_01ULyWwGw1Tt5o4cJyhwZsYu>
+emacs --batch -l debug-test.el
+</tool.toolu_01ULyWwGw1Tt5o4cJyhwZsYu>
+
+## TOOL RESULT:
+
+ID: toolu_01ULyWwGw1Tt5o4cJyhwZsYu
+
+<tool.toolu_01ULyWwGw1Tt5o4cJyhwZsYu>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing thinking ===
+Testing thinking...
+Parse result: (((role . "user") (content . "What's 2+2?")) ((role . "assistant") (content ((type . "thinking") (thinking . "This is a simple arithmetic question. I can answer this directly.")) ((type . "text") (text . "2 + 2 = 4")))))
+Message: role=user content="What's 2+2?"
+Message: role=assistant content=(((type . "thinking") (thinking . "This is a simple arithmetic question. I can answer this directly.")) ((type . "text") (text . "2 + 2 = 4")))
+
+</tool.toolu_01ULyWwGw1Tt5o4cJyhwZsYu>
+
+## ASSISTANT:
+
+Perfect! The thinking content is now being extracted correctly. Now let me address the code block issue. The problem is that content inside triple backticks is being parsed as section headers. This suggests that the grammar's code block handling needs improvement.
+
+Looking at the grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016yZZaiDcD9u4SYNoh7dEWz
+
+### path
+
+<tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+grammar.js
+</tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+
+### start-line
+
+<tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+70
+</tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+
+### end-line
+
+<tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+90
+</tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+
+## TOOL RESULT:
+
+ID: toolu_016yZZaiDcD9u4SYNoh7dEWz
+
+<tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_header: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_header: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types - use external scanner for text
+</tool.toolu_016yZZaiDcD9u4SYNoh7dEWz>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01W8nwSw9AzM7FqhWAKffU8g
+
+### path
+
+<tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+grammar.js
+</tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+
+### start-line
+
+<tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+90
+</tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+
+### end-line
+
+<tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+110
+</tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+
+## TOOL RESULT:
+
+ID: toolu_01W8nwSw9AzM7FqhWAKffU8g
+
+<tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+    // Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $.code_block,
+        $._text,
+        $.cite_tag,
+        "\n"
+      )
+    ),
+
+    code_block: $ => seq(
+      "```",
+      repeat(/[^`]/),
+      "```"
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+</tool.toolu_01W8nwSw9AzM7FqhWAKffU8g>
+
+## ASSISTANT:
+
+I see the issue! The `code_block` rule in the grammar is too simplistic. It uses `repeat(/[^`]/)` which will stop at any backtick, but it should consume everything until it finds the closing triple backticks.
+
+The bigger issue though is that the external scanner might be interfering with the code block parsing. Let me check how the external scanner handles code blocks:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TpdxXzXk2bBpkGicmLvfa2
+
+### path
+
+<tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+src/scanner.c
+</tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+
+### start-line
+
+<tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+100
+</tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+
+### end-line
+
+<tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+150
+</tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+
+## TOOL RESULT:
+
+ID: toolu_01TpdxXzXk2bBpkGicmLvfa2
+
+<tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+
+  end_id[id_len] = '\0';
+
+  // Reset position back to the mark (the '<')
+  // Note: We consumed past the closing tag for checking, but tree-sitter
+  // will reset the position since we're just checking
+  return strcmp(scanner->current_tool_id, end_id) == 0;
+}
+
+static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
+  // Expect "<tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    scanner->current_tool_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  scanner->current_tool_id[id_len] = '\0';
+</tool.toolu_01TpdxXzXk2bBpkGicmLvfa2>
+
+## ASSISTANT:
+
+
+
+The external scanner is focused on tool blocks. The issue is that the grammar needs to properly handle code blocks so they don't interfere with section header parsing.
+
+The real problem is that the code block rule in the grammar is not handling the content correctly. Let me first create a test to verify this:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01Eha1ZpoxLEzHGtcUQqvy8B
+
+### file-path
+
+<tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+debug-test.el
+</tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+
+### contents
+
+<tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-code-blocks ()
+  "Test code block functionality."
+  (let ((text "## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+```
+
+What do you think?"))
+    (message "Testing code blocks...")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (dolist (msg result)
+            (message "Message: role=%s content=%S" (alist-get 'role msg) (alist-get 'content msg))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing code blocks ===")
+(test-code-blocks)
+</tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+
+### git-commit-message
+
+<tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+Update debug test to test code block functionality
+</tool.toolu_01Eha1ZpoxLEzHGtcUQqvy8B>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Eha1ZpoxLEzHGtcUQqvy8B -->
