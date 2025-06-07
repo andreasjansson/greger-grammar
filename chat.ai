@@ -10185,4 +10185,121 @@ section: $ => choice(
 Add citations_with_text as a top-level section
 </tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NAJDXWQQrRyStTCfia4Si3 -->
+## TOOL RESULT:
+
+ID: toolu_01NAJDXWQQrRyStTCfia4Si3
+
+<tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citations_with_text as a top-level section
+</tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+
+## ASSISTANT:
+
+Now let me modify the citations_with_text to be a complete section that can span multiple logical sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VrcKp5g72F3WhL7PKKHby1
+
+### file-path
+
+<tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+grammar.js
+</tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+
+### original-content
+
+<tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+// Content types - can include citations_with_text
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.citations_with_text,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(alias($._text, 'text')),
+      "\n"
+    ),
+
+    // Citations with text - triggered by <cite> tags
+    citations_with_text: $ => seq(
+      // Optional text before the cite tag
+      optional(repeat1(alias($._text, 'text'))),
+      // The cite tag
+      "<cite>",
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      // Whitespace until citations section
+      repeat(choice(/[ \t\n]/)),
+      // Citations section header
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      // Citation entries
+      repeat1(choice(
+        field("entry", $.citation_entry),
+        $.newline
+      ))
+    ),
+</tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+
+### new-content
+
+<tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+// Content types - simple content lines
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag_inline
+      )),
+      "\n"
+    ),
+
+    // Inline cite tag (doesn't trigger citations_with_text by itself)
+    cite_tag_inline: $ => seq(
+      "<cite>",
+      repeat1(/[^<\n]+/),
+      "</cite>"
+    ),
+
+    // Citations with text - complete section spanning from content to citations
+    citations_with_text: $ => prec.right(seq(
+      // Content that includes cite tags
+      repeat1(choice(
+        alias(/[^<#\n]+/, 'text'),
+        seq(
+          "<cite>",
+          field("text", repeat1(/[^<\n]+/)),
+          "</cite>"
+        ),
+        /[ \t]*\n/
+      )),
+      // Citations section
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      repeat1(choice(
+        field("entry", $.citation_entry),
+        $.newline
+      ))
+    )),
+</tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+
+### git-commit-message
+
+<tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+Restructure citations_with_text to handle cross-section parsing
+</tool.toolu_01VrcKp5g72F3WhL7PKKHby1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VrcKp5g72F3WhL7PKKHby1 -->

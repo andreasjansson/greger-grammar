@@ -102,40 +102,50 @@ module.exports = grammar({
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
     citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    // Content types - can include citations_with_text
+    // Content types - simple content lines
     content: $ => repeat1(choice(
       $.content_line,
-      $.citations_with_text,
       $.newline
     )),
 
     content_line: $ => seq(
-      repeat1(alias($._text, 'text')),
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag_inline
+      )),
       "\n"
     ),
 
-    // Citations with text - triggered by <cite> tags
-    citations_with_text: $ => seq(
-      // Optional text before the cite tag
-      optional(repeat1(alias($._text, 'text'))),
-      // The cite tag
+    // Inline cite tag (doesn't trigger citations_with_text by itself)
+    cite_tag_inline: $ => seq(
       "<cite>",
-      field("text", repeat1(/[^<\n]+/)),
-      "</cite>",
-      // Whitespace until citations section
-      repeat(choice(/[ \t\n]/)),
-      // Citations section header
+      repeat1(/[^<\n]+/),
+      "</cite>"
+    ),
+
+    // Citations with text - complete section spanning from content to citations
+    citations_with_text: $ => prec.right(seq(
+      // Content that includes cite tags
+      repeat1(choice(
+        alias(/[^<#\n]+/, 'text'),
+        seq(
+          "<cite>",
+          field("text", repeat1(/[^<\n]+/)),
+          "</cite>"
+        ),
+        /[ \t]*\n/
+      )),
+      // Citations section
       "##",
       /[ \t]*/,
       "CITATIONS:",
       /[ \t]*/,
       "\n",
-      // Citation entries
       repeat1(choice(
         field("entry", $.citation_entry),
         $.newline
       ))
-    ),
+    )),
 
     system_content: $ => repeat1(choice(
       $.content_line,
