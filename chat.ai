@@ -4880,4 +4880,144 @@ conflicts: $ => [
 Add conflict for line_with_cite and newline
 </tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GzeuSUobDjNrCdfcXb9VPv -->
+## TOOL RESULT:
+
+ID: toolu_01GzeuSUobDjNrCdfcXb9VPv
+
+<tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflict for line_with_cite and newline
+</tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XUKqUwmCCd9jMhDFABcbHB
+
+### command
+
+<tool.toolu_01XUKqUwmCCd9jMhDFABcbHB>
+tree-sitter generate
+</tool.toolu_01XUKqUwmCCd9jMhDFABcbHB>
+
+## TOOL RESULT:
+
+ID: toolu_01XUKqUwmCCd9jMhDFABcbHB
+
+<tool.toolu_01XUKqUwmCCd9jMhDFABcbHB>
+Command executed successfully:
+Warning: unnecessary conflicts
+  `line_with_cite`, `text_line`
+
+</tool.toolu_01XUKqUwmCCd9jMhDFABcbHB>
+
+## ASSISTANT:
+
+Good! Now let me test parsing:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HD3muJ8yd7PAR5LF2AqCMW
+
+### command
+
+<tool.toolu_01HD3muJ8yd7PAR5LF2AqCMW>
+tree-sitter parse test_simple.greger
+</tool.toolu_01HD3muJ8yd7PAR5LF2AqCMW>
+
+## TOOL RESULT:
+
+ID: toolu_01HD3muJ8yd7PAR5LF2AqCMW
+
+<tool.toolu_01HD3muJ8yd7PAR5LF2AqCMW>
+Command executed successfully:
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (line_with_cite [1, 0] - [2, 0])
+        (line_with_cite [2, 0] - [3, 0])
+        (line_with_cite [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (line_with_cite [5, 0] - [6, 0])
+        (line_with_cite [6, 0] - [7, 0])))))
+
+</tool.toolu_01HD3muJ8yd7PAR5LF2AqCMW>
+
+## ASSISTANT:
+
+Better! Now it's parsing without errors. But I notice everything is being parsed as `line_with_cite` when it should be `text_line`. Let me fix that:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SsoJrMeLFmmiemkbxFYDDx
+
+### file-path
+
+<tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+grammar.js
+</tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+
+### original-content
+
+<tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - higher precedence when cite tags are present
+    line_with_cite: $ => seq(
+      repeat(choice(
+        /[^<\n#]+/, // Text before cite tag
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Text line - any non-empty line without cite tags
+    text_line: $ => seq(
+      /[^<\n#][^\n]*/,  // Non-empty line that doesn't start with < or #
+      "\n"
+    ),
+</tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+
+### new-content
+
+<tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - only when cite tags are actually present
+    line_with_cite: $ => seq(
+      repeat(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(/[^<\n#]+/, $.cite_tag)), // More text and cite tags
+      "\n"
+    ),
+
+    // Text line - any non-empty line without cite tags
+    text_line: $ => seq(
+      /[^<\n#][^\n]*/,  // Non-empty line that doesn't start with < or #
+      "\n"
+    ),
+</tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+
+### git-commit-message
+
+<tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+Fix line_with_cite to only match when cite tags are present
+</tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SsoJrMeLFmmiemkbxFYDDx -->

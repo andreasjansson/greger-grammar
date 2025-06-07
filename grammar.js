@@ -103,12 +103,11 @@ module.exports = grammar({
       $.newline
     )),
 
-    // Line with cite tags - higher precedence when cite tags are present
+    // Line with cite tags - only when cite tags are actually present
     line_with_cite: $ => seq(
-      repeat(choice(
-        /[^<\n#]+/, // Text before cite tag
-        $.cite_tag
-      )),
+      repeat(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(/[^<\n#]+/, $.cite_tag)), // More text and cite tags
       "\n"
     ),
 
