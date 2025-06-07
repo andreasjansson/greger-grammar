@@ -95,26 +95,19 @@ module.exports = grammar({
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
     citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    // Content types
+    // Content types - similar to RST and markdown
     content: $ => repeat1(choice(
-      $.line_with_cite,
-      $.text_line,
+      $.content_line,
       $.newline
     )),
 
-    // Line with cite tags - only matches when cite tags are present
-    line_with_cite: $ => seq(
-      optional(/[^<\n#]+/), // Text before cite tag
-      $.cite_tag,
-      optional(/[^<\n]*/),  // Text after cite tag
-      optional("\n")
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
     ),
-
-    // Text line - fallback for any non-empty line
-    text_line: $ => prec.dynamic(-1, prec.left(seq(
-      /[^\n#]+/, // Any non-empty line that doesn't contain #
-      optional("\n")
-    ))),
 
     // Cite tag
     cite_tag: $ => seq(

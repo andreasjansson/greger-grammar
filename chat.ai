@@ -6952,4 +6952,2239 @@ grammar.js
 Add left associativity to text_line
 </tool.toolu_01KHJKvuAb1rbfgDYLBRxfNV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KHJKvuAb1rbfgDYLBRxfNV -->
+## TOOL RESULT:
+
+ID: toolu_01KHJKvuAb1rbfgDYLBRxfNV
+
+<tool.toolu_01KHJKvuAb1rbfgDYLBRxfNV>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add left associativity to text_line
+</tool.toolu_01KHJKvuAb1rbfgDYLBRxfNV>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LNL7DpmhmvdkYE2SdAWyob
+
+### command
+
+<tool.toolu_01LNL7DpmhmvdkYE2SdAWyob>
+tree-sitter generate
+</tool.toolu_01LNL7DpmhmvdkYE2SdAWyob>
+
+## TOOL RESULT:
+
+ID: toolu_01LNL7DpmhmvdkYE2SdAWyob
+
+<tool.toolu_01LNL7DpmhmvdkYE2SdAWyob>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      user_header  cite_tag  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  user_header  (line_with_cite  cite_tag  •  '
+    ')
+      2:  user_header  (line_with_cite  cite_tag)  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `line_with_cite`
+      2:  Add a conflict for these rules: `line_with_cite`
+    
+
+</tool.toolu_01LNL7DpmhmvdkYE2SdAWyob>
+
+## USER:
+
+Now I think you understand the problem. Go read some parser code from the example repos in /Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos and come back and take a fresh look at the problem
+
+## ASSISTANT:
+
+You're right, let me study some parser examples to understand better patterns for handling similar conflicts.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Pt1cZHDTAtbmT5mwo65UuK
+
+### path
+
+<tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+
+### start-line
+
+<tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+200
+</tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+
+### end-line
+
+<tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+300
+</tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+
+## TOOL RESULT:
+
+ID: toolu_01Pt1cZHDTAtbmT5mwo65UuK
+
+<tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+        //
+        // See the `build_html_block` function for more information.
+        // See the spec for the different kinds of html blocks.
+        //
+        // https://github.github.com/gfm/#html-blocks
+        html_block: $ => prec(1, seq(optional($._whitespace), choice(
+            $._html_block_1,
+            $._html_block_2,
+            $._html_block_3,
+            $._html_block_4,
+            $._html_block_5,
+            $._html_block_6,
+            $._html_block_7,
+        ))),
+        _html_block_1: $ => build_html_block($,
+            // new RegExp(
+            //     '[ \t]*<' + regex_case_insensitive_list(HTML_TAG_NAMES_RULE_1) + '([\\r\\n]|[ \\t>][^<\\r\\n]*(\\n|\\r\\n?)?)'
+            // ),
+            $._html_block_1_start,
+            $._html_block_1_end,
+            true
+        ),
+        _html_block_2: $ => build_html_block($, $._html_block_2_start, '-->', true),
+        _html_block_3: $ => build_html_block($, $._html_block_3_start, '?>', true),
+        _html_block_4: $ => build_html_block($, $._html_block_4_start, '>', true),
+        _html_block_5: $ => build_html_block($, $._html_block_5_start, ']]>', true),
+        _html_block_6: $ => build_html_block(
+            $,
+            $._html_block_6_start,
+            seq($._newline, $._blank_line),
+            true
+        ),
+        _html_block_7: $ => build_html_block(
+            $,
+            $._html_block_7_start,
+            seq($._newline, $._blank_line),
+            false
+        ),
+
+        // A link reference definition. We need to make sure that this is not mistaken for a
+        // paragraph or indented chunk. The `$._no_indented_chunk` token is used to tell the
+        // external scanner not to allow indented chunks when the `$.link_title` of the link
+        // reference definition would be valid.
+        //
+        // https://github.github.com/gfm/#link-reference-definitions
+        link_reference_definition: $ => prec.dynamic(PRECEDENCE_LEVEL_LINK, seq(
+            optional($._whitespace),
+            $.link_label,
+            ':',
+            optional(seq(optional($._whitespace), optional(seq($._soft_line_break, optional($._whitespace))))),
+            $.link_destination,
+            optional(prec.dynamic(2 * PRECEDENCE_LEVEL_LINK, seq(
+                choice(
+                    seq($._whitespace, optional(seq($._soft_line_break, optional($._whitespace)))),
+                    seq($._soft_line_break, optional($._whitespace)),
+                ),
+                optional($._no_indented_chunk),
+                $.link_title
+            ))),
+            choice($._newline, $._soft_line_break, $._eof),
+        )),
+        _text_inline_no_link: $ => choice($._word, $._whitespace, common.punctuation_without($, ['[', ']'])),
+
+        // A paragraph. The parsing tactic for deciding when a paragraph ends is as follows:
+        // on every newline inside a paragraph a conflict is triggered manually using
+        // `$._split_token` to split the parse state into two branches.
+        //
+        // One of them - the one that also contains a `$._soft_line_break_marker` will try to
+        // continue the paragraph, but we make sure that the beginning of a new block that can
+        // interrupt a paragraph can also be parsed. If this is the case we know that the paragraph
+        // should have been closed and the external parser will emit an `$._error` to kill the parse
+        // branch.
+        //
+        // The other parse branch consideres the paragraph to be over. It will be killed if no valid new
+        // block is detected before the next newline. (For example it will also be killed if a indented
+        // code block is detected, which cannot interrupt paragraphs).
+        //
+        // Either way, after the next newline only one branch will exist, so the ammount of branches
+        // related to paragraphs ending does not grow.
+        //
+        // https://github.github.com/gfm/#paragraphs
+        paragraph: $ => seq(alias(repeat1(choice($._line, $._soft_line_break)), $.inline), choice($._newline, $._eof)),
+
+        // A blank line including the following newline.
+        //
+        // https://github.github.com/gfm/#blank-lines
+        _blank_line: $ => seq($._blank_line_start, choice($._newline, $._eof)),
+
+
+        // CONTAINER BLOCKS
+
+        // A block quote. This is the most basic example of a container block handled by the
+        // external scanner.
+        //
+        // https://github.github.com/gfm/#block-quotes
+        block_quote: $ => seq(
+            alias($._block_quote_start, $.block_quote_marker),
+            optional($.block_continuation),
+            repeat($._block),
+            $._block_close,
+            optional($.block_continuation)
+</tool.toolu_01Pt1cZHDTAtbmT5mwo65UuK>
+
+## ASSISTANT:
+
+Let me look at how they handle text content:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_0139Zd3aunanr5TFTHwwUt5k
+
+### pattern
+
+<tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+paragraph.*choice
+</tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+
+### path
+
+<tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown
+</tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+
+### context-lines
+
+<tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+5
+</tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+
+## TOOL RESULT:
+
+ID: toolu_0139Zd3aunanr5TFTHwwUt5k
+
+<tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-276-        //
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-277-        // Either way, after the next newline only one branch will exist, so the ammount of branches
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-278-        // related to paragraphs ending does not grow.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-279-        //
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-280-        // https://github.github.com/gfm/#paragraphs
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js:281:        paragraph: $ => seq(alias(repeat1(choice($._line, $._soft_line_break)), $.inline), choice($._newline, $._eof)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-282-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-283-        // A blank line including the following newline.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-284-        //
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-285-        // https://github.github.com/gfm/#blank-lines
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-286-        _blank_line: $ => seq($._blank_line_start, choice($._newline, $._eof)),
+
+</tool.toolu_0139Zd3aunanr5TFTHwwUt5k>
+
+## ASSISTANT:
+
+Let me see how `_line` is defined:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01SWDeRS7aUdmD7nuK1G2jog
+
+### pattern
+
+<tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+_line.*:"
+</tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+
+### path
+
+<tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown
+</tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+
+### context-lines
+
+<tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+3
+</tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+
+## TOOL RESULT:
+
+ID: toolu_01SWDeRS7aUdmD7nuK1G2jog
+
+<tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-329-        // A hard line break.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-330-        //
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-331-        // https://github.github.com/gfm/#hard-line-breaks
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js:332:        hard_line_break: $ => seq(choice('\\', $._whitespace_ge_2), $._soft_line_break),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-333-        _text: $ => choice($._word, common.punctuation_without($, []), $._whitespace),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-334-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-335-        // Whitespace is divided into single whitespaces and multiple whitespaces as wee need this
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-344-        _word: $ => choice($._word_no_digit, $._digits),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-345-        _word_no_digit: $ => new RegExp('[^' + PUNCTUATION_CHARACTERS_REGEX + ' \\t\\n\\r0-9]+(_+[^' + PUNCTUATION_CHARACTERS_REGEX + ' \\t\\n\\r0-9]+)*'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-346-        _digits: $ => /[0-9][0-9_]*/,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js:347:        _soft_line_break: $ => seq($._newline_token, optional($._last_token_whitespace)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-348-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-349-        _inline_base: $ => prec.right(repeat1(choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js-350-            $.image,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4262-        ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4263-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4264-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json:4265:    "hard_line_break": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4266-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4267-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4268-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4502-      "type": "PATTERN",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4503-      "value": "[0-9][0-9_]*"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4504-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json:4505:    "_soft_line_break": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4506-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4507-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/grammar.json-4508-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-283-        // A blank line including the following newline.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-284-        //
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-285-        // https://github.github.com/gfm/#blank-lines
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js:286:        _blank_line: $ => seq($._blank_line_start, choice($._newline, $._eof)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-287-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-288-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-289-        // CONTAINER BLOCKS
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-384-            $._line_ending,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-385-            optional($.block_continuation)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-386-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js:387:        _soft_line_break: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-388-            $._soft_line_ending,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-389-            optional($.block_continuation)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-390-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-391-        // Some symbols get parsed as single tokens so that html blocks get detected properly
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js:392:        _line: $ => prec.right(repeat1(choice($._word, $._whitespace, common.punctuation_without($, [])))),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-393-        _word: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-394-            new RegExp('[^' + PUNCTUATION_CHARACTERS_REGEX + ' \\t\\n\\r]+'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js-395-            common.EXTENSION_TASK_LIST ? choice(
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3585-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3586-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3587-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json:3588:    "_blank_line": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3589-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3590-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-3591-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4138-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4139-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4140-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json:4141:    "_soft_line_break": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4142-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4143-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4144-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4159-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4160-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4161-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json:4162:    "_line": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4163-      "type": "PREC_RIGHT",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4164-      "value": 0,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/grammar.json-4165-      "content": {
+
+</tool.toolu_01SWDeRS7aUdmD7nuK1G2jog>
+
+## ASSISTANT:
+
+Perfect! Now I see the pattern. The markdown grammar uses `_line` which is `prec.right(repeat1(choice($._word, $._whitespace, common.punctuation_without($, []))))`. This shows they break down text into words, whitespace, and punctuation rather than trying to match entire lines.
+
+Let me also look at how other grammars handle similar text parsing:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Nnam4EKudu8cGdgLQs3dnf
+
+### path
+
+<tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/org/grammar.js
+</tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+
+### start-line
+
+<tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+1
+</tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+
+### end-line
+
+<tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+50
+</tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+
+## TOOL RESULT:
+
+ID: toolu_01Nnam4EKudu8cGdgLQs3dnf
+
+<tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+asciiSymbols = [ '!', '"', '#', '$', '%', '&', "'", '(', ')', '*',
+  '+', ',', '-', '.', '/',  ':', ';', '<', '=', '>', '?', '@', '[', ']',
+  '\\', '^', '_', '`', '{', '|', '}', '~' ]
+
+org_grammar = {
+  name: 'org',
+  // Treat newlines explicitly, all other whitespace is extra
+  extras: _ => [/[ \f\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]/],
+
+  externals: $ => [
+    $._liststart,
+    $._listend,
+    $._listitemend,
+    $.bullet,
+    $._stars,
+    $._sectionend,
+    $._eof,  // Basically just '\0', but allows multiple to be matched
+  ],
+
+  inline: $ => [
+    $._nl,
+    $._eol,
+    $._ts_contents,
+    $._directive_list,
+    $._body_contents,
+  ],
+
+  precedences: _ => [
+    ['document_directive', 'body_directive'],
+    ['special', 'immediate', 'non-immediate'],
+  ],
+
+  conflicts: $ => [
+
+    // stars  'headline_token1'  item_repeat1  •  ':'  …
+    // Should we start the tag?
+    [$.item],
+
+    [$._tag_expr_start, $.expr],
+
+    // _multiline_text  •  ':'  …
+    // Is the ':' continued multiline text or is it a drawer?
+    [$.paragraph],
+    [$.fndef],
+    // ':'  'str'  …
+    // Continue the conflict from above
+    [$.expr, $.drawer],
+
+    // headline  'entry_token1'  ':'  •  '<'  …
+    [$.entry, $.expr],
+</tool.toolu_01Nnam4EKudu8cGdgLQs3dnf>
+
+## ASSISTANT:
+
+Now let me look at a different example - maybe rst or something that has similar line-based content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01JczkVd5ubfXcMWuBxGEJBU
+
+### path
+
+<tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js
+</tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+
+### start-line
+
+<tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+100
+</tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+
+### end-line
+
+<tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+200
+</tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+
+## TOOL RESULT:
+
+ID: toolu_01JczkVd5ubfXcMWuBxGEJBU
+
+<tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+      ),
+    ),
+
+    // ========
+    // Sections
+    // ========
+
+    section: $ => choice(
+      $._overline_section,
+      $._underline_section,
+    ),
+
+    /*
+
+    Example:
+
+    ================
+    Overline section
+    ================
+
+    */
+    _overline_section: $ => seq(
+      alias($._overline, 'adornment'),
+      alias($._line, $.title),
+      alias($._underline, 'adornment'),
+    ),
+
+    /*
+
+    Example:
+
+    Underline section
+    -----------------
+
+    */
+    _underline_section: $ => seq(
+      alias($._line, $.title),
+      alias($._underline, 'adornment'),
+    ),
+
+    // ===========
+    // Transitions
+    // ===========
+
+    /*
+
+    Example:
+
+    Paragraph
+
+    ----
+
+    Some other paragraph
+
+    */
+    _transition_block: $ => seq(
+      $.transition,
+      $._blankline,
+    ),
+
+    // =============
+    // Body elements
+    // =============
+
+    _body_element_block: $ => seq(
+      $._body_element,
+      $._blankline,
+    ),
+
+    body: $ => seq(
+      repeat(
+        seq(
+          $._body_element,
+          $._blankline,
+        ),
+      ),
+      $._body_element,
+      $._dedent,
+    ),
+
+    _body_element: $ => choice(
+      $.paragraph,
+      $._list,
+      $._explicit_markup_block,
+      $._literal_block,
+      $.line_block,
+      $._block_quote_block,
+      $.doctest_block,
+    ),
+
+    // Paragraph
+    // =========
+
+    /*
+
+    Example:
+
+    I'm a simple paragraph.
+
+    */
+    paragraph: $ => repeat1($._paragraph_line),
+</tool.toolu_01JczkVd5ubfXcMWuBxGEJBU>
+
+## ASSISTANT:
+
+Let me see how they define `_paragraph_line` and `_line`:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_018Pm67cMzCqfmv5AuzLoUtc
+
+### pattern
+
+<tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+_paragraph_line.*:"
+</tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+
+### path
+
+<tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst
+</tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+
+### context-lines
+
+<tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+3
+</tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+
+## TOOL RESULT:
+
+ID: toolu_018Pm67cMzCqfmv5AuzLoUtc
+
+<tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-185-        "name": "_paragraph_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-186-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-187-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:188:    "_paragraph_line": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-189-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-190-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-191-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-198-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-199-    */
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-200-    paragraph: $ => repeat1($._paragraph_line),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:201:    _paragraph_line: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-202-      repeat1($._inline_markup),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-203-      optional($._literal_block),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-204-      $._newline,
+
+</tool.toolu_018Pm67cMzCqfmv5AuzLoUtc>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01Y13VrvpKtz8mYKL1jMnd56
+
+### pattern
+
+<tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+_inline_markup.*:"
+</tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+
+### path
+
+<tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst
+</tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+
+### context-lines
+
+<tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+5
+</tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+
+## TOOL RESULT:
+
+ID: toolu_01Y13VrvpKtz8mYKL1jMnd56
+
+<tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1414-          "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1415-          "name": "_newline"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1416-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1417-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1418-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1419:    "_inline_markup": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1420-      "type": "CHOICE",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1421-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1422-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1423-          "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1424-          "content": {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-641-    _text_line: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-642-      repeat1(alias($._text, 'text')),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-643-      $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-644-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-645-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:646:    _inline_markup: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-647-      alias($._text, 'text'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-648-      $.emphasis,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-649-      $.strong,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-650-      $.interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-651-      $.literal,
+
+</tool.toolu_01Y13VrvpKtz8mYKL1jMnd56>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01P9R1qEKxUXMW3sw771nYkv
+
+### pattern
+
+<tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+_text.*:"
+</tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+
+### path
+
+<tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst
+</tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+
+### context-lines
+
+<tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+3
+</tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+
+## TOOL RESULT:
+
+ID: toolu_01P9R1qEKxUXMW3sw771nYkv
+
+<tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-579-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-580-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-581-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:582:    "_indented_text_block": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-583-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-584-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-585-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1388-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1389-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1390-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1391:    "_text_block": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1392-      "type": "REPEAT1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1393-      "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1394-        "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1395-        "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1396-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1397-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1398:    "_text_line": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1399-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1400-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1401-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1470-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1471-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1472-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1473:    "interpreted_text": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1474-      "type": "CHOICE",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1475-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1476-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-350-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-351-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-352-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:353:    _indented_text_block: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-354-      repeat(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-355-        seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-356-          $._text_block,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-637-      $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-638-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-639-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:640:    _text_block: $ => repeat1($._text_line),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:641:    _text_line: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-642-      repeat1(alias($._text, 'text')),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-643-      $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-644-    ),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-668-    - :prefix:role:`Interpreted text with a prefix role`
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-669-    - `Interpreted text with a suffix role`:suffix:role:
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-670-    */
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:671:    interpreted_text: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-672-      $._default_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-673-      $._prefix_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-674-      $._suffix_role,
+
+</tool.toolu_01P9R1qEKxUXMW3sw771nYkv>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01CAr1RmTTznyA1ohDSs4mGP
+
+### pattern
+
+<tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+_text.*=/
+</tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+
+### path
+
+<tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst
+</tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+
+### context-lines
+
+<tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+3
+</tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+
+## TOOL RESULT:
+
+ID: toolu_01CAr1RmTTznyA1ohDSs4mGP
+
+<tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+Failed to execute ripgrep search: Command failed with exit code 1: (no output)
+</tool.toolu_01CAr1RmTTznyA1ohDSs4mGP>
+
+## ASSISTANT:
+
+Let me look more at the rst grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01B2MzbVGpkfcUjhdUgyTEdr
+
+### path
+
+<tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js
+</tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+
+### start-line
+
+<tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+1000
+</tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+
+### end-line
+
+<tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+1100
+</tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+
+## TOOL RESULT:
+
+ID: toolu_01B2MzbVGpkfcUjhdUgyTEdr
+
+<tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+Start index out of bounds: 999
+</tool.toolu_01B2MzbVGpkfcUjhdUgyTEdr>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NZxur5aPgVuBCPV4pAxCoq
+
+### path
+
+<tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js
+</tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+
+### start-line
+
+<tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+800
+</tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+
+### end-line
+
+<tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+900
+</tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+
+## TOOL RESULT:
+
+ID: toolu_01NZxur5aPgVuBCPV4pAxCoq
+
+<tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+Start index out of bounds: 799
+</tool.toolu_01NZxur5aPgVuBCPV4pAxCoq>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01AevzVmbJPq6EmXiwXJE2pv
+
+### pattern
+
+<tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+_text
+</tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+
+### path
+
+<tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst
+</tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+
+### context-lines
+
+<tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+3
+</tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+
+## TOOL RESULT:
+
+ID: toolu_01AevzVmbJPq6EmXiwXJE2pv
+
+<tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-20-        "named": true
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-21-      },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-22-      {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json:23:        "type": "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-24-        "named": true
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-25-      },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-26-      {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-544-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-545-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-546-  {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json:547:    "type": "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-548-    "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-549-    "fields": {},
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-550-    "children": {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-812-    "named": true
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-813-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-814-  {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json:815:    "type": "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-816-    "named": false
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-817-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/node-types.json-818-  {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-541-                  "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-542-                  "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-543-                    "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:544:                    "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-545-                  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-546-                  "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-547-                  "value": "literal_block"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-579-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-580-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-581-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:582:    "_indented_text_block": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-583-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-584-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-585-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-589-            "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-590-              {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-591-                "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:592:                "name": "_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-593-              },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-594-              {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-595-                "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-600-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-601-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-602-          "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:603:          "name": "_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-604-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-605-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-606-          "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-725-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-726-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-727-          "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:728:          "name": "_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-729-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-730-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-731-          "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1032-                  "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1033-                  "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1034-                    "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1035:                    "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1036-                  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1037-                  "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1038-                  "value": "arguments"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1067-              "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1068-              "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1069-                "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1070:                "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1071-              },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1072-              "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1073-              "value": "content"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1084-                  "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1085-                  "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1086-                    "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1087:                    "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1088-                  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1089-                  "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1090-                  "value": "arguments"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1105-                      "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1106-                      "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1107-                        "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1108:                        "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1109-                      },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1110-                      "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1111-                      "value": "arguments"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1161-                  "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1162-                  "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1163-                    "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1164:                    "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1165-                  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1166-                  "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1167-                  "value": "content"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1186-                      "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1187-                      "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1188-                        "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1189:                        "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1190-                      },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1191-                      "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1192-                      "value": "content"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1204-              "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1205-              "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1206-                "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1207:                "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1208-              },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1209-              "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1210-              "value": "arguments"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1213-              "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1214-              "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1215-                "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1216:                "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1217-              },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1218-              "named": true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1219-              "value": "content"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1362-          "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1363-            {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1364-              "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1365:              "name": "_indented_text_block"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1366-            },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1367-            {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1368-              "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1388-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1389-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1390-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1391:    "_text_block": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1392-      "type": "REPEAT1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1393-      "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1394-        "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1395:        "name": "_text_line"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1396-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1397-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1398:    "_text_line": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1399-      "type": "SEQ",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1400-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1401-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1404-            "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1405-            "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1406-              "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1407:              "name": "_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1408-            },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1409-            "named": false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1410-            "value": "text"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1423-          "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1424-          "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1425-            "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1426:            "name": "_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1427-          },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1428-          "named": false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1429-          "value": "text"
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1438-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1439-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1440-          "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1441:          "name": "interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1442-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1443-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1444-          "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1470-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1471-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1472-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1473:    "interpreted_text": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1474-      "type": "CHOICE",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1475-      "members": [
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1476-        {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1491-      "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1492-      "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1493-        "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1494:        "name": "_interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1495-      },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1496-      "named": false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1497:      "value": "interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1498-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1499-    "_prefix_role": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1500-      "type": "SEQ",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1512-          "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1513-          "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1514-            "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1515:            "name": "_interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1516-          },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1517-          "named": false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1518:          "value": "interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1519-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1520-      ]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1521-    },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1526-          "type": "ALIAS",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1527-          "content": {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1528-            "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1529:            "name": "_interpreted_text_prefix"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1530-          },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1531-          "named": false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1532:          "value": "interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1533-        },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1534-        {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1535-          "type": "ALIAS",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1665-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1666-    {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1667-      "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1668:      "name": "_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1669-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1670-    {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1671-      "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1677-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1678-    {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1679-      "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1680:      "name": "_interpreted_text"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1681-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1682-    {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1683-      "type": "SYMBOL",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json:1684:      "name": "_interpreted_text_prefix"
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1685-    },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1686-    {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/grammar.json-1687-      "type": "SYMBOL",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-44-  sym__line_block_mark = 26,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-45-  sym__attribution_mark = 27,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-46-  sym__doctest_block_mark = 28,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:47:  sym__text = 29,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-48-  sym_emphasis = 30,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-49-  sym_strong = 31,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:50:  sym__interpreted_text = 32,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:51:  sym__interpreted_text_prefix = 33,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-52-  sym__role_name_prefix = 34,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-53-  sym__role_name_suffix = 35,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-54-  sym_literal = 36,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-88-  sym_field_list = 70,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-89-  sym_field = 71,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-90-  sym__literal_block = 72,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:91:  sym__indented_text_block = 73,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-92-  sym_line_block = 74,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-93-  sym_line = 75,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-94-  sym__block_quote_block = 76,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-107-  sym__embedded_directive = 89,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-108-  sym_comment = 90,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-109-  sym__line = 91,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:110:  aux_sym__text_block = 92,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:111:  sym__text_line = 93,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-112-  sym__inline_markup = 94,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:113:  sym_interpreted_text = 95,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-114-  sym__default_role = 96,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-115-  sym__prefix_role = 97,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-116-  sym__suffix_role = 98,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-122-  aux_sym_enumerated_list_repeat1 = 104,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-123-  aux_sym_definition_list_repeat1 = 105,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-124-  aux_sym_field_list_repeat1 = 106,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:125:  aux_sym__indented_text_block_repeat1 = 107,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-126-  aux_sym_line_block_repeat1 = 108,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-127-  aux_sym_line_repeat1 = 109,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:128:  aux_sym__text_line_repeat1 = 110,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-129-  alias_sym_arguments = 111,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-130-  alias_sym_classifier = 112,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-131-  alias_sym_content = 113,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-167-  [sym__line_block_mark] = "|",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-168-  [sym__attribution_mark] = "--",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-169-  [sym__doctest_block_mark] = "_doctest_block_mark",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:170:  [sym__text] = "text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-171-  [sym_emphasis] = "emphasis",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-172-  [sym_strong] = "strong",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:173:  [sym__interpreted_text] = "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:174:  [sym__interpreted_text_prefix] = "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-175-  [sym__role_name_prefix] = "role",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-176-  [sym__role_name_suffix] = "role",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-177-  [sym_literal] = "literal",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-211-  [sym_field_list] = "field_list",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-212-  [sym_field] = "field",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-213-  [sym__literal_block] = "_literal_block",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:214:  [sym__indented_text_block] = "_indented_text_block",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-215-  [sym_line_block] = "line_block",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-216-  [sym_line] = "line",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-217-  [sym__block_quote_block] = "_block_quote_block",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-230-  [sym__embedded_directive] = "directive",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-231-  [sym_comment] = "comment",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-232-  [sym__line] = "_line",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:233:  [aux_sym__text_block] = "_text_block",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:234:  [sym__text_line] = "_text_line",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-235-  [sym__inline_markup] = "_inline_markup",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:236:  [sym_interpreted_text] = "interpreted_text",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-237-  [sym__default_role] = "_default_role",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-238-  [sym__prefix_role] = "_prefix_role",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-239-  [sym__suffix_role] = "_suffix_role",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-245-  [aux_sym_enumerated_list_repeat1] = "enumerated_list_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-246-  [aux_sym_definition_list_repeat1] = "definition_list_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-247-  [aux_sym_field_list_repeat1] = "field_list_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:248:  [aux_sym__indented_text_block_repeat1] = "_indented_text_block_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-249-  [aux_sym_line_block_repeat1] = "line_block_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-250-  [aux_sym_line_repeat1] = "line_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:251:  [aux_sym__text_line_repeat1] = "_text_line_repeat1",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-252-  [alias_sym_arguments] = "arguments",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-253-  [alias_sym_classifier] = "classifier",
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-254-  [alias_sym_content] = "content",
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-290-  [sym__line_block_mark] = sym__line_block_mark,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-291-  [sym__attribution_mark] = sym__attribution_mark,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-292-  [sym__doctest_block_mark] = sym__doctest_block_mark,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:293:  [sym__text] = sym__text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-294-  [sym_emphasis] = sym_emphasis,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-295-  [sym_strong] = sym_strong,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:296:  [sym__interpreted_text] = sym__interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:297:  [sym__interpreted_text_prefix] = sym__interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-298-  [sym__role_name_prefix] = sym__role_name_prefix,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-299-  [sym__role_name_suffix] = sym__role_name_prefix,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-300-  [sym_literal] = sym_literal,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-334-  [sym_field_list] = sym_field_list,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-335-  [sym_field] = sym_field,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-336-  [sym__literal_block] = sym__literal_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:337:  [sym__indented_text_block] = sym__indented_text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-338-  [sym_line_block] = sym_line_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-339-  [sym_line] = sym_line,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-340-  [sym__block_quote_block] = sym__block_quote_block,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-353-  [sym__embedded_directive] = sym_directive,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-354-  [sym_comment] = sym_comment,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-355-  [sym__line] = sym__line,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:356:  [aux_sym__text_block] = aux_sym__text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:357:  [sym__text_line] = sym__text_line,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-358-  [sym__inline_markup] = sym__inline_markup,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:359:  [sym_interpreted_text] = sym_interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-360-  [sym__default_role] = sym__default_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-361-  [sym__prefix_role] = sym__prefix_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-362-  [sym__suffix_role] = sym__suffix_role,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-368-  [aux_sym_enumerated_list_repeat1] = aux_sym_enumerated_list_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-369-  [aux_sym_definition_list_repeat1] = aux_sym_definition_list_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-370-  [aux_sym_field_list_repeat1] = aux_sym_field_list_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:371:  [aux_sym__indented_text_block_repeat1] = aux_sym__indented_text_block_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-372-  [aux_sym_line_block_repeat1] = aux_sym_line_block_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-373-  [aux_sym_line_repeat1] = aux_sym_line_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:374:  [aux_sym__text_line_repeat1] = aux_sym__text_line_repeat1,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-375-  [alias_sym_arguments] = alias_sym_arguments,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-376-  [alias_sym_classifier] = alias_sym_classifier,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-377-  [alias_sym_content] = alias_sym_content,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-500-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-501-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-502-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:503:  [sym__text] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-504-    .visible = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-505-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-506-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-512-    .visible = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-513-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-514-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:515:  [sym__interpreted_text] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-516-    .visible = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-517-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-518-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:519:  [sym__interpreted_text_prefix] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-520-    .visible = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-521-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-522-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-677-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-678-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-679-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:680:  [sym__indented_text_block] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-681-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-682-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-683-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-754-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-755-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-756-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:757:  [aux_sym__text_block] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-758-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-759-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-760-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:761:  [sym__text_line] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-762-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-763-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-764-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-767-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-768-    .supertype = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-769-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:770:  [sym_interpreted_text] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-771-    .visible = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-772-    .named = true,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-773-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-815-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-816-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-817-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:818:  [aux_sym__indented_text_block_repeat1] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-819-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-820-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-821-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-827-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-828-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-829-  },
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:830:  [aux_sym__text_line_repeat1] = {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-831-    .visible = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-832-    .named = false,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-833-  },
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-995-  sym_field_list, 2,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-996-    sym_field_list,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-997-    alias_sym_options,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:998:  sym__indented_text_block, 3,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:999:    sym__indented_text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1000-    alias_sym_content,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1001-    sym__quoted_literal_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1002-  sym__line, 2,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1003-    sym__line,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1004-    alias_sym_title,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:1005:  sym__text_line, 2,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:1006:    sym__text_line,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1007-    alias_sym_arguments,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1008-  aux_sym__paragraph_line_repeat1, 4,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1009-    aux_sym__paragraph_line_repeat1,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1948-    [sym__line_block_mark] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1949-    [sym__attribution_mark] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1950-    [sym__doctest_block_mark] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:1951:    [sym__text] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1952-    [sym_emphasis] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1953-    [sym_strong] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:1954:    [sym__interpreted_text] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:1955:    [sym__interpreted_text_prefix] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1956-    [sym__role_name_prefix] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1957-    [sym__role_name_suffix] = ACTIONS(1),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-1958-    [sym_literal] = ACTIONS(1),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2007-    [sym_comment] = STATE(212),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2008-    [sym__line] = STATE(346),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2009-    [sym__inline_markup] = STATE(80),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2010:    [sym_interpreted_text] = STATE(77),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2011-    [sym__default_role] = STATE(79),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2012-    [sym__prefix_role] = STATE(79),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2013-    [sym__suffix_role] = STATE(79),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2032-    [sym__literal_quoted_block_mark] = ACTIONS(23),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2033-    [sym__line_block_mark] = ACTIONS(25),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2034-    [sym__doctest_block_mark] = ACTIONS(27),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2035:    [sym__text] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2036-    [sym_emphasis] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2037-    [sym_strong] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2038:    [sym__interpreted_text] = ACTIONS(31),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2039:    [sym__interpreted_text_prefix] = ACTIONS(33),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2040-    [sym__role_name_prefix] = ACTIONS(35),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2041-    [sym_literal] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2042-    [sym_substitution_reference] = ACTIONS(29),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2083-    [sym_comment] = STATE(212),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2084-    [sym__line] = STATE(346),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2085-    [sym__inline_markup] = STATE(80),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2086:    [sym_interpreted_text] = STATE(77),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2087-    [sym__default_role] = STATE(79),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2088-    [sym__prefix_role] = STATE(79),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2089-    [sym__suffix_role] = STATE(79),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2108-    [sym__literal_quoted_block_mark] = ACTIONS(23),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2109-    [sym__line_block_mark] = ACTIONS(25),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2110-    [sym__doctest_block_mark] = ACTIONS(27),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2111:    [sym__text] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2112-    [sym_emphasis] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2113-    [sym_strong] = ACTIONS(29),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2114:    [sym__interpreted_text] = ACTIONS(31),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c:2115:    [sym__interpreted_text_prefix] = ACTIONS(33),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2116-    [sym__role_name_prefix] = ACTIONS(35),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/parser.c-2117-    [sym_literal] = ACTIONS(29),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-92-      if (is_space(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-93-        break;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-94-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:95:      return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-96-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-97-    scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-98-    overline_length++;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-107-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-108-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-109-  if (!is_newline(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:110:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-111-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-112-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-113-  scanner->advance(scanner);
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-126-      lexer->result_symbol = T_TRANSITION;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-127-      return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-128-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:129:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-130-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-131-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-132-  scanner->advance(scanner);
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-138-      if (is_space(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-139-        break;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-140-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:141:      return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-142-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-143-    scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-144-    underline_length++;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-150-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-151-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-152-  if (!is_newline(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:153:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-154-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-155-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-156-  // The overline_length and the underline_length length must match
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-159-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-160-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-161-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:162:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-163-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-164-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-165-static bool parse_underline(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-186-      if (is_space(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-187-        break;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-188-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:189:      return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-190-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-191-    scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-192-    underline_length++;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-201-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-202-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-203-  if (!is_newline(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:204:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-205-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-206-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-207-  // Transitions need to be at least 4 chars long
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-215-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-216-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-217-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:218:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-219-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-220-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-221-/// If the adnorment is not valid, try to parse a different token.
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-248-        if (ok) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-249-          return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-250-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:251:        return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-252-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-253-      if (adornment == ':' && valid_symbols[T_FIELD_MARK]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-254-        bool ok = parse_inner_field_mark(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-255-        if (ok) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-256-          return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-257-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:258:        return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-259-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:260:      if (adornment == '`' && (valid_symbols[T_INTERPRETED_TEXT] || valid_symbols[T_INTERPRETED_TEXT_PREFIX] || valid_symbols[T_REFERENCE])) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:261:        return parse_inner_inline_markup(scanner, IM_INTERPRETED_TEXT | IM_INTERPRETED_TEXT_PREFIX | IM_REFERENCE);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-262-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-263-      if (adornment == '|' && valid_symbols[T_SUBSTITUTION_REFERENCE]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-264-        return parse_inner_inline_markup(scanner, IM_SUBSTITUTION_REFERENCE);
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-337-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-338-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-339-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:340:  return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-341-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-342-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-343-static bool parse_numeric_bullet(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-412-    if (is_alphanumeric(scanner->lookahead) && valid_symbols[T_REFERENCE]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-413-      return parse_reference(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-414-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:415:    if (valid_symbols[T_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-416-      lexer->mark_end(lexer);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:417:      lexer->result_symbol = T_TEXT;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-418-      return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-419-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-420-    return false;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-421-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:422:  return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-423-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-424-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-425-static bool parse_explict_markup_start(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-528-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-529-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-530-      if (adornment_length > 0 && adornment_length >= consumed_chars) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:531:        return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-532-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-533-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-534-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-552-  lexer->mark_end(lexer);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-553-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-554-  if (is_space(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:555:    return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-556-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-557-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-558-  bool ok = parse_inner_field_mark(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-559-  if (ok) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-560-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-561-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:562:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-563-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-564-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-565-static bool parse_inner_field_mark(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-638-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-639-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-640-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:641:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-642-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-643-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-644-static bool parse_label(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-866-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-867-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-868-  if (scanner->lookahead != ':' || scanner->previous != ':') {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:869:    return parse_text(scanner, keep_parsing);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-870-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-871-  scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-872-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-943-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-944-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-945-  if (!is_newline(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:946:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-947-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-948-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-949-  scanner->advance(scanner);
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1012-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1013-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1014-    if (scanner->lookahead != adornment) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1015:      return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1016-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1017-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1018-  lexer->result_symbol = T_QUOTED_LITERAL_BLOCK;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1100-    type = IM_EMPHASIS;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1101-  } else if (scanner->previous == '`' && scanner->lookahead == '`' && valid_symbols[T_LITERAL]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1102-    type = IM_LITERAL;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1103:  } else if (scanner->previous == '`' && (valid_symbols[T_INTERPRETED_TEXT] || valid_symbols[T_INTERPRETED_TEXT_PREFIX] || valid_symbols[T_REFERENCE])) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1104:    type = IM_INTERPRETED_TEXT | IM_INTERPRETED_TEXT_PREFIX | IM_REFERENCE;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1105-  } else if (scanner->previous == '|' && valid_symbols[T_SUBSTITUTION_REFERENCE]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1106-    type = IM_SUBSTITUTION_REFERENCE;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1107-  } else if (scanner->previous == '_' && scanner->lookahead == '`' && valid_symbols[T_INLINE_TARGET]) {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1123-        return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1124-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1125-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1126:    if (valid_symbols[T_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1127-      lexer->mark_end(lexer);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1128:      lexer->result_symbol = T_TEXT;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1129-      return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1130-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1131-    return false;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1161-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1162-      }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1163-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1164:    return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1165-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1166-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1167-  while (scanner->lookahead != CHAR_EOF) {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1236-        if (scanner->lookahead == '_') {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1237-          advance = true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1238-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1239:      } else if ((type & IM_INTERPRETED_TEXT || type & IM_INTERPRETED_TEXT_PREFIX) && scanner->previous == '`') {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1240:        if (scanner->lookahead == ':' && type & IM_INTERPRETED_TEXT_PREFIX && valid_symbols[T_INTERPRETED_TEXT_PREFIX]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1241-          lexer->mark_end(lexer);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1242-          scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1243-          bool ok = parse_role_name(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1244-          if (ok) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1245:            lexer->result_symbol = T_INTERPRETED_TEXT_PREFIX;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1246-            return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1247-          }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1248:          if (valid_symbols[T_INTERPRETED_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1249:            lexer->result_symbol = T_INTERPRETED_TEXT;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1250-            return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1251-          }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1252-          is_valid = false;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1253-        } else {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1254:          lexer->result_symbol = T_INTERPRETED_TEXT;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1255-        }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1256-      } else if ((type & IM_SUBSTITUTION_REFERENCE) && scanner->previous == '|') {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1257-        lexer->result_symbol = T_SUBSTITUTION_REFERENCE;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1284-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1285-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1286-  if (!word_found && is_newline(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1287:    return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1288-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1289:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1290-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1291-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1292-static bool parse_reference(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1335-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1336-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1337-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1338:  return parse_text(scanner, !is_word);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1339-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1340-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1341-static bool parse_standalone_hyperlink(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1389-      return parse_inner_reference(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1390-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1391-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1392:    return parse_text(scanner, !is_word);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1393-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1394-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1395-  scanner->advance(scanner);
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1397-  if (scanner->lookahead == '/') {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1398-    scanner->advance(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1399-  } else if (!is_alphanumeric(scanner->lookahead)) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1400:    return parse_text(scanner, !is_word);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1401-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1402-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1403-  consumed_chars = 0;
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1435-    return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1436-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1437-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1438:  return parse_text(scanner, !is_word);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1439-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1440-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1441-static bool parse_role(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1490-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1491-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1492-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1493:  return parse_text(scanner, false);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1494-}
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1495-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1496-static bool parse_inner_role(RSTScanner* scanner)
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1564-/// Parse normal text.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1565-///
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1566-/// Text nodes are separated by white spaces or a start char like `(`
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1567:static bool parse_text(RSTScanner* scanner, bool mark_end)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1568-{
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1569-  TSLexer* lexer = scanner->lexer;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1570-  const bool* valid_symbols = scanner->valid_symbols;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1571:  if (!valid_symbols[T_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1572-    return false;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1573-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1574-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1586-  if (mark_end) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1587-    lexer->mark_end(lexer);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1588-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c:1589:  lexer->result_symbol = T_TEXT;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1590-  return true;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.c-1591-}
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-6-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-7-#define IM_EMPHASIS 1u << 0u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-8-#define IM_STRONG 1u << 1u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h:9:#define IM_INTERPRETED_TEXT 1u << 2u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h:10:#define IM_INTERPRETED_TEXT_PREFIX 1u << 3u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-11-#define IM_LITERAL 1u << 4u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-12-#define IM_SUBSTITUTION_REFERENCE 1u << 5u
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-13-#define IM_INLINE_TARGET 1u << 6u
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-56-static bool parse_role(RSTScanner* scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-57-static bool parse_role_name(RSTScanner* scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-58-static bool parse_inner_role(RSTScanner* scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h:59:static bool parse_text(RSTScanner* scanner, bool mark_end);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-60-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/parser.h-61-#endif /* TREE_SITTER_RST_PARSER_H_ */
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-37-  T_DOCTEST_BLOCK_MARK,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-38-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-39-  // Inline markup
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h:40:  T_TEXT,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-41-  T_EMPHASIS,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-42-  T_STRONG,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h:43:  T_INTERPRETED_TEXT,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h:44:  T_INTERPRETED_TEXT_PREFIX,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-45-  T_ROLE_NAME_PREFIX,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-46-  T_ROLE_NAME_SUFFIX,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/tokens.h-47-  T_LITERAL,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-112-  // TODO: We don't want to parse anything in this case,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-113-  // we should move the text node parsing to JS.
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-114-  if (valid_symbols[T_INVALID_TOKEN]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:115:    if (!is_space(current) && valid_symbols[T_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:116:      return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-117-    }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-118-    return false;
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-119-  }
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-172-  if (is_inline_markup_start_char(current)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-173-      && (valid_symbols[T_EMPHASIS]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-174-          || valid_symbols[T_STRONG]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:175:          || valid_symbols[T_INTERPRETED_TEXT]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:176:          || valid_symbols[T_INTERPRETED_TEXT_PREFIX]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-177-          || valid_symbols[T_LITERAL]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-178-          || valid_symbols[T_SUBSTITUTION_REFERENCE]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-179-          || valid_symbols[T_INLINE_TARGET]
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-220-    return parse_reference(scanner);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-221-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-222-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:223:  if (!is_space(current) && valid_symbols[T_TEXT]) {
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c:224:    return parse_text(scanner, true);
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-225-  }
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-226-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/src/tree_sitter_rst/scanner.c-227-  if (is_space(current)) {
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-7-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-8-def _get_query(name, file):
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-9-    query = _files(f"{__package__}.queries") / file
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py:10:    globals()[name] = query.read_text()
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-11-    return globals()[name]
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-12-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/bindings/python/tree_sitter_rst/__init__.py-13-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-715-    (label)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-716-    (body
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-717-      (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt:718:        (interpreted_text))))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-719-  (citation
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-720-    (label)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/body_elements.txt-721-    (body
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/lists.txt-138-    (list_item
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/lists.txt-139-      (body (paragraph (strong))))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/lists.txt-140-    (list_item
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/lists.txt:141:      (body (paragraph (interpreted_text))))))
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-128-`hello``
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-129-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-130-`I'm a long
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:131:interpreted_text`
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-132-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-133-I'm in (`parenthesis`)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-134-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-142-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-143-(document
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-144-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:145:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:146:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:147:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-148-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:149:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-150-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:151:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:152:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:153:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-154-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:155:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-156-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:157:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-158-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:159:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-160-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:161:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-162-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:163:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:164:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-165-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:166:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:167:    (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-168-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:169:    (interpreted_text)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:170:    (interpreted_text)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-171-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-172-===========================
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-173-Interpreted text with roles
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-196-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-197-(document
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-198-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:199:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-200-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:201:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-202-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:203:   (interpreted_text (role))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:204:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-205-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:206:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-207-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:208:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-209-  (paragraph
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:210:   (interpreted_text (role)))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-211-  (paragraph)
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-212-  (field_list
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-213-    (field
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt:214:      (field_name (interpreted_text))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-215-      (field_body (paragraph)))))
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-216-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/test/corpus/inline_markup.txt-217-===============
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-50-    $._doctest_block_mark,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-51-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-52-    // Inline markup
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:53:    $._text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-54-    $.emphasis,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-55-    $.strong,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:56:    $._interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:57:    $._interpreted_text_prefix,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-58-    $._role_name_prefix,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-59-    $._role_name_suffix,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-60-    $.literal,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-339-      seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-340-        alias($._literal_indented_block_mark, '::'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-341-        choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:342:          alias($._indented_text_block, $.literal_block),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-343-          $._dedent,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-344-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-345-      ),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-350-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-351-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-352-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:353:    _indented_text_block: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-354-      repeat(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-355-        seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:356:          $._text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-357-          $._blankline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-358-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-359-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:360:      $._text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-361-      $._dedent,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-362-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-363-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-430-    */
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-431-    doctest_block: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-432-      $._doctest_block_mark,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:433:      $._text_block,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-434-      $._blankline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-435-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-436-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-542-    _directive_body: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-543-      // Directives with content
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-544-      seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:545:        optional(alias($._text_line, $.arguments)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-546-        optional(alias($.field_list, $.options)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-547-        $._blankline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:548:        alias($._indented_text_block, $.content),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-549-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-550-      // Directives without content
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-551-      seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-552-        choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:553:          alias($._text_line, $.arguments),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-554-          alias($.field_list, $.options),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:555:          seq(alias($._text_line, $.arguments), alias($.field_list, $.options)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-556-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-557-        $._dedent,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-558-      ),
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-561-        $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-562-        choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-563-          seq(alias($.field_list, $.options), $._dedent),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:564:          alias($._indented_text_block, $.content),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:565:          seq(alias($.field_list, $.options), $._blankline, alias($._indented_text_block, $.content)),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-566-        ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-567-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-568-      // Directives with multiline arguments are split as arguments + content
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-569-      seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:570:        alias($._text_line, $.arguments),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:571:        alias($._indented_text_block, $.content),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-572-      ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-573-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-574-
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-608-    */
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-609-    comment: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-610-      alias($._explicit_markup_start, '..'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:611:      choice($._indented_text_block, $._dedent),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-612-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-613-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-614-    // =============
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-637-      $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-638-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-639-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:640:    _text_block: $ => repeat1($._text_line),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:641:    _text_line: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:642:      repeat1(alias($._text, 'text')),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-643-      $._newline,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-644-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-645-
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-646-    _inline_markup: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:647:      alias($._text, 'text'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-648-      $.emphasis,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-649-      $.strong,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:650:      $.interpreted_text,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-651-      $.literal,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-652-      $.substitution_reference,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-653-      $.inline_target,
+--
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-668-    - :prefix:role:`Interpreted text with a prefix role`
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-669-    - `Interpreted text with a suffix role`:suffix:role:
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-670-    */
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:671:    interpreted_text: $ => choice(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-672-      $._default_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-673-      $._prefix_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-674-      $._suffix_role,
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-675-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:676:    _default_role: $ => alias($._interpreted_text, 'interpreted_text'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-677-    _prefix_role: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-678-      alias($._role_name_prefix, $.role),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:679:      alias($._interpreted_text, 'interpreted_text'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-680-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-681-    _suffix_role: $ => seq(
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js:682:      alias($._interpreted_text_prefix, 'interpreted_text'),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-683-      alias($._role_name_suffix, $.role),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-684-    ),
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js-685-
+
+</tool.toolu_01AevzVmbJPq6EmXiwXJE2pv>
+
+## ASSISTANT:
+
+Perfect! Now I see the key pattern from RST. They use `_text` as an external token that's handled by the external scanner, and they build lines from `repeat1(alias($_text, 'text'))`. Let me look at how this is defined:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CioS9EAwMiHqU5xa7K43cL
+
+### path
+
+<tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/rst/grammar.js
+</tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+
+### start-line
+
+<tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+640
+</tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+
+### end-line
+
+<tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+650
+</tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+
+## TOOL RESULT:
+
+ID: toolu_01CioS9EAwMiHqU5xa7K43cL
+
+<tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+    _text_block: $ => repeat1($._text_line),
+    _text_line: $ => seq(
+      repeat1(alias($._text, 'text')),
+      $._newline,
+    ),
+
+    _inline_markup: $ => choice(
+      alias($._text, 'text'),
+      $.emphasis,
+      $.strong,
+      $.interpreted_text,
+</tool.toolu_01CioS9EAwMiHqU5xa7K43cL>
+
+## ASSISTANT:
+
+Now I understand the problem! My approach with trying to parse entire lines as `text_line` vs `line_with_cite` is fundamentally wrong. I should be breaking down content into smaller tokens like `_text` and building up from there, similar to how markdown and rst do it.
+
+Let me rewrite the content parsing completely using this pattern:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JDQn72q3ASfZyM83a4LGzT
+
+### file-path
+
+<tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+grammar.js
+</tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+
+### original-content
+
+<tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - must actually contain cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(
+        /[^<\n#]+/,  // More text
+        $.cite_tag   // More cite tags
+      )),
+      optional("\n")
+    ),
+
+    // Text line - fallback for any non-empty line
+    text_line: $ => prec.dynamic(-1, prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    ))),
+</tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+
+### new-content
+
+<tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+// Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+</tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+
+### git-commit-message
+
+<tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+Rewrite content parsing using tokens like RST/markdown
+</tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+
+## TOOL RESULT:
+
+ID: toolu_01JDQn72q3ASfZyM83a4LGzT
+
+<tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/grammar.js -- Try again!
+</tool.toolu_01JDQn72q3ASfZyM83a4LGzT>
+
+## ASSISTANT:
+
+Let me check the current content first:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CJin6ZFQ3UmhD1RPiLEkZ8
+
+### path
+
+<tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+grammar.js
+</tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+
+### start-line
+
+<tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+70
+</tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+
+### end-line
+
+<tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+100
+</tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+
+## TOOL RESULT:
+
+ID: toolu_01CJin6ZFQ3UmhD1RPiLEkZ8
+
+<tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_header: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_header: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+</tool.toolu_01CJin6ZFQ3UmhD1RPiLEkZ8>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01KA4ZF7i7LwkB2JaUt7BxyJ
+
+### path
+
+<tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+grammar.js
+</tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+
+### start-line
+
+<tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+95
+</tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+
+### end-line
+
+<tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+125
+</tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+
+## TOOL RESULT:
+
+ID: toolu_01KA4ZF7i7LwkB2JaUt7BxyJ
+
+<tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - only matches when cite tags are present
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    ),
+
+    // Text line - fallback for any non-empty line
+    text_line: $ => prec.dynamic(-1, prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    ))),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+</tool.toolu_01KA4ZF7i7LwkB2JaUt7BxyJ>
+
+## ASSISTANT:
+
+Now I can replace it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0177wCsaB8wyJv5xeQcw97GD
+
+### file-path
+
+<tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+grammar.js
+</tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+
+### original-content
+
+<tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - only matches when cite tags are present
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    ),
+
+    // Text line - fallback for any non-empty line
+    text_line: $ => prec.dynamic(-1, prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    ))),
+</tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+
+### new-content
+
+<tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+// Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+</tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+
+### git-commit-message
+
+<tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+Rewrite content parsing using tokens like RST/markdown
+</tool.toolu_0177wCsaB8wyJv5xeQcw97GD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0177wCsaB8wyJv5xeQcw97GD -->
