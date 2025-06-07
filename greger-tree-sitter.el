@@ -1153,7 +1153,8 @@ INPUT:
   CONTENT-NODE - Tree-sitter node representing section content
 
 PROCESSING:
-  Extracts the raw text from the node and trims leading/trailing whitespace.
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
 
 OUTPUT:
   Returns the trimmed text content as a string, or empty string if the
@@ -1162,9 +1163,27 @@ OUTPUT:
 INTERNAL FUNCTION: Basic utility for extracting text content from
 tree-sitter nodes. Used by all section extraction functions to get
 the actual text content within sections."
-  (if content-node
-      (string-trim (treesit-node-text content-node))
-    ""))
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Extract text from content_line children
+            (let ((line-text-parts '())
+                  (line-child-count (treesit-node-child-count child)))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-text-parts))))
+              (when line-text-parts
+                (push (string-join (nreverse line-text-parts) "") text-parts))))))
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) " "))
+        ""))))
 
 ;; Test function
 (defun greger-tree-sitter-test ()
