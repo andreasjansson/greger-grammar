@@ -21,11 +21,6 @@ module.exports = grammar({
     $._text,
   ],
 
-  conflicts: $ => [
-    [$.content_line, $.content_line_with_cites],
-    [$.content, $.content_with_cites]
-  ],
-
   rules: {
     source_file: $ => repeat($.section),
 
@@ -38,29 +33,27 @@ module.exports = grammar({
       $.tool_result_section,
       $.server_tool_use_section,
       $.server_tool_result_section,
-      $.citations_with_text,
-      $.citations_without_text,
     ),
 
-    user_section: $ => prec(2, seq(
+    user_section: $ => seq(
       $.user_header,
-      optional(alias($.content, $.section_content))
-    )),
+      optional($.content)
+    ),
 
-    system_section: $ => prec(2, seq(
+    system_section: $ => seq(
       $.system_header,
-      optional(alias($.system_content, $.section_content))
-    )),
+      optional($.content)
+    ),
 
-    assistant_section: $ => prec(2, seq(
+    assistant_section: $ => seq(
       $.assistant_header,
-      optional(alias($.content, $.section_content))
-    )),
+      optional($.content)
+    ),
 
-    thinking_section: $ => prec(2, seq(
+    thinking_section: $ => seq(
       $.thinking_header,
-      optional(alias($.content, $.section_content))
-    )),
+      optional($.content)
+    ),
 
     tool_use_section: $ => seq(
       $.tool_use_header,
@@ -82,25 +75,6 @@ module.exports = grammar({
       optional($.tool_result_content)
     ),
 
-    // New citation-aware sections
-    citations_with_text: $ => prec(1, seq(
-      // Any section that contains cite tags
-      choice(
-        $.assistant_header,
-        $.thinking_header,
-        $.user_header,
-        $.system_header
-      ),
-      field("content_with_cites", $.content_with_cites),
-      $.citations_header,
-      field("citations", optional($.citations_content))
-    )),
-
-    citations_without_text: $ => seq(
-      $.citations_header,
-      field("citations", optional($.citations_content))
-    ),
-
     // Headers - simple tokens
     user_header: $ => /##[ \t]*USER:[ \t]*\n/,
     system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
@@ -110,46 +84,14 @@ module.exports = grammar({
     tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
     server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
-    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    // Content types - similar to RST and markdown
-    content: $ => repeat1(choice(
-      $.content_line,
-      $.newline
-    )),
-
-    // Content that contains cite tags - for citations_with_text
-    content_with_cites: $ => repeat1(choice(
-      $.content_line_with_cites,
-      $.newline
-    )),
-
-    content_line: $ => seq(
-      repeat1(choice(
-        alias($._text, 'text')
-      )),
-      "\n"
+    // Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $._text,
+        "\n"
+      )
     ),
-
-    content_line_with_cites: $ => seq(
-      repeat1(choice(
-        alias($._text, 'text'),
-        $.cite_tag
-      )),
-      "\n"
-    ),
-
-    // Cite tag with structured content
-    cite_tag: $ => seq(
-      "<cite>",
-      field("cited_text", repeat1(/[^<\n]+/)),
-      "</cite>"
-    ),
-
-    system_content: $ => repeat1(choice(
-      $.content_line,
-      $.newline
-    )),
 
     tool_use_content: $ => repeat1(choice(
       $.tool_name_line,
@@ -161,11 +103,6 @@ module.exports = grammar({
     tool_result_content: $ => repeat1(choice(
       $.tool_result_id_line,
       $.tool_result_block,
-      $.newline
-    )),
-
-    citations_content: $ => repeat1(choice(
-      $.citation_entry,
       $.newline
     )),
 
@@ -212,49 +149,9 @@ module.exports = grammar({
       $.tool_block_end
     ),
 
-    // Citation patterns
-    citation_entry: $ => prec.left(seq(
-      "###",
-      /[ \t]*/,
-      field("url", $.url),
-      "\n",
-      "\n",
-      repeat(choice(
-        $.citation_title,
-        $.citation_text,
-        $.citation_index,
-        $.newline
-      ))
-    )),
-
-    citation_title: $ => seq(
-      "Title:",
-      /[ \t]*/,
-      field("title", /[^\n]+/),
-      "\n"
-    ),
-
-    citation_text: $ => seq(
-      "Cited text:",
-      /[ \t]*/,
-      field("text", /[^\n]+/),
-      "\n"
-    ),
-
-    citation_index: $ => seq(
-      "Encrypted index:",
-      /[ \t]*/,
-      field("index", /[^\n]+/),
-      "\n"
-    ),
-
-    // Tool content line - anything except closing tool tag
-    tool_content_line: $ => prec(-1, /[^\n]+/),
-
     newline: $ => "\n",
 
     // Basic tokens
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
-    url: $ => /https?:\/\/[^\s\n]+/,
   }
 });
