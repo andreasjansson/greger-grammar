@@ -397,7 +397,7 @@ EXAMPLE OUTPUT:
          (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
     `((role . "system")
       (content . ,(if content-node
-                      (greger-tree-sitter--extract-content content-node)
+                      (greger-tree-sitter--extract-any-content content-node)
                     "")))))
 
 (defun greger-tree-sitter--extract-assistant-section (section-node)
