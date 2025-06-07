@@ -104,14 +104,14 @@ module.exports = grammar({
       "\n"
     ),
 
-    tool_parameter: $ => seq(
+    tool_parameter: $ => prec(1, seq(
       "###",
       /[ \t]*/,
       field("name", /[^\n]+/),
       "\n",
       "\n",
       $.tool_parameter_block
-    ),
+    )),
 
     tool_parameter_block: $ => seq(
       $.tool_block_start,

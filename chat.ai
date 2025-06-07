@@ -11908,4 +11908,104 @@ module.exports = grammar({
 Greatly simplify grammar - sections are just headers, content is flat
 </tool.toolu_014wbgwPaCAZJbwzz1RzZgBi>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_014wbgwPaCAZJbwzz1RzZgBi -->
+## TOOL RESULT:
+
+ID: toolu_014wbgwPaCAZJbwzz1RzZgBi
+
+<tool.toolu_014wbgwPaCAZJbwzz1RzZgBi>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Greatly simplify grammar - sections are just headers, content is flat
+</tool.toolu_014wbgwPaCAZJbwzz1RzZgBi>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01U5qxi3hUvrCCdfXyFoUw5f
+
+### command
+
+<tool.toolu_01U5qxi3hUvrCCdfXyFoUw5f>
+bash build.sh
+</tool.toolu_01U5qxi3hUvrCCdfXyFoUw5f>
+
+## TOOL RESULT:
+
+ID: toolu_01U5qxi3hUvrCCdfXyFoUw5f
+
+<tool.toolu_01U5qxi3hUvrCCdfXyFoUw5f>
+Command executed successfully:
+Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      '###'  'tool_name_line_token1'  'tool_name_line_token2'  '
+    '  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  (citation_entry  '###'  'tool_name_line_token1'  'tool_name_line_token2'  '
+    ')  •  '
+    '  …
+      2:  (tool_parameter  '###'  'tool_name_line_token1'  'tool_name_line_token2'  '
+    '  •  '
+    '  tool_parameter_block)
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `tool_parameter` than in the other rules.
+      2:  Specify a higher precedence in `citation_entry` than in the other rules.
+      3:  Specify a left or right associativity in `citation_entry`
+      4:  Add a conflict for these rules: `tool_parameter`, `citation_entry`
+    
+
+</tool.toolu_01U5qxi3hUvrCCdfXyFoUw5f>
+
+## ASSISTANT:
+
+There's still a conflict between `###` for citations and `###` for tool parameters. Let me give tool parameters higher precedence since they have more structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VCwRSRVMZMnjJDWdUfPWE7
+
+### file-path
+
+<tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+grammar.js
+</tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+
+### original-content
+
+<tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n",
+      "\n",
+      $.tool_parameter_block
+    ),
+</tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+
+### new-content
+
+<tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+tool_parameter: $ => prec(1, seq(
+      "###",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n",
+      "\n",
+      $.tool_parameter_block
+    )),
+</tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+
+### git-commit-message
+
+<tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+Give tool_parameter higher precedence than citation_entry
+</tool.toolu_01VCwRSRVMZMnjJDWdUfPWE7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VCwRSRVMZMnjJDWdUfPWE7 -->
