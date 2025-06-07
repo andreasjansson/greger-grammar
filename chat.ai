@@ -9861,4 +9861,100 @@ Hi
 Test with two sections like test_simple.greger
 </tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017fVhutzo1UHE2aGeSw5x4p -->
+## TOOL RESULT:
+
+ID: toolu_017fVhutzo1UHE2aGeSw5x4p
+
+<tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug.greger with 34 characters. Successfully staged 2 file(s) and committed with message: Test with two sections like test_simple.greger
+</tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0136HGMXyo4UbTtJyhJt85d4
+
+### command
+
+<tool.toolu_0136HGMXyo4UbTtJyhJt85d4>
+tree-sitter parse debug.greger
+</tool.toolu_0136HGMXyo4UbTtJyhJt85d4>
+
+## TOOL RESULT:
+
+ID: toolu_0136HGMXyo4UbTtJyhJt85d4
+
+<tool.toolu_0136HGMXyo4UbTtJyhJt85d4>
+Command failed with exit code 1: (source_file [0, 0] - [6, 2]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (content_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [5, 0]
+    (assistant_section [4, 0] - [5, 0]
+      (assistant_header [4, 0] - [5, 0])))
+  (ERROR [5, 0] - [6, 2]
+    (newline [5, 0] - [6, 0])))
+debug.greger	Parse:    0.60 ms	    56 bytes/ms	(ERROR [5, 0] - [6, 2])
+
+</tool.toolu_0136HGMXyo4UbTtJyhJt85d4>
+
+## ASSISTANT:
+
+Progress! The first USER section now parses correctly with content! But the ASSISTANT section fails. This confirms that the issue is EOF handling - the parser can parse content when there's a following section to terminate it, but struggles with the final section.
+
+This suggests the content rules might need better EOF handling or the optional content might be conflicting with the parser's expectations at EOF.
+
+## USER:
+
+continue! don't break until it works
+
+## ASSISTANT:
+
+Right! I need to keep going until it works. The issue is clearly EOF handling for the final section. Let me add a final newline to see if that helps:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GD2sFASVxeoVpqatSsnZ8k
+
+### file-path
+
+<tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+debug.greger
+</tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+
+### original-content
+
+<tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi
+</tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+
+### new-content
+
+<tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi
+</tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+
+### git-commit-message
+
+<tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+Add final newline to debug.greger for EOF handling
+</tool.toolu_01GD2sFASVxeoVpqatSsnZ8k>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GD2sFASVxeoVpqatSsnZ8k -->
