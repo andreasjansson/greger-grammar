@@ -8898,4 +8898,322 @@ greger-tree-sitter.el
 Simplify cite_tag extraction to preserve full tag text
 </tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01T2PA6Mtz1uq5hre4LKJAig -->
+## TOOL RESULT:
+
+ID: toolu_01T2PA6Mtz1uq5hre4LKJAig
+
+<tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify cite_tag extraction to preserve full tag text
+</tool.toolu_01T2PA6Mtz1uq5hre4LKJAig>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0177DM9Ktqo2a3KAm4BvAP8R
+
+### command
+
+<tool.toolu_0177DM9Ktqo2a3KAm4BvAP8R>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_0177DM9Ktqo2a3KAm4BvAP8R>
+
+## TOOL RESULT:
+
+ID: toolu_0177DM9Ktqo2a3KAm4BvAP8R
+
+<tool.toolu_0177DM9Ktqo2a3KAm4BvAP8R>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.000s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+✅ PASSED (0.010s)
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 14
+Failed: 0
+
+🎉 ALL TESTS PASSED!
+
+</tool.toolu_0177DM9Ktqo2a3KAm4BvAP8R>
+
+## ASSISTANT:
+
+Great! All tests are passing again. Now I understand the issue you're pointing out. You want me to make the tree-sitter grammar itself smarter so that the elisp conversion logic can be simpler. 
+
+Instead of having complex elisp code that associates cite tags with citations sections, you want the grammar to directly produce `citations_with_text` and `citations_without_text` nodes that already contain the structured information.
+
+Let me think about this differently. Rather than trying to parse across sections (which causes grammar conflicts), I can enhance the grammar to provide better structured output for the current approach, or I can modify the section processing to be smarter.
+
+Actually, let me try a different approach. What if I create a post-processing step that transforms the parsed tree to create the `citations_with_text` and `citations_without_text` structures you want, before the elisp processing happens?
+
+But first, let me understand exactly what structure you want. Looking at the test case you mentioned (line 725), the expected format appears to be regular content blocks with citations attached. 
+
+What if instead of changing the grammar dramatically, I modify the elisp processing to detect when there are cite tags followed by citations sections, and then merge them into the appropriate structure?
+
+Let me implement the smarter processing you requested step by step. First, let me modify the main processing loop to implement your requirements:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01K417MdQfbgNTQ99AEGvnoJ
+
+### file-path
+
+<tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+greger-tree-sitter.el
+</tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+
+### original-content
+
+<tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Store string content as-is for now (will be processed later)
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find text blocks with cite tags and associate citations
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+</tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+
+### new-content
+
+<tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Check for cite tags and look ahead for citations section
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (if (string-match-p "<cite>" content)
+                        ;; Content has cite tags - look for following citations section
+                        (let ((next-citations-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+                          (if next-citations-idx
+                              ;; Found citations section - create citations_with_text blocks
+                              (let* ((citations-section (nth next-citations-idx sections))
+                                     (citations (greger-tree-sitter--extract-citations-section citations-section))
+                                     (cite-blocks (greger-tree-sitter--create-citations-with-text-blocks content citations)))
+                                (setq current-assistant-blocks (append current-assistant-blocks cite-blocks))
+                                ;; Mark this citations section as processed
+                                (setq i next-citations-idx))
+                            ;; No citations section found - treat as regular text
+                            (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))
+                      ;; Regular text without cite tags
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
+
+         ;; Citations section - handle as citations_without_text if not already processed
+         ((equal section-type "citations_section")
+          ;; Check if this citations section follows a section with cite tags
+          (let ((has-preceding-cites (and (> i 0) 
+                                          (greger-tree-sitter--section-has-cite-tags (nth (1- i) sections)))))
+            (unless has-preceding-cites
+              ;; This is a standalone citations section - create citations_without_text
+              (let ((citations (greger-tree-sitter--extract-citations-section section)))
+                (setq current-assistant-blocks 
+                      (append current-assistant-blocks 
+                              `(((type . "citations_without_text") (entries . ,citations)))))))))
+</tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+
+### git-commit-message
+
+<tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+Implement smart citation processing with citations_with_text and citations_without_text detection
+</tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+
+## TOOL RESULT:
+
+ID: toolu_01K417MdQfbgNTQ99AEGvnoJ
+
+<tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 0, new has balance 1. They must be equal
+</tool.toolu_01K417MdQfbgNTQ99AEGvnoJ>
+
+## ASSISTANT:
+
+I have a parentheses issue again. Let me check the original code structure more carefully and fix the balance:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Khw84RKyt3nyNnrGkJ6fDH
+
+### path
+
+<tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+greger-tree-sitter.el
+</tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+
+### start-line
+
+<tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+825
+</tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+
+### end-line
+
+<tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+845
+</tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+
+## TOOL RESULT:
+
+ID: toolu_01Khw84RKyt3nyNnrGkJ6fDH
+
+<tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Store string content as-is for now (will be processed later)
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find text blocks with cite tags and associate citations
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+
+         ;; Tool result section - add as user message
+         ((equal section-type "tool_result_section")
+</tool.toolu_01Khw84RKyt3nyNnrGkJ6fDH>
+
+## ASSISTANT:
+
+I need to add the missing helper function first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012Zh2WbTio3phr88c3iXDVn
+
+### file-path
+
+<tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+greger-tree-sitter.el
+</tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+
+### original-content
+
+<tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+(defun greger-tree-sitter--extract-citations-with-text-blocks (content)
+  "Extract content blocks from CONTENT that contains cite tags.
+
+Creates structured blocks according to citations_with_text format."
+  (greger-tree-sitter--parse-content-with-citations content nil))
+</tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+
+### new-content
+
+<tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+(defun greger-tree-sitter--extract-citations-with-text-blocks (content)
+  "Extract content blocks from CONTENT that contains cite tags.
+
+Creates structured blocks according to citations_with_text format."
+  (greger-tree-sitter--parse-content-with-citations content nil))
+
+(defun greger-tree-sitter--create-citations-with-text-blocks (content citations)
+  "Create citations_with_text blocks from CONTENT with cite tags and CITATIONS.
+
+This implements your requirement: when <cite>...</cite> is encountered,
+create a citations_with_text object with 'text field containing the cited text
+and 'entries field containing the citation entries."
+  (let ((parts '())
+        (current-pos 0))
+
+    ;; Find all cite tags and split content accordingly
+    (while (string-match "<cite>\\(.*?\\)</cite>" content current-pos)
+      (let ((before-cite (substring content current-pos (match-beginning 0)))
+            (cite-text (match-string 1 content))
+            (after-match (match-end 0)))
+
+        ;; Add text before cite if any (as regular text block)
+        (when (> (length (string-trim before-cite)) 0)
+          (push `((type . "text") (text . ,(string-trim before-cite))) parts))
+
+        ;; Add citations_with_text block
+        (push `((type . "citations_with_text") 
+                (text . ,cite-text)
+                (entries . ,citations)) parts)
+
+        (setq current-pos after-match)))
+
+    ;; Add remaining text after last cite (as regular text block)
+    (let ((remaining (substring content current-pos)))
+      (when (> (length (string-trim remaining)) 0)
+        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+
+    (nreverse parts)))
+</tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+
+### git-commit-message
+
+<tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+Add function to create citations_with_text blocks as requested
+</tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012Zh2WbTio3phr88c3iXDVn -->

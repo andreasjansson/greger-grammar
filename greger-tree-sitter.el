@@ -887,6 +887,39 @@ Returns the index of the citations section, or nil if not found."
 Creates structured blocks according to citations_with_text format."
   (greger-tree-sitter--parse-content-with-citations content nil))
 
+(defun greger-tree-sitter--create-citations-with-text-blocks (content citations)
+  "Create citations_with_text blocks from CONTENT with cite tags and CITATIONS.
+
+This implements your requirement: when <cite>...</cite> is encountered,
+create a citations_with_text object with 'text field containing the cited text
+and 'entries field containing the citation entries."
+  (let ((parts '())
+        (current-pos 0))
+
+    ;; Find all cite tags and split content accordingly
+    (while (string-match "<cite>\\(.*?\\)</cite>" content current-pos)
+      (let ((before-cite (substring content current-pos (match-beginning 0)))
+            (cite-text (match-string 1 content))
+            (after-match (match-end 0)))
+
+        ;; Add text before cite if any (as regular text block)
+        (when (> (length (string-trim before-cite)) 0)
+          (push `((type . "text") (text . ,(string-trim before-cite))) parts))
+
+        ;; Add citations_with_text block
+        (push `((type . "citations_with_text")
+                (text . ,cite-text)
+                (entries . ,citations)) parts)
+
+        (setq current-pos after-match)))
+
+    ;; Add remaining text after last cite (as regular text block)
+    (let ((remaining (substring content current-pos)))
+      (when (> (length (string-trim remaining)) 0)
+        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+
+    (nreverse parts)))
+
 (defun greger-tree-sitter--get-section-type (section-node)
   "Get the type of a SECTION-NODE.
 
