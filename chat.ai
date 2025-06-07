@@ -9052,4 +9052,124 @@ Hello
 Simplify debug.greger to single USER section
 </tool.toolu_015SrxcWXBE9JkSHqouH4u5J>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_015SrxcWXBE9JkSHqouH4u5J -->
+## TOOL RESULT:
+
+ID: toolu_015SrxcWXBE9JkSHqouH4u5J
+
+<tool.toolu_015SrxcWXBE9JkSHqouH4u5J>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug.greger with 15 characters. Successfully staged 2 file(s) and committed with message: Simplify debug.greger to single USER section
+</tool.toolu_015SrxcWXBE9JkSHqouH4u5J>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FpJZGxrcVA9ZUwyGFngxZT
+
+### command
+
+<tool.toolu_01FpJZGxrcVA9ZUwyGFngxZT>
+tree-sitter parse debug.greger
+</tool.toolu_01FpJZGxrcVA9ZUwyGFngxZT>
+
+## TOOL RESULT:
+
+ID: toolu_01FpJZGxrcVA9ZUwyGFngxZT
+
+<tool.toolu_01FpJZGxrcVA9ZUwyGFngxZT>
+Command failed with exit code 1: (source_file [0, 0] - [2, 5]
+  (section [0, 0] - [1, 0]
+    (user_section [0, 0] - [1, 0]
+      (user_header [0, 0] - [1, 0])))
+  (ERROR [1, 0] - [2, 5]
+    (newline [1, 0] - [2, 0])))
+debug.greger	Parse:    0.74 ms	    20 bytes/ms	(ERROR [1, 0] - [2, 5])
+
+</tool.toolu_01FpJZGxrcVA9ZUwyGFngxZT>
+
+## ASSISTANT:
+
+Same issue! Even the simple "Hello" case is failing. This suggests the fundamental issue is with how the grammar handles content after headers.
+
+The problem might be the conflict rules I added. Let me look at them again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01EivHq6Ze6NrxaoKQ8B4nwz
+
+### path
+
+<tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+grammar.js
+</tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+
+### start-line
+
+<tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+20
+</tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+
+### end-line
+
+<tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+30
+</tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+
+## TOOL RESULT:
+
+ID: toolu_01EivHq6Ze6NrxaoKQ8B4nwz
+
+<tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+    $.tool_block_content,
+    $._text,
+  ],
+
+  conflicts: $ => [
+    [$.content_line, $.content_line_with_cites],
+    [$.content, $.content_with_cites]
+  ],
+
+  rules: {
+    source_file: $ => repeat($.section),
+</tool.toolu_01EivHq6Ze6NrxaoKQ8B4nwz>
+
+## ASSISTANT:
+
+The conflicts might be causing the issue. Let me try removing them temporarily to see if that fixes the parsing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01K23FsrcvUy6G9t9z6bDnwp
+
+### file-path
+
+<tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+grammar.js
+</tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+
+### original-content
+
+<tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+  conflicts: $ => [
+    [$.content_line, $.content_line_with_cites],
+    [$.content, $.content_with_cites]
+  ],
+</tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+
+### new-content
+
+<tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+  // conflicts: $ => [
+  //   [$.content_line, $.content_line_with_cites],
+  //   [$.content, $.content_with_cites]
+  // ],
+</tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+
+### git-commit-message
+
+<tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+Temporarily disable conflicts to test parsing
+</tool.toolu_01K23FsrcvUy6G9t9z6bDnwp>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01K23FsrcvUy6G9t9z6bDnwp -->

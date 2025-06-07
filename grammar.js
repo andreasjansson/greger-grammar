@@ -21,10 +21,10 @@ module.exports = grammar({
     $._text,
   ],
 
-  conflicts: $ => [
-    [$.content_line, $.content_line_with_cites],
-    [$.content, $.content_with_cites]
-  ],
+  // conflicts: $ => [
+  //   [$.content_line, $.content_line_with_cites],
+  //   [$.content, $.content_with_cites]
+  // ],
 
   rules: {
     source_file: $ => repeat($.section),
