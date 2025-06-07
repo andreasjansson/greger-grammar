@@ -94,10 +94,7 @@ module.exports = grammar({
 
     citations_section: $ => prec.left(seq(
       /##[ \t]*CITATIONS:[ \t]*\n/,
-      repeat(choice(
-        $.citation_line,
-        $.line,
-      ))
+      repeat($.citation_line)
     )),
 
     // Basic line types
