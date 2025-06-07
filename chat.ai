@@ -10075,4 +10075,114 @@ citations_section: $ => seq(
 Convert citations_section to citations_without_text
 </tool.toolu_016YpEM8v5NKbJFmjLmxvqGd>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016YpEM8v5NKbJFmjLmxvqGd -->
+## TOOL RESULT:
+
+ID: toolu_016YpEM8v5NKbJFmjLmxvqGd
+
+<tool.toolu_016YpEM8v5NKbJFmjLmxvqGd>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Convert citations_section to citations_without_text
+</tool.toolu_016YpEM8v5NKbJFmjLmxvqGd>
+
+## ASSISTANT:
+
+Let me try to generate the parser:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BXqNrgrMnt661hsAbZfpEm
+
+### command
+
+<tool.toolu_01BXqNrgrMnt661hsAbZfpEm>
+tree-sitter generate
+</tool.toolu_01BXqNrgrMnt661hsAbZfpEm>
+
+## TOOL RESULT:
+
+ID: toolu_01BXqNrgrMnt661hsAbZfpEm
+
+<tool.toolu_01BXqNrgrMnt661hsAbZfpEm>
+Command failed with exit code 1: Warning: rule citations_with_text contains a `seq` or `choice` rule with a single element. This is unnecessary.
+Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      user_header  '<cite>'  citations_with_text_repeat1  '</cite>'  '##'  'citations_with_text_token3'  'CITATIONS:'  'citations_with_text_token3'  '
+    '  citations_without_text_repeat1  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  user_header  '<cite>'  citations_with_text_repeat1  '</cite>'  '##'  'citations_with_text_token3'  'CITATIONS:'  'citations_with_text_token3'  '
+    '  (citations_without_text_repeat1  citations_without_text_repeat1  •  citations_without_text_repeat1)
+      2:  user_header  (citations_with_text  '<cite>'  citations_with_text_repeat1  '</cite>'  '##'  'citations_with_text_token3'  'CITATIONS:'  'citations_with_text_token3'  '
+    '  citations_without_text_repeat1)  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `citations_with_text`
+      2:  Add a conflict for these rules: `citations_with_text`
+    
+
+</tool.toolu_01BXqNrgrMnt661hsAbZfpEm>
+
+## ASSISTANT:
+
+There's a conflict because both `citations_with_text` and `citations_without_text` can match similar content. The issue is that when the grammar sees `## CITATIONS:`, it doesn't know whether it's part of a `citations_with_text` (following a cite tag) or a standalone `citations_without_text`.
+
+Let me fix this by being more explicit about when each rule applies. The problem is that I'm trying to parse across what would normally be section boundaries. Let me try a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NAJDXWQQrRyStTCfia4Si3
+
+### file-path
+
+<tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+grammar.js
+</tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+
+### original-content
+
+<tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+</tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+
+### new-content
+
+<tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+      $.citations_with_text,
+    ),
+</tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+
+### git-commit-message
+
+<tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+Add citations_with_text as a top-level section
+</tool.toolu_01NAJDXWQQrRyStTCfia4Si3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NAJDXWQQrRyStTCfia4Si3 -->
