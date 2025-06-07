@@ -768,7 +768,8 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
          ;; User section - flush any pending assistant blocks and add user message
          ((equal section-type "user_section")
           (when current-assistant-blocks
-            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+              (push `((role . "assistant") (content . ,assistant-content)) messages))
             (setq current-assistant-blocks '()))
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message (push message messages))))
@@ -776,7 +777,8 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
          ;; System section - flush any pending assistant blocks and add system message
          ((equal section-type "system_section")
           (when current-assistant-blocks
-            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+              (push `((role . "assistant") (content . ,assistant-content)) messages))
             (setq current-assistant-blocks '()))
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message (push message messages))))
@@ -790,7 +792,7 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
                 (if (listp content)
                     ;; Add all content blocks
                     (setq current-assistant-blocks (append current-assistant-blocks content))
-                  ;; Convert string content to text block
+                  ;; Store string content as-is for now (will be processed later)
                   (when (and (stringp content) (> (length (string-trim content)) 0))
                     (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
 
@@ -798,14 +800,15 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
          ((equal section-type "citations_section")
           (when current-assistant-blocks
             (let ((citations (greger-tree-sitter--extract-citations-section section)))
-              ;; Find the last text block that might have cite tags
+              ;; Find text blocks with cite tags and associate citations
               (setq current-assistant-blocks
                     (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
 
          ;; Tool result section - add as user message
          ((equal section-type "tool_result_section")
           (when current-assistant-blocks
-            (push `((role . "assistant") (content . ,(nreverse current-assistant-blocks))) messages)
+            (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+              (push `((role . "assistant") (content . ,assistant-content)) messages))
             (setq current-assistant-blocks '()))
           (let ((message (greger-tree-sitter--extract-section section)))
             (when message (push message messages))))))
@@ -814,9 +817,8 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
 
     ;; Flush any remaining assistant blocks
     (when current-assistant-blocks
-      ;; Reorder assistant blocks to put server_tool_use first, then web_search_tool_result, then text blocks
-      (let ((reordered-blocks (greger-tree-sitter--reorder-assistant-blocks (nreverse current-assistant-blocks))))
-        (push `((role . "assistant") (content . ,reordered-blocks)) messages)))
+      (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+        (push `((role . "assistant") (content . ,assistant-content)) messages)))
 
     (nreverse messages)))
 
