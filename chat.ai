@@ -6696,3 +6696,414 @@ I've successfully fixed all the issues with your Greger tree-sitter grammar:
 The tree-sitter grammar now correctly parses all the Greger conversation formats and returns the expected elisp data structures that are compatible with `greger.el`!
 
 ## USER:
+
+Great! Except now you've made the parser dumber. I want the parser to handle more of what greger-tree-sitter.el is doing with citations and cite tags.
+
+This is very complex actually.
+
+It shoulparse it such that, if `<cite>...</cite>` is encountered anywhere on a line, it starts parsing a new "citations_with_text" object. The content inside `<cite>...</cite>` should be a "text" field on the "citations_with_text" object. After `</cite>` you should assume just whitespace until you encounter `## CITATIONS:` at the start of a new line. Then you should parse those citations and place each entry as an "entry" field on the "citations_with_text" object.
+
+If you encounter a `## CITATIONS:` when you're not parsing "citations_with_text", make a new "citations_without_text" object and add the "entry"s to that.
+
+That should make the markdown to dialog conversion fairly easy, since cited text should be part of the same content entry as the citations (look at the expected value on line 725 of test-greger-parser.el
+
+
+## ASSISTANT:
+
+You're absolutely right! I need to move this logic into the tree-sitter grammar itself rather than handling it in the elisp code. This will make the parser much smarter and the conversion logic much simpler.
+
+Let me examine the current grammar and then modify it to handle citations properly.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01A4KfhhdSofRPVLM73oahnG
+
+### path
+
+<tool.toolu_01A4KfhhdSofRPVLM73oahnG>
+grammar.js
+</tool.toolu_01A4KfhhdSofRPVLM73oahnG>
+
+## TOOL RESULT:
+
+ID: toolu_01A4KfhhdSofRPVLM73oahnG
+
+<tool.toolu_01A4KfhhdSofRPVLM73oahnG>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $._text,
+  ],
+
+  conflicts: $ => [
+  ],
+
+  rules: {
+    source_file: $ => repeat($.section),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    tool_use_section: $ => seq(
+      $.tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    tool_result_section: $ => seq(
+      $.tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_header: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_header: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    system_content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    tool_use_content: $ => repeat1(choice(
+      $.tool_name_line,
+      $.tool_id_line,
+      $.tool_parameter,
+      $.newline
+    )),
+
+    tool_result_content: $ => repeat1(choice(
+      $.tool_result_id_line,
+      $.tool_result_block,
+      $.newline
+    )),
+
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+
+
+
+
+
+
+
+    // Tool-specific patterns
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", $.identifier),
+      "\n"
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $.identifier),
+      "\n"
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("param_name", $.identifier),
+      "\n",
+      "\n",
+      field("param_value", $.tool_param_block)
+    ),
+
+    tool_param_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+
+    tool_result_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $.identifier),
+      "\n"
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      field("content", repeat($.tool_block_content)),
+      $.tool_block_end
+    ),
+
+    // Citation patterns
+    citation_entry: $ => prec.left(seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    )),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+
+
+
+
+
+    // Tool content line - anything except closing tool tag
+    tool_content_line: $ => prec(-1, /[^\n]+/),
+
+    newline: $ => "\n",
+
+    // Basic tokens
+    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
+    url: $ => /https?:\/\/[^\s\n]+/,
+  }
+});
+</tool.toolu_01A4KfhhdSofRPVLM73oahnG>
+
+## ASSISTANT:
+
+Now let me look at the specific test case you mentioned to understand the expected structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018bwhNPvSxYDva2phGUMivr
+
+### path
+
+<tool.toolu_018bwhNPvSxYDva2phGUMivr>
+~/projects/greger.el/test/test-greger-parser.el
+</tool.toolu_018bwhNPvSxYDva2phGUMivr>
+
+### start-line
+
+<tool.toolu_018bwhNPvSxYDva2phGUMivr>
+720
+</tool.toolu_018bwhNPvSxYDva2phGUMivr>
+
+### end-line
+
+<tool.toolu_018bwhNPvSxYDva2phGUMivr>
+730
+</tool.toolu_018bwhNPvSxYDva2phGUMivr>
+
+## TOOL RESULT:
+
+ID: toolu_018bwhNPvSxYDva2phGUMivr
+
+<tool.toolu_018bwhNPvSxYDva2phGUMivr>
+                                                                    (title . "Claude Shannon - Wikipedia")
+                                                                    (encrypted_content . "EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...")
+                                                                    (page_age . "April 30, 2025")))))
+                                                      ((type . "text")
+                                                       (text . "Based on the search results, "))
+                                                      ((type . "text")
+                                                       (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+                                                       (citations . (((type . "web_search_result_location")
+                                                                      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                                      (title . "Claude Shannon - Wikipedia")
+                                                                      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+</tool.toolu_018bwhNPvSxYDva2phGUMivr>
+
+## ASSISTANT:
+
+I can see the expected structure. The cited text should be in the same content block as the citations. Now I understand what you want - the grammar should parse citations in a way that directly links the cited text with the citation entries.
+
+Let me modify the grammar to support `citations_with_text` and `citations_without_text` as you described. This is indeed complex because I need to handle state transitions based on whether we encounter `<cite>` tags.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Aap8fpBYwZebFJcv782jti
+
+### file-path
+
+<tool.toolu_01Aap8fpBYwZebFJcv782jti>
+grammar.js
+</tool.toolu_01Aap8fpBYwZebFJcv782jti>
+
+### original-content
+
+<tool.toolu_01Aap8fpBYwZebFJcv782jti>
+    // Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Cite tag
+    cite_tag: $ => seq(
+      "<cite>",
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+</tool.toolu_01Aap8fpBYwZebFJcv782jti>
+
+### new-content
+
+<tool.toolu_01Aap8fpBYwZebFJcv782jti>
+    // Content types - can include citations_with_text
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.citations_with_text,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(alias($._text, 'text')),
+      "\n"
+    ),
+
+    // Citations with text - when <cite> tags are found in content
+    citations_with_text: $ => seq(
+      // Text before the cite tag (optional)
+      optional(seq(
+        repeat1(alias($._text, 'text')),
+        /[ \t]*/
+      )),
+      // The cite tag with the cited text
+      "<cite>",
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      // Optional whitespace until next section
+      repeat(choice(/[ \t]/, "\n")),
+      // The citations section that follows
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      field("entries", repeat1(choice(
+        $.citation_entry,
+        $.newline
+      )))
+    ),
+</tool.toolu_01Aap8fpBYwZebFJcv782jti>
+
+### git-commit-message
+
+<tool.toolu_01Aap8fpBYwZebFJcv782jti>
+Add citations_with_text parsing to grammar
+</tool.toolu_01Aap8fpBYwZebFJcv782jti>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Aap8fpBYwZebFJcv782jti -->
