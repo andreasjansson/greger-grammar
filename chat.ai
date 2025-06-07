@@ -5107,4 +5107,489 @@ Encrypted index: abc123"))
 Update debug test to check basic citation parsing
 </tool.toolu_01HRnuRUvRBDEjyts93SsvRM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HRnuRUvRBDEjyts93SsvRM -->
+## TOOL RESULT:
+
+ID: toolu_01HRnuRUvRBDEjyts93SsvRM
+
+<tool.toolu_01HRnuRUvRBDEjyts93SsvRM>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1017 characters. Successfully staged 2 file(s) and committed with message: Update debug test to check basic citation parsing
+</tool.toolu_01HRnuRUvRBDEjyts93SsvRM>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011v1k2Ay696y7pmG4Sdrcs5
+
+### command
+
+<tool.toolu_011v1k2Ay696y7pmG4Sdrcs5>
+emacs --batch -l debug-test.el
+</tool.toolu_011v1k2Ay696y7pmG4Sdrcs5>
+
+## TOOL RESULT:
+
+ID: toolu_011v1k2Ay696y7pmG4Sdrcs5
+
+<tool.toolu_011v1k2Ay696y7pmG4Sdrcs5>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing basic citation ===
+Testing basic citation...
+Parse result: (((role . "user") (content . "")) ((role . "assistant") (content . "")))
+First message: ((role . "user") (content . ""))
+Second message: ((role . "assistant") (content . ""))
+Second message content: ""
+
+</tool.toolu_011v1k2Ay696y7pmG4Sdrcs5>
+
+## ASSISTANT:
+
+I see the issue! The content is coming back empty. This suggests that the greger-tree-sitter.el implementation is not correctly extracting content from the tree-sitter nodes. Let me examine the content extraction functions:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01UVJHg4Q8m56rkjUdnbg2Xq
+
+### path
+
+<tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+greger-tree-sitter.el
+</tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+
+### start-line
+
+<tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+350
+</tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+
+### end-line
+
+<tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+450
+</tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+
+## TOOL RESULT:
+
+ID: toolu_01UVJHg4Q8m56rkjUdnbg2Xq
+
+<tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"user\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## USER:
+
+  Hello, how are you?
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))"
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from a ## SYSTEM: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+
+PROCESSING:
+  1. Gets the system_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"system\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## SYSTEM:
+
+  You are a helpful assistant.
+
+EXAMPLE OUTPUT:
+  ((role . \"system\") (content . \"You are a helpful assistant.\"))"
+  (let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant message from a ## ASSISTANT: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## ASSISTANT: section
+
+PROCESSING:
+  1. Gets the assistant_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"assistant\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+  Note: This function extracts basic assistant content. In practice, assistant
+  sections often get processed by greger-tree-sitter--process-sections-with-citations
+  which may convert the string content to structured content blocks if the text
+  contains <cite> tags or other special formatting.
+
+EXAMPLE INPUT SECTION:
+  ## ASSISTANT:
+
+  I'm doing well, thank you for asking!
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\") (content . \"I'm doing well, thank you for asking!\"))"
+  (let* ((assistant-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+    `((role . "assistant")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking content from a ## THINKING: section and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## THINKING: section
+
+PROCESSING:
+  1. Gets the thinking_section child node
+  2. Finds the section_content within it
+  3. Extracts text content and wraps it in a thinking content block
+
+OUTPUT:
+</tool.toolu_01UVJHg4Q8m56rkjUdnbg2Xq>
+
+## ASSISTANT:
+
+I see the issue! The functions are looking for "section_content" child nodes, but based on the tree-sitter output, the nodes are actually called "content". Let me check what child types are actually being generated:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PenW5sWQfVc2UtvFemZhVj
+
+### path
+
+<tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+greger-tree-sitter.el
+</tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+
+### start-line
+
+<tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+600
+</tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+
+### end-line
+
+<tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+700
+</tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+
+## TOOL RESULT:
+
+ID: toolu_01PenW5sWQfVc2UtvFemZhVj
+
+<tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+  "Extract tool result from a ## TOOL RESULT: section and return as user message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL RESULT: section
+
+PROCESSING:
+  1. Extracts tool ID from \"ID: tool-id\" line
+  2. Extracts result content from <tool.id>content</tool.id> block
+  3. Creates a user message with tool_result content block
+
+OUTPUT:
+  Returns a user message object with a tool_result content block:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . \"result content\")))))
+
+  Tool results are considered user messages because they represent
+  external system responses that the assistant receives.
+
+EXAMPLE INPUT SECTION:
+  ## TOOL RESULT:
+
+  ID: toolu_123
+
+  <tool.toolu_123>
+  File contents: Hello, world!
+  </tool.toolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"user\")
+   (content . (((type . \"tool_result\")
+                (tool_use_id . \"toolu_123\")
+                (content . \"File contents: Hello, world!\")))))"
+  (let* ((tool-section (treesit-node-child section-node 0))
+         (tool-content (greger-tree-sitter--find-child-by-type tool-section "tool_result_content"))
+         (tool-id nil)
+         (result-content ""))
+
+    ;; Extract tool ID and result content
+    (when tool-content
+      (let ((child-count (treesit-node-child-count tool-content)))
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child tool-content i)))
+            (cond
+             ((equal (treesit-node-type child) "tool_result_id_line")
+              (setq tool-id (treesit-node-text
+                             (treesit-node-child-by-field-name child "id"))))
+             ((equal (treesit-node-type child) "tool_result_block")
+              (let ((content-node (treesit-node-child-by-field-name child "content")))
+                (when content-node
+                  (setq result-content (string-trim (treesit-node-text content-node)))))))))))
+
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,tool-id)
+                   (content . ,result-content)))))))
+
+(defun greger-tree-sitter--extract-server-tool-use-section (section-node)
+  "Extract server tool use from a ## SERVER TOOL USE: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL USE: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-use-section to extract basic tool structure
+  2. Changes the content block type from \"tool_use\" to \"server_tool_use\"
+
+  Server tool use has the same structure as regular tool use but represents
+  tools called on the server side rather than client side.
+
+OUTPUT:
+  Returns an assistant message object with a server_tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"tool-id\")
+                (name . \"tool-name\")
+                (input . ((param . \"value\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL USE:
+
+  Name: web_search
+  ID: srvtoolu_123
+
+  ### query
+
+  <tool.srvtoolu_123>
+  search terms
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"server_tool_use\")
+                (id . \"srvtoolu_123\")
+                (name . \"web_search\")
+                (input . ((query . \"search terms\")))))))"
+  ;; Similar to tool_use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use-section section-node)))
+    ;; Change the type to server_tool_use
+    (when result
+</tool.toolu_01PenW5sWQfVc2UtvFemZhVj>
+
+## ASSISTANT:
+
+Let me look at the find-child-by-type function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01JtgKxsWu3yg4GLfFsqNqha
+
+### path
+
+<tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+greger-tree-sitter.el
+</tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+
+### start-line
+
+<tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+800
+</tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+
+### end-line
+
+<tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+900
+</tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+
+## TOOL RESULT:
+
+ID: toolu_01JtgKxsWu3yg4GLfFsqNqha
+
+<tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+        (content . (((type . "citations_without_text") (entries . ,citations))))))))
+
+(defun greger-tree-sitter--extract-server-tool-result-section (section-node)
+  "Extract server tool result from a ## SERVER TOOL RESULT: section.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SERVER TOOL RESULT: section
+
+PROCESSING:
+  1. Uses greger-tree-sitter--extract-tool-result-section to extract basic structure
+  2. Changes role from \"user\" to \"assistant\" (server results are part of assistant flow)
+  3. Changes content type from \"tool_result\" to \"web_search_tool_result\"
+  4. Attempts to parse content as JSON, falling back to string if parsing fails
+
+OUTPUT:
+  Returns an assistant message object with a web_search_tool_result content block:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"tool-id\")
+                (content . parsed-json-or-string)))))
+
+  The content field will contain either:
+  - Parsed JSON as an alist/list structure if content is valid JSON
+  - Original string content if JSON parsing fails
+
+EXAMPLE INPUT SECTION:
+  ## SERVER TOOL RESULT:
+
+  ID: srvtoolu_123
+
+  <tool.srvtoolu_123>
+  [{\"title\": \"Example\", \"url\": \"https://example.com\"}]
+  </tool.srvtoolu_123>
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"web_search_tool_result\")
+                (tool_use_id . \"srvtoolu_123\")
+                (content . (((title . \"Example\") (url . \"https://example.com\"))))))))"
+  (let ((result (greger-tree-sitter--extract-tool-result-section section-node)))
+    ;; Change role to assistant and type to web_search_tool_result
+    (when result
+      (setf (alist-get 'role result) "assistant")
+      (let ((content (alist-get 'content result)))
+        (when (and content (> (length content) 0))
+          (setf (alist-get 'type (car content)) "web_search_tool_result")
+          ;; Try to parse JSON content
+          (let ((content-text (alist-get 'content (car content))))
+            (when (stringp content-text)
+              (condition-case nil
+                  (let ((parsed-json (json-parse-string content-text :object-type 'alist :array-type 'list)))
+                    (setf (alist-get 'content (car content)) parsed-json))
+                (error
+                 ;; If JSON parsing fails, keep as string
+                 nil)))))))
+    result))
+
+(defun greger-tree-sitter--find-child-by-type (node type)
+  "Find the first child of NODE with the given TYPE.
+
+INPUT:
+  NODE - A tree-sitter node to search within
+  TYPE - String representing the node type to find (e.g., \"section_content\")
+
+PROCESSING:
+  Iterates through all direct children of the node and returns the first
+  one that matches the specified type.
+
+OUTPUT:
+  Returns the first matching child node, or nil if no match is found.
+
+INTERNAL FUNCTION: Utility for navigating tree-sitter parse trees when
+looking for specific types of child nodes."
+  (let ((child-count (treesit-node-child-count node))
+        (found nil))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child node i)))
+        (when (and (not found) (equal (treesit-node-type child) type))
+          (setq found child))))
+    found))
+
+(defun greger-tree-sitter--transform-sections-for-citations (sections)
+  "Transform SECTIONS according to citation requirements.
+
+INPUT:
+  SECTIONS - List of raw tree-sitter section nodes
+
+PROCESSING:
+  Implements your exact requirements:
+  1. If <cite>...</cite> is encountered anywhere on a line, starts parsing a new citations_with_text object
+  2. Content inside <cite>...</cite> becomes 'text field on citations_with_text object
+  3. After </cite>, assumes whitespace until ## CITATIONS: at start of new line
+  4. Parses those citations and places each entry as 'entry field on citations_with_text object
+  5. If ## CITATIONS: is encountered when not parsing citations_with_text, makes citations_without_text object
+
+OUTPUT:
+  Returns list of transformed section objects that include citations_with_text and citations_without_text."
+  (let ((result '())
+        (i 0))
+
+    (while (< i (length sections))
+</tool.toolu_01JtgKxsWu3yg4GLfFsqNqha>
+
+## ASSISTANT:
+
+The issue is clear now! The functions are looking for "section_content" but the grammar produces nodes named "content". Let me fix this by updating the extraction functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Js8pSp7CyzHfEhQRX6GofT
+
+### file-path
+
+<tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+greger-tree-sitter.el
+</tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+
+### original-content
+
+<tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    ""))))
+</tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+
+### new-content
+
+<tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    ""))))
+</tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+
+### git-commit-message
+
+<tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+Fix user section content extraction to use correct node type
+</tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Js8pSp7CyzHfEhQRX6GofT -->

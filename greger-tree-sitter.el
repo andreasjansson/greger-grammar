@@ -362,7 +362,7 @@ EXAMPLE INPUT SECTION:
 EXAMPLE OUTPUT:
   ((role . \"user\") (content . \"Hello, how are you?\"))"
   (let* ((user-section-node (treesit-node-child section-node 0))
-         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "content")))
 
     `((role . "user")
       (content . ,(if content-node
