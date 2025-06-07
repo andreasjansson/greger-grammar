@@ -7,20 +7,14 @@ enum TokenType {
   TOOL_BLOCK_START,
   TOOL_BLOCK_END,
   TOOL_BLOCK_CONTENT,
-  INLINE_CODE,
-  CODE_FENCE_START,
-  CODE_FENCE_END,
-  CODE_FENCE_CONTENT,
+  LINE_CONTENT,
   NEWLINE,
-  EOF_TOKEN,
+  CITATIONS_HEADER,
 };
 
 typedef struct {
   char current_tool_id[64];
   bool in_tool_block;
-  bool in_code_fence;
-  int code_fence_length;
-  char code_fence_char; // '`' or '~'
 } Scanner;
 
 static void advance(TSLexer *lexer) {
@@ -35,9 +29,6 @@ void *tree_sitter_greger_external_scanner_create() {
   Scanner *scanner = ts_malloc(sizeof(Scanner));
   scanner->current_tool_id[0] = '\0';
   scanner->in_tool_block = false;
-  scanner->in_code_fence = false;
-  scanner->code_fence_length = 0;
-  scanner->code_fence_char = 0;
   return scanner;
 }
 
@@ -51,35 +42,26 @@ unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buff
   size_t id_len = strlen(scanner->current_tool_id);
 
   buffer[0] = scanner->in_tool_block ? 1 : 0;
-  buffer[1] = scanner->in_code_fence ? 1 : 0;
-  buffer[2] = (char)scanner->code_fence_length;
-  buffer[3] = scanner->code_fence_char;
-  buffer[4] = (char)id_len;
-  memcpy(buffer + 5, scanner->current_tool_id, id_len);
+  buffer[1] = (char)id_len;
+  memcpy(buffer + 2, scanner->current_tool_id, id_len);
 
-  return 5 + id_len;
+  return 2 + id_len;
 }
 
 void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
   Scanner *scanner = (Scanner *)payload;
 
-  if (length < 5) {
+  if (length < 2) {
     scanner->in_tool_block = false;
-    scanner->in_code_fence = false;
-    scanner->code_fence_length = 0;
-    scanner->code_fence_char = 0;
     scanner->current_tool_id[0] = '\0';
     return;
   }
 
   scanner->in_tool_block = buffer[0] == 1;
-  scanner->in_code_fence = buffer[1] == 1;
-  scanner->code_fence_length = (int)buffer[2];
-  scanner->code_fence_char = buffer[3];
-  size_t id_len = (size_t)buffer[4];
+  size_t id_len = (size_t)buffer[1];
 
-  if (length >= 5 + id_len && id_len < 63) {
-    memcpy(scanner->current_tool_id, buffer + 5, id_len);
+  if (length >= 2 + id_len && id_len < 63) {
+    memcpy(scanner->current_tool_id, buffer + 2, id_len);
     scanner->current_tool_id[id_len] = '\0';
   } else {
     scanner->current_tool_id[0] = '\0';
@@ -95,116 +77,52 @@ static bool scan_newline(TSLexer *lexer) {
   return false;
 }
 
-static bool scan_eof(TSLexer *lexer) {
-  if (lexer->lookahead == 0) {
-    lexer->result_symbol = EOF_TOKEN;
-    return true;
+static bool scan_line_content(TSLexer *lexer) {
+  if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+    return false;
   }
-  return false;
-}
-
-static bool scan_inline_code(TSLexer *lexer) {
-  if (lexer->lookahead != '`') return false;
-
-  advance(lexer); // consume first `
-
-  // Look for closing `
-  while (lexer->lookahead && lexer->lookahead != '`' && lexer->lookahead != '\n') {
-    advance(lexer);
-  }
-
-  if (lexer->lookahead == '`') {
-    advance(lexer); // consume closing `
-    lexer->result_symbol = INLINE_CODE;
-    return true;
-  }
-
-  return false;
-}
-
-static bool scan_code_fence_start(TSLexer *lexer, Scanner *scanner) {
-  if (scanner->in_code_fence) return false;
-
-  char fence_char = lexer->lookahead;
-  if (fence_char != '`' && fence_char != '~') return false;
-
-  int count = 0;
-  while (lexer->lookahead == fence_char) {
-    advance(lexer);
-    count++;
-  }
-
-  if (count >= 3) {
-    scanner->in_code_fence = true;
-    scanner->code_fence_length = count;
-    scanner->code_fence_char = fence_char;
-    lexer->result_symbol = CODE_FENCE_START;
-    return true;
-  }
-
-  return false;
-}
-
-static bool scan_code_fence_end(TSLexer *lexer, Scanner *scanner) {
-  if (!scanner->in_code_fence) return false;
-
-  char fence_char = lexer->lookahead;
-  if (fence_char != scanner->code_fence_char) return false;
-
-  int count = 0;
-  while (lexer->lookahead == fence_char) {
-    advance(lexer);
-    count++;
-  }
-
-  if (count >= scanner->code_fence_length) {
-    scanner->in_code_fence = false;
-    scanner->code_fence_length = 0;
-    scanner->code_fence_char = 0;
-    lexer->result_symbol = CODE_FENCE_END;
-    return true;
-  }
-
-  return false;
-}
-
-static bool scan_code_fence_content(TSLexer *lexer, Scanner *scanner) {
-  if (!scanner->in_code_fence) return false;
 
   bool has_content = false;
-
   while (lexer->lookahead && lexer->lookahead != '\n') {
-    // Check if this might be a closing fence
-    if (lexer->lookahead == scanner->code_fence_char) {
-      // Look ahead to see if this is a closing fence
-      lexer->mark_end(lexer);
-
-      int count = 0;
-      while (lexer->lookahead == scanner->code_fence_char) {
-        advance(lexer);
-        count++;
-      }
-
-      if (count >= scanner->code_fence_length &&
-          (lexer->lookahead == '\n' || lexer->lookahead == 0 || iswspace(lexer->lookahead))) {
-        // This is the closing fence, stop here
-        break;
-      }
-
-      // Not a closing fence, continue
-      has_content = true;
-    } else {
-      advance(lexer);
-      has_content = true;
-    }
+    advance(lexer);
+    has_content = true;
   }
 
   if (has_content) {
-    lexer->result_symbol = CODE_FENCE_CONTENT;
+    lexer->result_symbol = LINE_CONTENT;
     return true;
   }
 
   return false;
+}
+
+static bool scan_citations_header(TSLexer *lexer) {
+  // Check for ## CITATIONS: at start of line
+  if (lexer->lookahead != '#') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '#') return false;
+  advance(lexer);
+
+  // Skip optional whitespace
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    advance(lexer);
+  }
+
+  // Check for CITATIONS:
+  const char *expected = "CITATIONS:";
+  for (int i = 0; expected[i]; i++) {
+    if (lexer->lookahead != expected[i]) return false;
+    advance(lexer);
+  }
+
+  // Skip optional trailing whitespace
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = CITATIONS_HEADER;
+  return true;
 }
 
 // Check if the current position looks like our closing tag without advancing
@@ -371,17 +289,12 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
-  // Handle EOF
-  if (valid_symbols[EOF_TOKEN] && scan_eof(lexer)) {
-    return true;
-  }
-
-  // Handle newlines
+  // Handle newlines first
   if (valid_symbols[NEWLINE] && scan_newline(lexer)) {
     return true;
   }
 
-  // Try to handle tool block end tokens first when we're in a tool block
+  // Try to handle tool block end tokens when we're in a tool block
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     // Skip whitespace for end tokens
     while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
@@ -397,27 +310,16 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     return scan_tool_content(lexer, scanner);
   }
 
-  // Handle code fence end
-  if (valid_symbols[CODE_FENCE_END] && scanner->in_code_fence) {
-    // Skip whitespace at start of line
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-      skip(lexer);
-    }
-    if (scan_code_fence_end(lexer, scanner)) {
+  // Handle citations header
+  if (valid_symbols[CITATIONS_HEADER] && !scanner->in_tool_block) {
+    if (scan_citations_header(lexer)) {
       return true;
     }
   }
 
-  // Handle code fence content
-  if (valid_symbols[CODE_FENCE_CONTENT] && scanner->in_code_fence) {
-    return scan_code_fence_content(lexer, scanner);
-  }
-
-  // Handle inline code
-  if (valid_symbols[INLINE_CODE] && !scanner->in_code_fence && !scanner->in_tool_block) {
-    if (scan_inline_code(lexer)) {
-      return true;
-    }
+  // Handle line content
+  if (valid_symbols[LINE_CONTENT] && !scanner->in_tool_block) {
+    return scan_line_content(lexer);
   }
 
   // Skip whitespace for other tokens (except newlines)
@@ -426,15 +328,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
   }
 
   // Handle tool block start
-  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block && !scanner->in_code_fence) {
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
     if (scan_tool_start(lexer, scanner)) {
-      return true;
-    }
-  }
-
-  // Handle code fence start
-  if (valid_symbols[CODE_FENCE_START] && !scanner->in_code_fence && !scanner->in_tool_block) {
-    if (scan_code_fence_start(lexer, scanner)) {
       return true;
     }
   }
