@@ -18,23 +18,12 @@ module.exports = grammar({
     $.tool_block_start,
     $.tool_block_end,
     $.tool_block_content,
-    $._line_content,
-    $._newline,
-    $._citations_header,
   ],
 
   rules: {
-    document: $ => repeat($._block),
+    document: $ => repeat($.section),
 
-    _block: $ => choice(
-      $.regular_section,
-      $.citations_with_text,
-      $.citations_without_text,
-      $.untagged_content,
-    ),
-
-    // Regular sections (USER, ASSISTANT, etc.) that don't contain citations
-    regular_section: $ => choice(
+    section: $ => choice(
       $.user_section,
       $.system_section,
       $.assistant_section,
@@ -43,178 +32,131 @@ module.exports = grammar({
       $.tool_result_section,
       $.server_tool_use_section,
       $.server_tool_result_section,
+      $.citations_section,
+      $.untagged_content,
     ),
 
-    // Citations with preceding text (when <cite> tag is found)
-    citations_with_text: $ => seq(
-      choice(
-        $.assistant_section_with_cite,
-        $.thinking_section_with_cite,
-      ),
-      $.citations_content
-    ),
+    user_section: $ => prec.left(seq(
+      /##[ \t]*USER:[ \t]*\n/,
+      repeat($.content_line)
+    )),
 
-    // Standalone citations (when ## CITATIONS: found without preceding <cite>)
-    citations_without_text: $ => seq(
-      $._citations_header,
-      $._newline,
-      optional($.citations_content)
-    ),
+    system_section: $ => prec.left(seq(
+      /##[ \t]*SYSTEM:[ \t]*\n/,
+      repeat($.content_line)
+    )),
 
-    // Section headers
-    user_section: $ => seq(
-      /##[ \t]*USER:[ \t]*/,
-      $._newline,
-      repeat($._content_line)
-    ),
+    assistant_section: $ => prec.left(seq(
+      /##[ \t]*ASSISTANT:[ \t]*\n/,
+      repeat($.content_line)
+    )),
 
-    system_section: $ => seq(
-      /##[ \t]*SYSTEM:[ \t]*/,
-      $._newline,
-      repeat($._content_line)
-    ),
+    thinking_section: $ => prec.left(seq(
+      /##[ \t]*THINKING:[ \t]*\n/,
+      repeat($.content_line)
+    )),
 
-    assistant_section: $ => seq(
-      /##[ \t]*ASSISTANT:[ \t]*/,
-      $._newline,
-      repeat($._content_line)
-    ),
-
-    thinking_section: $ => seq(
-      /##[ \t]*THINKING:[ \t]*/,
-      $._newline,
-      repeat($._content_line)
-    ),
-
-    // Special sections that contain cite tags - these will be part of citations_with_text
-    assistant_section_with_cite: $ => seq(
-      /##[ \t]*ASSISTANT:[ \t]*/,
-      $._newline,
-      repeat($._content_line_before_cite),
-      $.cite_line,
-      repeat($._content_line_after_cite)
-    ),
-
-    thinking_section_with_cite: $ => seq(
-      /##[ \t]*THINKING:[ \t]*/,
-      $._newline,
-      repeat($._content_line_before_cite),
-      $.cite_line,
-      repeat($._content_line_after_cite)
-    ),
-
-    tool_use_section: $ => seq(
-      /##[ \t]*TOOL USE:[ \t]*/,
-      $._newline,
+    tool_use_section: $ => prec.left(seq(
+      /##[ \t]*TOOL USE:[ \t]*\n/,
       repeat(choice(
         $.tool_name_line,
         $.tool_id_line,
         $.tool_parameter,
-        $._content_line,
+        $.content_line,
       ))
-    ),
+    )),
 
-    tool_result_section: $ => seq(
-      /##[ \t]*TOOL RESULT:[ \t]*/,
-      $._newline,
+    tool_result_section: $ => prec.left(seq(
+      /##[ \t]*TOOL RESULT:[ \t]*\n/,
       repeat(choice(
         $.tool_result_id_line,
         $.tool_result_block,
-        $._content_line,
+        $.content_line,
       ))
-    ),
+    )),
 
-    server_tool_use_section: $ => seq(
-      /##[ \t]*SERVER TOOL USE:[ \t]*/,
-      $._newline,
+    server_tool_use_section: $ => prec.left(seq(
+      /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
       repeat(choice(
         $.tool_name_line,
         $.tool_id_line,
         $.tool_parameter,
-        $._content_line,
+        $.content_line,
       ))
-    ),
+    )),
 
-    server_tool_result_section: $ => seq(
-      /##[ \t]*SERVER TOOL RESULT:[ \t]*/,
-      $._newline,
+    server_tool_result_section: $ => prec.left(seq(
+      /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
       repeat(choice(
         $.tool_result_id_line,
         $.tool_result_block,
-        $._content_line,
+        $.content_line,
       ))
-    ),
+    )),
+
+    citations_section: $ => prec.left(seq(
+      /##[ \t]*CITATIONS:[ \t]*\n/,
+      repeat(choice(
+        $.citation_entry,
+        $.content_line,
+      ))
+    )),
 
     // Content line types
-    _content_line: $ => choice(
+    content_line: $ => choice(
       $.text_line,
+      $.cite_line,
       $.code_block_line,
-      $.empty_line,
-    ),
-
-    _content_line_before_cite: $ => choice(
-      $.text_line,
-      $.code_block_line,
-      $.empty_line,
-    ),
-
-    _content_line_after_cite: $ => choice(
-      $.text_line_after_cite,
       $.empty_line,
     ),
 
     text_line: $ => seq(
-      $._line_content,
-      $._newline
-    ),
-
-    text_line_after_cite: $ => seq(
-      $._line_content,
-      $._newline
+      /[^#\n<][^\n]*/,
+      "\n"
     ),
 
     cite_line: $ => seq(
-      optional($._line_content),
-      field("text", $.cite_tag),
-      optional($._line_content),
-      $._newline
+      optional(/[^#\n<][^\n<]*/),
+      $.cite_tag,
+      optional(/[^\n<]*/),
+      "\n"
     ),
 
     cite_tag: $ => seq(
       "<cite>",
-      /[^<]+/,
+      field("text", /[^<]+/),
       "</cite>"
     ),
 
     code_block_line: $ => seq(
       "```",
-      optional($._line_content),
-      $._newline
+      optional(/[^\n]*/),
+      "\n"
     ),
 
-    empty_line: $ => $._newline,
+    empty_line: $ => "\n",
 
     // Tool-specific elements
     tool_name_line: $ => seq(
       "Name:",
       /[ \t]*/,
-      field("name", $._line_content),
-      $._newline
+      field("name", /[^\n]+/),
+      "\n"
     ),
 
     tool_id_line: $ => seq(
       "ID:",
       /[ \t]*/,
-      field("id", $._line_content),
-      $._newline
+      field("id", /[^\n]+/),
+      "\n"
     ),
 
     tool_parameter: $ => seq(
       "###",
       /[ \t]*/,
-      field("name", $._line_content),
-      $._newline,
-      $._newline,
+      field("name", /[^\n]+/),
+      "\n",
+      "\n",
       $.tool_parameter_block
     ),
 
@@ -227,8 +169,8 @@ module.exports = grammar({
     tool_result_id_line: $ => seq(
       "ID:",
       /[ \t]*/,
-      field("id", $._line_content),
-      $._newline
+      field("id", /[^\n]+/),
+      "\n"
     ),
 
     tool_result_block: $ => seq(
@@ -238,47 +180,45 @@ module.exports = grammar({
     ),
 
     // Citations content
-    citations_content: $ => repeat1(choice(
-      $.citation_entry,
-      $.empty_line,
-    )),
-
     citation_entry: $ => seq(
       "###",
       /[ \t]*/,
-      field("url", $._line_content),
-      $._newline,
-      $._newline,
+      field("url", /[^\n]+/),
+      "\n",
+      "\n",
       repeat(choice(
         $.citation_title,
         $.citation_text,
         $.citation_index,
-        $.empty_line,
+        $.content_line,
       ))
     ),
 
     citation_title: $ => seq(
       "Title:",
       /[ \t]*/,
-      field("title", $._line_content),
-      $._newline
+      field("title", /[^\n]+/),
+      "\n"
     ),
 
     citation_text: $ => seq(
       "Cited text:",
       /[ \t]*/,
-      field("text", $._line_content),
-      $._newline
+      field("text", /[^\n]+/),
+      "\n"
     ),
 
     citation_index: $ => seq(
       "Encrypted index:",
       /[ \t]*/,
-      field("index", $._line_content),
-      $._newline
+      field("index", /[^\n]+/),
+      "\n"
     ),
 
     // Untagged content at the beginning
-    untagged_content: $ => prec.left(repeat1($._content_line)),
+    untagged_content: $ => prec.left(seq(
+      $.text_line,
+      repeat($.content_line)
+    )),
   }
 });
