@@ -7824,4 +7824,52 @@ grammar.js
 Add citations_with_text rule that spans content and citations sections
 </tool.toolu_01QsLiwtixoexKWVpofMsw6m>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QsLiwtixoexKWVpofMsw6m -->
+## TOOL RESULT:
+
+ID: toolu_01QsLiwtixoexKWVpofMsw6m
+
+<tool.toolu_01QsLiwtixoexKWVpofMsw6m>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citations_with_text rule that spans content and citations sections
+</tool.toolu_01QsLiwtixoexKWVpofMsw6m>
+
+## ASSISTANT:
+
+Now I need to make sure this doesn't conflict with the regular citations section. Let me also add a `citations_without_text` for standalone citations:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018i25hUPUiDWbFMHWaPmiAR
+
+### file-path
+
+<tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+grammar.js
+</tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+
+### original-content
+
+<tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+</tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+
+### new-content
+
+<tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+// Citations without text - standalone citations section
+    citations_section: $ => seq(
+      $.citations_header,
+      optional(alias($.citations_content, 'citations_without_text'))
+    ),
+</tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+
+### git-commit-message
+
+<tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+Add citations_without_text alias for standalone citations sections
+</tool.toolu_018i25hUPUiDWbFMHWaPmiAR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018i25hUPUiDWbFMHWaPmiAR -->
