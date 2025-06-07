@@ -703,6 +703,102 @@ EXAMPLE OUTPUT:
           (setf (alist-get 'type (car content)) "server_tool_use"))))
     result))
 
+(defun greger-tree-sitter--extract-citations-with-text-section (section-node)
+  "Extract citations_with_text from SECTION-NODE and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a citations_with_text section
+
+PROCESSING:
+  1. Extracts content_with_cites to get text with <cite> tags
+  2. Extracts citations to get citation metadata
+  3. Creates structured content blocks where cited text has citations attached
+
+OUTPUT:
+  Returns an assistant message object with structured content blocks:
+  ((role . \"assistant\")
+   (content . (((type . \"text\") (text . \"pre-cite text\"))
+               ((type . \"text\") (text . \"cited text\") (citations . citations-list))
+               ((type . \"text\") (text . \"post-cite text\")))))
+
+EXAMPLE INPUT SECTION:
+  ## ASSISTANT:
+
+  Based on research, <cite>the sky is blue</cite> according to science.
+
+  ## CITATIONS:
+
+  ### https://example.com
+  Title: Example
+  Cited text: The sky is blue
+  Encrypted index: abc123
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"text\") (text . \"Based on research,\"))
+               ((type . \"text\") (text . \"the sky is blue\") (citations . citations-list))
+               ((type . \"text\") (text . \"according to science.\")))))"
+  (let* ((citations-with-text-node (treesit-node-child section-node 0))
+         (content-node (treesit-node-child-by-field-name citations-with-text-node "content_with_cites"))
+         (citations-node (treesit-node-child-by-field-name citations-with-text-node "citations")))
+
+    ;; Extract citations first
+    (let ((citations (if citations-node
+                         (greger-tree-sitter--extract-citations-content citations-node)
+                       '())))
+
+      ;; Extract content and create citation-aware blocks
+      (let ((content-blocks (if content-node
+                                (greger-tree-sitter--extract-content-with-citations content-node citations)
+                              '())))
+
+        `((role . "assistant")
+          (content . ,(if content-blocks content-blocks '())))))))
+
+(defun greger-tree-sitter--extract-citations-without-text-section (section-node)
+  "Extract citations_without_text from SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a citations_without_text section
+
+PROCESSING:
+  Extracts standalone citations that are not associated with any cite tags.
+  This creates a special citations_without_text content block.
+
+OUTPUT:
+  Returns an assistant message with a citations_without_text content block:
+  ((role . \"assistant\")
+   (content . (((type . \"citations_without_text\") (entries . citations-list)))))
+
+  Note: This is a special case that shouldn't typically appear in final output
+  but represents standalone citation sections.
+
+EXAMPLE INPUT SECTION:
+  ## CITATIONS:
+
+  ### https://example.com
+  Title: Example
+  Cited text: Some text
+  Encrypted index: abc123
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"citations_without_text\")
+                (entries . (((type . \"web_search_result_location\")
+                             (url . \"https://example.com\")
+                             (title . \"Example\")
+                             (cited_text . \"Some text\")
+                             (encrypted_index . \"abc123\"))))))))"
+  (let* ((citations-without-text-node (treesit-node-child section-node 0))
+         (citations-node (treesit-node-child-by-field-name citations-without-text-node "citations")))
+
+    (let ((citations (if citations-node
+                         (greger-tree-sitter--extract-citations-content citations-node)
+                       '())))
+
+      `((role . "assistant")
+        (content . (((type . "citations_without_text") (entries . ,citations))))))))
+
 (defun greger-tree-sitter--extract-server-tool-result-section (section-node)
   "Extract server tool result from a ## SERVER TOOL RESULT: section.
 
