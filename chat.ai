@@ -9752,4 +9752,113 @@ Hello
 Add trailing newline to debug.greger
 </tool.toolu_01Eq4wP2aiZwZNePyoHSLHWM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Eq4wP2aiZwZNePyoHSLHWM -->
+## TOOL RESULT:
+
+ID: toolu_01Eq4wP2aiZwZNePyoHSLHWM
+
+<tool.toolu_01Eq4wP2aiZwZNePyoHSLHWM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug.greger. Successfully staged 2 file(s) and committed with message: Add trailing newline to debug.greger
+</tool.toolu_01Eq4wP2aiZwZNePyoHSLHWM>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FrQafr7tKK6jrLXGqURksd
+
+### command
+
+<tool.toolu_01FrQafr7tKK6jrLXGqURksd>
+tree-sitter parse debug.greger
+</tool.toolu_01FrQafr7tKK6jrLXGqURksd>
+
+## TOOL RESULT:
+
+ID: toolu_01FrQafr7tKK6jrLXGqURksd
+
+<tool.toolu_01FrQafr7tKK6jrLXGqURksd>
+Command failed with exit code 1: (source_file [0, 0] - [2, 5]
+  (section [0, 0] - [1, 0]
+    (user_section [0, 0] - [1, 0]
+      (user_header [0, 0] - [1, 0])))
+  (ERROR [1, 0] - [2, 5]
+    (newline [1, 0] - [2, 0])))
+debug.greger	Parse:    0.79 ms	    19 bytes/ms	(ERROR [1, 0] - [2, 5])
+
+</tool.toolu_01FrQafr7tKK6jrLXGqURksd>
+
+## ASSISTANT:
+
+Same issue. Let me try comparing with the working test_simple.greger. The key difference might be EOF handling. Let me look at the exact byte content:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019vyLqVrr9iGbpJtrZwZayD
+
+### command
+
+<tool.toolu_019vyLqVrr9iGbpJtrZwZayD>
+tree-sitter parse test_simple.greger
+</tool.toolu_019vyLqVrr9iGbpJtrZwZayD>
+
+## TOOL RESULT:
+
+ID: toolu_019vyLqVrr9iGbpJtrZwZayD
+
+<tool.toolu_019vyLqVrr9iGbpJtrZwZayD>
+Command executed successfully:
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (content_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (content_line [6, 0] - [7, 0])))))
+
+</tool.toolu_019vyLqVrr9iGbpJtrZwZayD>
+
+## ASSISTANT:
+
+Interesting! In test_simple.greger, the content_line goes from [2, 0] to [3, 0], meaning it includes the text AND the trailing newline. But in my debug case, I'm only getting [1, 0] to [2, 0] for the user_section.
+
+The difference is that test_simple.greger has TWO sections, so the user section ends when the assistant section starts. In my debug case, there's only one section, so it might not be handling EOF properly.
+
+Let me test a case with two sections:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_017fVhutzo1UHE2aGeSw5x4p
+
+### file-path
+
+<tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+debug.greger
+</tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+
+### contents
+
+<tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi
+</tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+
+### git-commit-message
+
+<tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+Test with two sections like test_simple.greger
+</tool.toolu_017fVhutzo1UHE2aGeSw5x4p>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017fVhutzo1UHE2aGeSw5x4p -->
