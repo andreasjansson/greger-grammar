@@ -465,7 +465,7 @@ EXAMPLE OUTPUT:
    (content . (((type . \"thinking\")
                 (thinking . \"I need to think about this carefully before responding.\")))))"
   (let* ((thinking-section-node (treesit-node-child section-node 0))
-         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "content")))
     `((role . "assistant")
       (content . (((type . "thinking")
                    (thinking . ,(if content-node

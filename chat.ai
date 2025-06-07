@@ -6693,4 +6693,475 @@ Encrypted index: abc123"))
 Update debug test to test citation parsing
 </tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VMcgUHrvT4szjiiRid1yFi -->
+## TOOL RESULT:
+
+ID: toolu_01VMcgUHrvT4szjiiRid1yFi
+
+<tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 940 characters. Successfully staged 2 file(s) and committed with message: Update debug test to test citation parsing
+</tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S1Pfd3orbkq6foTu8SfxG4
+
+### command
+
+<tool.toolu_01S1Pfd3orbkq6foTu8SfxG4>
+emacs --batch -l debug-test.el
+</tool.toolu_01S1Pfd3orbkq6foTu8SfxG4>
+
+## TOOL RESULT:
+
+ID: toolu_01S1Pfd3orbkq6foTu8SfxG4
+
+<tool.toolu_01S1Pfd3orbkq6foTu8SfxG4>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing citation parsing ===
+Testing citation parsing...
+Parse result: (((role . "user") (content . "When was Claude Shannon born?")) ((role . "assistant") (content ((type . "text") (text . "Claude Shannon was born on April 30, 1916") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title . "Claude Shannon - Wikipedia") (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001)") (encrypted_index . "abc123")))))))
+Message: role=user content="When was Claude Shannon born?"
+Message: role=assistant content=(((type . "text") (text . "Claude Shannon was born on April 30, 1916") (citations ((type . "web_search_result_location") (url . "https://en.wikipedia.org/wiki/Claude_Shannon") (title . "Claude Shannon - Wikipedia") (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001)") (encrypted_index . "abc123")))))
+
+</tool.toolu_01S1Pfd3orbkq6foTu8SfxG4>
+
+## ASSISTANT:
+
+Great! The citation parsing is working! The parser is correctly:
+1. Extracting the user message content
+2. Recognizing the `<cite>` tag in the assistant message
+3. Linking it to the `## CITATIONS:` section
+4. Creating a proper content block with citations
+
+Now let me run the citation tests to see how close we are:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01R6YZ65cVHJ2eFrzhgc62E8
+
+### command
+
+<tool.toolu_01R6YZ65cVHJ2eFrzhgc62E8>
+emacs --batch -l test-citations.el
+</tool.toolu_01R6YZ65cVHJ2eFrzhgc62E8>
+
+## TOOL RESULT:
+
+ID: toolu_01R6YZ65cVHJ2eFrzhgc62E8
+
+<tool.toolu_01R6YZ65cVHJ2eFrzhgc62E8>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+=== Testing citations-basic ===
+✅ Citations-basic test PASSED!
+
+=== Testing citations-after-tool-result ===
+✅ Citations-after-tool-result test PASSED!
+
+=== Testing citations-multiple ===
+✅ Citations-multiple test PASSED!
+
+=== All citation tests completed ===
+
+</tool.toolu_01R6YZ65cVHJ2eFrzhgc62E8>
+
+## ASSISTANT:
+
+Fantastic! All the citation tests are now passing! This means the tree-sitter grammar and parser are correctly handling the citation workflow. Let me run the comprehensive test to see what else needs to be fixed:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VAytYGuEoJw3RS68dN6fD7
+
+### command
+
+<tool.toolu_01VAytYGuEoJw3RS68dN6fD7>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01VAytYGuEoJw3RS68dN6fD7>
+
+## TOOL RESULT:
+
+ID: toolu_01VAytYGuEoJw3RS68dN6fD7
+
+<tool.toolu_01VAytYGuEoJw3RS68dN6fD7>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . ""))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.009s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . ""))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "I need to consider all the options carefully before responding.")))))
+
+
+Actual:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "")))))
+
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+✅ PASSED (0.001s)
+
+=== Testing: code-block-triple-backticks ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Here's some code:\n\n```"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id)
+    (name)
+    (input))
+   ((type . "text")
+    (text . "This should not be parsed as a section header")))))
+
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-code-in-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "assistant")
+  (content
+   ((type . "web_search_tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.001s)
+
+=== Testing: html-comments ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Here's some code:\n\n<!-- comment -->\n<!-- multi\nline\n\ncomment -->\n\n```\n<!-- comment should be included -->"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id)
+    (name)
+    (input))
+   ((type . "text")
+    (text . "This should not be parsed as a section header")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 19
+Passed: 13
+Failed: 6
+
+❌ FAILED TESTS:
+  - thinking-section
+  - complex-workflow
+  - thinking-only
+  - code-block-triple-backticks
+  - tool-use-with-code-in-params
+  - html-comments
+
+</tool.toolu_01VAytYGuEoJw3RS68dN6fD7>
+
+## ASSISTANT:
+
+Great progress! We've got 13 out of 19 tests passing. The main issues are:
+
+1. **Thinking content is empty** - The thinking section content extraction is not working
+2. **Code blocks issue** - Content inside triple backticks is being parsed as section headers instead of being treated as code
+3. **Tool type confusion** - Some tool uses are being misclassified as server tools
+
+Let me fix the thinking section issue first. The problem is likely in the thinking section extraction:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01APDEGHpsQv5JyWCnTdsVBD
+
+### path
+
+<tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+greger-tree-sitter.el
+</tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+
+### start-line
+
+<tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+450
+</tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+
+### end-line
+
+<tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+500
+</tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+
+## TOOL RESULT:
+
+ID: toolu_01APDEGHpsQv5JyWCnTdsVBD
+
+<tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+OUTPUT:
+  Returns an assistant message object with a thinking content block:
+  ((role . \"assistant\")
+   (content . (((type . \"thinking\") (thinking . \"extracted text\")))))
+
+  Thinking sections are treated as assistant internal thoughts, so they
+  always produce assistant messages with structured content.
+
+EXAMPLE INPUT SECTION:
+  ## THINKING:
+
+  I need to think about this carefully before responding.
+
+EXAMPLE OUTPUT:
+  ((role . \"assistant\")
+   (content . (((type . \"thinking\")
+                (thinking . \"I need to think about this carefully before responding.\")))))"
+  (let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  ""))))))))
+
+(defun greger-tree-sitter--extract-tool-use-section (section-node)
+  "Extract tool use from a ## TOOL USE: section and return as assistant message.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## TOOL USE: section
+
+PROCESSING:
+  1. Extracts tool name from \"Name: tool-name\" line
+  2. Extracts tool ID from \"ID: tool-id\" line
+  3. Extracts parameters from \"### param-name\" sections with <tool.id>content</tool.id> blocks
+  4. Converts parameter names to symbols for the input alist
+
+OUTPUT:
+  Returns an assistant message object with a tool_use content block:
+  ((role . \"assistant\")
+   (content . (((type . \"tool_use\")
+                (id . \"tool-id\")
+                (name . \"tool-name\")
+                (input . ((param1 . \"value1\") (param2 . \"value2\")))))))
+
+EXAMPLE INPUT SECTION:
+  ## TOOL USE:
+
+  Name: read-file
+  ID: toolu_123
+
+</tool.toolu_01APDEGHpsQv5JyWCnTdsVBD>
+
+## ASSISTANT:
+
+I see the issue! The thinking section extraction is looking for "section_content" but it should be "content". Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Y7phPpfeUfUiPFwcpNMbAD
+
+### file-path
+
+<tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+greger-tree-sitter.el
+</tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+
+### original-content
+
+<tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+(let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  "")))))
+</tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+
+### new-content
+
+<tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+(let* ((thinking-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "content")))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,(if content-node
+                                    (greger-tree-sitter--extract-content content-node)
+                                  "")))))
+</tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+
+### git-commit-message
+
+<tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+Fix thinking section content extraction to use correct node type
+</tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Y7phPpfeUfUiPFwcpNMbAD -->
