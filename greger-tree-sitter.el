@@ -859,6 +859,34 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
 
     (nreverse messages)))
 
+(defun greger-tree-sitter--find-next-citations-section (sections start-idx)
+  "Find the next citations section starting from START-IDX in SECTIONS.
+
+Returns the index of the citations section, or nil if not found."
+  (let ((i start-idx)
+        (found nil))
+    (while (and (< i (length sections)) (not found))
+      (let ((section-type (greger-tree-sitter--get-section-type (nth i sections))))
+        (if (equal section-type "citations_section")
+            (setq found i)
+          (setq i (1+ i)))))
+    found))
+
+(defun greger-tree-sitter--section-has-cite-tags (section)
+  "Check if SECTION contains cite tags in its content."
+  (let ((section-type (greger-tree-sitter--get-section-type section)))
+    (when (member section-type '("assistant_section" "thinking_section"))
+      (let ((message (greger-tree-sitter--extract-section section)))
+        (when message
+          (let ((content (alist-get 'content message)))
+            (and (stringp content) (string-match-p "<cite>" content))))))))
+
+(defun greger-tree-sitter--extract-citations-with-text-blocks (content)
+  "Extract content blocks from CONTENT that contains cite tags.
+
+Creates structured blocks according to citations_with_text format."
+  (greger-tree-sitter--parse-content-with-citations content nil))
+
 (defun greger-tree-sitter--get-section-type (section-node)
   "Get the type of a SECTION-NODE.
 
