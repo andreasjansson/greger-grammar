@@ -18,6 +18,7 @@ module.exports = grammar({
     $.tool_block_start,
     $.tool_block_end,
     $.tool_block_content,
+    $._text,
   ],
 
   conflicts: $ => [
