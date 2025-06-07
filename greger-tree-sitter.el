@@ -147,6 +147,43 @@ for direct use."
 
     messages))
 
+(defun greger-tree-sitter--finalize-assistant-content (blocks)
+  "Finalize assistant content BLOCKS, returning either a simple string or content blocks.
+
+INPUT:
+  BLOCKS - List of content block objects accumulated for an assistant message
+
+PROCESSING:
+  Decides whether to return simple string content or structured content blocks:
+  1. If there's only one text block with no citations → return simple string
+  2. If there are multiple blocks, or citations, or non-text blocks → return content blocks
+  3. Reorders blocks appropriately when returning content blocks
+
+OUTPUT:
+  Returns either:
+  - A simple string (for basic assistant responses)
+  - A list of content blocks (for complex responses with tools, thinking, citations)
+
+LOGIC:
+  Simple string: Single text block, no citations, no other block types
+  Content blocks: Everything else (multiple blocks, citations, tools, thinking)
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--process-sections-with-citations
+to determine the final format of assistant content."
+  (cond
+   ;; No blocks - return empty string
+   ((null blocks) "")
+
+   ;; Single text block with no citations - return simple string
+   ((and (= (length blocks) 1)
+         (equal (alist-get 'type (car blocks)) "text")
+         (not (alist-get 'citations (car blocks))))
+    (alist-get 'text (car blocks)))
+
+   ;; Multiple blocks or complex content - return content blocks
+   (t
+    (greger-tree-sitter--reorder-assistant-blocks (nreverse blocks)))))
+
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
   "Reorder assistant content BLOCKS to match expected greger format order.
 
