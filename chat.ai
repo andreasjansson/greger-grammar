@@ -2988,4 +2988,67 @@ Encrypted index: abc123
 Add debug citations test file
 </tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YRF4cvBqAuXqjU93g9FXKU -->
+## TOOL RESULT:
+
+ID: toolu_01YRF4cvBqAuXqjU93g9FXKU
+
+<tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug_citations.greger with 183 characters. Successfully staged 2 file(s) and committed with message: Add debug citations test file
+</tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+
+## ASSISTANT:
+
+Let me test this specific case by creating a small debug script:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01VFvH1599Wg8LFnvkZvyKu8
+
+### file-path
+
+<tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+debug-citations.el
+</tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+
+### contents
+
+<tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+;;; debug-citations.el --- Debug citation parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-citation-parsing ()
+  "Debug citation parsing with a simple case."
+  (let ((test-text "## USER:
+
+Test citations
+
+## ASSISTANT:
+
+<cite>This is cited text</cite>
+
+## CITATIONS:
+
+### https://example.com
+
+Title: Example
+Cited text: This is cited text
+Encrypted index: abc123"))
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse test-text)))
+          (message "Citation parsing result:")
+          (pp result))
+      (error
+       (message "Error: %s" (error-message-string err))))))
+
+(debug-citation-parsing)
+</tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+
+### git-commit-message
+
+<tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+Add citation debug script
+</tool.toolu_01VFvH1599Wg8LFnvkZvyKu8>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VFvH1599Wg8LFnvkZvyKu8 -->
