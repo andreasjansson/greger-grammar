@@ -829,9 +829,23 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
                 (if (listp content)
                     ;; Add all content blocks
                     (setq current-assistant-blocks (append current-assistant-blocks content))
-                  ;; Store string content as-is for now (will be processed later)
+                  ;; Check for cite tags and look ahead for citations section
                   (when (and (stringp content) (> (length (string-trim content)) 0))
-                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
+                    (if (string-match-p "<cite>" content)
+                        ;; Content has cite tags - look for following citations section
+                        (let ((next-citations-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+                          (if next-citations-idx
+                              ;; Found citations section - create citations_with_text blocks
+                              (let* ((citations-section (nth next-citations-idx sections))
+                                     (citations (greger-tree-sitter--extract-citations-section citations-section))
+                                     (cite-blocks (greger-tree-sitter--create-citations-with-text-blocks content citations)))
+                                (setq current-assistant-blocks (append current-assistant-blocks cite-blocks))
+                                ;; Mark this citations section as processed by skipping to it
+                                (setq i next-citations-idx))
+                            ;; No citations section found - treat as regular text
+                            (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))
+                      ;; Regular text without cite tags
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))
 
          ;; Citations section - handle as citations_without_text if not already processed
          ((equal section-type "citations_section")

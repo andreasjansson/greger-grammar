@@ -9273,4 +9273,63 @@ greger-tree-sitter.el
 Replace citation processing with citations_without_text handling
 </tool.toolu_01JA397TEdv9a9i1pjG4djAb>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JA397TEdv9a9i1pjG4djAb -->
+## TOOL RESULT:
+
+ID: toolu_01JA397TEdv9a9i1pjG4djAb
+
+<tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Replace citation processing with citations_without_text handling
+</tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+
+## ASSISTANT:
+
+Now let me update the assistant section processing to use the new citations_with_text logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Q27vzofbLGrvyUkLxLFtUu
+
+### file-path
+
+<tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+greger-tree-sitter.el
+</tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+
+### original-content
+
+<tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+;; Store string content as-is for now (will be processed later)
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))
+</tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+
+### new-content
+
+<tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+;; Check for cite tags and look ahead for citations section
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (if (string-match-p "<cite>" content)
+                        ;; Content has cite tags - look for following citations section
+                        (let ((next-citations-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+                          (if next-citations-idx
+                              ;; Found citations section - create citations_with_text blocks
+                              (let* ((citations-section (nth next-citations-idx sections))
+                                     (citations (greger-tree-sitter--extract-citations-section citations-section))
+                                     (cite-blocks (greger-tree-sitter--create-citations-with-text-blocks content citations)))
+                                (setq current-assistant-blocks (append current-assistant-blocks cite-blocks))
+                                ;; Mark this citations section as processed by skipping to it
+                                (setq i next-citations-idx))
+                            ;; No citations section found - treat as regular text
+                            (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))
+                      ;; Regular text without cite tags
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))
+</tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+
+### git-commit-message
+
+<tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+Implement citations_with_text detection in assistant section processing
+</tool.toolu_01Q27vzofbLGrvyUkLxLFtUu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Q27vzofbLGrvyUkLxLFtUu -->
