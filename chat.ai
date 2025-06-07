@@ -9473,4 +9473,74 @@ section: $ => choice(
 Remove citation rules from main section parsing and add basic citations_section
 </tool.toolu_01U8kt451bM8muZRMJojKrU3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01U8kt451bM8muZRMJojKrU3 -->
+## TOOL RESULT:
+
+ID: toolu_01U8kt451bM8muZRMJojKrU3
+
+<tool.toolu_01U8kt451bM8muZRMJojKrU3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove citation rules from main section parsing and add basic citations_section
+</tool.toolu_01U8kt451bM8muZRMJojKrU3>
+
+## ASSISTANT:
+
+Now I need to add a basic `citations_section` rule:
+
+## USER:
+
+I'm stopping you there. Don't break the citation parsing, just be more careful about how the priority is handled etc. It's fiddy to get right but if you test small pieces at a time you'll get there.
+
+## ASSISTANT:
+
+You're absolutely right! I should be more careful and test small pieces. Let me revert that change and approach this more systematically.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XRV5rK9pmgr6KcoRdTp9pj
+
+### file-path
+
+<tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+grammar.js
+</tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+
+### original-content
+
+<tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+</tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+
+### new-content
+
+<tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_with_text,
+      $.citations_without_text,
+    ),
+</tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+
+### git-commit-message
+
+<tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+Revert citation section changes to fix carefully
+</tool.toolu_01XRV5rK9pmgr6KcoRdTp9pj>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XRV5rK9pmgr6KcoRdTp9pj -->
