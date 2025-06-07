@@ -182,7 +182,7 @@ to determine the final format of assistant content."
 
    ;; Multiple blocks or complex content - return content blocks
    (t
-    (greger-tree-sitter--reorder-assistant-blocks (nreverse blocks)))))
+    (greger-tree-sitter--reorder-assistant-blocks blocks))))
 
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
   "Reorder assistant content BLOCKS to match expected greger format order.
