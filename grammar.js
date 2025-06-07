@@ -117,7 +117,7 @@ module.exports = grammar({
     ),
 
     system_content: $ => repeat1(choice(
-      $.text_line,
+      $.content_line,
       $.newline
     )),
 

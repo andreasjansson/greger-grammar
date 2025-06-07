@@ -9452,4 +9452,168 @@ conflicts: $ => [
 Remove conflicts that are no longer needed
 </tool.toolu_01BKBWvngu8YL9YGYsS5qsMz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01BKBWvngu8YL9YGYsS5qsMz -->
+## TOOL RESULT:
+
+ID: toolu_01BKBWvngu8YL9YGYsS5qsMz
+
+<tool.toolu_01BKBWvngu8YL9YGYsS5qsMz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove conflicts that are no longer needed
+</tool.toolu_01BKBWvngu8YL9YGYsS5qsMz>
+
+## ASSISTANT:
+
+Now let me regenerate and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QbgJZnZ7qE4zKK1W52MvrX
+
+### command
+
+<tool.toolu_01QbgJZnZ7qE4zKK1W52MvrX>
+tree-sitter generate
+</tool.toolu_01QbgJZnZ7qE4zKK1W52MvrX>
+
+## TOOL RESULT:
+
+ID: toolu_01QbgJZnZ7qE4zKK1W52MvrX
+
+<tool.toolu_01QbgJZnZ7qE4zKK1W52MvrX>
+Command failed with exit code 1: file:///Users/andreas/scratch/greger-grammar/[eval1]:240
+        const error = new ReferenceError(`Undefined symbol '${propertyName}'`);
+                      ^
+
+ReferenceError: Undefined symbol 'text_line'
+    at Object.get (file:///Users/andreas/scratch/greger-grammar/[eval1]:240:23)
+    at Proxy.system_content (/Users/andreas/scratch/greger-grammar/grammar.js:120:9)
+    at grammar (file:///Users/andreas/scratch/greger-grammar/[eval1]:328:27)
+    at Object.<anonymous> (/Users/andreas/scratch/greger-grammar/grammar.js:10:18)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object..js (node:internal/modules/cjs/loader:1899:10)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Module._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24) {
+  symbol: GrammarSymbol { type: 'SYMBOL', name: 'text_line' }
+}
+
+Node.js v24.0.2
+Error when generating parser
+
+Caused by:
+    Failed to load grammar.js -- `node` process exited with status 1
+
+</tool.toolu_01QbgJZnZ7qE4zKK1W52MvrX>
+
+## ASSISTANT:
+
+I have a reference to `text_line` somewhere. Let me find and fix it:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_019wNqbtFqCyzpu76in56wRG
+
+### pattern
+
+<tool.toolu_019wNqbtFqCyzpu76in56wRG>
+text_line
+</tool.toolu_019wNqbtFqCyzpu76in56wRG>
+
+### path
+
+<tool.toolu_019wNqbtFqCyzpu76in56wRG>
+grammar.js
+</tool.toolu_019wNqbtFqCyzpu76in56wRG>
+
+## TOOL RESULT:
+
+ID: toolu_019wNqbtFqCyzpu76in56wRG
+
+<tool.toolu_019wNqbtFqCyzpu76in56wRG>
+120:      $.text_line,
+
+</tool.toolu_019wNqbtFqCyzpu76in56wRG>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014vHqwS1QibtXE97n6ZRTy2
+
+### path
+
+<tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+grammar.js
+</tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+
+### start-line
+
+<tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+115
+</tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+
+### end-line
+
+<tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+125
+</tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+
+## TOOL RESULT:
+
+ID: toolu_014vHqwS1QibtXE97n6ZRTy2
+
+<tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+      field("content", repeat(choice(/[^<\n]+/, "\n"))),
+      "</cite>"
+    ),
+
+    system_content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+
+    tool_use_content: $ => repeat1(choice(
+      $.tool_name_line,
+</tool.toolu_014vHqwS1QibtXE97n6ZRTy2>
+
+## ASSISTANT:
+
+I need to update the system_content to use the new content_line pattern:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Uj9XhYiqYq2dbWoFtyV9RM
+
+### file-path
+
+<tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+grammar.js
+</tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+
+### original-content
+
+<tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+system_content: $ => repeat1(choice(
+      $.text_line,
+      $.newline
+    )),
+</tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+
+### new-content
+
+<tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+system_content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+</tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+
+### git-commit-message
+
+<tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+Update system_content to use content_line
+</tool.toolu_01Uj9XhYiqYq2dbWoFtyV9RM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Uj9XhYiqYq2dbWoFtyV9RM -->
