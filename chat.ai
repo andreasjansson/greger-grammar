@@ -2874,4 +2874,118 @@ to determine the final format of assistant content."
 Add function to finalize assistant content as string or blocks
 </tool.toolu_01C89PkQUMsq552uknRPjX6D>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01C89PkQUMsq552uknRPjX6D -->
+## TOOL RESULT:
+
+ID: toolu_01C89PkQUMsq552uknRPjX6D
+
+<tool.toolu_01C89PkQUMsq552uknRPjX6D>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add function to finalize assistant content as string or blocks
+</tool.toolu_01C89PkQUMsq552uknRPjX6D>
+
+## ASSISTANT:
+
+Now I need to fix the citation parsing. Looking at the test failures, it seems like the citation association isn't working at all. Let me check if the `<cite>` tags are being detected properly in the citation association function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CY1ErmmJtvPsyzhXngAKAM
+
+### path
+
+<tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+greger-tree-sitter.el
+</tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+
+### start-line
+
+<tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+920
+</tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+
+### end-line
+
+<tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+950
+</tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+
+## TOOL RESULT:
+
+ID: toolu_01CY1ErmmJtvPsyzhXngAKAM
+
+<tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+<cite> tags work with subsequent ## CITATIONS: sections."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Extract citations from a ## CITATIONS: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## CITATIONS: section
+
+PROCESSING:
+  1. Finds the citations_content within the section
+  2. Iterates through all citation_entry children
+  3. Extracts each citation entry using greger-tree-sitter--extract-citation-entry
+
+OUTPUT:
+  Returns a list of citation objects, each with fields:
+  - type: \"web_search_result_location\"
+  - url: The URL from ### https://... line
+  - title: Text after \"Title:\" line
+  - cited_text: Text after \"Cited text:\" line
+  - encrypted_index: Text after \"Encrypted index:\" line
+</tool.toolu_01CY1ErmmJtvPsyzhXngAKAM>
+
+## ASSISTANT:
+
+The citation association logic looks correct. Let me check if the citations are being extracted properly. Let me create a debug test to see what's happening with citations:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01YRF4cvBqAuXqjU93g9FXKU
+
+### file-path
+
+<tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+debug_citations.greger
+</tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+
+### contents
+
+<tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+## USER:
+
+Test citations
+
+## ASSISTANT:
+
+<cite>This is cited text</cite>
+
+## CITATIONS:
+
+### https://example.com
+
+Title: Example
+Cited text: This is cited text
+Encrypted index: abc123
+</tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+
+### git-commit-message
+
+<tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+Add debug citations test file
+</tool.toolu_01YRF4cvBqAuXqjU93g9FXKU>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YRF4cvBqAuXqjU93g9FXKU -->
