@@ -1,35 +1,34 @@
-;;; debug-test.el --- Debug simple parsing -*- lexical-binding: t -*-
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
 
 (load-file "./greger-tree-sitter.el")
 
-(defun debug-simple-user ()
-  "Debug simple user message parsing."
-  (let ((markdown "## USER:
+(defun test-basic-citation ()
+  "Test basic citation parsing."
+  (let ((text "## USER:
 
-Hello, how are you?"))
-    (message "\n=== Debugging simple user message ===")
-    (message "Input: %S" markdown)
-    (let ((result (greger-tree-sitter-parse markdown)))
-      (message "Raw result: %S" result))))
-
-(defun debug-simple-conversation ()
-  "Debug simple conversation parsing."
-  (let ((markdown "## USER:
-
-Hello
+When was Claude Shannon born?
 
 ## ASSISTANT:
 
-Hi there! How can I help you today?"))
-    (message "\n=== Debugging simple conversation ===")
-    (message "Input: %S" markdown)
-    (let ((result (greger-tree-sitter-parse markdown)))
-      (message "Raw result: %S" result)
-      (message "Number of messages: %d" (length result)))))
+<cite>Claude Shannon was born on April 30, 1916</cite>
 
-;; Run debug
-(if (treesit-ready-p 'greger)
-    (progn
-      (debug-simple-user)
-      (debug-simple-conversation))
-  (message "Tree-sitter greger parser not available"))
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001)
+Encrypted index: abc123"))
+    (message "Testing basic citation...")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (message "First message: %S" (car result))
+          (message "Second message: %S" (cadr result))
+          (when (cdr result)
+            (message "Second message content: %S" (alist-get 'content (cadr result)))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing basic citation ===")
+(test-basic-citation)
