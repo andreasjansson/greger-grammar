@@ -21,10 +21,12 @@ module.exports = grammar({
   ],
 
   rules: {
-    document: $ => repeat(choice(
+    document: $ => repeat($._item),
+
+    _item: $ => choice(
       $.section,
-      $.untagged_content,
-    )),
+      $.content_line,
+    ),
 
     section: $ => choice(
       $.user_section,
@@ -38,68 +40,26 @@ module.exports = grammar({
       $.citations_section,
     ),
 
-    user_section: $ => prec.left(seq(
-      /##[ \t]*USER:[ \t]*\n/,
-      repeat($.line)
-    )),
+    user_section: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_section: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_section: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_section: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_section: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_section: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_section: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_section: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_section: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    system_section: $ => prec.left(seq(
-      /##[ \t]*SYSTEM:[ \t]*\n/,
-      repeat($.line)
-    )),
-
-    assistant_section: $ => prec.left(seq(
-      /##[ \t]*ASSISTANT:[ \t]*\n/,
-      repeat($.line)
-    )),
-
-    thinking_section: $ => prec.left(seq(
-      /##[ \t]*THINKING:[ \t]*\n/,
-      repeat($.line)
-    )),
-
-    tool_use_section: $ => prec.left(seq(
-      /##[ \t]*TOOL USE:[ \t]*\n/,
-      repeat(choice(
-        $.tool_line,
-        $.line,
-      ))
-    )),
-
-    tool_result_section: $ => prec.left(seq(
-      /##[ \t]*TOOL RESULT:[ \t]*\n/,
-      repeat(choice(
-        $.tool_line,
-        $.line,
-      ))
-    )),
-
-    server_tool_use_section: $ => prec.left(seq(
-      /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
-      repeat(choice(
-        $.tool_line,
-        $.line,
-      ))
-    )),
-
-    server_tool_result_section: $ => prec.left(seq(
-      /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
-      repeat(choice(
-        $.tool_line,
-        $.line,
-      ))
-    )),
-
-    citations_section: $ => prec.left(seq(
-      /##[ \t]*CITATIONS:[ \t]*\n/,
-      repeat($.citation_line)
-    )),
-
-    // Basic line types
-    line: $ => choice(
+    content_line: $ => choice(
       $.text_line,
       $.cite_line,
       $.code_line,
+      $.tool_name_line,
+      $.tool_id_line,
+      $.tool_parameter,
+      $.tool_result_block,
+      $.citation_entry,
+      $.citation_field,
       $.empty_line,
     ),
 
@@ -129,14 +89,7 @@ module.exports = grammar({
 
     empty_line: $ => "\n",
 
-    // Tool-specific lines
-    tool_line: $ => choice(
-      $.tool_name_line,
-      $.tool_id_line,
-      $.tool_parameter,
-      $.tool_result_block,
-    ),
-
+    // Tool-specific content
     tool_name_line: $ => seq(
       "Name:",
       /[ \t]*/,
@@ -172,44 +125,39 @@ module.exports = grammar({
       optional($.tool_block_end)
     ),
 
-    // Citation-specific lines
-    citation_line: $ => choice(
-      $.citation_entry_line,
-      $.citation_title_line,
-      $.citation_text_line,
-      $.citation_index_line,
-      $.empty_line,
-    ),
-
-    citation_entry_line: $ => seq(
+    // Citation content
+    citation_entry: $ => seq(
       "###",
       /[ \t]*/,
       field("url", /[^\n]+/),
       "\n"
     ),
 
-    citation_title_line: $ => seq(
+    citation_field: $ => choice(
+      $.citation_title,
+      $.citation_text,
+      $.citation_index,
+    ),
+
+    citation_title: $ => seq(
       "Title:",
       /[ \t]*/,
       field("title", /[^\n]+/),
       "\n"
     ),
 
-    citation_text_line: $ => seq(
+    citation_text: $ => seq(
       "Cited text:",
       /[ \t]*/,
       field("text", /[^\n]+/),
       "\n"
     ),
 
-    citation_index_line: $ => seq(
+    citation_index: $ => seq(
       "Encrypted index:",
       /[ \t]*/,
       field("index", /[^\n]+/),
       "\n"
     ),
-
-    // Untagged content (content before any section headers)
-    untagged_content: $ => repeat1($.line),
   }
 });
