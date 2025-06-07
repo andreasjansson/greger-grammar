@@ -831,7 +831,7 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
                     (setq current-assistant-blocks (append current-assistant-blocks content))
                   ;; Store string content as-is for now (will be processed later)
                   (when (and (stringp content) (> (length (string-trim content)) 0))
-                    (push `((type . "text") (text . ,content)) current-assistant-blocks)))))))
+                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
 
          ;; Citations section - associate with pending assistant blocks
          ((equal section-type "citations_section")
