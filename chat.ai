@@ -5592,4 +5592,51 @@ greger-tree-sitter.el
 Fix user section content extraction to use correct node type
 </tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Js8pSp7CyzHfEhQRX6GofT -->
+## TOOL RESULT:
+
+ID: toolu_01Js8pSp7CyzHfEhQRX6GofT
+
+<tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix user section content extraction to use correct node type
+</tool.toolu_01Js8pSp7CyzHfEhQRX6GofT>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01H8EtRh6HCiwZNKG5CkTZ3k
+
+### file-path
+
+<tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+greger-tree-sitter.el
+</tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+
+### original-content
+
+<tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+(let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    ""))))
+</tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+
+### new-content
+
+<tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+(let* ((system-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type system-section-node "content")))
+    `((role . "system")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    ""))))
+</tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+
+### git-commit-message
+
+<tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+Fix system section content extraction to use correct node type
+</tool.toolu_01H8EtRh6HCiwZNKG5CkTZ3k>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01H8EtRh6HCiwZNKG5CkTZ3k -->
