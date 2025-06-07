@@ -36,7 +36,8 @@ module.exports = grammar({
       $.tool_result_section,
       $.server_tool_use_section,
       $.server_tool_result_section,
-      $.citations_section,
+      $.citations_with_text,
+      $.citations_without_text,
     ),
 
     user_section: $ => seq(
@@ -79,9 +80,23 @@ module.exports = grammar({
       optional($.tool_result_content)
     ),
 
-    citations_section: $ => seq(
+    // New citation-aware sections
+    citations_with_text: $ => seq(
+      // Any section that contains cite tags
+      choice(
+        $.assistant_header,
+        $.thinking_header,
+        $.user_header,
+        $.system_header
+      ),
+      field("content_with_cites", $.content_with_cites),
       $.citations_header,
-      optional($.citations_content)
+      field("citations", optional($.citations_content))
+    ),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      field("citations", optional($.citations_content))
     ),
 
     // Headers - simple tokens
@@ -101,7 +116,20 @@ module.exports = grammar({
       $.newline
     )),
 
+    // Content that contains cite tags - for citations_with_text
+    content_with_cites: $ => repeat1(choice(
+      $.content_line_with_cites,
+      $.newline
+    )),
+
     content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text')
+      )),
+      "\n"
+    ),
+
+    content_line_with_cites: $ => seq(
       repeat1(choice(
         alias($._text, 'text'),
         $.cite_tag
@@ -138,12 +166,6 @@ module.exports = grammar({
       $.citation_entry,
       $.newline
     )),
-
-
-
-
-
-
 
     // Tool-specific patterns
     tool_name_line: $ => seq(
@@ -223,10 +245,6 @@ module.exports = grammar({
       field("index", /[^\n]+/),
       "\n"
     ),
-
-
-
-
 
     // Tool content line - anything except closing tool tag
     tool_content_line: $ => prec(-1, /[^\n]+/),
