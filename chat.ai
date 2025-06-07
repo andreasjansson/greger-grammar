@@ -6350,4 +6350,129 @@ grammar.js
 Make text_line lower precedence and ensure it doesn't match cite tags
 </tool.toolu_01Emgh8S4kWTX9gTwZX6knHE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Emgh8S4kWTX9gTwZX6knHE -->
+## TOOL RESULT:
+
+ID: toolu_01Emgh8S4kWTX9gTwZX6knHE
+
+<tool.toolu_01Emgh8S4kWTX9gTwZX6knHE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make text_line lower precedence and ensure it doesn't match cite tags
+</tool.toolu_01Emgh8S4kWTX9gTwZX6knHE>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01A4w8bkDT3ks1Q3kS3rWbNm
+
+### command
+
+<tool.toolu_01A4w8bkDT3ks1Q3kS3rWbNm>
+tree-sitter generate
+</tool.toolu_01A4w8bkDT3ks1Q3kS3rWbNm>
+
+## TOOL RESULT:
+
+ID: toolu_01A4w8bkDT3ks1Q3kS3rWbNm
+
+<tool.toolu_01A4w8bkDT3ks1Q3kS3rWbNm>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+
+      user_header  'text_line_token1'  •  '
+    '  …
+
+    Possible interpretations:
+
+      1:  user_header  (text_line  'text_line_token1'  •  '
+    ')
+      2:  user_header  (text_line  'text_line_token1')  •  '
+    '  …
+
+    Possible resolutions:
+
+      1:  Specify a left or right associativity in `text_line`
+      2:  Add a conflict for these rules: `text_line`
+
+
+</tool.toolu_01A4w8bkDT3ks1Q3kS3rWbNm>
+
+## ASSISTANT:
+
+The token approach is causing issues. Let me try a different approach - keep it simple but make sure text_line handles normal text correctly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KcFKQzWPgc4e5LtebLVVLx
+
+### file-path
+
+<tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+grammar.js
+</tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+
+### original-content
+
+<tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - must actually contain cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(
+        /[^<\n#]+/,  // More text
+        $.cite_tag   // More cite tags
+      )),
+      optional("\n")
+    ),
+
+    // Text line - any non-empty line without cite tags
+    text_line: $ => seq(
+      token(prec(-1, /[^<\n#][^\n]*/)), // Lower precedence, no cite tags
+      optional("\n")
+    ),
+</tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+
+### new-content
+
+<tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - must actually contain cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(
+        /[^<\n#]+/,  // More text
+        $.cite_tag   // More cite tags
+      )),
+      optional("\n")
+    ),
+
+    // Text line - any non-empty line that doesn't start with < or #
+    text_line: $ => prec.right(seq(
+      /[^<#\n][^\n]*/,
+      optional("\n")
+    )),
+</tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+
+### git-commit-message
+
+<tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+Simplify text_line to exclude < and # at start
+</tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KcFKQzWPgc4e5LtebLVVLx -->

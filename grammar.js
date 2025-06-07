@@ -113,11 +113,11 @@ module.exports = grammar({
       optional("\n")
     ),
 
-    // Text line - any non-empty line without cite tags
-    text_line: $ => seq(
-      token(prec(-1, /[^<\n#][^\n]*/)), // Lower precedence, no cite tags
+    // Text line - any non-empty line that doesn't start with < or #
+    text_line: $ => prec.right(seq(
+      /[^<#\n][^\n]*/,
       optional("\n")
-    ),
+    )),
 
     // Cite tag
     cite_tag: $ => seq(
