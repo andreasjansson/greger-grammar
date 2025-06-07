@@ -4663,7 +4663,7 @@ Shell command execution cancelled by user
 I see that command isn't in the safe list either. Let me analyze the grammar directly. Looking at the failed tests, I can see the main issues:
 
 1. **Content parsing problems**: Text content is returning empty strings
-2. **Missing sections**: Some sections aren't being parsed at all  
+2. **Missing sections**: Some sections aren't being parsed at all
 3. **Block ordering issues**: Content blocks are in wrong order
 
 Let me look at the grammar.js and identify the core problem. From the previous parse output, I can see that the grammar is generating ERROR nodes for regular text content like "Hello, how are you?".
@@ -4820,23 +4820,23 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       user_header  '
     '  •  user_header  …
-    
+
     Possible interpretations:
-    
+
       1:  user_header  (line_with_cite  '
     ')  •  user_header  …
       2:  user_header  (newline  '
     ')  •  user_header  …
-    
+
     Possible resolutions:
-    
+
       1:  Specify a higher precedence in `line_with_cite` than in the other rules.
       2:  Specify a higher precedence in `newline` than in the other rules.
       3:  Add a conflict for these rules: `line_with_cite`, `newline`
-    
+
 
 </tool.toolu_01RdpZ99MFgUfqtR9mvvtcPt>
 
@@ -5020,4 +5020,1183 @@ grammar.js
 Fix line_with_cite to only match when cite tags are present
 </tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SsoJrMeLFmmiemkbxFYDDx -->
+## TOOL RESULT:
+
+ID: toolu_01SsoJrMeLFmmiemkbxFYDDx
+
+<tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix line_with_cite to only match when cite tags are present
+</tool.toolu_01SsoJrMeLFmmiemkbxFYDDx>
+
+## USER:
+
+Be careful when fixing the line_with_cite/line issues so you don't break the citation tests. That logic is very sensitive.
+
+## ASSISTANT:
+
+You're absolutely right! Let me check the citation tests first to understand what's currently working before making changes:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013FPuTwuEQ7Cnvah5oFRAq7
+
+### command
+
+<tool.toolu_013FPuTwuEQ7Cnvah5oFRAq7>
+tree-sitter parse test_citations.greger
+</tool.toolu_013FPuTwuEQ7Cnvah5oFRAq7>
+
+## TOOL RESULT:
+
+ID: toolu_013FPuTwuEQ7Cnvah5oFRAq7
+
+<tool.toolu_013FPuTwuEQ7Cnvah5oFRAq7>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (line_with_cite [1, 0] - [2, 0])
+        (line_with_cite [2, 0] - [3, 0])
+        (line_with_cite [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (line_with_cite [32, 0] - [33, 0])
+        (text_line [33, 0] - [34, 0])
+        (line_with_cite [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_section [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    0.99 ms	  1125 bytes/ms	(MISSING "\n" [41, 49] - [41, 49])
+
+</tool.toolu_013FPuTwuEQ7Cnvah5oFRAq7>
+
+## ASSISTANT:
+
+I can see that the citation tests are partially working - it's correctly parsing the cite tags and citations section. Let me regenerate and check the elisp tests to see what's breaking vs what's working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UEkZEgqDpWn6JcFPTeErXF
+
+### command
+
+<tool.toolu_01UEkZEgqDpWn6JcFPTeErXF>
+tree-sitter generate
+</tool.toolu_01UEkZEgqDpWn6JcFPTeErXF>
+
+## TOOL RESULT:
+
+ID: toolu_01UEkZEgqDpWn6JcFPTeErXF
+
+<tool.toolu_01UEkZEgqDpWn6JcFPTeErXF>
+Command executed successfully:
+Warning: unnecessary conflicts
+  `line_with_cite`, `newline`
+  `line_with_cite`, `text_line`
+
+</tool.toolu_01UEkZEgqDpWn6JcFPTeErXF>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014z8be9D9EzvoShdrd94wJ1
+
+### command
+
+<tool.toolu_014z8be9D9EzvoShdrd94wJ1>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_014z8be9D9EzvoShdrd94wJ1>
+
+## TOOL RESULT:
+
+ID: toolu_014z8be9D9EzvoShdrd94wJ1
+
+<tool.toolu_014z8be9D9EzvoShdrd94wJ1>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Hello, how are you?")))
+
+
+Actual:
+(((role . "user")
+  (content . "")))
+
+
+=== Testing: system-and-user ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "What's the weather like?")))
+
+
+Actual:
+(((role . "system")
+  (content . "You are a helpful assistant."))
+ ((role . "user")
+  (content . "")))
+
+
+=== Testing: simple-conversation ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content . "Hi there! How can I help you today?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Hello")))
+
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools.")))))
+
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!")))))
+
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():")))))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content")))))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1.")))))
+
+
+=== Testing: tool-use-multiline-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters."))))
+ ((role . "assistant")
+  (content . "I've created a new Python script file with a basic Hello World program.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write a new Python file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_789")
+    (name . "write-new-file")
+    (input
+     (file_path . "script.py")
+     (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+     (git_commit_message . "Add new Python script")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_789")
+    (content . "Successfully wrote new file script.py with 85 characters.")))))
+
+
+=== Testing: thinking-only ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "I need to consider all the options carefully before responding.")))))
+
+
+Actual:
+(((role . "user")
+  (content . "Let me think about this"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "")))))
+
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.024s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 4
+Failed: 10
+
+❌ FAILED TESTS:
+  - simple-user-message
+  - system-and-user
+  - simple-conversation
+  - thinking-section
+  - tool-use-single-param
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - tool-use-multiline-params
+  - thinking-only
+
+</tool.toolu_014z8be9D9EzvoShdrd94wJ1>
+
+## ASSISTANT:
+
+Good news! The citation tests are still passing. The main issues I can see are:
+
+1. **Content extraction problem**: Simple user messages are returning empty content instead of the actual text
+2. **Missing sections**: Some sections (especially ASSISTANT sections) are not being parsed
+3. **Content ordering**: In the complex workflow test, thinking is coming after tool_use instead of before
+4. **Empty thinking content**: The thinking-only test shows empty thinking content
+
+Let me look at the greger-tree-sitter.el file to understand how content is being extracted:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PGLjszEHjmYaShmjdEpLeA
+
+### path
+
+<tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+greger-tree-sitter.el
+</tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+
+### start-line
+
+<tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+200
+</tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+
+### end-line
+
+<tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+300
+</tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+
+## TOOL RESULT:
+
+ID: toolu_01PGLjszEHjmYaShmjdEpLeA
+
+<tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+  Returns a list of tree-sitter section nodes in the order they appear
+  in the document.
+
+INTERNAL FUNCTION: Helper for extracting sections from parsed trees.
+Note: This function is similar to greger-tree-sitter--get-all-sections
+but may have subtle differences in usage."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--extract-section (section-node)
+  "Extract a dialog message from a tree-sitter SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - A tree-sitter node representing a single conversation section
+                 (e.g., ## USER:, ## ASSISTANT:, ## TOOL USE:, etc.)
+
+PROCESSING:
+  1. Determines the section type by examining the first child node
+  2. Dispatches to the appropriate extraction function based on type:
+     - user_section → user message with string content
+     - assistant_section → assistant message with string content
+     - thinking_section → assistant message with thinking content block
+     - tool_use_section → assistant message with tool_use content block
+     - tool_result_section → user message with tool_result content block
+     - server_tool_use_section → assistant message with server_tool_use block
+     - server_tool_result_section → assistant message with web_search_tool_result block
+     - system_section → system message with string content
+
+OUTPUT:
+  Returns a message object with 'role and 'content fields, or nil if the
+  section type is not recognized.
+
+INTERNAL FUNCTION: Central dispatcher for section extraction."
+  (let ((section-type (treesit-node-type (treesit-node-child section-node 0))))
+    (cond
+     ((equal section-type "user_section")
+      (greger-tree-sitter--extract-user-section section-node))
+     ((equal section-type "system_section")
+      (greger-tree-sitter--extract-system-section section-node))
+     ((equal section-type "assistant_section")
+      (greger-tree-sitter--extract-assistant-section section-node))
+     ((equal section-type "thinking_section")
+      (greger-tree-sitter--extract-thinking-section section-node))
+     ((equal section-type "tool_use_section")
+      (greger-tree-sitter--extract-tool-use-section section-node))
+     ((equal section-type "tool_result_section")
+      (greger-tree-sitter--extract-tool-result-section section-node))
+     ((equal section-type "server_tool_use_section")
+      (greger-tree-sitter--extract-server-tool-use-section section-node))
+     ((equal section-type "server_tool_result_section")
+      (greger-tree-sitter--extract-server-tool-result-section section-node))
+     (t nil))))
+
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user message from a ## USER: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## USER: section
+
+PROCESSING:
+  1. Gets the user_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+OUTPUT:
+  Returns a message object:
+  ((role . \"user\") (content . \"extracted text content\"))
+
+  If no content is found, content will be an empty string.
+
+EXAMPLE INPUT SECTION:
+  ## USER:
+
+  Hello, how are you?
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))"
+  (let* ((user-section-node (treesit-node-child section-node 0))
+         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system message from a ## SYSTEM: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+
+PROCESSING:
+  1. Gets the system_section child node
+  2. Finds the section_content within it
+  3. Extracts plain text content, trimming whitespace
+
+</tool.toolu_01PGLjszEHjmYaShmjdEpLeA>
+
+## ASSISTANT:
+
+I can see the issue. Let me look at the `greger-tree-sitter--extract-content` function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01NUez4THhdov5FCqS2Ad9AH
+
+### pattern
+
+<tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+greger-tree-sitter--extract-content
+</tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+
+### path
+
+<tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+greger-tree-sitter.el
+</tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+
+### context-lines
+
+<tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+10
+</tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+
+## TOOL RESULT:
+
+ID: toolu_01NUez4THhdov5FCqS2Ad9AH
+
+<tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+277-
+278-  Hello, how are you?
+279-
+280-EXAMPLE OUTPUT:
+281-  ((role . \"user\") (content . \"Hello, how are you?\"))"
+282-  (let* ((user-section-node (treesit-node-child section-node 0))
+283-         (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+284-
+285-    `((role . "user")
+286-      (content . ,(if content-node
+287:                      (greger-tree-sitter--extract-content content-node)
+288-                    "")))))
+289-
+290-(defun greger-tree-sitter--extract-system-section (section-node)
+291-  "Extract system message from a ## SYSTEM: SECTION-NODE.
+292-
+293-INPUT:
+294-  SECTION-NODE - Tree-sitter node representing a ## SYSTEM: section
+295-
+296-PROCESSING:
+297-  1. Gets the system_section child node
+--
+308-  ## SYSTEM:
+309-
+310-  You are a helpful assistant.
+311-
+312-EXAMPLE OUTPUT:
+313-  ((role . \"system\") (content . \"You are a helpful assistant.\"))"
+314-  (let* ((system-section-node (treesit-node-child section-node 0))
+315-         (content-node (greger-tree-sitter--find-child-by-type system-section-node "section_content")))
+316-    `((role . "system")
+317-      (content . ,(if content-node
+318:                      (greger-tree-sitter--extract-content content-node)
+319-                    "")))))
+320-
+321-(defun greger-tree-sitter--extract-assistant-section (section-node)
+322-  "Extract assistant message from a ## ASSISTANT: SECTION-NODE.
+323-
+324-INPUT:
+325-  SECTION-NODE - Tree-sitter node representing a ## ASSISTANT: section
+326-
+327-PROCESSING:
+328-  1. Gets the assistant_section child node
+--
+344-  ## ASSISTANT:
+345-
+346-  I'm doing well, thank you for asking!
+347-
+348-EXAMPLE OUTPUT:
+349-  ((role . \"assistant\") (content . \"I'm doing well, thank you for asking!\"))"
+350-  (let* ((assistant-section-node (treesit-node-child section-node 0))
+351-         (content-node (greger-tree-sitter--find-child-by-type assistant-section-node "section_content")))
+352-    `((role . "assistant")
+353-      (content . ,(if content-node
+354:                      (greger-tree-sitter--extract-content content-node)
+355-                    "")))))
+356-
+357-(defun greger-tree-sitter--extract-thinking-section (section-node)
+358-  "Extract thinking content from a ## THINKING: section and return as assistant message.
+359-
+360-INPUT:
+361-  SECTION-NODE - Tree-sitter node representing a ## THINKING: section
+362-
+363-PROCESSING:
+364-  1. Gets the thinking_section child node
+--
+380-
+381-EXAMPLE OUTPUT:
+382-  ((role . \"assistant\")
+383-   (content . (((type . \"thinking\")
+384-                (thinking . \"I need to think about this carefully before responding.\")))))"
+385-  (let* ((thinking-section-node (treesit-node-child section-node 0))
+386-         (content-node (greger-tree-sitter--find-child-by-type thinking-section-node "section_content")))
+387-    `((role . "assistant")
+388-      (content . (((type . "thinking")
+389-                   (thinking . ,(if content-node
+390:                                    (greger-tree-sitter--extract-content content-node)
+391-                                  ""))))))))
+392-
+393-(defun greger-tree-sitter--extract-tool-use-section (section-node)
+394-  "Extract tool use from a ## TOOL USE: section and return as assistant message.
+395-
+396-INPUT:
+397-  SECTION-NODE - Tree-sitter node representing a ## TOOL USE: section
+398-
+399-PROCESSING:
+400-  1. Extracts tool name from \"Name: tool-name\" line
+--
+1139-
+1140-        (setq current-pos after-match)))
+1141-
+1142-    ;; Add remaining text after last cite
+1143-    (let ((remaining (substring content current-pos)))
+1144-      (when (> (length (string-trim remaining)) 0)
+1145-        (push `((type . "text") (text . ,(string-trim remaining))) parts)))
+1146-
+1147-    (nreverse parts)))
+1148-
+1149:(defun greger-tree-sitter--extract-content (content-node)
+1150-  "Extract plain text content from CONTENT-NODE.
+1151-
+1152-INPUT:
+1153-  CONTENT-NODE - Tree-sitter node representing section content
+1154-
+1155-PROCESSING:
+1156-  Extracts the raw text from the node and trims leading/trailing whitespace.
+1157-
+1158-OUTPUT:
+1159-  Returns the trimmed text content as a string, or empty string if the
+
+</tool.toolu_01NUez4THhdov5FCqS2Ad9AH>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NEfWueZaoXXsMYUywrvA2C
+
+### path
+
+<tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+greger-tree-sitter.el
+</tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+
+### start-line
+
+<tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+1149
+</tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+
+### end-line
+
+<tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+1200
+</tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+
+## TOOL RESULT:
+
+ID: toolu_01NEfWueZaoXXsMYUywrvA2C
+
+<tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts the raw text from the node and trims leading/trailing whitespace.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if content-node
+      (string-trim (treesit-node-text content-node))
+    ""))
+
+;; Test function
+(defun greger-tree-sitter-test ()
+  "Test the tree-sitter parser with a simple example.
+
+This interactive function demonstrates basic usage of the greger tree-sitter
+parser by parsing a simple conversation and displaying the result.
+
+USAGE:
+  M-x greger-tree-sitter-test
+
+OUTPUT:
+  Displays the parsed message structure in the *Messages* buffer.
+
+TEST CASE:
+  Parses a basic USER/ASSISTANT conversation to verify the parser is
+  working correctly."
+  (interactive)
+  (let ((test-text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+    (message "Parsed result: %S" (greger-tree-sitter-parse test-text))))
+
+(provide 'greger-tree-sitter)
+
+;;; greger-tree-sitter.el ends here
+</tool.toolu_01NEfWueZaoXXsMYUywrvA2C>
+
+## ASSISTANT:
+
+Now I understand! The issue is that `greger-tree-sitter--extract-content` is extracting the text using `treesit-node-text`, but the problem is that the `section_content` node includes the newlines and the structure shows that it's parsing correctly but the text extraction is not getting the right content.
+
+Let me check what's actually in the section_content by looking at a parse tree:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Ho7FxS82vjY2uYEqyzrVF7
+
+### command
+
+<tool.toolu_01Ho7FxS82vjY2uYEqyzrVF7>
+tree-sitter parse -d pretty test_simple.greger
+</tool.toolu_01Ho7FxS82vjY2uYEqyzrVF7>
+
+## TOOL RESULT:
+
+ID: toolu_01Ho7FxS82vjY2uYEqyzrVF7
+
+<tool.toolu_01Ho7FxS82vjY2uYEqyzrVF7>
+Command failed with exit code 1: [37mnew_parse[0m
+[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
+[37mlex_internal state:0, row:0, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:user_header, size:9[0m
+[37mshift state:2[0m
+[37mprocess version:0, version_count:1, state:2, row:1, col:0[0m
+[37mlex_internal state:144, row:1, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:34[0m
+[37mprocess version:0, version_count:1, state:34, row:2, col:0[0m
+[37mlex_internal state:144, row:2, column:0[0m
+  [37mconsume character:'H'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'?'[0m
+[37mlexed_lookahead sym:line_with_cite_token1, size:19[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:63[0m
+[37mprocess version:0, version_count:1, state:63, row:2, col:19[0m
+[37mlex_internal state:2, row:2, column:19[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mdetect_error lookahead:
+[0m
+[37mresume version:0[0m
+[37mrecover_to_previous state:9, depth:2[0m
+[37mskip_token symbol:
+[0m
+[37mprocess version:0, version_count:2, state:0, row:3, col:0[0m
+[37mlex_external state:1, row:3, column:0[0m
+  [37mskip character:10[0m
+[37mlex_internal state:0, row:3, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mrecover_to_previous state:9, depth:3[0m
+[37mskip_token symbol:
+[0m
+[31mprocess version:1, version_count:3, state:9, row:2, col:19[0m
+[31mlex_internal state:144, row:2, column:19[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:\n, size:1[0m
+[31mshift state:34[0m
+[31mprocess version:1, version_count:3, state:34, row:3, col:0[0m
+[31mlex_internal state:144, row:3, column:0[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:\n, size:1[0m
+[31mreduce sym:newline, child_count:1[0m
+[31mreduce sym:content_repeat1, child_count:2[0m
+[31mshift state:34[0m
+[34mprocess version:2, version_count:3, state:9, row:3, col:0[0m
+[34mshift state:34[0m
+[34mcondense[0m
+[37mprocess version:0, version_count:2, state:34, row:4, col:0[0m
+[37mlex_internal state:144, row:4, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:assistant_header, size:14[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mreduce sym:section_content, child_count:1[0m
+[37mreduce sym:user_section, child_count:2[0m
+[37mreduce sym:section, child_count:1[0m
+[37mshift state:4[0m
+[31mprocess version:1, version_count:2, state:34, row:4, col:0[0m
+[31mreduce sym:newline, child_count:1[0m
+[31mreduce sym:content_repeat1, child_count:2[0m
+[31mreduce sym:section_content, child_count:1[0m
+[31mreduce sym:user_section, child_count:2[0m
+[31mreduce sym:section, child_count:1[0m
+[31mshift state:4[0m
+[37mprocess version:0, version_count:2, state:4, row:5, col:0[0m
+[37mlex_internal state:144, row:5, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mshift state:34[0m
+[31mprocess version:1, version_count:2, state:4, row:5, col:0[0m
+[31mshift state:34[0m
+[37mprocess version:0, version_count:2, state:34, row:6, col:0[0m
+[37mlex_internal state:144, row:6, column:0[0m
+  [37mconsume character:'H'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'!'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'H'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'?'[0m
+[37mlexed_lookahead sym:line_with_cite_token1, size:35[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mshift state:63[0m
+[31mprocess version:1, version_count:2, state:34, row:6, col:0[0m
+[31mreduce sym:newline, child_count:1[0m
+[31mshift state:63[0m
+[37mprocess version:0, version_count:2, state:63, row:6, col:35[0m
+[37mlex_internal state:2, row:6, column:35[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:\n, size:1[0m
+[37mdetect_error lookahead:
+[0m
+[31mprocess version:1, version_count:2, state:63, row:6, col:35[0m
+[31mlex_internal state:2, row:6, column:35[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:\n, size:1[0m
+[31mdetect_error lookahead:
+[0m
+[31mresume version:0[0m
+[31mrecover_to_previous state:9, depth:2[0m
+[31mskip_token symbol:
+[0m
+[31mcondense[0m
+[37mprocess version:0, version_count:2, state:0, row:7, col:0[0m
+[37mlex_external state:1, row:7, column:0[0m
+[37mlex_internal state:0, row:7, column:0[0m
+[37mlexed_lookahead sym:end, size:0[0m
+[37mrecover_to_previous state:9, depth:3[0m
+[37mrecover_eof[0m
+[31mprocess version:1, version_count:3, state:9, row:6, col:35[0m
+[31mlex_internal state:144, row:6, column:35[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:\n, size:1[0m
+[31mshift state:34[0m
+[34mprocess version:2, version_count:3, state:9, row:7, col:0[0m
+[34mlex_internal state:144, row:7, column:0[0m
+[34mlexed_lookahead sym:end, size:0[0m
+[34mreduce sym:section_content, child_count:1[0m
+[34mreduce sym:assistant_section, child_count:2[0m
+[34mreduce sym:section, child_count:1[0m
+[34mreduce sym:source_file_repeat1, child_count:2[0m
+[34mreduce sym:source_file, child_count:1[0m
+[34maccept[0m
+[34mselect_smaller_error symbol:source_file, over_symbol:ERROR[0m
+[37mprocess version:0, version_count:1, state:34, row:7, col:0[0m
+[37mreduce sym:newline, child_count:1[0m
+[37mreduce sym:content_repeat1, child_count:2[0m
+[37mreduce sym:section_content, child_count:1[0m
+[37mreduce sym:assistant_section, child_count:2[0m
+[37mreduce sym:section, child_count:1[0m
+[37mreduce sym:source_file_repeat1, child_count:2[0m
+[37mreduce sym:source_file, child_count:1[0m
+[37maccept[0m
+[37mselect_smaller_error symbol:source_file, over_symbol:source_file[0m
+[37mdone[0m
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 19])
+        (newline [2, 19] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (ERROR [6, 0] - [6, 35])
+        (newline [6, 35] - [7, 0])))))
+test_simple.greger	Parse:   36.48 ms        2 bytes/ms	(ERROR [2, 0] - [2, 19])
+
+</tool.toolu_01Ho7FxS82vjY2uYEqyzrVF7>
+
+## ASSISTANT:
+
+I can see the problem! The grammar is creating ERROR nodes for the text content. My recent changes to line_with_cite are causing issues. Let me revert my changes and take a more careful approach, being mindful not to break citations.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UvadkX6LDawPtYy7Dx1AxT
+
+### file-path
+
+<tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+grammar.js
+</tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+
+### original-content
+
+<tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - only when cite tags are actually present
+    line_with_cite: $ => seq(
+      repeat(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(/[^<\n#]+/, $.cite_tag)), // More text and cite tags
+      "\n"
+    ),
+
+    // Text line - any non-empty line without cite tags
+    text_line: $ => seq(
+      /[^<\n#][^\n]*/,  // Non-empty line that doesn't start with < or #
+      "\n"
+    ),
+</tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+
+### new-content
+
+<tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.line_with_cite),
+      prec(1, $.text_line),
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => prec.right(seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    )),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n]+/, // Any non-empty line
+      optional("\n")
+    )),
+</tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+
+### git-commit-message
+
+<tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+Revert to working content parsing that doesn't break citations
+</tool.toolu_01UvadkX6LDawPtYy7Dx1AxT>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UvadkX6LDawPtYy7Dx1AxT -->
