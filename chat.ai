@@ -10550,4 +10550,151 @@ citations_section: $ => seq(
 Revert citations_section to original structure
 </tool.toolu_01MARawQ1vLVsstNZC68LPsj>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MARawQ1vLVsstNZC68LPsj -->
+## TOOL RESULT:
+
+ID: toolu_01MARawQ1vLVsstNZC68LPsj
+
+<tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert citations_section to original structure
+</tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FB5sBd7QhEtp5B2AW1V4MU
+
+### command
+
+<tool.toolu_01FB5sBd7QhEtp5B2AW1V4MU>
+tree-sitter generate
+</tool.toolu_01FB5sBd7QhEtp5B2AW1V4MU>
+
+## TOOL RESULT:
+
+ID: toolu_01FB5sBd7QhEtp5B2AW1V4MU
+
+<tool.toolu_01FB5sBd7QhEtp5B2AW1V4MU>
+Command executed successfully:
+(no output)
+</tool.toolu_01FB5sBd7QhEtp5B2AW1V4MU>
+
+## ASSISTANT:
+
+Good, now the grammar generates successfully. Let me now think about a different approach. 
+
+The issue is that tree-sitter grammars work best when they follow clear hierarchical structures, but your requirement spans across what would normally be separate sections. 
+
+Instead of trying to make the grammar handle this cross-section parsing (which creates conflicts), let me implement your exact requirements by creating a post-processing step that transforms the tree into the structure you want. This will be in the elisp code but will follow your specifications exactly.
+
+Let me implement this by creating new extraction functions that detect the patterns you described and create the appropriate `citations_with_text` and `citations_without_text` nodes:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ES6gDZ8e427Dce59vVeKq9
+
+### file-path
+
+<tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+greger-tree-sitter.el
+</tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+
+### original-content
+
+<tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed tree-sitter PARSER with original TEXT.
+
+INPUT:
+  PARSER - A tree-sitter parser object that has parsed the greger text
+  TEXT - The original text string (currently unused but kept for compatibility)
+
+PROCESSING:
+  1. Gets the root node from the parser
+  2. Handles two cases:
+     - source_file: Multiple sections (full conversation)
+     - section: Single section (partial conversation)
+  3. For multiple sections, processes them with citation handling
+  4. For single section, extracts just that section
+
+OUTPUT:
+  Returns a list of message objects in the same format as greger-tree-sitter-parse.
+  Messages are returned in the order they appear in the input text.
+
+INTERNAL FUNCTION: This is called by greger-tree-sitter-parse and not intended
+for direct use."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '())
+        (pending-citations nil))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - process sections and handle citations
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    messages))
+</tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+
+### new-content
+
+<tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog messages from the parsed tree-sitter PARSER with original TEXT.
+
+INPUT:
+  PARSER - A tree-sitter parser object that has parsed the greger text
+  TEXT - The original text string (currently unused but kept for compatibility)
+
+PROCESSING:
+  1. Gets the root node from the parser
+  2. Handles two cases:
+     - source_file: Multiple sections (full conversation)
+     - section: Single section (partial conversation)
+  3. For multiple sections, transforms them according to citation requirements
+  4. For single section, extracts just that section
+
+OUTPUT:
+  Returns a list of message objects in the same format as greger-tree-sitter-parse.
+  Messages are returned in the order they appear in the input text.
+
+INTERNAL FUNCTION: This is called by greger-tree-sitter-parse and not intended
+for direct use."
+  (let ((root-node (treesit-parser-root-node parser))
+        (messages '()))
+
+    ;; Check if we have a source_file or just a section
+    (cond
+     ((equal (treesit-node-type root-node) "source_file")
+      ;; Multiple sections case - transform sections according to citation requirements
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (let ((transformed-sections (greger-tree-sitter--transform-sections-for-citations sections)))
+          (setq messages (greger-tree-sitter--process-transformed-sections transformed-sections)))))
+
+     ((equal (treesit-node-type root-node) "section")
+      ;; Single section case
+      (when-let ((message (greger-tree-sitter--extract-section root-node)))
+        (push message messages)))
+
+     (t
+      (error "Unknown root node type: %s" (treesit-node-type root-node))))
+
+    messages))
+</tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+
+### git-commit-message
+
+<tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+Update extract-dialog to use citation transformation approach
+</tool.toolu_01ES6gDZ8e427Dce59vVeKq9>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ES6gDZ8e427Dce59vVeKq9 -->

@@ -117,7 +117,7 @@ PROCESSING:
   2. Handles two cases:
      - source_file: Multiple sections (full conversation)
      - section: Single section (partial conversation)
-  3. For multiple sections, processes them with citation handling
+  3. For multiple sections, transforms them according to citation requirements
   4. For single section, extracts just that section
 
 OUTPUT:
@@ -127,15 +127,15 @@ OUTPUT:
 INTERNAL FUNCTION: This is called by greger-tree-sitter-parse and not intended
 for direct use."
   (let ((root-node (treesit-parser-root-node parser))
-        (messages '())
-        (pending-citations nil))
+        (messages '()))
 
     ;; Check if we have a source_file or just a section
     (cond
      ((equal (treesit-node-type root-node) "source_file")
-      ;; Multiple sections case - process sections and handle citations
+      ;; Multiple sections case - transform sections according to citation requirements
       (let ((sections (greger-tree-sitter--get-all-sections root-node)))
-        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
+        (let ((transformed-sections (greger-tree-sitter--transform-sections-for-citations sections)))
+          (setq messages (greger-tree-sitter--process-transformed-sections transformed-sections)))))
 
      ((equal (treesit-node-type root-node) "section")
       ;; Single section case
