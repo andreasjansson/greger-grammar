@@ -48,29 +48,29 @@ module.exports = grammar({
     ),
 
     // Section headers
-    user_section: $ => seq(
+    user_section: $ => prec.left(seq(
       alias(/##[ \t]*USER:[ \t]*/, $.section_header),
       $._newline,
       optional($.section_content)
-    ),
+    )),
 
-    system_section: $ => seq(
+    system_section: $ => prec.left(seq(
       alias(/##[ \t]*SYSTEM:[ \t]*/, $.section_header),
       $._newline,
       optional($.section_content)
-    ),
+    )),
 
-    assistant_section: $ => seq(
+    assistant_section: $ => prec.left(seq(
       alias(/##[ \t]*ASSISTANT:[ \t]*/, $.section_header),
       $._newline,
       optional($.section_content)
-    ),
+    )),
 
-    thinking_section: $ => seq(
+    thinking_section: $ => prec.left(seq(
       alias(/##[ \t]*THINKING:[ \t]*/, $.section_header),
       $._newline,
       optional($.section_content)
-    ),
+    )),
 
     tool_use_section: $ => seq(
       alias(/##[ \t]*TOOL USE:[ \t]*/, $.section_header),
