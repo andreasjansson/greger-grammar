@@ -1339,6 +1339,111 @@ INTERNAL FUNCTION: Core of the citation association logic that makes
         (setq result (append result (list block)))))
     result))
 
+(defun greger-tree-sitter--extract-content-with-citations (content-node citations)
+  "Extract content blocks from CONTENT-NODE that contains cite tags, associating CITATIONS.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing content_with_cites
+  CITATIONS - List of citation objects to associate with cited text
+
+PROCESSING:
+  1. Iterates through content_line_with_cites nodes
+  2. For each line, processes text and cite_tag nodes
+  3. Creates separate text blocks for regular text and cited text
+  4. Associates citations with cited text blocks
+
+OUTPUT:
+  Returns a list of content block objects:
+  (((type . \"text\") (text . \"regular text\"))
+   ((type . \"text\") (text . \"cited text\") (citations . citations-list))
+   ((type . \"text\") (text . \"more regular text\")))
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-citations-with-text-section
+to process content that contains <cite> tags."
+  (let ((blocks '())
+        (child-count (treesit-node-child-count content-node)))
+
+    (dotimes (i child-count)
+      (let* ((child (treesit-node-child content-node i))
+             (child-type (treesit-node-type child)))
+
+        (when (equal child-type "content_line_with_cites")
+          ;; Process this line for text and cite tags
+          (let ((line-blocks (greger-tree-sitter--extract-line-with-citations child citations)))
+            (setq blocks (append blocks line-blocks))))))
+
+    blocks))
+
+(defun greger-tree-sitter--extract-line-with-citations (line-node citations)
+  "Extract content blocks from a single LINE-NODE that may contain cite tags.
+
+INPUT:
+  LINE-NODE - Tree-sitter node representing a content_line_with_cites
+  CITATIONS - List of citation objects to associate
+
+PROCESSING:
+  1. Iterates through children of the line (text and cite_tag nodes)
+  2. Creates text blocks for regular text
+  3. Creates text blocks with citations for cite_tag nodes
+  4. Maintains order of text and cited content
+
+OUTPUT:
+  Returns a list of content blocks for this line.
+
+INTERNAL FUNCTION: Used by greger-tree-sitter--extract-content-with-citations."
+  (let ((line-blocks '())
+        (child-count (treesit-node-child-count line-node)))
+
+    (dotimes (i child-count)
+      (let* ((child (treesit-node-child line-node i))
+             (child-type (treesit-node-type child)))
+
+        (cond
+         ((equal child-type "text")
+          ;; Regular text
+          (let ((text (string-trim (treesit-node-text child))))
+            (when (> (length text) 0)
+              (push `((type . "text") (text . ,text)) line-blocks))))
+
+         ((equal child-type "cite_tag")
+          ;; Cited text
+          (let ((cited-text-node (treesit-node-child-by-field-name child "cited_text")))
+            (when cited-text-node
+              (let ((cited-text (string-trim (treesit-node-text cited-text-node))))
+                (when (> (length cited-text) 0)
+                  (push `((type . "text") (text . ,cited-text) (citations . ,citations)) line-blocks)))))))))
+
+    (nreverse line-blocks)))
+
+(defun greger-tree-sitter--extract-citations-content (citations-node)
+  "Extract citations from a citations_content CITATIONS-NODE.
+
+INPUT:
+  CITATIONS-NODE - Tree-sitter node representing citations_content
+
+PROCESSING:
+  1. Iterates through citation_entry children
+  2. Extracts each citation using greger-tree-sitter--extract-citation-entry
+
+OUTPUT:
+  Returns a list of citation objects.
+
+INTERNAL FUNCTION: Used by citation extraction functions to process
+the citations_content portion of citation sections."
+  (let ((citations '())
+        (child-count (treesit-node-child-count citations-node)))
+
+    (dotimes (i child-count)
+      (let* ((child (treesit-node-child citations-node i))
+             (child-type (treesit-node-type child)))
+
+        (when (equal child-type "citation_entry")
+          (let ((citation (greger-tree-sitter--extract-citation-entry child)))
+            (when citation
+              (push citation citations))))))
+
+    (nreverse citations)))
+
 (defun greger-tree-sitter--extract-citations-section (section-node)
   "Extract citations from a ## CITATIONS: SECTION-NODE.
 
