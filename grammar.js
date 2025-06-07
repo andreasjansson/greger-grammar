@@ -81,7 +81,7 @@ module.exports = grammar({
     ),
 
     // New citation-aware sections
-    citations_with_text: $ => seq(
+    citations_with_text: $ => prec(1, seq(
       // Any section that contains cite tags
       choice(
         $.assistant_header,
@@ -92,7 +92,7 @@ module.exports = grammar({
       field("content_with_cites", $.content_with_cites),
       $.citations_header,
       field("citations", optional($.citations_content))
-    ),
+    )),
 
     citations_without_text: $ => seq(
       $.citations_header,

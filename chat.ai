@@ -7050,4 +7050,128 @@ Add citation-aware sections to grammar
 - This makes the parser handle citation logic directly instead of post-processing
 </tool.toolu_019yoQ9Wscvp2RMfSZWy55UK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019yoQ9Wscvp2RMfSZWy55UK -->
+## TOOL RESULT:
+
+ID: toolu_019yoQ9Wscvp2RMfSZWy55UK
+
+<tool.toolu_019yoQ9Wscvp2RMfSZWy55UK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citation-aware sections to grammar
+
+- Add citations_with_text section for content with <cite> tags followed by ## CITATIONS:
+- Add citations_without_text section for standalone ## CITATIONS: sections
+- Add content_with_cites rule to handle content containing cite tags
+- This makes the parser handle citation logic directly instead of post-processing
+</tool.toolu_019yoQ9Wscvp2RMfSZWy55UK>
+
+## ASSISTANT:
+
+Now I need to regenerate the parser:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015eHEzApo6iPYD92cR6PfMJ
+
+### command
+
+<tool.toolu_015eHEzApo6iPYD92cR6PfMJ>
+tree-sitter generate
+</tool.toolu_015eHEzApo6iPYD92cR6PfMJ>
+
+## TOOL RESULT:
+
+ID: toolu_015eHEzApo6iPYD92cR6PfMJ
+
+<tool.toolu_015eHEzApo6iPYD92cR6PfMJ>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      user_header  _text  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  user_header  (content_line_repeat1  _text)  •  '
+    '  …
+      2:  user_header  (content_line_with_cites_repeat1  _text)  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `content_line_repeat1` than in the other rules.
+      2:  Specify a higher precedence in `content_line_with_cites_repeat1` than in the other rules.
+      3:  Add a conflict for these rules: `content_line`, `content_line_with_cites`
+    
+
+</tool.toolu_015eHEzApo6iPYD92cR6PfMJ>
+
+## ASSISTANT:
+
+I need to handle this conflict. The issue is that the parser can't decide whether to use `content_line` or `content_line_with_cites` when it sees regular text. Let me fix this by simplifying the approach and using precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WEmPq5v1yLm45wE5Esewnb
+
+### file-path
+
+<tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+grammar.js
+</tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+
+### original-content
+
+<tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+    // New citation-aware sections
+    citations_with_text: $ => seq(
+      // Any section that contains cite tags
+      choice(
+        $.assistant_header,
+        $.thinking_header,
+        $.user_header,
+        $.system_header
+      ),
+      field("content_with_cites", $.content_with_cites),
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    ),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    ),
+</tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+
+### new-content
+
+<tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+    // New citation-aware sections
+    citations_with_text: $ => prec(1, seq(
+      // Any section that contains cite tags
+      choice(
+        $.assistant_header,
+        $.thinking_header,
+        $.user_header,
+        $.system_header
+      ),
+      field("content_with_cites", $.content_with_cites),
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    )),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    ),
+</tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+
+### git-commit-message
+
+<tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+Add precedence to citations_with_text to resolve conflicts
+</tool.toolu_01WEmPq5v1yLm45wE5Esewnb>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WEmPq5v1yLm45wE5Esewnb -->
