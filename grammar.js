@@ -22,7 +22,8 @@ module.exports = grammar({
   ],
 
   conflicts: $ => [
-    [$.content_line, $.content_line_with_cites]
+    [$.content_line, $.content_line_with_cites],
+    [$.content, $.content_with_cites]
   ],
 
   rules: {
