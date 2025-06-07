@@ -11402,4 +11402,609 @@ greger-tree-sitter.el
 Add helper function to check if section was transformed
 </tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QSnq8tDJYQmXqyUv8RWPxu -->
+## TOOL RESULT:
+
+ID: toolu_01QSnq8tDJYQmXqyUv8RWPxu
+
+<tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add helper function to check if section was transformed
+</tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+
+## ASSISTANT:
+
+Now let me fix the parentheses issue in the section processing:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SUfAE5Fr1k4fMfWuKY25SV
+
+### path
+
+<tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+greger-tree-sitter.el
+</tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+
+### start-line
+
+<tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+920
+</tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+
+### end-line
+
+<tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+940
+</tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+
+## TOOL RESULT:
+
+ID: toolu_01SUfAE5Fr1k4fMfWuKY25SV
+
+<tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+                (cond
+                 ;; User/System sections - flush assistant blocks
+                 ((member role '("user" "system"))
+                  (when current-assistant-blocks
+                    (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                      (push `((role . "assistant") (content . ,assistant-content)) messages))
+                    (setq current-assistant-blocks '()))
+                  (push message messages))
+
+                 ;; Assistant sections - accumulate blocks
+                 ((equal role "assistant")
+                  (if (listp content)
+                      (setq current-assistant-blocks (append current-assistant-blocks content))
+                    (when (and (stringp content) (> (length (string-trim content)) 0))
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))))))
+
+    ;; Flush any remaining assistant blocks
+    (when current-assistant-blocks
+      (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+        (push `((role . "assistant") (content . ,assistant-content)) messages)))
+
+</tool.toolu_01SUfAE5Fr1k4fMfWuKY25SV>
+
+## ASSISTANT:
+
+I see the issue - there are too many closing parentheses. The problem is that I'm trying to pass `transformed-sections` to a function that expects a check, but I don't have access to the original sections list. Let me take a simpler approach and just fix the transformation logic to not include both transformed and original content.
+
+Actually, let me step back and debug what's happening. The issue might be simpler - maybe the transformation is working but I'm also getting the original content. Let me check if the problem is in the `greger-tree-sitter--extract-blocks-from-citations-with-text` function.
+
+Looking at the failing test output, I see there's an extra text block that contains the full original text with cite tags. This suggests that the original section is being processed normally PLUS the transformed version.
+
+Let me simplify this by fixing the transformation logic to properly replace sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RLawSoadajvC4UY7LW3P1C
+
+### file-path
+
+<tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+greger-tree-sitter.el
+</tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+
+### original-content
+
+<tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+        ;; Check if this section contains cite tags
+        (if (greger-tree-sitter--section-contains-cite-tags section)
+            ;; Found cite tags - look for following citations section
+            (let ((citations-section-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+              (if citations-section-idx
+                  ;; Found citations section - create citations_with_text
+                  (let* ((citations-section (nth citations-section-idx sections))
+                         (citations-with-text-obj (greger-tree-sitter--create-citations-with-text-section 
+                                                   section citations-section)))
+                    (push citations-with-text-obj result)
+                    ;; Skip the citations section since we consumed it
+                    (setq i citations-section-idx))
+                ;; No citations section found - treat as regular section
+                (push section result)))
+          
+          ;; Check if this is a standalone citations section
+          (if (equal section-type "citations_section")
+              ;; Check if it was already consumed by a citations_with_text
+              (let ((was-consumed (and (> i 0)
+                                       (greger-tree-sitter--section-contains-cite-tags (nth (1- i) sections)))))
+                (unless was-consumed
+                  ;; Standalone citations section - create citations_without_text
+                  (let ((citations-without-text-obj (greger-tree-sitter--create-citations-without-text-section section)))
+                    (push citations-without-text-obj result))))
+            ;; Regular section - pass through
+            (push section result)))
+</tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+
+### new-content
+
+<tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+        ;; Check if this section contains cite tags
+        (if (greger-tree-sitter--section-contains-cite-tags section)
+            ;; Found cite tags - look for following citations section
+            (let ((citations-section-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+              (if citations-section-idx
+                  ;; Found citations section - create citations_with_text and skip both sections
+                  (let* ((citations-section (nth citations-section-idx sections))
+                         (citations-with-text-obj (greger-tree-sitter--create-citations-with-text-section 
+                                                   section citations-section)))
+                    (push citations-with-text-obj result)
+                    ;; Skip ahead to after the citations section  
+                    (setq i citations-section-idx))
+                ;; No citations section found - treat as regular section
+                (push section result)))
+          
+          ;; Check if this is a citations section that wasn't consumed
+          (if (equal section-type "citations_section")
+              ;; Check if it was already consumed by looking back
+              (let ((was-consumed nil))
+                ;; Look back to see if any previous section had cite tags that would consume this
+                (dotimes (j i)
+                  (when (greger-tree-sitter--section-contains-cite-tags (nth j sections))
+                    (setq was-consumed t)))
+                (unless was-consumed
+                  ;; Standalone citations section - create citations_without_text
+                  (let ((citations-without-text-obj (greger-tree-sitter--create-citations-without-text-section section)))
+                    (push citations-without-text-obj result))))
+            ;; Regular section - pass through unchanged
+            (push section result)))
+</tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+
+### git-commit-message
+
+<tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+Fix transformation logic to properly skip consumed sections
+</tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+
+## TOOL RESULT:
+
+ID: toolu_01RLawSoadajvC4UY7LW3P1C
+
+<tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01RLawSoadajvC4UY7LW3P1C>
+
+## ASSISTANT:
+
+Let me search for the exact text:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01C97YWYoZgRdgwA8QJUHcq2
+
+### pattern
+
+<tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+Check if this section contains cite tags
+</tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+
+### path
+
+<tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+greger-tree-sitter.el
+</tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+
+### context-lines
+
+<tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+5
+</tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+
+## TOOL RESULT:
+
+ID: toolu_01C97YWYoZgRdgwA8QJUHcq2
+
+<tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+800-
+801-    (while (< i (length sections))
+802-      (let* ((section (nth i sections))
+803-             (section-type (greger-tree-sitter--get-section-type section)))
+804-
+805:        ;; Check if this section contains cite tags
+806-        (if (greger-tree-sitter--section-contains-cite-tags section)
+807-            ;; Found cite tags - look for following citations section
+808-            (let ((citations-section-idx (greger-tree-sitter--find-next-citations-section sections (1+ i))))
+809-              (if citations-section-idx
+810-                  ;; Found citations section - create citations_with_text
+
+</tool.toolu_01C97YWYoZgRdgwA8QJUHcq2>
+
+## ASSISTANT:
+
+I think the issue might be simpler. Let me take a step back and focus on the root problem. Instead of trying to fix the complex transformation, let me just make sure that when sections are processed as citations_with_text, they don't also get processed as regular sections.
+
+Let me try a different approach. Instead of modifying the existing complex logic, let me add a simple fix to prevent double processing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CE9RE7JdAs5VpkJkB8T4cd
+
+### file-path
+
+<tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+greger-tree-sitter.el
+</tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+
+### original-content
+
+<tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+;; Handle regular sections (existing logic) 
+         (t
+          ;; Skip sections that have been consumed by citations_with_text transformation
+          (unless (greger-tree-sitter--section-was-transformed section transformed-sections)
+            (let ((message (greger-tree-sitter--extract-section section)))
+              (when message
+                (let ((role (alist-get 'role message))
+                      (content (alist-get 'content message)))
+                  
+                  (cond
+                   ;; User/System sections - flush assistant blocks
+                   ((member role '("user" "system"))
+                    (when current-assistant-blocks
+                      (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                        (push `((role . "assistant") (content . ,assistant-content)) messages))
+                      (setq current-assistant-blocks '()))
+                    (push message messages))
+                   
+                   ;; Assistant sections - accumulate blocks
+                   ((equal role "assistant")
+                    (if (listp content)
+                        (setq current-assistant-blocks (append current-assistant-blocks content))
+                      (when (and (stringp content) (> (length (string-trim content)) 0))
+                        (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))))
+</tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+
+### new-content
+
+<tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+;; Handle regular sections (existing logic) 
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((role (alist-get 'role message))
+                    (content (alist-get 'content message)))
+                
+                (cond
+                 ;; User/System sections - flush assistant blocks
+                 ((member role '("user" "system"))
+                  (when current-assistant-blocks
+                    (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                      (push `((role . "assistant") (content . ,assistant-content)) messages))
+                    (setq current-assistant-blocks '()))
+                  (push message messages))
+                 
+                 ;; Assistant sections - accumulate blocks
+                 ((equal role "assistant")
+                  (if (listp content)
+                      (setq current-assistant-blocks (append current-assistant-blocks content))
+                    (when (and (stringp content) (> (length (string-trim content)) 0))
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))
+</tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+
+### git-commit-message
+
+<tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+Simplify section processing to remove transformation check for now
+</tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+
+## TOOL RESULT:
+
+ID: toolu_01CE9RE7JdAs5VpkJkB8T4cd
+
+<tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01CE9RE7JdAs5VpkJkB8T4cd>
+
+## ASSISTANT:
+
+Let me read the current state of that function to see what's there:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01DAEhTE24o4Mb6dG3S6GUmP
+
+### path
+
+<tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+greger-tree-sitter.el
+</tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+
+### start-line
+
+<tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+905
+</tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+
+### end-line
+
+<tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+935
+</tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+
+## TOOL RESULT:
+
+ID: toolu_01DAEhTE24o4Mb6dG3S6GUmP
+
+<tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+
+         ((equal section-type "citations_without_text")
+          ;; Process citations_without_text
+          (let ((entries (alist-get 'entries section)))
+            (setq current-assistant-blocks
+                  (append current-assistant-blocks
+                          `(((type . "citations_without_text") (entries . ,entries)))))))
+
+         ;; Handle regular sections (existing logic)
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((role (alist-get 'role message))
+                    (content (alist-get 'content message)))
+
+                (cond
+                 ;; User/System sections - flush assistant blocks
+                 ((member role '("user" "system"))
+                  (when current-assistant-blocks
+                    (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                      (push `((role . "assistant") (content . ,assistant-content)) messages))
+                    (setq current-assistant-blocks '()))
+                  (push message messages))
+
+                 ;; Assistant sections - accumulate blocks
+                 ((equal role "assistant")
+                  (if (listp content)
+                      (setq current-assistant-blocks (append current-assistant-blocks content))
+                    (when (and (stringp content) (> (length (string-trim content)) 0))
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))))))
+
+</tool.toolu_01DAEhTE24o4Mb6dG3S6GUmP>
+
+## ASSISTANT:
+
+I can see the structure now. The issue is that both the citations_with_text transformation AND the regular section processing are creating content blocks for the same section. 
+
+Let me take a much simpler approach. Instead of trying to prevent double processing with a complex transformation system, let me just revert to the working approach and ensure that the transformation creates the right format from the start, without needing conversion back.
+
+Actually, let me first just test the current code to see exactly what's happening by running a small focused test. But first, let me see if all tests still pass with the current incomplete logic:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01W8htGpFMkgTGCerdfzE79b
+
+### command
+
+<tool.toolu_01W8htGpFMkgTGCerdfzE79b>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01W8htGpFMkgTGCerdfzE79b>
+
+## TOOL RESULT:
+
+ID: toolu_01W8htGpFMkgTGCerdfzE79b
+
+<tool.toolu_01W8htGpFMkgTGCerdfzE79b>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.009s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))
+   ((type . "text")
+    (text . "Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>")))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while <cite>Newton formulated the laws of motion</cite>")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 12
+Failed: 2
+
+❌ FAILED TESTS:
+  - citations-basic
+  - citations-multiple
+
+</tool.toolu_01W8htGpFMkgTGCerdfzE79b>
+
+## ASSISTANT:
+
+I can see exactly what's happening now. The transformation logic is working correctly and creating the right citation blocks, BUT there's an extra text block at the end that contains the original content with the cite tags still in it.
+
+This suggests that the original assistant section is being processed BOTH by the citations_with_text transformation AND by the regular section processing. 
+
+Let me fix this by reverting to the simpler working approach and getting rid of the complex transformation system. I'll go back to working code and implement your requirements in a more direct way.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PpqPLpt2MChWte7F6ipxps
+
+### file-path
+
+<tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+greger-tree-sitter.el
+</tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+
+### original-content
+
+<tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+      ;; Multiple sections case - transform sections according to citation requirements
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (let ((transformed-sections (greger-tree-sitter--transform-sections-for-citations sections)))
+          (setq messages (greger-tree-sitter--process-transformed-sections transformed-sections))))
+</tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+
+### new-content
+
+<tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+      ;; Multiple sections case - process sections with citation handling
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections)))
+</tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+
+### git-commit-message
+
+<tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+Revert to working citation processing approach
+</tool.toolu_01PpqPLpt2MChWte7F6ipxps>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PpqPLpt2MChWte7F6ipxps -->

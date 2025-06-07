@@ -132,10 +132,9 @@ for direct use."
     ;; Check if we have a source_file or just a section
     (cond
      ((equal (treesit-node-type root-node) "source_file")
-      ;; Multiple sections case - transform sections according to citation requirements
+      ;; Multiple sections case - process sections with citation handling
       (let ((sections (greger-tree-sitter--get-all-sections root-node)))
-        (let ((transformed-sections (greger-tree-sitter--transform-sections-for-citations sections)))
-          (setq messages (greger-tree-sitter--process-transformed-sections transformed-sections)))))
+        (setq messages (greger-tree-sitter--process-sections-with-citations sections))))
 
      ((equal (treesit-node-type root-node) "section")
       ;; Single section case
