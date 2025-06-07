@@ -7299,4 +7299,84 @@ citations_section: $ => seq(
 Revert citations_section to original structure
 </tool.toolu_01EVNqT66ee26GkihpkLyJh5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EVNqT66ee26GkihpkLyJh5 -->
+## TOOL RESULT:
+
+ID: toolu_01EVNqT66ee26GkihpkLyJh5
+
+<tool.toolu_01EVNqT66ee26GkihpkLyJh5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert citations_section to original structure
+</tool.toolu_01EVNqT66ee26GkihpkLyJh5>
+
+## ASSISTANT:
+
+Now let me regenerate the parser and update the elisp code to be smarter about handling the tree structure:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb
+
+### command
+
+<tool.toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb>
+tree-sitter generate
+</tool.toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb>
+
+## TOOL RESULT:
+
+ID: toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb
+
+<tool.toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb>
+Command executed successfully:
+(no output)
+</tool.toolu_01EcQiwe4JFjM3sRQ8Pxe8Pb>
+
+## ASSISTANT:
+
+Now let me modify the elisp code to be smarter about cite tag handling. Instead of doing complex citation association in elisp, I'll modify the extraction to directly create the proper content blocks based on the tree structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013jSzqnpm5j4wHwGpTsn4sD
+
+### file-path
+
+<tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+greger-tree-sitter.el
+</tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+
+### original-content
+
+<tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+(dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (or (equal line-child-type "text")
+                            (equal line-child-type "cite_tag"))
+                    (push (treesit-node-text line-child) line-text-parts))))
+</tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+
+### new-content
+
+<tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+(dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (cond
+                   ((equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-text-parts))
+                   ((equal line-child-type "cite_tag")
+                    ;; For cite tags, extract just the cited text (without the <cite></cite> tags)
+                    (let ((cited-text-node (treesit-node-child-by-field-name line-child "cited_text")))
+                      (when cited-text-node
+                        (push (concat "<cite>" (treesit-node-text cited-text-node) "</cite>") line-text-parts)))))))
+</tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+
+### git-commit-message
+
+<tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+Update cite_tag extraction to use structured field and preserve cite tags
+</tool.toolu_013jSzqnpm5j4wHwGpTsn4sD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013jSzqnpm5j4wHwGpTsn4sD -->
