@@ -19,6 +19,7 @@ module.exports = grammar({
     $.tool_block_end,
     $.tool_block_content,
     $._text,
+    $.code_block_content,
   ],
 
   rules: {
