@@ -6596,4 +6596,271 @@ grammar.js
 Back to working content parsing, exclude # from text_line
 </tool.toolu_01RPXWwo8svj795MuMk35Dzt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RPXWwo8svj795MuMk35Dzt -->
+## TOOL RESULT:
+
+ID: toolu_01RPXWwo8svj795MuMk35Dzt
+
+<tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Back to working content parsing, exclude # from text_line
+</tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JmENegHRwiDrMEanZ1XRxM
+
+### command
+
+<tool.toolu_01JmENegHRwiDrMEanZ1XRxM>
+tree-sitter generate
+</tool.toolu_01JmENegHRwiDrMEanZ1XRxM>
+
+## TOOL RESULT:
+
+ID: toolu_01JmENegHRwiDrMEanZ1XRxM
+
+<tool.toolu_01JmENegHRwiDrMEanZ1XRxM>
+Command executed successfully:
+Warning: unnecessary conflicts
+  `line_with_cite`, `text_line`
+
+</tool.toolu_01JmENegHRwiDrMEanZ1XRxM>
+
+## ASSISTANT:
+
+Good! Let me test if this works:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01M1grdhuQAWW3L4YnkmHzvD
+
+### command
+
+<tool.toolu_01M1grdhuQAWW3L4YnkmHzvD>
+tree-sitter parse test_simple.greger
+</tool.toolu_01M1grdhuQAWW3L4YnkmHzvD>
+
+## TOOL RESULT:
+
+ID: toolu_01M1grdhuQAWW3L4YnkmHzvD
+
+<tool.toolu_01M1grdhuQAWW3L4YnkmHzvD>
+Command failed with exit code 1: (source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 19])
+        (newline [2, 19] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (ERROR [6, 0] - [6, 35])
+        (newline [6, 35] - [7, 0])))))
+test_simple.greger	Parse:    1.00 ms       82 bytes/ms	(ERROR [2, 0] - [2, 19])
+
+</tool.toolu_01M1grdhuQAWW3L4YnkmHzvD>
+
+## ASSISTANT:
+
+Still getting ERROR nodes. Let me check what the citation tests are actually doing that works. Let me verify citations still pass:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011y3qQDQ9NmfCewKFnM4HXW
+
+### command
+
+<tool.toolu_011y3qQDQ9NmfCewKFnM4HXW>
+tree-sitter parse test_citations.greger
+</tool.toolu_011y3qQDQ9NmfCewKFnM4HXW>
+
+## TOOL RESULT:
+
+ID: toolu_011y3qQDQ9NmfCewKFnM4HXW
+
+<tool.toolu_011y3qQDQ9NmfCewKFnM4HXW>
+Command failed with exit code 1: (source_file [0, 0] - [41, 49]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (ERROR [2, 0] - [2, 29])
+        (newline [2, 29] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [15, 0]
+    (server_tool_use_section [4, 0] - [15, 0]
+      (server_tool_use_header [4, 0] - [5, 0])
+      (tool_use_content [5, 0] - [15, 0]
+        (newline [5, 0] - [6, 0])
+        (tool_name_line [6, 0] - [7, 0]
+          name: (identifier [6, 6] - [6, 16]))
+        (tool_id_line [7, 0] - [8, 0]
+          id: (identifier [7, 4] - [7, 37]))
+        (newline [8, 0] - [9, 0])
+        (tool_parameter [9, 0] - [13, 41]
+          param_name: (identifier [9, 4] - [9, 9])
+          param_value: (tool_param_block [11, 0] - [13, 41]
+            (tool_block_start [11, 0] - [11, 40])
+            content: (tool_block_content [12, 0] - [13, 0])
+            (tool_block_end [13, 0] - [13, 41])))
+        (newline [13, 41] - [14, 0])
+        (newline [14, 0] - [15, 0]))))
+  (section [15, 0] - [31, 0]
+    (server_tool_result_section [15, 0] - [31, 0]
+      (server_tool_result_header [15, 0] - [16, 0])
+      (tool_result_content [16, 0] - [31, 0]
+        (newline [16, 0] - [17, 0])
+        (tool_result_id_line [17, 0] - [18, 0]
+          id: (identifier [17, 4] - [17, 37]))
+        (tool_result_block [19, 0] - [29, 41]
+          (tool_block_start [19, 0] - [19, 40])
+          content: (tool_block_content [20, 0] - [29, 0])
+          (tool_block_end [29, 0] - [29, 41]))
+        (newline [29, 41] - [30, 0])
+        (newline [30, 0] - [31, 0]))))
+  (section [31, 0] - [35, 0]
+    (assistant_section [31, 0] - [35, 0]
+      (assistant_header [31, 0] - [32, 0])
+      (section_content [32, 0] - [35, 0]
+        (newline [32, 0] - [33, 0])
+        (text_line [33, 0] - [33, 106])
+        (newline [33, 106] - [34, 0])
+        (newline [34, 0] - [35, 0]))))
+  (section [35, 0] - [41, 49]
+    (citations_section [35, 0] - [41, 49]
+      (citations_header [35, 0] - [36, 0])
+      (citations_content [36, 0] - [41, 49]
+        (newline [36, 0] - [37, 0])
+        (citation_entry [37, 0] - [41, 49]
+          url: (url [37, 4] - [37, 48])
+          (citation_title [39, 0] - [40, 0])
+          (citation_text [40, 0] - [41, 0])
+          (citation_index [41, 0] - [41, 49]))))))
+test_citations.greger	Parse:    0.09 ms	 12644 bytes/ms	(ERROR [2, 0] - [2, 29])
+
+</tool.toolu_011y3qQDQ9NmfCewKFnM4HXW>
+
+## ASSISTANT:
+
+Oh no! I broke the citations too. This shows that the current approach is fundamentally flawed. The issue is that the grammar is trying to match text as `line_with_cite` first, and when that fails (because there's no cite tag), it doesn't fall back to `text_line` properly.
+
+Let me check what the actual content of test_citations.greger is:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014vKsKmkkhq7VdED71DjksE
+
+### path
+
+<tool.toolu_014vKsKmkkhq7VdED71DjksE>
+test_citations.greger
+</tool.toolu_014vKsKmkkhq7VdED71DjksE>
+
+### start-line
+
+<tool.toolu_014vKsKmkkhq7VdED71DjksE>
+1
+</tool.toolu_014vKsKmkkhq7VdED71DjksE>
+
+### end-line
+
+<tool.toolu_014vKsKmkkhq7VdED71DjksE>
+5
+</tool.toolu_014vKsKmkkhq7VdED71DjksE>
+
+## TOOL RESULT:
+
+ID: toolu_014vKsKmkkhq7VdED71DjksE
+
+<tool.toolu_014vKsKmkkhq7VdED71DjksE>
+## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+</tool.toolu_014vKsKmkkhq7VdED71DjksE>
+
+## ASSISTANT:
+
+The problem is clear - "When was Claude Shannon born?" should be parsed as `text_line` but it's being attempted as `line_with_cite` and failing.
+
+Let me take a fundamentally different approach. I'll make the grammar more explicit about when we expect cite tags vs regular text by using dynamic precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VHDUS6D4mZ7PMSc2ZP9mJy
+
+### file-path
+
+<tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+grammar.js
+</tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+
+### original-content
+
+<tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.line_with_cite),
+      prec(1, $.text_line),
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => prec.right(seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    )),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    )),
+</tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+
+### new-content
+
+<tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - only matches when cite tags are present
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    ),
+
+    // Text line - fallback for any non-empty line
+    text_line: $ => prec.dynamic(-1, seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    )),
+</tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+
+### git-commit-message
+
+<tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+Use dynamic precedence to make text_line a fallback
+</tool.toolu_01VHDUS6D4mZ7PMSc2ZP9mJy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VHDUS6D4mZ7PMSc2ZP9mJy -->
