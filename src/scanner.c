@@ -229,6 +229,23 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
   return false;
 }
 
+static bool scan_text(TSLexer *lexer) {
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume characters until we hit a delimiter
+  while (lexer->lookahead != '\0' &&
+         lexer->lookahead != '\n' &&
+         lexer->lookahead != '<' &&
+         lexer->lookahead != '#') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = TEXT;
+  return true;
+}
+
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
@@ -246,6 +263,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
   // Handle tool block content (don't skip whitespace for content)
   if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
     return scan_tool_content(lexer, scanner);
+  }
+
+  // Handle text tokens (don't skip whitespace for text)
+  if (valid_symbols[TEXT] && !scanner->in_tool_block) {
+    return scan_text(lexer);
   }
 
   // Skip whitespace for start tokens

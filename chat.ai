@@ -9287,4 +9287,125 @@ enum TokenType {
 Add TEXT token to external scanner enum
 </tool.toolu_018pwszJ2pk3UavykwLFBrK9>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018pwszJ2pk3UavykwLFBrK9 -->
+## TOOL RESULT:
+
+ID: toolu_018pwszJ2pk3UavykwLFBrK9
+
+<tool.toolu_018pwszJ2pk3UavykwLFBrK9>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add TEXT token to external scanner enum
+</tool.toolu_018pwszJ2pk3UavykwLFBrK9>
+
+## ASSISTANT:
+
+Now I need to implement the text parsing in the scanner. Let me add the function and update the scan function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SPQn5GgFvJmFNb68cKvBZs
+
+### file-path
+
+<tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+src/scanner.c
+</tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+
+### original-content
+
+<tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+
+  // Try to handle end tokens first when we're in a tool block
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    // Skip whitespace for end tokens
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    if (scan_tool_end(lexer, scanner)) {
+      return true;
+    }
+  }
+
+  // Handle tool block content (don't skip whitespace for content)
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  // Skip whitespace for start tokens
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    return scan_tool_start(lexer, scanner);
+  }
+
+  return false;
+}
+</tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+
+### new-content
+
+<tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+static bool scan_text(TSLexer *lexer) {
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume characters until we hit a delimiter
+  while (lexer->lookahead != '\0' && 
+         lexer->lookahead != '\n' && 
+         lexer->lookahead != '<' && 
+         lexer->lookahead != '#') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = TEXT;
+  return true;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+
+  // Try to handle end tokens first when we're in a tool block
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    // Skip whitespace for end tokens
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    if (scan_tool_end(lexer, scanner)) {
+      return true;
+    }
+  }
+
+  // Handle tool block content (don't skip whitespace for content)
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  // Handle text tokens (don't skip whitespace for text)
+  if (valid_symbols[TEXT] && !scanner->in_tool_block) {
+    return scan_text(lexer);
+  }
+
+  // Skip whitespace for start tokens
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    return scan_tool_start(lexer, scanner);
+  }
+
+  return false;
+}
+</tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+
+### git-commit-message
+
+<tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+Add text scanning function to external scanner
+</tool.toolu_01SPQn5GgFvJmFNb68cKvBZs>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SPQn5GgFvJmFNb68cKvBZs -->
