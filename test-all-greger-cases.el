@@ -496,7 +496,7 @@ Encrypted index: ghi789"
                                                                       (title . "Newton Biography")
                                                                       (cited_text . "Isaac Newton formulated the three laws of motion...")
                                                                       (encrypted_index . "ghi789")))))))))))
-    ))
+    )
 
 (defvar greger-tree-sitter-test-results '())
 (defvar greger-tree-sitter-tests-passed 0)

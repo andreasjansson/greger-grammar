@@ -3,28 +3,11 @@
   "name": "greger",
   "rules": {
     "source_file": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "content"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "SYMBOL",
-            "name": "section"
-          }
-        }
-      ]
+      "type": "REPEAT",
+      "content": {
+        "type": "SYMBOL",
+        "name": "section"
+      }
     },
     "section": {
       "type": "CHOICE",
@@ -313,124 +296,98 @@
       "value": "##[ \\t]*CITATIONS:[ \\t]*\\n"
     },
     "content": {
-      "type": "PREC",
-      "value": -1,
+      "type": "REPEAT1",
       "content": {
-        "type": "REPEAT1",
-        "content": {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "code_block"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "inline_code"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "include_tag"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "html_comment"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "line_with_cite"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "line"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "newline"
-            }
-          ]
-        }
-      }
-    },
-    "line_with_cite": {
-      "type": "PREC",
-      "value": 1,
-      "content": {
-        "type": "SEQ",
+        "type": "CHOICE",
         "members": [
           {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "PATTERN",
-                "value": "[^<\\n#]+"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "content_line"
           },
           {
             "type": "SYMBOL",
-            "name": "cite_tag"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "PATTERN",
-                "value": "[^<\\n]*"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          },
-          {
-            "type": "STRING",
-            "value": "\n"
+            "name": "newline"
           }
         ]
       }
     },
-    "system_content": {
-      "type": "PREC",
-      "value": -1,
-      "content": {
-        "type": "REPEAT1",
-        "content": {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "safe_shell_commands"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "code_block"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "inline_code"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "include_tag"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "html_comment"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "line"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "newline"
-            }
-          ]
+    "content_line": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT1",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_text"
+                },
+                "named": false,
+                "value": "text"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "cite_tag"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "\n"
         }
+      ]
+    },
+    "cite_tag": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<cite>"
+        },
+        {
+          "type": "FIELD",
+          "name": "content",
+          "content": {
+            "type": "REPEAT",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[^<\\n]+"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "</cite>"
+        }
+      ]
+    },
+    "system_content": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "content_line"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "newline"
+          }
+        ]
       }
     },
     "tool_use_content": {
@@ -478,174 +435,13 @@
       }
     },
     "citations_content": {
-      "type": "PREC_LEFT",
-      "value": 0,
-      "content": {
-        "type": "REPEAT1",
-        "content": {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "citation_entry"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "newline"
-            }
-          ]
-        }
-      }
-    },
-    "safe_shell_commands": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<safe-shell-commands>"
-        },
-        {
-          "type": "STRING",
-          "value": "\n"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "PATTERN",
-                "value": "[^\\n<]+"
-              },
-              {
-                "type": "STRING",
-                "value": "\n"
-              }
-            ]
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "</safe-shell-commands>"
-        }
-      ]
-    },
-    "include_tag": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<include"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "PATTERN",
-              "value": "[ \\t]+code"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "STRING",
-          "value": ">"
-        },
-        {
-          "type": "FIELD",
-          "name": "path",
-          "content": {
-            "type": "PATTERN",
-            "value": "[^<>\\n]+"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "</include>"
-        }
-      ]
-    },
-    "assistant_section_with_citations": {
-      "type": "PREC",
-      "value": 1,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "assistant_header"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "content_with_citations"
-                },
-                "named": true,
-                "value": "section_content"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "citations_without_text": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "citations_header"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "citations_content"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        }
-      ]
-    },
-    "content_with_citations": {
       "type": "REPEAT1",
       "content": {
         "type": "CHOICE",
         "members": [
           {
             "type": "SYMBOL",
-            "name": "code_block"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "inline_code"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "include_tag"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "html_comment"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "line_with_citations"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "line"
+            "name": "citation_entry"
           },
           {
             "type": "SYMBOL",
@@ -653,298 +449,6 @@
           }
         ]
       }
-    },
-    "line_with_citations": {
-      "type": "PREC_LEFT",
-      "value": 2,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "FIELD",
-            "name": "prefix",
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "PATTERN",
-                  "value": "[^<\\n]*"
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            }
-          },
-          {
-            "type": "FIELD",
-            "name": "cited_text",
-            "content": {
-              "type": "SYMBOL",
-              "name": "cite_tag"
-            }
-          },
-          {
-            "type": "FIELD",
-            "name": "suffix",
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "PATTERN",
-                  "value": "[^\\n]*"
-                },
-                {
-                  "type": "BLANK"
-                }
-              ]
-            }
-          },
-          {
-            "type": "STRING",
-            "value": "\n"
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "SYMBOL",
-              "name": "newline"
-            }
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "citations_header"
-                  },
-                  {
-                    "type": "FIELD",
-                    "name": "citations",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "citations_content"
-                    }
-                  }
-                ]
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "cite_tag": {
-      "type": "PREC",
-      "value": 1,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "STRING",
-            "value": "<cite>"
-          },
-          {
-            "type": "FIELD",
-            "name": "content",
-            "content": {
-              "type": "REPEAT",
-              "content": {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "PATTERN",
-                    "value": "[^<\\n]+"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "\n"
-                  }
-                ]
-              }
-            }
-          },
-          {
-            "type": "STRING",
-            "value": "</cite>"
-          }
-        ]
-      }
-    },
-    "html_comment": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "<!--"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "PATTERN",
-                "value": "[^-\\n]+"
-              },
-              {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "STRING",
-                    "value": "-"
-                  },
-                  {
-                    "type": "PATTERN",
-                    "value": "[^-\\n]"
-                  }
-                ]
-              },
-              {
-                "type": "STRING",
-                "value": "\n"
-              }
-            ]
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "-->"
-        }
-      ]
-    },
-    "code_block": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "triple_backtick_block"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "single_backtick_block"
-        }
-      ]
-    },
-    "triple_backtick_block": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "```"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "language",
-              "content": {
-                "type": "PATTERN",
-                "value": "[a-zA-Z]+"
-              }
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "STRING",
-          "value": "\n"
-        },
-        {
-          "type": "FIELD",
-          "name": "content",
-          "content": {
-            "type": "REPEAT",
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "PATTERN",
-                  "value": "[^`\\n]+"
-                },
-                {
-                  "type": "STRING",
-                  "value": "`"
-                },
-                {
-                  "type": "STRING",
-                  "value": "``"
-                },
-                {
-                  "type": "STRING",
-                  "value": "\n"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "```"
-        }
-      ]
-    },
-    "single_backtick_block": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "``"
-        },
-        {
-          "type": "FIELD",
-          "name": "content",
-          "content": {
-            "type": "REPEAT",
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "PATTERN",
-                  "value": "[^`\\n]+"
-                },
-                {
-                  "type": "STRING",
-                  "value": "\n"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "``"
-        }
-      ]
-    },
-    "inline_code": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "`"
-        },
-        {
-          "type": "FIELD",
-          "name": "content",
-          "content": {
-            "type": "PATTERN",
-            "value": "[^`\\n]+"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "`"
-        }
-      ]
     },
     "tool_name_line": {
       "type": "SEQ",
@@ -1238,23 +742,6 @@
         }
       ]
     },
-    "line": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "PREC",
-          "value": -2,
-          "content": {
-            "type": "PATTERN",
-            "value": "[^#\\n<`][^\\n]*"
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "\n"
-        }
-      ]
-    },
     "tool_content_line": {
       "type": "PREC",
       "value": -1,
@@ -1296,6 +783,10 @@
     {
       "type": "SYMBOL",
       "name": "tool_block_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_text"
     }
   ],
   "inline": [],
