@@ -21,12 +21,10 @@ module.exports = grammar({
   ],
 
   rules: {
-    document: $ => repeat($._item),
-
-    _item: $ => choice(
+    document: $ => repeat(choice(
       $.section,
-      $.line,
-    ),
+      $.untagged_content,
+    )),
 
     section: $ => choice(
       $.user_section,

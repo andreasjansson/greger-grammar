@@ -11265,4 +11265,137 @@ grammar.js
 Allow empty lines in citation sections
 </tool.toolu_014ZMsTu2ZuZQKniVQP9MD4Z>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_014ZMsTu2ZuZQKniVQP9MD4Z -->
+## TOOL RESULT:
+
+ID: toolu_014ZMsTu2ZuZQKniVQP9MD4Z
+
+<tool.toolu_014ZMsTu2ZuZQKniVQP9MD4Z>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Allow empty lines in citation sections
+</tool.toolu_014ZMsTu2ZuZQKniVQP9MD4Z>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CeX7ErVXnybohqybsLwEMQ
+
+### command
+
+<tool.toolu_01CeX7ErVXnybohqybsLwEMQ>
+bash build.sh
+</tool.toolu_01CeX7ErVXnybohqybsLwEMQ>
+
+## TOOL RESULT:
+
+ID: toolu_01CeX7ErVXnybohqybsLwEMQ
+
+<tool.toolu_01CeX7ErVXnybohqybsLwEMQ>
+Command executed successfully:
+(no output)
+</tool.toolu_01CeX7ErVXnybohqybsLwEMQ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019iwsQYewzSQnGaRm2sXQt7
+
+### command
+
+<tool.toolu_019iwsQYewzSQnGaRm2sXQt7>
+tree-sitter parse test_citations.greger
+</tool.toolu_019iwsQYewzSQnGaRm2sXQt7>
+
+## TOOL RESULT:
+
+ID: toolu_019iwsQYewzSQnGaRm2sXQt7
+
+<tool.toolu_019iwsQYewzSQnGaRm2sXQt7>
+Command failed with exit code 1: (document [0, 0] - [14, 23]
+  (section [0, 0] - [1, 0]
+    (user_section [0, 0] - [1, 0]))
+  (line [1, 0] - [2, 0]
+    (empty_line [1, 0] - [2, 0]))
+  (line [2, 0] - [3, 0]
+    (text_line [2, 0] - [3, 0]))
+  (line [3, 0] - [4, 0]
+    (empty_line [3, 0] - [4, 0]))
+  (section [4, 0] - [5, 0]
+    (assistant_section [4, 0] - [5, 0]))
+  (line [5, 0] - [6, 0]
+    (empty_line [5, 0] - [6, 0]))
+  (line [6, 0] - [7, 0]
+    (text_line [6, 0] - [7, 0]))
+  (line [7, 0] - [8, 0]
+    (empty_line [7, 0] - [8, 0]))
+  (section [8, 0] - [9, 0]
+    (citations_section [8, 0] - [9, 0]))
+  (line [9, 0] - [10, 0]
+    (empty_line [9, 0] - [10, 0]))
+  (ERROR [10, 0] - [10, 48]
+    (ERROR [10, 4] - [10, 48]))
+  (line [10, 48] - [11, 0]
+    (empty_line [10, 48] - [11, 0]))
+  (line [11, 0] - [12, 0]
+    (empty_line [11, 0] - [12, 0]))
+  (line [12, 0] - [13, 0]
+    (text_line [12, 0] - [13, 0]))
+  (line [13, 0] - [14, 0]
+    (text_line [13, 0] - [14, 0]))
+  (line [14, 0] - [14, 23]
+    (text_line [14, 0] - [14, 23])))
+test_citations.greger	Parse:    0.34 ms	   890 bytes/ms	(ERROR [10, 0] - [10, 48])
+
+</tool.toolu_019iwsQYewzSQnGaRm2sXQt7>
+
+## ASSISTANT:
+
+I'm still getting the same error. The issue is that everything after the citations section header is being parsed as generic lines rather than being part of the citations section. This is because sections compete with lines at the top level.
+
+Let me think about this differently. I need to make sure that after we see a `## CITATIONS:` header, the subsequent lines (that don't start with another `##` header) are treated as part of that citations section.
+
+The fundamental issue is that I have both `section` and `line` as direct children of the document, so they compete. Instead, I need to structure this so that sections consume their content properly.
+
+Let me look at how this should work step by step:
+1. Parse `## CITATIONS:` as start of citations section
+2. Continue parsing lines within that section until we see another `##` header
+3. Those lines should be parsed as citation content
+
+The issue is that I'm making lines top-level items that compete with sections. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ELTCsUjmTzAgamqym3UQhn
+
+### file-path
+
+<tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+grammar.js
+</tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+
+### original-content
+
+<tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+document: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.line,
+    ),
+</tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+
+### new-content
+
+<tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+document: $ => repeat(choice(
+      $.section,
+      $.untagged_content,
+    )),
+</tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+
+### git-commit-message
+
+<tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+Fix document structure to avoid section/line competition
+</tool.toolu_01ELTCsUjmTzAgamqym3UQhn>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ELTCsUjmTzAgamqym3UQhn -->
