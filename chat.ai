@@ -7106,4 +7106,52 @@ grammar.js
 Add citations_with_text parsing to grammar
 </tool.toolu_01Aap8fpBYwZebFJcv782jti>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Aap8fpBYwZebFJcv782jti -->
+## TOOL RESULT:
+
+ID: toolu_01Aap8fpBYwZebFJcv782jti
+
+<tool.toolu_01Aap8fpBYwZebFJcv782jti>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citations_with_text parsing to grammar
+</tool.toolu_01Aap8fpBYwZebFJcv782jti>
+
+## ASSISTANT:
+
+Now I need to update the citations_section to handle the case where there's no preceding cite tag (citations_without_text):
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Xf4TLp2r8voCjWPTRkxabQ
+
+### file-path
+
+<tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+grammar.js
+</tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+
+### original-content
+
+<tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+</tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+
+### new-content
+
+<tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+    // Citations without text - standalone citations section
+    citations_section: $ => seq(
+      $.citations_header,
+      optional(alias($.citations_content, 'citations_without_text'))
+    ),
+</tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+
+### git-commit-message
+
+<tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+Update citations_section to use citations_without_text alias
+</tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Xf4TLp2r8voCjWPTRkxabQ -->
