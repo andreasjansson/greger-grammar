@@ -9216,4 +9216,61 @@ and 'entries field containing the citation entries."
 Add function to create citations_with_text blocks as requested
 </tool.toolu_012Zh2WbTio3phr88c3iXDVn>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012Zh2WbTio3phr88c3iXDVn -->
+## TOOL RESULT:
+
+ID: toolu_012Zh2WbTio3phr88c3iXDVn
+
+<tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add function to create citations_with_text blocks as requested
+</tool.toolu_012Zh2WbTio3phr88c3iXDVn>
+
+## ASSISTANT:
+
+Now let me implement the smarter processing. Let me carefully replace just the citations section handling part:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JA397TEdv9a9i1pjG4djAb
+
+### file-path
+
+<tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+greger-tree-sitter.el
+</tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+
+### original-content
+
+<tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find text blocks with cite tags and associate citations
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+</tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+
+### new-content
+
+<tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+;; Citations section - handle as citations_without_text if not already processed
+         ((equal section-type "citations_section")
+          ;; Check if this citations section follows a section with cite tags
+          (let ((has-preceding-cites (and (> i 0) 
+                                          (greger-tree-sitter--section-has-cite-tags (nth (1- i) sections)))))
+            (unless has-preceding-cites
+              ;; This is a standalone citations section - create citations_without_text
+              (let ((citations (greger-tree-sitter--extract-citations-section section)))
+                (setq current-assistant-blocks 
+                      (append current-assistant-blocks 
+                              `(((type . "citations_without_text") (entries . ,citations)))))))))
+</tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+
+### git-commit-message
+
+<tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+Replace citation processing with citations_without_text handling
+</tool.toolu_01JA397TEdv9a9i1pjG4djAb>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JA397TEdv9a9i1pjG4djAb -->

@@ -833,13 +833,17 @@ makes <cite>text</cite> tags work with subsequent ## CITATIONS: sections."
                   (when (and (stringp content) (> (length (string-trim content)) 0))
                     (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
 
-         ;; Citations section - associate with pending assistant blocks
+         ;; Citations section - handle as citations_without_text if not already processed
          ((equal section-type "citations_section")
-          (when current-assistant-blocks
-            (let ((citations (greger-tree-sitter--extract-citations-section section)))
-              ;; Find text blocks with cite tags and associate citations
-              (setq current-assistant-blocks
-                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+          ;; Check if this citations section follows a section with cite tags
+          (let ((has-preceding-cites (and (> i 0)
+                                          (greger-tree-sitter--section-has-cite-tags (nth (1- i) sections)))))
+            (unless has-preceding-cites
+              ;; This is a standalone citations section - create citations_without_text
+              (let ((citations (greger-tree-sitter--extract-citations-section section)))
+                (setq current-assistant-blocks
+                      (append current-assistant-blocks
+                              `(((type . "citations_without_text") (entries . ,citations)))))))))
 
          ;; Tool result section - add as user message
          ((equal section-type "tool_result_section")
