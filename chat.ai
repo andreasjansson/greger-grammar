@@ -7154,4 +7154,105 @@ grammar.js
 Update citations_section to use citations_without_text alias
 </tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Xf4TLp2r8voCjWPTRkxabQ -->
+## TOOL RESULT:
+
+ID: toolu_01Xf4TLp2r8voCjWPTRkxabQ
+
+<tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update citations_section to use citations_without_text alias
+</tool.toolu_01Xf4TLp2r8voCjWPTRkxabQ>
+
+## ASSISTANT:
+
+Actually, let me reconsider this approach. The issue with the current approach is that it's trying to parse the `## CITATIONS:` section as part of the content of another section, but tree-sitter treats sections as separate entities. 
+
+Let me think about this differently. Maybe I should create a special content type that can span across what would normally be separate sections. But that would break the section-based parsing model.
+
+Actually, let me step back and look at how the current test cases handle this. The issue might be simpler - maybe I just need to modify how the elisp code processes the parsed tree to combine cite tags with subsequent citation sections.
+
+Let me revert the grammar changes and instead focus on making the tree-sitter output more structured so the elisp code can easily identify cite tags and associate them with citation sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012abJetZZFtJbMnASxSbh7f
+
+### file-path
+
+<tool.toolu_012abJetZZFtJbMnASxSbh7f>
+grammar.js
+</tool.toolu_012abJetZZFtJbMnASxSbh7f>
+
+### original-content
+
+<tool.toolu_012abJetZZFtJbMnASxSbh7f>
+// Content types - can include citations_with_text
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.citations_with_text,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(alias($._text, 'text')),
+      "\n"
+    ),
+
+    // Citations with text - when <cite> tags are found in content
+    citations_with_text: $ => seq(
+      // Text before the cite tag (optional)
+      optional(seq(
+        repeat1(alias($._text, 'text')),
+        /[ \t]*/
+      )),
+      // The cite tag with the cited text
+      "<cite>",
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      // Optional whitespace until next section
+      repeat(choice(/[ \t]/, "\n")),
+      // The citations section that follows
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      field("entries", repeat1(choice(
+        $.citation_entry,
+        $.newline
+      )))
+    ),
+</tool.toolu_012abJetZZFtJbMnASxSbh7f>
+
+### new-content
+
+<tool.toolu_012abJetZZFtJbMnASxSbh7f>
+// Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Cite tag with structured content
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+</tool.toolu_012abJetZZFtJbMnASxSbh7f>
+
+### git-commit-message
+
+<tool.toolu_012abJetZZFtJbMnASxSbh7f>
+Revert to simpler cite_tag approach with structured fields
+</tool.toolu_012abJetZZFtJbMnASxSbh7f>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012abJetZZFtJbMnASxSbh7f -->
