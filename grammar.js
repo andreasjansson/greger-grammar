@@ -90,10 +90,17 @@ module.exports = grammar({
     // Content types - use external scanner for text
     content: $ => repeat1(
       choice(
+        $.code_block,
         $._text,
         $.cite_tag,
         "\n"
       )
+    ),
+
+    code_block: $ => seq(
+      "```",
+      repeat(/[^`]/),
+      "```"
     ),
 
     cite_tag: $ => seq(

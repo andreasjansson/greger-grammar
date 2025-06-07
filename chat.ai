@@ -13028,4 +13028,66 @@ typedef struct {
 Revert code block state from scanner
 </tool.toolu_01Bpj2Y7v5oGvLrJsD7idQ7D>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Bpj2Y7v5oGvLrJsD7idQ7D -->
+## TOOL RESULT:
+
+ID: toolu_01Bpj2Y7v5oGvLrJsD7idQ7D
+
+<tool.toolu_01Bpj2Y7v5oGvLrJsD7idQ7D>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert code block state from scanner
+</tool.toolu_01Bpj2Y7v5oGvLrJsD7idQ7D>
+
+## ASSISTANT:
+
+Now let me add code block handling to the grammar.js instead. I can handle code blocks as simple content that prevents section header parsing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013TVGgjsZQhbWAZ6rEqHF6Y
+
+### file-path
+
+<tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+grammar.js
+</tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+
+### original-content
+
+<tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+// Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $._text,
+        $.cite_tag,
+        "\n"
+      )
+    ),
+</tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+
+### new-content
+
+<tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+// Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $.code_block,
+        $._text,
+        $.cite_tag,
+        "\n"
+      )
+    ),
+
+    code_block: $ => seq(
+      "```",
+      repeat(/[^`]/),
+      "```"
+    ),
+</tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+
+### git-commit-message
+
+<tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+Add basic code block handling to grammar
+</tool.toolu_013TVGgjsZQhbWAZ6rEqHF6Y>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013TVGgjsZQhbWAZ6rEqHF6Y -->
