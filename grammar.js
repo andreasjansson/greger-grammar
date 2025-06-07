@@ -207,5 +207,6 @@ module.exports = grammar({
 
     // Basic tokens
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_.-]*/,
+    url: $ => /https?:\/\/[^\s\n]+/,
   }
 });
