@@ -331,6 +331,10 @@ INTERNAL FUNCTION: Central dispatcher for section extraction."
       (greger-tree-sitter--extract-server-tool-use-section section-node))
      ((equal section-type "server_tool_result_section")
       (greger-tree-sitter--extract-server-tool-result-section section-node))
+     ((equal section-type "citations_with_text")
+      (greger-tree-sitter--extract-citations-with-text-section section-node))
+     ((equal section-type "citations_without_text")
+      (greger-tree-sitter--extract-citations-without-text-section section-node))
      (t nil))))
 
 (defun greger-tree-sitter--extract-user-section (section-node)
