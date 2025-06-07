@@ -495,8 +495,132 @@ Encrypted index: ghi789"
                                                                       (url . "https://physics.com/newton")
                                                                       (title . "Newton Biography")
                                                                       (cited_text . "Isaac Newton formulated the three laws of motion...")
-                                                                      (encrypted_index . "ghi789")))))))))))
-    )
+                                                                      (encrypted_index . "ghi789"))))))))))
+
+    ;; Tool result with empty lines preserved
+    (:name "code-block-triple-backticks"
+           :markdown "## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?"
+           :dialog (((role . "user") (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
+
+    ;; Mixed code blocks and real sections
+    (:name "mixed-code-blocks-and-sections"
+           :markdown "## USER:
+
+Here's a code example:
+
+```python
+def example():
+    # This has ## USER: in a comment
+    print(\"## ASSISTANT: not a real header\")
+```
+
+Now please analyze it.
+
+## ASSISTANT:
+
+I can see your code example."
+           :dialog (((role . "user") (content . "Here's a code example:\n\n```python\ndef example():\n    # This has ## USER: in a comment\n    print(\"## ASSISTANT: not a real header\")\n```\n\nNow please analyze it."))
+                    ((role . "assistant") (content . "I can see your code example."))))
+
+    ;; Tool use with code blocks in parameters
+    (:name "tool-use-with-code-in-params"
+           :markdown "## USER:
+
+Write some Python code
+
+## TOOL USE:
+
+Name: write-file
+ID: toolu_999
+
+### filename
+
+<tool.toolu_999>
+example.py
+</tool.toolu_999>
+
+### content
+
+<tool.toolu_999>
+```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```
+</tool.toolu_999>
+
+## TOOL RESULT:
+
+ID: toolu_999
+
+<tool.toolu_999>
+File written successfully
+</tool.toolu_999>
+
+## ASSISTANT:
+
+I've written the Python file."
+           :dialog (((role . "user") (content . "Write some Python code"))
+                    ((role . "assistant") (content . (((type . "tool_use") (id . "toolu_999") (name . "write-file") (input . ((filename . "example.py") (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))))
+                    ((role . "user") (content . (((type . "tool_result") (tool_use_id . "toolu_999") (content . "File written successfully")))))
+                    ((role . "assistant") (content . "I've written the Python file."))))
+
+    ;; Nested code blocks (backticks inside code blocks)
+    (:name "nested-code-blocks"
+           :markdown "## USER:
+
+How do I use backticks in markdown?
+
+## ASSISTANT:
+
+You can use triple backticks:
+
+```
+Here's how to show `inline code` in a code block:
+Use single backticks around `your code`.
+```
+
+Does that help?"
+           :dialog (((role . "user") (content . "How do I use backticks in markdown?"))
+                    ((role . "assistant") (content . "You can use triple backticks:\n\n```\nHere's how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?"))))
+
+    (:name "html-comments"
+           :markdown "## USER:
+
+Here's some code:
+
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
+```
+<!-- comment should be included -->
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?"
+           :dialog (((role . "user") (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
+
+    ))
 
 (defvar greger-tree-sitter-test-results '())
 (defvar greger-tree-sitter-tests-passed 0)

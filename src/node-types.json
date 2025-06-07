@@ -91,17 +91,76 @@
     }
   },
   {
-    "type": "citations_section",
+    "type": "citations_with_text",
     "named": true,
-    "fields": {},
+    "fields": {
+      "citations": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "citations_content",
+            "named": true
+          }
+        ]
+      },
+      "content_with_cites": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "content_with_cites",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "citations_content",
+          "type": "assistant_header",
           "named": true
         },
+        {
+          "type": "citations_header",
+          "named": true
+        },
+        {
+          "type": "system_header",
+          "named": true
+        },
+        {
+          "type": "thinking_header",
+          "named": true
+        },
+        {
+          "type": "user_header",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "citations_without_text",
+    "named": true,
+    "fields": {
+      "citations": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "citations_content",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
         {
           "type": "citations_header",
           "named": true
@@ -112,21 +171,15 @@
   {
     "type": "cite_tag",
     "named": true,
-    "fields": {
-      "content": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "\n",
-            "named": false
-          }
-        ]
-      }
-    }
+    "fields": {}
   },
   {
     "type": "content_line",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "content_line_with_cites",
     "named": true,
     "fields": {},
     "children": {
@@ -135,6 +188,25 @@
       "types": [
         {
           "type": "cite_tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "content_with_cites",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "content_line_with_cites",
+          "named": true
+        },
+        {
+          "type": "newline",
           "named": true
         }
       ]
@@ -158,7 +230,11 @@
           "named": true
         },
         {
-          "type": "citations_section",
+          "type": "citations_with_text",
+          "named": true
+        },
+        {
+          "type": "citations_without_text",
           "named": true
         },
         {

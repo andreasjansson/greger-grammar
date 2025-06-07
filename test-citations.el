@@ -61,7 +61,6 @@ Encrypted index: Eo8BCioIAhgBIiQyYjQ4OWJmZi1lNm..")
     (condition-case err
         (let ((result (greger-tree-sitter-parse markdown)))
           ;; Reverse the order to match expected (user first, then assistant)
-          (setq result (reverse result))
           (if (equal result expected)
               (message "✅ Citations-basic test PASSED!")
             (progn
@@ -131,7 +130,6 @@ Encrypted index: xyz789")
     (condition-case err
         (let ((result (greger-tree-sitter-parse markdown)))
           ;; Reverse the order to match expected (user first, then assistant)
-          (setq result (reverse result))
           (if (equal result expected)
               (message "✅ Citations-after-tool-result test PASSED!")
             (progn
@@ -221,7 +219,6 @@ Encrypted index: ghi789")
     (condition-case err
         (let ((result (greger-tree-sitter-parse markdown)))
           ;; Reverse the order to match expected (user first, then assistant)
-          (setq result (reverse result))
           (if (equal result expected)
               (message "✅ Citations-multiple test PASSED!")
             (progn
