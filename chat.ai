@@ -8958,4 +8958,391 @@ enum TokenType {
 Simplify scanner to match simplified grammar
 </tool.toolu_01XmJ7RsCcUnDF8GjHhKEi4D>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XmJ7RsCcUnDF8GjHhKEi4D -->
+## TOOL RESULT:
+
+ID: toolu_01XmJ7RsCcUnDF8GjHhKEi4D
+
+<tool.toolu_01XmJ7RsCcUnDF8GjHhKEi4D>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify scanner to match simplified grammar
+</tool.toolu_01XmJ7RsCcUnDF8GjHhKEi4D>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TB8DTGAPMDNLnRAjtz2SVe
+
+### file-path
+
+<tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+src/scanner.c
+</tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+### original-content
+
+<tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+static bool scan_newline(TSLexer *lexer) {
+  if (lexer->lookahead == '\n') {
+    advance(lexer);
+    lexer->result_symbol = NEWLINE;
+    return true;
+  }
+  return false;
+}
+
+static bool scan_line_content(TSLexer *lexer) {
+  if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+    return false;
+  }
+
+  bool has_content = false;
+  while (lexer->lookahead && lexer->lookahead != '\n') {
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = LINE_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+
+static bool scan_citations_header(TSLexer *lexer) {
+  // Check for ## CITATIONS: at start of line
+  if (lexer->lookahead != '#') return false;
+  advance(lexer);
+  
+  if (lexer->lookahead != '#') return false;
+  advance(lexer);
+  
+  // Skip optional whitespace
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    advance(lexer);
+  }
+  
+  // Check for CITATIONS:
+  const char *expected = "CITATIONS:";
+  for (int i = 0; expected[i]; i++) {
+    if (lexer->lookahead != expected[i]) return false;
+    advance(lexer);
+  }
+  
+  // Skip optional trailing whitespace
+  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+    advance(lexer);
+  }
+  
+  lexer->result_symbol = CITATIONS_HEADER;
+  return true;
+}
+</tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+### new-content
+
+<tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+</tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+### git-commit-message
+
+<tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+Remove unused scanner functions
+</tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+## TOOL RESULT:
+
+ID: toolu_01TB8DTGAPMDNLnRAjtz2SVe
+
+<tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01TB8DTGAPMDNLnRAjtz2SVe>
+
+## ASSISTANT:
+
+Let me replace the whole scanner file again:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01Xc12gTSN3RTcUYwMVdcpws
+
+### file-path
+
+<tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+src/scanner.c
+</tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+
+### contents
+
+<tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+#include <tree_sitter/parser.h>
+#include <tree_sitter/alloc.h>
+#include <string.h>
+#include <wctype.h>
+
+enum TokenType {
+  TOOL_BLOCK_START,
+  TOOL_BLOCK_END,
+  TOOL_BLOCK_CONTENT,
+};
+
+typedef struct {
+  char current_tool_id[64];
+  bool in_tool_block;
+} Scanner;
+
+static void advance(TSLexer *lexer) {
+  lexer->advance(lexer, false);
+}
+
+static void skip(TSLexer *lexer) {
+  lexer->advance(lexer, true);
+}
+
+void *tree_sitter_greger_external_scanner_create() {
+  Scanner *scanner = ts_malloc(sizeof(Scanner));
+  scanner->current_tool_id[0] = '\0';
+  scanner->in_tool_block = false;
+  return scanner;
+}
+
+void tree_sitter_greger_external_scanner_destroy(void *payload) {
+  Scanner *scanner = (Scanner *)payload;
+  ts_free(scanner);
+}
+
+unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
+  Scanner *scanner = (Scanner *)payload;
+  size_t id_len = strlen(scanner->current_tool_id);
+
+  buffer[0] = scanner->in_tool_block ? 1 : 0;
+  buffer[1] = (char)id_len;
+  memcpy(buffer + 2, scanner->current_tool_id, id_len);
+
+  return 2 + id_len;
+}
+
+void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
+  Scanner *scanner = (Scanner *)payload;
+
+  if (length < 2) {
+    scanner->in_tool_block = false;
+    scanner->current_tool_id[0] = '\0';
+    return;
+  }
+
+  scanner->in_tool_block = buffer[0] == 1;
+  size_t id_len = (size_t)buffer[1];
+
+  if (length >= 2 + id_len && id_len < 63) {
+    memcpy(scanner->current_tool_id, buffer + 2, id_len);
+    scanner->current_tool_id[id_len] = '\0';
+  } else {
+    scanner->current_tool_id[0] = '\0';
+  }
+}
+
+// Check if the current position looks like our closing tag without advancing
+static bool lookahead_for_closing_tag(TSLexer *lexer, Scanner *scanner) {
+  // Save the current position
+  lexer->mark_end(lexer);
+
+  // Check if we have "</tool.ID>"
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '/') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID and check if it matches our current one
+  char end_id[64];
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+
+  end_id[id_len] = '\0';
+
+  // Reset position back to the mark (the '<')
+  return strcmp(scanner->current_tool_id, end_id) == 0;
+}
+
+static bool scan_tool_start(TSLexer *lexer, Scanner *scanner) {
+  // Expect "<tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    scanner->current_tool_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  scanner->current_tool_id[id_len] = '\0';
+  scanner->in_tool_block = true;
+
+  lexer->result_symbol = TOOL_BLOCK_START;
+  return true;
+}
+
+static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Expect "</tool."
+  if (lexer->lookahead != '<') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '/') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 't') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'o') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID and check if it matches our current one
+  char end_id[64];
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    end_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  end_id[id_len] = '\0';
+
+  // Only match if the IDs are the same as our current tool ID
+  if (strcmp(scanner->current_tool_id, end_id) == 0) {
+    scanner->in_tool_block = false;
+    scanner->current_tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_BLOCK_END;
+    return true;
+  }
+
+  return false;
+}
+
+static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  bool has_content = false;
+
+  // Consume characters until we see our closing tag
+  while (lexer->lookahead) {
+    if (lexer->lookahead == '<' && lookahead_for_closing_tag(lexer, scanner)) {
+      // We've hit our closing tag, stop consuming content
+      break;
+    }
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+
+  // Try to handle tool block end tokens when we're in a tool block
+  if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
+    // Skip whitespace for end tokens
+    while (iswspace(lexer->lookahead)) {
+      skip(lexer);
+    }
+    if (scan_tool_end(lexer, scanner)) {
+      return true;
+    }
+  }
+
+  // Handle tool block content (don't skip whitespace for content)
+  if (valid_symbols[TOOL_BLOCK_CONTENT] && scanner->in_tool_block) {
+    return scan_tool_content(lexer, scanner);
+  }
+
+  // Skip whitespace for other tokens
+  while (iswspace(lexer->lookahead)) {
+    skip(lexer);
+  }
+
+  // Handle tool block start
+  if (valid_symbols[TOOL_BLOCK_START] && !scanner->in_tool_block) {
+    if (scan_tool_start(lexer, scanner)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+</tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+
+### git-commit-message
+
+<tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+Simplify scanner to only handle tool blocks
+</tool.toolu_01Xc12gTSN3RTcUYwMVdcpws>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Xc12gTSN3RTcUYwMVdcpws -->

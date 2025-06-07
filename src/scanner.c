@@ -65,63 +65,6 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
   }
 }
 
-static bool scan_newline(TSLexer *lexer) {
-  if (lexer->lookahead == '\n') {
-    advance(lexer);
-    lexer->result_symbol = NEWLINE;
-    return true;
-  }
-  return false;
-}
-
-static bool scan_line_content(TSLexer *lexer) {
-  if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
-    return false;
-  }
-
-  bool has_content = false;
-  while (lexer->lookahead && lexer->lookahead != '\n') {
-    advance(lexer);
-    has_content = true;
-  }
-
-  if (has_content) {
-    lexer->result_symbol = LINE_CONTENT;
-    return true;
-  }
-
-  return false;
-}
-
-static bool scan_citations_header(TSLexer *lexer) {
-  // Check for ## CITATIONS: at start of line
-  if (lexer->lookahead != '#') return false;
-  advance(lexer);
-
-  if (lexer->lookahead != '#') return false;
-  advance(lexer);
-
-  // Skip optional whitespace
-  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-    advance(lexer);
-  }
-
-  // Check for CITATIONS:
-  const char *expected = "CITATIONS:";
-  for (int i = 0; expected[i]; i++) {
-    if (lexer->lookahead != expected[i]) return false;
-    advance(lexer);
-  }
-
-  // Skip optional trailing whitespace
-  while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-    advance(lexer);
-  }
-
-  lexer->result_symbol = CITATIONS_HEADER;
-  return true;
-}
-
 // Check if the current position looks like our closing tag without advancing
 static bool lookahead_for_closing_tag(TSLexer *lexer, Scanner *scanner) {
   // Save the current position
@@ -286,15 +229,10 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
-  // Handle newlines first
-  if (valid_symbols[NEWLINE] && scan_newline(lexer)) {
-    return true;
-  }
-
   // Try to handle tool block end tokens when we're in a tool block
   if (valid_symbols[TOOL_BLOCK_END] && scanner->in_tool_block) {
     // Skip whitespace for end tokens
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+    while (iswspace(lexer->lookahead)) {
       skip(lexer);
     }
     if (scan_tool_end(lexer, scanner)) {
@@ -307,20 +245,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     return scan_tool_content(lexer, scanner);
   }
 
-  // Handle citations header
-  if (valid_symbols[CITATIONS_HEADER] && !scanner->in_tool_block) {
-    if (scan_citations_header(lexer)) {
-      return true;
-    }
-  }
-
-  // Handle line content
-  if (valid_symbols[LINE_CONTENT] && !scanner->in_tool_block) {
-    return scan_line_content(lexer);
-  }
-
-  // Skip whitespace for other tokens (except newlines)
-  while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+  // Skip whitespace for other tokens
+  while (iswspace(lexer->lookahead)) {
     skip(lexer);
   }
 
