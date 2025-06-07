@@ -95,25 +95,39 @@ module.exports = grammar({
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
     citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
-    // Content types - similar to RST and markdown
+    // Content types - can include citations_with_text
     content: $ => repeat1(choice(
       $.content_line,
+      $.citations_with_text,
       $.newline
     )),
 
     content_line: $ => seq(
-      repeat1(choice(
-        alias($._text, 'text'),
-        $.cite_tag
-      )),
+      repeat1(alias($._text, 'text')),
       "\n"
     ),
 
-    // Cite tag with structured content
-    cite_tag: $ => seq(
+    // Citations with text - triggered by <cite> tags
+    citations_with_text: $ => seq(
+      // Optional text before the cite tag
+      optional(repeat1(alias($._text, 'text'))),
+      // The cite tag
       "<cite>",
-      field("cited_text", repeat1(/[^<\n]+/)),
-      "</cite>"
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      // Whitespace until citations section
+      repeat(choice(/[ \t\n]/)),
+      // Citations section header
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      // Citation entries
+      repeat1(choice(
+        field("entry", $.citation_entry),
+        $.newline
+      ))
     ),
 
     system_content: $ => repeat1(choice(
