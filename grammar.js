@@ -119,6 +119,36 @@ module.exports = grammar({
       "</cite>"
     ),
 
+    // Citations with text - spans from content with cite tags to following citations section
+    citations_with_text: $ => seq(
+      // Content that may include text before cite tag
+      repeat(choice(
+        $.content_line_without_cite,
+        $.newline
+      )),
+      // Line with cite tag
+      optional(alias($._text, 'text')),
+      "<cite>",
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      optional(/[^\n]*/),  // Rest of line after cite tag
+      "\n",
+      // Optional whitespace and newlines until citations section
+      repeat(choice(/[ \t]/, "\n")),
+      // The citations section header and content
+      /##[ \t]*CITATIONS:[ \t]*\n/,
+      field("entries", repeat1(choice(
+        $.citation_entry,
+        $.newline
+      )))
+    ),
+
+    // Content line without cite tags (for citations_with_text)
+    content_line_without_cite: $ => seq(
+      repeat1(alias($._text, 'text')),
+      "\n"
+    ),
+
     system_content: $ => repeat1(choice(
       $.content_line,
       $.newline
