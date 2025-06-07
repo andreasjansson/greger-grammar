@@ -7164,4 +7164,66 @@ greger-tree-sitter.el
 Fix thinking section content extraction to use correct node type
 </tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Y7phPpfeUfUiPFwcpNMbAD -->
+## TOOL RESULT:
+
+ID: toolu_01Y7phPpfeUfUiPFwcpNMbAD
+
+<tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix thinking section content extraction to use correct node type
+</tool.toolu_01Y7phPpfeUfUiPFwcpNMbAD>
+
+## ASSISTANT:
+
+Now let me test just the thinking functionality:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01RvXjEssMHNoWB1Ekoyay6v
+
+### file-path
+
+<tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+debug-test.el
+</tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+
+### contents
+
+<tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-thinking ()
+  "Test thinking functionality."
+  (let ((text "## USER:
+
+What's 2+2?
+
+## THINKING:
+
+This is a simple arithmetic question. I can answer this directly.
+
+## ASSISTANT:
+
+2 + 2 = 4"))
+    (message "Testing thinking...")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (dolist (msg result)
+            (message "Message: role=%s content=%S" (alist-get 'role msg) (alist-get 'content msg))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing thinking ===")
+(test-thinking)
+</tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+
+### git-commit-message
+
+<tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+Update debug test to test thinking functionality
+</tool.toolu_01RvXjEssMHNoWB1Ekoyay6v>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RvXjEssMHNoWB1Ekoyay6v -->

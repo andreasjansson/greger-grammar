@@ -2,24 +2,20 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(defun test-citation-parsing ()
-  "Test citation parsing functionality."
+(defun test-thinking ()
+  "Test thinking functionality."
   (let ((text "## USER:
 
-When was Claude Shannon born?
+What's 2+2?
+
+## THINKING:
+
+This is a simple arithmetic question. I can answer this directly.
 
 ## ASSISTANT:
 
-<cite>Claude Shannon was born on April 30, 1916</cite>
-
-## CITATIONS:
-
-### https://en.wikipedia.org/wiki/Claude_Shannon
-
-Title: Claude Shannon - Wikipedia
-Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001)
-Encrypted index: abc123"))
-    (message "Testing citation parsing...")
+2 + 2 = 4"))
+    (message "Testing thinking...")
     (condition-case err
         (let ((result (greger-tree-sitter-parse text)))
           (message "Parse result: %S" result)
@@ -28,5 +24,5 @@ Encrypted index: abc123"))
       (error
        (message "ERROR: %S" err)))))
 
-(message "=== Testing citation parsing ===")
-(test-citation-parsing)
+(message "=== Testing thinking ===")
+(test-thinking)
