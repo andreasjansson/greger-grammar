@@ -9580,4 +9580,81 @@ Hello
 Test simple USER section
 </tool.toolu_01YGRSK3uVZ3KFixn4sCqUYU>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YGRSK3uVZ3KFixn4sCqUYU -->
+## TOOL RESULT:
+
+ID: toolu_01YGRSK3uVZ3KFixn4sCqUYU
+
+<tool.toolu_01YGRSK3uVZ3KFixn4sCqUYU>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug.greger with 15 characters. Successfully staged 2 file(s) and committed with message: Test simple USER section
+</tool.toolu_01YGRSK3uVZ3KFixn4sCqUYU>
+
+## ASSISTANT:
+
+The issue is that the `citations_with_text` rule has higher precedence and is trying to match user_header + content_with_cites, but it expects a citations_header afterwards. Let me fix the precedence by making the basic sections have higher precedence than the citation rules:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UGNY8u6BpBVwP5HYJmfgtc
+
+### file-path
+
+<tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+grammar.js
+</tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+
+### original-content
+
+<tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    ),
+
+    assistant_section: $ => seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    thinking_section: $ => seq(
+      $.thinking_header,
+      optional(alias($.content, $.section_content))
+    ),
+</tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+
+### new-content
+
+<tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+user_section: $ => prec(2, seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    )),
+
+    system_section: $ => prec(2, seq(
+      $.system_header,
+      optional(alias($.system_content, $.section_content))
+    )),
+
+    assistant_section: $ => prec(2, seq(
+      $.assistant_header,
+      optional(alias($.content, $.section_content))
+    )),
+
+    thinking_section: $ => prec(2, seq(
+      $.thinking_header,
+      optional(alias($.content, $.section_content))
+    )),
+</tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+
+### git-commit-message
+
+<tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+Give basic sections higher precedence than citation rules
+</tool.toolu_01UGNY8u6BpBVwP5HYJmfgtc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UGNY8u6BpBVwP5HYJmfgtc -->

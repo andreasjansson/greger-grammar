@@ -42,25 +42,25 @@ module.exports = grammar({
       $.citations_without_text,
     ),
 
-    user_section: $ => seq(
+    user_section: $ => prec(2, seq(
       $.user_header,
       optional(alias($.content, $.section_content))
-    ),
+    )),
 
-    system_section: $ => seq(
+    system_section: $ => prec(2, seq(
       $.system_header,
       optional(alias($.system_content, $.section_content))
-    ),
+    )),
 
-    assistant_section: $ => seq(
+    assistant_section: $ => prec(2, seq(
       $.assistant_header,
       optional(alias($.content, $.section_content))
-    ),
+    )),
 
-    thinking_section: $ => seq(
+    thinking_section: $ => prec(2, seq(
       $.thinking_header,
       optional(alias($.content, $.section_content))
-    ),
+    )),
 
     tool_use_section: $ => seq(
       $.tool_use_header,
