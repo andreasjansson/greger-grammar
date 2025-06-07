@@ -111,10 +111,10 @@ module.exports = grammar({
     ),
 
     // Text line - fallback for any non-empty line
-    text_line: $ => prec.dynamic(-1, seq(
+    text_line: $ => prec.dynamic(-1, prec.left(seq(
       /[^\n#]+/, // Any non-empty line that doesn't contain #
       optional("\n")
-    )),
+    ))),
 
     // Cite tag
     cite_tag: $ => seq(
