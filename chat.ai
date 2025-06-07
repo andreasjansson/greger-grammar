@@ -6513,4 +6513,92 @@ the actual text content within sections."
 Fix content extraction to handle actual tree structure
 </tool.toolu_017V55qCF74KsG9vUbku5zJK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017V55qCF74KsG9vUbku5zJK -->
+## TOOL RESULT:
+
+ID: toolu_017V55qCF74KsG9vUbku5zJK
+
+<tool.toolu_017V55qCF74KsG9vUbku5zJK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix content extraction to handle actual tree structure
+</tool.toolu_017V55qCF74KsG9vUbku5zJK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WAkK4yCUnxaX14EFk6cvLL
+
+### command
+
+<tool.toolu_01WAkK4yCUnxaX14EFk6cvLL>
+emacs --batch -l debug-test.el
+</tool.toolu_01WAkK4yCUnxaX14EFk6cvLL>
+
+## TOOL RESULT:
+
+ID: toolu_01WAkK4yCUnxaX14EFk6cvLL
+
+<tool.toolu_01WAkK4yCUnxaX14EFk6cvLL>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing content extraction ===
+Testing content extraction...
+Content node type: content
+Content node text: "
+When was Claude Shannon born?"
+Content node children count: 1
+  Content child 0: type=
+ text="
+"
+
+</tool.toolu_01WAkK4yCUnxaX14EFk6cvLL>
+
+## ASSISTANT:
+
+It looks like there are some formatting issues in the debug output. Let me test the actual parsing now:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01FE6a3bothsppaLFPwNnzLw
+
+### file-path
+
+<tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+debug-test.el
+</tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+
+### contents
+
+<tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-basic-parsing ()
+  "Test basic parsing functionality."
+  (let ((text "## USER:
+
+When was Claude Shannon born?
+
+## ASSISTANT:
+
+He was born in 1916."))
+    (message "Testing basic parsing...")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (dolist (msg result)
+            (message "Message: role=%s content=%S" (alist-get 'role msg) (alist-get 'content msg))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing basic parsing ===")
+(test-basic-parsing)
+</tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+
+### git-commit-message
+
+<tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+Update debug test to test basic parsing functionality
+</tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FE6a3bothsppaLFPwNnzLw -->

@@ -2,28 +2,23 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(defun test-content-extraction ()
-  "Test content extraction."
+(defun test-basic-parsing ()
+  "Test basic parsing functionality."
   (let ((text "## USER:
 
-When was Claude Shannon born?"))
-    (message "Testing content extraction...")
+When was Claude Shannon born?
+
+## ASSISTANT:
+
+He was born in 1916."))
+    (message "Testing basic parsing...")
     (condition-case err
-        (with-temp-buffer
-          (insert text)
-          (let* ((parser (treesit-parser-create 'greger))
-                 (root-node (treesit-parser-root-node parser))
-                 (section (treesit-node-child root-node 0))
-                 (user-section (treesit-node-child section 0))
-                 (content-node (treesit-node-child user-section 1)))
-            (message "Content node type: %s" (treesit-node-type content-node))
-            (message "Content node text: %S" (treesit-node-text content-node))
-            (message "Content node children count: %d" (treesit-node-child-count content-node))
-            (dotimes (i (treesit-node-child-count content-node))
-              (let ((child (treesit-node-child content-node i)))
-                (message "  Content child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))))))
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (dolist (msg result)
+            (message "Message: role=%s content=%S" (alist-get 'role msg) (alist-get 'content msg))))
       (error
        (message "ERROR: %S" err)))))
 
-(message "=== Testing content extraction ===")
-(test-content-extraction)
+(message "=== Testing basic parsing ===")
+(test-basic-parsing)
