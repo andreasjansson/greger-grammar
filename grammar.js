@@ -85,6 +85,7 @@ module.exports = grammar({
     tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
     server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
     server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
 
     // Content types - use external scanner for text
     content: $ => repeat1(
