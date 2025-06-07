@@ -10917,4 +10917,489 @@ OUTPUT:
 Implement citation transformation functions following exact requirements
 </tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UsZ7S17Hq8tpNhhcHQQK35 -->
+## TOOL RESULT:
+
+ID: toolu_01UsZ7S17Hq8tpNhhcHQQK35
+
+<tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Implement citation transformation functions following exact requirements
+</tool.toolu_01UsZ7S17Hq8tpNhhcHQQK35>
+
+## ASSISTANT:
+
+Now let me test this new approach:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UYbXjECH9uPi8vzncWki5k
+
+### command
+
+<tool.toolu_01UYbXjECH9uPi8vzncWki5k>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01UYbXjECH9uPi8vzncWki5k>
+
+## TOOL RESULT:
+
+ID: toolu_01UYbXjECH9uPi8vzncWki5k
+
+<tool.toolu_01UYbXjECH9uPi8vzncWki5k>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.000s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.009s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))
+   ((type . "text")
+    (text . "Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>")))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while <cite>Newton formulated the laws of motion</cite>")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 12
+Failed: 2
+
+❌ FAILED TESTS:
+  - citations-basic
+  - citations-multiple
+
+</tool.toolu_01UYbXjECH9uPi8vzncWki5k>
+
+## ASSISTANT:
+
+I'm close but there are issues with the logic. Looking at the failures:
+
+1. **citations-basic**: There's an extra text block with the full original content including cite tags
+2. **citations-multiple**: Similar issue - getting extra blocks with original content
+
+The problem is that I'm both processing the sections through the new transformation AND through the old processing logic, creating duplicate content. Let me fix this by ensuring the transformation completely replaces the original section processing for citations cases.
+
+Let me look at what's happening. It seems like both the old citation processing and new processing are running. I need to remove the old citation processing since the new transformation should handle everything.
+
+Let me first check if I still have the old processing code running:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_014h3LHWdrhWVBH2Q1zayGKT
+
+### pattern
+
+<tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+greger-tree-sitter--process-sections-with-citations
+</tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+
+### path
+
+<tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+greger-tree-sitter.el
+</tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+
+## TOOL RESULT:
+
+ID: toolu_014h3LHWdrhWVBH2Q1zayGKT
+
+<tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+172:INTERNAL FUNCTION: Used by greger-tree-sitter--process-sections-with-citations
+418:  sections often get processed by greger-tree-sitter--process-sections-with-citations
+985:(defun greger-tree-sitter--process-sections-with-citations (sections)
+1418:in greger-tree-sitter--process-sections-with-citations which handles
+
+</tool.toolu_014h3LHWdrhWVBH2Q1zayGKT>
+
+## ASSISTANT:
+
+I see the issue. The old `greger-tree-sitter--process-sections-with-citations` function is still there and it's probably being called somewhere. Let me check if it's being used in the extraction logic.
+
+Looking at the code I wrote, I'm calling `greger-tree-sitter--process-transformed-sections` which is the new logic, but I might still have remnants of the old approach. Let me examine what's happening in the new transformation logic.
+
+The issue is likely that both the transformation logic AND the regular section processing are creating content blocks for the same content. Let me fix the logic to ensure that when a section is transformed into a citations_with_text object, it completely replaces the original section processing.
+
+Let me debug this by checking what sections are being transformed:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0112dcFKxc9U3tNe2F34ZGsX
+
+### file-path
+
+<tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+greger-tree-sitter.el
+</tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+
+### original-content
+
+<tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+;; Handle regular sections (existing logic)
+         (t
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((role (alist-get 'role message))
+                    (content (alist-get 'content message)))
+                
+                (cond
+                 ;; User/System sections - flush assistant blocks
+                 ((member role '("user" "system"))
+                  (when current-assistant-blocks
+                    (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                      (push `((role . "assistant") (content . ,assistant-content)) messages))
+                    (setq current-assistant-blocks '()))
+                  (push message messages))
+                 
+                 ;; Assistant sections - accumulate blocks
+                 ((equal role "assistant")
+                  (if (listp content)
+                      (setq current-assistant-blocks (append current-assistant-blocks content))
+                    (when (and (stringp content) (> (length (string-trim content)) 0))
+                      (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))
+</tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+
+### new-content
+
+<tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+;; Handle regular sections (existing logic) 
+         (t
+          ;; Skip sections that have been consumed by citations_with_text transformation
+          (unless (greger-tree-sitter--section-was-transformed section transformed-sections)
+            (let ((message (greger-tree-sitter--extract-section section)))
+              (when message
+                (let ((role (alist-get 'role message))
+                      (content (alist-get 'content message)))
+                  
+                  (cond
+                   ;; User/System sections - flush assistant blocks
+                   ((member role '("user" "system"))
+                    (when current-assistant-blocks
+                      (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+                        (push `((role . "assistant") (content . ,assistant-content)) messages))
+                      (setq current-assistant-blocks '()))
+                    (push message messages))
+                   
+                   ;; Assistant sections - accumulate blocks
+                   ((equal role "assistant")
+                    (if (listp content)
+                        (setq current-assistant-blocks (append current-assistant-blocks content))
+                      (when (and (stringp content) (> (length (string-trim content)) 0))
+                        (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content))))))))))))))
+</tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+
+### git-commit-message
+
+<tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+Skip sections that were transformed to avoid duplicate processing
+</tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+
+## TOOL RESULT:
+
+ID: toolu_0112dcFKxc9U3tNe2F34ZGsX
+
+<tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 1, new has balance 0. They must be equal
+</tool.toolu_0112dcFKxc9U3tNe2F34ZGsX>
+
+## ASSISTANT:
+
+I have a parentheses mismatch. Let me fix that and also add the missing helper function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Hh1P4oLMkVYdssRR7M9riV
+
+### file-path
+
+<tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+greger-tree-sitter.el
+</tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+
+### original-content
+
+<tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+  "Process TRANSFORMED-SECTIONS that may include citations_with_text and citations_without_text."
+  (let ((messages '())
+        (current-assistant-blocks '()))
+    
+    (dolist (section transformed-sections)
+</tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+
+### new-content
+
+<tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+(defun greger-tree-sitter--section-was-transformed (section transformed-sections)
+  "Check if SECTION was transformed and should be skipped in regular processing."
+  (let ((found nil))
+    (dolist (transformed transformed-sections)
+      (when (and (listp transformed)
+                 (alist-get 'original-section transformed)
+                 (eq section (alist-get 'original-section transformed)))
+        (setq found t)))
+    found))
+
+(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+  "Process TRANSFORMED-SECTIONS that may include citations_with_text and citations_without_text."
+  (let ((messages '())
+        (current-assistant-blocks '()))
+    
+    (dolist (section transformed-sections)
+</tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+
+### git-commit-message
+
+<tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+Add helper function to check if section was transformed
+</tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+
+## TOOL RESULT:
+
+ID: toolu_01Hh1P4oLMkVYdssRR7M9riV
+
+<tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01Hh1P4oLMkVYdssRR7M9riV>
+
+## ASSISTANT:
+
+Let me find the exact location:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01S13GQeyvs4WsrnwFMYGrfR
+
+### pattern
+
+<tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+greger-tree-sitter--process-transformed-sections
+</tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+
+### path
+
+<tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+greger-tree-sitter.el
+</tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+
+### context-lines
+
+<tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+2
+</tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+
+## TOOL RESULT:
+
+ID: toolu_01S13GQeyvs4WsrnwFMYGrfR
+
+<tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+136-      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+137-        (let ((transformed-sections (greger-tree-sitter--transform-sections-for-citations sections)))
+138:          (setq messages (greger-tree-sitter--process-transformed-sections transformed-sections)))))
+139-
+140-     ((equal (treesit-node-type root-node) "section")
+--
+874-     (entries . ,citations))))
+875-
+876:(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+877-  "Process TRANSFORMED-SECTIONS that may include citations_with_text and citations_without_text."
+878-  (let ((messages '())
+
+</tool.toolu_01S13GQeyvs4WsrnwFMYGrfR>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QSnq8tDJYQmXqyUv8RWPxu
+
+### file-path
+
+<tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+greger-tree-sitter.el
+</tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+
+### original-content
+
+<tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+</tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+
+### new-content
+
+<tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+(defun greger-tree-sitter--section-was-transformed (section transformed-sections)
+  "Check if SECTION was transformed and should be skipped in regular processing."
+  (let ((found nil))
+    (dolist (transformed transformed-sections)
+      (when (and (listp transformed)
+                 (alist-get 'original-section transformed)
+                 (eq section (alist-get 'original-section transformed)))
+        (setq found t)))
+    found))
+
+(defun greger-tree-sitter--process-transformed-sections (transformed-sections)
+</tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+
+### git-commit-message
+
+<tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+Add helper function to check if section was transformed
+</tool.toolu_01QSnq8tDJYQmXqyUv8RWPxu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QSnq8tDJYQmXqyUv8RWPxu -->

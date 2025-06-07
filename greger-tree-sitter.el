@@ -873,6 +873,16 @@ OUTPUT:
      (original-section . ,citations-section)
      (entries . ,citations))))
 
+(defun greger-tree-sitter--section-was-transformed (section transformed-sections)
+  "Check if SECTION was transformed and should be skipped in regular processing."
+  (let ((found nil))
+    (dolist (transformed transformed-sections)
+      (when (and (listp transformed)
+                 (alist-get 'original-section transformed)
+                 (eq section (alist-get 'original-section transformed)))
+        (setq found t)))
+    found))
+
 (defun greger-tree-sitter--process-transformed-sections (transformed-sections)
   "Process TRANSFORMED-SECTIONS that may include citations_with_text and citations_without_text."
   (let ((messages '())
