@@ -6772,4 +6772,73 @@ the actual text content within sections."
 Make content extraction more robust by falling back to raw content_line text
 </tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KuGgmupy4GLABRnDRRR4kB -->
+## TOOL RESULT:
+
+ID: toolu_01KuGgmupy4GLABRnDRRR4kB
+
+<tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Make content extraction more robust by falling back to raw content_line text
+</tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+
+## ASSISTANT:
+
+Now let me test this:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01HUhDHMD3R1Usx1mxhgz2Ar
+
+### file-path
+
+<tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+debug-test.el
+</tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+
+### contents
+
+<tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+;;; debug-test.el --- Debug simple parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-simple-user ()
+  "Debug simple user message parsing."
+  (let ((markdown "## USER:
+
+Hello, how are you?"))
+    (message "\n=== Debugging simple user message ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result))))
+
+(defun debug-simple-conversation ()
+  "Debug simple conversation parsing."
+  (let ((markdown "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?"))
+    (message "\n=== Debugging simple conversation ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result)
+      (message "Number of messages: %d" (length result)))))
+
+;; Run debug
+(if (treesit-ready-p 'greger)
+    (progn
+      (debug-simple-user)
+      (debug-simple-conversation))
+  (message "Tree-sitter greger parser not available"))
+</tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+
+### git-commit-message
+
+<tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+Simplify debug-test.el to test content extraction
+</tool.toolu_01HUhDHMD3R1Usx1mxhgz2Ar>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HUhDHMD3R1Usx1mxhgz2Ar -->
