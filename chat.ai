@@ -5686,4 +5686,140 @@ greger-tree-sitter.el
 Fix assistant section content extraction to use correct node type
 </tool.toolu_01H5ztTbfBDEhaxdWTVj2b7J>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01H5ztTbfBDEhaxdWTVj2b7J -->
+## TOOL RESULT:
+
+ID: toolu_01H5ztTbfBDEhaxdWTVj2b7J
+
+<tool.toolu_01H5ztTbfBDEhaxdWTVj2b7J>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix assistant section content extraction to use correct node type
+</tool.toolu_01H5ztTbfBDEhaxdWTVj2b7J>
+
+## ASSISTANT:
+
+Now let me test again:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012QMSWt1HquXpfSKMavXLap
+
+### command
+
+<tool.toolu_012QMSWt1HquXpfSKMavXLap>
+emacs --batch -l debug-test.el
+</tool.toolu_012QMSWt1HquXpfSKMavXLap>
+
+## TOOL RESULT:
+
+ID: toolu_012QMSWt1HquXpfSKMavXLap
+
+<tool.toolu_012QMSWt1HquXpfSKMavXLap>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing basic citation ===
+Testing basic citation...
+ERROR: (void-function greger-tree-sitter--extract-any-content)
+
+</tool.toolu_012QMSWt1HquXpfSKMavXLap>
+
+## ASSISTANT:
+
+I need to find the actual content extraction functions. Let me search for them:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01GJxV74CFMxkCJHfnbSdq7k
+
+### pattern
+
+<tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+extract-any-content
+</tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+
+### path
+
+<tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+greger-tree-sitter.el
+</tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+
+## TOOL RESULT:
+
+ID: toolu_01GJxV74CFMxkCJHfnbSdq7k
+
+<tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+369:                      (greger-tree-sitter--extract-any-content content-node)
+400:                      (greger-tree-sitter--extract-any-content content-node)
+
+</tool.toolu_01GJxV74CFMxkCJHfnbSdq7k>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01CBzuGt8i3uQ9uFSkWqjvKj
+
+### pattern
+
+<tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+defun.*extract.*content
+</tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+
+### path
+
+<tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+greger-tree-sitter.el
+</tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+
+## TOOL RESULT:
+
+ID: toolu_01CBzuGt8i3uQ9uFSkWqjvKj
+
+<tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+959:(defun greger-tree-sitter--extract-cite-texts (content)
+1232:(defun greger-tree-sitter--extract-citations-with-text-blocks (content)
+1342:(defun greger-tree-sitter--extract-content-with-citations (content-node citations)
+1418:(defun greger-tree-sitter--extract-citations-content (citations-node)
+1702:(defun greger-tree-sitter--extract-content (content-node)
+
+</tool.toolu_01CBzuGt8i3uQ9uFSkWqjvKj>
+
+## ASSISTANT:
+
+I see! The function should be `greger-tree-sitter--extract-content`. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01L9MxcEoK6od9ZasqQc88Tg
+
+### file-path
+
+<tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+greger-tree-sitter.el
+</tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+
+### original-content
+
+<tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-any-content content-node)
+                    "")))
+</tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+
+### new-content
+
+<tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+    `((role . "user")
+      (content . ,(if content-node
+                      (greger-tree-sitter--extract-content content-node)
+                    "")))
+</tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+
+### git-commit-message
+
+<tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+Fix user section to use correct content extraction function
+</tool.toolu_01L9MxcEoK6od9ZasqQc88Tg>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01L9MxcEoK6od9ZasqQc88Tg -->
