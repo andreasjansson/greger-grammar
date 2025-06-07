@@ -25,10 +25,7 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => seq(
-      optional($.content),
-      repeat($.section)
-    ),
+    source_file: $ => repeat($.section),
 
     section: $ => choice(
       $.user_section,
