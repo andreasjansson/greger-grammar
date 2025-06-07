@@ -1,40 +1,41 @@
-;;; debug-test.el --- Debug greger tree-sitter parsing
+;;; debug-test.el --- Debug simple parsing issues -*- lexical-binding: t -*-
 
 (load-file "./greger-tree-sitter.el")
 
-;; Debug simple tree structure first
-(let ((text "## USER:
+(defun debug-simple-user ()
+  "Debug simple user message parsing."
+  (let ((markdown "## USER:
 
-Hello, how are you?
+Hello, how are you?"))
+    (message "\n=== Debugging simple user message ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result)
+      (message "Reversed result: %S" (reverse result)))))
+
+(defun debug-simple-conversation ()
+  "Debug simple conversation parsing."
+  (let ((markdown "## USER:
+
+Hello
 
 ## ASSISTANT:
 
-Hi there! How can I help you today?
-"))
-  (with-temp-buffer
-    (insert text)
-    (let* ((parser (treesit-parser-create 'greger))
-           (root-node (treesit-parser-root-node parser)))
+Hi there! How can I help you today?"))
+    (message "\n=== Debugging simple conversation ===")
+    (message "Input: %S" markdown)
+    (let ((result (greger-tree-sitter-parse markdown)))
+      (message "Raw result: %S" result)
+      (message "Number of messages: %d" (length result))
+      (when (> (length result) 0)
+        (message "First message: %S" (car result)))
+      (when (> (length result) 1)
+        (message "Second message: %S" (cadr result))))))
 
-      (message "Root node type: %s" (treesit-node-type root-node))
-      (message "Root node children: %d" (treesit-node-child-count root-node))
-      (dotimes (i (treesit-node-child-count root-node))
-        (let ((child (treesit-node-child root-node i)))
-          (message "  Root child %d: %s" i (treesit-node-type child))))
-
-      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
-        (message "Sections found by get-all-sections: %d" (length sections))
-        (when (> (length sections) 0)
-          (let* ((first-section (car sections))
-                 (user-section-node (treesit-node-child first-section 0))
-                 (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
-
-            (message "User section type: %s" (treesit-node-type user-section-node))
-            (message "Content node found: %s" (if content-node "yes" "no"))
-            (when content-node
-              (message "Content node type: %s" (treesit-node-type content-node))
-              (message "Content node children: %d" (treesit-node-child-count content-node))
-              (dotimes (i (treesit-node-child-count content-node))
-                (let ((child (treesit-node-child content-node i)))
-                  (message "  Content child %d: %s" i (treesit-node-type child))))
-              (message "Extracted content: '%s'" (greger-tree-sitter--extract-content content-node)))))))))
+;; Run debug
+(if (treesit-ready-p 'greger)
+    (progn
+      (debug-simple-user)
+      (debug-simple-conversation)
+      (message "\n=== Debug completed ==="))
+  (message "Tree-sitter greger parser not available"))
