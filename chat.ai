@@ -11188,4 +11188,258 @@ Hello, how are you?")
 Debug root node structure to understand section finding issue
 </tool.toolu_01EZZCo2d7oAUtxYgnK8evGv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EZZCo2d7oAUtxYgnK8evGv -->
+## TOOL RESULT:
+
+ID: toolu_01EZZCo2d7oAUtxYgnK8evGv
+
+<tool.toolu_01EZZCo2d7oAUtxYgnK8evGv>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-content.el with 738 characters. Successfully staged 2 file(s) and committed with message: Debug root node structure to understand section finding issue
+</tool.toolu_01EZZCo2d7oAUtxYgnK8evGv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016d6Zygq2434bsMqrpfu7fh
+
+### command
+
+<tool.toolu_016d6Zygq2434bsMqrpfu7fh>
+emacs --batch -l debug-content.el
+</tool.toolu_016d6Zygq2434bsMqrpfu7fh>
+
+## TOOL RESULT:
+
+ID: toolu_016d6Zygq2434bsMqrpfu7fh
+
+<tool.toolu_016d6Zygq2434bsMqrpfu7fh>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 0
+Sections found by get-all-sections: 0
+
+</tool.toolu_016d6Zygq2434bsMqrpfu7fh>
+
+## USER:
+
+No, that was an unsafe command. I won't be around to approve those commands from now on. Don't make that mistake again or you'll be stuck forever. You should have repurposed debug-test.el.
+
+## ASSISTANT:
+
+You're absolutely right, I apologize! I should have used the existing debug-test.el. Let me fix this by using the safe command and modifying the existing debug file:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SmHgwsViojB9gnBXsB66w9
+
+### file-path
+
+<tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+debug-test.el
+</tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+
+### original-content
+
+<tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+(load-file "./greger-tree-sitter.el")
+
+;; Test parsing a simple user message
+(let* ((text "## USER:
+
+Hello, how are you?")
+       (result (greger-tree-sitter-parse text)))
+  (message "Parse result: %S" result))
+</tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+
+### new-content
+
+<tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+(load-file "./greger-tree-sitter.el")
+
+;; Debug tree structure
+(let* ((text "## USER:
+
+Hello, how are you?")
+       (parser (treesit-parser-create 'greger))
+       (root-node (progn (with-temp-buffer
+                          (insert text)
+                          (treesit-parser-root-node parser)))))
+  
+  (message "Root node type: %s" (treesit-node-type root-node))
+  (message "Root node children: %d" (treesit-node-child-count root-node))
+  (dotimes (i (treesit-node-child-count root-node))
+    (let ((child (treesit-node-child root-node i)))
+      (message "  Root child %d: %s" i (treesit-node-type child))))
+  
+  (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+    (message "Sections found by get-all-sections: %d" (length sections))))
+</tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+
+### git-commit-message
+
+<tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+Debug tree structure in debug-test.el
+</tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+
+## TOOL RESULT:
+
+ID: toolu_01SmHgwsViojB9gnBXsB66w9
+
+<tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01SmHgwsViojB9gnBXsB66w9>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011HV8osG18v4vTiZE2JLAdu
+
+### path
+
+<tool.toolu_011HV8osG18v4vTiZE2JLAdu>
+debug-test.el
+</tool.toolu_011HV8osG18v4vTiZE2JLAdu>
+
+## TOOL RESULT:
+
+ID: toolu_011HV8osG18v4vTiZE2JLAdu
+
+<tool.toolu_011HV8osG18v4vTiZE2JLAdu>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result))))))
+
+  (message "\nFinal parsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (dolist (msg result)
+      (message "Message role: %s" (alist-get 'role msg)))))
+</tool.toolu_011HV8osG18v4vTiZE2JLAdu>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016bm5wrdhy3yjgp4ebLAbQD
+
+### file-path
+
+<tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+debug-test.el
+</tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+
+### original-content
+
+<tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+(let ((test-text "## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+  (message "Input text:")
+  (message "%s" test-text)
+
+  ;; Parse with tree-sitter to see the tree structure
+  (with-temp-buffer
+    (insert test-text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (let ((root-node (treesit-parser-root-node parser)))
+        (message "\nTree structure:")
+        (message "Root node type: %s" (treesit-node-type root-node))
+        (message "Child count: %d" (treesit-node-child-count root-node))
+
+        ;; Check section order
+        (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+          (message "\nExtracted sections:")
+          (dotimes (i (length sections))
+            (let* ((section (nth i sections))
+                   (section-type (greger-tree-sitter--get-section-type section)))
+              (message "Section %d: %s" i section-type)))
+
+          ;; Test the section processing manually
+          (let ((processed-result (greger-tree-sitter--process-sections-with-citations sections)))
+            (message "\nProcessed sections result:")
+            (pp processed-result))))))
+
+  (message "\nFinal parsed result:")
+  (let ((result (greger-tree-sitter-parse test-text)))
+    (pp result)
+    (message "\nNumber of messages: %d" (length result))
+    (dolist (msg result)
+      (message "Message role: %s" (alist-get 'role msg)))))
+</tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+
+### new-content
+
+<tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let* ((text "## USER:
+
+Hello, how are you?")
+       (parser (treesit-parser-create 'greger))
+       (root-node (progn (with-temp-buffer
+                          (insert text)
+                          (treesit-parser-root-node parser)))))
+  
+  (message "Root node type: %s" (treesit-node-type root-node))
+  (message "Root node children: %d" (treesit-node-child-count root-node))
+  (dotimes (i (treesit-node-child-count root-node))
+    (let ((child (treesit-node-child root-node i)))
+      (message "  Root child %d: %s" i (treesit-node-type child))))
+  
+  (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+    (message "Sections found by get-all-sections: %d" (length sections))))
+</tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+
+### git-commit-message
+
+<tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+Debug tree structure in debug-test.el
+</tool.toolu_016bm5wrdhy3yjgp4ebLAbQD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016bm5wrdhy3yjgp4ebLAbQD -->
