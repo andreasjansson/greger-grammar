@@ -579,6 +579,50 @@ I've written the Python file."
                     ((role . "user") (content . (((type . "tool_result") (tool_use_id . "toolu_999") (content . "File written successfully")))))
                     ((role . "assistant") (content . "I've written the Python file."))))
 
+    (:name "tool-use-with-tool-use-in-params"
+           :markdown "## USER:
+
+Write some Python code
+
+## TOOL USE:
+
+Name: write-file
+ID: toolu_999
+
+### filename
+
+<tool.toolu_999>
+example.py
+</tool.toolu_999>
+
+### content
+
+<tool.toolu_999>
+foo
+<tool.toolu_123>
+bar
+</tool.toolu_123>
+</tool.toolu_999>
+
+## TOOL RESULT:
+
+ID: toolu_999
+
+<tool.toolu_999>
+File written successfully
+</tool.toolu_999>
+
+## ASSISTANT:
+
+I've written the Python file."
+           :dialog (((role . "user") (content . "Write some Python code"))
+                    ((role . "assistant") (content . (((type . "tool_use") (id . "toolu_999") (name . "write-file") (input . ((filename . "example.py") (content . "foo
+<tool.toolu_123>
+bar
+</tool.toolu_123>")))))))
+                    ((role . "user") (content . (((type . "tool_result") (tool_use_id . "toolu_999") (content . "File written successfully")))))
+                    ((role . "assistant") (content . "I've written the Python file."))))
+
     ;; Nested code blocks (backticks inside code blocks)
     (:name "nested-code-blocks"
            :markdown "## USER:
