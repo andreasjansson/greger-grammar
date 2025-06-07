@@ -4024,4 +4024,412 @@ greger-tree-sitter.el
 Remove nreverse since blocks are now in correct order with append
 </tool.toolu_01B4Q4UvZj8xzwajUt8cVtLJ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01B4Q4UvZj8xzwajUt8cVtLJ -->
+## TOOL RESULT:
+
+ID: toolu_01B4Q4UvZj8xzwajUt8cVtLJ
+
+<tool.toolu_01B4Q4UvZj8xzwajUt8cVtLJ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove nreverse since blocks are now in correct order with append
+</tool.toolu_01B4Q4UvZj8xzwajUt8cVtLJ>
+
+
+## ASSISTANT:
+
+Now let me test this fix:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LfgRhc9MaFNbx2TfZx8fXJ
+
+### command
+
+<tool.toolu_01LfgRhc9MaFNbx2TfZx8fXJ>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01LfgRhc9MaFNbx2TfZx8fXJ>
+
+## TOOL RESULT:
+
+ID: toolu_01LfgRhc9MaFNbx2TfZx8fXJ
+
+<tool.toolu_01LfgRhc9MaFNbx2TfZx8fXJ>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.000s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.000s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiline-params ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,")))))
+
+
+=== Testing: citations-after-tool-result ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results")))))
+
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "while")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 14
+Passed: 11
+Failed: 3
+
+❌ FAILED TESTS:
+  - citations-basic
+  - citations-after-tool-result
+  - citations-multiple
+
+</tool.toolu_01LfgRhc9MaFNbx2TfZx8fXJ>
+
+## ASSISTANT:
+
+Perfect! Now I have 11/14 tests passing! I fixed all the ordering issues. Now I just need to fix the citation parsing.
+
+Looking at the failing tests, the issue is clear:
+
+1. The `<cite>` tags are not being parsed
+2. The `## CITATIONS:` sections are being completely ignored
+
+For example, in `citations-basic`:
+- Expected: Two text blocks, one with citation, plus the citation text
+- Actual: Only one text block, no citation processing
+
+Looking at `citations-multiple`:
+- Expected: Multiple text blocks with citations
+- Actual: Only one text block with text "while"
+
+This suggests that the text with `<cite>` tags is not being parsed at all, and the citation sections are being ignored.
+
+Let me examine the citation test case more carefully. Looking at `citations-basic`, the expected result has:
+
+1. `((type . "text") (text . "Based on the search results,"))`
+2. `((type . "text") (text . "Claude Shannon was born...") (citations . ...))`
+
+But the actual result only has:
+1. `((type . "text") (text . "Based on the search results,"))`
+
+This means that the text with the `<cite>` tag is being completely lost. Let me check if the problem is in the citation association or in the text extraction itself.
+
+Let me look at one of the test cases in detail. The `citations-basic` markdown should have:
+
+```
+## ASSISTANT:
+
+Based on the search results, <cite>Claude Shannon was born on April 30, 1916, in Petoskey, Michigan</cite>
+
+## CITATIONS:
+...
+```
+
+The expected result splits this into two text blocks:
+1. "Based on the search results,"
+2. "Claude Shannon was born..." (with citations)
+
+But I'm only getting the first part. This suggests that when we find `<cite>` tags, the parsing is failing completely.
+
+Let me examine the citation association function more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015rAmdjWUy91L9z6irPpj1n
+
+### path
+
+<tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+greger-tree-sitter.el
+</tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+
+### start-line
+
+<tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+920
+</tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+
+### end-line
+
+<tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+950
+</tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+
+## TOOL RESULT:
+
+ID: toolu_015rAmdjWUy91L9z6irPpj1n
+
+<tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+<cite> tags work with subsequent ## CITATIONS: sections."
+  (let ((result '()))
+    (dolist (block content-blocks)
+      (if (and (equal (alist-get 'type block) "text")
+               (string-match-p "<cite>" (alist-get 'text block "")))
+          ;; This text block has cite tags - parse it with citations
+          (let ((parsed-blocks (greger-tree-sitter--parse-content-with-citations
+                                (alist-get 'text block) citations)))
+            (setq result (append result parsed-blocks)))
+        ;; Regular block - add as is
+        (push block result)))
+    (nreverse result)))
+
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Extract citations from a ## CITATIONS: SECTION-NODE.
+
+INPUT:
+  SECTION-NODE - Tree-sitter node representing a ## CITATIONS: section
+
+PROCESSING:
+  1. Finds the citations_content within the section
+  2. Iterates through all citation_entry children
+  3. Extracts each citation entry using greger-tree-sitter--extract-citation-entry
+
+OUTPUT:
+  Returns a list of citation objects, each with fields:
+  - type: \"web_search_result_location\"
+  - url: The URL from ### https://... line
+  - title: Text after \"Title:\" line
+  - cited_text: Text after \"Cited text:\" line
+  - encrypted_index: Text after \"Encrypted index:\" line
+</tool.toolu_015rAmdjWUy91L9z6irPpj1n>
+
+## ASSISTANT:
+
+The logic looks correct. The issue might be that the `citations` list is empty because the citation extraction is failing, or the citation section isn't being detected properly.
+
+Let me create a very simple debug test to see if citation sections are being detected at all. Let me add some debug output to see what's happening:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01TLTnx9NHn2ZrcFxVrCct77
+
+### file-path
+
+<tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+debug-citations-simple.el
+</tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+
+### contents
+
+<tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+;;; debug-citations-simple.el --- Debug simple citation case -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+;; Override the citation section extraction to add debug output
+(defun greger-tree-sitter--extract-citations-section (section-node)
+  "Debug version that prints what it finds."
+  (message "DEBUG: extract-citations-section called")
+  (let* ((citations-section (treesit-node-child section-node 0))
+         (citations-content (greger-tree-sitter--find-child-by-type citations-section "citations_content"))
+         (citations '()))
+
+    (message "DEBUG: citations-section = %s" (treesit-node-type citations-section))
+    (message "DEBUG: citations-content = %s" (if citations-content (treesit-node-type citations-content) "nil"))
+
+    (when citations-content
+      (let ((child-count (treesit-node-child-count citations-content)))
+        (message "DEBUG: citations-content has %d children" child-count)
+        (dotimes (i child-count)
+          (let ((child (treesit-node-child citations-content i)))
+            (message "DEBUG: child %d type = %s" i (treesit-node-type child))
+            (when (equal (treesit-node-type child) "citation_entry")
+              (message "DEBUG: Found citation_entry")
+              (push (greger-tree-sitter--extract-citation-entry child) citations))))))
+
+    (message "DEBUG: extracted %d citations" (length citations))
+    (nreverse citations)))
+
+;; Test with simple case
+(let ((test-text "## USER:
+
+Test
+
+## ASSISTANT:
+
+<cite>cited text</cite>
+
+## CITATIONS:
+
+### https://example.com
+
+Title: Example
+Cited text: cited text
+Encrypted index: abc123"))
+  (message "\n=== Testing citation detection ===")
+  (condition-case err
+      (progn
+        (message "Input text: %s" test-text)
+        (let ((result (greger-tree-sitter-parse test-text)))
+          (message "Result:")
+          (pp result)))
+    (error
+     (message "Error: %s" (error-message-string err)))))
+</tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+
+### git-commit-message
+
+<tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+Add debug script for citation detection
+</tool.toolu_01TLTnx9NHn2ZrcFxVrCct77>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TLTnx9NHn2ZrcFxVrCct77 -->
