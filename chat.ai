@@ -5932,4 +5932,540 @@ grammar.js
 Add left precedence to all sections to resolve conflicts
 </tool.toolu_019my3X3JAGJ94x3rgLMi22r>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019my3X3JAGJ94x3rgLMi22r -->
+## TOOL RESULT:
+
+ID: toolu_019my3X3JAGJ94x3rgLMi22r
+
+<tool.toolu_019my3X3JAGJ94x3rgLMi22r>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add left precedence to all sections to resolve conflicts
+</tool.toolu_019my3X3JAGJ94x3rgLMi22r>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012rRiN8UDTpbeahELfmeeDJ
+
+### command
+
+<tool.toolu_012rRiN8UDTpbeahELfmeeDJ>
+bash build.sh
+</tool.toolu_012rRiN8UDTpbeahELfmeeDJ>
+
+## TOOL RESULT:
+
+ID: toolu_012rRiN8UDTpbeahELfmeeDJ
+
+<tool.toolu_012rRiN8UDTpbeahELfmeeDJ>
+Command executed successfully:
+Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      'user_section_token1'  _newline  section_content_repeat1  •  text  …
+    
+    Possible interpretations:
+    
+      1:  'user_section_token1'  _newline  (section_content  section_content_repeat1)  •  text  …
+      2:  'user_section_token1'  _newline  (section_content_repeat1  section_content_repeat1  •  section_content_repeat1)
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `section_content`
+      2:  Add a conflict for these rules: `section_content`
+    
+
+</tool.toolu_012rRiN8UDTpbeahELfmeeDJ>
+
+## ASSISTANT:
+
+I still have conflicts. Let me take a much simpler approach, inspired by the markdown grammar. I'll simplify dramatically:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0116WqQqCbgWENqcBDSLC4E6
+
+### file-path
+
+<tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+grammar.js
+</tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+
+### original-content
+
+<tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $.inline_code,
+    $.code_fence_start,
+    $.code_fence_end,
+    $.code_fence_content,
+    $._newline,
+    $._eof,
+  ],
+
+  rules: {
+    document: $ => repeat($._block),
+
+    _block: $ => choice(
+      $.section,
+      $.untagged_content,
+    ),
+
+    // Different section types
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    // Section headers
+    user_section: $ => prec.left(seq(
+      alias(/##[ \t]*USER:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.section_content)
+    )),
+
+    system_section: $ => prec.left(seq(
+      alias(/##[ \t]*SYSTEM:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.section_content)
+    )),
+
+    assistant_section: $ => prec.left(seq(
+      alias(/##[ \t]*ASSISTANT:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.section_content)
+    )),
+
+    thinking_section: $ => prec.left(seq(
+      alias(/##[ \t]*THINKING:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.section_content)
+    )),
+
+    tool_use_section: $ => seq(
+      alias(/##[ \t]*TOOL USE:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.tool_use_content)
+    ),
+
+    tool_result_section: $ => seq(
+      alias(/##[ \t]*TOOL RESULT:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.tool_result_content)
+    ),
+
+    server_tool_use_section: $ => seq(
+      alias(/##[ \t]*SERVER TOOL USE:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      alias(/##[ \t]*SERVER TOOL RESULT:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.tool_result_content)
+    ),
+
+    citations_section: $ => seq(
+      alias(/##[ \t]*CITATIONS:[ \t]*/, $.section_header),
+      $._newline,
+      optional($.citations_content)
+    ),
+
+    // Content within sections
+    section_content: $ => repeat1($._content_element),
+
+    _content_element: $ => choice(
+      $.text,
+      $.cite_tag,
+      $.code_block,
+      $.inline_code,
+      $._newline,
+    ),
+
+    // Text content - anything that's not markup
+    text: $ => /[^#<`\n]+/,
+
+    // Citation tags
+    cite_tag: $ => seq(
+      "<cite>",
+      field("text", repeat1(/[^<]+/)),
+      "</cite>"
+    ),
+
+    // Code blocks
+    code_block: $ => seq(
+      $.code_fence_start,
+      optional($.code_fence_content),
+      optional($.code_fence_end)
+    ),
+
+    // Tool use content
+    tool_use_content: $ => repeat1(choice(
+      $.tool_name,
+      $.tool_id,
+      $.tool_parameter,
+      $._newline,
+    )),
+
+    tool_name: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      $._newline
+    ),
+
+    tool_id: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      $._newline
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      $._newline,
+      $._newline,
+      $.tool_parameter_block
+    ),
+
+    tool_parameter_block: $ => seq(
+      $.tool_block_start,
+      optional(repeat($.tool_block_content)),
+      optional($.tool_block_end)
+    ),
+
+    // Tool result content
+    tool_result_content: $ => repeat1(choice(
+      $.tool_result_id,
+      $.tool_result_block,
+      $._newline,
+    )),
+
+    tool_result_id: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      $._newline
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      optional(repeat($.tool_block_content)),
+      optional($.tool_block_end)
+    ),
+
+    // Citations content
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $._newline,
+    )),
+
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", /[^\n]+/),
+      $._newline,
+      $._newline,
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $._newline,
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      $._newline
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      $._newline
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      $._newline
+    ),
+
+    // Untagged content at the beginning of the document
+    untagged_content: $ => prec.left(seq(
+      $.text,
+      repeat($._content_element)
+    )),
+  }
+});
+</tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+
+### new-content
+
+<tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $._text_line,
+  ],
+
+  rules: {
+    document: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.content_line,
+    ),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      /##[ \t]*USER:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    system_section: $ => seq(
+      /##[ \t]*SYSTEM:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    assistant_section: $ => seq(
+      /##[ \t]*ASSISTANT:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    thinking_section: $ => seq(
+      /##[ \t]*THINKING:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    tool_use_section: $ => seq(
+      /##[ \t]*TOOL USE:[ \t]*\n/,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $.content_line,
+      ))
+    ),
+
+    tool_result_section: $ => seq(
+      /##[ \t]*TOOL RESULT:[ \t]*\n/,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $.content_line,
+      ))
+    ),
+
+    server_tool_use_section: $ => seq(
+      /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $.content_line,
+      ))
+    ),
+
+    server_tool_result_section: $ => seq(
+      /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $.content_line,
+      ))
+    ),
+
+    citations_section: $ => seq(
+      /##[ \t]*CITATIONS:[ \t]*\n/,
+      repeat(choice(
+        $.citation_entry,
+        $.content_line,
+      ))
+    ),
+
+    // Content elements
+    content_line: $ => choice(
+      $.text_line,
+      $.cite_tag_line,
+      $.code_block_line,
+      $.empty_line,
+    ),
+
+    text_line: $ => seq(
+      $._text_line,
+      "\n"
+    ),
+
+    cite_tag_line: $ => seq(
+      optional($._text_line),
+      $.cite_tag,
+      optional($._text_line),
+      "\n"
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("text", /[^<]+/),
+      "</cite>"
+    ),
+
+    code_block_line: $ => seq(
+      "```",
+      optional(/[^\n]*/),
+      "\n"
+    ),
+
+    empty_line: $ => "\n",
+
+    // Tool-specific elements
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n",
+      "\n",
+      $.tool_parameter_block
+    ),
+
+    tool_parameter_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    tool_result_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    // Citation elements
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", /[^\n]+/),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.content_line,
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+  }
+});
+</tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+
+### git-commit-message
+
+<tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+Completely redesign grammar with line-based approach to avoid conflicts
+</tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0116WqQqCbgWENqcBDSLC4E6 -->
