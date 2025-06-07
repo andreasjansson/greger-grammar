@@ -2,32 +2,28 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(defun test-tree-structure ()
-  "Test tree structure parsing."
+(defun test-content-extraction ()
+  "Test content extraction."
   (let ((text "## USER:
 
 When was Claude Shannon born?"))
-    (message "Testing tree structure...")
+    (message "Testing content extraction...")
     (condition-case err
         (with-temp-buffer
           (insert text)
           (let* ((parser (treesit-parser-create 'greger))
-                 (root-node (treesit-parser-root-node parser)))
-            (message "Root node type: %s" (treesit-node-type root-node))
-            (message "Root node children count: %d" (treesit-node-child-count root-node))
-            (dotimes (i (treesit-node-child-count root-node))
-              (let ((child (treesit-node-child root-node i)))
-                (message "  Root child %d: type=%s" i (treesit-node-type child))
-                (when (equal (treesit-node-type child) "section")
-                  (let* ((section-child (treesit-node-child child 0))
-                         (section-type (treesit-node-type section-child)))
-                    (message "    Section type: %s" section-type)
-                    (message "    Section children count: %d" (treesit-node-child-count section-child))
-                    (dotimes (j (treesit-node-child-count section-child))
-                      (let ((section-subchild (treesit-node-child section-child j)))
-                        (message "      Section child %d: type=%s" j (treesit-node-type section-subchild))))))))))
+                 (root-node (treesit-parser-root-node parser))
+                 (section (treesit-node-child root-node 0))
+                 (user-section (treesit-node-child section 0))
+                 (content-node (treesit-node-child user-section 1)))
+            (message "Content node type: %s" (treesit-node-type content-node))
+            (message "Content node text: %S" (treesit-node-text content-node))
+            (message "Content node children count: %d" (treesit-node-child-count content-node))
+            (dotimes (i (treesit-node-child-count content-node))
+              (let ((child (treesit-node-child content-node i)))
+                (message "  Content child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))))))
       (error
        (message "ERROR: %S" err)))))
 
-(message "=== Testing tree structure ===")
-(test-tree-structure)
+(message "=== Testing content extraction ===")
+(test-content-extraction)

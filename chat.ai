@@ -6253,4 +6253,97 @@ When was Claude Shannon born?"))
 Fix debug test to properly create tree-sitter parser
 </tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EDJ3r5oXBzKooVQLTEMzCM -->
+## TOOL RESULT:
+
+ID: toolu_01EDJ3r5oXBzKooVQLTEMzCM
+
+<tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1619 characters. Successfully staged 2 file(s) and committed with message: Fix debug test to properly create tree-sitter parser
+</tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017QHW37CqYQHvS7Bed3KtVp
+
+### command
+
+<tool.toolu_017QHW37CqYQHvS7Bed3KtVp>
+emacs --batch -l debug-test.el
+</tool.toolu_017QHW37CqYQHvS7Bed3KtVp>
+
+## TOOL RESULT:
+
+ID: toolu_017QHW37CqYQHvS7Bed3KtVp
+
+<tool.toolu_017QHW37CqYQHvS7Bed3KtVp>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing tree structure ===
+Testing tree structure...
+Root node type: source_file
+Root node children count: 1
+  Root child 0: type=section
+    Section type: user_section
+    Section children count: 2
+      Section child 0: type=user_header
+      Section child 1: type=content
+
+</tool.toolu_017QHW37CqYQHvS7Bed3KtVp>
+
+## ASSISTANT:
+
+Perfect! Now I can see the structure. The content node is directly a child of the user_section. Let me check what's inside the content node:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01HfCV9aXA4QPCikeZDQRVAp
+
+### file-path
+
+<tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+debug-test.el
+</tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+
+### contents
+
+<tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-content-extraction ()
+  "Test content extraction."
+  (let ((text "## USER:
+
+When was Claude Shannon born?"))
+    (message "Testing content extraction...")
+    (condition-case err
+        (with-temp-buffer
+          (insert text)
+          (let* ((parser (treesit-parser-create 'greger))
+                 (root-node (treesit-parser-root-node parser))
+                 (section (treesit-node-child root-node 0))
+                 (user-section (treesit-node-child section 0))
+                 (content-node (treesit-node-child user-section 1)))
+            (message "Content node type: %s" (treesit-node-type content-node))
+            (message "Content node text: %S" (treesit-node-text content-node))
+            (message "Content node children count: %d" (treesit-node-child-count content-node))
+            (dotimes (i (treesit-node-child-count content-node))
+              (let ((child (treesit-node-child content-node i)))
+                (message "  Content child %d: type=%s text=%S" i (treesit-node-type child) (treesit-node-text child))))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing content extraction ===")
+(test-content-extraction)
+</tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+
+### git-commit-message
+
+<tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+Update debug test to check content extraction
+</tool.toolu_01HfCV9aXA4QPCikeZDQRVAp>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HfCV9aXA4QPCikeZDQRVAp -->
