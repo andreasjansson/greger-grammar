@@ -12467,4 +12467,270 @@ Hello, how are you?
 Add trailing newline to match test_simple.greger format
 </tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Db6VeNDuxHCFfSxyCuzGju -->
+## TOOL RESULT:
+
+ID: toolu_01Db6VeNDuxHCFfSxyCuzGju
+
+<tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add trailing newline to match test_simple.greger format
+</tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016cnzv6kv7CWgauu1ncJRP6
+
+### command
+
+<tool.toolu_016cnzv6kv7CWgauu1ncJRP6>
+emacs --batch -l debug-test.el
+</tool.toolu_016cnzv6kv7CWgauu1ncJRP6>
+
+## TOOL RESULT:
+
+ID: toolu_016cnzv6kv7CWgauu1ncJRP6
+
+<tool.toolu_016cnzv6kv7CWgauu1ncJRP6>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 1
+  Root child 0: section
+Sections found by get-all-sections: 1
+User section type: user_section
+Content node found: yes
+Content node type: section_content
+Content node children: 3
+  Content child 0: newline
+  Content child 1: ERROR
+  Content child 2: newline
+Extracted content: ’’
+
+</tool.toolu_016cnzv6kv7CWgauu1ncJRP6>
+
+## ASSISTANT:
+
+Progress! Now I have 3 children and no ERROR at the root, but there's an ERROR in the middle. The structure shows:
+- newline (empty line after header)
+- ERROR (should be content_line)  
+- newline (final newline)
+
+This means the text is not being parsed properly as a content_line. Let me check if there's an issue with how the external scanner is being called.
+
+The problem might be that the external scanner's `scan_text` function is not working correctly. Let me look at how the RST parser handles this. From what I saw in the RST source, they don't skip whitespace before calling the text scanner.
+
+Looking at my scanner:
+
+```c
+// Handle text tokens (don't skip whitespace for text)
+if (valid_symbols[TEXT] && !scanner->in_tool_block) {
+  return scan_text(lexer);
+}
+```
+
+The issue might be that I'm calling this AFTER the tool block checks. Let me rearrange the order and make sure text parsing gets priority. Also, I think the issue might be in my scan_text function - it returns false if the lookahead is a newline, space, <, or #. But maybe I should handle spaces differently.
+
+Looking back at the RST example, I see they use a different approach. They don't treat text as a primary token that excludes everything - they check for specific markup first and only fall back to text.
+
+Let me modify my external scanner to follow the RST pattern more closely:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0143o9E7nfQh2ox6JnBQ96DD
+
+### file-path
+
+<tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+src/scanner.c
+</tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+
+### original-content
+
+<tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+static bool scan_text(TSLexer *lexer) {
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume characters until we hit a delimiter
+  while (lexer->lookahead != '\0' && 
+         lexer->lookahead != '\n' && 
+         lexer->lookahead != '<' && 
+         lexer->lookahead != '#') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = TEXT;
+  return true;
+}
+</tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+
+### new-content
+
+<tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+static bool scan_text(TSLexer *lexer) {
+  // Don't match if we're at end of input or start of line with no content
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n') {
+    return false;
+  }
+  
+  // Don't match if we're starting with markup characters
+  if (lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume at least one character
+  bool has_content = false;
+  while (lexer->lookahead != '\0' && 
+         lexer->lookahead != '\n' && 
+         lexer->lookahead != '<' && 
+         lexer->lookahead != '#') {
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TEXT;
+    return true;
+  }
+  
+  return false;
+}
+</tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+
+### git-commit-message
+
+<tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+Improve text scanning to ensure content is consumed
+</tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+
+## TOOL RESULT:
+
+ID: toolu_0143o9E7nfQh2ox6JnBQ96DD
+
+<tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_0143o9E7nfQh2ox6JnBQ96DD>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011aTDBWJkHx1kmNKbHy7CNa
+
+### path
+
+<tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+src/scanner.c
+</tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+
+### start-line
+
+<tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+232
+</tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+
+### end-line
+
+<tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+250
+</tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+
+## TOOL RESULT:
+
+ID: toolu_011aTDBWJkHx1kmNKbHy7CNa
+
+<tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+static bool scan_text(TSLexer *lexer) {
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume characters until we hit a delimiter
+  while (lexer->lookahead != '\0' &&
+         lexer->lookahead != '\n' &&
+         lexer->lookahead != '<' &&
+         lexer->lookahead != '#') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = TEXT;
+  return true;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+  Scanner *scanner = (Scanner *)payload;
+</tool.toolu_011aTDBWJkHx1kmNKbHy7CNa>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VeT5Hs9dUi7QCLiCN4pFHy
+
+### file-path
+
+<tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+src/scanner.c
+</tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+
+### original-content
+
+<tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+static bool scan_text(TSLexer *lexer) {
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume characters until we hit a delimiter
+  while (lexer->lookahead != '\0' &&
+         lexer->lookahead != '\n' &&
+         lexer->lookahead != '<' &&
+         lexer->lookahead != '#') {
+    advance(lexer);
+  }
+
+  lexer->result_symbol = TEXT;
+  return true;
+}
+</tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+
+### new-content
+
+<tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+static bool scan_text(TSLexer *lexer) {
+  // Don't match if we're at end of input or start of line with no content
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n') {
+    return false;
+  }
+  
+  // Don't match if we're starting with markup characters
+  if (lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume at least one character
+  bool has_content = false;
+  while (lexer->lookahead != '\0' && 
+         lexer->lookahead != '\n' && 
+         lexer->lookahead != '<' && 
+         lexer->lookahead != '#') {
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TEXT;
+    return true;
+  }
+  
+  return false;
+}
+</tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+
+### git-commit-message
+
+<tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+Improve text scanning to ensure content is consumed
+</tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VeT5Hs9dUi7QCLiCN4pFHy -->

@@ -230,20 +230,32 @@ static bool scan_tool_content(TSLexer *lexer, Scanner *scanner) {
 }
 
 static bool scan_text(TSLexer *lexer) {
-  if (lexer->lookahead == '\0' || lexer->lookahead == '\n' || lexer->lookahead == '<' || lexer->lookahead == '#') {
+  // Don't match if we're at end of input or start of line with no content
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n') {
     return false;
   }
 
-  // Consume characters until we hit a delimiter
+  // Don't match if we're starting with markup characters
+  if (lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume at least one character
+  bool has_content = false;
   while (lexer->lookahead != '\0' &&
          lexer->lookahead != '\n' &&
          lexer->lookahead != '<' &&
          lexer->lookahead != '#') {
     advance(lexer);
+    has_content = true;
   }
 
-  lexer->result_symbol = TEXT;
-  return true;
+  if (has_content) {
+    lexer->result_symbol = TEXT;
+    return true;
+  }
+
+  return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
