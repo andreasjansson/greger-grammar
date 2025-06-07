@@ -5663,4 +5663,105 @@ grammar.js
 Add citations header token
 </tool.toolu_01VKg5LTubmX63gLRXdX7jSV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VKg5LTubmX63gLRXdX7jSV -->
+## TOOL RESULT:
+
+ID: toolu_01VKg5LTubmX63gLRXdX7jSV
+
+<tool.toolu_01VKg5LTubmX63gLRXdX7jSV>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add citations header token
+</tool.toolu_01VKg5LTubmX63gLRXdX7jSV>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HUMLFauef4AvcBuzN8u56p
+
+### file-path
+
+<tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+grammar.js
+</tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+
+### original-content
+
+<tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+// Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $._text,
+        "\n"
+      )
+    ),
+</tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+
+### new-content
+
+<tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+// Content types - use external scanner for text
+    content: $ => repeat1(
+      choice(
+        $._text,
+        $.cite_tag,
+        "\n"
+      )
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+</tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+
+### git-commit-message
+
+<tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+Add citation support to grammar
+</tool.toolu_01HUMLFauef4AvcBuzN8u56p>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HUMLFauef4AvcBuzN8u56p -->

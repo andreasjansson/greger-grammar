@@ -91,8 +91,60 @@ module.exports = grammar({
     content: $ => repeat1(
       choice(
         $._text,
+        $.cite_tag,
         "\n"
       )
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+
+    citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $.newline
+    )),
+
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $.url),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.newline
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
     ),
 
     tool_use_content: $ => repeat1(choice(
