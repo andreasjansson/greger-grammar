@@ -6601,4 +6601,96 @@ He was born in 1916."))
 Update debug test to test basic parsing functionality
 </tool.toolu_01FE6a3bothsppaLFPwNnzLw>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FE6a3bothsppaLFPwNnzLw -->
+## TOOL RESULT:
+
+ID: toolu_01FE6a3bothsppaLFPwNnzLw
+
+<tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 696 characters. Successfully staged 2 file(s) and committed with message: Update debug test to test basic parsing functionality
+</tool.toolu_01FE6a3bothsppaLFPwNnzLw>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01K9SehyKwavtBwY9Uy8VNku
+
+### command
+
+<tool.toolu_01K9SehyKwavtBwY9Uy8VNku>
+emacs --batch -l debug-test.el
+</tool.toolu_01K9SehyKwavtBwY9Uy8VNku>
+
+## TOOL RESULT:
+
+ID: toolu_01K9SehyKwavtBwY9Uy8VNku
+
+<tool.toolu_01K9SehyKwavtBwY9Uy8VNku>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing basic parsing ===
+Testing basic parsing...
+Parse result: (((role . "user") (content . "When was Claude Shannon born?")) ((role . "assistant") (content . "He was born in 1916.")))
+Message: role=user content="When was Claude Shannon born?"
+Message: role=assistant content="He was born in 1916."
+
+</tool.toolu_01K9SehyKwavtBwY9Uy8VNku>
+
+## ASSISTANT:
+
+Excellent! The basic parsing is now working. Let me test with citations:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01VMcgUHrvT4szjiiRid1yFi
+
+### file-path
+
+<tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+debug-test.el
+</tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+
+### contents
+
+<tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-citation-parsing ()
+  "Test citation parsing functionality."
+  (let ((text "## USER:
+
+When was Claude Shannon born?
+
+## ASSISTANT:
+
+<cite>Claude Shannon was born on April 30, 1916</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001)
+Encrypted index: abc123"))
+    (message "Testing citation parsing...")
+    (condition-case err
+        (let ((result (greger-tree-sitter-parse text)))
+          (message "Parse result: %S" result)
+          (dolist (msg result)
+            (message "Message: role=%s content=%S" (alist-get 'role msg) (alist-get 'content msg))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing citation parsing ===")
+(test-citation-parsing)
+</tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+
+### git-commit-message
+
+<tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+Update debug test to test citation parsing
+</tool.toolu_01VMcgUHrvT4szjiiRid1yFi>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VMcgUHrvT4szjiiRid1yFi -->

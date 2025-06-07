@@ -2,16 +2,24 @@
 
 (load-file "./greger-tree-sitter.el")
 
-(defun test-basic-parsing ()
-  "Test basic parsing functionality."
+(defun test-citation-parsing ()
+  "Test citation parsing functionality."
   (let ((text "## USER:
 
 When was Claude Shannon born?
 
 ## ASSISTANT:
 
-He was born in 1916."))
-    (message "Testing basic parsing...")
+<cite>Claude Shannon was born on April 30, 1916</cite>
+
+## CITATIONS:
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001)
+Encrypted index: abc123"))
+    (message "Testing citation parsing...")
     (condition-case err
         (let ((result (greger-tree-sitter-parse text)))
           (message "Parse result: %S" result)
@@ -20,5 +28,5 @@ He was born in 1916."))
       (error
        (message "ERROR: %S" err)))))
 
-(message "=== Testing basic parsing ===")
-(test-basic-parsing)
+(message "=== Testing citation parsing ===")
+(test-citation-parsing)
