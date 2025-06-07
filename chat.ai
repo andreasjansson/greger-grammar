@@ -6468,4 +6468,578 @@ module.exports = grammar({
 Completely redesign grammar with line-based approach to avoid conflicts
 </tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0116WqQqCbgWENqcBDSLC4E6 -->
+## TOOL RESULT:
+
+ID: toolu_0116WqQqCbgWENqcBDSLC4E6
+
+<tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Completely redesign grammar with line-based approach to avoid conflicts
+</tool.toolu_0116WqQqCbgWENqcBDSLC4E6>
+
+## ASSISTANT:
+
+Now I need to update the scanner to match this much simpler approach:
+
+## USER:
+
+This is inherently broken. Again, look at this:
+
+### Citation parsing logic
+
+If `<cite>...</cite>` is encountered anywhere on a line, it starts parsing a new "citations_with_text" object. The content inside `<cite>...</cite>` should be a "text" field on the "citations_with_text" object. After `</cite>` you should assume just whitespace until you encounter `## CITATIONS:` at the start of a new line. Then you should parse those citations and place each entry as an "entry" field on the "citations_with_text" object. If you encounter a `## CITATIONS:` when you're not parsing "citations_with_text", make a new "citations_without_text" object and add the "entry"s to that.
+
+This implies that you can't use line-based parsing for citations parts, because it breaks between an assistant text section and a citations_with_text section mid-line.
+
+## ASSISTANT:
+
+You're absolutely right! The citation parsing logic requires that we detect `<cite>...</cite>` tags and then change the parsing mode to expect a `## CITATIONS:` section that belongs with that cite tag. This means:
+
+1. When we see `<cite>...</cite>`, we need to create a "citations_with_text" object
+2. Everything after `</cite>` until `## CITATIONS:` is just whitespace/ignored
+3. The `## CITATIONS:` section that follows becomes part of that citations_with_text object
+4. This breaks the simple line-based approach because the cite tag and citations section span across what would normally be separate sections
+
+Let me look at the expected output again and design a proper grammar that can handle this state-based parsing. The grammar needs to be able to:
+
+1. Parse normal sections
+2. When it encounters a `<cite>` tag, enter a special "waiting for citations" mode
+3. Skip content until it finds `## CITATIONS:`
+4. Parse that citations section as part of the citations_with_text object
+
+Let me start over with a completely different approach that's inspired by how the markdown grammar handles this kind of stateful parsing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01D3FAviKdMKAaJzDDwvaQ9g
+
+### file-path
+
+<tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+grammar.js
+</tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+
+### original-content
+
+<tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $._text_line,
+  ],
+
+  rules: {
+    document: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.content_line,
+    ),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      /##[ \t]*USER:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    system_section: $ => seq(
+      /##[ \t]*SYSTEM:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    assistant_section: $ => seq(
+      /##[ \t]*ASSISTANT:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    thinking_section: $ => seq(
+      /##[ \t]*THINKING:[ \t]*\n/,
+      repeat($.content_line)
+    ),
+
+    tool_use_section: $ => seq(
+      /##[ \t]*TOOL USE:[ \t]*\n/,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $.content_line,
+      ))
+    ),
+
+    tool_result_section: $ => seq(
+      /##[ \t]*TOOL RESULT:[ \t]*\n/,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $.content_line,
+      ))
+    ),
+
+    server_tool_use_section: $ => seq(
+      /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $.content_line,
+      ))
+    ),
+
+    server_tool_result_section: $ => seq(
+      /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $.content_line,
+      ))
+    ),
+
+    citations_section: $ => seq(
+      /##[ \t]*CITATIONS:[ \t]*\n/,
+      repeat(choice(
+        $.citation_entry,
+        $.content_line,
+      ))
+    ),
+
+    // Content elements
+    content_line: $ => choice(
+      $.text_line,
+      $.cite_tag_line,
+      $.code_block_line,
+      $.empty_line,
+    ),
+
+    text_line: $ => seq(
+      $._text_line,
+      "\n"
+    ),
+
+    cite_tag_line: $ => seq(
+      optional($._text_line),
+      $.cite_tag,
+      optional($._text_line),
+      "\n"
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      field("text", /[^<]+/),
+      "</cite>"
+    ),
+
+    code_block_line: $ => seq(
+      "```",
+      optional(/[^\n]*/),
+      "\n"
+    ),
+
+    empty_line: $ => "\n",
+
+    // Tool-specific elements
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("name", /[^\n]+/),
+      "\n",
+      "\n",
+      $.tool_parameter_block
+    ),
+
+    tool_parameter_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    tool_result_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", /[^\n]+/),
+      "\n"
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    // Citation elements
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", /[^\n]+/),
+      "\n",
+      "\n",
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.content_line,
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", /[^\n]+/),
+      "\n"
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", /[^\n]+/),
+      "\n"
+    ),
+  }
+});
+</tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+
+### new-content
+
+<tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+/**
+ * @file greger.el parser - Tree-sitter grammar for greger conversation format
+ * @author Andreas Jansson <andreas.s.t.jansson@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_block_start,
+    $.tool_block_end,
+    $.tool_block_content,
+    $._line_content,
+    $._newline,
+    $._citations_header,
+  ],
+
+  rules: {
+    document: $ => repeat($._block),
+
+    _block: $ => choice(
+      $.regular_section,
+      $.citations_with_text,
+      $.citations_without_text,
+      $.untagged_content,
+    ),
+
+    // Regular sections (USER, ASSISTANT, etc.) that don't contain citations
+    regular_section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+    ),
+
+    // Citations with preceding text (when <cite> tag is found)
+    citations_with_text: $ => seq(
+      choice(
+        $.assistant_section_with_cite,
+        $.thinking_section_with_cite,
+      ),
+      $.citations_content
+    ),
+
+    // Standalone citations (when ## CITATIONS: found without preceding <cite>)
+    citations_without_text: $ => seq(
+      $._citations_header,
+      $._newline,
+      optional($.citations_content)
+    ),
+
+    // Section headers
+    user_section: $ => seq(
+      /##[ \t]*USER:[ \t]*/,
+      $._newline,
+      repeat($._content_line)
+    ),
+
+    system_section: $ => seq(
+      /##[ \t]*SYSTEM:[ \t]*/,
+      $._newline,
+      repeat($._content_line)
+    ),
+
+    assistant_section: $ => seq(
+      /##[ \t]*ASSISTANT:[ \t]*/,
+      $._newline,
+      repeat($._content_line)
+    ),
+
+    thinking_section: $ => seq(
+      /##[ \t]*THINKING:[ \t]*/,
+      $._newline,
+      repeat($._content_line)
+    ),
+
+    // Special sections that contain cite tags - these will be part of citations_with_text
+    assistant_section_with_cite: $ => seq(
+      /##[ \t]*ASSISTANT:[ \t]*/,
+      $._newline,
+      repeat($._content_line_before_cite),
+      $.cite_line,
+      repeat($._content_line_after_cite)
+    ),
+
+    thinking_section_with_cite: $ => seq(
+      /##[ \t]*THINKING:[ \t]*/,
+      $._newline,
+      repeat($._content_line_before_cite),
+      $.cite_line,
+      repeat($._content_line_after_cite)
+    ),
+
+    tool_use_section: $ => seq(
+      /##[ \t]*TOOL USE:[ \t]*/,
+      $._newline,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $._content_line,
+      ))
+    ),
+
+    tool_result_section: $ => seq(
+      /##[ \t]*TOOL RESULT:[ \t]*/,
+      $._newline,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $._content_line,
+      ))
+    ),
+
+    server_tool_use_section: $ => seq(
+      /##[ \t]*SERVER TOOL USE:[ \t]*/,
+      $._newline,
+      repeat(choice(
+        $.tool_name_line,
+        $.tool_id_line,
+        $.tool_parameter,
+        $._content_line,
+      ))
+    ),
+
+    server_tool_result_section: $ => seq(
+      /##[ \t]*SERVER TOOL RESULT:[ \t]*/,
+      $._newline,
+      repeat(choice(
+        $.tool_result_id_line,
+        $.tool_result_block,
+        $._content_line,
+      ))
+    ),
+
+    // Content line types
+    _content_line: $ => choice(
+      $.text_line,
+      $.code_block_line,
+      $.empty_line,
+    ),
+
+    _content_line_before_cite: $ => choice(
+      $.text_line,
+      $.code_block_line,
+      $.empty_line,
+    ),
+
+    _content_line_after_cite: $ => choice(
+      $.text_line_after_cite,
+      $.empty_line,
+    ),
+
+    text_line: $ => seq(
+      $._line_content,
+      $._newline
+    ),
+
+    text_line_after_cite: $ => seq(
+      $._line_content,
+      $._newline
+    ),
+
+    cite_line: $ => seq(
+      optional($._line_content),
+      field("text", $.cite_tag),
+      optional($._line_content),
+      $._newline
+    ),
+
+    cite_tag: $ => seq(
+      "<cite>",
+      /[^<]+/,
+      "</cite>"
+    ),
+
+    code_block_line: $ => seq(
+      "```",
+      optional($._line_content),
+      $._newline
+    ),
+
+    empty_line: $ => $._newline,
+
+    // Tool-specific elements
+    tool_name_line: $ => seq(
+      "Name:",
+      /[ \t]*/,
+      field("name", $._line_content),
+      $._newline
+    ),
+
+    tool_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $._line_content),
+      $._newline
+    ),
+
+    tool_parameter: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("name", $._line_content),
+      $._newline,
+      $._newline,
+      $.tool_parameter_block
+    ),
+
+    tool_parameter_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    tool_result_id_line: $ => seq(
+      "ID:",
+      /[ \t]*/,
+      field("id", $._line_content),
+      $._newline
+    ),
+
+    tool_result_block: $ => seq(
+      $.tool_block_start,
+      repeat($.tool_block_content),
+      optional($.tool_block_end)
+    ),
+
+    // Citations content
+    citations_content: $ => repeat1(choice(
+      $.citation_entry,
+      $.empty_line,
+    )),
+
+    citation_entry: $ => seq(
+      "###",
+      /[ \t]*/,
+      field("url", $._line_content),
+      $._newline,
+      $._newline,
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_index,
+        $.empty_line,
+      ))
+    ),
+
+    citation_title: $ => seq(
+      "Title:",
+      /[ \t]*/,
+      field("title", $._line_content),
+      $._newline
+    ),
+
+    citation_text: $ => seq(
+      "Cited text:",
+      /[ \t]*/,
+      field("text", $._line_content),
+      $._newline
+    ),
+
+    citation_index: $ => seq(
+      "Encrypted index:",
+      /[ \t]*/,
+      field("index", $._line_content),
+      $._newline
+    ),
+
+    // Untagged content at the beginning
+    untagged_content: $ => prec.left(repeat1($._content_line)),
+  }
+});
+</tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+
+### git-commit-message
+
+<tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+Redesign grammar to properly handle citations_with_text vs citations_without_text
+</tool.toolu_01D3FAviKdMKAaJzDDwvaQ9g>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01D3FAviKdMKAaJzDDwvaQ9g -->
