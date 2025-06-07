@@ -9260,4 +9260,217 @@ conflicts: $ => [
 Restore conflicts after confirming they are needed
 </tool.toolu_01HuJ7GVBVBDjvvHMfDhyDpX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HuJ7GVBVBDjvvHMfDhyDpX -->
+## TOOL RESULT:
+
+ID: toolu_01HuJ7GVBVBDjvvHMfDhyDpX
+
+<tool.toolu_01HuJ7GVBVBDjvvHMfDhyDpX>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restore conflicts after confirming they are needed
+</tool.toolu_01HuJ7GVBVBDjvvHMfDhyDpX>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S61fmdPtEQ8tNgBZ9FwAa2
+
+### command
+
+<tool.toolu_01S61fmdPtEQ8tNgBZ9FwAa2>
+bash build.sh
+</tool.toolu_01S61fmdPtEQ8tNgBZ9FwAa2>
+
+## TOOL RESULT:
+
+ID: toolu_01S61fmdPtEQ8tNgBZ9FwAa2
+
+<tool.toolu_01S61fmdPtEQ8tNgBZ9FwAa2>
+Command executed successfully:
+(no output)
+</tool.toolu_01S61fmdPtEQ8tNgBZ9FwAa2>
+
+## ASSISTANT:
+
+Now let me look at the grammar rules more carefully. The problem might be in how I'm handling the citations rules. Let me examine those:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SDxGjdqamM25diCNWk3Y6u
+
+### path
+
+<tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+grammar.js
+</tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+
+### start-line
+
+<tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+75
+</tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+
+### end-line
+
+<tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+100
+</tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+
+## TOOL RESULT:
+
+ID: toolu_01SDxGjdqamM25diCNWk3Y6u
+
+<tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+    server_tool_use_section: $ => seq(
+      $.server_tool_use_header,
+      optional($.tool_use_content)
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.server_tool_result_header,
+      optional($.tool_result_content)
+    ),
+
+    // New citation-aware sections
+    citations_with_text: $ => prec(1, seq(
+      // Any section that contains cite tags
+      choice(
+        $.assistant_header,
+        $.thinking_header,
+        $.user_header,
+        $.system_header
+      ),
+      field("content_with_cites", $.content_with_cites),
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    )),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+</tool.toolu_01SDxGjdqamM25diCNWk3Y6u>
+
+## ASSISTANT:
+
+I think I found the issue! The `citations_with_text` rule is trying to match a user_header followed by content_with_cites, and this is conflicting with the regular `user_section` rule. The parser is getting confused about which rule to apply.
+
+The precedence `prec(1, ...)` on `citations_with_text` might be causing it to take priority over the regular section rules, but then it fails because it expects a citations header afterwards.
+
+Let me look at how these citation rules are integrated into the main section rule:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013rCfiqHC8hyTbhN4mq5fAa
+
+### path
+
+<tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+grammar.js
+</tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+
+### start-line
+
+<tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+30
+</tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+
+### end-line
+
+<tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+50
+</tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+
+## TOOL RESULT:
+
+ID: toolu_013rCfiqHC8hyTbhN4mq5fAa
+
+<tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+    source_file: $ => repeat($.section),
+
+    section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_with_text,
+      $.citations_without_text,
+    ),
+
+    user_section: $ => seq(
+      $.user_header,
+      optional(alias($.content, $.section_content))
+    ),
+
+    system_section: $ => seq(
+</tool.toolu_013rCfiqHC8hyTbhN4mq5fAa>
+
+## ASSISTANT:
+
+Yes! There's the problem. The parser is trying to decide between:
+1. `user_section` -> `user_header` + `content`
+2. `citations_with_text` -> `user_header` + `content_with_cites` + `citations_header`
+
+Since I gave `citations_with_text` precedence 1, it tries that first, but then fails when it doesn't find a citations header.
+
+The citation rules are designed wrong. They shouldn't be competing with the basic section rules. Instead, I should either:
+
+1. Make citations post-processing step in Elisp
+2. Make the citation rules more specific
+3. Remove the citation rules from the main section choice and handle them differently
+
+Let me try option 3 - remove the citation rules from the main section parsing and handle them as a post-processing step. The grammar should just parse the basic structure first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01U8kt451bM8muZRMJojKrU3
+
+### file-path
+
+<tool.toolu_01U8kt451bM8muZRMJojKrU3>
+grammar.js
+</tool.toolu_01U8kt451bM8muZRMJojKrU3>
+
+### original-content
+
+<tool.toolu_01U8kt451bM8muZRMJojKrU3>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_with_text,
+      $.citations_without_text,
+    ),
+</tool.toolu_01U8kt451bM8muZRMJojKrU3>
+
+### new-content
+
+<tool.toolu_01U8kt451bM8muZRMJojKrU3>
+section: $ => choice(
+      $.user_section,
+      $.system_section,
+      $.assistant_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+</tool.toolu_01U8kt451bM8muZRMJojKrU3>
+
+### git-commit-message
+
+<tool.toolu_01U8kt451bM8muZRMJojKrU3>
+Remove citation rules from main section parsing and add basic citations_section
+</tool.toolu_01U8kt451bM8muZRMJojKrU3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01U8kt451bM8muZRMJojKrU3 -->
