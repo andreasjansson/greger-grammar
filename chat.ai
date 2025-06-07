@@ -12318,4 +12318,153 @@ Hello"))
 Simplify debug text to minimal case
 </tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EsfNj1nsdWdQgfoMY7mEa1 -->
+## TOOL RESULT:
+
+ID: toolu_01EsfNj1nsdWdQgfoMY7mEa1
+
+<tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Simplify debug text to minimal case
+</tool.toolu_01EsfNj1nsdWdQgfoMY7mEa1>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012jLEtU966u7uRpE9XKDM3z
+
+### command
+
+<tool.toolu_012jLEtU966u7uRpE9XKDM3z>
+emacs --batch -l debug-test.el
+</tool.toolu_012jLEtU966u7uRpE9XKDM3z>
+
+## TOOL RESULT:
+
+ID: toolu_012jLEtU966u7uRpE9XKDM3z
+
+<tool.toolu_012jLEtU966u7uRpE9XKDM3z>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 2
+  Root child 0: section
+  Root child 1: ERROR
+Sections found by get-all-sections: 1
+User section type: user_section
+Content node found: yes
+Content node type: section_content
+Content node children: 1
+  Content child 0: newline
+Extracted content: ’’
+
+</tool.toolu_012jLEtU966u7uRpE9XKDM3z>
+
+## ASSISTANT:
+
+Same issue. Let me try a text that doesn't end with a newline to see if that helps:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0154t9HEqRSghuFpS8yaNJh4
+
+### command
+
+<tool.toolu_0154t9HEqRSghuFpS8yaNJh4>
+tree-sitter parse test_simple.greger
+</tool.toolu_0154t9HEqRSghuFpS8yaNJh4>
+
+## TOOL RESULT:
+
+ID: toolu_0154t9HEqRSghuFpS8yaNJh4
+
+<tool.toolu_0154t9HEqRSghuFpS8yaNJh4>
+Command executed successfully:
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (content_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (content_line [6, 0] - [7, 0])))))
+
+</tool.toolu_0154t9HEqRSghuFpS8yaNJh4>
+
+## ASSISTANT:
+
+Wait! The tree-sitter parse shows that content_lines ARE being parsed correctly! The issue must be in the difference between how I'm creating the parser in my debug script vs. how the main function does it.
+
+Let me check what test_simple.greger contains and compare it with my debug text:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Kcu8s71XyE3eaaBoJPXEKw
+
+### path
+
+<tool.toolu_01Kcu8s71XyE3eaaBoJPXEKw>
+test_simple.greger
+</tool.toolu_01Kcu8s71XyE3eaaBoJPXEKw>
+
+## TOOL RESULT:
+
+ID: toolu_01Kcu8s71XyE3eaaBoJPXEKw
+
+<tool.toolu_01Kcu8s71XyE3eaaBoJPXEKw>
+## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+</tool.toolu_01Kcu8s71XyE3eaaBoJPXEKw>
+
+## ASSISTANT:
+
+Ah! The difference is that test_simple.greger ends with a newline after the last text, whereas my debug text doesn't. Let me update my debug text to match exactly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Db6VeNDuxHCFfSxyCuzGju
+
+### file-path
+
+<tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+debug-test.el
+</tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+
+### original-content
+
+<tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello"))
+</tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+
+### new-content
+
+<tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?
+"))
+</tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+
+### git-commit-message
+
+<tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+Add trailing newline to match test_simple.greger format
+</tool.toolu_01Db6VeNDuxHCFfSxyCuzGju>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Db6VeNDuxHCFfSxyCuzGju -->
