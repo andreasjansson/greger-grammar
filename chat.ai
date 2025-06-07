@@ -11722,4 +11722,314 @@ Hello, how are you?"))
 Fix debug script to use proper temp buffer parsing
 </tool.toolu_0153pSdniYgZsznpEtD81jvh>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0153pSdniYgZsznpEtD81jvh -->
+## TOOL RESULT:
+
+ID: toolu_0153pSdniYgZsznpEtD81jvh
+
+<tool.toolu_0153pSdniYgZsznpEtD81jvh>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Fix debug script to use proper temp buffer parsing
+</tool.toolu_0153pSdniYgZsznpEtD81jvh>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CApbMCYfiV1dXrpuc9scew
+
+### command
+
+<tool.toolu_01CApbMCYfiV1dXrpuc9scew>
+emacs --batch -l debug-test.el
+</tool.toolu_01CApbMCYfiV1dXrpuc9scew>
+
+## TOOL RESULT:
+
+ID: toolu_01CApbMCYfiV1dXrpuc9scew
+
+<tool.toolu_01CApbMCYfiV1dXrpuc9scew>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 2
+  Root child 0: section
+  Root child 1: ERROR
+Sections found by get-all-sections: 1
+
+</tool.toolu_01CApbMCYfiV1dXrpuc9scew>
+
+## ASSISTANT:
+
+Great! Now I can see the issue. The root node has 2 children: a `section` and an `ERROR`. The parsing is partially working, but there's still an ERROR node. However, the `greger-tree-sitter--get-all-sections` function is finding 1 section, so that part is working.
+
+The ERROR is likely the final newline or some other parsing issue, but the main structure is working. Let me add more detail to see what's in the section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DdcEVCNa4XLwAwiZ1yCUHW
+
+### file-path
+
+<tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+debug-test.el
+</tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+
+### original-content
+
+<tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      
+      (message "Root node type: %s" (treesit-node-type root-node))
+      (message "Root node children: %d" (treesit-node-child-count root-node))
+      (dotimes (i (treesit-node-child-count root-node))
+        (let ((child (treesit-node-child root-node i)))
+          (message "  Root child %d: %s" i (treesit-node-type child))))
+      
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))))))
+</tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+
+### new-content
+
+<tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      
+      (message "Root node type: %s" (treesit-node-type root-node))
+      (message "Root node children: %d" (treesit-node-child-count root-node))
+      (dotimes (i (treesit-node-child-count root-node))
+        (let ((child (treesit-node-child root-node i)))
+          (message "  Root child %d: %s" i (treesit-node-type child))))
+      
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))
+        (when (> (length sections) 0)
+          (let* ((first-section (car sections))
+                 (user-section-node (treesit-node-child first-section 0))
+                 (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+            
+            (message "User section type: %s" (treesit-node-type user-section-node))
+            (message "Content node found: %s" (if content-node "yes" "no"))
+            (when content-node
+              (message "Content node type: %s" (treesit-node-type content-node))
+              (message "Content node children: %d" (treesit-node-child-count content-node))
+              (dotimes (i (treesit-node-child-count content-node))
+                (let ((child (treesit-node-child content-node i)))
+                  (message "  Content child %d: %s" i (treesit-node-type child))))
+              (message "Extracted content: '%s'" (greger-tree-sitter--extract-content content-node))))))))))
+</tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+
+### git-commit-message
+
+<tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+Add detailed debugging of section content extraction
+</tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+
+## TOOL RESULT:
+
+ID: toolu_01DdcEVCNa4XLwAwiZ1yCUHW
+
+<tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 0, new has balance -1. They must be equal
+</tool.toolu_01DdcEVCNa4XLwAwiZ1yCUHW>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EPwUvZouSb4vhSwANKaqTN
+
+### file-path
+
+<tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+debug-test.el
+</tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+
+### original-content
+
+<tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      
+      (message "Root node type: %s" (treesit-node-type root-node))
+      (message "Root node children: %d" (treesit-node-child-count root-node))
+      (dotimes (i (treesit-node-child-count root-node))
+        (let ((child (treesit-node-child root-node i)))
+          (message "  Root child %d: %s" i (treesit-node-type child))))
+      
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))))))
+</tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+
+### new-content
+
+<tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      
+      (message "Root node type: %s" (treesit-node-type root-node))
+      (message "Root node children: %d" (treesit-node-child-count root-node))
+      (dotimes (i (treesit-node-child-count root-node))
+        (let ((child (treesit-node-child root-node i)))
+          (message "  Root child %d: %s" i (treesit-node-type child))))
+      
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))
+        (when (> (length sections) 0)
+          (let* ((first-section (car sections))
+                 (user-section-node (treesit-node-child first-section 0))
+                 (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+            
+            (message "User section type: %s" (treesit-node-type user-section-node))
+            (message "Content node found: %s" (if content-node "yes" "no"))
+            (when content-node
+              (message "Content node type: %s" (treesit-node-type content-node))
+              (message "Content node children: %d" (treesit-node-child-count content-node))
+              (dotimes (i (treesit-node-child-count content-node))
+                (let ((child (treesit-node-child content-node i)))
+                  (message "  Content child %d: %s" i (treesit-node-type child))))
+              (message "Extracted content: '%s'" (greger-tree-sitter--extract-content content-node)))))))))
+</tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+
+### git-commit-message
+
+<tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+Add detailed debugging of section content extraction
+</tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+
+## TOOL RESULT:
+
+ID: toolu_01EPwUvZouSb4vhSwANKaqTN
+
+<tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01EPwUvZouSb4vhSwANKaqTN>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017pyasYMuPX5JghJxdZx2g6
+
+### path
+
+<tool.toolu_017pyasYMuPX5JghJxdZx2g6>
+debug-test.el
+</tool.toolu_017pyasYMuPX5JghJxdZx2g6>
+
+## TOOL RESULT:
+
+ID: toolu_017pyasYMuPX5JghJxdZx2g6
+
+<tool.toolu_017pyasYMuPX5JghJxdZx2g6>
+;;; debug-test.el --- Debug greger tree-sitter parsing
+
+(load-file "./greger-tree-sitter.el")
+
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?"))
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+
+      (message "Root node type: %s" (treesit-node-type root-node))
+      (message "Root node children: %d" (treesit-node-child-count root-node))
+      (dotimes (i (treesit-node-child-count root-node))
+        (let ((child (treesit-node-child root-node i)))
+          (message "  Root child %d: %s" i (treesit-node-type child))))
+
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))))))
+</tool.toolu_017pyasYMuPX5JghJxdZx2g6>
+
+## ASSISTANT:
+
+I'll add the detailed debugging in a different way:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Qomx9Yhfk9ZAGhaapbKcPc
+
+### file-path
+
+<tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+debug-test.el
+</tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+
+### original-content
+
+<tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))))))
+</tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+
+### new-content
+
+<tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+      (let ((sections (greger-tree-sitter--get-all-sections root-node)))
+        (message "Sections found by get-all-sections: %d" (length sections))
+        (when (> (length sections) 0)
+          (let* ((first-section (car sections))
+                 (user-section-node (treesit-node-child first-section 0))
+                 (content-node (greger-tree-sitter--find-child-by-type user-section-node "section_content")))
+            
+            (message "User section type: %s" (treesit-node-type user-section-node))
+            (message "Content node found: %s" (if content-node "yes" "no"))
+            (when content-node
+              (message "Content node type: %s" (treesit-node-type content-node))
+              (message "Content node children: %d" (treesit-node-child-count content-node))
+              (dotimes (i (treesit-node-child-count content-node))
+                (let ((child (treesit-node-child content-node i)))
+                  (message "  Content child %d: %s" i (treesit-node-type child))))
+              (message "Extracted content: '%s'" (greger-tree-sitter--extract-content content-node)))))))))
+</tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+
+### git-commit-message
+
+<tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+Add detailed debugging of section content extraction
+</tool.toolu_01Qomx9Yhfk9ZAGhaapbKcPc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Qomx9Yhfk9ZAGhaapbKcPc -->
