@@ -5297,4 +5297,328 @@ Encrypted index: abc123"))
 Add debug script for section processing order
 </tool.toolu_01MUmeGNgTB3UwvbBmNVuN26>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MUmeGNgTB3UwvbBmNVuN26 -->
+## TOOL RESULT:
+
+ID: toolu_01MUmeGNgTB3UwvbBmNVuN26
+
+<tool.toolu_01MUmeGNgTB3UwvbBmNVuN26>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug-section-order.el with 4207 characters. Successfully staged 2 file(s) and committed with message: Add debug script for section processing order
+</tool.toolu_01MUmeGNgTB3UwvbBmNVuN26>
+
+
+## ASSISTANT:
+
+Actually, let me try a simpler approach. Let me check if the issue is that the `citations_section` case is not handled in the main processing loop. Looking at the processing code again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013wBTCQQDs6sNXTivoc2JkW
+
+### path
+
+<tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+greger-tree-sitter.el
+</tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+
+### start-line
+
+<tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+810
+</tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+
+### end-line
+
+<tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+840
+</tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+
+## TOOL RESULT:
+
+ID: toolu_013wBTCQQDs6sNXTivoc2JkW
+
+<tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; System section - flush any pending assistant blocks and add system message
+         ((equal section-type "system_section")
+          (when current-assistant-blocks
+            (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+              (push `((role . "assistant") (content . ,assistant-content)) messages))
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))
+
+         ;; Assistant-related sections - collect content blocks
+         ((member section-type '("assistant_section" "thinking_section" "tool_use_section"
+                                 "server_tool_use_section" "server_tool_result_section"))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message
+              (let ((content (alist-get 'content message)))
+                (if (listp content)
+                    ;; Add all content blocks
+                    (setq current-assistant-blocks (append current-assistant-blocks content))
+                  ;; Store string content as-is for now (will be processed later)
+                  (when (and (stringp content) (> (length (string-trim content)) 0))
+                    (setq current-assistant-blocks (append current-assistant-blocks `(((type . "text") (text . ,content)))))))))))
+
+         ;; Citations section - associate with pending assistant blocks
+         ((equal section-type "citations_section")
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find text blocks with cite tags and associate citations
+</tool.toolu_013wBTCQQDs6sNXTivoc2JkW>
+
+## ASSISTANT:
+
+I see the citations section IS being handled in the main loop. The issue might be elsewhere. Let me look at the current line where the citation processing fails:
+
+The citation section case looks correct:
+```elisp
+((equal section-type "citations_section")
+ (when current-assistant-blocks
+   (let ((citations (greger-tree-sitter--extract-citations-section section)))
+     ;; Find text blocks with cite tags and associate citations
+     (setq current-assistant-blocks
+           (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+```
+
+But I notice there's no handling for `tool_result_section`. Let me check if that case is handled:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Mz2jSQNxPbZtLGVxJ9B82t
+
+### path
+
+<tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+greger-tree-sitter.el
+</tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+
+### start-line
+
+<tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+838
+</tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+
+### end-line
+
+<tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+855
+</tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+
+## TOOL RESULT:
+
+ID: toolu_01Mz2jSQNxPbZtLGVxJ9B82t
+
+<tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+          (when current-assistant-blocks
+            (let ((citations (greger-tree-sitter--extract-citations-section section)))
+              ;; Find text blocks with cite tags and associate citations
+              (setq current-assistant-blocks
+                    (greger-tree-sitter--associate-citations-with-blocks current-assistant-blocks citations)))))
+
+         ;; Tool result section - add as user message
+         ((equal section-type "tool_result_section")
+          (when current-assistant-blocks
+            (let ((assistant-content (greger-tree-sitter--finalize-assistant-content current-assistant-blocks)))
+              (push `((role . "assistant") (content . ,assistant-content)) messages))
+            (setq current-assistant-blocks '()))
+          (let ((message (greger-tree-sitter--extract-section section)))
+            (when message (push message messages))))))
+
+      (setq i (1+ i)))
+
+    ;; Flush any remaining assistant blocks
+</tool.toolu_01Mz2jSQNxPbZtLGVxJ9B82t>
+
+## ASSISTANT:
+
+The processing logic looks correct to me. The issue might be in one of the helper functions. Let me check if the problem is in the `<cite>` tag detection itself.
+
+Looking back at the tree-sitter output, I saw that the cite tag was parsed as:
+```
+(cite_tag [33, 29] - [33, 106])
+```
+
+But the content extraction function might not be handling cite tags properly. Let me check the `greger-tree-sitter--extract-content` function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011EGWDPC8JRrVcAPiyRJDFs
+
+### path
+
+<tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+greger-tree-sitter.el
+</tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+
+### start-line
+
+<tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+1400
+</tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+
+### end-line
+
+<tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+1430
+</tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+
+## TOOL RESULT:
+
+ID: toolu_011EGWDPC8JRrVcAPiyRJDFs
+
+<tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+Start index out of bounds: 1399
+</tool.toolu_011EGWDPC8JRrVcAPiyRJDFs>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_019sXjLQZfaap6ABkLhYn1R4
+
+### pattern
+
+<tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+greger-tree-sitter--extract-content
+</tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+
+### path
+
+<tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+greger-tree-sitter.el
+</tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+
+## TOOL RESULT:
+
+ID: toolu_019sXjLQZfaap6ABkLhYn1R4
+
+<tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+324:                      (greger-tree-sitter--extract-content content-node)
+355:                      (greger-tree-sitter--extract-content content-node)
+391:                      (greger-tree-sitter--extract-content content-node)
+427:                                    (greger-tree-sitter--extract-content content-node)
+1188:(defun greger-tree-sitter--extract-content (content-node)
+
+</tool.toolu_019sXjLQZfaap6ABkLhYn1R4>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018pGAJtn4JcVtrHPKTkMdzt
+
+### path
+
+<tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+greger-tree-sitter.el
+</tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+
+### start-line
+
+<tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+1188
+</tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+
+### end-line
+
+<tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+1220
+</tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+
+## TOOL RESULT:
+
+ID: toolu_018pGAJtn4JcVtrHPKTkMdzt
+
+<tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Extract text from content_line children
+            (let ((line-text-parts '())
+                  (line-child-count (treesit-node-child-count child)))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-text-parts))))
+</tool.toolu_018pGAJtn4JcVtrHPKTkMdzt>
+
+## ASSISTANT:
+
+There's the problem! The `greger-tree-sitter--extract-content` function only extracts nodes with type `"text"`, but it ignores `cite_tag` nodes. Looking at the tree-sitter output:
+
+```
+(content_line [33, 0] - [34, 0]
+  (cite_tag [33, 29] - [33, 106]))
+```
+
+The `cite_tag` is inside the `content_line`, but the extraction function is only looking for `"text"` nodes, not `"cite_tag"` nodes.
+
+Let me fix this by modifying the content extraction to also handle `cite_tag` nodes:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FXitQGSCc1GzduMLfwfk8N
+
+### file-path
+
+<tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+greger-tree-sitter.el
+</tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+
+### original-content
+
+<tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-text-parts))))
+</tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+
+### new-content
+
+<tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (or (equal line-child-type "text")
+                            (equal line-child-type "cite_tag"))
+                    (push (treesit-node-text line-child) line-text-parts))))
+</tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+
+### git-commit-message
+
+<tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+Fix content extraction to include cite_tag nodes
+</tool.toolu_01FXitQGSCc1GzduMLfwfk8N>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FXitQGSCc1GzduMLfwfk8N -->

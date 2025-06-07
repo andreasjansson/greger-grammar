@@ -1216,7 +1216,8 @@ the actual text content within sections."
               (dotimes (j line-child-count)
                 (let* ((line-child (treesit-node-child child j))
                        (line-child-type (treesit-node-type line-child)))
-                  (when (equal line-child-type "text")
+                  (when (or (equal line-child-type "text")
+                            (equal line-child-type "cite_tag"))
                     (push (treesit-node-text line-child) line-text-parts))))
               (when line-text-parts
                 (push (string-join (nreverse line-text-parts) "") text-parts))))))
