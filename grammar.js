@@ -229,9 +229,9 @@ module.exports = grammar({
     ),
 
     // Untagged content at the beginning of the document
-    untagged_content: $ => seq(
+    untagged_content: $ => prec.left(seq(
       $.text,
       repeat($._content_element)
-    ),
+    )),
   }
 });
