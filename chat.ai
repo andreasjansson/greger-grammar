@@ -6351,4 +6351,425 @@ Hello, how are you?"))
 Rewrite debug-test.el with correct parentheses
 </tool.toolu_018F94vqcRG5q55Fca3Hfd1Y>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018F94vqcRG5q55Fca3Hfd1Y -->
+## TOOL RESULT:
+
+ID: toolu_018F94vqcRG5q55Fca3Hfd1Y
+
+<tool.toolu_018F94vqcRG5q55Fca3Hfd1Y>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 2432 characters. Successfully staged 2 file(s) and committed with message: Rewrite debug-test.el with correct parentheses
+</tool.toolu_018F94vqcRG5q55Fca3Hfd1Y>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Uae6HC7byBFn4pGGwcprcc
+
+### command
+
+<tool.toolu_01Uae6HC7byBFn4pGGwcprcc>
+emacs --batch -l debug-test.el
+</tool.toolu_01Uae6HC7byBFn4pGGwcprcc>
+
+## TOOL RESULT:
+
+ID: toolu_01Uae6HC7byBFn4pGGwcprcc
+
+<tool.toolu_01Uae6HC7byBFn4pGGwcprcc>
+Command failed with exit code 255: Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+Error: end-of-file ("/Users/andreas/scratch/greger-grammar/debug-test.el")
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (end-of-file "/Users/andreas/scratch/greger-grammar/debug-test.el"))
+  read(#<buffer  *load*>)
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  load-with-code-conversion("/Users/andreas/scratch/greger-grammar/debug-test.el" "/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  load("/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  command-line-1(("-l" "debug-test.el"))
+  command-line()
+  normal-top-level()
+End of file during parsing: /Users/andreas/scratch/greger-grammar/debug-test.el
+
+</tool.toolu_01Uae6HC7byBFn4pGGwcprcc>
+
+## ASSISTANT:
+
+Let me use a simpler approach. I'll just look at what I can see from the tree-sitter output and infer the issue. From the debug output I can see:
+
+1. `[37mlexed_lookahead sym:text, size:19[0m` - The "Hello, how are you?" is being lexed as a text token
+2. The tree shows `(content_line [2, 0] - [3, 0])` with no children listed
+
+This suggests that the `content_line` in the grammar is not actually capturing the `text` token properly. Let me examine the grammar rules:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01BSZY3anmjwteHbX43ES7hu
+
+### path
+
+<tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+grammar.js
+</tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+
+### start-line
+
+<tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+90
+</tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+
+### end-line
+
+<tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+110
+</tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+
+## TOOL RESULT:
+
+ID: toolu_01BSZY3anmjwteHbX43ES7hu
+
+<tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+        $.thinking_header,
+        $.user_header,
+        $.system_header
+      ),
+      field("content_with_cites", $.content_with_cites),
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    )),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      field("citations", optional($.citations_content))
+    ),
+
+    // Headers - simple tokens
+    user_header: $ => /##[ \t]*USER:[ \t]*\n/,
+    system_header: $ => /##[ \t]*SYSTEM:[ \t]*\n/,
+    assistant_header: $ => /##[ \t]*ASSISTANT:[ \t]*\n/,
+    thinking_header: $ => /##[ \t]*THINKING:[ \t]*\n/,
+    tool_use_header: $ => /##[ \t]*TOOL USE:[ \t]*\n/,
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+</tool.toolu_01BSZY3anmjwteHbX43ES7hu>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015n41EJXxXPMwtiGifmnDYq
+
+### path
+
+<tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+grammar.js
+</tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+
+### start-line
+
+<tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+110
+</tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+
+### end-line
+
+<tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+140
+</tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+
+## TOOL RESULT:
+
+ID: toolu_015n41EJXxXPMwtiGifmnDYq
+
+<tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+    tool_result_header: $ => /##[ \t]*TOOL RESULT:[ \t]*\n/,
+    server_tool_use_header: $ => /##[ \t]*SERVER TOOL USE:[ \t]*\n/,
+    server_tool_result_header: $ => /##[ \t]*SERVER TOOL RESULT:[ \t]*\n/,
+    citations_header: $ => /##[ \t]*CITATIONS:[ \t]*\n/,
+
+    // Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    // Content that contains cite tags - for citations_with_text
+    content_with_cites: $ => repeat1(choice(
+      $.content_line_with_cites,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text')
+      )),
+      "\n"
+    ),
+
+    content_line_with_cites: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+</tool.toolu_015n41EJXxXPMwtiGifmnDYq>
+
+## ASSISTANT:
+
+I found the issue! The `content_line` rule is expecting `repeat1(choice(alias($._text, 'text')))` but my `_text` external token might not be working correctly. Looking at the tree output, the tree shows `content_line` with no visible children, which suggests the `text` token isn't being captured properly.
+
+Let me look at the scanner to see how `_text` is handled:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Hv1xgDWjupeapF55Cocbu8
+
+### path
+
+<tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+src/scanner.c
+</tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+
+### start-line
+
+<tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+130
+</tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+
+### end-line
+
+<tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+160
+</tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+
+## TOOL RESULT:
+
+ID: toolu_01Hv1xgDWjupeapF55Cocbu8
+
+<tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+
+  if (lexer->lookahead != 'l') return false;
+  advance(lexer);
+
+  if (lexer->lookahead != '.') return false;
+  advance(lexer);
+
+  // Read the tool ID
+  int id_len = 0;
+  while (lexer->lookahead &&
+         (isalnum(lexer->lookahead) || lexer->lookahead == '_' ||
+          lexer->lookahead == '-' || lexer->lookahead == '.') &&
+         id_len < 63) {
+    scanner->current_tool_id[id_len++] = lexer->lookahead;
+    advance(lexer);
+  }
+
+  if (lexer->lookahead != '>') return false;
+  advance(lexer);
+
+  scanner->current_tool_id[id_len] = '\0';
+  scanner->in_tool_block = true;
+
+  lexer->result_symbol = TOOL_BLOCK_START;
+  return true;
+}
+
+static bool scan_tool_end(TSLexer *lexer, Scanner *scanner) {
+  if (!scanner->in_tool_block) return false;
+
+  // Expect "</tool."
+</tool.toolu_01Hv1xgDWjupeapF55Cocbu8>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01DmixXDTtnj4GVewcTuEYmX
+
+### path
+
+<tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+src/scanner.c
+</tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+
+### start-line
+
+<tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+220
+</tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+
+### end-line
+
+<tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+250
+</tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+
+## TOOL RESULT:
+
+ID: toolu_01DmixXDTtnj4GVewcTuEYmX
+
+<tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+    advance(lexer);
+    has_content = true;
+  }
+
+  if (has_content) {
+    lexer->result_symbol = TOOL_BLOCK_CONTENT;
+    return true;
+  }
+
+  return false;
+}
+
+static bool scan_text(TSLexer *lexer) {
+  // Don't match if we're at end of input or start of line with no content
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n') {
+    return false;
+  }
+
+  // Don't match if we're starting with markup characters
+  if (lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+
+  // Consume at least one character
+  bool has_content = false;
+  while (lexer->lookahead != '\0' &&
+         lexer->lookahead != '\n' &&
+         lexer->lookahead != '<' &&
+         lexer->lookahead != '#') {
+    advance(lexer);
+    has_content = true;
+</tool.toolu_01DmixXDTtnj4GVewcTuEYmX>
+
+## ASSISTANT:
+
+I see the issue! The `scan_text` function stops at newlines, but the `content_line` grammar rule expects the text followed by `"\n"`. This means the text token stops before the newline, but the rule expects the newline to be part of the content_line. However, looking at the tree output, it seems like it should be working.
+
+Let me go back to the problem. The issue might be that the grammar is creating ambiguity between regular `content` and `content_with_cites`. Looking at the tree output more carefully:
+
+From the debug output:
+- `[37mreduce sym:content_repeat1, child_count:1[0m`
+- `[37mreduce sym:content_with_cites_repeat1, child_count:1[0m`
+
+Both content paths are being considered, and this might be causing conflicts. The grammar has a `conflicts` declaration:
+
+```javascript
+conflicts: $ => [
+  [$.content_line, $.content_line_with_cites],
+  [$.content, $.content_with_cites]
+]
+```
+
+Let me try a different approach. Instead of debugging the complex tree structure in elisp, let me use test_simple.greger and modify the content extraction to be more robust:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KuGgmupy4GLABRnDRRR4kB
+
+### file-path
+
+<tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+greger-tree-sitter.el
+</tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+
+### original-content
+
+<tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Extract text from content_line children - look for text tokens
+            (let ((line-child-count (treesit-node-child-count child))
+                  (line-texts '()))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-texts))))
+              (when line-texts
+                (push (string-join (nreverse line-texts) "") text-parts))))))
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) "\n"))
+        ""))))
+</tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+
+### new-content
+
+<tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+(defun greger-tree-sitter--extract-content (content-node)
+  "Extract plain text content from CONTENT-NODE.
+
+INPUT:
+  CONTENT-NODE - Tree-sitter node representing section content
+
+PROCESSING:
+  Extracts text from content_line nodes, joining multiple lines with spaces.
+  Each content_line contains text tokens that need to be concatenated.
+
+OUTPUT:
+  Returns the trimmed text content as a string, or empty string if the
+  node is nil.
+
+INTERNAL FUNCTION: Basic utility for extracting text content from
+tree-sitter nodes. Used by all section extraction functions to get
+the actual text content within sections."
+  (if (not content-node)
+      ""
+    (let ((text-parts '())
+          (child-count (treesit-node-child-count content-node)))
+      (dotimes (i child-count)
+        (let* ((child (treesit-node-child content-node i))
+               (child-type (treesit-node-type child)))
+          (when (equal child-type "content_line")
+            ;; Try to extract text from content_line children first
+            (let ((line-child-count (treesit-node-child-count child))
+                  (line-texts '()))
+              (dotimes (j line-child-count)
+                (let* ((line-child (treesit-node-child child j))
+                       (line-child-type (treesit-node-type line-child)))
+                  (when (equal line-child-type "text")
+                    (push (treesit-node-text line-child) line-texts))))
+              ;; If no text children found, extract from the content_line directly
+              (if line-texts
+                  (push (string-join (nreverse line-texts) "") text-parts)
+                (let ((line-text (treesit-node-text child)))
+                  ;; Remove trailing newline and check if there's content
+                  (when (and line-text (> (length line-text) 0))
+                    (setq line-text (string-trim-right line-text "\n"))
+                    (when (> (length line-text) 0)
+                      (push line-text text-parts)))))))))
+      (if text-parts
+          (string-trim (string-join (nreverse text-parts) "\n"))
+        ""))))
+</tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+
+### git-commit-message
+
+<tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+Make content extraction more robust by falling back to raw content_line text
+</tool.toolu_01KuGgmupy4GLABRnDRRR4kB>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KuGgmupy4GLABRnDRRR4kB -->
