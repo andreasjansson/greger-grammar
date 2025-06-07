@@ -7,6 +7,7 @@ enum TokenType {
   TOOL_BLOCK_START,
   TOOL_BLOCK_END,
   TOOL_BLOCK_CONTENT,
+  TEXT,
 };
 
 typedef struct {
