@@ -186,6 +186,46 @@ to determine the final format of assistant content."
      (t
       (greger-tree-sitter--reorder-assistant-blocks converted-blocks)))))
 
+(defun greger-tree-sitter--convert-citation-blocks (blocks)
+  "Convert citations_with_text and citations_without_text blocks to expected format.
+
+INPUT:
+  BLOCKS - List of content blocks that may include citations_with_text or citations_without_text
+
+PROCESSING:
+  Converts the new citation block types to the format expected by greger.el:
+  - citations_with_text → text block with citations field
+  - citations_without_text → leave as-is (this shouldn't appear in final output)
+  - Other blocks → pass through unchanged
+
+OUTPUT:
+  Returns list of blocks in the expected format for greger.el compatibility.
+
+INTERNAL FUNCTION: Used to maintain backward compatibility with existing greger.el
+expectations while allowing the tree-sitter parser to be smarter about citations."
+  (let ((result '()))
+    (dolist (block blocks)
+      (let ((type (alist-get 'type block)))
+        (cond
+         ((equal type "citations_with_text")
+          ;; Convert to text block with citations field
+          (let ((text (alist-get 'text block))
+                (entries (alist-get 'entries block)))
+            (push `((type . "text")
+                    (text . ,text)
+                    (citations . ,entries)) result)))
+
+         ((equal type "citations_without_text")
+          ;; This shouldn't typically appear in final assistant content,
+          ;; but if it does, we can ignore it or convert it to something else
+          ;; For now, skip it as it represents standalone citations
+          nil)
+
+         (t
+          ;; Pass through other block types unchanged
+          (push block result)))))
+    (nreverse result)))
+
 (defun greger-tree-sitter--reorder-assistant-blocks (blocks)
   "Reorder assistant content BLOCKS to match expected greger format order.
 
