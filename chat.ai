@@ -4788,4 +4788,96 @@ grammar.js
 Simplify content parsing and fix text_line/line_with_cite conflict
 </tool.toolu_0142su9PNiVMRgYkxeVYnXNE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0142su9PNiVMRgYkxeVYnXNE -->
+## TOOL RESULT:
+
+ID: toolu_0142su9PNiVMRgYkxeVYnXNE
+
+<tool.toolu_0142su9PNiVMRgYkxeVYnXNE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify content parsing and fix text_line/line_with_cite conflict
+</tool.toolu_0142su9PNiVMRgYkxeVYnXNE>
+
+## ASSISTANT:
+
+Now let me regenerate the parser and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RdpZ99MFgUfqtR9mvvtcPt
+
+### command
+
+<tool.toolu_01RdpZ99MFgUfqtR9mvvtcPt>
+tree-sitter generate
+</tool.toolu_01RdpZ99MFgUfqtR9mvvtcPt>
+
+## TOOL RESULT:
+
+ID: toolu_01RdpZ99MFgUfqtR9mvvtcPt
+
+<tool.toolu_01RdpZ99MFgUfqtR9mvvtcPt>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      user_header  '
+    '  •  user_header  …
+    
+    Possible interpretations:
+    
+      1:  user_header  (line_with_cite  '
+    ')  •  user_header  …
+      2:  user_header  (newline  '
+    ')  •  user_header  …
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `line_with_cite` than in the other rules.
+      2:  Specify a higher precedence in `newline` than in the other rules.
+      3:  Add a conflict for these rules: `line_with_cite`, `newline`
+    
+
+</tool.toolu_01RdpZ99MFgUfqtR9mvvtcPt>
+
+## ASSISTANT:
+
+I see the issue. The grammar is having conflicts with newlines and content. Let me take a different approach and look at how other markdown-like grammars handle this. The problem is that I'm trying to parse content in the middle of sections when the sections themselves should be the primary structure.
+
+Let me rewrite the content handling completely:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GzeuSUobDjNrCdfcXb9VPv
+
+### file-path
+
+<tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+grammar.js
+</tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+
+### original-content
+
+<tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+conflicts: $ => [
+    [$.text_line, $.line_with_cite],
+  ],
+</tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+
+### new-content
+
+<tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+conflicts: $ => [
+    [$.text_line, $.line_with_cite],
+    [$.line_with_cite, $.newline],
+  ],
+</tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+
+### git-commit-message
+
+<tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+Add conflict for line_with_cite and newline
+</tool.toolu_01GzeuSUobDjNrCdfcXb9VPv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GzeuSUobDjNrCdfcXb9VPv -->
