@@ -79,15 +79,9 @@ module.exports = grammar({
       optional($.tool_result_content)
     ),
 
-    // Citations without text - standalone citations section
-    citations_section: $ => alias($.citations_without_text, 'citations_without_text'),
-
-    citations_without_text: $ => seq(
+    citations_section: $ => seq(
       $.citations_header,
-      repeat1(choice(
-        field("entry", $.citation_entry),
-        $.newline
-      ))
+      optional($.citations_content)
     ),
 
     // Headers - simple tokens

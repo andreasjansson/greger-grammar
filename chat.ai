@@ -10501,4 +10501,53 @@ grammar.js
 Revert to original content structure
 </tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016bCX5nTqPRE4G7771ZSvz2 -->
+## TOOL RESULT:
+
+ID: toolu_016bCX5nTqPRE4G7771ZSvz2
+
+<tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert to original content structure
+</tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MARawQ1vLVsstNZC68LPsj
+
+### file-path
+
+<tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+grammar.js
+</tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+
+### original-content
+
+<tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+// Citations without text - standalone citations section
+    citations_section: $ => alias($.citations_without_text, 'citations_without_text'),
+
+    citations_without_text: $ => seq(
+      $.citations_header,
+      repeat1(choice(
+        field("entry", $.citation_entry),
+        $.newline
+      ))
+    ),
+</tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+
+### new-content
+
+<tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+citations_section: $ => seq(
+      $.citations_header,
+      optional($.citations_content)
+    ),
+</tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+
+### git-commit-message
+
+<tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+Revert citations_section to original structure
+</tool.toolu_01MARawQ1vLVsstNZC68LPsj>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MARawQ1vLVsstNZC68LPsj -->
