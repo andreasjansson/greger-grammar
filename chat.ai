@@ -6050,4 +6050,207 @@ When was Claude Shannon born?"))
 Update debug test to examine tree structure
 </tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CsUyZk32nHetxnFQKRn9BD -->
+## TOOL RESULT:
+
+ID: toolu_01CsUyZk32nHetxnFQKRn9BD
+
+<tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 2113 characters. Successfully staged 2 file(s) and committed with message: Update debug test to examine tree structure
+</tool.toolu_01CsUyZk32nHetxnFQKRn9BD>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FqwE46K5GG22rjmUVBgE8k
+
+### command
+
+<tool.toolu_01FqwE46K5GG22rjmUVBgE8k>
+emacs --batch -l debug-test.el
+</tool.toolu_01FqwE46K5GG22rjmUVBgE8k>
+
+## TOOL RESULT:
+
+ID: toolu_01FqwE46K5GG22rjmUVBgE8k
+
+<tool.toolu_01FqwE46K5GG22rjmUVBgE8k>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== Testing tree structure ===
+Testing tree structure...
+Root node type: source_file
+Number of sections: 0
+
+</tool.toolu_01FqwE46K5GG22rjmUVBgE8k>
+
+## ASSISTANT:
+
+The `greger-tree-sitter--get-all-sections` function is returning 0 sections. Let me check this function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01FJ3uTnrVkeTV81qDK5DC9G
+
+### pattern
+
+<tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+defun.*get-all-sections
+</tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+
+### path
+
+<tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+greger-tree-sitter.el
+</tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+
+## TOOL RESULT:
+
+ID: toolu_01FJ3uTnrVkeTV81qDK5DC9G
+
+<tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+1070:(defun greger-tree-sitter--get-all-sections (root-node)
+
+</tool.toolu_01FJ3uTnrVkeTV81qDK5DC9G>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015tykQ3REsu5o5bdQkykMvj
+
+### path
+
+<tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+greger-tree-sitter.el
+</tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+
+### start-line
+
+<tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+1070
+</tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+
+### end-line
+
+<tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+1120
+</tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+
+## TOOL RESULT:
+
+ID: toolu_015tykQ3REsu5o5bdQkykMvj
+
+<tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+(defun greger-tree-sitter--get-all-sections (root-node)
+  "Extract all section nodes from ROOT-NODE in document order.
+
+INPUT:
+  ROOT-NODE - Tree-sitter root node (typically a \"source_file\" node)
+
+PROCESSING:
+  Iterates through all direct children of the root node and collects
+  those with type \"section\". Maintains document order.
+
+OUTPUT:
+  Returns a list of section nodes in the order they appear in the document.
+  Each section corresponds to a ## HEADER: block in the greger format.
+
+INTERNAL FUNCTION: Similar to greger-tree-sitter--get-sections but used
+in the main parsing flow for multi-section documents."
+  (let ((sections '())
+        (child-count (treesit-node-child-count root-node)))
+    (dotimes (i child-count)
+      (let ((child (treesit-node-child root-node i)))
+        (when (equal (treesit-node-type child) "section")
+          (push child sections))))
+    (nreverse sections)))
+
+(defun greger-tree-sitter--process-sections-with-citations (sections)
+  "Process conversation SECTIONS and handle citation associations.
+
+INPUT:
+  SECTIONS - List of tree-sitter section nodes representing the parsed conversation
+
+PROCESSING:
+  This is the core function that handles the complex citation workflow:
+
+  1. Iterates through sections in order
+  2. Groups assistant-related sections together (assistant, thinking, tool_use, etc.)
+  3. When a ## CITATIONS: section is encountered, associates those citations
+     with any <cite> tags in the pending assistant content blocks
+  4. Flushes assistant blocks when non-assistant sections are encountered
+  5. Reorders final assistant blocks to put tools first, then text
+
+  Section handling:
+  - user_section, system_section → flush assistant blocks, add as separate message
+  - assistant_section, thinking_section, tool_use_section, server_tool_use_section,
+    server_tool_result_section → accumulate as assistant content blocks
+  - citations_section → associate with pending assistant blocks containing <cite> tags
+  - tool_result_section → flush assistant blocks, add as user message
+
+OUTPUT:
+  Returns a list of complete message objects where:
+  - Each message has role and content fields
+  - Assistant messages have structured content blocks
+</tool.toolu_015tykQ3REsu5o5bdQkykMvj>
+
+## ASSISTANT:
+
+The issue seems to be in the parser creation. Let me check the proper parser initialization. Let me modify the debug to properly set up the tree-sitter parser:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01EDJ3r5oXBzKooVQLTEMzCM
+
+### file-path
+
+<tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+debug-test.el
+</tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+
+### contents
+
+<tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+;;; debug-test.el --- Debug greger-tree-sitter parsing -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+(defun test-tree-structure ()
+  "Test tree structure parsing."
+  (let ((text "## USER:
+
+When was Claude Shannon born?"))
+    (message "Testing tree structure...")
+    (condition-case err
+        (with-temp-buffer
+          (insert text)
+          (let* ((parser (treesit-parser-create 'greger))
+                 (root-node (treesit-parser-root-node parser)))
+            (message "Root node type: %s" (treesit-node-type root-node))
+            (message "Root node children count: %d" (treesit-node-child-count root-node))
+            (dotimes (i (treesit-node-child-count root-node))
+              (let ((child (treesit-node-child root-node i)))
+                (message "  Root child %d: type=%s" i (treesit-node-type child))
+                (when (equal (treesit-node-type child) "section")
+                  (let* ((section-child (treesit-node-child child 0))
+                         (section-type (treesit-node-type section-child)))
+                    (message "    Section type: %s" section-type)
+                    (message "    Section children count: %d" (treesit-node-child-count section-child))
+                    (dotimes (j (treesit-node-child-count section-child))
+                      (let ((section-subchild (treesit-node-child section-child j)))
+                        (message "      Section child %d: type=%s" j (treesit-node-type section-subchild))))))))))
+      (error
+       (message "ERROR: %S" err)))))
+
+(message "=== Testing tree structure ===")
+(test-tree-structure)
+</tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+
+### git-commit-message
+
+<tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+Fix debug test to properly create tree-sitter parser
+</tool.toolu_01EDJ3r5oXBzKooVQLTEMzCM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EDJ3r5oXBzKooVQLTEMzCM -->
