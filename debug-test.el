@@ -6,6 +6,10 @@
 (let ((text "## USER:
 
 Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
 "))
   (with-temp-buffer
     (insert text)

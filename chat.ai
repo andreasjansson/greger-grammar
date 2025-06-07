@@ -12733,4 +12733,152 @@ static bool scan_text(TSLexer *lexer) {
 Improve text scanning to ensure content is consumed
 </tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VeT5Hs9dUi7QCLiCN4pFHy -->
+## TOOL RESULT:
+
+ID: toolu_01VeT5Hs9dUi7QCLiCN4pFHy
+
+<tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Improve text scanning to ensure content is consumed
+</tool.toolu_01VeT5Hs9dUi7QCLiCN4pFHy>
+
+## ASSISTANT:
+
+Now let me regenerate and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GeEGCBu9zgDBUPC1tLAbzv
+
+### command
+
+<tool.toolu_01GeEGCBu9zgDBUPC1tLAbzv>
+tree-sitter generate
+</tool.toolu_01GeEGCBu9zgDBUPC1tLAbzv>
+
+## TOOL RESULT:
+
+ID: toolu_01GeEGCBu9zgDBUPC1tLAbzv
+
+<tool.toolu_01GeEGCBu9zgDBUPC1tLAbzv>
+Command executed successfully:
+(no output)
+</tool.toolu_01GeEGCBu9zgDBUPC1tLAbzv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JnFAace4EZmgZZqXXmti2y
+
+### command
+
+<tool.toolu_01JnFAace4EZmgZZqXXmti2y>
+emacs --batch -l debug-test.el
+</tool.toolu_01JnFAace4EZmgZZqXXmti2y>
+
+## TOOL RESULT:
+
+ID: toolu_01JnFAace4EZmgZZqXXmti2y
+
+<tool.toolu_01JnFAace4EZmgZZqXXmti2y>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Root node type: source_file
+Root node children: 1
+  Root child 0: section
+Sections found by get-all-sections: 1
+User section type: user_section
+Content node found: yes
+Content node type: section_content
+Content node children: 3
+  Content child 0: newline
+  Content child 1: ERROR
+  Content child 2: newline
+Extracted content: ’’
+
+</tool.toolu_01JnFAace4EZmgZZqXXmti2y>
+
+## ASSISTANT:
+
+Still the same issue. Let me test the tree-sitter parse directly to see if the issue is in the build or in how I'm using it in elisp:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019s4cggt1VUXmxr1Y2gg2ox
+
+### command
+
+<tool.toolu_019s4cggt1VUXmxr1Y2gg2ox>
+tree-sitter parse test_simple.greger
+</tool.toolu_019s4cggt1VUXmxr1Y2gg2ox>
+
+## TOOL RESULT:
+
+ID: toolu_019s4cggt1VUXmxr1Y2gg2ox
+
+<tool.toolu_019s4cggt1VUXmxr1Y2gg2ox>
+Command executed successfully:
+(source_file [0, 0] - [7, 0]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (content_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [7, 0]
+    (assistant_section [4, 0] - [7, 0]
+      (assistant_header [4, 0] - [5, 0])
+      (section_content [5, 0] - [7, 0]
+        (newline [5, 0] - [6, 0])
+        (content_line [6, 0] - [7, 0])))))
+
+</tool.toolu_019s4cggt1VUXmxr1Y2gg2ox>
+
+## ASSISTANT:
+
+The tree-sitter parse still works! So the issue is in how the elisp tree-sitter integration is working. Let me create a simple test that exactly matches test_simple.greger:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DWdpJibAzktnhjXhHQUGkD
+
+### file-path
+
+<tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+debug-test.el
+</tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+
+### original-content
+
+<tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?
+"))
+</tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+
+### new-content
+
+<tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+;; Debug simple tree structure first
+(let ((text "## USER:
+
+Hello, how are you?
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+"))
+</tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+
+### git-commit-message
+
+<tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+Use exact content from test_simple.greger
+</tool.toolu_01DWdpJibAzktnhjXhHQUGkD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DWdpJibAzktnhjXhHQUGkD -->
