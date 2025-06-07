@@ -8057,4 +8057,81 @@ assistant_section: $ => seq(
 Revert assistant_section to original structure
 </tool.toolu_01PEobDMHgvATnctvw2MbKuW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PEobDMHgvATnctvw2MbKuW -->
+## TOOL RESULT:
+
+ID: toolu_01PEobDMHgvATnctvw2MbKuW
+
+<tool.toolu_01PEobDMHgvATnctvw2MbKuW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert assistant_section to original structure
+</tool.toolu_01PEobDMHgvATnctvw2MbKuW>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012zhNgkEgY1QShb8NR921M7
+
+### file-path
+
+<tool.toolu_012zhNgkEgY1QShb8NR921M7>
+grammar.js
+</tool.toolu_012zhNgkEgY1QShb8NR921M7>
+
+### original-content
+
+<tool.toolu_012zhNgkEgY1QShb8NR921M7>
+// Cite tag with structured content
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+
+    // Citations with text - spans from content with cite tags to following citations section
+    citations_with_text: $ => seq(
+      // Content that may include text before cite tag
+      repeat(choice(
+        $.content_line_without_cite,
+        $.newline
+      )),
+      // Line with cite tag
+      optional(alias($._text, 'text')),
+      "<cite>",
+      field("text", repeat1(/[^<\n]+/)),
+      "</cite>",
+      optional(/[^\n]*/),  // Rest of line after cite tag
+      "\n",
+      // Optional whitespace and newlines until citations section
+      repeat(choice(/[ \t]/, "\n")),
+      // The citations section header and content
+      /##[ \t]*CITATIONS:[ \t]*\n/,
+      field("entries", repeat1(choice(
+        $.citation_entry,
+        $.newline
+      )))
+    ),
+
+    // Content line without cite tags (for citations_with_text)
+    content_line_without_cite: $ => seq(
+      repeat1(alias($._text, 'text')),
+      "\n"
+    ),
+</tool.toolu_012zhNgkEgY1QShb8NR921M7>
+
+### new-content
+
+<tool.toolu_012zhNgkEgY1QShb8NR921M7>
+// Cite tag with structured content
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+</tool.toolu_012zhNgkEgY1QShb8NR921M7>
+
+### git-commit-message
+
+<tool.toolu_012zhNgkEgY1QShb8NR921M7>
+Remove complex citations_with_text rule
+</tool.toolu_012zhNgkEgY1QShb8NR921M7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012zhNgkEgY1QShb8NR921M7 -->
