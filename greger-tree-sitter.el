@@ -366,7 +366,7 @@ EXAMPLE OUTPUT:
 
     `((role . "user")
       (content . ,(if content-node
-                      (greger-tree-sitter--extract-content content-node)
+                      (greger-tree-sitter--extract-any-content content-node)
                     "")))))
 
 (defun greger-tree-sitter--extract-system-section (section-node)
