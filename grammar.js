@@ -80,10 +80,9 @@ module.exports = grammar({
       optional($.tool_result_content)
     ),
 
-    // Citations without text - standalone citations section
     citations_section: $ => seq(
       $.citations_header,
-      optional(alias($.citations_content, 'citations_without_text'))
+      optional($.citations_content)
     ),
 
     // Headers - simple tokens
