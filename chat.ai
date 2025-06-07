@@ -10402,4 +10402,103 @@ section: $ => choice(
 Revert section changes
 </tool.toolu_01FEz3qUPocrTrtvUPRXuykr>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FEz3qUPocrTrtvUPRXuykr -->
+## TOOL RESULT:
+
+ID: toolu_01FEz3qUPocrTrtvUPRXuykr
+
+<tool.toolu_01FEz3qUPocrTrtvUPRXuykr>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert section changes
+</tool.toolu_01FEz3qUPocrTrtvUPRXuykr>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016bCX5nTqPRE4G7771ZSvz2
+
+### file-path
+
+<tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+grammar.js
+</tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+
+### original-content
+
+<tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+// Content types - simple content lines
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag_inline
+      )),
+      "\n"
+    ),
+
+    // Inline cite tag (doesn't trigger citations_with_text by itself)
+    cite_tag_inline: $ => seq(
+      "<cite>",
+      repeat1(/[^<\n]+/),
+      "</cite>"
+    ),
+
+    // Citations with text - complete section spanning from content to citations
+    citations_with_text: $ => prec.right(seq(
+      // Content that includes cite tags
+      repeat1(choice(
+        alias(/[^<#\n]+/, 'text'),
+        seq(
+          "<cite>",
+          field("text", repeat1(/[^<\n]+/)),
+          "</cite>"
+        ),
+        /[ \t]*\n/
+      )),
+      // Citations section
+      "##",
+      /[ \t]*/,
+      "CITATIONS:",
+      /[ \t]*/,
+      "\n",
+      repeat1(choice(
+        field("entry", $.citation_entry),
+        $.newline
+      ))
+    )),
+</tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+
+### new-content
+
+<tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+// Content types - similar to RST and markdown
+    content: $ => repeat1(choice(
+      $.content_line,
+      $.newline
+    )),
+
+    content_line: $ => seq(
+      repeat1(choice(
+        alias($._text, 'text'),
+        $.cite_tag
+      )),
+      "\n"
+    ),
+
+    // Cite tag with structured content
+    cite_tag: $ => seq(
+      "<cite>",
+      field("cited_text", repeat1(/[^<\n]+/)),
+      "</cite>"
+    ),
+</tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+
+### git-commit-message
+
+<tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+Revert to original content structure
+</tool.toolu_016bCX5nTqPRE4G7771ZSvz2>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016bCX5nTqPRE4G7771ZSvz2 -->
