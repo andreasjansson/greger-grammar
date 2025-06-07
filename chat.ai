@@ -6475,4 +6475,125 @@ grammar.js
 Simplify text_line to exclude < and # at start
 </tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KcFKQzWPgc4e5LtebLVVLx -->
+## TOOL RESULT:
+
+ID: toolu_01KcFKQzWPgc4e5LtebLVVLx
+
+<tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify text_line to exclude < and # at start
+</tool.toolu_01KcFKQzWPgc4e5LtebLVVLx>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01KXsUeC3YeybsGrSnKGj5bQ
+
+### command
+
+<tool.toolu_01KXsUeC3YeybsGrSnKGj5bQ>
+tree-sitter generate
+</tool.toolu_01KXsUeC3YeybsGrSnKGj5bQ>
+
+## TOOL RESULT:
+
+ID: toolu_01KXsUeC3YeybsGrSnKGj5bQ
+
+<tool.toolu_01KXsUeC3YeybsGrSnKGj5bQ>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+
+      user_header  cite_tag  •  'line_with_cite_token1'  …
+
+    Possible interpretations:
+
+      1:  user_header  (line_with_cite  cite_tag  •  line_with_cite_repeat1  '
+    ')
+      2:  user_header  (line_with_cite  cite_tag  •  line_with_cite_repeat1)
+      3:  user_header  (line_with_cite  cite_tag)  •  'line_with_cite_token1'  …
+
+    Possible resolutions:
+
+      1:  Specify a left or right associativity in `line_with_cite`
+      2:  Add a conflict for these rules: `line_with_cite`
+
+
+</tool.toolu_01KXsUeC3YeybsGrSnKGj5bQ>
+
+## ASSISTANT:
+
+The line_with_cite is having issues with its own structure. Let me revert back to a simpler approach that I know worked for citations:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RPXWwo8svj795MuMk35Dzt
+
+### file-path
+
+<tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+grammar.js
+</tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+
+### original-content
+
+<tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+// Content types
+    content: $ => repeat1(choice(
+      $.line_with_cite,
+      $.text_line,
+      $.newline
+    )),
+
+    // Line with cite tags - must actually contain cite tags
+    line_with_cite: $ => seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      repeat(choice(
+        /[^<\n#]+/,  // More text
+        $.cite_tag   // More cite tags
+      )),
+      optional("\n")
+    ),
+
+    // Text line - any non-empty line that doesn't start with < or #
+    text_line: $ => prec.right(seq(
+      /[^<#\n][^\n]*/,
+      optional("\n")
+    )),
+</tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+
+### new-content
+
+<tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+// Content types
+    content: $ => repeat1(choice(
+      prec(2, $.line_with_cite),
+      prec(1, $.text_line),
+      $.newline
+    )),
+
+    // Line with cite tags
+    line_with_cite: $ => prec.right(seq(
+      optional(/[^<\n#]+/), // Text before cite tag
+      $.cite_tag,
+      optional(/[^<\n]*/),  // Text after cite tag
+      optional("\n")
+    )),
+
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
+      optional("\n")
+    )),
+</tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+
+### git-commit-message
+
+<tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+Back to working content parsing, exclude # from text_line
+</tool.toolu_01RPXWwo8svj795MuMk35Dzt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RPXWwo8svj795MuMk35Dzt -->

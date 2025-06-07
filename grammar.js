@@ -97,25 +97,22 @@ module.exports = grammar({
 
     // Content types
     content: $ => repeat1(choice(
-      $.line_with_cite,
-      $.text_line,
+      prec(2, $.line_with_cite),
+      prec(1, $.text_line),
       $.newline
     )),
 
-    // Line with cite tags - must actually contain cite tags
-    line_with_cite: $ => seq(
+    // Line with cite tags
+    line_with_cite: $ => prec.right(seq(
       optional(/[^<\n#]+/), // Text before cite tag
       $.cite_tag,
-      repeat(choice(
-        /[^<\n#]+/,  // More text
-        $.cite_tag   // More cite tags
-      )),
+      optional(/[^<\n]*/),  // Text after cite tag
       optional("\n")
-    ),
+    )),
 
-    // Text line - any non-empty line that doesn't start with < or #
-    text_line: $ => prec.right(seq(
-      /[^<#\n][^\n]*/,
+    // Text line - any non-empty line, newline optional for EOF
+    text_line: $ => prec.left(seq(
+      /[^\n#]+/, // Any non-empty line that doesn't contain #
       optional("\n")
     )),
 
