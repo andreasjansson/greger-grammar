@@ -112,7 +112,7 @@ module.exports = grammar({
       $.newline
     )),
 
-    citation_entry: $ => seq(
+    citation_entry: $ => prec.left(seq(
       "###",
       /[ \t]*/,
       field("url", $.url),
@@ -124,7 +124,7 @@ module.exports = grammar({
         $.citation_index,
         $.newline
       ))
-    ),
+    )),
 
     citation_title: $ => seq(
       "Title:",
