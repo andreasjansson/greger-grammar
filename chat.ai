@@ -10062,4 +10062,129 @@ Hi there!
 Match test_simple.greger structure exactly
 </tool.toolu_01AZ76mUM7uS9k8ANfAL4jJL>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AZ76mUM7uS9k8ANfAL4jJL -->
+## TOOL RESULT:
+
+ID: toolu_01AZ76mUM7uS9k8ANfAL4jJL
+
+<tool.toolu_01AZ76mUM7uS9k8ANfAL4jJL>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug.greger with 41 characters. Successfully staged 2 file(s) and committed with message: Match test_simple.greger structure exactly
+</tool.toolu_01AZ76mUM7uS9k8ANfAL4jJL>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RaEyV25kTpSbeZr1RrpHEg
+
+### command
+
+<tool.toolu_01RaEyV25kTpSbeZr1RrpHEg>
+tree-sitter parse debug.greger
+</tool.toolu_01RaEyV25kTpSbeZr1RrpHEg>
+
+## TOOL RESULT:
+
+ID: toolu_01RaEyV25kTpSbeZr1RrpHEg
+
+<tool.toolu_01RaEyV25kTpSbeZr1RrpHEg>
+Command failed with exit code 1: (source_file [0, 0] - [6, 9]
+  (section [0, 0] - [4, 0]
+    (user_section [0, 0] - [4, 0]
+      (user_header [0, 0] - [1, 0])
+      (section_content [1, 0] - [4, 0]
+        (newline [1, 0] - [2, 0])
+        (content_line [2, 0] - [3, 0])
+        (newline [3, 0] - [4, 0]))))
+  (section [4, 0] - [5, 0]
+    (assistant_section [4, 0] - [5, 0]
+      (assistant_header [4, 0] - [5, 0])))
+  (ERROR [5, 0] - [6, 9]
+    (newline [5, 0] - [6, 0])))
+debug.greger	Parse:    0.43 ms	    95 bytes/ms	(ERROR [5, 0] - [6, 9])
+
+</tool.toolu_01RaEyV25kTpSbeZr1RrpHEg>
+
+## ASSISTANT:
+
+The issue persists. Let me look at the content rules more carefully. The problem is that the final content line isn't being parsed correctly. 
+
+Looking at the content rules:
+
+```javascript
+content_line: $ => seq(
+  repeat1(choice(
+    alias($._text, 'text')
+  )),
+  "\n"
+),
+```
+
+This expects text followed by a newline. But maybe at EOF the external scanner isn't providing the right tokens.
+
+Let me check what the external scanner returns for the "Hi there!" text. The issue might be that the text scanner stops working in certain conditions.
+
+Actually, let me try a different approach. Let me look at the error more carefully. The error is at [5, 0] - [6, 9] which includes newline [5, 0] - [6, 0]. This suggests that there's a newline being parsed, but then the text "Hi there!" from [6, 0] to [6, 9] is causing an error.
+
+This might be because the external scanner isn't providing the TEXT token correctly at that position. Let me check if the issue is with my scanner logic. Looking at the scan_text function:
+
+```c
+static bool scan_text(TSLexer *lexer) {
+  // Don't match if we're at end of input or start of line with no content
+  if (lexer->lookahead == '\0' || lexer->lookahead == '\n') {
+    return false;
+  }
+
+  // Don't match if we're starting with markup characters
+  if (lexer->lookahead == '<' || lexer->lookahead == '#') {
+    return false;
+  }
+  
+  // ... consume content
+}
+```
+
+The scanner won't match at start of line with no content (`lexer->lookahead == '\n'`), but after a newline, the lookahead would be the first character of text, not '\n'.
+
+Let me add another final newline to see if that helps EOF parsing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Vrw21K9XA9haFddDibu3WQ
+
+### file-path
+
+<tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+debug.greger
+</tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+
+### original-content
+
+<tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there!
+</tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+
+### new-content
+
+<tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there!
+</tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+
+### git-commit-message
+
+<tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+Add extra newline at end
+</tool.toolu_01Vrw21K9XA9haFddDibu3WQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Vrw21K9XA9haFddDibu3WQ -->
