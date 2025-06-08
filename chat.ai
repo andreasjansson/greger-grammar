@@ -5835,4 +5835,143 @@ greger-tree-sitter.el
 Try to force full buffer parsing in tree-sitter
 </tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GxD72UqyFqNhKhUWSjhHfb -->
+## TOOL RESULT:
+
+ID: toolu_01GxD72UqyFqNhKhUWSjhHfb
+
+<tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Try to force full buffer parsing in tree-sitter
+</tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0119PLWx1SWDfC3EbDF4wihS
+
+### command
+
+<tool.toolu_0119PLWx1SWDfC3EbDF4wihS>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_0119PLWx1SWDfC3EbDF4wihS>
+
+## TOOL RESULT:
+
+ID: toolu_0119PLWx1SWDfC3EbDF4wihS
+
+<tool.toolu_0119PLWx1SWDfC3EbDF4wihS>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . ""))
+ ((role . "assistant")
+  (content . "")))
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+Section type: ERROR
+  Child type: ERROR, text: "Hello"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: ERROR, text: "
+
+Hi there! How can"
+  Child type: text_content, text: " "
+  Child type: text_content, text: "I help you today?"
+
+</tool.toolu_0119PLWx1SWDfC3EbDF4wihS>
+
+## ASSISTANT:
+
+That didn't work. Let me take a different approach. The issue is that when I'm parsing from elisp, I'm getting a different tree structure than when parsing from the command line. Let me simplify and get the root node directly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XPbp4LjgSQaSKkyEaqMG3M
+
+### file-path
+
+<tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+greger-tree-sitter.el
+</tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+
+### original-content
+
+<tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+(with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           ;; Force the parser to parse the entire buffer
+           (_ (treesit-parser-add-notifier parser #'ignore))
+           (_ (treesit-parse-string text 'greger)))
+      (greger-tree-sitter--extract-dialog parser text)))
+</tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+
+### new-content
+
+<tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+(let* ((tree (treesit-parse-string text 'greger))
+         (root-node (treesit-node-child tree 0)))
+    (greger-tree-sitter--extract-dialog-from-node root-node)))
+</tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+
+### git-commit-message
+
+<tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+Use treesit-parse-string directly instead of creating parser in buffer
+</tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+
+## TOOL RESULT:
+
+ID: toolu_01XPbp4LjgSQaSKkyEaqMG3M
+
+<tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance 0, new has balance -1. They must be equal
+</tool.toolu_01XPbp4LjgSQaSKkyEaqMG3M>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Bz8nxJEJFrL5YiwxXheJF9
+
+### file-path
+
+<tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+greger-tree-sitter.el
+</tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+
+### original-content
+
+<tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           ;; Force the parser to parse the entire buffer
+           (_ (treesit-parser-add-notifier parser #'ignore))
+           (_ (treesit-parse-string text 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+</tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+
+### new-content
+
+<tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+  (let* ((tree (treesit-parse-string text 'greger))
+         (root-node (treesit-node-child tree 0)))
+    (greger-tree-sitter--extract-dialog-from-node root-node)))
+</tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+
+### git-commit-message
+
+<tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+Use treesit-parse-string directly instead of creating parser in buffer
+</tool.toolu_01Bz8nxJEJFrL5YiwxXheJF9>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Bz8nxJEJFrL5YiwxXheJF9 -->
