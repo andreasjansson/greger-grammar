@@ -6037,4 +6037,183 @@ tool_name: $ => prec(1, seq('Name:', /[^\n]*/, /\n/)),
 Add precedence to tool_name and tool_id to override text_block
 </tool.toolu_016uQPWXJ1fS46VQe5s5kD9n>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016uQPWXJ1fS46VQe5s5kD9n -->
+## TOOL RESULT:
+
+ID: toolu_016uQPWXJ1fS46VQe5s5kD9n
+
+<tool.toolu_016uQPWXJ1fS46VQe5s5kD9n>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to tool_name and tool_id to override text_block
+</tool.toolu_016uQPWXJ1fS46VQe5s5kD9n>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01USU82umNTP7UcfqDVggVmj
+
+### command
+
+<tool.toolu_01USU82umNTP7UcfqDVggVmj>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01USU82umNTP7UcfqDVggVmj>
+
+## TOOL RESULT:
+
+ID: toolu_01USU82umNTP7UcfqDVggVmj
+
+<tool.toolu_01USU82umNTP7UcfqDVggVmj>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [9, 0])
+      param: (tool_param [9, 0] - [13, 40]
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [43, 49]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (text_block [43, 0] - [43, 49])))
+
+</tool.toolu_01USU82umNTP7UcfqDVggVmj>
+
+## ASSISTANT:
+
+Still the same issue. Let me examine exactly what's in those text blocks. Let me try a different approach. The issue might be that I need to handle token-level parsing. Let me examine what those text blocks contain by creating a simple test:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01QtYMsLEg1LFuBoqBMK2fPe
+
+### file-path
+
+<tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+debug_simple_tool_use.greger
+</tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+
+### contents
+
+<tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+</tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+
+### git-commit-message
+
+<tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+Add simple debug file for tool use
+</tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+
+## TOOL RESULT:
+
+ID: toolu_01QtYMsLEg1LFuBoqBMK2fPe
+
+<tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+Error executing tool: File already exists: /Users/andreas/scratch/greger-grammar/debug_simple_tool_use.greger
+</tool.toolu_01QtYMsLEg1LFuBoqBMK2fPe>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019zU6iRx46ed6XRKYWZKQne
+
+### command
+
+<tool.toolu_019zU6iRx46ed6XRKYWZKQne>
+tree-sitter generate && tree-sitter parse debug_simple_tool_use.greger
+</tool.toolu_019zU6iRx46ed6XRKYWZKQne>
+
+## TOOL RESULT:
+
+ID: toolu_019zU6iRx46ed6XRKYWZKQne
+
+<tool.toolu_019zU6iRx46ed6XRKYWZKQne>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_use [0, 0] - [2, 10]
+      (text_block [0, 12] - [2, 10])))
+
+</tool.toolu_019zU6iRx46ed6XRKYWZKQne>
+
+## ASSISTANT:
+
+Interesting! So this is a much more compact case. Let me see what the text_block contains, which should be the Name: and ID: lines:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CDLdG61ufLrtrwBDvpDVu6
+
+### path
+
+<tool.toolu_01CDLdG61ufLrtrwBDvpDVu6>
+debug_simple_tool_use.greger
+</tool.toolu_01CDLdG61ufLrtrwBDvpDVu6>
+
+## TOOL RESULT:
+
+ID: toolu_01CDLdG61ufLrtrwBDvpDVu6
+
+<tool.toolu_01CDLdG61ufLrtrwBDvpDVu6>
+## TOOL USE:
+
+Name: test
+</tool.toolu_01CDLdG61ufLrtrwBDvpDVu6>
+
+## ASSISTANT:
+
+The issue is that the grammar tries to match the content as text_block before trying tool_name/tool_id. I need to restructure the grammar to make sure that within tool sections, the Name: and ID: patterns are parsed as specific elements rather than general text.
+
+Let me try making the tokens instead:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MpMqKJCGYSWgJHUj5iZmp5
+
+### file-path
+
+<tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+grammar.js
+</tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+
+### original-content
+
+<tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+tool_name: $ => prec(1, seq('Name:', /[^\n]*/, /\n/)),
+    tool_id: $ => prec(1, seq('ID:', /[^\n]*/, /\n/)),
+</tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+
+### new-content
+
+<tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+tool_name: $ => token(prec(1, seq('Name:', /[^\n]*/, /\n/))),
+    tool_id: $ => token(prec(1, seq('ID:', /[^\n]*/, /\n/))),
+</tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+
+### git-commit-message
+
+<tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+Make tool_name and tool_id tokens with higher precedence
+</tool.toolu_01MpMqKJCGYSWgJHUj5iZmp5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MpMqKJCGYSWgJHUj5iZmp5 -->
