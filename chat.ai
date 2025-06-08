@@ -10446,4 +10446,135 @@ server_tool_result_section: $ => prec.right(seq(
 Use aliases in server_tool_result for id/content instead of fields
 </tool.toolu_0158Pd5cgzetP6HH3Qo3GGe3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0158Pd5cgzetP6HH3Qo3GGe3 -->
+## TOOL RESULT:
+
+ID: toolu_0158Pd5cgzetP6HH3Qo3GGe3
+
+<tool.toolu_0158Pd5cgzetP6HH3Qo3GGe3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use aliases in server_tool_result for id/content instead of fields
+</tool.toolu_0158Pd5cgzetP6HH3Qo3GGe3>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CiBEUTGLAWQVzTdhc5CHiR
+
+### command
+
+<tool.toolu_01CiBEUTGLAWQVzTdhc5CHiR>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01CiBEUTGLAWQVzTdhc5CHiR>
+
+## TOOL RESULT:
+
+ID: toolu_01CiBEUTGLAWQVzTdhc5CHiR
+
+<tool.toolu_01CiBEUTGLAWQVzTdhc5CHiR>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (citation_encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_01CiBEUTGLAWQVzTdhc5CHiR>
+
+## ASSISTANT:
+
+Great! Now server_tool_result has clean structure:
+```
+(server_tool_result [15, 0] - [31, 0]
+  (id [17, 0] - [18, 0])
+  (content [19, 0] - [29, 40]))
+```
+
+Now let me work on the citations section. The goal is to get:
+```
+(citations [...]
+  (text [...])
+  (citation_entry [...]
+    (url [...])
+    (title [...])
+    (cited_text [...])
+    (encrypted_index [...])))
+```
+
+Currently the citation components are separate items in the citations section instead of being grouped under citation_entry. Let me restructure this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Wd5Me2dWKH6gsxwRN5X3oQ
+
+### file-path
+
+<tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+grammar.js
+</tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+
+### original-content
+
+<tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+_citations_content: $ => choice(
+      $.citation_entry,
+      $.citation_title,
+      $.citation_text,
+      $.citation_encrypted_index,
+      prec(-1, $.text_block),
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      field('url', $.citation_url),
+      /\n/,
+    ),
+</tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+
+### new-content
+
+<tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+_citations_content: $ => choice(
+      $.citation_entry,
+      prec(-1, $.text_block),
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      alias($.citation_url, $.url),
+      /\n/,
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    ),
+</tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+
+### git-commit-message
+
+<tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+Restructure citations to group title/text/encrypted_index under citation_entry
+</tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Wd5Me2dWKH6gsxwRN5X3oQ -->
