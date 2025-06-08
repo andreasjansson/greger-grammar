@@ -84,10 +84,12 @@ module.exports = grammar({
       'TOOL',
       'USE',
       ':',
-      field('name', optional($.tool_name)),
-      field('id', optional($.tool_id)),
-      repeat(field('param', $.tool_param)),
-      repeat($._section_content),
+      repeat(choice(
+        field('name', $.tool_name),
+        field('id', $.tool_id),
+        field('param', $.tool_param),
+        $._section_content,
+      )),
     )),
 
     tool_result_section: $ => prec.right(seq(
@@ -95,9 +97,11 @@ module.exports = grammar({
       'TOOL',
       'RESULT',
       ':',
-      field('id', optional($.tool_id)),
-      field('content', optional($.tool_content)),
-      repeat($._section_content),
+      repeat(choice(
+        field('id', $.tool_id),
+        field('content', $.tool_content),
+        $._section_content,
+      )),
     )),
 
     server_tool_use_section: $ => prec.right(seq(
@@ -106,10 +110,12 @@ module.exports = grammar({
       'TOOL',
       'USE',
       ':',
-      field('name', optional($.tool_name)),
-      field('id', optional($.tool_id)),
-      repeat(field('param', $.tool_param)),
-      repeat($._section_content),
+      repeat(choice(
+        field('name', $.tool_name),
+        field('id', $.tool_id),
+        field('param', $.tool_param),
+        $._section_content,
+      )),
     )),
 
     server_tool_result_section: $ => prec.right(seq(
@@ -118,9 +124,11 @@ module.exports = grammar({
       'TOOL',
       'RESULT',
       ':',
-      field('id', optional($.tool_id)),
-      field('content', optional($.tool_content)),
-      repeat($._section_content),
+      repeat(choice(
+        field('id', $.tool_id),
+        field('content', $.tool_content),
+        $._section_content,
+      )),
     )),
 
     citations_section: $ => prec.right(seq(

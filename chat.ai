@@ -3845,4 +3845,183 @@ module.exports = grammar({
 Refactor grammar to use fields and aliases for cleaner parsing structure
 </tool.toolu_01UopBNcDtiqtnXk9KU8BmBv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UopBNcDtiqtnXk9KU8BmBv -->
+## TOOL RESULT:
+
+ID: toolu_01UopBNcDtiqtnXk9KU8BmBv
+
+<tool.toolu_01UopBNcDtiqtnXk9KU8BmBv>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Refactor grammar to use fields and aliases for cleaner parsing structure
+</tool.toolu_01UopBNcDtiqtnXk9KU8BmBv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WoVWjStKkXZXSsmuzw68w9
+
+### command
+
+<tool.toolu_01WoVWjStKkXZXSsmuzw68w9>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01WoVWjStKkXZXSsmuzw68w9>
+
+## TOOL RESULT:
+
+ID: toolu_01WoVWjStKkXZXSsmuzw68w9
+
+<tool.toolu_01WoVWjStKkXZXSsmuzw68w9>
+Command failed with exit code 1: (source_file [0, 0] - [43, 49]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (ERROR [4, 19] - [9, 0]
+        (text_block [4, 19] - [9, 0]))
+      param: (tool_param [9, 0] - [13, 40]
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [13, 41])
+      (text_block [13, 41] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (ERROR [15, 22] - [19, 0]
+        (text_block [15, 22] - [19, 0]))
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [29, 41])
+      (text_block [29, 41] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [43, 49]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (text_block [43, 0] - [43, 49])))
+test/corpus/citations-basic.greger	Parse:    1.08 ms	  1026 bytes/ms	(ERROR [4, 19] - [9, 0])
+
+</tool.toolu_01WoVWjStKkXZXSsmuzw68w9>
+
+## ASSISTANT:
+
+The grammar is generating some errors. I need to fix the tool metadata parsing. The issue is that I'm expecting optional tool_name and tool_id but they need to be parsed correctly. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Gwk2gM6qe3GqmBNFydDpor
+
+### file-path
+
+<tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+grammar.js
+</tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+
+### original-content
+
+<tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+    tool_use_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'USE',
+      ':',
+      field('name', optional($.tool_name)),
+      field('id', optional($.tool_id)),
+      repeat(field('param', $.tool_param)),
+      repeat($._section_content),
+    )),
+
+    tool_result_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      field('id', optional($.tool_id)),
+      field('content', optional($.tool_content)),
+      repeat($._section_content),
+    )),
+
+    server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      field('name', optional($.tool_name)),
+      field('id', optional($.tool_id)),
+      repeat(field('param', $.tool_param)),
+      repeat($._section_content),
+    )),
+
+    server_tool_result_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'RESULT',
+      ':',
+      field('id', optional($.tool_id)),
+      field('content', optional($.tool_content)),
+      repeat($._section_content),
+    )),
+</tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+
+### new-content
+
+<tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+    tool_use_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        field('name', $.tool_name),
+        field('id', $.tool_id),
+        field('param', $.tool_param),
+        $._section_content,
+      )),
+    )),
+
+    tool_result_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      repeat(choice(
+        field('id', $.tool_id),
+        field('content', $.tool_content),
+        $._section_content,
+      )),
+    )),
+
+    server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        field('name', $.tool_name),
+        field('id', $.tool_id),
+        field('param', $.tool_param),
+        $._section_content,
+      )),
+    )),
+
+    server_tool_result_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'RESULT',
+      ':',
+      repeat(choice(
+        field('id', $.tool_id),
+        field('content', $.tool_content),
+        $._section_content,
+      )),
+    )),
+</tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+
+### git-commit-message
+
+<tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+Fix tool section parsing by using choice instead of optional for metadata
+</tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Gwk2gM6qe3GqmBNFydDpor -->
