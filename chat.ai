@@ -8276,4 +8276,111 @@ tool_param: $ => seq(
 Remove token wrapper from tool param name to expose content
 </tool.toolu_01B1wg8w3D67zExh5Q4Aspah>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01B1wg8w3D67zExh5Q4Aspah -->
+## TOOL RESULT:
+
+ID: toolu_01B1wg8w3D67zExh5Q4Aspah
+
+<tool.toolu_01B1wg8w3D67zExh5Q4Aspah>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove token wrapper from tool param name to expose content
+</tool.toolu_01B1wg8w3D67zExh5Q4Aspah>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SStCKfBcGr2bZoGe9QKFqp
+
+### command
+
+<tool.toolu_01SStCKfBcGr2bZoGe9QKFqp>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01SStCKfBcGr2bZoGe9QKFqp>
+
+## TOOL RESULT:
+
+ID: toolu_01SStCKfBcGr2bZoGe9QKFqp
+
+<tool.toolu_01SStCKfBcGr2bZoGe9QKFqp>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      name: (tool_name [6, 0] - [7, 0])
+      id: (tool_id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      param: (tool_param [9, 0] - [13, 40]
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      id: (tool_id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [43, 49]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (text_block [43, 0] - [43, 49])))
+
+</tool.toolu_01SStCKfBcGr2bZoGe9QKFqp>
+
+## ASSISTANT:
+
+I still don't see the param name field. This is puzzling. Let me try to simplify and see if I can get
+
+## USER:
+
+Can you not make it so it's something like `### [whitespace] query`, feels ugly for the space to be part of the `query` token
+
+## ASSISTANT:
+
+You're absolutely right! Let me fix that to make it cleaner by handling the whitespace separately:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NeHhJmZAprVJ9xtpRzDBjq
+
+### file-path
+
+<tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+grammar.js
+</tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+
+### original-content
+
+<tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+tool_param: $ => seq(
+      '###',
+      field('name', /[ ]*[^\n]*/),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+
+### new-content
+
+<tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      field('name', /[^\n]*/),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+
+### git-commit-message
+
+<tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+Separate whitespace from param name for cleaner parsing
+</tool.toolu_01NeHhJmZAprVJ9xtpRzDBjq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NeHhJmZAprVJ9xtpRzDBjq -->
