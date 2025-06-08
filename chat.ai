@@ -7403,4 +7403,136 @@ hello
 Add tool content back to test both metadata and tool content
 </tool.toolu_01UKYiy5UGoDVtoQo6aANjr8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UKYiy5UGoDVtoQo6aANjr8 -->
+## TOOL RESULT:
+
+ID: toolu_01UKYiy5UGoDVtoQo6aANjr8
+
+<tool.toolu_01UKYiy5UGoDVtoQo6aANjr8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Add tool content back to test both metadata and tool content
+</tool.toolu_01UKYiy5UGoDVtoQo6aANjr8>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0115KvV3fE7TNLEUpm9fCPra
+
+### command
+
+<tool.toolu_0115KvV3fE7TNLEUpm9fCPra>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_0115KvV3fE7TNLEUpm9fCPra>
+
+## TOOL RESULT:
+
+ID: toolu_0115KvV3fE7TNLEUpm9fCPra
+
+<tool.toolu_0115KvV3fE7TNLEUpm9fCPra>
+Command failed with exit code 1: (source_file [0, 0] - [6, 14]
+  (tool_result_section [0, 0] - [6, 0]
+    (tool_use_metadata [2, 0] - [2, 10])
+    (ERROR [4, 0] - [4, 13]
+      (ERROR [4, 0] - [4, 13]))
+    (text_content [5, 0] - [5, 5]))
+  (ERROR [6, 0] - [6, 14]
+    (ERROR [6, 0] - [6, 14])))
+test_simple.greger	Parse:    0.83 ms	    76 bytes/ms	(ERROR [4, 0] - [4, 13])
+
+</tool.toolu_0115KvV3fE7TNLEUpm9fCPra>
+
+## ASSISTANT:
+
+Good! The metadata is parsing correctly now. The tool content is still not working, but now I know the issue is specifically with the external scanner setup. Let me fix the scanner to be simpler and actually work. 
+
+The issue is that when tool_content should be scanned, the valid_symbols probably doesn't include TOOL_CONTENT. Let me revert the debug scanner and make it cleaner:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WiZR4kUhavD1tBj1owVYaF
+
+### file-path
+
+<tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+src/scanner.c
+</tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+
+### original-content
+
+<tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    // DEBUG: Always try to scan tool content when we see <tool. to see if it's the valid_symbols issue
+    if (lexer->lookahead == '<') {
+        advance(lexer);
+        if (lexer->lookahead == 't') {
+            advance(lexer);
+            if (lexer->lookahead == 'o') {
+                advance(lexer);
+                if (lexer->lookahead == 'o') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'l') {
+                        advance(lexer);
+                        if (lexer->lookahead == '.') {
+                            // Found <tool. - check if TOOL_CONTENT is valid
+                            if (valid_symbols[TOOL_CONTENT]) {
+                                // It's valid, continue scanning
+                                advance(lexer);
+                                while (lexer->lookahead != 0) {
+                                    advance(lexer);
+                                }
+                                lexer->result_symbol = TOOL_CONTENT;
+                                return true;
+                            }
+                            // Not valid - return false to let internal scanner handle it
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+</tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+
+### new-content
+
+<tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    if (valid_symbols[TOOL_CONTENT] && scan_tool_content(scanner, lexer)) {
+        return true;
+    }
+
+    return false;
+}
+</tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+
+### git-commit-message
+
+<tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+Revert scanner to clean version
+</tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WiZR4kUhavD1tBj1owVYaF -->
