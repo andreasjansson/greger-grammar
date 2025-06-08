@@ -239,10 +239,12 @@
                                        content-text)))
                     (push (cons (intern param-name) param-value) input))))))))))
 
-    `((type . "tool_use")
-      (id . ,id)
-      (name . ,name)
-      (input . ,(nreverse input)))))
+    (let ((result `((type . "tool_use")
+                    (id . ,id)
+                    (name . ,name)
+                    (input . ,(nreverse input)))))
+      (message "[DEBUG] extract-tool-use returning type: %s" (alist-get 'type result))
+      result)))
 
 (defun greger-tree-sitter--extract-tool-result (tool-result-section)
   "Extract tool result data from a tool result section."
