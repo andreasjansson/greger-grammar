@@ -253,7 +253,7 @@
 
     ;; Tool use with code blocks in parameters
     (:name "tool-use-with-code-in-params"
-           :markdown (greger-read-corpus-file "tool-use-with-code-in-params")
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params")
            :dialog (((role . "user")
                      (content . "Write some Python code"))
                     ((role . "assistant")
