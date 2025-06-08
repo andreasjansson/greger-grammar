@@ -4893,4 +4893,105 @@ tool_use_metadata: $ => prec(2, choice(
 Use token() for metadata keywords to give them higher lexical precedence
 </tool.toolu_01KyUuycusSaFKE5t4LKynTw>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KyUuycusSaFKE5t4LKynTw -->
+## TOOL RESULT:
+
+ID: toolu_01KyUuycusSaFKE5t4LKynTw
+
+<tool.toolu_01KyUuycusSaFKE5t4LKynTw>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use token() for metadata keywords to give them higher lexical precedence
+</tool.toolu_01KyUuycusSaFKE5t4LKynTw>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BjDT95ndcUpqvMgb3nanc4
+
+### command
+
+<tool.toolu_01BjDT95ndcUpqvMgb3nanc4>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01BjDT95ndcUpqvMgb3nanc4>
+
+## TOOL RESULT:
+
+ID: toolu_01BjDT95ndcUpqvMgb3nanc4
+
+<tool.toolu_01BjDT95ndcUpqvMgb3nanc4>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [9, 0]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10])
+    (ERROR [5, 0] - [7, 13]
+      (ERROR [7, 0] - [7, 13]))
+    (text_content [8, 0] - [8, 5]))
+  (ERROR [9, 0] - [9, 14]
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:    0.49 ms	   166 bytes/ms	(ERROR [5, 0] - [7, 13])
+
+</tool.toolu_01BjDT95ndcUpqvMgb3nanc4>
+
+## ASSISTANT:
+
+That didn't work either. Let me try a completely different approach - make text_content only match non-keyword text by using negative lookahead-like behavior. But first let me address the tool content issue. Let me check if the external scanner is being called when it should be. The debug shows that `lex_external state:1` when it encounters the tool tags, which suggests the scanner is being called.
+
+Looking more closely at the debug output, I can see that the external scanner is being called (`lex_external state:1`) but it's returning ERROR instead of tool_content. Let me check the scanner code more carefully.
+
+Looking at the scanner, I think the issue might be with the state management. Let me check if the valid_symbols array is being passed correctly. The scanner should only scan for tool_content when it's valid according to the grammar.
+
+Let me look at what the scanner is doing. From the debug log, I can see that:
+1. `lex_external state:1` is called when it encounters `<`
+2. But then it processes each character individually and returns ERROR
+
+I think the issue is that the tool_content symbol isn't being requested as valid in the current parsing state. Let me debug this by checking if tool_content is a valid option where we expect it. Looking at the grammar again:
+
+```
+tool_param: $ => prec(1, seq(
+      '###', /[^\r\n]*/,
+      $.tool_content,
+    )),
+```
+
+The tool_param expects tool_content after the ### line. But in our test, the ### line isn't being recognized as tool_param because there's a conflict with citation_entry which also starts with ###.
+
+Let me fix this by being more explicit about context. Since citation_entry only appears in citations sections, I should separate these:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UzLmriz4YqYiBg7hN2sUvq
+
+### file-path
+
+<tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+grammar.js
+</tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+
+### original-content
+
+<tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+      /\r?\n/,
+    ),
+</tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+
+### new-content
+
+<tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+      /\r?\n/,
+    ),
+</tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+
+### git-commit-message
+
+<tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+Keep tool use content the same
+</tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UzLmriz4YqYiBg7hN2sUvq -->
