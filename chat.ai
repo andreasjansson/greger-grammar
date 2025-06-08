@@ -6485,4 +6485,99 @@ greger-tree-sitter.el
 Add debug messages to trace dialog extraction
 </tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0194SmiwKUz2rmY5LSQPejjY -->
+## TOOL RESULT:
+
+ID: toolu_0194SmiwKUz2rmY5LSQPejjY
+
+<tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug messages to trace dialog extraction
+</tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HC8TLCKYazekQBGKqPBP9y
+
+### command
+
+<tool.toolu_01HC8TLCKYazekQBGKqPBP9y>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01HC8TLCKYazekQBGKqPBP9y>
+
+## TOOL RESULT:
+
+ID: toolu_01HC8TLCKYazekQBGKqPBP9y
+
+<tool.toolu_01HC8TLCKYazekQBGKqPBP9y>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Found 4 sections
+Processing section type: ##
+Processing section type: USER
+Processing section type: :
+Processing section type: text_block
+Final dialog: nil
+Parse result:
+
+Result type: symbol
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hello
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hi there! How can I help you today?"
+nil
+</tool.toolu_01HC8TLCKYazekQBGKqPBP9y>
+
+## ASSISTANT:
+
+Aha! I see the issue. The root node's children are the individual tokens (##, USER, :, text_block) rather than the sections themselves. The debug output shows that when I examine the children in the debug section, I see "user_section" and "assistant_section", but when I extract from the parsed tree, I get the tokens.
+
+This suggests that `treesit-parse-string` returns a different tree structure. Let me check how to get the actual sections. The issue is that I need to get the actual source_file node, not some intermediate node.
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RUMLUo9Q2ysDVnRpD6Jp9N
+
+### file-path
+
+<tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+greger-tree-sitter.el
+</tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+
+### original-content
+
+<tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+(let* ((tree (treesit-parse-string text 'greger))
+         (root-node (treesit-node-child tree 0)))
+    (greger-tree-sitter--extract-dialog-from-node root-node))
+</tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+
+### new-content
+
+<tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+(let* ((tree (treesit-parse-string text 'greger)))
+    (greger-tree-sitter--extract-dialog-from-node tree))
+</tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+
+### git-commit-message
+
+<tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+Use tree directly instead of getting child node
+</tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RUMLUo9Q2ysDVnRpD6Jp9N -->

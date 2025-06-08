@@ -55,9 +55,8 @@ ERRORS:
   (unless (treesit-ready-p 'greger)
     (error "Tree-sitter greger parser not available"))
 
-  (let* ((tree (treesit-parse-string text 'greger))
-         (root-node (treesit-node-child tree 0)))
-    (greger-tree-sitter--extract-dialog-from-node root-node)))
+  (let* ((tree (treesit-parse-string text 'greger)))
+    (greger-tree-sitter--extract-dialog-from-node tree)))
 
 (defun greger-tree-sitter--extract-dialog-from-node (root-node)
   "Extract dialog structure from parsed greger conversation."
