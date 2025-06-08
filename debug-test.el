@@ -4,7 +4,14 @@
 
 Here's some code:
 
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
 ```
+<!-- comment should be included -->
 ## ASSISTANT:
 This should not be parsed as a section header
 ## TOOL USE:

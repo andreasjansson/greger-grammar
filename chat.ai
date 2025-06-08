@@ -5094,4 +5094,80 @@ greger-tree-sitter.el
 Add function to extract text while filtering HTML comments
 </tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016FNqmoTahg3rqWPdC9Pjfy -->
+## TOOL RESULT:
+
+ID: toolu_016FNqmoTahg3rqWPdC9Pjfy
+
+<tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add function to extract text while filtering HTML comments
+</tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+
+## ASSISTANT:
+
+Now let me test the HTML comments:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018ymcTGQdzf3zHe3nUwjyZA
+
+### file-path
+
+<tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+debug-test.el
+</tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+
+### original-content
+
+<tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+(let* ((text "## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?")
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+
+### new-content
+
+<tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+(let* ((text "## USER:
+
+Here's some code:
+
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
+```
+<!-- comment should be included -->
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?")
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+
+### git-commit-message
+
+<tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+Update debug test to test HTML comment filtering
+</tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018ymcTGQdzf3zHe3nUwjyZA -->
