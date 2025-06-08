@@ -180,9 +180,10 @@ module.exports = grammar({
       $.cite_tag,
       $.safe_shell_commands,
       $._text_content,
+      /\n/,
     ))),
 
-    _text_content: $ => token(prec(-1, /[^#<`]+/)),
+    _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
 
     content: $ => alias($.tool_content, 'content'),
 
