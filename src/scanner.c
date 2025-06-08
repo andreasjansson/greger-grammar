@@ -106,7 +106,12 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Debug: always return tool content
+    // Check for error recovery
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Debug: always return tool content for '<'
     if (lexer->lookahead == '<') {
         advance(lexer);
         lexer->result_symbol = TOOL_CONTENT;
