@@ -226,7 +226,7 @@
           (let ((content-text (treesit-node-text child)))
             ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
             ;; Use string operations instead of regex to handle multiline content
-            (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+            (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
               (setq content-text (match-string 1 content-text)))
             (setq content (string-trim content-text)))))))
 
