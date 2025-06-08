@@ -40,28 +40,28 @@ module.exports = grammar({
       '##',
       'USER',
       ':',
-      $._section_content,
+      optional($._section_content),
     ),
 
     assistant_section: $ => seq(
       '##',
       'ASSISTANT',
       ':',
-      $._section_content,
+      optional($._section_content),
     ),
 
     system_section: $ => seq(
       '##',
       'SYSTEM',
       ':',
-      $._section_content,
+      optional($._section_content),
     ),
 
     thinking_section: $ => seq(
       '##',
       'THINKING',
       ':',
-      $._section_content,
+      optional($._section_content),
     ),
 
     tool_use_section: $ => seq(
@@ -105,11 +105,11 @@ module.exports = grammar({
       optional($._citations_content),
     ),
 
-    _section_content: $ => repeat($._content_item),
+    _section_content: $ => repeat1($._content_item),
 
-    _tool_section_content: $ => repeat($._tool_content_item),
+    _tool_section_content: $ => repeat1($._tool_content_item),
 
-    _citations_content: $ => repeat($._citation_content_item),
+    _citations_content: $ => repeat1($._citation_content_item),
 
     _content_item: $ => choice(
       $.text_content,
