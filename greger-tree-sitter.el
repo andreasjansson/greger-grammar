@@ -230,6 +230,8 @@
                   (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
                     (setq content-text (match-string 1 content-text)))
                   (setq content-text (string-trim content-text))
+                  ;; Unescape quotes in tool content
+                  (setq content-text (replace-regexp-in-string "\\\\\"" "\"" content-text))
                   ;; Try to convert string to number if it looks like a number
                   (let ((param-value (if (string-match "^[0-9]+$" content-text)
                                          (string-to-number content-text)

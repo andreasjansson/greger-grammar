@@ -8740,4 +8740,94 @@ debug-test.el
 Update debug test to check JSON parsing
 </tool.toolu_01TYWfyCNjTfLg4nLDm126vp>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TYWfyCNjTfLg4nLDm126vp -->
+## TOOL RESULT:
+
+ID: toolu_01TYWfyCNjTfLg4nLDm126vp
+
+<tool.toolu_01TYWfyCNjTfLg4nLDm126vp>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Update debug test to check JSON parsing
+</tool.toolu_01TYWfyCNjTfLg4nLDm126vp>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01B3VySr4xQDYXHhtvwMFL42
+
+### command
+
+<tool.toolu_01B3VySr4xQDYXHhtvwMFL42>
+emacs --batch -l debug-test.el
+</tool.toolu_01B3VySr4xQDYXHhtvwMFL42>
+
+## TOOL RESULT:
+
+ID: toolu_01B3VySr4xQDYXHhtvwMFL42
+
+<tool.toolu_01B3VySr4xQDYXHhtvwMFL42>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content . "[\n  {\n    \\\"title\\\": \\\"Weather in San Francisco\\\",\n    \\\"url\\\": \\\"https://weather.com/sf\\\",\n    \\\"content\\\": \\\"Sunny, 72°F\\\"\n  }\n]"))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+</tool.toolu_01B3VySr4xQDYXHhtvwMFL42>
+
+## ASSISTANT:
+
+The JSON parsing isn't working because the content has escaped quotes (`\\\"` instead of `"`). I need to unescape the content before trying to parse it as JSON. Also, I need to unescape tool content as well:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015LidxoSTUm3qqYifjtSwRK
+
+### file-path
+
+<tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+greger-tree-sitter.el
+</tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+
+### original-content
+
+<tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+(setq content-text (string-trim content-text))
+                  ;; Try to convert string to number if it looks like a number
+                  (let ((param-value (if (string-match "^[0-9]+$" content-text)
+                                         (string-to-number content-text)
+                                       content-text)))
+                    (push (cons (intern param-name) param-value) input)))))))
+</tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+
+### new-content
+
+<tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+(setq content-text (string-trim content-text))
+                  ;; Unescape quotes in tool content
+                  (setq content-text (replace-regexp-in-string "\\\\\"" "\"" content-text))
+                  ;; Try to convert string to number if it looks like a number
+                  (let ((param-value (if (string-match "^[0-9]+$" content-text)
+                                         (string-to-number content-text)
+                                       content-text)))
+                    (push (cons (intern param-name) param-value) input)))))))
+</tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+
+### git-commit-message
+
+<tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+Add quote unescaping to tool parameter content
+</tool.toolu_015LidxoSTUm3qqYifjtSwRK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015LidxoSTUm3qqYifjtSwRK -->
