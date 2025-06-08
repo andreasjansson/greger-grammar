@@ -198,7 +198,7 @@
 
     ;; Multiple citations test
     (:name "citations-multiple"
-           :markdown (greger-read-corpus-file "citations-multiple")
+           :markdown ,(greger-read-corpus-file "citations-multiple")
            :dialog (((role . "user")
                      (content . "Tell me about Einstein and Newton"))
                     ((role . "assistant")
