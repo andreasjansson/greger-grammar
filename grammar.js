@@ -125,8 +125,8 @@ module.exports = grammar({
       'RESULT',
       ':',
       repeat(choice(
-        field('id', $.tool_id),
-        field('content', $.tool_content),
+        alias($.tool_id, $.id),
+        alias($.tool_content, $.content),
         $._section_content,
       )),
     )),
