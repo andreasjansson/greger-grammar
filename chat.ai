@@ -3253,4 +3253,126 @@ hello.txt
 Add debug test for tool content extraction
 </tool.toolu_017g2ZA6RNRrJkL2J6anX8WB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017g2ZA6RNRrJkL2J6anX8WB -->
+## TOOL RESULT:
+
+ID: toolu_017g2ZA6RNRrJkL2J6anX8WB
+
+<tool.toolu_017g2ZA6RNRrJkL2J6anX8WB>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug-test.el with 275 characters. Successfully staged 2 file(s) and committed with message: Add debug test for tool content extraction
+</tool.toolu_017g2ZA6RNRrJkL2J6anX8WB>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0173WYAb33cB2E5vmGyFCZFG
+
+### command
+
+<tool.toolu_0173WYAb33cB2E5vmGyFCZFG>
+emacs --batch -l debug-test.el
+</tool.toolu_0173WYAb33cB2E5vmGyFCZFG>
+
+## TOOL RESULT:
+
+ID: toolu_0173WYAb33cB2E5vmGyFCZFG
+
+<tool.toolu_0173WYAb33cB2E5vmGyFCZFG>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "<tool.toolu_123>\nhello.txt\n</tool.toolu_123"))))))
+
+</tool.toolu_0173WYAb33cB2E5vmGyFCZFG>
+
+## ASSISTANT:
+
+So the issue is that the tool content does include the `<tool.toolu_123>` tags and the regex in the Emacs code isn't properly stripping them. Let me examine the regex more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01EMbLJdWhADTL9rXDiV8QsY
+
+### path
+
+<tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+greger-tree-sitter.el
+</tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+
+### start-line
+
+<tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+190
+</tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+
+### end-line
+
+<tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+200
+</tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+
+## TOOL RESULT:
+
+ID: toolu_01EMbLJdWhADTL9rXDiV8QsY
+
+<tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))))
+                  (setq content-text (string-trim content-text))
+</tool.toolu_01EMbLJdWhADTL9rXDiV8QsY>
+
+## ASSISTANT:
+
+The regex `\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$` should match the content, but it's not working because of the newlines. The `.*?` pattern doesn't match newlines by default. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018gydnmbEvxEvEqFeZT3ajY
+
+### file-path
+
+<tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+greger-tree-sitter.el
+</tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+
+### original-content
+
+<tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))
+</tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+
+### new-content
+
+<tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      ;; Use [\s\S] to match any character including newlines
+                      (when (string-match "\\([[:ascii:]]*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))
+</tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+
+### git-commit-message
+
+<tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+Fix regex to match newlines in tool content parsing
+</tool.toolu_018gydnmbEvxEvEqFeZT3ajY>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018gydnmbEvxEvEqFeZT3ajY -->
