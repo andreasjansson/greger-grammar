@@ -12674,4 +12674,128 @@ greger-tree-sitter.el
 Fix tool content extraction to handle multiline content properly
 </tool.toolu_01E86DfYPA4iZfDCi94teaRj>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01E86DfYPA4iZfDCi94teaRj -->
+## TOOL RESULT:
+
+ID: toolu_01E86DfYPA4iZfDCi94teaRj
+
+<tool.toolu_01E86DfYPA4iZfDCi94teaRj>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tool content extraction to handle multiline content properly
+</tool.toolu_01E86DfYPA4iZfDCi94teaRj>
+
+## ASSISTANT:
+
+I need to apply the same fix to the tool parameter extraction as well:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SGgUmgzcZHAa28mnAFQxyP
+
+### path
+
+<tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+greger-tree-sitter.el
+</tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+
+### start-line
+
+<tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+175
+</tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+
+### end-line
+
+<tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+200
+</tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+
+## TOOL RESULT:
+
+ID: toolu_01SGgUmgzcZHAa28mnAFQxyP
+
+<tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+               ((string-prefix-p "Name:" line)
+                (setq name (string-trim (substring line 5))))
+               ((string-prefix-p "ID:" line)
+                (setq id (string-trim (substring line 3))))))))
+
+         ((string= node-type "tool_param")
+          ;; Extract parameter from tool_param node
+          (let* ((param-text (treesit-node-text child))
+                 (lines (split-string param-text "\n"))
+                 (header-line (string-trim (car lines)))
+                 (param-name (if (string-prefix-p "###" header-line)
+                                 (string-trim (substring header-line 3))
+                               header-line))
+                 (param-children (treesit-node-children child)))
+            ;; Look for tool_content in the children
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (string-trim (treesit-node-text param-child))))
+                  ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+                  (cond
+                   ;; Full wrapper case
+                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                   ;; Partial wrapper case (missing closing >)
+                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+</tool.toolu_01SGgUmgzcZHAa28mnAFQxyP>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0146RyPSRKYvh4rYcahA34Ud
+
+### file-path
+
+<tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+greger-tree-sitter.el
+</tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+
+### original-content
+
+<tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+(dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (string-trim (treesit-node-text param-child))))
+                  ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+                  (cond
+                   ;; Full wrapper case
+                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                   ;; Partial wrapper case (missing closing >)
+                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                   ;; Just remove the opening tag if present
+                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
+                    (setq content-text (match-string 1 content-text))))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+
+### new-content
+
+<tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+(dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag
+                      (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                          (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                        (setq content-text remaining-text))))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+
+### git-commit-message
+
+<tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+Fix tool parameter extraction to handle multiline content properly
+</tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0146RyPSRKYvh4rYcahA34Ud -->

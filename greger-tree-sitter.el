@@ -189,18 +189,15 @@
             ;; Look for tool_content in the children
             (dolist (param-child param-children)
               (when (string= (treesit-node-type param-child) "tool_content")
-                (let ((content-text (string-trim (treesit-node-text param-child))))
-                  ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
-                  (cond
-                   ;; Full wrapper case
-                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
-                    (setq content-text (match-string 1 content-text)))
-                   ;; Partial wrapper case (missing closing >)
-                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
-                    (setq content-text (match-string 1 content-text)))
-                   ;; Just remove the opening tag if present
-                   ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
-                    (setq content-text (match-string 1 content-text))))
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag
+                      (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                          (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                        (setq content-text remaining-text))))
                   (setq content-text (string-trim content-text))
                   (push (cons (intern param-name) content-text) input)))))))))
 
