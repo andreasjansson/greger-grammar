@@ -40,28 +40,28 @@ module.exports = grammar({
       '##',
       'USER',
       ':',
-      optional($._section_content),
+      $._section_content,
     ),
 
     assistant_section: $ => seq(
       '##',
       'ASSISTANT',
       ':',
-      optional($._section_content),
+      $._section_content,
     ),
 
     system_section: $ => seq(
       '##',
       'SYSTEM',
       ':',
-      optional($._section_content),
+      $._section_content,
     ),
 
     thinking_section: $ => seq(
       '##',
       'THINKING',
       ':',
-      optional($._section_content),
+      $._section_content,
     ),
 
     tool_use_section: $ => seq(
