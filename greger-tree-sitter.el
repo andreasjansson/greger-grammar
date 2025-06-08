@@ -376,7 +376,7 @@
                         (setq encrypted-index (string-trim (substring line 16)))))))
 
                   ;; Update the citation with metadata
-                  (message "[DEBUG] Updating citation with title: %s, cited_text: %s, encrypted_index: %s" title cited-text-meta encrypted-index)
+
                   (setf (alist-get 'title last-citation) title)
                   (setf (alist-get 'cited_text last-citation) cited-text-meta)
                   (setf (alist-get 'encrypted_index last-citation) encrypted-index))))))
