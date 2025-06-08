@@ -125,6 +125,9 @@ module.exports = grammar({
 
     _citations_content: $ => prec(-1, choice(
       $.citation_entry,
+      $.citation_title,
+      $.citation_text,
+      $.citation_encrypted_index,
       $.text_block,
     )),
 
