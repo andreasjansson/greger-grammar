@@ -196,7 +196,7 @@
                    ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
                     (setq content-text (match-string 1 content-text))))
                   (setq content-text (string-trim content-text))
-                  (push (cons (intern param-name) content-text) input))))))))
+                  (push (cons (intern param-name) content-text) input)))))))))
 
     `((type . "tool_use")
       (id . ,id)
