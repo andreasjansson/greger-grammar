@@ -64,19 +64,27 @@ ERRORS:
   (let* ((sections (treesit-node-children root-node))
          (dialog '()))
 
+    (message "Found %d sections" (length sections))
     (dolist (section sections)
       (let ((section-type (treesit-node-type section)))
+        (message "Processing section type: %s" section-type)
         (cond
          ((string= section-type "user_section")
-          (push (greger-tree-sitter--extract-user-section section) dialog))
+          (let ((user-data (greger-tree-sitter--extract-user-section section)))
+            (message "User data: %S" user-data)
+            (push user-data dialog)))
          ((string= section-type "assistant_section")
-          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+          (let ((assistant-data (greger-tree-sitter--extract-assistant-section section)))
+            (message "Assistant data: %S" assistant-data)
+            (push assistant-data dialog)))
          ((string= section-type "system_section")
           (push (greger-tree-sitter--extract-system-section section) dialog))
          ((string= section-type "thinking_section")
           (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
 
-    (nreverse dialog)))
+    (let ((result (nreverse dialog)))
+      (message "Final dialog: %S" result)
+      result)))
 
 (defun greger-tree-sitter--extract-user-section (section-node)
   "Extract user section content."

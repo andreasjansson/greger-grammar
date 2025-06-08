@@ -6359,4 +6359,130 @@ test-all-greger-cases.el
 Add debug to show result type
 </tool.toolu_01V3B9w6CaCq74fF8zFG3sU8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01V3B9w6CaCq74fF8zFG3sU8 -->
+## TOOL RESULT:
+
+ID: toolu_01V3B9w6CaCq74fF8zFG3sU8
+
+<tool.toolu_01V3B9w6CaCq74fF8zFG3sU8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Add debug to show result type
+</tool.toolu_01V3B9w6CaCq74fF8zFG3sU8>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013bmSxf6ZHXcnv3cbD8wR3f
+
+### command
+
+<tool.toolu_013bmSxf6ZHXcnv3cbD8wR3f>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_013bmSxf6ZHXcnv3cbD8wR3f>
+
+## TOOL RESULT:
+
+ID: toolu_013bmSxf6ZHXcnv3cbD8wR3f
+
+<tool.toolu_013bmSxf6ZHXcnv3cbD8wR3f>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+
+Result type: symbol
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hello
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hi there! How can I help you today?"
+nil
+</tool.toolu_013bmSxf6ZHXcnv3cbD8wR3f>
+
+## ASSISTANT:
+
+The result is `nil`. That means my function is returning nil. Let me trace through why. Let me add some debug messages to the extraction function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0194SmiwKUz2rmY5LSQPejjY
+
+### file-path
+
+<tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+greger-tree-sitter.el
+</tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+
+### original-content
+
+<tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         ((string= section-type "assistant_section")
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (nreverse dialog)))
+</tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+
+### new-content
+
+<tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (message "Found %d sections" (length sections))
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (message "Processing section type: %s" section-type)
+        (cond
+         ((string= section-type "user_section")
+          (let ((user-data (greger-tree-sitter--extract-user-section section)))
+            (message "User data: %S" user-data)
+            (push user-data dialog)))
+         ((string= section-type "assistant_section")
+          (let ((assistant-data (greger-tree-sitter--extract-assistant-section section)))
+            (message "Assistant data: %S" assistant-data)
+            (push assistant-data dialog)))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (let ((result (nreverse dialog)))
+      (message "Final dialog: %S" result)
+      result)))
+</tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+
+### git-commit-message
+
+<tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+Add debug messages to trace dialog extraction
+</tool.toolu_0194SmiwKUz2rmY5LSQPejjY>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0194SmiwKUz2rmY5LSQPejjY -->
