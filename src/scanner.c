@@ -182,11 +182,6 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Check for error recovery
-    if (valid_symbols[ERROR_SENTINEL]) {
-        return false;
-    }
-
     // Skip whitespace but preserve newlines
     while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
         skip(lexer);
