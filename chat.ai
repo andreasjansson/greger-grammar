@@ -3300,4 +3300,103 @@ _section_item: $ => choice(
 Add tool_content as valid section item
 </tool.toolu_01SVTbAUfMTF4J7L145CR9A3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SVTbAUfMTF4J7L145CR9A3 -->
+## TOOL RESULT:
+
+ID: toolu_01SVTbAUfMTF4J7L145CR9A3
+
+<tool.toolu_01SVTbAUfMTF4J7L145CR9A3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add tool_content as valid section item
+</tool.toolu_01SVTbAUfMTF4J7L145CR9A3>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017ZQD7gWw7vUtCv5eJfTqQ8
+
+### command
+
+<tool.toolu_017ZQD7gWw7vUtCv5eJfTqQ8>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_017ZQD7gWw7vUtCv5eJfTqQ8>
+
+## TOOL RESULT:
+
+ID: toolu_017ZQD7gWw7vUtCv5eJfTqQ8
+
+<tool.toolu_017ZQD7gWw7vUtCv5eJfTqQ8>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      section_header  '###'  'triple_backtick_block_token1'  •  tool_content  …
+    
+    Possible interpretations:
+    
+      1:  section_header  (citation_entry  '###'  'triple_backtick_block_token1')  •  tool_content  …
+      2:  section_header  (tool_param  '###'  'triple_backtick_block_token1'  •  tool_content)
+    
+    Possible resolutions:
+    
+      1:  Specify a higher precedence in `tool_param` than in the other rules.
+      2:  Specify a higher precedence in `citation_entry` than in the other rules.
+      3:  Specify a left or right associativity in `citation_entry`
+      4:  Add a conflict for these rules: `tool_param`, `citation_entry`
+    
+
+</tool.toolu_017ZQD7gWw7vUtCv5eJfTqQ8>
+
+## ASSISTANT:
+
+There's a conflict between citation_entry and tool_param since they both start with `###`. Let me fix this by being more specific about the context in which these appear:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QWarTEpUoVXRy9PeXXP5vM
+
+### file-path
+
+<tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+grammar.js
+</tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+
+### original-content
+
+<tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+section_header: $ => choice(
+      seq('##', 'USER', ':'),
+      seq('##', 'ASSISTANT', ':'),
+      seq('##', 'SYSTEM', ':'),
+      seq('##', 'THINKING', ':'),
+      seq('##', 'TOOL', 'USE', ':'),
+      seq('##', 'TOOL', 'RESULT', ':'),
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      seq('##', 'CITATIONS', ':'),
+    ),
+</tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+
+### new-content
+
+<tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+section_header: $ => choice(
+      seq('##', 'USER', ':'),
+      seq('##', 'ASSISTANT', ':'),
+      seq('##', 'SYSTEM', ':'),
+      seq('##', 'THINKING', ':'),
+      seq('##', 'TOOL', 'USE', ':'),
+      seq('##', 'TOOL', 'RESULT', ':'),
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      seq('##', 'CITATIONS', ':'),
+    ),
+</tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+
+### git-commit-message
+
+<tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+Keep section headers the same
+</tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QWarTEpUoVXRy9PeXXP5vM -->
