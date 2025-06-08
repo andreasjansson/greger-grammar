@@ -5002,4 +5002,57 @@ I'm doing well, thanks!
 Replace debug file with simple test case for debugging
 </tool.toolu_01PxYwkPhtxzPSFpoex5gFYZ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PxYwkPhtxzPSFpoex5gFYZ -->
+## TOOL RESULT:
+
+ID: toolu_01PxYwkPhtxzPSFpoex5gFYZ
+
+<tool.toolu_01PxYwkPhtxzPSFpoex5gFYZ>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug_comprehensive.greger with 69 characters. Successfully staged 2 file(s) and committed with message: Replace debug file with simple test case for debugging
+</tool.toolu_01PxYwkPhtxzPSFpoex5gFYZ>
+
+## ASSISTANT:
+
+Let me also create a simple elisp debug script by replacing the test file:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_014gGrU9TRZZwSP2waaxpRFK
+
+### file-path
+
+<tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+test-all-greger-cases.el
+</tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+
+### contents
+
+<tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+;;; Simple debug test for greger-tree-sitter -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+;; Simple test
+(message "Testing greger-tree-sitter...")
+
+(if (treesit-ready-p 'greger)
+    (progn
+      (message "✅ Tree-sitter greger parser is available")
+      
+      ;; Test simple parsing
+      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+             (result (greger-tree-sitter-parse test-content)))
+        (message "Parse result:")
+        (pp result)))
+  (message "❌ Tree-sitter greger parser not available"))
+
+(provide 'test-all-greger-cases)
+</tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+
+### git-commit-message
+
+<tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+Replace test file with simple debug script
+</tool.toolu_014gGrU9TRZZwSP2waaxpRFK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014gGrU9TRZZwSP2waaxpRFK -->
