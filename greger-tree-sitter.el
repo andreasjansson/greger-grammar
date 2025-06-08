@@ -125,9 +125,16 @@ ERRORS:
          ((string= section-type "tool_result_section")
           ;; Flush any pending assistant content and add tool result as user content
           (when pending-assistant-content
-            (push `((role . "assistant")
-                    (content . ,(nreverse pending-assistant-content)))
-                  dialog)
+            (let ((content (nreverse pending-assistant-content)))
+              ;; Simplify content if it's just a single text block
+              (if (and (= (length content) 1)
+                       (equal (alist-get 'type (car content)) "text"))
+                  (push `((role . "assistant")
+                          (content . ,(alist-get 'text (car content))))
+                        dialog)
+                (push `((role . "assistant")
+                        (content . ,content))
+                      dialog)))
             (setq pending-assistant-content '()))
           (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
             (push `((role . "user")

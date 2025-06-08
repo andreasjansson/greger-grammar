@@ -10415,4 +10415,68 @@ greger-tree-sitter.el
 Apply content simplification when flushing during system section processing
 </tool.toolu_01FDv4Xv6m8w1YPrSQ5bbQ8C>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FDv4Xv6m8w1YPrSQ5bbQ8C -->
+## TOOL RESULT:
+
+ID: toolu_01FDv4Xv6m8w1YPrSQ5bbQ8C
+
+<tool.toolu_01FDv4Xv6m8w1YPrSQ5bbQ8C>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Apply content simplification when flushing during system section processing
+</tool.toolu_01FDv4Xv6m8w1YPrSQ5bbQ8C>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CkTqcsatJJ3CmsdBh8Bbm2
+
+### file-path
+
+<tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+greger-tree-sitter.el
+</tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+
+### original-content
+
+<tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+((string= section-type "tool_result_section")
+          ;; Flush any pending assistant content and add tool result as user content
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user")
+                    (content . (,tool-result-data)))
+                  dialog)))
+</tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+
+### new-content
+
+<tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+((string= section-type "tool_result_section")
+          ;; Flush any pending assistant content and add tool result as user content
+          (when pending-assistant-content
+            (let ((content (nreverse pending-assistant-content)))
+              ;; Simplify content if it's just a single text block
+              (if (and (= (length content) 1)
+                       (equal (alist-get 'type (car content)) "text"))
+                  (push `((role . "assistant")
+                          (content . ,(alist-get 'text (car content))))
+                        dialog)
+                (push `((role . "assistant")
+                        (content . ,content))
+                      dialog)))
+            (setq pending-assistant-content '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user")
+                    (content . (,tool-result-data)))
+                  dialog)))
+</tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+
+### git-commit-message
+
+<tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+Apply content simplification when flushing during tool result processing
+</tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CkTqcsatJJ3CmsdBh8Bbm2 -->
