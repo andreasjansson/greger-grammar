@@ -308,6 +308,7 @@
         (when parent-node
           (dolist (sibling (treesit-node-children parent-node))
             (when (string= (treesit-node-type sibling) "citations_section")
+              (message "[DEBUG] Found citations section, setting has-citations to t")
               (setq has-citations t)))))
 
       (if has-citations

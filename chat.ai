@@ -7749,4 +7749,196 @@ greger-tree-sitter.el
 Add debug print to extract-server-tool-result entry
 </tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018J9r9V1xELPwFnxcQwf4q2 -->
+## TOOL RESULT:
+
+ID: toolu_018J9r9V1xELPwFnxcQwf4q2
+
+<tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print to extract-server-tool-result entry
+</tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VC8HEHiEnXmXULw8iEWtzy
+
+### command
+
+<tool.toolu_01VC8HEHiEnXmXULw8iEWtzy>
+emacs --batch -l debug-test.el
+</tool.toolu_01VC8HEHiEnXmXULw8iEWtzy>
+
+## TOOL RESULT:
+
+ID: toolu_01VC8HEHiEnXmXULw8iEWtzy
+
+<tool.toolu_01VC8HEHiEnXmXULw8iEWtzy>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date")))
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+[DEBUG] extract-server-tool-result called
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: tool_result
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "toolu_999") (name . "write-file") (input (filename . "example.py") (content . "```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```")))
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: web_search_tool_result
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: tool_use
+  User content type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01VC8HEHiEnXmXULw8iEWtzy>
+
+## ASSISTANT:
+
+This is very revealing! 
+
+In the first test (citations-basic):
+- `extract-server-tool-result` is called
+- Which calls `extract-tool-result`
+- Which returns type "tool_result"
+
+In the second test (tool-use-with-code-in-params):
+- `extract-tool-result` is called directly (not via extract-server-tool-result)
+- But it returns type "web_search_tool_result"
+
+This means that the `extract-tool-result` function itself is somehow contaminated and is returning the wrong type.
+
+The only way this can happen is if there's some shared state or the backquote issue is affecting this function too.
+
+But looking at the function, it should be creating a new alist with hardcoded type "tool_result".
+
+Wait! I think I found it. Let me look at the server tool result function more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01JYVfmYEst6CsgFMFZHLRMZ
+
+### path
+
+<tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+greger-tree-sitter.el
+</tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+
+### start-line
+
+<tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+290
+</tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+
+### end-line
+
+<tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+320
+</tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+
+## TOOL RESULT:
+
+ID: toolu_01JYVfmYEst6CsgFMFZHLRMZ
+
+<tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    (message "[DEBUG] extract-server-tool-use returning type: %s" (alist-get 'type result))
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (message "[DEBUG] extract-server-tool-result called")
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Check if this specific section or following sections have citations
+    ;; by looking at the section tree structure
+    (let ((content (alist-get 'content result))
+          (has-citations nil))
+
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (setq has-citations t)))))
+
+      (if has-citations
+          ;; Has citations - use web_search_tool_result
+          (setf (alist-get 'type result) "web_search_tool_result")
+        ;; No citations - use server_tool_result and parse JSON if applicable
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+</tool.toolu_01JYVfmYEst6CsgFMFZHLRMZ>
+
+## ASSISTANT:
+
+I think I found the issue! The `extract-server-tool-result` function calls `extract-tool-result` and then modifies the result using `setf`. If there's any sharing of the alist structure, this could contaminate future calls.
+
+But even more concerning: the citation detection logic could be buggy and detecting citations where there shouldn't be any.
+
+Let me add debugging to the citation detection:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CThFSG7waaoyvtts3LeFyy
+
+### file-path
+
+<tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+greger-tree-sitter.el
+</tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+
+### original-content
+
+<tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (setq has-citations t)))))
+</tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+
+### new-content
+
+<tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (message "[DEBUG] Found citations section, setting has-citations to t")
+              (setq has-citations t)))))
+</tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+
+### git-commit-message
+
+<tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+Add debug print to citation detection
+</tool.toolu_01CThFSG7waaoyvtts3LeFyy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CThFSG7waaoyvtts3LeFyy -->
