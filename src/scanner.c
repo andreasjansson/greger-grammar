@@ -97,36 +97,8 @@ static bool scan_html_comment(TSLexer *lexer) {
 }
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
-    if (lexer->lookahead != '<') return false;
+    // Just consume one character and return true
     advance(lexer);
-
-    // Check for "tool."
-    if (lexer->lookahead != 't') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-    if (lexer->lookahead != '.') return false;
-    advance(lexer);
-
-    // Simplified: just consume everything until EOF or next '<'
-    while (lexer->lookahead != 0 && lexer->lookahead != '<') {
-        advance(lexer);
-    }
-
-    // If we find another '<', consume until '>'
-    if (lexer->lookahead == '<') {
-        while (lexer->lookahead != 0 && lexer->lookahead != '>') {
-            advance(lexer);
-        }
-        if (lexer->lookahead == '>') {
-            advance(lexer);
-        }
-    }
-
     return true;
 }
 
