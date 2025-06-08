@@ -80,15 +80,56 @@ module.exports = grammar({
       repeat($._citations_content),
     ),
 
-    _section_item: $ => choice(
+    _user_content: $ => choice(
       $.text_content,
       $.code_block,
       $.cite_tag,
+    ),
+
+    _assistant_content: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.cite_tag,
+    ),
+
+    _system_content: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.safe_shell_commands,
+    ),
+
+    _thinking_content: $ => choice(
+      $.text_content,
+      $.code_block,
+    ),
+
+    _tool_use_content: $ => choice(
       $.tool_use_metadata,
       $.tool_param,
-      $.citation_entry,
-      $.safe_shell_commands,
+      $.text_content,
+    ),
+
+    _tool_result_content: $ => choice(
+      $.tool_use_metadata,
       $.tool_content,
+      $.text_content,
+    ),
+
+    _server_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+    ),
+
+    _server_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+    ),
+
+    _citations_content: $ => choice(
+      $.citation_entry,
+      $.text_content,
     ),
 
     text_content: $ => /[^#`<]+/,

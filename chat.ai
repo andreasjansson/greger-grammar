@@ -3536,4 +3536,104 @@ grammar.js
 Split sections into distinct types with specific content rules
 </tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LNBm9C3cqg1X9CZZBpBJAF -->
+## TOOL RESULT:
+
+ID: toolu_01LNBm9C3cqg1X9CZZBpBJAF
+
+<tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Split sections into distinct types with specific content rules
+</tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+
+## ASSISTANT:
+
+Now I need to define the different content types for each section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YGyug57negKizQ6VoCUeSJ
+
+### file-path
+
+<tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+grammar.js
+</tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+
+### original-content
+
+<tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+_section_item: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.cite_tag,
+      $.tool_use_metadata,
+      $.tool_param,
+      $.citation_entry,
+      $.safe_shell_commands,
+      $.tool_content,
+    ),
+</tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+
+### new-content
+
+<tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+_user_content: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.cite_tag,
+    ),
+
+    _assistant_content: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.cite_tag,
+    ),
+
+    _system_content: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.safe_shell_commands,
+    ),
+
+    _thinking_content: $ => choice(
+      $.text_content,
+      $.code_block,
+    ),
+
+    _tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+    ),
+
+    _tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+    ),
+
+    _server_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+    ),
+
+    _server_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+    ),
+
+    _citations_content: $ => choice(
+      $.citation_entry,
+      $.text_content,
+    ),
+</tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+
+### git-commit-message
+
+<tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+Define specific content types for each section type
+</tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YGyug57negKizQ6VoCUeSJ -->
