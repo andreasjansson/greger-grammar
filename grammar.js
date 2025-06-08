@@ -15,10 +15,6 @@ module.exports = grammar({
     /[ \t]/,
   ],
 
-  conflicts: $ => [
-    [$.section_content],
-  ],
-
   externals: $ => [
     $.tool_content,
     $.html_comment,
@@ -29,7 +25,6 @@ module.exports = grammar({
 
     _item: $ => choice(
       $.section,
-      $.text_line,
       $._newline,
     ),
 
@@ -37,48 +32,35 @@ module.exports = grammar({
 
     section: $ => seq(
       $.section_header,
-      $.section_content,
+      repeat($._section_item),
     ),
 
     section_header: $ => choice(
-      seq(/##[ \t]*/, 'USER', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'ASSISTANT', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'SYSTEM', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'THINKING', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'TOOL USE', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'SERVER TOOL USE', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'SERVER TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
-      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+      seq('##', /[ \t]*/, 'USER', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'ASSISTANT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SYSTEM', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'THINKING', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'CITATIONS', /[ \t]*/, ':', /[ \t]*/, '\n'),
     ),
 
-    section_content: $ => repeat1(choice(
-      $.tool_use_metadata,
-      $.tool_param,
-      $.safe_shell_commands,
+    _section_item: $ => choice(
+      $.text_line,
       $.code_block,
       $.cite_tag,
-      $.text_line,
+      $.tool_use_metadata,
+      $.tool_param,
+      $.citation_entry,
+      $.safe_shell_commands,
       $._newline,
-    )),
-
-    tool_use_metadata: $ => choice(
-      seq('Name:', /[^\n]*/, $._newline),
-      seq('ID:', /[^\n]*/, $._newline),
     ),
 
-    tool_param: $ => seq(
-      seq(/###[ \t]*/, /[^\n]*/, $._newline),
-      optional($._newline),
-      $.tool_content,
-      optional($._newline),
-    ),
-
-    safe_shell_commands: $ => seq(
-      '<safe-shell-commands>',
-      optional($._newline),
-      repeat(seq(/[^\n<]*/, $._newline)),
-      '</safe-shell-commands>',
+    text_line: $ => seq(
+      /[^#\n`<]+/,
+      '\n'
     ),
 
     code_block: $ => choice(
@@ -89,14 +71,15 @@ module.exports = grammar({
     triple_backtick_block: $ => seq(
       '```',
       optional(/[^\n]*/),
-      $._newline,
+      '\n',
       repeat(choice(
         /[^`\n]+/,
         /`[^`]/,
         /``[^`]/,
-        $._newline,
+        '\n',
       )),
       '```',
+      optional('\n'),
     ),
 
     single_backtick_inline: $ => seq(
@@ -107,13 +90,36 @@ module.exports = grammar({
 
     cite_tag: $ => seq(
       '<cite>',
-      repeat(choice(
-        /[^<\n]+/,
-        /<[^/]/,
-      )),
+      repeat(/[^<\n]+/),
       '</cite>',
     ),
 
-    text_line: $ => /[^#\n`<]+/,
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, '\n'),
+      seq('ID:', /[^\n]*/, '\n'),
+    ),
+
+    tool_param: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      optional('\n'),
+      $.tool_content,
+      optional('\n'),
+    ),
+
+    citation_entry: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      repeat(choice(
+        seq(/[^\n#]+/, '\n'),
+        '\n',
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional('\n'),
+      repeat(seq(/[^\n<]*/, '\n')),
+      '</safe-shell-commands>',
+      optional('\n'),
+    ),
   }
 });

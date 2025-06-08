@@ -2042,4 +2042,350 @@ module.exports = grammar({
 Fix conflicts syntax error
 </tool.toolu_01HTpyxYdt42DAW8rxYQLyeN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HTpyxYdt42DAW8rxYQLyeN -->
+## TOOL RESULT:
+
+ID: toolu_01HTpyxYdt42DAW8rxYQLyeN
+
+<tool.toolu_01HTpyxYdt42DAW8rxYQLyeN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix conflicts syntax error
+</tool.toolu_01HTpyxYdt42DAW8rxYQLyeN>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GiSF4XfNxeKGeeTY5qQhg1
+
+### command
+
+<tool.toolu_01GiSF4XfNxeKGeeTY5qQhg1>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01GiSF4XfNxeKGeeTY5qQhg1>
+
+## TOOL RESULT:
+
+ID: toolu_01GiSF4XfNxeKGeeTY5qQhg1
+
+<tool.toolu_01GiSF4XfNxeKGeeTY5qQhg1>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      section_header  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  section_header  (tool_param  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content  •  _newline)
+      2:  section_header  (tool_param  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content)  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `tool_param`
+      2:  Add a conflict for these rules: `tool_param`
+    
+
+</tool.toolu_01GiSF4XfNxeKGeeTY5qQhg1>
+
+## ASSISTANT:
+
+The issue is still about whether newlines belong to the current element or start something new. Let me approach this differently and be more explicit about section boundaries. Let me look at the simple user message again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SHowbvRSeku8X6y7pfyPNp
+
+### path
+
+<tool.toolu_01SHowbvRSeku8X6y7pfyPNp>
+test/corpus/simple-user-message.greger
+</tool.toolu_01SHowbvRSeku8X6y7pfyPNp>
+
+## TOOL RESULT:
+
+ID: toolu_01SHowbvRSeku8X6y7pfyPNp
+
+<tool.toolu_01SHowbvRSeku8X6y7pfyPNp>
+## USER:
+
+Hello, how are you?
+</tool.toolu_01SHowbvRSeku8X6y7pfyPNp>
+
+## ASSISTANT:
+
+The issue is that after the header there's a blank line, then text content. Let me redesign this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AsvZrucsv6z3vixqZBNfWs
+
+### file-path
+
+<tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+grammar.js
+</tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+
+### original-content
+
+<tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  conflicts: $ => [
+    [$.section_content],
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.text_line,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => seq(
+      $.section_header,
+      $.section_content,
+    ),
+
+    section_header: $ => choice(
+      seq(/##[ \t]*/, 'USER', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'ASSISTANT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SYSTEM', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'THINKING', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+    ),
+
+    section_content: $ => repeat1(choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.safe_shell_commands,
+      $.code_block,
+      $.cite_tag,
+      $.text_line,
+      $._newline,
+    )),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, $._newline),
+      seq('ID:', /[^\n]*/, $._newline),
+    ),
+
+    tool_param: $ => seq(
+      seq(/###[ \t]*/, /[^\n]*/, $._newline),
+      optional($._newline),
+      $.tool_content,
+      optional($._newline),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional($._newline),
+      repeat(seq(/[^\n<]*/, $._newline)),
+      '</safe-shell-commands>',
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      $._newline,
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        $._newline,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(choice(
+        /[^<\n]+/,
+        /<[^/]/,
+      )),
+      '</cite>',
+    ),
+
+    text_line: $ => /[^#\n`<]+/,
+  }
+});
+</tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+
+### new-content
+
+<tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => seq(
+      $.section_header,
+      repeat($._section_item),
+    ),
+
+    section_header: $ => choice(
+      seq('##', /[ \t]*/, 'USER', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'ASSISTANT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SYSTEM', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'THINKING', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'CITATIONS', /[ \t]*/, ':', /[ \t]*/, '\n'),
+    ),
+
+    _section_item: $ => choice(
+      $.text_line,
+      $.code_block,
+      $.cite_tag,
+      $.tool_use_metadata,
+      $.tool_param,
+      $.citation_entry,
+      $.safe_shell_commands,
+      $._newline,
+    ),
+
+    text_line: $ => seq(
+      /[^#\n`<]+/,
+      '\n'
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      '\n',
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        '\n',
+      )),
+      '```',
+      optional('\n'),
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(/[^<\n]+/),
+      '</cite>',
+    ),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, '\n'),
+      seq('ID:', /[^\n]*/, '\n'),
+    ),
+
+    tool_param: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      optional('\n'),
+      $.tool_content,
+      optional('\n'),
+    ),
+
+    citation_entry: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      repeat(choice(
+        seq(/[^\n#]+/, '\n'),
+        '\n',
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional('\n'),
+      repeat(seq(/[^\n<]*/, '\n')),
+      '</safe-shell-commands>',
+      optional('\n'),
+    ),
+  }
+});
+</tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+
+### git-commit-message
+
+<tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+Completely rewrite grammar with explicit newline handling
+</tool.toolu_01AsvZrucsv6z3vixqZBNfWs>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AsvZrucsv6z3vixqZBNfWs -->
