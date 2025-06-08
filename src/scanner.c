@@ -135,15 +135,15 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
-    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
-        return true;
-    }
-
-    // DEBUG: Always try tool content when we see < to check if validity is the issue
+    // Try tool content first, regardless of validity for debugging
     if (lexer->lookahead == '<') {
         if (scan_tool_content(scanner, lexer)) {
             return true;
         }
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
     }
 
     return false;

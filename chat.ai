@@ -9209,4 +9209,109 @@ if (lexer->lookahead != 't') return false;
 Simplify tool scanner to match HTML comment pattern
 </tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017EpCXyiYqd2fuq3LJDiYMc -->
+## TOOL RESULT:
+
+ID: toolu_017EpCXyiYqd2fuq3LJDiYMc
+
+<tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify tool scanner to match HTML comment pattern
+</tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016wCRJvSXPSMNWUFdQi7yx7
+
+### command
+
+<tool.toolu_016wCRJvSXPSMNWUFdQi7yx7>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_016wCRJvSXPSMNWUFdQi7yx7>
+
+## TOOL RESULT:
+
+ID: toolu_016wCRJvSXPSMNWUFdQi7yx7
+
+<tool.toolu_016wCRJvSXPSMNWUFdQi7yx7>
+Command failed with exit code 1: (source_file [0, 0] - [2, 13]
+  (tool_result_section [0, 0] - [2, 0])
+  (ERROR [2, 0] - [2, 13]
+    (ERROR [2, 0] - [2, 13])))
+test_simple.greger	Parse:    0.88 ms	    34 bytes/ms	(ERROR [2, 0] - [2, 13])
+
+</tool.toolu_016wCRJvSXPSMNWUFdQi7yx7>
+
+## ASSISTANT:
+
+I'm starting to suspect that there's a fundamental issue. Let me try one more approach. Let me make the tool content scanner exactly the same as the HTML comment scanner but with a different pattern. Let me also put it first so it's tried before HTML comments:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HQpH9D2KxXyF4c7j9ziFLZ
+
+### file-path
+
+<tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+src/scanner.c
+</tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+
+### original-content
+
+<tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    // DEBUG: Always try tool content when we see < to check if validity is the issue
+    if (lexer->lookahead == '<') {
+        if (scan_tool_content(scanner, lexer)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+</tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+
+### new-content
+
+<tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    // Try tool content first, regardless of validity for debugging
+    if (lexer->lookahead == '<') {
+        if (scan_tool_content(scanner, lexer)) {
+            return true;
+        }
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    return false;
+}
+</tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+
+### git-commit-message
+
+<tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+Try tool content scanning first before HTML comments
+</tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HQpH9D2KxXyF4c7j9ziFLZ -->
