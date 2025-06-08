@@ -287,7 +287,17 @@
     (let ((content (alist-get 'content result)))
       (if (and (stringp content) (string-match "\"type\":\\s-*\"web_search_result\"" content))
           (setf (alist-get 'type result) "web_search_tool_result")
-        (setf (alist-get 'type result) "server_tool_result")))
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (car parsed-json))))
+              (error nil))))))
     result))
 
 (defun greger-tree-sitter--extract-citations-section (citations-section)

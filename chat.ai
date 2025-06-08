@@ -8543,4 +8543,145 @@ debug-test.el
 Update debug test to check quote unescaping
 </tool.toolu_01Wpdbug27j26dxP9tfMhmz1>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Wpdbug27j26dxP9tfMhmz1 -->
+## TOOL RESULT:
+
+ID: toolu_01Wpdbug27j26dxP9tfMhmz1
+
+<tool.toolu_01Wpdbug27j26dxP9tfMhmz1>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Update debug test to check quote unescaping
+</tool.toolu_01Wpdbug27j26dxP9tfMhmz1>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GE3kk73rB6uScxwR7F7NNx
+
+### command
+
+<tool.toolu_01GE3kk73rB6uScxwR7F7NNx>
+emacs --batch -l debug-test.el
+</tool.toolu_01GE3kk73rB6uScxwR7F7NNx>
+
+## TOOL RESULT:
+
+ID: toolu_01GE3kk73rB6uScxwR7F7NNx
+
+<tool.toolu_01GE3kk73rB6uScxwR7F7NNx>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+</tool.toolu_01GE3kk73rB6uScxwR7F7NNx>
+
+## ASSISTANT:
+
+Good! The quotes are now properly unescaped. Now let me address the server tool result content issue. Looking at the failing test `server-tool-use-basic`, it expects structured content like:
+
+```
+(content
+ ((title . "Weather in San Francisco")
+  (url . "https://weather.com/sf")
+  (content . "Sunny, 72°F")))
+```
+
+But we're getting raw JSON:
+
+```
+(content . "[\n  {\n    \"title\": \"Weather in San Francisco\",\n    \"url\": \"https://weather.com/sf\",\n    \"content\": \"Sunny, 72°F\"\n  }\n]")
+```
+
+This suggests that for some server tool results, the JSON should be parsed and converted to structured data. Let me check the expected behavior by looking at the test more carefully.
+
+Looking at the pattern, it seems that:
+1. Some tool results return the raw JSON string
+2. But some tool results parse the JSON and convert it to structured format
+
+Looking at the server-tool-use-basic expected result, the content is a parsed structure, not a JSON string. Let me implement JSON parsing for server tool results when appropriate:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TGM9vi9ZWree7gngewJ42D
+
+### file-path
+
+<tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+greger-tree-sitter.el
+</tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+
+### original-content
+
+<tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Determine type based on content
+    (let ((content (alist-get 'content result)))
+      (if (and (stringp content) (string-match "\"type\":\\s-*\"web_search_result\"" content))
+          (setf (alist-get 'type result) "web_search_tool_result")
+        (setf (alist-get 'type result) "server_tool_result")))
+    result))
+</tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+
+### new-content
+
+<tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Determine type based on content
+    (let ((content (alist-get 'content result)))
+      (if (and (stringp content) (string-match "\"type\":\\s-*\"web_search_result\"" content))
+          (setf (alist-get 'type result) "web_search_tool_result")
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (car parsed-json))))
+              (error nil))))))
+    result))
+</tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+
+### git-commit-message
+
+<tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+Add JSON parsing for server tool results
+</tool.toolu_01TGM9vi9ZWree7gngewJ42D>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TGM9vi9ZWree7gngewJ42D -->
