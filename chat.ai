@@ -6580,4 +6580,112 @@ greger-tree-sitter.el
 Use tree directly instead of getting child node
 </tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RUMLUo9Q2ysDVnRpD6Jp9N -->
+## TOOL RESULT:
+
+ID: toolu_01RUMLUo9Q2ysDVnRpD6Jp9N
+
+<tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Use tree directly instead of getting child node
+</tool.toolu_01RUMLUo9Q2ysDVnRpD6Jp9N>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WhPaa7DcbN3UBBn4ZvdJBb
+
+### command
+
+<tool.toolu_01WhPaa7DcbN3UBBn4ZvdJBb>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01WhPaa7DcbN3UBBn4ZvdJBb>
+
+## TOOL RESULT:
+
+ID: toolu_01WhPaa7DcbN3UBBn4ZvdJBb
+
+<tool.toolu_01WhPaa7DcbN3UBBn4ZvdJBb>
+Command failed with exit code 255: Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Found 2 sections
+Processing section type: user_section
+
+Error: error ("Selecting deleted buffer")
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (error "Selecting deleted buffer"))
+  treesit-node-text(#<treesit-node text_block in 9-18>)
+  (cond ((string= node-type "text_block") (treesit-node-text child)) (t ""))
+  (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (treesit-node-text child)) (t "")))
+  (lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (treesit-node-text child)) (t ""))))(#<treesit-node text_block in 9-18>)
+  mapconcat((lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (treesit-node-text child)) (t "")))) (#<treesit-node "##" in 1-3> #<treesit-node "USER" in 4-8> #<treesit-node ":" in 8-9> #<treesit-node text_block in 9-18>) "")
+  (string-trim (mapconcat #'(lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (treesit-node-text child)) (t "")))) children ""))
+  (let ((children (treesit-node-children section-node))) (string-trim (mapconcat #'(lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (treesit-node-text child)) (t "")))) children "")))
+  greger-tree-sitter--extract-section-text(#<treesit-node user_section in 1-18>)
+  (let ((content (greger-tree-sitter--extract-section-text section-node))) (list '(role . "user") (cons 'content content)))
+  greger-tree-sitter--extract-user-section(#<treesit-node user_section in 1-18>)
+  (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))
+  (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog))))
+  (let ((section-type (treesit-node-type section))) (message "Processing section type: %s" section-type) (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog)))))
+  (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Processing section type: %s" section-type) (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog))))) (setq tail (cdr tail)))
+  (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Processing section type: %s" section-type) (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog))))) (setq tail (cdr tail))))
+  (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Processing section type: %s" section-type) (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog))))) (setq tail (cdr tail)))))
+  (let* ((sections (treesit-node-children root-node)) (dialog 'nil)) (message "Found %d sections" (length sections)) (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Processing section type: %s" section-type) (cond ((string= section-type "user_section") (let ((user-data (greger-tree-sitter--extract-user-section section))) (message "User data: %S" user-data) (setq dialog (cons user-data dialog)))) ((string= section-type "assistant_section") (let ((assistant-data (greger-tree-sitter--extract-assistant-section section))) (message "Assistant data: %S" assistant-data) (setq dialog (cons assistant-data dialog)))) ((string= section-type "system_section") (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (setq dialog (cons (greger-tree-sitter--extract-thinking-section section) dialog))))) (setq tail (cdr tail))))) (let ((result (nreverse dialog))) (message "Final dialog: %S" result) result))
+  greger-tree-sitter--extract-dialog-from-node(#<treesit-node source_file in 1-68>)
+  (let* ((tree (treesit-parse-string text 'greger))) (greger-tree-sitter--extract-dialog-from-node tree))
+  greger-tree-sitter-parse("## USER:\n\nHello\n\n## ASSISTANT:\n\nHi there! How can I help you today?")
+  (let* ((test-content (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents "test/corpus/simple-conversation.greger") (buffer-string)) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))) (result (greger-tree-sitter-parse test-content))) (message "Parse result:") (pp result) (message "Result type: %s" (type-of result)) (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert test-content) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser)) (sections (treesit-node-children root-node))) (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Section type: %s" section-type) (let ((children (treesit-node-children section))) (let ((tail children)) (while tail (let ((child (car tail))) (message "  Child type: %s, text: %S" (treesit-node-type child) (treesit-node-text child)) (setq tail (cdr tail))))))) (setq tail (cdr tail))))))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer))))))
+  (progn (message "✅ Tree-sitter greger parser is available") (let* ((test-content (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents "test/corpus/simple-conversation.greger") (buffer-string)) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))) (result (greger-tree-sitter-parse test-content))) (message "Parse result:") (pp result) (message "Result type: %s" (type-of result)) (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert test-content) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser)) (sections (treesit-node-children root-node))) (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Section type: %s" section-type) (let ((children (treesit-node-children section))) (let ((tail children)) (while tail (let ((child (car tail))) (message "  Child type: %s, text: %S" (treesit-node-type child) (treesit-node-text child)) (setq tail (cdr tail))))))) (setq tail (cdr tail))))))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))))
+  (if (treesit-ready-p 'greger) (progn (message "✅ Tree-sitter greger parser is available") (let* ((test-content (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents "test/corpus/simple-conversation.greger") (buffer-string)) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))) (result (greger-tree-sitter-parse test-content))) (message "Parse result:") (pp result) (message "Result type: %s" (type-of result)) (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert test-content) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser)) (sections (treesit-node-children root-node))) (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (message "Section type: %s" section-type) (let ((children (treesit-node-children section))) (let ((tail children)) (while tail (let ((child (car tail))) (message "  Child type: %s, text: %S" (treesit-node-type child) (treesit-node-text child)) (setq tail (cdr tail))))))) (setq tail (cdr tail))))))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer))))))) (message "❌ Tree-sitter greger parser not available"))
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/scratch/greger-grammar/test-all-greger-cases.el" nil t)
+  load-with-code-conversion("/Users/andreas/scratch/greger-grammar/test-all-greger-cases.el" "/Users/andreas/scratch/greger-grammar/test-all-greger-cases.el" nil t)
+  load("/Users/andreas/scratch/greger-grammar/test-all-greger-cases.el" nil t)
+  command-line-1(("-l" "test-all-greger-cases.el"))
+  command-line()
+  normal-top-level()
+Selecting deleted buffer
+
+</tool.toolu_01WhPaa7DcbN3UBBn4ZvdJBb>
+
+## ASSISTANT:
+
+Good progress! Now I can see "Found 2 sections" and "Processing section type: user_section", which means it's finding the correct section types. But there's an error "Selecting deleted buffer" when trying to get the text content.
+
+The issue is that the tree nodes become invalid when the buffer that was used to create them is deleted. I need to use the buffer-based approach instead. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QMQ1pozgShFKExAQXBYTuF
+
+### file-path
+
+<tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+greger-tree-sitter.el
+</tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+
+### original-content
+
+<tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+(let* ((tree (treesit-parse-string text 'greger)))
+    (greger-tree-sitter--extract-dialog-from-node tree))
+</tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+
+### new-content
+
+<tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+(with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      (greger-tree-sitter--extract-dialog-from-node root-node)))
+</tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+
+### git-commit-message
+
+<tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+Use buffer-based parsing to keep nodes valid
+</tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QMQ1pozgShFKExAQXBYTuF -->
