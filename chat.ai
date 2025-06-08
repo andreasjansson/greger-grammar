@@ -4037,4 +4037,84 @@ extras: $ => [
 Remove newlines from extras to make parsing more explicit
 </tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GhMEoxUvMQtHpn13T5cqn3 -->
+## TOOL RESULT:
+
+ID: toolu_01GhMEoxUvMQtHpn13T5cqn3
+
+<tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove newlines from extras to make parsing more explicit
+</tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GZrRWuCq2uEZzq9vPKxhDF
+
+### command
+
+<tool.toolu_01GZrRWuCq2uEZzq9vPKxhDF>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01GZrRWuCq2uEZzq9vPKxhDF>
+
+## TOOL RESULT:
+
+ID: toolu_01GZrRWuCq2uEZzq9vPKxhDF
+
+<tool.toolu_01GZrRWuCq2uEZzq9vPKxhDF>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [3, 10]
+    (ERROR [0, 12] - [2, 0])
+    (text_content [2, 0] - [2, 10])
+    (ERROR [2, 10] - [3, 0])
+    (text_content [3, 0] - [3, 10]))
+  (ERROR [3, 10] - [9, 14]
+    (ERROR [7, 0] - [7, 13])
+    (ERROR [8, 0] - [8, 5])
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:    0.07 ms	  1201 bytes/ms	(ERROR [0, 12] - [2, 0])
+
+</tool.toolu_01GZrRWuCq2uEZzq9vPKxhDF>
+
+## ASSISTANT:
+
+Now there are more errors because newlines aren't being handled. Let me add explicit newline handling to each content type:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DEVxeq1eS7uPw8g4UqYiR8
+
+### file-path
+
+<tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+grammar.js
+</tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+
+### original-content
+
+<tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+    ),
+</tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+
+### new-content
+
+<tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+_tool_use_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.text_content,
+      /\r?\n/,
+    ),
+</tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+
+### git-commit-message
+
+<tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+Add explicit newline handling to tool use content
+</tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DEVxeq1eS7uPw8g4UqYiR8 -->
