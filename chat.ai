@@ -6794,4 +6794,220 @@ debug-test.el
 Add detailed debugging of extraction function calls
 </tool.toolu_01FZPW6VkTpPtXG284fJKCER>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FZPW6VkTpPtXG284fJKCER -->
+## TOOL RESULT:
+
+ID: toolu_01FZPW6VkTpPtXG284fJKCER
+
+<tool.toolu_01FZPW6VkTpPtXG284fJKCER>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 4691 characters. Successfully staged 2 file(s) and committed with message: Add detailed debugging of extraction function calls
+</tool.toolu_01FZPW6VkTpPtXG284fJKCER>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016zKDwMzi9Ua8F4LF9EAQ55
+
+### command
+
+<tool.toolu_016zKDwMzi9Ua8F4LF9EAQ55>
+emacs --batch -l debug-test.el
+</tool.toolu_016zKDwMzi9Ua8F4LF9EAQ55>
+
+## TOOL RESULT:
+
+ID: toolu_016zKDwMzi9Ua8F4LF9EAQ55
+
+<tool.toolu_016zKDwMzi9Ua8F4LF9EAQ55>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== EXTRACTION FUNCTION DEBUGGING ===
+
+--- citations-basic ---
+
+--- tool-use-with-code-in-params ---
+
+</tool.toolu_016zKDwMzi9Ua8F4LF9EAQ55>
+
+## ASSISTANT:
+
+The debug output is empty, which suggests there's an issue with my debug function. Let me simplify it and focus on the key issue. Let me go back to the original approach and check if there's some global state.
+
+Actually, let me take a step back. I suspect the issue might be simpler. Let me check if there's some function redefinition or monkey-patching happening somewhere.
+
+Looking back at the original issue, I noticed that when I run the test individually, it works correctly. But when I run multiple tests, it fails. 
+
+Let me check if there's any possibility that the functions are being redefined or if there's some advice being applied.
+
+Actually, let me try a different approach. Let me look at the actual test runner and see if there's something different about how it calls the parsing function.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TXLKneCFFQMnvzCXBshJeo
+
+### path
+
+<tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+test-all-greger-cases.el
+</tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+
+### start-line
+
+<tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+320
+</tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+
+### end-line
+
+<tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+350
+</tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+
+## TOOL RESULT:
+
+ID: toolu_01TXLKneCFFQMnvzCXBshJeo
+
+<tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+           :markdown ,(greger-read-corpus-file "server-tool-use-string-result")
+           :dialog (((role . "user") (content . "What's the weather like?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_456")
+                                                       (name . "web_search")
+                                                       (input . ((query . "weather"))))
+                                                      ((type . "server_tool_result")
+                                                       (tool_use_id . "srvtoolu_456")
+                                                       (content . "Sunny and warm today"))
+                                                      ((type . "text")
+                                                       (text . "It looks like it's sunny and warm today!")))))))
+
+    ))
+
+(defvar greger-tree-sitter-test-results '())
+(defvar greger-tree-sitter-tests-passed 0)
+(defvar greger-tree-sitter-tests-failed 0)
+
+(defun greger-tree-sitter-test-equal (expected actual)
+  "Compare two dialog structures for equality."
+  (equal expected actual))
+
+(defun greger-tree-sitter-run-single-test (test-case)
+  "Run a single test case and return result."
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (expected (plist-get test-case :dialog))
+         (start-time (current-time)))
+
+    (message "\n=== Testing: %s ===" name)
+
+</tool.toolu_01TXLKneCFFQMnvzCXBshJeo>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017wRu5LTMqjZZeFPLdmEUVE
+
+### path
+
+<tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+test-all-greger-cases.el
+</tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+
+### start-line
+
+<tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+350
+</tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+
+### end-line
+
+<tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+380
+</tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+
+## TOOL RESULT:
+
+ID: toolu_017wRu5LTMqjZZeFPLdmEUVE
+
+<tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+
+    (condition-case err
+        (let* ((actual (greger-tree-sitter-parse markdown))
+               (elapsed (float-time (time-subtract (current-time) start-time))))
+
+          ;; Check if results match
+          (if (greger-tree-sitter-test-equal expected actual)
+              (progn
+                (message "✅ PASSED (%.3fs)" elapsed)
+                (setq greger-tree-sitter-tests-passed (1+ greger-tree-sitter-tests-passed))
+                (push `(:name ,name :status passed :time ,elapsed) greger-tree-sitter-test-results))
+            (progn
+              (message "❌ FAILED (%.3fs)" elapsed)
+              (message "\nExpected:")
+              (pp expected)
+              (message "\nActual:")
+              (pp actual)
+              (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
+              (push `(:name ,name :status failed :time ,elapsed :expected ,expected :actual ,actual)
+                    greger-tree-sitter-test-results))))
+
+      (error
+       (message "❌ ERROR: %s" (error-message-string err))
+       (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
+       (push `(:name ,name :status error :error ,(error-message-string err))
+             greger-tree-sitter-test-results)))))
+
+(defun greger-tree-sitter-run-all-tests ()
+  "Run all test cases and report results."
+  (interactive)
+  (message "\n🧪 Running greger-tree-sitter comprehensive tests...")
+</tool.toolu_017wRu5LTMqjZZeFPLdmEUVE>
+
+## ASSISTANT:
+
+The test runner looks standard. It just calls `(greger-tree-sitter-parse markdown)` for each test case.
+
+Let me try a different hypothesis. Maybe there's some issue with the tree-sitter parser state not being properly isolated between tests. Let me check if the issue is reproducible by running the tests in a different order.
+
+Actually, let me go back to the simplest possible debugging approach. Let me add some debug prints directly into the greger-tree-sitter.el extraction functions to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WNJsThnPSvYuog2qE5rG5H
+
+### file-path
+
+<tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+greger-tree-sitter.el
+</tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+
+### original-content
+
+<tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+  "Extract tool use data from a tool use section."
+  (let ((children (treesit-node-children tool-use-section))
+        (name nil)
+        (id nil)
+        (input '()))
+</tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+
+### new-content
+
+<tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+  "Extract tool use data from a tool use section."
+  (message "[DEBUG] extract-tool-use called")
+  (let ((children (treesit-node-children tool-use-section))
+        (name nil)
+        (id nil)
+        (input '()))
+</tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+
+### git-commit-message
+
+<tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+Add debug print to extract-tool-use
+</tool.toolu_01WNJsThnPSvYuog2qE5rG5H>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WNJsThnPSvYuog2qE5rG5H -->

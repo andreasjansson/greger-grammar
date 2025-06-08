@@ -193,6 +193,7 @@
 
 (defun greger-tree-sitter--extract-tool-use (tool-use-section)
   "Extract tool use data from a tool use section."
+  (message "[DEBUG] extract-tool-use called")
   (let ((children (treesit-node-children tool-use-section))
         (name nil)
         (id nil)
