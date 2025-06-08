@@ -85,7 +85,6 @@ module.exports = grammar({
       ':',
       /\n/,
       optional(/\n/),
-      repeat($.id),
       $.content,
     ),
 
