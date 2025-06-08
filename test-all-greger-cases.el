@@ -303,7 +303,7 @@ bar
                      (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
 
     (:name "server-tool-use-basic"
-           :markdown (greger-read-corpus-file "server-tool-use-basic")
+           :markdown ,(greger-read-corpus-file "server-tool-use-basic")
            :dialog (((role . "user") (content . "Search for current weather in San Francisco"))
                     ((role . "assistant") (content . (((type . "server_tool_use")
                                                        (id . "srvtoolu_123")
