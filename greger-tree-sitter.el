@@ -228,7 +228,11 @@
                   (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
                     (setq content-text (match-string 1 content-text)))
                   (setq content-text (string-trim content-text))
-                  (push (cons (intern param-name) content-text) input)))))))))
+                  ;; Try to convert string to number if it looks like a number
+                  (let ((param-value (if (string-match "^[0-9]+$" content-text)
+                                         (string-to-number content-text)
+                                       content-text)))
+                    (push (cons (intern param-name) param-value) input))))))))))
 
     `((type . "tool_use")
       (id . ,id)
