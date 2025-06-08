@@ -3636,4 +3636,83 @@ _user_content: $ => choice(
 Define specific content types for each section type
 </tool.toolu_01YGyug57negKizQ6VoCUeSJ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YGyug57negKizQ6VoCUeSJ -->
+## TOOL RESULT:
+
+ID: toolu_01YGyug57negKizQ6VoCUeSJ
+
+<tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Define specific content types for each section type
+</tool.toolu_01YGyug57negKizQ6VoCUeSJ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01ULTcFyC8ztCAGePPR9GbCu
+
+### command
+
+<tool.toolu_01ULTcFyC8ztCAGePPR9GbCu>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01ULTcFyC8ztCAGePPR9GbCu>
+
+## TOOL RESULT:
+
+ID: toolu_01ULTcFyC8ztCAGePPR9GbCu
+
+<tool.toolu_01ULTcFyC8ztCAGePPR9GbCu>
+Command failed with exit code 1: (source_file [0, 0] - [4, 14]
+  (user_section [0, 0] - [2, 0]
+    (text_content [0, 8] - [2, 0]))
+  (ERROR [2, 0] - [4, 14]
+    (ERROR [2, 0] - [4, 14])))
+test_simple.greger	Parse:    0.29 ms	   152 bytes/ms	(ERROR [2, 0] - [4, 14])
+
+</tool.toolu_01ULTcFyC8ztCAGePPR9GbCu>
+
+## ASSISTANT:
+
+Good, the user section is parsing correctly as a `user_section`. But the tool content is still not being recognized. The issue is the external scanner. Let me check if the tool_content symbol is being requested in the right context. Since this is a user section, tool_content isn't expected there. Let me create a proper tool use test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LySvGMpNzj2RR9VLP6Wgr5
+
+### file-path
+
+<tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+test_simple.greger
+</tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+
+### original-content
+
+<tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+## USER:
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+
+### new-content
+
+<tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+## TOOL USE:
+
+Name: test
+ID: abc123
+
+### param
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+
+### git-commit-message
+
+<tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+Update test to use tool use section with proper structure
+</tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LySvGMpNzj2RR9VLP6Wgr5 -->
