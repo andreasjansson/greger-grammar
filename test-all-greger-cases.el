@@ -291,7 +291,7 @@ bar
 
     ;; Nested code blocks (backticks inside code blocks)
     (:name "nested-code-blocks"
-           :markdown (greger-read-corpus-file "nested-code-blocks")
+           :markdown ,(greger-read-corpus-file "nested-code-blocks")
            :dialog (((role . "user")
                      (content . "How do I use backticks in markdown?"))
                     ((role . "assistant")
