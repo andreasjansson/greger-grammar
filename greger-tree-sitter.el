@@ -101,7 +101,13 @@
          ((string= section-type "server_tool_result_section")
           ;; Add server tool result to pending assistant content
           (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
-            (push server-tool-result-data pending-assistant-content))))))
+            (push server-tool-result-data pending-assistant-content)))
+
+         ((string= section-type "citations_section")
+          ;; Extract citations and add as text with citations attached to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations-section section)))
+            (dolist (item citations-data)
+              (push item pending-assistant-content)))))))
 
     ;; Flush any remaining pending assistant content
     (when pending-assistant-content

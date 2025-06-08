@@ -7831,4 +7831,832 @@ test-all-greger-cases.el
 Fix tool-use-only test case
 </tool.toolu_0125h6Yari8uwQsZRrQiWApm>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0125h6Yari8uwQsZRrQiWApm -->
+## TOOL RESULT:
+
+ID: toolu_0125h6Yari8uwQsZRrQiWApm
+
+<tool.toolu_0125h6Yari8uwQsZRrQiWApm>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Fix tool-use-only test case
+</tool.toolu_0125h6Yari8uwQsZRrQiWApm>
+
+
+## ASSISTANT:
+
+Now let me check what the citations format should actually be. Looking at the expected test output, the citations are supposed to be attached to text as metadata. But in the current greger format, I see that citations are in a separate `## CITATIONS:` section.
+
+Let me look at the corpus file to understand the structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019xehYSWHY6hRp4qWvY1S1G
+
+### path
+
+<tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+test/corpus/citations-basic.greger
+</tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+
+### start-line
+
+<tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+31
+</tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+
+### end-line
+
+<tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+45
+</tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+
+## TOOL RESULT:
+
+ID: toolu_019xehYSWHY6hRp4qWvY1S1G
+
+<tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+
+## ASSISTANT:
+
+Based on the search results,
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
+</tool.toolu_019xehYSWHY6hRp4qWvY1S1G>
+
+## ASSISTANT:
+
+So the format is:
+1. `## ASSISTANT:` with some text
+2. `## CITATIONS:` with cited text followed by citation metadata
+
+The expected output is supposed to combine these into a single assistant message with citations attached to specific text segments.
+
+Looking at the expected output more carefully:
+
+```elisp
+((type . "text")
+ (text . "Based on the search results,"))
+((type . "text")
+ (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+ (citations . (((type . "web_search_result_location")
+                (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                (title . "Claude Shannon - Wikipedia")
+                (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+                (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))
+```
+
+This shows that the citations should be attached to the text from the `## CITATIONS:` section, and the citation metadata should be parsed from the `### URL` format.
+
+This is a complex parsing requirement that requires understanding the relationship between assistant sections and citation sections. Let me first look at the current grammar to see if it handles citations sections:
+
+The grammar does have a `citations_section` rule, but it doesn't connect it to assistant messages in the way expected.
+
+The expected behavior is:
+1. When we encounter a `## CITATIONS:` section, the text in that section should be treated as text content with citations attached
+2. The citation metadata (like URL, title, etc.) should be parsed and attached to that text
+3. This should all be combined into a single assistant message
+
+This is quite complex to implement correctly in the grammar alone. I think the right approach is:
+
+1. Parse citations sections correctly in the grammar (with text and citation entries)
+2. In the elisp post-processing, when we see a citations section after an assistant section, merge them properly
+
+Let me check what the current grammar does for citations:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Pjun6rB9bFbPjAiwCeanGz
+
+### path
+
+<tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+grammar.js
+</tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+
+### start-line
+
+<tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+70
+</tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+
+### end-line
+
+<tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+85
+</tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+
+## TOOL RESULT:
+
+ID: toolu_01Pjun6rB9bFbPjAiwCeanGz
+
+<tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+
+    tool_use_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'USE',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    tool_result_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      repeat($._tool_section_content),
+    )),
+</tool.toolu_01Pjun6rB9bFbPjAiwCeanGz>
+
+## ASSISTANT:
+
+Let me see the citations section:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Mmcz9ZGi5seq8dynE8HoHA
+
+### path
+
+<tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+grammar.js
+</tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+
+### start-line
+
+<tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+85
+</tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+
+### end-line
+
+<tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+95
+</tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+
+## TOOL RESULT:
+
+ID: toolu_01Mmcz9ZGi5seq8dynE8HoHA
+
+<tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+    )),
+
+    server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+</tool.toolu_01Mmcz9ZGi5seq8dynE8HoHA>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01CAUXVww1Rka9RqWRJBFUUA
+
+### pattern
+
+<tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+citations_section
+</tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+
+### path
+
+<tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+grammar.js
+</tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+
+## TOOL RESULT:
+
+ID: toolu_01CAUXVww1Rka9RqWRJBFUUA
+
+<tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+39:      $.citations_section,
+105:    citations_section: $ => prec.right(seq(
+
+</tool.toolu_01CAUXVww1Rka9RqWRJBFUUA>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TBHxALKEpSpY5ebZCfAP8y
+
+### path
+
+<tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+grammar.js
+</tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+
+### start-line
+
+<tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+105
+</tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+
+### end-line
+
+<tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+115
+</tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+
+## TOOL RESULT:
+
+ID: toolu_01TBHxALKEpSpY5ebZCfAP8y
+
+<tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+    citations_section: $ => prec.right(seq(
+      '##',
+      'CITATIONS',
+      ':',
+      repeat($._citations_content),
+    )),
+
+    _section_content: $ => prec(-1, choice(
+      $.text_block,
+      $.code_block,
+      $.cite_tag,
+</tool.toolu_01TBHxALKEpSpY5ebZCfAP8y>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RzkXZudSRy3cwU98jBd6cn
+
+### path
+
+<tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+grammar.js
+</tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+
+### start-line
+
+<tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+125
+</tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+
+### end-line
+
+<tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+135
+</tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+
+## TOOL RESULT:
+
+ID: toolu_01RzkXZudSRy3cwU98jBd6cn
+
+<tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+
+    _citations_content: $ => prec(-1, choice(
+      $.citation_entry,
+      $.text_block,
+    )),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+      /\n/,
+    )),
+
+</tool.toolu_01RzkXZudSRy3cwU98jBd6cn>
+
+## ASSISTANT:
+
+And the citation_entry:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01VudeJHg1oycwcNx2dh4Bp4
+
+### pattern
+
+<tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+citation_entry
+</tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+
+### path
+
+<tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+grammar.js
+</tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+
+## TOOL RESULT:
+
+ID: toolu_01VudeJHg1oycwcNx2dh4Bp4
+
+<tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+127:      $.citation_entry,
+178:    citation_entry: $ => seq(
+
+</tool.toolu_01VudeJHg1oycwcNx2dh4Bp4>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RNJUNTB6Tqj1mbqPDH21dZ
+
+### path
+
+<tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+grammar.js
+</tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+
+### start-line
+
+<tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+178
+</tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+
+### end-line
+
+<tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+185
+</tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+
+## TOOL RESULT:
+
+ID: toolu_01RNJUNTB6Tqj1mbqPDH21dZ
+
+<tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+    citation_entry: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n/,
+      repeat(seq(
+        /[^\n#]+/,
+        /\n/,
+      )),
+</tool.toolu_01RNJUNTB6Tqj1mbqPDH21dZ>
+
+## ASSISTANT:
+
+So the grammar does parse citations sections with citation entries. The issue is in the elisp processing - it's not handling citations sections at all currently.
+
+Let me check if the current greger-tree-sitter.el has any mention of citations:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01WtrF5tC3hhSMJBhtCbN8AY
+
+### pattern
+
+<tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+citation
+</tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+
+### path
+
+<tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+greger-tree-sitter.el
+</tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+
+## TOOL RESULT:
+
+ID: toolu_01WtrF5tC3hhSMJBhtCbN8AY
+
+<tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+Failed to execute ripgrep search: Command failed with exit code 1: (no output)
+</tool.toolu_01WtrF5tC3hhSMJBhtCbN8AY>
+
+## ASSISTANT:
+
+It doesn't handle citations at all. I need to add citations handling to the elisp processing.
+
+But first, let me test the current state again to see if more test cases work with the fixes I made:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WW8PsUqbuno9eA6uttQpQF
+
+### command
+
+<tool.toolu_01WW8PsUqbuno9eA6uttQpQF>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01WW8PsUqbuno9eA6uttQpQF>
+
+## TOOL RESULT:
+
+ID: toolu_01WW8PsUqbuno9eA6uttQpQF
+
+<tool.toolu_01WW8PsUqbuno9eA6uttQpQF>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.001s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.001s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.001s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "{\\\"query\\\": \\\"current king of Sweden 2024\\\", \\\"answer\\\": \\\"Carl XVI Gustaf\\\", \\\"response_time\\\": 2.38}"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \\\"This is the content of file1.\\\"")))
+
+
+=== Testing: thinking-only ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-basic ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-basic")
+
+=== Testing: citations-after-tool-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-after-tool-result")
+
+=== Testing: citations-multiple ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-multiple")
+
+=== Testing: code-block-triple-backticks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "code-block-triple-backticks")
+
+=== Testing: mixed-code-blocks-and-sections ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "mixed-code-blocks-and-sections")
+
+=== Testing: tool-use-with-code-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-code-in-params")
+
+=== Testing: tool-use-with-tool-use-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-tool-use-in-params")
+
+=== Testing: nested-code-blocks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "nested-code-blocks")
+
+=== Testing: html-comments ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "html-comments")
+
+=== Testing: server-tool-use-basic ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-basic")
+
+=== Testing: server-tool-use-string-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-string-result")
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 7
+Failed: 14
+
+❌ FAILED TESTS:
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+
+</tool.toolu_01WW8PsUqbuno9eA6uttQpQF>
+
+## ASSISTANT:
+
+Good progress! We now have 7 passing tests instead of 5. The main issues are:
+
+1. **String vs number conversion**: Parameters like `context-lines` are being parsed as strings instead of numbers
+2. **Content truncation**: Multi-line content in tool results is being truncated
+3. **More test case loading issues** to fix
+
+The core parsing is working very well. Let me focus on the specific issues:
+
+### Issue 1: String vs number conversion
+
+Looking at the comparison, `context-lines` should be `2` (number) but we're getting `"2"` (string). This is likely because we're just extracting the text content without type conversion.
+
+### Issue 2: Content truncation
+
+The expected content is:
+```
+"src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"
+```
+
+But we're getting:
+```
+"src/main.py:10:def main():"
+```
+
+This suggests our tool content extraction is stopping at the first line.
+
+Let me check the corpus file again to confirm it has both lines:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01K7ToxABq3C5RTQeozSjWhz
+
+### path
+
+<tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+test/corpus/tool-use-multiple-params.greger
+</tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+
+### start-line
+
+<tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+27
+</tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+
+### end-line
+
+<tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+35
+</tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+
+## TOOL RESULT:
+
+ID: toolu_01K7ToxABq3C5RTQeozSjWhz
+
+<tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+
+## TOOL RESULT:
+
+ID: toolu_456
+
+<tool.toolu_456>
+src/main.py:10:def main():
+src/utils.py:25:def main_helper():
+</tool.toolu_456>
+</tool.toolu_01K7ToxABq3C5RTQeozSjWhz>
+
+## ASSISTANT:
+
+Yes, the corpus file has both lines. So our tool content parsing is definitely truncating.
+
+Let me check our tool content extraction code in the elisp:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015ZdG7WJbU9RnvvM8mKzxqo
+
+### path
+
+<tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+greger-tree-sitter.el
+</tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+
+### start-line
+
+<tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+221
+</tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+
+### end-line
+
+<tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+235
+</tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+
+## TOOL RESULT:
+
+ID: toolu_015ZdG7WJbU9RnvvM8mKzxqo
+
+<tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+              (when (string-prefix-p "ID:" line)
+                (setq tool-use-id (string-trim (substring line 3)))))))
+
+         ((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            (cond
+             ;; Full wrapper case
+             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+             ;; Partial wrapper case (missing closing >)
+             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
+              (setq content-text (match-string 1 content-text)))
+             ;; Just remove the opening tag if present
+</tool.toolu_015ZdG7WJbU9RnvvM8mKzxqo>
+
+## ASSISTANT:
+
+The issue might be in the regex. The `.*?` is non-greedy and might not be matching across newlines properly, or the `\s-*` might be causing issues.
+
+But before diving deep into that, let me implement citations support since that's a more important missing feature. This would unlock several more test cases.
+
+Let me add citation handling to the elisp code. I need to:
+
+1. Handle `citations_section` in the main processing loop
+2. Parse citation entries and text within citations sections
+3. Attach citations to text properly
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QiVMS1Hgi25tjZXVwAAk7x
+
+### file-path
+
+<tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+greger-tree-sitter.el
+</tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+
+### original-content
+
+<tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content))))))
+
+    ;; Flush any remaining pending assistant content
+</tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+
+### new-content
+
+<tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))
+
+         ((string= section-type "citations_section")
+          ;; Extract citations and add as text with citations attached to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations-section section)))
+            (dolist (item citations-data)
+              (push item pending-assistant-content)))))))
+
+    ;; Flush any remaining pending assistant content
+</tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+
+### git-commit-message
+
+<tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+Add citations_section handling to main parsing loop
+</tool.toolu_01QiVMS1Hgi25tjZXVwAAk7x>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QiVMS1Hgi25tjZXVwAAk7x -->
