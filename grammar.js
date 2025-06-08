@@ -169,8 +169,8 @@ module.exports = grammar({
       seq(token('ID:'), /[^\r\n]*/),
     )),
 
-    tool_param: $ => prec(1, seq(
-      '###', /[^\r\n]*/,
+    tool_param: $ => prec(3, seq(
+      token('###'), /[^\r\n]*/,
       $.tool_content,
     )),
 

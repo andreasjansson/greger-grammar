@@ -4994,4 +4994,51 @@ _tool_use_content: $ => choice(
 Keep tool use content the same
 </tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UzLmriz4YqYiBg7hN2sUvq -->
+## TOOL RESULT:
+
+ID: toolu_01UzLmriz4YqYiBg7hN2sUvq
+
+<tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Keep tool use content the same
+</tool.toolu_01UzLmriz4YqYiBg7hN2sUvq>
+
+## ASSISTANT:
+
+Let me use the "### param" line as a more specific marker. Since this is the only test, let me add higher precedence to tool_param:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ELmhJJ4qLtPRwq9FmdTjdG
+
+### file-path
+
+<tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+grammar.js
+</tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+
+### original-content
+
+<tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+tool_param: $ => prec(1, seq(
+      '###', /[^\r\n]*/,
+      $.tool_content,
+    )),
+</tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+
+### new-content
+
+<tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+tool_param: $ => prec(3, seq(
+      token('###'), /[^\r\n]*/,
+      $.tool_content,
+    )),
+</tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+
+### git-commit-message
+
+<tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+Give tool_param much higher precedence and use token for ###
+</tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ELmhJJ4qLtPRwq9FmdTjdG -->
