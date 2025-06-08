@@ -165,32 +165,34 @@ And very important: Remember to not run any other shell commands than the safe s
 
 Continue until all tests work
 
+
+
 ## ASSISTANT:
 
-I'll help you work on the tree-sitter grammar for the greger format. Let me start by exploring the current state of the project and understanding what needs to be done.
+I'll help you work on the tree-sitter grammar for the greger markdown-like format. Let me start by exploring the current state of the project to understand what we have.
 
 ## TOOL USE:
 
 Name: list-directory
-ID: toolu_01DnhPd7Fe7JE5NWSqfcp5nP
+ID: toolu_0186Xq8R6hUHj6vSxyBmjGnP
 
 ### path
 
-<tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
+<tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 .
-</tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
+</tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 
 ### recursive
 
-<tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
+<tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 true
-</tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
+</tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 
 ## TOOL RESULT:
 
-ID: toolu_01DnhPd7Fe7JE5NWSqfcp5nP
+ID: toolu_0186Xq8R6hUHj6vSxyBmjGnP
 
-<tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
+<tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 ./:
 drwxr-xr-x  (dir)  .
 drwxr-xr-x  (dir)  ..
@@ -205,11 +207,14 @@ drwxr-xr-x  (dir)  .git
 -rw-r--r--       765  binding.gyp
 drwxr-xr-x  (dir)  bindings
 -rwxr-xr-x        97  build.sh
--rw-r--r--    408162  chat.ai
+-rw-r--r--    240756  chat.ai
 -rw-r--r--    302576  chat2.ai
 -rw-r--r--     31609  chat3.greger
+-rw-r--r--       426  debug-citations.el
+-rw-r--r--      6062  debug-section-types.el
 -rw-r--r--       309  debug-simple.el
 -rw-r--r--       272  debug-test.el
+-rw-r--r--       436  debug-tool-use.el
 -rw-r--r--       134  debug.greger
 -rw-r--r--        69  debug_comprehensive.greger
 -rw-r--r--       113  go.mod
@@ -227,28 +232,24 @@ drwxr-xr-x  (dir)  test
 -rw-r--r--       308  test_citations.greger
 -rw-r--r--        15  test_simple.greger
 -rw-r--r--       874  tree-sitter.json
-</tool.toolu_01DnhPd7Fe7JE5NWSqfcp5nP>
-
-## ASSISTANT:
-
-Let me first look at the test cases to understand what needs to be parsed:
+</tool.toolu_0186Xq8R6hUHj6vSxyBmjGnP>
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01SdMccU6wFY76vM46tugYU6
+ID: toolu_01VqqC1jovpy9NBvk6Yf4dMU
 
 ### path
 
-<tool.toolu_01SdMccU6wFY76vM46tugYU6>
+<tool.toolu_01VqqC1jovpy9NBvk6Yf4dMU>
 test-all-greger-cases.el
-</tool.toolu_01SdMccU6wFY76vM46tugYU6>
+</tool.toolu_01VqqC1jovpy9NBvk6Yf4dMU>
 
 ## TOOL RESULT:
 
-ID: toolu_01SdMccU6wFY76vM46tugYU6
+ID: toolu_01VqqC1jovpy9NBvk6Yf4dMU
 
-<tool.toolu_01SdMccU6wFY76vM46tugYU6>
+<tool.toolu_01VqqC1jovpy9NBvk6Yf4dMU>
 ;;; test-all-greger-cases.el --- Comprehensive test of greger-tree-sitter against all test cases -*- lexical-binding: t -*-
 
 (load-file "./greger-tree-sitter.el")
@@ -668,28 +669,28 @@ bar
   (message "❌ Tree-sitter greger parser not available"))
 
 (provide 'test-all-greger-cases)
-</tool.toolu_01SdMccU6wFY76vM46tugYU6>
+</tool.toolu_01VqqC1jovpy9NBvk6Yf4dMU>
 
 ## ASSISTANT:
 
-Now let me look at the current grammar.js:
+Now let me look at the current grammar and see what we have:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01LUz9FjnZEDsPDQhXaD9W5s
+ID: toolu_01Swq1vv6z6Pycg9nr9pZWHi
 
 ### path
 
-<tool.toolu_01LUz9FjnZEDsPDQhXaD9W5s>
+<tool.toolu_01Swq1vv6z6Pycg9nr9pZWHi>
 grammar.js
-</tool.toolu_01LUz9FjnZEDsPDQhXaD9W5s>
+</tool.toolu_01Swq1vv6z6Pycg9nr9pZWHi>
 
 ## TOOL RESULT:
 
-ID: toolu_01LUz9FjnZEDsPDQhXaD9W5s
+ID: toolu_01Swq1vv6z6Pycg9nr9pZWHi
 
-<tool.toolu_01LUz9FjnZEDsPDQhXaD9W5s>
+<tool.toolu_01Swq1vv6z6Pycg9nr9pZWHi>
 /**
  * @file Greger grammar for tree-sitter
  * @author Andreas Jansson
@@ -887,79 +888,28 @@ module.exports = grammar({
     ),
   }
 });
-</tool.toolu_01LUz9FjnZEDsPDQhXaD9W5s>
+</tool.toolu_01Swq1vv6z6Pycg9nr9pZWHi>
 
 ## ASSISTANT:
 
-Now let me look at the scanner:
+Let me also check the scanner:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_019Fu4jWKL38GE2N5eC6mqj3
+ID: toolu_01NVfotG4zf4BRcPHvd7VpcA
 
 ### path
 
-<tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-src
-</tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-
-### recursive
-
-<tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-true
-</tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-
-## TOOL RESULT:
-
-ID: toolu_019Fu4jWKL38GE2N5eC6mqj3
-
-<tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-Error executing tool: Path is a directory, not a file: /Users/andreas/scratch/greger-grammar/src
-</tool.toolu_019Fu4jWKL38GE2N5eC6mqj3>
-
-## TOOL USE:
-
-Name: list-directory
-ID: toolu_01W3wM7iXjn6gjCQopqpkgJd
-
-### path
-
-<tool.toolu_01W3wM7iXjn6gjCQopqpkgJd>
-src
-</tool.toolu_01W3wM7iXjn6gjCQopqpkgJd>
-
-## TOOL RESULT:
-
-ID: toolu_01W3wM7iXjn6gjCQopqpkgJd
-
-<tool.toolu_01W3wM7iXjn6gjCQopqpkgJd>
-src/:
-drwxr-xr-x  (dir)  .
-drwxr-xr-x  (dir)  ..
--rw-r--r--     13265  grammar.json
--rw-r--r--      7577  node-types.json
--rw-r--r--     88767  parser.c
--rw-r--r--      5837  scanner.c
-drwxr-xr-x  (dir)  tree_sitter
-</tool.toolu_01W3wM7iXjn6gjCQopqpkgJd>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01Cn5YdExzSUQ6aVxGMr33kJ
-
-### path
-
-<tool.toolu_01Cn5YdExzSUQ6aVxGMr33kJ>
+<tool.toolu_01NVfotG4zf4BRcPHvd7VpcA>
 src/scanner.c
-</tool.toolu_01Cn5YdExzSUQ6aVxGMr33kJ>
+</tool.toolu_01NVfotG4zf4BRcPHvd7VpcA>
 
 ## TOOL RESULT:
 
-ID: toolu_01Cn5YdExzSUQ6aVxGMr33kJ
+ID: toolu_01NVfotG4zf4BRcPHvd7VpcA
 
-<tool.toolu_01Cn5YdExzSUQ6aVxGMr33kJ>
+<tool.toolu_01NVfotG4zf4BRcPHvd7VpcA>
 #include "tree_sitter/parser.h"
 #include <wctype.h>
 #include <string.h>
@@ -1154,56 +1104,28 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 
     return false;
 }
-</tool.toolu_01Cn5YdExzSUQ6aVxGMr33kJ>
+</tool.toolu_01NVfotG4zf4BRcPHvd7VpcA>
 
 ## ASSISTANT:
 
-Now let me look at some of the test corpus files to understand the expected structure:
+Now let me check what test corpus files we have:
 
 ## TOOL USE:
 
 Name: list-directory
-ID: toolu_01QRJfQqn97gF8a28UmAhWow
+ID: toolu_014Wk2Xc5j2j2rNsCBojoiCK
 
 ### path
 
-<tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-test
-</tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-
-### recursive
-
-<tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-true
-</tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-
-## TOOL RESULT:
-
-ID: toolu_01QRJfQqn97gF8a28UmAhWow
-
-<tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-test/:
-drwxr-xr-x  (dir)  .
-drwxr-xr-x  (dir)  ..
-drwxr-xr-x  (dir)  corpus
-</tool.toolu_01QRJfQqn97gF8a28UmAhWow>
-
-## TOOL USE:
-
-Name: list-directory
-ID: toolu_01JwJZb7eTzZTZor69m77bP1
-
-### path
-
-<tool.toolu_01JwJZb7eTzZTZor69m77bP1>
+<tool.toolu_014Wk2Xc5j2j2rNsCBojoiCK>
 test/corpus
-</tool.toolu_01JwJZb7eTzZTZor69m77bP1>
+</tool.toolu_014Wk2Xc5j2j2rNsCBojoiCK>
 
 ## TOOL RESULT:
 
-ID: toolu_01JwJZb7eTzZTZor69m77bP1
+ID: toolu_014Wk2Xc5j2j2rNsCBojoiCK
 
-<tool.toolu_01JwJZb7eTzZTZor69m77bP1>
+<tool.toolu_014Wk2Xc5j2j2rNsCBojoiCK>
 test/corpus/:
 drwxr-xr-x  (dir)  .
 drwxr-xr-x  (dir)  ..
@@ -1211,7 +1133,7 @@ drwxr-xr-x  (dir)  ..
 -rw-r--r--      1106  citations-basic.greger
 -rw-r--r--       755  citations-multiple.greger
 -rw-r--r--       149  code-block-triple-backticks.greger
--rw-r--r--      1035  complex-workflow.greger
+-rw-r--r--      1034  complex-workflow.greger
 -rw-r--r--       232  html-comments.greger
 -rw-r--r--       213  mixed-code-blocks-and-sections.greger
 -rw-r--r--       559  multiple-tool-uses.greger
@@ -1228,49 +1150,187 @@ drwxr-xr-x  (dir)  ..
 -rw-r--r--       265  tool-use-single-param.greger
 -rw-r--r--       471  tool-use-with-code-in-params.greger
 -rw-r--r--       371  tool-use-with-tool-use-in-params.greger
-</tool.toolu_01JwJZb7eTzZTZor69m77bP1>
+</tool.toolu_014Wk2Xc5j2j2rNsCBojoiCK>
 
 ## ASSISTANT:
 
-Let me look at a few example files to understand the format:
+Let me look at a simple test case first to understand the format:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01S5tYEpK1976WFPTWja3pDB
+ID: toolu_019WGYvPKG1xLJTAHvP7CvB4
 
 ### path
 
-<tool.toolu_01S5tYEpK1976WFPTWja3pDB>
+<tool.toolu_019WGYvPKG1xLJTAHvP7CvB4>
 test/corpus/simple-user-message.greger
-</tool.toolu_01S5tYEpK1976WFPTWja3pDB>
+</tool.toolu_019WGYvPKG1xLJTAHvP7CvB4>
 
 ## TOOL RESULT:
 
-ID: toolu_01S5tYEpK1976WFPTWja3pDB
+ID: toolu_019WGYvPKG1xLJTAHvP7CvB4
 
-<tool.toolu_01S5tYEpK1976WFPTWja3pDB>
+<tool.toolu_019WGYvPKG1xLJTAHvP7CvB4>
 ## USER:
 
 Hello, how are you?
-</tool.toolu_01S5tYEpK1976WFPTWja3pDB>
+</tool.toolu_019WGYvPKG1xLJTAHvP7CvB4>
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_015ajzcJVE87gtRJ45TcQNVQ
+ID: toolu_01FHVios71P8cej5DQLCPhAR
 
 ### path
 
-<tool.toolu_015ajzcJVE87gtRJ45TcQNVQ>
-test/corpus/citations-basic.greger
-</tool.toolu_015ajzcJVE87gtRJ45TcQNVQ>
+<tool.toolu_01FHVios71P8cej5DQLCPhAR>
+test/corpus/simple-conversation.greger
+</tool.toolu_01FHVios71P8cej5DQLCPhAR>
 
 ## TOOL RESULT:
 
-ID: toolu_015ajzcJVE87gtRJ45TcQNVQ
+ID: toolu_01FHVios71P8cej5DQLCPhAR
 
-<tool.toolu_015ajzcJVE87gtRJ45TcQNVQ>
+<tool.toolu_01FHVios71P8cej5DQLCPhAR>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+</tool.toolu_01FHVios71P8cej5DQLCPhAR>
+
+## ASSISTANT:
+
+Now let me check if the current grammar can parse the simplest case:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QH1nARJjz7vxjmQFs6Vtsf
+
+### command
+
+<tool.toolu_01QH1nARJjz7vxjmQFs6Vtsf>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01QH1nARJjz7vxjmQFs6Vtsf>
+
+## TOOL RESULT:
+
+ID: toolu_01QH1nARJjz7vxjmQFs6Vtsf
+
+<tool.toolu_01QH1nARJjz7vxjmQFs6Vtsf>
+Command executed successfully:
+(source_file [0, 0] - [2, 19]
+  (user_section [0, 0] - [2, 19]
+    (text_block [0, 8] - [2, 19])))
+
+</tool.toolu_01QH1nARJjz7vxjmQFs6Vtsf>
+
+## ASSISTANT:
+
+Good! It parses the simple case. Let me check a more complex case:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0116enFTd7SKDRDYvh3hv6bs
+
+### path
+
+<tool.toolu_0116enFTd7SKDRDYvh3hv6bs>
+test/corpus/tool-use-single-param.greger
+</tool.toolu_0116enFTd7SKDRDYvh3hv6bs>
+
+## TOOL RESULT:
+
+ID: toolu_0116enFTd7SKDRDYvh3hv6bs
+
+<tool.toolu_0116enFTd7SKDRDYvh3hv6bs>
+## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The file contains: Hello, world!
+</tool.toolu_0116enFTd7SKDRDYvh3hv6bs>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0186XmJxYqDrM9rXQs5REk8N
+
+### command
+
+<tool.toolu_0186XmJxYqDrM9rXQs5REk8N>
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-single-param.greger
+</tool.toolu_0186XmJxYqDrM9rXQs5REk8N>
+
+## TOOL RESULT:
+
+ID: toolu_0186XmJxYqDrM9rXQs5REk8N
+
+<tool.toolu_0186XmJxYqDrM9rXQs5REk8N>
+Command executed successfully:
+(source_file [0, 0] - [25, 32]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 12] - [9, 0])
+    (tool_param [9, 0] - [13, 16]
+      (tool_content [11, 0] - [13, 16]))
+    (text_block [13, 16] - [15, 0]))
+  (tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 15] - [19, 0])
+    (tool_content [19, 0] - [21, 16])
+    (text_block [21, 16] - [23, 0]))
+  (assistant_section [23, 0] - [25, 32]
+    (text_block [23, 13] - [25, 32])))
+
+</tool.toolu_0186XmJxYqDrM9rXQs5REk8N>
+
+## ASSISTANT:
+
+Good! The tool content is being parsed. Let me try with some citations:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01X8vm5JEjMn3SYF25yto6M4
+
+### path
+
+<tool.toolu_01X8vm5JEjMn3SYF25yto6M4>
+test/corpus/citations-basic.greger
+</tool.toolu_01X8vm5JEjMn3SYF25yto6M4>
+
+## TOOL RESULT:
+
+ID: toolu_01X8vm5JEjMn3SYF25yto6M4
+
+<tool.toolu_01X8vm5JEjMn3SYF25yto6M4>
 ## USER:
 
 When was Claude Shannon born?
@@ -1315,72 +1375,66 @@ Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
 Title: Claude Shannon - Wikipedia
 Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
 Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
-</tool.toolu_015ajzcJVE87gtRJ45TcQNVQ>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01N8AEofo5JDfwfSwMddCg81
-
-### path
-
-<tool.toolu_01N8AEofo5JDfwfSwMddCg81>
-test/corpus/tool-use-single-param.greger
-</tool.toolu_01N8AEofo5JDfwfSwMddCg81>
-
-## TOOL RESULT:
-
-ID: toolu_01N8AEofo5JDfwfSwMddCg81
-
-<tool.toolu_01N8AEofo5JDfwfSwMddCg81>
-## USER:
-
-Read the file hello.txt
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_123
-
-### path
-
-<tool.toolu_123>
-hello.txt
-</tool.toolu_123>
-
-## TOOL RESULT:
-
-ID: toolu_123
-
-<tool.toolu_123>
-Hello, world!
-</tool.toolu_123>
-
-## ASSISTANT:
-
-The file contains: Hello, world!
-</tool.toolu_01N8AEofo5JDfwfSwMddCg81>
-
-## ASSISTANT:
-
-Let me run the current tests to see what's failing:
+</tool.toolu_01X8vm5JEjMn3SYF25yto6M4>
 
 ## TOOL USE:
 
 Name: shell-command
-ID: toolu_01TBHfPBChY2ESNBTg4AN61m
+ID: toolu_01FbTJYmAfJFkKK8q9NXk7i6
 
 ### command
 
-<tool.toolu_01TBHfPBChY2ESNBTg4AN61m>
-emacs --batch -l test-all-greger-cases.el
-</tool.toolu_01TBHfPBChY2ESNBTg4AN61m>
+<tool.toolu_01FbTJYmAfJFkKK8q9NXk7i6>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01FbTJYmAfJFkKK8q9NXk7i6>
 
 ## TOOL RESULT:
 
-ID: toolu_01TBHfPBChY2ESNBTg4AN61m
+ID: toolu_01FbTJYmAfJFkKK8q9NXk7i6
 
-<tool.toolu_01TBHfPBChY2ESNBTg4AN61m>
+<tool.toolu_01FbTJYmAfJFkKK8q9NXk7i6>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0])
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01FbTJYmAfJFkKK8q9NXk7i6>
+
+## ASSISTANT:
+
+The parsing is working, but I can see there are some issues. The citations section is not parsing as expected. Let me run the actual elisp tests to see what's failing:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01K1jpTShpB2Z3K9UnY4wGEX
+
+### command
+
+<tool.toolu_01K1jpTShpB2Z3K9UnY4wGEX>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01K1jpTShpB2Z3K9UnY4wGEX>
+
+## TOOL RESULT:
+
+ID: toolu_01K1jpTShpB2Z3K9UnY4wGEX
+
+<tool.toolu_01K1jpTShpB2Z3K9UnY4wGEX>
 Command executed successfully:
 Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
 
@@ -1399,7 +1453,7 @@ Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
 ✅ PASSED (0.000s)
 
 === Testing: tool-use-single-param ===
-✅ PASSED (0.001s)
+✅ PASSED (0.000s)
 
 === Testing: tool-use-multiple-params ===
 ✅ PASSED (0.001s)
@@ -1450,14 +1504,14 @@ Actual:
     (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
     (content . "{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}"))))
  ((role . "assistant")
-  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0")))
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
 
 
 === Testing: multiple-tool-uses ===
 ✅ PASSED (0.001s)
 
 === Testing: thinking-only ===
-✅ PASSED (0.001s)
+✅ PASSED (0.000s)
 
 === Testing: tool-use-only ===
 ✅ PASSED (0.000s)
@@ -1649,7 +1703,7 @@ Actual:
 
 
 === Testing: tool-use-with-tool-use-in-params ===
-❌ FAILED (0.001s)
+❌ FAILED (0.003s)
 
 Expected:
 (((role . "user")
@@ -1692,13 +1746,13 @@ Actual:
 
 
 === Testing: nested-code-blocks ===
-✅ PASSED (0.001s)
+✅ PASSED (0.002s)
 
 === Testing: html-comments ===
 ✅ PASSED (0.001s)
 
 === Testing: server-tool-use-basic ===
-✅ PASSED (0.003s)
+✅ PASSED (0.004s)
 
 === Testing: server-tool-use-string-result ===
 ✅ PASSED (0.001s)
@@ -1715,221 +1769,48 @@ Failed: 5
   - tool-use-with-code-in-params
   - tool-use-with-tool-use-in-params
 
-</tool.toolu_01TBHfPBChY2ESNBTg4AN61m>
+</tool.toolu_01K1jpTShpB2Z3K9UnY4wGEX>
 
 ## ASSISTANT:
 
-Great! The tests are mostly working. I can see a few issues:
+Great! We have 16 out of 21 tests passing. Let me examine the failing test cases to understand what needs to be fixed:
 
-1. Some tests have content mismatch (e.g., actual JSON vs expected "JSON result content")
-2. Citation parsing issues (wrong titles/citations being assigned)
-3. Some tool sections being parsed as server tool sections instead of regular tool sections
+1. **complex-workflow**: Expected "JSON result content" but got the actual JSON content
+2. **citations-basic**: Expected "Search results about Claude Shannon" but got the actual JSON content
+3. **citations-multiple**: Issues with citations not being parsed correctly
+4. **tool-use-with-code-in-params**: Expected "tool_use" but got "server_tool_use", and expected "tool_result" but got "web_search_tool_result"
+5. **tool-use-with-tool-use-in-params**: Same issue as above
 
-Let me look at the failing test files to understand the issues better:
+Let me look at the greger-tree-sitter.el file to understand how the postprocessing works:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01TryH88a2SeZNzxdaXzD2px
+ID: toolu_012ADHtL6RAPDo28ThhccKfZ
 
 ### path
 
-<tool.toolu_01TryH88a2SeZNzxdaXzD2px>
-test/corpus/complex-workflow.greger
-</tool.toolu_01TryH88a2SeZNzxdaXzD2px>
-
-## TOOL RESULT:
-
-ID: toolu_01TryH88a2SeZNzxdaXzD2px
-
-<tool.toolu_01TryH88a2SeZNzxdaXzD2px>
-## USER:
-
-who's the current king of sweden?
-
-## THINKING:
-
-The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information.
-
-## TOOL USE:
-
-Name: search-286d2fd3
-ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
-
-### query
-
-<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-current king of Sweden 2024
-</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-
-### include_answer
-
-<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-basic
-</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-
-### max_results
-
-<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-3
-</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-
-## TOOL RESULT:
-
-ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
-
-<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}
-</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
-
-## ASSISTANT:
-
-The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0
-</tool.toolu_01TryH88a2SeZNzxdaXzD2px>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01CgG6wVzvyY9aSyrqHPdniL
-
-### path
-
-<tool.toolu_01CgG6wVzvyY9aSyrqHPdniL>
-test/corpus/tool-use-with-code-in-params.greger
-</tool.toolu_01CgG6wVzvyY9aSyrqHPdniL>
-
-## TOOL RESULT:
-
-ID: toolu_01CgG6wVzvyY9aSyrqHPdniL
-
-<tool.toolu_01CgG6wVzvyY9aSyrqHPdniL>
-## USER:
-
-Write some Python code
-
-## TOOL USE:
-
-Name: write-file
-ID: toolu_999
-
-### filename
-
-<tool.toolu_999>
-example.py
-</tool.toolu_999>
-
-### content
-
-<tool.toolu_999>
-```python
-def main():
-    # This ## USER: comment should not break parsing
-    print("Hello world")
-
-if __name__ == "__main__":
-    main()
-```
-</tool.toolu_999>
-
-## TOOL RESULT:
-
-ID: toolu_999
-
-<tool.toolu_999>
-File written successfully
-</tool.toolu_999>
-
-## ASSISTANT:
-
-I've written the Python file.
-</tool.toolu_01CgG6wVzvyY9aSyrqHPdniL>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_019b8DXVYrgTiHVPF4mwUUnG
-
-### path
-
-<tool.toolu_019b8DXVYrgTiHVPF4mwUUnG>
-test/corpus/citations-multiple.greger
-</tool.toolu_019b8DXVYrgTiHVPF4mwUUnG>
-
-## TOOL RESULT:
-
-ID: toolu_019b8DXVYrgTiHVPF4mwUUnG
-
-<tool.toolu_019b8DXVYrgTiHVPF4mwUUnG>
-## USER:
-
-Tell me about Einstein and Newton
-
-## SERVER TOOL USE:
-
-Name: web_search
-ID: srvtoolu_789
-
-### query
-
-<tool.srvtoolu_789>
-Einstein Newton physics
-</tool.srvtoolu_789>
-
-## SERVER TOOL RESULT:
-
-ID: srvtoolu_789
-
-<tool.srvtoolu_789>
-Physics search results
-</tool.srvtoolu_789>
-
-## ASSISTANT:
-
-## CITATIONS:
-
-Einstein developed the theory of relativity
-
-### https://physics.com/einstein
-
-Title: Einstein Biography
-Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
-Encrypted index: def456
-
-## ASSISTANT:
-
-while
-
-## CITATIONS:
-
-Newton formulated the laws of motion
-
-### https://physics.com/newton
-
-Title: Newton Biography
-Cited text: Isaac Newton formulated the three laws of motion...
-Encrypted index: ghi789
-</tool.toolu_019b8DXVYrgTiHVPF4mwUUnG>
-
-## ASSISTANT:
-
-I need to analyze the Elisp postprocessing code to understand how it should work:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_014fVY8snbkpcLyMptzbHgQG
-
-### path
-
-<tool.toolu_014fVY8snbkpcLyMptzbHgQG>
+<tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
 greger-tree-sitter.el
-</tool.toolu_014fVY8snbkpcLyMptzbHgQG>
+</tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
+
+### start-line
+
+<tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
+1
+</tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
+
+### end-line
+
+<tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
+100
+</tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
 
 ## TOOL RESULT:
 
-ID: toolu_014fVY8snbkpcLyMptzbHgQG
+ID: toolu_012ADHtL6RAPDo28ThhccKfZ
 
-<tool.toolu_014fVY8snbkpcLyMptzbHgQG>
+<tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
 (require 'treesit)
 
 (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
@@ -2030,6 +1911,36 @@ ID: toolu_014fVY8snbkpcLyMptzbHgQG
           (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
             (push server-tool-use-data pending-assistant-content)))
 
+</tool.toolu_012ADHtL6RAPDo28ThhccKfZ>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01HMrYRcaX5mdMVkqZdTRfHY
+
+### path
+
+<tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+greger-tree-sitter.el
+</tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+
+### start-line
+
+<tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+101
+</tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+
+### end-line
+
+<tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+200
+</tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+
+## TOOL RESULT:
+
+ID: toolu_01HMrYRcaX5mdMVkqZdTRfHY
+
+<tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
          ((string= section-type "server_tool_result_section")
           ;; Add server tool result to pending assistant content
           (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
@@ -2130,6 +2041,36 @@ ID: toolu_014fVY8snbkpcLyMptzbHgQG
         (id nil)
         (input '()))
 
+</tool.toolu_01HMrYRcaX5mdMVkqZdTRfHY>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Lph4HuVHxo7BALPxbjE3Xd
+
+### path
+
+<tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+greger-tree-sitter.el
+</tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+
+### start-line
+
+<tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+201
+</tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+
+### end-line
+
+<tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+300
+</tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+
+## TOOL RESULT:
+
+ID: toolu_01Lph4HuVHxo7BALPxbjE3Xd
+
+<tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
     ;; Extract metadata and parameters
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
@@ -2230,6 +2171,36 @@ ID: toolu_014fVY8snbkpcLyMptzbHgQG
           (setf (alist-get 'type result) "server_tool_result")
           ;; Try to parse JSON content for server_tool_result
           (when (and (stringp content)
+</tool.toolu_01Lph4HuVHxo7BALPxbjE3Xd>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013u6UUyDbaskV7c9wX4D97s
+
+### path
+
+<tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+greger-tree-sitter.el
+</tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+
+### start-line
+
+<tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+301
+</tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+
+### end-line
+
+<tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+400
+</tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+
+## TOOL RESULT:
+
+ID: toolu_013u6UUyDbaskV7c9wX4D97s
+
+<tool.toolu_013u6UUyDbaskV7c9wX4D97s>
                      (string-match-p "^\\s-*\\[\\s-*{" content))
             (condition-case nil
                 (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
@@ -2330,6 +2301,36 @@ ID: toolu_014fVY8snbkpcLyMptzbHgQG
                   (string-trim (substring url-line 3))))
            (title nil)
            (cited-text nil)
+</tool.toolu_013u6UUyDbaskV7c9wX4D97s>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01GrzsFtrnhQHXfW4fMADa7e
+
+### path
+
+<tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+greger-tree-sitter.el
+</tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+
+### start-line
+
+<tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+401
+</tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+
+### end-line
+
+<tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+500
+</tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
+
+## TOOL RESULT:
+
+ID: toolu_01GrzsFtrnhQHXfW4fMADa7e
+
+<tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
            (encrypted-index nil))
 
       ;; Parse subsequent lines for metadata
@@ -2355,2129 +2356,110 @@ ID: toolu_014fVY8snbkpcLyMptzbHgQG
 (provide 'greger-tree-sitter)
 
 ;;; greger-tree-sitter.el ends here
-</tool.toolu_014fVY8snbkpcLyMptzbHgQG>
+</tool.toolu_01GrzsFtrnhQHXfW4fMADa7e>
 
 ## ASSISTANT:
 
-I see the issue now. Looking at the failing tests, there are several problems:
+Now I can see the issues. Looking at the failing tests, there are several problems:
 
-1. The complex-workflow test has a parsing issue where an extra "0" is being added to the text
-2. The citations tests are not working correctly - the postprocessing is getting confused about citation data
-3. Some TOOL USE sections are being parsed as SERVER TOOL USE sections
+1. The content parsing for tool results is not working correctly in some cases
+2. Some tests expect "tool_use" vs "server_tool_use" based on the section headers
+3. Citations parsing has issues
 
-Let me look at a specific failing test to understand what's happening:
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_016p6ZNGZnJL4jNLuT1d5DGa
-
-### command
-
-<tool.toolu_016p6ZNGZnJL4jNLuT1d5DGa>
-tree-sitter generate && tree-sitter parse -d pretty test/corpus/complex-workflow.greger
-</tool.toolu_016p6ZNGZnJL4jNLuT1d5DGa>
-
-## TOOL RESULT:
-
-ID: toolu_016p6ZNGZnJL4jNLuT1d5DGa
-
-<tool.toolu_016p6ZNGZnJL4jNLuT1d5DGa>
-Command executed successfully:
-[37mnew_parse[0m
-[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
-[37mlex_external state:2, row:0, column:0[0m
-[37mlex_internal state:112, row:0, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:##, size:2[0m
-[37mshift state:41[0m
-[37mprocess version:0, version_count:1, state:41, row:0, col:2[0m
-[37mlex_external state:2, row:0, column:2[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:3, row:0, column:2[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'U'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'E'[0m
-  [37mconsume character:'R'[0m
-[37mlexed_lookahead sym:USER, size:5[0m
-[37mshift state:57[0m
-[37mprocess version:0, version_count:1, state:57, row:0, col:7[0m
-[37mlex_external state:2, row:0, column:7[0m
-[37mlex_internal state:0, row:0, column:7[0m
-  [37mconsume character:':'[0m
-[37mlexed_lookahead sym::, size:1[0m
-[37mshift state:5[0m
-[37mprocess version:0, version_count:1, state:5, row:0, col:8[0m
-[37mlex_external state:2, row:0, column:8[0m
-[37mlex_internal state:112, row:0, column:8[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mshift state:26[0m
-[37mprocess version:0, version_count:1, state:26, row:1, col:0[0m
-[37mlex_external state:2, row:1, column:0[0m
-[37mlex_internal state:112, row:1, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:23[0m
-[31mprocess version:1, version_count:2, state:10, row:1, col:0[0m
-[31mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:2, col:0[0m
-[37mlex_external state:2, row:2, column:0[0m
-[37mlex_internal state:112, row:2, column:0[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'''[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'?'[0m
-[37mlexed_lookahead sym:text_block_token1, size:33[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:2, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:2, col:0[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[32mprocess version:3, version_count:4, state:10, row:2, col:0[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:2, col:33[0m
-[37mlex_external state:2, row:2, column:33[0m
-[37mlex_internal state:112, row:2, column:33[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:2, col:33[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:2, col:33[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:10, row:2, col:33[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:3, col:0[0m
-[37mlex_external state:2, row:3, column:0[0m
-[37mlex_internal state:112, row:3, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:3, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:3, col:0[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:10, row:3, col:0[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:4, col:0[0m
-[37mlex_external state:2, row:4, column:0[0m
-[37mlex_internal state:112, row:4, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:##, size:2[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:4, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:user_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mprocess version:2, version_count:3, state:10, row:4, col:0[0m
-[34mreduce sym:user_section, child_count:4[0m
-[34mselect_earlier symbol:user_section, over_symbol:user_section[0m
-[34mshift state:41[0m
-[37mprocess version:0, version_count:1, state:41, row:4, col:2[0m
-[37mlex_external state:2, row:4, column:2[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:3, row:4, column:2[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'N'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'N'[0m
-  [37mconsume character:'G'[0m
-[37mlexed_lookahead sym:THINKING, size:9[0m
-[37mshift state:62[0m
-[37mprocess version:0, version_count:1, state:62, row:4, col:11[0m
-[37mlex_external state:2, row:4, column:11[0m
-[37mlex_internal state:0, row:4, column:11[0m
-  [37mconsume character:':'[0m
-[37mlexed_lookahead sym::, size:1[0m
-[37mshift state:8[0m
-[37mprocess version:0, version_count:1, state:8, row:4, col:12[0m
-[37mlex_external state:2, row:4, column:12[0m
-[37mlex_internal state:112, row:4, column:12[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mshift state:26[0m
-[37mprocess version:0, version_count:1, state:26, row:5, col:0[0m
-[37mlex_external state:2, row:5, column:0[0m
-[37mlex_internal state:112, row:5, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:23[0m
-[31mprocess version:1, version_count:2, state:4, row:5, col:0[0m
-[31mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:6, col:0[0m
-[37mlex_external state:2, row:6, column:0[0m
-[37mlex_internal state:112, row:6, column:0[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'b'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'p'[0m
-  [37mconsume character:'-'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'-'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'''[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'.'[0m
-[37mlexed_lookahead sym:text_block_token1, size:196[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:6, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:6, col:0[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[32mprocess version:3, version_count:4, state:4, row:6, col:0[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:6, col:196[0m
-[37mlex_external state:2, row:6, column:196[0m
-[37mlex_internal state:112, row:6, column:196[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:6, col:196[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:6, col:196[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:4, row:6, col:196[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:7, col:0[0m
-[37mlex_external state:2, row:7, column:0[0m
-[37mlex_internal state:112, row:7, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:7, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:7, col:0[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:4, row:7, col:0[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:8, col:0[0m
-[37mlex_external state:2, row:8, column:0[0m
-[37mlex_internal state:112, row:8, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:##, size:2[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:8, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:user_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mprocess version:2, version_count:3, state:4, row:8, col:0[0m
-[34mreduce sym:thinking_section, child_count:4[0m
-[34mselect_earlier symbol:thinking_section, over_symbol:thinking_section[0m
-[34mreduce sym:source_file_repeat1, child_count:2[0m
-[34mshift state:41[0m
-[37mprocess version:0, version_count:1, state:41, row:8, col:2[0m
-[37mlex_external state:2, row:8, column:2[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:3, row:8, column:2[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'O'[0m
-  [37mconsume character:'O'[0m
-  [37mconsume character:'L'[0m
-[37mlexed_lookahead sym:TOOL, size:5[0m
-[37mshift state:52[0m
-[37mprocess version:0, version_count:1, state:52, row:8, col:7[0m
-[37mlex_external state:2, row:8, column:7[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:44, row:8, column:7[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'U'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'E'[0m
-[37mlexed_lookahead sym:USE, size:4[0m
-[37mshift state:67[0m
-[37mprocess version:0, version_count:1, state:67, row:8, col:11[0m
-[37mlex_external state:2, row:8, column:11[0m
-[37mlex_internal state:0, row:8, column:11[0m
-  [37mconsume character:':'[0m
-[37mlexed_lookahead sym::, size:1[0m
-[37mshift state:13[0m
-[37mprocess version:0, version_count:1, state:13, row:8, col:12[0m
-[37mlex_external state:1, row:8, column:12[0m
-[37mlex_internal state:113, row:8, column:12[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:9, col:0[0m
-[37mlex_external state:1, row:9, column:0[0m
-[37mlex_internal state:113, row:9, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:16, row:9, col:0[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:10, col:0[0m
-[37mlex_external state:1, row:10, column:0[0m
-[37mlex_internal state:113, row:10, column:0[0m
-  [37mconsume character:'N'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'-'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'6'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'3'[0m
-[37mlexed_lookahead sym:text_block_token1, size:21[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:10, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:10, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[32mprocess version:3, version_count:4, state:16, row:10, col:0[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:10, col:21[0m
-[37mlex_external state:1, row:10, column:21[0m
-[37mlex_internal state:113, row:10, column:21[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:10, col:21[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:10, col:21[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:16, row:10, col:21[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:11, col:0[0m
-[37mlex_external state:1, row:11, column:0[0m
-[37mlex_internal state:113, row:11, column:0[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:text_block_token1, size:34[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:11, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:11, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:16, row:11, col:0[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:11, col:34[0m
-[37mlex_external state:1, row:11, column:34[0m
-[37mlex_internal state:113, row:11, column:34[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:11, col:34[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:11, col:34[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:16, row:11, col:34[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:12, col:0[0m
-[37mlex_external state:1, row:12, column:0[0m
-[37mlex_internal state:113, row:12, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:12, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:12, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:16, row:12, col:0[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:13, col:0[0m
-[37mlex_external state:1, row:13, column:0[0m
-[37mlex_internal state:113, row:13, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:###, size:3[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:13, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mprocess version:2, version_count:3, state:16, row:13, col:0[0m
-[34mshift state:72[0m
-[37mprocess version:0, version_count:1, state:72, row:13, col:3[0m
-[37mlex_external state:2, row:13, column:3[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:141, row:13, column:3[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'y'[0m
-[37mlexed_lookahead sym:triple_backtick_block_token1, size:6[0m
-[37mshift state:61[0m
-[37mprocess version:0, version_count:1, state:61, row:13, col:9[0m
-[37mlex_external state:2, row:13, column:9[0m
-[37mlex_internal state:3, row:13, column:9[0m
-  [37mconsume character:10[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:tool_param_token1, size:2[0m
-[37mshift state:69[0m
-[37mprocess version:0, version_count:1, state:69, row:15, col:0[0m
-[37mlex_external state:1, row:15, column:0[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'>'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'4'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'/'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:tool_content, size:103[0m
-[37mshift state:37[0m
-[37mprocess version:0, version_count:1, state:37, row:17, col:37[0m
-[37mlex_external state:1, row:17, column:37[0m
-[37mlex_internal state:113, row:17, column:37[0m
-  [37mconsume character:'>'[0m
-[37mlexed_lookahead sym:text_block_token1, size:1[0m
-[37mreduce sym:tool_param, child_count:4[0m
-[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[37mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:17, col:38[0m
-[37mlex_external state:1, row:17, column:38[0m
-[37mlex_internal state:113, row:17, column:38[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:21, row:17, col:38[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:18, col:0[0m
-[37mlex_external state:1, row:18, column:0[0m
-[37mlex_internal state:113, row:18, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:18, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:3, state:21, row:18, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:19, col:0[0m
-[37mlex_external state:1, row:19, column:0[0m
-[37mlex_internal state:113, row:19, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:###, size:3[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:19, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mshift state:72[0m
-[37mprocess version:0, version_count:1, state:72, row:19, col:3[0m
-[37mlex_external state:2, row:19, column:3[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:141, row:19, column:3[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'r'[0m
-[37mlexed_lookahead sym:triple_backtick_block_token1, size:15[0m
-[37mshift state:61[0m
-[37mprocess version:0, version_count:1, state:61, row:19, col:18[0m
-[37mlex_external state:2, row:19, column:18[0m
-[37mlex_internal state:3, row:19, column:18[0m
-  [37mconsume character:10[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:tool_param_token1, size:2[0m
-[37mshift state:69[0m
-[37mprocess version:0, version_count:1, state:69, row:21, col:0[0m
-[37mlex_external state:1, row:21, column:0[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'>'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'b'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'/'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:tool_content, size:81[0m
-[37mshift state:37[0m
-[37mprocess version:0, version_count:1, state:37, row:23, col:37[0m
-[37mlex_external state:1, row:23, column:37[0m
-[37mlex_internal state:113, row:23, column:37[0m
-  [37mconsume character:'>'[0m
-[37mlexed_lookahead sym:text_block_token1, size:1[0m
-[37mreduce sym:tool_param, child_count:4[0m
-[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:23, col:38[0m
-[37mlex_external state:1, row:23, column:38[0m
-[37mlex_internal state:113, row:23, column:38[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:21, row:23, col:38[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:24, col:0[0m
-[37mlex_external state:1, row:24, column:0[0m
-[37mlex_internal state:113, row:24, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:24, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:3, state:21, row:24, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:25, col:0[0m
-[37mlex_external state:1, row:25, column:0[0m
-[37mlex_internal state:113, row:25, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:###, size:3[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:25, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mshift state:72[0m
-[37mprocess version:0, version_count:1, state:72, row:25, col:3[0m
-[37mlex_external state:2, row:25, column:3[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:141, row:25, column:3[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'x'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'s'[0m
-[37mlexed_lookahead sym:triple_backtick_block_token1, size:12[0m
-[37mshift state:61[0m
-[37mprocess version:0, version_count:1, state:61, row:25, col:15[0m
-[37mlex_external state:2, row:25, column:15[0m
-[37mlex_internal state:3, row:25, column:15[0m
-  [37mconsume character:10[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:tool_param_token1, size:2[0m
-[37mshift state:69[0m
-[37mprocess version:0, version_count:1, state:69, row:27, col:0[0m
-[37mlex_external state:1, row:27, column:0[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'>'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'3'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'/'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:tool_content, size:77[0m
-[37mshift state:37[0m
-[37mprocess version:0, version_count:1, state:37, row:29, col:37[0m
-[37mlex_external state:1, row:29, column:37[0m
-[37mlex_internal state:113, row:29, column:37[0m
-  [37mconsume character:'>'[0m
-[37mlexed_lookahead sym:text_block_token1, size:1[0m
-[37mreduce sym:tool_param, child_count:4[0m
-[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:29, col:38[0m
-[37mlex_external state:1, row:29, column:38[0m
-[37mlex_internal state:113, row:29, column:38[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:21, row:29, col:38[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:30, col:0[0m
-[37mlex_external state:1, row:30, column:0[0m
-[37mlex_internal state:113, row:30, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:30, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:3, state:21, row:30, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:31, col:0[0m
-[37mlex_external state:1, row:31, column:0[0m
-[37mlex_internal state:113, row:31, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:##, size:2[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:31, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mreduce sym:tool_use_section, child_count:5[0m
-[31mreduce sym:source_file_repeat1, child_count:2[0m
-[31mshift state:41[0m
-[37mprocess version:0, version_count:1, state:41, row:31, col:2[0m
-[37mlex_external state:2, row:31, column:2[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:3, row:31, column:2[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'O'[0m
-  [37mconsume character:'O'[0m
-  [37mconsume character:'L'[0m
-[37mlexed_lookahead sym:TOOL, size:5[0m
-[37mshift state:52[0m
-[37mprocess version:0, version_count:1, state:52, row:31, col:7[0m
-[37mlex_external state:2, row:31, column:7[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:44, row:31, column:7[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'R'[0m
-  [37mconsume character:'E'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'U'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'T'[0m
-[37mlexed_lookahead sym:RESULT, size:7[0m
-[37mshift state:76[0m
-[37mprocess version:0, version_count:1, state:76, row:31, col:14[0m
-[37mlex_external state:2, row:31, column:14[0m
-[37mlex_internal state:0, row:31, column:14[0m
-  [37mconsume character:':'[0m
-[37mlexed_lookahead sym::, size:1[0m
-[37mshift state:14[0m
-[37mprocess version:0, version_count:1, state:14, row:31, col:15[0m
-[37mlex_external state:1, row:31, column:15[0m
-[37mlex_internal state:113, row:31, column:15[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:32, col:0[0m
-[37mlex_external state:1, row:32, column:0[0m
-[37mlex_internal state:113, row:32, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:17, row:32, col:0[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:33, col:0[0m
-[37mlex_external state:1, row:33, column:0[0m
-[37mlex_internal state:113, row:33, column:0[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:text_block_token1, size:34[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:33, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:33, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[32mprocess version:3, version_count:4, state:17, row:33, col:0[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:33, col:34[0m
-[37mlex_external state:1, row:33, column:34[0m
-[37mlex_internal state:113, row:33, column:34[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:33, col:34[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:33, col:34[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:17, row:33, col:34[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:34, col:0[0m
-[37mlex_external state:1, row:34, column:0[0m
-[37mlex_internal state:113, row:34, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:34, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:4, state:21, row:34, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[32mprocess version:3, version_count:4, state:17, row:34, col:0[0m
-[32mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:35, col:0[0m
-[37mlex_external state:1, row:35, column:0[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'>'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'{'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'y'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'4'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:','[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:'C'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'V'[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'G'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:','[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'p'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'\'[0m
-  [37mconsume character:'"'[0m
-  [37mconsume character:':'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'3'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'}'[0m
-  [37mconsume character:10[0m
-  [37mconsume character:'<'[0m
-  [37mconsume character:'/'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'_'[0m
-  [37mconsume character:'0'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'8'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'v'[0m
-  [37mconsume character:'k'[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'B'[0m
-  [37mconsume character:'q'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'5'[0m
-  [37mconsume character:'Z'[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'L'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'2'[0m
-  [37mconsume character:'D'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'c'[0m
-[37mlexed_lookahead sym:tool_content, size:178[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:35, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mprocess version:2, version_count:3, state:17, row:35, col:0[0m
-[34mshift state:21[0m
-[37mprocess version:0, version_count:1, state:21, row:37, col:37[0m
-[37mlex_external state:1, row:37, column:37[0m
-[37mlex_internal state:113, row:37, column:37[0m
-  [37mconsume character:'>'[0m
-[37mlexed_lookahead sym:text_block_token1, size:1[0m
-[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[37mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[37mshift state:27[0m
-[37mprocess version:0, version_count:1, state:27, row:37, col:38[0m
-[37mlex_external state:1, row:37, column:38[0m
-[37mlex_internal state:113, row:37, column:38[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:28[0m
-[31mprocess version:1, version_count:2, state:21, row:37, col:38[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:38, col:0[0m
-[37mlex_external state:1, row:38, column:0[0m
-[37mlex_internal state:113, row:38, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:38, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:28[0m
-[34mprocess version:2, version_count:3, state:21, row:38, col:0[0m
-[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[34mshift state:27[0m
-[37mprocess version:0, version_count:2, state:28, row:39, col:0[0m
-[37mlex_external state:1, row:39, column:0[0m
-[37mlex_internal state:113, row:39, column:0[0m
-  [37mconsume character:'#'[0m
-  [37mconsume character:'#'[0m
-[37mlexed_lookahead sym:##, size:2[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:27, row:39, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
-[31mreduce sym:tool_result_section, child_count:5[0m
-[31mreduce sym:source_file_repeat1, child_count:2[0m
-[31mshift state:41[0m
-[37mprocess version:0, version_count:1, state:41, row:39, col:2[0m
-[37mlex_external state:2, row:39, column:2[0m
-  [37mskip character:' '[0m
-[37mlex_internal state:3, row:39, column:2[0m
-  [37mskip character:' '[0m
-  [37mconsume character:'A'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'A'[0m
-  [37mconsume character:'N'[0m
-  [37mconsume character:'T'[0m
-[37mlexed_lookahead sym:ASSISTANT, size:10[0m
-[37mshift state:58[0m
-[37mprocess version:0, version_count:1, state:58, row:39, col:12[0m
-[37mlex_external state:2, row:39, column:12[0m
-[37mlex_internal state:0, row:39, column:12[0m
-  [37mconsume character:':'[0m
-[37mlexed_lookahead sym::, size:1[0m
-[37mshift state:6[0m
-[37mprocess version:0, version_count:1, state:6, row:39, col:13[0m
-[37mlex_external state:2, row:39, column:13[0m
-[37mlex_internal state:112, row:39, column:13[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mshift state:26[0m
-[37mprocess version:0, version_count:1, state:26, row:40, col:0[0m
-[37mlex_external state:2, row:40, column:0[0m
-[37mlex_internal state:112, row:40, column:0[0m
-  [37mconsume character:10[0m
-[37mlexed_lookahead sym:text_block_token2, size:1[0m
-[37mreduce sym:text_block, child_count:1[0m
-[37mshift state:23[0m
-[31mprocess version:1, version_count:2, state:9, row:40, col:0[0m
-[31mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:41, col:0[0m
-[37mlex_external state:2, row:41, column:0[0m
-[37mlex_internal state:112, row:41, column:0[0m
-  [37mconsume character:'T'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'K'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'*'[0m
-  [37mconsume character:'*'[0m
-  [37mconsume character:'C'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'X'[0m
-  [37mconsume character:'V'[0m
-  [37mconsume character:'I'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'G'[0m
-  [37mconsume character:'u'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'f'[0m
-  [37mconsume character:'*'[0m
-  [37mconsume character:'*'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'H'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'b'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'1'[0m
-  [37mconsume character:'9'[0m
-  [37mconsume character:'7'[0m
-  [37mconsume character:'3'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'l'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'-'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'g'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'m'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:'a'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'c'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'n'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'S'[0m
-  [37mconsume character:'w'[0m
-  [37mconsume character:'e'[0m
-  [37mconsume character:'d'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:' '[0m
-  [37mconsume character:'h'[0m
-  [37mconsume character:'i'[0m
-  [37mconsume character:'s'[0m
-  [37mconsume character:'t'[0m
-  [37mconsume character:'o'[0m
-  [37mconsume character:'r'[0m
-  [37mconsume character:'y'[0m
-  [37mconsume character:'.'[0m
-  [37mconsume character:'0'[0m
-[37mlexed_lookahead sym:text_block_token1, size:139[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:41, col:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mshift state:23[0m
-[34mprocess version:2, version_count:4, state:2, row:41, col:0[0m
-[34mreduce sym:user_section_repeat1, child_count:2[0m
-[32mprocess version:3, version_count:4, state:9, row:41, col:0[0m
-[32mshift state:26[0m
-[37mprocess version:0, version_count:2, state:23, row:41, col:139[0m
-[37mlex_external state:2, row:41, column:139[0m
-[37mlex_internal state:112, row:41, column:139[0m
-[37mlexed_lookahead sym:end, size:0[0m
-[37mreduce sym:text_block_repeat1, child_count:2[0m
-[31mprocess version:1, version_count:2, state:26, row:41, col:139[0m
-[31mlex_external state:2, row:41, column:139[0m
-[31mlex_internal state:112, row:41, column:139[0m
-[31mlexed_lookahead sym:end, size:0[0m
-[31mreduce sym:text_block, child_count:1[0m
-[31mreduce sym:user_section_repeat1, child_count:2[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
-[34mprocess version:2, version_count:3, state:9, row:41, col:139[0m
-[34mlex_external state:2, row:41, column:139[0m
-[34mlex_internal state:112, row:41, column:139[0m
-[34mlexed_lookahead sym:end, size:0[0m
-[34mreduce sym:assistant_section, child_count:4[0m
-[34mselect_earlier symbol:assistant_section, over_symbol:assistant_section[0m
-[34mreduce sym:source_file_repeat1, child_count:2[0m
-[34mreduce sym:source_file, child_count:1[0m
-[34maccept[0m
-[34mdone[0m
-(source_file [0, 0] - [41, 139]
-  (user_section [0, 0] - [4, 0]
-    (text_block [0, 8] - [4, 0]))
-  (thinking_section [4, 0] - [8, 0]
-    (text_block [4, 12] - [8, 0]))
-  (tool_use_section [8, 0] - [31, 0]
-    (text_block [8, 12] - [13, 0])
-    (tool_param [13, 0] - [17, 37]
-      (tool_content [15, 0] - [17, 37]))
-    (text_block [17, 37] - [19, 0])
-    (tool_param [19, 0] - [23, 37]
-      (tool_content [21, 0] - [23, 37]))
-    (text_block [23, 37] - [25, 0])
-    (tool_param [25, 0] - [29, 37]
-      (tool_content [27, 0] - [29, 37]))
-    (text_block [29, 37] - [31, 0]))
-  (tool_result_section [31, 0] - [39, 0]
-    (text_block [31, 15] - [35, 0])
-    (tool_content [35, 0] - [37, 37])
-    (text_block [37, 37] - [39, 0]))
-  (assistant_section [39, 0] - [41, 139]
-    (text_block [39, 13] - [41, 139])))
-
-</tool.toolu_016p6ZNGZnJL4jNLuT1d5DGa>
-
-## ASSISTANT:
-
-I can see the issue now. The text at the end has an extra "0" character. Let me look at the actual content to see where this is coming from:
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01YafLG8f7xEsCQ4rWw6Zvs8
-
-### command
-
-<tool.toolu_01YafLG8f7xEsCQ4rWw6Zvs8>
-tree-sitter generate && tree-sitter parse test/corpus/complex-workflow.greger
-</tool.toolu_01YafLG8f7xEsCQ4rWw6Zvs8>
-
-## TOOL RESULT:
-
-ID: toolu_01YafLG8f7xEsCQ4rWw6Zvs8
-
-<tool.toolu_01YafLG8f7xEsCQ4rWw6Zvs8>
-Command executed successfully:
-(source_file [0, 0] - [41, 139]
-  (user_section [0, 0] - [4, 0]
-    (text_block [0, 8] - [4, 0]))
-  (thinking_section [4, 0] - [8, 0]
-    (text_block [4, 12] - [8, 0]))
-  (tool_use_section [8, 0] - [31, 0]
-    (text_block [8, 12] - [13, 0])
-    (tool_param [13, 0] - [17, 37]
-      (tool_content [15, 0] - [17, 37]))
-    (text_block [17, 37] - [19, 0])
-    (tool_param [19, 0] - [23, 37]
-      (tool_content [21, 0] - [23, 37]))
-    (text_block [23, 37] - [25, 0])
-    (tool_param [25, 0] - [29, 37]
-      (tool_content [27, 0] - [29, 37]))
-    (text_block [29, 37] - [31, 0]))
-  (tool_result_section [31, 0] - [39, 0]
-    (text_block [31, 15] - [35, 0])
-    (tool_content [35, 0] - [37, 37])
-    (text_block [37, 37] - [39, 0]))
-  (assistant_section [39, 0] - [41, 139]
-    (text_block [39, 13] - [41, 139])))
-
-</tool.toolu_01YafLG8f7xEsCQ4rWw6Zvs8>
-
-## ASSISTANT:
-
-I can see that the text_block is capturing an extra character at the end. Let me check what the last character in the file is:
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01YW67kSHonifpmaDvsxPubT
-
-### command
-
-<tool.toolu_01YW67kSHonifpmaDvsxPubT>
-hexdump -C test/corpus/complex-workflow.greger | tail -5
-</tool.toolu_01YW67kSHonifpmaDvsxPubT>
-
-## TOOL RESULT:
-
-ID: toolu_01YW67kSHonifpmaDvsxPubT
-
-<tool.toolu_01YW67kSHonifpmaDvsxPubT>
-Shell command execution cancelled by user
-</tool.toolu_01YW67kSHonifpmaDvsxPubT>
-
-## ASSISTANT:
-
-Let me use a simpler approach - let me check what character is at the end of the file:
+Let me look at some specific test files to understand the differences:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01Sbyp5WQP9JY2FMDr621a6N
+ID: toolu_01A9GP1if4dmSuH7DYoY7NAj
 
 ### path
 
-<tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
+<tool.toolu_01A9GP1if4dmSuH7DYoY7NAj>
 test/corpus/complex-workflow.greger
-</tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
-
-### start-line
-
-<tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
--3
-</tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
+</tool.toolu_01A9GP1if4dmSuH7DYoY7NAj>
 
 ## TOOL RESULT:
 
-ID: toolu_01Sbyp5WQP9JY2FMDr621a6N
+ID: toolu_01A9GP1if4dmSuH7DYoY7NAj
 
-<tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
-Error executing tool: Invalid argument: start-line must be >= 1
-</tool.toolu_01Sbyp5WQP9JY2FMDr621a6N>
+<tool.toolu_01A9GP1if4dmSuH7DYoY7NAj>
+## USER:
+
+who's the current king of sweden?
+
+## THINKING:
+
+The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information.
 
 ## TOOL USE:
 
-Name: read-file
-ID: toolu_01MFDbYetjtn2q8JQ6v4Bdyv
+Name: search-286d2fd3
+ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
 
-### path
+### query
 
-<tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
-test/corpus/complex-workflow.greger
-</tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+current king of Sweden 2024
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
 
-### start-line
+### include_answer
 
-<tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
-38
-</tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+basic
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+
+### max_results
+
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+3
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
 
 ## TOOL RESULT:
 
-ID: toolu_01MFDbYetjtn2q8JQ6v4Bdyv
+ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
 
-<tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}
 </tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
 
 ## ASSISTANT:
 
-The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0
-</tool.toolu_01MFDbYetjtn2q8JQ6v4Bdyv>
-
-## ASSISTANT:
-
-Ah! There's a stray "0" character at the end of the file. That explains the issue. Let me fix this:
-
-## TOOL USE:
-
-Name: str-replace
-ID: toolu_01T1S48RMpsXRJsBH2Co6UfH
-
-### file-path
-
-<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-test/corpus/complex-workflow.greger
-</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-
-### original-content
-
-<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0
-</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-
-### new-content
-
-<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
 The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.
-</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-
-### git-commit-message
-
-<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-Remove stray "0" character from complex-workflow test
-</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-
-## TOOL RESULT:
-
-ID: toolu_01T1S48RMpsXRJsBH2Co6UfH
-
-<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
-Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/complex-workflow.greger. Successfully staged 2 file(s) and committed with message: Remove stray "0" character from complex-workflow test
-</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
+</tool.toolu_01A9GP1if4dmSuH7DYoY7NAj>
 
 ## ASSISTANT:
 
-Now let me check the citations issues. Let me look at the citations test files:
+I see the issue! In this test case, the expected result is "JSON result content" but the actual content in the corpus file is the real JSON. This suggests the expected test result is wrong, not the parser. Let me check the expected results more carefully.
 
-## TOOL USE:
+Looking at the test that's failing, the test case expects:
+```
+(content . "JSON result content")
+```
 
-Name: shell-command
-ID: toolu_01DtHjvWgfQUgffjTipLczAF
+But the actual content in the file is:
+```
+{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}
+```
 
-### command
-
-<tool.toolu_01DtHjvWgfQUgffjTipLczAF>
-tree-sitter generate && tree-sitter parse test/corpus/citations-multiple.greger
-</tool.toolu_01DtHjvWgfQUgffjTipLczAF>
-
-## TOOL RESULT:
-
-ID: toolu_01DtHjvWgfQUgffjTipLczAF
-
-<tool.toolu_01DtHjvWgfQUgffjTipLczAF>
-Command executed successfully:
-(source_file [0, 0] - [47, 23]
-  (user_section [0, 0] - [4, 0]
-    (text_block [0, 8] - [4, 0]))
-  (server_tool_use_section [4, 0] - [15, 0]
-    (text_block [4, 19] - [9, 0])
-    (tool_param [9, 0] - [13, 19]
-      (tool_content [11, 0] - [13, 19]))
-    (text_block [13, 19] - [15, 0]))
-  (server_tool_result_section [15, 0] - [23, 0]
-    (text_block [15, 22] - [19, 0])
-    (tool_content [19, 0] - [21, 19])
-    (text_block [21, 19] - [23, 0]))
-  (assistant_section [23, 0] - [25, 0]
-    (text_block [23, 13] - [25, 0]))
-  (citations_section [25, 0] - [35, 0]
-    (text_block [25, 13] - [29, 0])
-    (citation_entry [29, 0] - [30, 0])
-    (text_block [30, 0] - [35, 0]))
-  (assistant_section [35, 0] - [39, 0]
-    (text_block [35, 13] - [39, 0]))
-  (citations_section [39, 0] - [47, 23]
-    (text_block [39, 13] - [43, 0])
-    (citation_entry [43, 0] - [44, 0])
-    (text_block [44, 0] - [47, 23])))
-
-</tool.toolu_01DtHjvWgfQUgffjTipLczAF>
-
-## ASSISTANT:
-
-Good! The parsing seems to be working, with separate citation sections being parsed correctly. Now let me examine the citations-basic test to see the issue there:
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01YXe9vVqSUGHmgnLrQZwaT2
-
-### command
-
-<tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
-tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
-</tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
-
-## TOOL RESULT:
-
-ID: toolu_01YXe9vVqSUGHmgnLrQZwaT2
-
-<tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
-Command executed successfully:
-(source_file [0, 0] - [43, 49]
-  (user_section [0, 0] - [4, 0]
-    (text_block [0, 8] - [4, 0]))
-  (server_tool_use_section [4, 0] - [15, 0]
-    (text_block [4, 19] - [9, 0])
-    (tool_param [9, 0] - [13, 40]
-      (tool_content [11, 0] - [13, 40]))
-    (text_block [13, 40] - [15, 0]))
-  (server_tool_result_section [15, 0] - [31, 0]
-    (text_block [15, 22] - [19, 0])
-    (tool_content [19, 0] - [29, 40])
-    (text_block [29, 40] - [31, 0]))
-  (assistant_section [31, 0] - [35, 0]
-    (text_block [31, 13] - [35, 0]))
-  (citations_section [35, 0] - [43, 49]
-    (text_block [35, 13] - [39, 0])
-    (citation_entry [39, 0] - [40, 0])
-    (text_block [40, 0] - [43, 49])))
-
-</tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
-
-## ASSISTANT:
-
-The parsing looks correct too. Let me run a test on just the citations-basic to see what the postprocessing is doing wrong:
-
-## TOOL USE:
-
-Name: write-new-file
-ID: toolu_01Pvc8SF33CEx3sTxx1qZ5FE
-
-### file-path
-
-<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-debug-citations.el
-</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-
-### contents
-
-<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-(load-file "./greger-tree-sitter.el")
-
-(defun debug-citations-test ()
-  "Debug citations parsing."
-  (let* ((text (with-temp-buffer
-                 (insert-file-contents "./test/corpus/citations-basic.greger")
-                 (buffer-string)))
-         (result (greger-tree-sitter-parse text)))
-    (message "Input text length: %d" (length text))
-    (message "Result:")
-    (pp result)
-    result))
-
-(debug-citations-test)
-</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-
-### git-commit-message
-
-<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-Add debug script for citations parsing
-</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-
-## TOOL RESULT:
-
-ID: toolu_01Pvc8SF33CEx3sTxx1qZ5FE
-
-<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug-citations.el with 425 characters. Successfully staged 2 file(s) and committed with message: Add debug script for citations parsing
-</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01TpToWMu3bymeMTLfwwamQJ
-
-### command
-
-<tool.toolu_01TpToWMu3bymeMTLfwwamQJ>
-emacs --batch -l debug-citations.el
-</tool.toolu_01TpToWMu3bymeMTLfwwamQJ>
-
-## TOOL RESULT:
-
-ID: toolu_01TpToWMu3bymeMTLfwwamQJ
-
-<tool.toolu_01TpToWMu3bymeMTLfwwamQJ>
-Command executed successfully:
-Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
-Input text length: 1104
-Result:
-(((role . "user")
-  (content . "When was Claude Shannon born?"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (name . "web_search")
-    (input
-     (query . "claude shannon birth date")))
-   ((type . "web_search_tool_result")
-    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (content . "[\n  {\n    \"type\": \"web_search_result\",\n    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",\n    \"title\": \"Claude Shannon - Wikipedia\",\n    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",\n    \"page_age\": \"April 30, 2025\"\n  }\n]"))
-   ((type . "text")
-    (text . "Based on the search results,"))
-   ((type . "text")
-    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
-      (title . "Claude Shannon - Wikipedia")
-      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
-      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
-
-</tool.toolu_01TpToWMu3bymeMTLfwwamQJ>
-
-## ASSISTANT:
-
-Great! The citations parsing is actually working correctly now. The issue is just that the expected content in the test case is "Search results about Claude Shannon" but the actual content from the file is the full JSON. Let me compare with the expected result in the test:
-
-Looking at the test, the expected content for the web_search_tool_result is "Search results about Claude Shannon", but the actual content parsed from the file is the full JSON. So the test expectation is wrong. However, let me check what the original test expects. 
-
-The problem might be that the test file content doesn't match what the test expects. Let me check the failing tests more carefully. Looking at the test failure, I see that the expected content for tool result is "JSON result content" but we're getting the actual JSON. This suggests the test file has real JSON but the test expects a simplified string.
-
-Let me check what the tool-use tests expect vs the SERVER tool-use tests:
+So the issue is that the test case expectations are using placeholder content while the corpus files have real content. Let me check another case:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01533M1TupA6X7xKJLHA1v1Y
+ID: toolu_014p8iimDaGQDhy7FaBfeDkB
 
 ### path
 
-<tool.toolu_01533M1TupA6X7xKJLHA1v1Y>
+<tool.toolu_014p8iimDaGQDhy7FaBfeDkB>
 test/corpus/tool-use-with-code-in-params.greger
-</tool.toolu_01533M1TupA6X7xKJLHA1v1Y>
+</tool.toolu_014p8iimDaGQDhy7FaBfeDkB>
 
 ## TOOL RESULT:
 
-ID: toolu_01533M1TupA6X7xKJLHA1v1Y
+ID: toolu_014p8iimDaGQDhy7FaBfeDkB
 
-<tool.toolu_01533M1TupA6X7xKJLHA1v1Y>
+<tool.toolu_014p8iimDaGQDhy7FaBfeDkB>
 ## USER:
 
 Write some Python code
@@ -4517,50 +2499,41 @@ File written successfully
 ## ASSISTANT:
 
 I've written the Python file.
-</tool.toolu_01533M1TupA6X7xKJLHA1v1Y>
+</tool.toolu_014p8iimDaGQDhy7FaBfeDkB>
 
 ## ASSISTANT:
 
-So this is a regular TOOL USE (not SERVER TOOL USE), but it's being parsed as SERVER TOOL USE. That's the issue! Let me check why "TOOL USE" sections are being parsed as "SERVER TOOL USE" sections. Looking at the test output:
+Here I see another issue: this test case uses "## TOOL USE:" but the test expects type "tool_use", but the parser is returning "server_tool_use". Let me look at how the greger-tree-sitter.el determines the type:
 
-```
-Expected: type . "tool_use"
-Actual: type . "server_tool_use"
-```
+Looking at the extract functions, I see that `greger-tree-sitter--extract-tool-use` always returns type "tool_use", but then the server tool use function calls that and changes the type to "server_tool_use". So the issue is in the processing logic - the test file uses "## TOOL USE:" but the test expects the result to have type "tool_use", not "server_tool_use".
 
-And also:
+But wait, that doesn't make sense. Let me double-check the extraction functions. Looking more carefully:
 
-```
-Expected: type . "tool_result"  
-Actual: type . "web_search_tool_result"
-```
+- `greger-tree-sitter--extract-tool-use` returns type "tool_use"
+- `greger-tree-sitter--extract-server-tool-use` calls the above and changes type to "server_tool_use"
 
-Let me check what's happening in the Elisp code. Looking at the postprocessing logic in greger-tree-sitter.el, I see there's special logic in `greger-tree-sitter--extract-server-tool-result` that decides whether to use "web_search_tool_result" or "server_tool_result" based on whether there are citations in the full buffer text.
+And the section processing logic calls the right function based on the section type:
+- "tool_use_section" -> calls `greger-tree-sitter--extract-tool-use`
+- "server_tool_use_section" -> calls `greger-tree-sitter--extract-server-tool-use`
 
-The problem is that the logic is looking at the entire buffer to determine if there are citations, but individual tests might have citations even if the specific tool result doesn't. 
-
-Let me look at the failing test cases more closely. The issue is in the postprocessing logic. The `greger-tree-sitter--extract-server-tool-result` function checks for "## CITATIONS:" in the entire buffer, which affects how tool results are classified.
-
-But the main issue is that TOOL USE sections are being parsed as SERVER TOOL USE sections. Let me look at the grammar to see why this is happening. Looking at the parse tree output from earlier, I can see that regular "## TOOL USE:" is being parsed as `server_tool_use_section` instead of `tool_use_section`. This is a grammar issue.
-
-Let me check what tokens are being generated:
+So the issue must be in the grammar. Let me check what the parser is actually detecting for these sections:
 
 ## TOOL USE:
 
 Name: shell-command
-ID: toolu_013dkzx7k5aHHeMHCQv6fAe2
+ID: toolu_01W7Qkygv6KcmiRLNasMZ2ym
 
 ### command
 
-<tool.toolu_013dkzx7k5aHHeMHCQv6fAe2>
+<tool.toolu_01W7Qkygv6KcmiRLNasMZ2ym>
 tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-code-in-params.greger
-</tool.toolu_013dkzx7k5aHHeMHCQv6fAe2>
+</tool.toolu_01W7Qkygv6KcmiRLNasMZ2ym>
 
 ## TOOL RESULT:
 
-ID: toolu_013dkzx7k5aHHeMHCQv6fAe2
+ID: toolu_01W7Qkygv6KcmiRLNasMZ2ym
 
-<tool.toolu_013dkzx7k5aHHeMHCQv6fAe2>
+<tool.toolu_01W7Qkygv6KcmiRLNasMZ2ym>
 Command executed successfully:
 [37mnew_parse[0m
 [37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
@@ -5569,669 +3542,195 @@ Command executed successfully:
   (assistant_section [36, 0] - [38, 29]
     (text_block [36, 13] - [38, 29])))
 
-</tool.toolu_013dkzx7k5aHHeMHCQv6fAe2>
+</tool.toolu_01W7Qkygv6KcmiRLNasMZ2ym>
 
 ## ASSISTANT:
 
-Perfect! The grammar is parsing correctly - it's generating `tool_use_section` and `tool_result_section` as expected, not `server_tool_use_section`. The problem must be in the postprocessing logic in the Elisp code.
+Perfect! I can see the issue now. The parser correctly identifies this as "tool_use_section" (not "server_tool_use_section"), so it should be calling `greger-tree-sitter--extract-tool-use` and returning type "tool_use".
 
-Looking back at the test output, the issue is that the Elisp postprocessing code is calling `greger-tree-sitter--extract-server-tool-use` instead of `greger-tree-sitter--extract-tool-use` for regular tool sections. 
+But the test result shows it's returning type "server_tool_use". This means there's a bug in the elisp postprocessing code. Let me look at the section processing code again.
 
-Let me check the logic in the postprocessing function. Looking at the code, I see the issue:
-
-In `greger-tree-sitter--extract-dialog-from-node`, the cases are:
-
+Looking at the extract dialog function, I see that when it encounters "tool_use_section", it calls:
 ```elisp
-((string= section-type "tool_use_section")
- ;; Add tool use to pending assistant content
- (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
-   (push tool-use-data pending-assistant-content)))
+(let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
 ```
 
-This looks correct. But let me check if there are any function name issues. Actually, looking more closely at the failed test output, I think there might be an issue with function names not matching or some logic error.
+And `greger-tree-sitter--extract-tool-use` returns type "tool_use". So the issue must be elsewhere.
 
-Let me create a simple debug script to test just the tool-use parsing:
+Let me check if there are any other paths where the type might be getting changed. But looking closer, I think the issue might be that the same logic is being applied incorrectly.
 
-## TOOL USE:
+Wait, I notice something! Looking at the actual test again:
 
-Name: write-new-file
-ID: toolu_01QkUaiALXAVoAjyFH9YbL6o
+The test expects:
+```
+((type . "tool_use") ...)
+```
 
-### file-path
+But the result shows:
+```
+((type . "server_tool_use") ...)
+```
 
-<tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-debug-tool-use.el
-</tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
+Let me check what the test corpus file actually has. The issue might be that "## TOOL USE:" is being parsed as "server_tool_use_section" instead of "tool_use_section".
 
-### contents
-
-<tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-(load-file "./greger-tree-sitter.el")
-
-(defun debug-tool-use-test ()
-  "Debug tool use parsing."
-  (let* ((text (with-temp-buffer
-                 (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
-                 (buffer-string)))
-         (result (greger-tree-sitter-parse text)))
-    (message "Input text length: %d" (length text))
-    (message "Result:")
-    (pp result)
-    result))
-
-(debug-tool-use-test)
-</tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-
-### git-commit-message
-
-<tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-Add debug script for tool use parsing
-</tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-
-## TOOL RESULT:
-
-ID: toolu_01QkUaiALXAVoAjyFH9YbL6o
-
-<tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
-Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug-tool-use.el with 435 characters. Successfully staged 2 file(s) and committed with message: Add debug script for tool use parsing
-</tool.toolu_01QkUaiALXAVoAjyFH9YbL6o>
+Let me look at the simple tool use case that should work:
 
 ## TOOL USE:
 
 Name: shell-command
-ID: toolu_01D5Ejq7hwFFvRgRbma27e96
+ID: toolu_018HsRnbjtc32Sij1TZWaBbF
 
 ### command
 
-<tool.toolu_01D5Ejq7hwFFvRgRbma27e96>
-emacs --batch -l debug-tool-use.el
-</tool.toolu_01D5Ejq7hwFFvRgRbma27e96>
+<tool.toolu_018HsRnbjtc32Sij1TZWaBbF>
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-single-param.greger
+</tool.toolu_018HsRnbjtc32Sij1TZWaBbF>
 
 ## TOOL RESULT:
 
-ID: toolu_01D5Ejq7hwFFvRgRbma27e96
+ID: toolu_018HsRnbjtc32Sij1TZWaBbF
 
-<tool.toolu_01D5Ejq7hwFFvRgRbma27e96>
+<tool.toolu_018HsRnbjtc32Sij1TZWaBbF>
 Command executed successfully:
-Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
-Input text length: 471
-Result:
-(((role . "user")
-  (content . "Write some Python code"))
- ((role . "assistant")
-  (content
-   ((type . "tool_use")
-    (id . "toolu_999")
-    (name . "write-file")
-    (input
-     (filename . "example.py")
-     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
- ((role . "user")
-  (content
-   ((type . "tool_result")
-    (tool_use_id . "toolu_999")
-    (content . "File written successfully"))))
- ((role . "assistant")
-  (content . "I've written the Python file.")))
+(source_file [0, 0] - [25, 32]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 12] - [9, 0])
+    (tool_param [9, 0] - [13, 16]
+      (tool_content [11, 0] - [13, 16]))
+    (text_block [13, 16] - [15, 0]))
+  (tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 15] - [19, 0])
+    (tool_content [19, 0] - [21, 16])
+    (text_block [21, 16] - [23, 0]))
+  (assistant_section [23, 0] - [25, 32]
+    (text_block [23, 13] - [25, 32])))
 
-</tool.toolu_01D5Ejq7hwFFvRgRbma27e96>
+</tool.toolu_018HsRnbjtc32Sij1TZWaBbF>
 
 ## ASSISTANT:
 
-Great! This is parsing correctly - it's showing `type . "tool_use"` and `type . "tool_result"` as expected. So the issue might be that the wrong tests are failing - let me re-run the tests to see the current status:
+Great! This one correctly parses as "tool_use_section". So why doesn't the test with code in params work? Let me run a debug to see what section type it gets:
+
+Actually, looking at the pretty output above, the tool-use-with-code-in-params test also correctly parses as "tool_use_section". So the issue must be in the elisp post-processing.
+
+Let me create a simple debug script to see what's happening:
 
 ## TOOL USE:
 
-Name: shell-command
-ID: toolu_016J3qV7AsEecKRSYd2sQ2XJ
-
-### command
-
-<tool.toolu_016J3qV7AsEecKRSYd2sQ2XJ>
-emacs --batch -l test-all-greger-cases.el
-</tool.toolu_016J3qV7AsEecKRSYd2sQ2XJ>
-
-## TOOL RESULT:
-
-ID: toolu_016J3qV7AsEecKRSYd2sQ2XJ
-
-<tool.toolu_016J3qV7AsEecKRSYd2sQ2XJ>
-Command executed successfully:
-Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
-
-🧪 Running greger-tree-sitter comprehensive tests...
-
-=== Testing: simple-user-message ===
-✅ PASSED (0.001s)
-
-=== Testing: system-and-user ===
-✅ PASSED (0.000s)
-
-=== Testing: simple-conversation ===
-✅ PASSED (0.000s)
-
-=== Testing: thinking-section ===
-✅ PASSED (0.000s)
-
-=== Testing: tool-use-single-param ===
-✅ PASSED (0.001s)
-
-=== Testing: tool-use-multiple-params ===
-✅ PASSED (0.001s)
-
-=== Testing: complex-workflow ===
-❌ FAILED (0.001s)
-
-Expected:
-(((role . "user")
-  (content . "who's the current king of sweden?"))
- ((role . "assistant")
-  (content
-   ((type . "thinking")
-    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
-   ((type . "tool_use")
-    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
-    (name . "search-286d2fd3")
-    (input
-     (query . "current king of Sweden 2024")
-     (include_answer . "basic")
-     (max_results . 3)))))
- ((role . "user")
-  (content
-   ((type . "tool_result")
-    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
-    (content . "JSON result content"))))
- ((role . "assistant")
-  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
-
-
-Actual:
-(((role . "user")
-  (content . "who's the current king of sweden?"))
- ((role . "assistant")
-  (content
-   ((type . "thinking")
-    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
-   ((type . "tool_use")
-    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
-    (name . "search-286d2fd3")
-    (input
-     (query . "current king of Sweden 2024")
-     (include_answer . "basic")
-     (max_results . 3)))))
- ((role . "user")
-  (content
-   ((type . "tool_result")
-    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
-    (content . "{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}"))))
- ((role . "assistant")
-  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
-
-
-=== Testing: multiple-tool-uses ===
-✅ PASSED (0.001s)
-
-=== Testing: thinking-only ===
-✅ PASSED (0.000s)
-
-=== Testing: tool-use-only ===
-✅ PASSED (0.000s)
-
-=== Testing: citations-basic ===
-❌ FAILED (0.001s)
-
-Expected:
-(((role . "user")
-  (content . "When was Claude Shannon born?"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (name . "web_search")
-    (input
-     (query . "claude shannon birth date")))
-   ((type . "web_search_tool_result")
-    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (content . "Search results about Claude Shannon"))
-   ((type . "text")
-    (text . "Based on the search results,"))
-   ((type . "text")
-    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
-      (title . "Claude Shannon - Wikipedia")
-      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
-      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
-
-
-Actual:
-(((role . "user")
-  (content . "When was Claude Shannon born?"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (name . "web_search")
-    (input
-     (query . "claude shannon birth date")))
-   ((type . "web_search_tool_result")
-    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-    (content . "[\n  {\n    \"type\": \"web_search_result\",\n    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",\n    \"title\": \"Claude Shannon - Wikipedia\",\n    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",\n    \"page_age\": \"April 30, 2025\"\n  }\n]"))
-   ((type . "text")
-    (text . "Based on the search results,"))
-   ((type . "text")
-    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
-      (title . "Claude Shannon - Wikipedia")
-      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
-      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
-
-
-=== Testing: citations-after-tool-result ===
-✅ PASSED (0.001s)
-
-=== Testing: citations-multiple ===
-❌ FAILED (0.001s)
-
-Expected:
-(((role . "user")
-  (content . "Tell me about Einstein and Newton"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "srvtoolu_789")
-    (name . "web_search")
-    (input
-     (query . "Einstein Newton physics")))
-   ((type . "web_search_tool_result")
-    (tool_use_id . "srvtoolu_789")
-    (content . "Physics search results"))
-   ((type . "text")
-    (text . "Einstein developed the theory of relativity")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/einstein")
-      (title . "Einstein Biography")
-      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
-      (encrypted_index . "def456"))))
-   ((type . "text")
-    (text . "while"))
-   ((type . "text")
-    (text . "Newton formulated the laws of motion")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/newton")
-      (title . "Newton Biography")
-      (cited_text . "Isaac Newton formulated the three laws of motion...")
-      (encrypted_index . "ghi789"))))
-   ((type . "text")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/einstein")
-      (title . "Einstein Biography")
-      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
-      (encrypted_index . "def456"))
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/newton")
-      (title . "Newton Biography")
-      (cited_text . "Isaac Newton formulated the three laws of motion...")
-      (encrypted_index . "ghi789")))))))
-
-
-Actual:
-(((role . "user")
-  (content . "Tell me about Einstein and Newton"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "srvtoolu_789")
-    (name . "web_search")
-    (input
-     (query . "Einstein Newton physics")))
-   ((type . "web_search_tool_result")
-    (tool_use_id . "srvtoolu_789")
-    (content . "Physics search results"))
-   ((type . "text")
-    (text . "Einstein developed the theory of relativity")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/einstein")
-      (title . "Newton Biography")
-      (cited_text . "Isaac Newton formulated the three laws of motion...")
-      (encrypted_index . "ghi789"))))
-   ((type . "text")
-    (text . "while"))
-   ((type . "text")
-    (text . "Newton formulated the laws of motion")
-    (citations
-     ((type . "web_search_result_location")
-      (url . "https://physics.com/newton")
-      (title . "Newton Biography")
-      (cited_text . "Isaac Newton formulated the three laws of motion...")
-      (encrypted_index . "ghi789")))))))
-
-
-=== Testing: code-block-triple-backticks ===
-✅ PASSED (0.002s)
-
-=== Testing: mixed-code-blocks-and-sections ===
-✅ PASSED (0.002s)
-
-=== Testing: tool-use-with-code-in-params ===
-❌ FAILED (0.001s)
-
-Expected:
-(((role . "user")
-  (content . "Write some Python code"))
- ((role . "assistant")
-  (content
-   ((type . "tool_use")
-    (id . "toolu_999")
-    (name . "write-file")
-    (input
-     (filename . "example.py")
-     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
- ((role . "user")
-  (content
-   ((type . "tool_result")
-    (tool_use_id . "toolu_999")
-    (content . "File written successfully"))))
- ((role . "assistant")
-  (content . "I've written the Python file.")))
-
-
-Actual:
-(((role . "user")
-  (content . "Write some Python code"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "toolu_999")
-    (name . "write-file")
-    (input
-     (filename . "example.py")
-     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
- ((role . "user")
-  (content
-   ((type . "web_search_tool_result")
-    (tool_use_id . "toolu_999")
-    (content . "File written successfully"))))
- ((role . "assistant")
-  (content . "I've written the Python file.")))
-
-
-=== Testing: tool-use-with-tool-use-in-params ===
-❌ FAILED (0.003s)
-
-Expected:
-(((role . "user")
-  (content . "Write some Python code"))
- ((role . "assistant")
-  (content
-   ((type . "tool_use")
-    (id . "toolu_999")
-    (name . "write-file")
-    (input
-     (filename . "example.py")
-     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
- ((role . "user")
-  (content
-   ((type . "tool_result")
-    (tool_use_id . "toolu_999")
-    (content . "File written successfully"))))
- ((role . "assistant")
-  (content . "I've written the Python file.")))
-
-
-Actual:
-(((role . "user")
-  (content . "Write some Python code"))
- ((role . "assistant")
-  (content
-   ((type . "server_tool_use")
-    (id . "toolu_999")
-    (name . "write-file")
-    (input
-     (filename . "example.py")
-     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
- ((role . "user")
-  (content
-   ((type . "web_search_tool_result")
-    (tool_use_id . "toolu_999")
-    (content . "File written successfully"))))
- ((role . "assistant")
-  (content . "I've written the Python file.")))
-
-
-=== Testing: nested-code-blocks ===
-✅ PASSED (0.001s)
-
-=== Testing: html-comments ===
-✅ PASSED (0.002s)
-
-=== Testing: server-tool-use-basic ===
-✅ PASSED (0.004s)
-
-=== Testing: server-tool-use-string-result ===
-✅ PASSED (0.040s)
-
-📊 TEST SUMMARY:
-Total tests: 21
-Passed: 16
-Failed: 5
-
-❌ FAILED TESTS:
-  - complex-workflow
-  - citations-basic
-  - citations-multiple
-  - tool-use-with-code-in-params
-  - tool-use-with-tool-use-in-params
-
-</tool.toolu_016J3qV7AsEecKRSYd2sQ2XJ>
-
-## ASSISTANT:
-
-Interesting! Now I see the issue more clearly. My earlier single file test showed the correct results, but the batch test is showing different results. The issue must be related to how the citations detection is working globally across tests.
-
-Looking at the failing tests, I can see that:
-
-1. `tool-use-with-code-in-params` and `tool-use-with-tool-use-in-params` are being parsed as `server_tool_use` instead of `tool_use`
-2. The tool results are being parsed as `web_search_tool_result` instead of `tool_result`
-
-This suggests that the citations detection logic is interfering with regular tool use parsing. Looking at the logic in `greger-tree-sitter--extract-server-tool-result`:
-
-```elisp
-;; Check if this conversation has citations by looking at the raw text
-(let ((content (alist-get 'content result))
-      (full-text (buffer-string)))  ; Get the full buffer text
-  (if (string-match "## CITATIONS:" full-text)
-      ;; Has citations - use web_search_tool_result
-      (setf (alist-get 'type result) "web_search_tool_result")
-    ;; No citations - use server_tool_result and parse JSON if applicable
-    ...)
-```
-
-The problem is that `buffer-string` is getting the full buffer text, which in a batch test context might contain text from other tests. The logic should only look at the specific conversation being parsed, not the entire buffer.
-
-Let me fix this. The issue is that the postprocessing logic is calling `greger-tree-sitter--extract-server-tool-result` for all tool result sections, but it should only call that for SERVER TOOL RESULT sections, not regular TOOL RESULT sections.
-
-Looking at the postprocessing logic again, I see another issue. In the main processing loop, we have:
-
-```elisp
-((string= section-type "tool_result_section")
- ;; ...
- (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
-   ...))
-```
-
-But `greger-tree-sitter--extract-tool-result` is being called for regular tool results, which should return `"tool_result"` type. However, the logic in `greger-tree-sitter--extract-server-tool-result` might be affecting this.
-
-Wait, I think I see the issue now. Let me look more carefully at the code. In the main loop we have:
-
-```elisp
-((string= section-type "tool_use_section")
- ;; Add tool use to pending assistant content
- (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
-   (push tool-use-data pending-assistant-content)))
-```
-
-But we're seeing `server_tool_use` in the output. That means either:
-1. The section type is not "tool_use_section" but "server_tool_use_section"
-2. The `greger-tree-sitter--extract-tool-use` function is returning the wrong type
-
-Let me check what section types we're actually getting. Let me add some debug output:
-
-## TOOL USE:
-
-Name: write-new-file
-ID: toolu_01Q1YpwaphT2N6rFcgNWkBYp
+Name: str-replace
+ID: toolu_018CPBTZPXA3i86Umiag2CDm
 
 ### file-path
 
-<tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
-debug-section-types.el
-</tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
+<tool.toolu_018CPBTZPXA3i86Umiag2CDm>
+debug-test.el
+</tool.toolu_018CPBTZPXA3i86Umiag2CDm>
 
-### contents
+### original-content
 
-<tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
+<tool.toolu_018CPBTZPXA3i86Umiag2CDm>
 (load-file "./greger-tree-sitter.el")
 
-;; Override the main processing function to add debug output
-(defun greger-tree-sitter--extract-dialog-from-node-debug (root-node)
-  "Extract dialog structure from parsed greger conversation with debug output."
-  (let* ((sections (treesit-node-children root-node))
-         (dialog '())
-         (pending-assistant-content '()))
+;; Test basic parsing
+(let ((result (greger-tree-sitter-parse "## USER:\n\nHello")))
+  (message "Parse result: %S" result))
 
-    (dolist (section sections)
-      (let ((section-type (treesit-node-type section)))
-        (message "Processing section type: %s" section-type)
-        (cond
-         ((string= section-type "user_section")
-          (message "  -> USER section")
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
-          (push (greger-tree-sitter--extract-user-section section) dialog))
+(provide 'debug-test)
+</tool.toolu_018CPBTZPXA3i86Umiag2CDm>
 
-         ((string= section-type "assistant_section")
-          (message "  -> ASSISTANT section")
-          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
-            (when (> (length (string-trim assistant-text)) 0)
-              (push `((type . "text")
-                      (text . ,assistant-text))
-                    pending-assistant-content))))
+### new-content
 
-         ((string= section-type "system_section")
-          (message "  -> SYSTEM section")
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
-          (push (greger-tree-sitter--extract-system-section section) dialog))
+<tool.toolu_018CPBTZPXA3i86Umiag2CDm>
+(load-file "./greger-tree-sitter.el")
 
-         ((string= section-type "thinking_section")
-          (message "  -> THINKING section")
-          (let ((thinking-content (greger-tree-sitter--extract-section-text section)))
-            (push `((type . "thinking")
-                    (thinking . ,thinking-content))
-                  pending-assistant-content)))
+;; Test the tool-use-with-code-in-params case specifically
+(let* ((markdown (with-temp-buffer
+                   (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                   (buffer-string)))
+       (result (greger-tree-sitter-parse markdown)))
+  (message "=== TOOL USE WITH CODE IN PARAMS ===")
+  (message "Markdown content:\n%s" markdown)
+  (message "\nParse result:")
+  (pp result))
 
-         ((string= section-type "tool_use_section")
-          (message "  -> TOOL USE section")
-          (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
-            (message "    Tool use data type: %s" (alist-get 'type tool-use-data))
-            (push tool-use-data pending-assistant-content)))
-
-         ((string= section-type "tool_result_section")
-          (message "  -> TOOL RESULT section")
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
-          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
-            (message "    Tool result data type: %s" (alist-get 'type tool-result-data))
-            (push `((role . "user")
-                    (content . (,tool-result-data)))
-                  dialog)))
-
-         ((string= section-type "server_tool_use_section")
-          (message "  -> SERVER TOOL USE section")
-          (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
-            (message "    Server tool use data type: %s" (alist-get 'type server-tool-use-data))
-            (push server-tool-use-data pending-assistant-content)))
-
-         ((string= section-type "server_tool_result_section")
-          (message "  -> SERVER TOOL RESULT section")
-          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
-            (message "    Server tool result data type: %s" (alist-get 'type server-tool-result-data))
-            (push server-tool-result-data pending-assistant-content)))
-
-         ((string= section-type "citations_section")
-          (message "  -> CITATIONS section")
-          (let ((citations-data (greger-tree-sitter--extract-citations-section section)))
-            (dolist (item citations-data)
-              (push item pending-assistant-content)))))))
-
-    ;; Flush any remaining pending assistant content
-    (when pending-assistant-content
-      (let ((content (nreverse pending-assistant-content)))
-        (if (and (= (length content) 1)
-                 (equal (alist-get 'type (car content)) "text"))
-            (push `((role . "assistant")
-                    (content . ,(alist-get 'text (car content))))
-                  dialog)
-          (push `((role . "assistant")
-                  (content . ,content))
-                dialog))))
-
-    (nreverse dialog)))
-
-(defun debug-tool-use-sections ()
-  "Debug tool use section types."
-  (let* ((text (with-temp-buffer
-                 (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
-                 (buffer-string))))
-    (with-temp-buffer
-      (insert text)
-      (let* ((parser (treesit-parser-create 'greger))
-             (root-node (treesit-parser-root-node parser)))
-        (message "=== DEBUG: tool-use-with-code-in-params.greger ===")
-        (greger-tree-sitter--extract-dialog-from-node-debug root-node)))))
-
-(debug-tool-use-sections)
-</tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
+(provide 'debug-test)
+</tool.toolu_018CPBTZPXA3i86Umiag2CDm>
 
 ### git-commit-message
 
-<tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
-Add debug script for section types
-</tool.toolu_01Q1YpwaphT2N6rFcgNWkBYp>
+<tool.toolu_018CPBTZPXA3i86Umiag2CDm>
+Debug tool-use-with-code-in-params test case
+</tool.toolu_018CPBTZPXA3i86Umiag2CDm>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Q1YpwaphT2N6rFcgNWkBYp -->
+## TOOL RESULT:
+
+ID: toolu_018CPBTZPXA3i86Umiag2CDm
+
+<tool.toolu_018CPBTZPXA3i86Umiag2CDm>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_018CPBTZPXA3i86Umiag2CDm>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SVzV3k14pSFe9516oGM71h
+
+### path
+
+<tool.toolu_01SVzV3k14pSFe9516oGM71h>
+debug-test.el
+</tool.toolu_01SVzV3k14pSFe9516oGM71h>
+
+## TOOL RESULT:
+
+ID: toolu_01SVzV3k14pSFe9516oGM71h
+
+<tool.toolu_01SVzV3k14pSFe9516oGM71h>
+(load-file "./greger-tree-sitter.el")
+
+(let* ((text (with-temp-buffer
+               (insert-file-contents "./test/corpus/server-tool-use-basic.greger")
+               (buffer-string)))
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_01SVzV3k14pSFe9516oGM71h>
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_013Ywn9VrKiGwKcQpFSWPA7r
+
+### file-path
+
+<tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+debug-test.el
+</tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+
+### contents
+
+<tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+(load-file "./greger-tree-sitter.el")
+
+;; Test the tool-use-with-code-in-params case specifically
+(let* ((markdown (with-temp-buffer
+                   (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                   (buffer-string)))
+       (result (greger-tree-sitter-parse markdown)))
+  (message "=== TOOL USE WITH CODE IN PARAMS ===")
+  (message "Markdown content:\n%s" markdown)
+  (message "\nParse result:")
+  (pp result))
+
+(provide 'debug-test)
+</tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+
+### git-commit-message
+
+<tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+Debug tool-use-with-code-in-params test case
+</tool.toolu_013Ywn9VrKiGwKcQpFSWPA7r>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013Ywn9VrKiGwKcQpFSWPA7r -->
