@@ -5498,4 +5498,129 @@ debug-test.el
 Simplify debug test to use inline markdown
 </tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RQ3D46nFnHPFcwKs6cWa3a -->
+## TOOL RESULT:
+
+ID: toolu_01RQ3D46nFnHPFcwKs6cWa3a
+
+<tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 477 characters. Successfully staged 2 file(s) and committed with message: Simplify debug test to use inline markdown
+</tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FP9u9THf85YApqZ5Z3Agcc
+
+### command
+
+<tool.toolu_01FP9u9THf85YApqZ5Z3Agcc>
+emacs --batch -l debug-test.el
+</tool.toolu_01FP9u9THf85YApqZ5Z3Agcc>
+
+## TOOL RESULT:
+
+ID: toolu_01FP9u9THf85YApqZ5Z3Agcc
+
+<tool.toolu_01FP9u9THf85YApqZ5Z3Agcc>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== SIMPLE TOOL USE TEST ===
+Parse result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "test123")
+    (name . "test")
+    (input
+     (param . "value")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "test123")
+    (content . "result"))))
+ ((role . "assistant")
+  (content . "Done")))
+
+</tool.toolu_01FP9u9THf85YApqZ5Z3Agcc>
+
+## ASSISTANT:
+
+Excellent! This shows that the basic tool use parsing is working correctly - it returns "tool_use" and "tool_result" as expected.
+
+The issue must be specific to the test runner or there's some kind of state pollution between tests. Let me run just one specific test to isolate the issue:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0139JENZbEQovbnb757vBc53
+
+### file-path
+
+<tool.toolu_0139JENZbEQovbnb757vBc53>
+debug-test.el
+</tool.toolu_0139JENZbEQovbnb757vBc53>
+
+### original-content
+
+<tool.toolu_0139JENZbEQovbnb757vBc53>
+(load-file "./greger-tree-sitter.el")
+
+;; Simple test to see what's happening
+(let* ((markdown "## USER:\n\nHello\n\n## TOOL USE:\n\nName: test\nID: test123\n\n### param\n\n<tool.test123>\nvalue\n</tool.test123>\n\n## TOOL RESULT:\n\nID: test123\n\n<tool.test123>\nresult\n</tool.test123>\n\n## ASSISTANT:\n\nDone")
+       (result (greger-tree-sitter-parse markdown)))
+  (message "=== SIMPLE TOOL USE TEST ===")
+  (message "Parse result:")
+  (pp result))
+
+(provide 'debug-test)
+</tool.toolu_0139JENZbEQovbnb757vBc53>
+
+### new-content
+
+<tool.toolu_0139JENZbEQovbnb757vBc53>
+(load-file "./greger-tree-sitter.el")
+
+;; Test just the tool-use-with-code-in-params case
+(defconst greger-test-case 
+  `(:name "tool-use-with-code-in-params"
+          :markdown ,(with-temp-buffer
+                       (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                       (buffer-string))
+          :dialog (((role . "user")
+                    (content . "Write some Python code"))
+                   ((role . "assistant")
+                    (content . (((type . "tool_use")
+                                 (id . "toolu_999")
+                                 (name . "write-file")
+                                 (input . ((filename . "example.py")
+                                           (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))))
+                   ((role . "user")
+                    (content . (((type . "tool_result")
+                                 (tool_use_id . "toolu_999")
+                                 (content . "File written successfully")))))
+                   ((role . "assistant")
+                    (content . "I've written the Python file.")))))
+
+(let* ((markdown (plist-get greger-test-case :markdown))
+       (expected (plist-get greger-test-case :dialog))
+       (actual (greger-tree-sitter-parse markdown)))
+
+  (message "=== ISOLATED TEST: tool-use-with-code-in-params ===")
+  (message "Expected:")
+  (pp expected)
+  (message "\nActual:")
+  (pp actual)
+  (message "\nEqual? %s" (equal expected actual)))
+
+(provide 'debug-test)
+</tool.toolu_0139JENZbEQovbnb757vBc53>
+
+### git-commit-message
+
+<tool.toolu_0139JENZbEQovbnb757vBc53>
+Test specific failing case in isolation
+</tool.toolu_0139JENZbEQovbnb757vBc53>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0139JENZbEQovbnb757vBc53 -->
