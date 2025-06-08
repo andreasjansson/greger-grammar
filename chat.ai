@@ -4261,4 +4261,142 @@ The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 19
 Remove stray "0" character from complex-workflow test
 </tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01T1S48RMpsXRJsBH2Co6UfH -->
+## TOOL RESULT:
+
+ID: toolu_01T1S48RMpsXRJsBH2Co6UfH
+
+<tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/complex-workflow.greger. Successfully staged 2 file(s) and committed with message: Remove stray "0" character from complex-workflow test
+</tool.toolu_01T1S48RMpsXRJsBH2Co6UfH>
+
+## ASSISTANT:
+
+Now let me check the citations issues. Let me look at the citations test files:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DtHjvWgfQUgffjTipLczAF
+
+### command
+
+<tool.toolu_01DtHjvWgfQUgffjTipLczAF>
+tree-sitter generate && tree-sitter parse test/corpus/citations-multiple.greger
+</tool.toolu_01DtHjvWgfQUgffjTipLczAF>
+
+## TOOL RESULT:
+
+ID: toolu_01DtHjvWgfQUgffjTipLczAF
+
+<tool.toolu_01DtHjvWgfQUgffjTipLczAF>
+Command executed successfully:
+(source_file [0, 0] - [47, 23]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 19]
+      (tool_content [11, 0] - [13, 19]))
+    (text_block [13, 19] - [15, 0]))
+  (server_tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [21, 19])
+    (text_block [21, 19] - [23, 0]))
+  (assistant_section [23, 0] - [25, 0]
+    (text_block [23, 13] - [25, 0]))
+  (citations_section [25, 0] - [35, 0]
+    (text_block [25, 13] - [29, 0])
+    (citation_entry [29, 0] - [30, 0])
+    (text_block [30, 0] - [35, 0]))
+  (assistant_section [35, 0] - [39, 0]
+    (text_block [35, 13] - [39, 0]))
+  (citations_section [39, 0] - [47, 23]
+    (text_block [39, 13] - [43, 0])
+    (citation_entry [43, 0] - [44, 0])
+    (text_block [44, 0] - [47, 23])))
+
+</tool.toolu_01DtHjvWgfQUgffjTipLczAF>
+
+## ASSISTANT:
+
+Good! The parsing seems to be working, with separate citation sections being parsed correctly. Now let me examine the citations-basic test to see the issue there:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YXe9vVqSUGHmgnLrQZwaT2
+
+### command
+
+<tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
+
+## TOOL RESULT:
+
+ID: toolu_01YXe9vVqSUGHmgnLrQZwaT2
+
+<tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0])
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01YXe9vVqSUGHmgnLrQZwaT2>
+
+## ASSISTANT:
+
+The parsing looks correct too. Let me run a test on just the citations-basic to see what the postprocessing is doing wrong:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Pvc8SF33CEx3sTxx1qZ5FE
+
+### file-path
+
+<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+debug-citations.el
+</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+
+### contents
+
+<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+(load-file "./greger-tree-sitter.el")
+
+(defun debug-citations-test ()
+  "Debug citations parsing."
+  (let* ((text (with-temp-buffer
+                 (insert-file-contents "./test/corpus/citations-basic.greger")
+                 (buffer-string)))
+         (result (greger-tree-sitter-parse text)))
+    (message "Input text length: %d" (length text))
+    (message "Result:")
+    (pp result)
+    result))
+
+(debug-citations-test)
+</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+
+### git-commit-message
+
+<tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+Add debug script for citations parsing
+</tool.toolu_01Pvc8SF33CEx3sTxx1qZ5FE>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Pvc8SF33CEx3sTxx1qZ5FE -->
