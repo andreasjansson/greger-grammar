@@ -55,14 +55,14 @@ module.exports = grammar({
       '##',
       'USER',
       ':',
-      alias(repeat($._section_content), $.text),
+      alias($.text_block, $.text),
     )),
 
     assistant_section: $ => prec.right(seq(
       '##',
       'ASSISTANT',
       ':',
-      alias(repeat($._section_content), $.text),
+      alias($.text_block, $.text),
     )),
 
     system_section: $ => prec.right(seq(
