@@ -4024,4 +4024,135 @@ grammar.js
 Fix tool section parsing by using choice instead of optional for metadata
 </tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Gwk2gM6qe3GqmBNFydDpor -->
+## TOOL RESULT:
+
+ID: toolu_01Gwk2gM6qe3GqmBNFydDpor
+
+<tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix tool section parsing by using choice instead of optional for metadata
+</tool.toolu_01Gwk2gM6qe3GqmBNFydDpor>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01EbTiNxhqx9U33tpma6BRbM
+
+### command
+
+<tool.toolu_01EbTiNxhqx9U33tpma6BRbM>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01EbTiNxhqx9U33tpma6BRbM>
+
+## TOOL RESULT:
+
+ID: toolu_01EbTiNxhqx9U33tpma6BRbM
+
+<tool.toolu_01EbTiNxhqx9U33tpma6BRbM>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [9, 0])
+      param: (tool_param [9, 0] - [13, 40]
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [43, 49]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (text_block [43, 0] - [43, 49])))
+
+</tool.toolu_01EbTiNxhqx9U33tpma6BRbM>
+
+## ASSISTANT:
+
+Good! The parsing is working now without errors. But I notice that we're still not capturing the tool name and ID. The issue is that the tool metadata (Name: and ID:) is being captured as text_block instead of tool_name and tool_id. Let me check the source file to see what the structure is:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014LHnwHduzJuTUMwYZx5pju
+
+### path
+
+<tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+test/corpus/citations-basic.greger
+</tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+
+### start-line
+
+<tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+4
+</tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+
+### end-line
+
+<tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+15
+</tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+
+## TOOL RESULT:
+
+ID: toolu_014LHnwHduzJuTUMwYZx5pju
+
+<tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+</tool.toolu_014LHnwHduzJuTUMwYZx5pju>
+
+## ASSISTANT:
+
+I see the issue. The text blocks between the header and the tool param contain the Name and ID. Let me fix the grammar to properly match these:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01V6UPCZNK4jwGcPhSeL5UrN
+
+### file-path
+
+<tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+grammar.js
+</tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+
+### original-content
+
+<tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+tool_name: $ => seq('Name:', /[^\n]*/),
+    tool_id: $ => seq('ID:', /[^\n]*/),
+</tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+
+### new-content
+
+<tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+tool_name: $ => seq('Name:', /[^\n]*/, /\n/),
+    tool_id: $ => seq('ID:', /[^\n]*/, /\n/),
+</tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+
+### git-commit-message
+
+<tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+Fix tool_name and tool_id patterns to include newlines
+</tool.toolu_01V6UPCZNK4jwGcPhSeL5UrN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01V6UPCZNK4jwGcPhSeL5UrN -->

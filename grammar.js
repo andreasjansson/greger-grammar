@@ -145,8 +145,8 @@ module.exports = grammar({
       $.safe_shell_commands,
     )),
 
-    tool_name: $ => seq('Name:', /[^\n]*/),
-    tool_id: $ => seq('ID:', /[^\n]*/),
+    tool_name: $ => seq('Name:', /[^\n]*/, /\n/),
+    tool_id: $ => seq('ID:', /[^\n]*/, /\n/),
 
     tool_param: $ => seq(
       '###',
