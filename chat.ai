@@ -3816,4 +3816,88 @@ greger-tree-sitter.el
 Fix regex to handle incomplete closing tag in tool result
 </tool.toolu_01Mk1RD16rAANgyWwMvJtVK8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Mk1RD16rAANgyWwMvJtVK8 -->
+## TOOL RESULT:
+
+ID: toolu_01Mk1RD16rAANgyWwMvJtVK8
+
+<tool.toolu_01Mk1RD16rAANgyWwMvJtVK8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix regex to handle incomplete closing tag in tool result
+</tool.toolu_01Mk1RD16rAANgyWwMvJtVK8>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019vaWfCPFfuhPRTDeSrGwQG
+
+### command
+
+<tool.toolu_019vaWfCPFfuhPRTDeSrGwQG>
+emacs --batch -l debug-test.el
+</tool.toolu_019vaWfCPFfuhPRTDeSrGwQG>
+
+## TOOL RESULT:
+
+ID: toolu_019vaWfCPFfuhPRTDeSrGwQG
+
+<tool.toolu_019vaWfCPFfuhPRTDeSrGwQG>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+DEBUG: tool content before: "<tool.toolu_123>
+hello.txt
+</tool.toolu_123"
+DEBUG: tool content after: "
+hello.txt
+"
+Result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt"))))))
+
+</tool.toolu_019vaWfCPFfuhPRTDeSrGwQG>
+
+## ASSISTANT:
+
+Great! Now the tool content is being extracted correctly. Let me remove the debug prints:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01K3uAzVXDXw1mbVT7GJjrKR
+
+### file-path
+
+<tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+greger-tree-sitter.el
+</tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+
+### original-content
+
+<tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+;; Remove the <tool.ID> wrapper using string operations
+                  (message "DEBUG: tool content before: %S" content-text)
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (message "DEBUG: tool content after: %S" content-text)
+</tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+
+### new-content
+
+<tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+</tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+
+### git-commit-message
+
+<tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+Remove debug prints from tool content parsing
+</tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01K3uAzVXDXw1mbVT7GJjrKR -->
