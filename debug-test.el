@@ -2,18 +2,16 @@
 
 (let* ((text "## USER:
 
-Read the file hello.txt
+Here's some code:
 
+```
+## ASSISTANT:
+This should not be parsed as a section header
 ## TOOL USE:
+Neither should this
+```
 
-Name: read-file
-ID: toolu_123
-
-### path
-
-<tool.toolu_123>
-hello.txt
-</tool.toolu_123>")
+What do you think?")
        (result (greger-tree-sitter-parse text)))
   (message "Result:")
   (pp result))

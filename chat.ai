@@ -4745,4 +4745,75 @@ greger-tree-sitter.el
 Add support for code blocks and cite tags in section text extraction
 </tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CQN84Tnds6tCe7QAqKtv3L -->
+## TOOL RESULT:
+
+ID: toolu_01CQN84Tnds6tCe7QAqKtv3L
+
+<tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add support for code blocks and cite tags in section text extraction
+</tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+
+## ASSISTANT:
+
+Now let me test the code block case:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019vMCuGU7F4UkqBfNN5ykWt
+
+### file-path
+
+<tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+debug-test.el
+</tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+
+### original-content
+
+<tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+(let* ((text "## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>")
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+
+### new-content
+
+<tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+(let* ((text "## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?")
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+
+### git-commit-message
+
+<tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+Update debug test to test code block parsing
+</tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019vMCuGU7F4UkqBfNN5ykWt -->
