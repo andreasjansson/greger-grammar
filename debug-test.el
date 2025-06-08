@@ -6,8 +6,15 @@
                    (buffer-string)))
        (result (greger-tree-sitter-parse markdown)))
   (message "=== TOOL USE WITH CODE IN PARAMS ===")
-  (message "Markdown content:\n%s" markdown)
-  (message "\nParse result:")
-  (pp result))
+  (message "Parse result:")
+  (pp result)
+  ;; Look specifically at the tool use type
+  (let ((assistant-content (alist-get 'content (nth 1 result))))
+    (message "\nAssistant content first item type: %s"
+             (alist-get 'type (car assistant-content))))
+  ;; Look specifically at the tool result type
+  (let ((user-content (alist-get 'content (nth 2 result))))
+    (message "Tool result type: %s"
+             (alist-get 'type (car user-content)))))
 
 (provide 'debug-test)
