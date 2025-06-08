@@ -294,7 +294,7 @@
 (defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
   "Extract server tool result data from a server tool result section."
   ;; Similar to tool result but with different type
-  (message "[DEBUG] extract-server-tool-result called")
+
   (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
     ;; Check if this specific section or following sections have citations
     ;; by looking at the section tree structure
