@@ -5736,4 +5736,103 @@ test-all-greger-cases.el
 Use simple-conversation.greger which parses correctly to debug structure
 </tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TvTCzi3xuvEdWG2Yqv7uPx -->
+## TOOL RESULT:
+
+ID: toolu_01TvTCzi3xuvEdWG2Yqv7uPx
+
+<tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Use simple-conversation.greger which parses correctly to debug structure
+</tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014ocvwR9pkmiamaLK3SQeDC
+
+### command
+
+<tool.toolu_014ocvwR9pkmiamaLK3SQeDC>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_014ocvwR9pkmiamaLK3SQeDC>
+
+## TOOL RESULT:
+
+ID: toolu_014ocvwR9pkmiamaLK3SQeDC
+
+<tool.toolu_014ocvwR9pkmiamaLK3SQeDC>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . ""))
+ ((role . "assistant")
+  (content . "")))
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+Section type: ERROR
+  Child type: ERROR, text: "Hello"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: ERROR, text: "
+
+Hi there! How can"
+  Child type: text_content, text: " "
+  Child type: text_content, text: "I help you today?"
+
+</tool.toolu_014ocvwR9pkmiamaLK3SQeDC>
+
+## ASSISTANT:
+
+I can see there are still ERROR nodes being created. The issue is that my grammar is not correctly parsing the sections. The problem seems to be that the parser is breaking apart the content incorrectly.
+
+Let me check what tree-sitter shows as the correct structure and compare to what I'm getting in elisp. There's a fundamental mismatch. When I ran `tree-sitter parse` from the command line, it showed the correct structure, but from elisp I'm getting a different one.
+
+The issue might be that the tree-sitter parser needs to be told to parse the entire buffer. Let me check this by ensuring the parser includes the entire buffer content:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GxD72UqyFqNhKhUWSjhHfb
+
+### file-path
+
+<tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+greger-tree-sitter.el
+</tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+
+### original-content
+
+<tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+</tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+
+### new-content
+
+<tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           ;; Force the parser to parse the entire buffer
+           (_ (treesit-parser-add-notifier parser #'ignore))
+           (_ (treesit-parse-string text 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+</tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+
+### git-commit-message
+
+<tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+Try to force full buffer parsing in tree-sitter
+</tool.toolu_01GxD72UqyFqNhKhUWSjhHfb>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GxD72UqyFqNhKhUWSjhHfb -->
