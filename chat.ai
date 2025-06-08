@@ -6688,4 +6688,147 @@ greger-tree-sitter.el
 Use buffer-based parsing to keep nodes valid
 </tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QMQ1pozgShFKExAQXBYTuF -->
+## TOOL RESULT:
+
+ID: toolu_01QMQ1pozgShFKExAQXBYTuF
+
+<tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Use buffer-based parsing to keep nodes valid
+</tool.toolu_01QMQ1pozgShFKExAQXBYTuF>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SR83eAsZ1J6VJKGrV277Vw
+
+### command
+
+<tool.toolu_01SR83eAsZ1J6VJKGrV277Vw>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01SR83eAsZ1J6VJKGrV277Vw>
+
+## TOOL RESULT:
+
+ID: toolu_01SR83eAsZ1J6VJKGrV277Vw
+
+<tool.toolu_01SR83eAsZ1J6VJKGrV277Vw>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Found 2 sections
+Processing section type: user_section
+User data: ((role . "user") (content . "Hello"))
+Processing section type: assistant_section
+Assistant data: ((role . "assistant") (content . "Hi there! How can I help you today?"))
+Final dialog: (((role . "user") (content . "Hello")) ((role . "assistant") (content . "Hi there! How can I help you today?")))
+Parse result:
+(((role . "user")
+  (content . "Hello"))
+ ((role . "assistant")
+  (content . "Hi there! How can I help you today?")))
+
+Result type: cons
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hello
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hi there! How can I help you today?"
+
+</tool.toolu_01SR83eAsZ1J6VJKGrV277Vw>
+
+## ASSISTANT:
+
+Excellent! It's working! The parser is correctly extracting the dialog structure. I can see:
+
+- Found 2 sections
+- Processing user_section → User data: ((role . "user") (content . "Hello"))
+- Processing assistant_section → Assistant data: ((role . "assistant") (content . "Hi there! How can I help you today?"))
+- Final dialog with both sections
+
+The result shows the expected format. Now let me clean up the debug output and test it with more complex examples:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AMkjxtzEmrLYAV8fgakxGV
+
+### file-path
+
+<tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+greger-tree-sitter.el
+</tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+
+### original-content
+
+<tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (message "Found %d sections" (length sections))
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (message "Processing section type: %s" section-type)
+        (cond
+         ((string= section-type "user_section")
+          (let ((user-data (greger-tree-sitter--extract-user-section section)))
+            (message "User data: %S" user-data)
+            (push user-data dialog)))
+         ((string= section-type "assistant_section")
+          (let ((assistant-data (greger-tree-sitter--extract-assistant-section section)))
+            (message "Assistant data: %S" assistant-data)
+            (push assistant-data dialog)))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (let ((result (nreverse dialog)))
+      (message "Final dialog: %S" result)
+      result)))
+</tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+
+### new-content
+
+<tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         ((string= section-type "assistant_section")
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (nreverse dialog)))
+</tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+
+### git-commit-message
+
+<tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+Remove debug messages from dialog extraction function
+</tool.toolu_01AMkjxtzEmrLYAV8fgakxGV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AMkjxtzEmrLYAV8fgakxGV -->
