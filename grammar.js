@@ -179,12 +179,12 @@ module.exports = grammar({
       '###',
       $.citation_url,
       /\n/,
-      repeat(seq(
-        choice(
-          $.citation_title,
-          $.citation_text,
-          $.citation_encrypted_index
-        )
+      optional(/\n/), // Empty line after URL
+      repeat(choice(
+        $.citation_title,
+        $.citation_text,
+        $.citation_encrypted_index,
+        /\n/  // Allow empty lines within the citation
       )),
     ),
 
