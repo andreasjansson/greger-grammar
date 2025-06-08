@@ -107,13 +107,13 @@ ERRORS:
 
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
-  (let ((text-blocks (treesit-query-capture
-                     section-node
-                     '((text_block) @text))))
+  (let ((text-blocks (treesit-node-children section-node)))
     (if text-blocks
         (string-trim
-         (mapconcat (lambda (capture)
-                      (treesit-node-text (cdr capture)))
+         (mapconcat (lambda (child)
+                      (if (string= (treesit-node-type child) "text_block")
+                          (treesit-node-text child)
+                        ""))
                     text-blocks ""))
       "")))
 
