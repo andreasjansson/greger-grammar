@@ -135,7 +135,7 @@ module.exports = grammar({
       '##',
       'CITATIONS',
       ':',
-      field('text', repeat($._citations_content)),
+      repeat($._citations_content),
     )),
 
     _section_content: $ => prec(-1, choice(

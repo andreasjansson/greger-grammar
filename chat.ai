@@ -10900,4 +10900,119 @@ user_section: $ => prec.right(seq(
 Use aliases instead of fields for section content to get cleaner structure
 </tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DLBobuhyAR3YLmuWNBU1Au -->
+## TOOL RESULT:
+
+ID: toolu_01DLBobuhyAR3YLmuWNBU1Au
+
+<tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use aliases instead of fields for section content to get cleaner structure
+</tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NdMGKcka8JsfXWL5cmanvV
+
+### command
+
+<tool.toolu_01NdMGKcka8JsfXWL5cmanvV>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01NdMGKcka8JsfXWL5cmanvV>
+
+## TOOL RESULT:
+
+ID: toolu_01NdMGKcka8JsfXWL5cmanvV
+
+<tool.toolu_01NdMGKcka8JsfXWL5cmanvV>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      (text [0, 8] - [4, 0]
+        (text_block [0, 8] - [4, 0])))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      (text [31, 13] - [35, 0]
+        (text_block [31, 13] - [35, 0])))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (title [41, 0] - [42, 0])
+      text: (cited_text [42, 0] - [43, 0])
+      text: (encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_01NdMGKcka8JsfXWL5cmanvV>
+
+## ASSISTANT:
+
+Good! Now we have cleaner structure like:
+```
+(user [0, 0] - [4, 0]
+  (text [0, 8] - [4, 0]
+    (text_block [0, 8] - [4, 0])))
+```
+
+And:
+```
+(assistant [31, 0] - [35, 0]
+  (text [31, 13] - [35, 0]
+    (text_block [31, 13] - [35, 0])))
+```
+
+Now let me fix the citations section to also use alias instead of field:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RWz6LFuAKcC2Y7H62tZnkE
+
+### file-path
+
+<tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+grammar.js
+</tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+
+### original-content
+
+<tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+citations_section: $ => prec.right(seq(
+      '##',
+      'CITATIONS',
+      ':',
+      field('text', repeat($._citations_content)),
+    )),
+</tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+
+### new-content
+
+<tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+citations_section: $ => prec.right(seq(
+      '##',
+      'CITATIONS',
+      ':',
+      repeat($._citations_content),
+    )),
+</tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+
+### git-commit-message
+
+<tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+Remove field wrapper from citations section
+</tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RWz6LFuAKcC2Y7H62tZnkE -->
