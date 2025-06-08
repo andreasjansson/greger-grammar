@@ -5824,4 +5824,243 @@ greger-tree-sitter.el
 Fix comment collection to use reference parameter
 </tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CgjpA1uvmWvfJydfiqCUvL -->
+## TOOL RESULT:
+
+ID: toolu_01CgjpA1uvmWvfJydfiqCUvL
+
+<tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix comment collection to use reference parameter
+</tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013Zo1i9foKCGZBffRwezHSg
+
+### file-path
+
+<tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+greger-tree-sitter.el
+</tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+
+### original-content
+
+<tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes '()))
+      (greger-tree-sitter--collect-comment-nodes node comment-nodes)
+      ;; Sort comments by start position (reverse order for easier removal)
+      (setq comment-nodes (sort comment-nodes 
+                                (lambda (a b) (> (treesit-node-start a) 
+                                                 (treesit-node-start b)))))
+      ;; Remove comment text from back to front
+      (let ((result full-text)
+            (base-start (treesit-node-start node)))
+        (dolist (comment comment-nodes)
+          (let* ((comment-start (- (treesit-node-start comment) base-start))
+                 (comment-end (- (treesit-node-end comment) base-start)))
+            (when (and (>= comment-start 0) 
+                       (<= comment-end (length result)))
+              (setq result (concat (substring result 0 comment-start)
+                                   (substring result comment-end))))))
+        result))))
+</tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+
+### new-content
+
+<tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes-ref (list '())))
+      (greger-tree-sitter--collect-comment-nodes node comment-nodes-ref)
+      (let ((comment-nodes (car comment-nodes-ref)))
+        ;; Sort comments by start position (reverse order for easier removal)
+        (setq comment-nodes (sort comment-nodes 
+                                  (lambda (a b) (> (treesit-node-start a) 
+                                                   (treesit-node-start b)))))
+        ;; Remove comment text from back to front
+        (let ((result full-text)
+              (base-start (treesit-node-start node)))
+          (dolist (comment comment-nodes)
+            (let* ((comment-start (- (treesit-node-start comment) base-start))
+                   (comment-end (- (treesit-node-end comment) base-start)))
+              (when (and (>= comment-start 0) 
+                         (<= comment-end (length result)))
+                (setq result (concat (substring result 0 comment-start)
+                                     (substring result comment-end))))))
+          result)))))
+</tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+
+### git-commit-message
+
+<tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+Fix comment collection call to use reference parameter
+</tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+
+## TOOL RESULT:
+
+ID: toolu_013Zo1i9foKCGZBffRwezHSg
+
+<tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_013Zo1i9foKCGZBffRwezHSg>
+
+## ASSISTANT:
+
+Let me check the current state again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01WNGZBaB5y28JfMXWXGiRm7
+
+### path
+
+<tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+greger-tree-sitter.el
+</tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+
+### start-line
+
+<tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+145
+</tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+
+### end-line
+
+<tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+175
+</tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+
+## TOOL RESULT:
+
+ID: toolu_01WNGZBaB5y28JfMXWXGiRm7
+
+<tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes '()))
+      (greger-tree-sitter--collect-comment-nodes node comment-nodes)
+      ;; Sort comments by start position (reverse order for easier removal)
+      (setq comment-nodes (sort comment-nodes
+                                (lambda (a b) (> (treesit-node-start a)
+                                                 (treesit-node-start b)))))
+      ;; Remove comment text from back to front
+      (let ((result full-text)
+            (base-start (treesit-node-start node)))
+        (dolist (comment comment-nodes)
+          (let* ((comment-start (- (treesit-node-start comment) base-start))
+                 (comment-end (- (treesit-node-end comment) base-start)))
+            (when (and (>= comment-start 0)
+                       (<= comment-end (length result)))
+              (setq result (concat (substring result 0 comment-start)
+                                   (substring result comment-end))))))
+        result))))
+
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list-ref)
+  "Recursively collect all HTML comment nodes in a tree."
+  (when (string= (treesit-node-type node) "html_comment")
+    (setcar comment-list-ref (cons node (car comment-list-ref))))
+  (dolist (child (treesit-node-children node))
+    (greger-tree-sitter--collect-comment-nodes child comment-list-ref)))
+
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+</tool.toolu_01WNGZBaB5y28JfMXWXGiRm7>
+
+## ASSISTANT:
+
+I see the issue. The function signature expects a reference parameter but I'm calling it with a simple list. Let me simplify and fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012YyAHaEhYvYaEZDL3bLTKG
+
+### file-path
+
+<tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+greger-tree-sitter.el
+</tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+
+### original-content
+
+<tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes '()))
+      (greger-tree-sitter--collect-comment-nodes node comment-nodes)
+      ;; Sort comments by start position (reverse order for easier removal)
+      (setq comment-nodes (sort comment-nodes
+                                (lambda (a b) (> (treesit-node-start a)
+                                                 (treesit-node-start b)))))
+      ;; Remove comment text from back to front
+      (let ((result full-text)
+            (base-start (treesit-node-start node)))
+        (dolist (comment comment-nodes)
+          (let* ((comment-start (- (treesit-node-start comment) base-start))
+                 (comment-end (- (treesit-node-end comment) base-start)))
+            (when (and (>= comment-start 0)
+                       (<= comment-end (length result)))
+              (setq result (concat (substring result 0 comment-start)
+                                   (substring result comment-end))))))
+        result))))
+
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list-ref)
+  "Recursively collect all HTML comment nodes in a tree."
+  (when (string= (treesit-node-type node) "html_comment")
+    (setcar comment-list-ref (cons node (car comment-list-ref))))
+  (dolist (child (treesit-node-children node))
+    (greger-tree-sitter--collect-comment-nodes child comment-list-ref)))
+</tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+
+### new-content
+
+<tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes (greger-tree-sitter--collect-comment-nodes node)))
+      ;; Sort comments by start position (reverse order for easier removal)
+      (setq comment-nodes (sort comment-nodes
+                                (lambda (a b) (> (treesit-node-start a)
+                                                 (treesit-node-start b)))))
+      ;; Remove comment text from back to front
+      (let ((result full-text)
+            (base-start (treesit-node-start node)))
+        (dolist (comment comment-nodes)
+          (let* ((comment-start (- (treesit-node-start comment) base-start))
+                 (comment-end (- (treesit-node-end comment) base-start)))
+            (when (and (>= comment-start 0)
+                       (<= comment-end (length result)))
+              (setq result (concat (substring result 0 comment-start)
+                                   (substring result comment-end))))))
+        result))))
+
+(defun greger-tree-sitter--collect-comment-nodes (node)
+  "Recursively collect all HTML comment nodes in a tree."
+  (let ((comments '()))
+    (when (string= (treesit-node-type node) "html_comment")
+      (push node comments))
+    (dolist (child (treesit-node-children node))
+      (setq comments (append comments (greger-tree-sitter--collect-comment-nodes child))))
+    comments))
+</tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+
+### git-commit-message
+
+<tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+Simplify comment collection to return list directly
+</tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012YyAHaEhYvYaEZDL3bLTKG -->

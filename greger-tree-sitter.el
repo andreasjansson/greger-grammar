@@ -146,8 +146,7 @@
   "Extract text from a node, filtering out HTML comments."
   (let ((full-text (treesit-node-text node)))
     ;; Get all HTML comment child nodes and their ranges
-    (let ((comment-nodes '()))
-      (greger-tree-sitter--collect-comment-nodes node comment-nodes)
+    (let ((comment-nodes (greger-tree-sitter--collect-comment-nodes node)))
       ;; Sort comments by start position (reverse order for easier removal)
       (setq comment-nodes (sort comment-nodes
                                 (lambda (a b) (> (treesit-node-start a)
@@ -164,12 +163,14 @@
                                    (substring result comment-end))))))
         result))))
 
-(defun greger-tree-sitter--collect-comment-nodes (node comment-list-ref)
+(defun greger-tree-sitter--collect-comment-nodes (node)
   "Recursively collect all HTML comment nodes in a tree."
-  (when (string= (treesit-node-type node) "html_comment")
-    (setcar comment-list-ref (cons node (car comment-list-ref))))
-  (dolist (child (treesit-node-children node))
-    (greger-tree-sitter--collect-comment-nodes child comment-list-ref)))
+  (let ((comments '()))
+    (when (string= (treesit-node-type node) "html_comment")
+      (push node comments))
+    (dolist (child (treesit-node-children node))
+      (setq comments (append comments (greger-tree-sitter--collect-comment-nodes child))))
+    comments))
 
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
