@@ -30,10 +30,10 @@ module.exports = grammar({
 
     _newline: _ => '\n',
 
-    section: $ => seq(
+    section: $ => prec.left(seq(
       $.section_header,
       repeat($._section_item),
-    ),
+    )),
 
     section_header: $ => choice(
       seq('##', /[ \t]*/, 'USER', /[ \t]*/, ':', /[ \t]*/, '\n'),
