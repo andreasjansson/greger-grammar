@@ -35,50 +35,35 @@ module.exports = grammar({
       $.citations,
     ),
 
-    // Use aliases to shorten section names
-    user: $ => alias($.user_section, 'user'),
-    assistant: $ => alias($.assistant_section, 'assistant'),
-    system: $ => alias($.system_section, 'system'),
-    thinking: $ => alias($.thinking_section, 'thinking'),
-    tool_use: $ => alias($.tool_use_section, 'tool_use'),
-    tool_result: $ => alias($.tool_result_section, 'tool_result'),
-    server_tool_use: $ => alias($.server_tool_use_section, 'server_tool_use'),
-    server_tool_result: $ => alias($.server_tool_result_section, 'server_tool_result'),
-    citations: $ => alias($.citations_section, 'citations'),
-
-    user_section: $ => seq(
+    user: $ => seq(
       '##',
       'USER',
       ':',
-      /\n/,
-      optional(alias($._section_content, $.text)),
+      $.text,
     ),
 
-    assistant_section: $ => seq(
+    assistant: $ => seq(
       '##',
       'ASSISTANT',
       ':',
-      /\n/,
-      optional(alias($._section_content, $.text)),
+      $.text,
     ),
 
-    system_section: $ => seq(
+    system: $ => seq(
       '##',
       'SYSTEM',
       ':',
-      /\n/,
-      optional(alias($._section_content, $.text)),
+      $.text,
     ),
 
-    thinking_section: $ => seq(
+    thinking: $ => seq(
       '##',
       'THINKING',
       ':',
-      /\n/,
-      optional(alias($._section_content, $.text)),
+      $.text,
     ),
 
-    tool_use_section: $ => seq(
+    tool_use: $ => seq(
       '##',
       'TOOL',
       'USE',
@@ -86,13 +71,13 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       repeat(choice(
-        alias($.tool_name, $.name),
-        alias($.tool_id, $.id),
+        $.name,
+        $.id,
         $.tool_param,
       )),
     ),
 
-    tool_result_section: $ => seq(
+    tool_result: $ => seq(
       '##',
       'TOOL',
       'RESULT',
@@ -100,12 +85,12 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       repeat(choice(
-        alias($.tool_id, $.id),
-        alias($.tool_content, $.content),
+        $.id,
+        $.content,
       )),
     ),
 
-    server_tool_use_section: $ => seq(
+    server_tool_use: $ => seq(
       '##',
       'SERVER',
       'TOOL',
@@ -114,13 +99,13 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       repeat(choice(
-        alias($.tool_name, $.name),
-        alias($.tool_id, $.id),
+        $.name,
+        $.id,
         $.tool_param,
       )),
     ),
 
-    server_tool_result_section: $ => seq(
+    server_tool_result: $ => seq(
       '##',
       'SERVER',
       'TOOL',
@@ -129,31 +114,21 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       repeat(choice(
-        alias($.tool_id, $.id),
-        alias($.tool_content, $.content),
+        $.id,
+        $.content,
       )),
     ),
 
-    citations_section: $ => seq(
+    citations: $ => seq(
       '##',
       'CITATIONS',
       ':',
-      /\n/,
-      optional(/\n/),
-      optional(alias($._section_content, $.text)),
+      optional($.text),
       repeat($.citation_entry),
     ),
 
-    _section_content: $ => repeat1(choice(
-      $.code_block,
-      $.cite_tag,
-      $.safe_shell_commands,
-      /[^#<`\n]+/,
-      /\n/,
-    )),
-
-    tool_name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
-    tool_id: $ => token(seq('ID:', /[^\n]*/, /\n/)),
+    name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
+    id: $ => token(seq('ID:', /[^\n]*/, /\n/)),
 
     tool_param: $ => seq(
       '###',
@@ -200,13 +175,16 @@ module.exports = grammar({
       /\n/,
     )),
 
-    text: $ => repeat1(choice(
+    text: $ => prec.right(repeat1(choice(
       $.code_block,
       $.cite_tag,
       $.safe_shell_commands,
-      /[^#<`\n]+/,
-      /\n/,
-    )),
+      $._text_content,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^#<`]+/)),
+
+    content: $ => alias($.tool_content, 'content'),
 
     code_block: $ => choice(
       $.triple_backtick_block,
