@@ -11177,4 +11177,118 @@ server_tool_use_section: $ => seq(
 Make server_tool_use structure more restrictive to eliminate scattered text_blocks
 </tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DCb1Sy6Zh7u88WYfUXsxPG -->
+## TOOL RESULT:
+
+ID: toolu_01DCb1Sy6Zh7u88WYfUXsxPG
+
+<tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make server_tool_use structure more restrictive to eliminate scattered text_blocks
+</tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S5TQ5opbwKDJRadamV4XB8
+
+### command
+
+<tool.toolu_01S5TQ5opbwKDJRadamV4XB8>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01S5TQ5opbwKDJRadamV4XB8>
+
+## TOOL RESULT:
+
+ID: toolu_01S5TQ5opbwKDJRadamV4XB8
+
+<tool.toolu_01S5TQ5opbwKDJRadamV4XB8>
+Command failed with exit code 1: (source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      (text [0, 8] - [4, 0]
+        (text_block [0, 8] - [4, 0])))
+  (server_tool_use [4, 0] - [8, 0]
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0]))
+  (text_block [8, 0] - [9, 0])
+  (ERROR [9, 0] - [15, 0]
+    (ERROR [9, 4] - [9, 9])
+    (tool_content [11, 0] - [13, 40])
+    (ERROR [13, 40] - [13, 41]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      (text [31, 13] - [35, 0]
+        (text_block [31, 13] - [35, 0])))
+  (citations [35, 0] - [44, 0]
+      (text_block [35, 13] - [39, 0])
+      (entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      (text_block [40, 0] - [41, 0])
+      (title [41, 0] - [42, 0])
+      (cited_text [42, 0] - [43, 0])
+      (encrypted_index [43, 0] - [44, 0])))
+test/corpus/citations-basic.greger	Parse:    0.84 ms	  1322 bytes/ms	(ERROR [9, 0] - [15, 0])
+
+</tool.toolu_01S5TQ5opbwKDJRadamV4XB8>
+
+## ASSISTANT:
+
+That broke the parsing because the tool_param is no longer being captured. The issue is that I need to account for the whitespace and newlines between name, id, and param in a more structured way.
+
+Let me revert and try a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01P6TtQbhAWeYT4F1JgkPbdm
+
+### file-path
+
+<tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+grammar.js
+</tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+
+### original-content
+
+<tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(/\s/),
+      optional(alias($.tool_name, $.name)),
+      optional(alias($.tool_id, $.id)),
+      repeat(alias($.tool_param, $.param)),
+    ),
+</tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+
+### new-content
+
+<tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        alias($.tool_name, $.name),
+        alias($.tool_id, $.id),
+        alias($.tool_param, $.param),
+        $._section_content,
+      )),
+    )),
+</tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+
+### git-commit-message
+
+<tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+Revert server_tool_use to working state
+</tool.toolu_01P6TtQbhAWeYT4F1JgkPbdm>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01P6TtQbhAWeYT4F1JgkPbdm -->
