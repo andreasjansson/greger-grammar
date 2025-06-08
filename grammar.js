@@ -24,24 +24,60 @@ module.exports = grammar({
     source_file: $ => repeat($._item),
 
     _item: $ => choice(
-      $.section,
+      $.user_section,
+      $.assistant_section,
+      $.system_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
     ),
 
-    section: $ => seq(
-      $.section_header,
-      repeat($._section_item),
-    ),
-
-    section_header: $ => choice(
+    user_section: $ => seq(
       seq('##', 'USER', ':'),
+      repeat($._user_content),
+    ),
+
+    assistant_section: $ => seq(
       seq('##', 'ASSISTANT', ':'),
+      repeat($._assistant_content),
+    ),
+
+    system_section: $ => seq(
       seq('##', 'SYSTEM', ':'),
+      repeat($._system_content),
+    ),
+
+    thinking_section: $ => seq(
       seq('##', 'THINKING', ':'),
+      repeat($._thinking_content),
+    ),
+
+    tool_use_section: $ => seq(
       seq('##', 'TOOL', 'USE', ':'),
+      repeat($._tool_use_content),
+    ),
+
+    tool_result_section: $ => seq(
       seq('##', 'TOOL', 'RESULT', ':'),
+      repeat($._tool_result_content),
+    ),
+
+    server_tool_use_section: $ => seq(
       seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      repeat($._server_tool_use_content),
+    ),
+
+    server_tool_result_section: $ => seq(
       seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      repeat($._server_tool_result_content),
+    ),
+
+    citations_section: $ => seq(
       seq('##', 'CITATIONS', ':'),
+      repeat($._citations_content),
     ),
 
     _section_item: $ => choice(

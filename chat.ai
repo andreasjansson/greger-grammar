@@ -49,7 +49,7 @@ tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-co
 tree-sitter generate && tree-sitter parse test/corpus/tool-use-with-tool-use-in-params.greger
 tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-tool-use-in-params.greger
 emacs --batch -l debug-test.el
-tree-sitter parse -d pretty test_simple.greger
+tree-sitter generate && tree-sitter parse -d pretty test_simple.greger
 </safe-shell-commands>
 
 IMPORTANT: Don't run any other shell commands than the safe shell commands since I will be afk and not able to approve use of unsafe shell commands. Re-use existing debug scripts etc so you don't have to run unsafe shell commands. If you try to run unsafe commands you'll get stuck waiting for approval indefinitely. Use replicate-file with existing debug and test files instead of creating new debug and test files.
@@ -1368,10 +1368,10 @@ Error when generating parser
 
 Caused by:
     The rule `tool_use_content` matches the empty string.
-    
+
     Tree-sitter does not support syntactic rules that match the empty string
     unless they are used only as the grammar's start rule.
-    
+
 
 </tool.toolu_01WQmDGRbQERFD4AorzZMWz6>
 
@@ -1769,21 +1769,21 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  •  '
     '  …
-    
+
     Possible interpretations:
-    
+
       1:  (section  section_header  •  section_content)
       2:  (section  section_header)  •  '
     '  …
-    
+
     Possible resolutions:
-    
+
       1:  Specify a left or right associativity in `section`
       2:  Add a conflict for these rules: `section`
-    
+
 
 </tool.toolu_01XMpjS24ucfbT7fLGduP6MA>
 
@@ -1854,21 +1854,21 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  section_content_repeat1  •  '
     '  …
-    
+
     Possible interpretations:
-    
+
       1:  section_header  (section_content  section_content_repeat1)  •  '
     '  …
       2:  section_header  (section_content_repeat1  section_content_repeat1  •  section_content_repeat1)
-    
+
     Possible resolutions:
-    
+
       1:  Specify a left or right associativity in `section_content`
       2:  Add a conflict for these rules: `section_content`
-    
+
 
 </tool.toolu_01DDVsVN7ozuTp4uQCvWUJg3>
 
@@ -2070,21 +2070,21 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content  •  '
     '  …
-    
+
     Possible interpretations:
-    
+
       1:  section_header  (tool_param  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content  •  _newline)
       2:  section_header  (tool_param  'tool_param_token1'  'tool_use_metadata_token1'  _newline  tool_content)  •  '
     '  …
-    
+
     Possible resolutions:
-    
+
       1:  Specify a left or right associativity in `tool_param`
       2:  Add a conflict for these rules: `tool_param`
-    
+
 
 </tool.toolu_01GiSF4XfNxeKGeeTY5qQhg1>
 
@@ -2416,21 +2416,21 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  •  '
     '  …
-    
+
     Possible interpretations:
-    
+
       1:  (section  section_header  •  section_repeat1)
       2:  (section  section_header)  •  '
     '  …
-    
+
     Possible resolutions:
-    
+
       1:  Specify a left or right associativity in `section`
       2:  Add a conflict for these rules: `section`
-    
+
 
 </tool.toolu_01EBTH41LvjYoqkyQfrvrUTf>
 
@@ -2501,22 +2501,22 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  '<safe-shell-commands>'  '</safe-shell-commands>'  •  '
     '  …
-    
+
     Possible interpretations:
-    
+
       1:  section_header  (safe_shell_commands  '<safe-shell-commands>'  '</safe-shell-commands>'  •  '
     ')
       2:  section_header  (safe_shell_commands  '<safe-shell-commands>'  '</safe-shell-commands>')  •  '
     '  …
-    
+
     Possible resolutions:
-    
+
       1:  Specify a left or right associativity in `safe_shell_commands`
       2:  Add a conflict for these rules: `safe_shell_commands`
-    
+
 
 </tool.toolu_01YbVJJvHM5SskGgpXpoZcAC>
 
@@ -3244,7 +3244,7 @@ Command failed with exit code 1: [37mnew_parse[0m
     (text_content [0, 8] - [2, 0]))
   (ERROR [2, 0] - [4, 14]
     (ERROR [2, 0] - [4, 14])))
-test_simple.greger	Parse:  160.61 ms	     0 bytes/ms	(ERROR [2, 0] - [4, 14])
+test_simple.greger	Parse:  160.61 ms        0 bytes/ms	(ERROR [2, 0] - [4, 14])
 
 </tool.toolu_01TDRk58HVJgyjkKz6DcajSP>
 
@@ -3328,21 +3328,21 @@ Command failed with exit code 1: Error when generating parser
 
 Caused by:
     Unresolved conflict for symbol sequence:
-    
+
       section_header  '###'  'triple_backtick_block_token1'  •  tool_content  …
-    
+
     Possible interpretations:
-    
+
       1:  section_header  (citation_entry  '###'  'triple_backtick_block_token1')  •  tool_content  …
       2:  section_header  (tool_param  '###'  'triple_backtick_block_token1'  •  tool_content)
-    
+
     Possible resolutions:
-    
+
       1:  Specify a higher precedence in `tool_param` than in the other rules.
       2:  Specify a higher precedence in `citation_entry` than in the other rules.
       3:  Specify a left or right associativity in `citation_entry`
       4:  Add a conflict for these rules: `tool_param`, `citation_entry`
-    
+
 
 </tool.toolu_017ZQD7gWw7vUtCv5eJfTqQ8>
 
@@ -3399,4 +3399,141 @@ section_header: $ => choice(
 Keep section headers the same
 </tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QWarTEpUoVXRy9PeXXP5vM -->
+## TOOL RESULT:
+
+ID: toolu_01QWarTEpUoVXRy9PeXXP5vM
+
+<tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Keep section headers the same
+</tool.toolu_01QWarTEpUoVXRy9PeXXP5vM>
+
+## USER:
+
+Note what I said about each section being a separate type. 
+
+This is using a single type instead:
+
+```
+section_header: $ => choice(
+      seq('##', 'USER', ':'),
+      seq('##', 'ASSISTANT', ':'),
+      seq('##', 'SYSTEM', ':'),
+      seq('##', 'THINKING', ':'),
+      seq('##', 'TOOL', 'USE', ':'),
+      seq('##', 'TOOL', 'RESULT', ':'),
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      seq('##', 'CITATIONS', ':'),
+    ),
+```
+
+Split it out so user, assisant, thinking, etc., are all different types
+
+## ASSISTANT:
+
+You're absolutely right! I need to make each section type distinct so they can have different content rules. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LNBm9C3cqg1X9CZZBpBJAF
+
+### file-path
+
+<tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+grammar.js
+</tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+
+### original-content
+
+<tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+    _item: $ => choice(
+      $.section,
+    ),
+
+    section: $ => seq(
+      $.section_header,
+      repeat($._section_item),
+    ),
+
+    section_header: $ => choice(
+      seq('##', 'USER', ':'),
+      seq('##', 'ASSISTANT', ':'),
+      seq('##', 'SYSTEM', ':'),
+      seq('##', 'THINKING', ':'),
+      seq('##', 'TOOL', 'USE', ':'),
+      seq('##', 'TOOL', 'RESULT', ':'),
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      seq('##', 'CITATIONS', ':'),
+    ),
+</tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+
+### new-content
+
+<tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+    _item: $ => choice(
+      $.user_section,
+      $.assistant_section,
+      $.system_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+    ),
+
+    user_section: $ => seq(
+      seq('##', 'USER', ':'),
+      repeat($._user_content),
+    ),
+
+    assistant_section: $ => seq(
+      seq('##', 'ASSISTANT', ':'),
+      repeat($._assistant_content),
+    ),
+
+    system_section: $ => seq(
+      seq('##', 'SYSTEM', ':'),
+      repeat($._system_content),
+    ),
+
+    thinking_section: $ => seq(
+      seq('##', 'THINKING', ':'),
+      repeat($._thinking_content),
+    ),
+
+    tool_use_section: $ => seq(
+      seq('##', 'TOOL', 'USE', ':'),
+      repeat($._tool_use_content),
+    ),
+
+    tool_result_section: $ => seq(
+      seq('##', 'TOOL', 'RESULT', ':'),
+      repeat($._tool_result_content),
+    ),
+
+    server_tool_use_section: $ => seq(
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      repeat($._server_tool_use_content),
+    ),
+
+    server_tool_result_section: $ => seq(
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      repeat($._server_tool_result_content),
+    ),
+
+    citations_section: $ => seq(
+      seq('##', 'CITATIONS', ':'),
+      repeat($._citations_content),
+    ),
+</tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+
+### git-commit-message
+
+<tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+Split sections into distinct types with specific content rules
+</tool.toolu_01LNBm9C3cqg1X9CZZBpBJAF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LNBm9C3cqg1X9CZZBpBJAF -->
