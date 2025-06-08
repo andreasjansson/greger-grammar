@@ -7882,4 +7882,102 @@ advance(lexer);
 Replace consume-all scanner with proper tag matching
 </tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Tj9hjYr9LgzUtGdmfoEebk -->
+## TOOL RESULT:
+
+ID: toolu_01Tj9hjYr9LgzUtGdmfoEebk
+
+<tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Replace consume-all scanner with proper tag matching
+</tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011PgW34a2yvL48Bwa4Eqxd2
+
+### command
+
+<tool.toolu_011PgW34a2yvL48Bwa4Eqxd2>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_011PgW34a2yvL48Bwa4Eqxd2>
+
+## TOOL RESULT:
+
+ID: toolu_011PgW34a2yvL48Bwa4Eqxd2
+
+<tool.toolu_011PgW34a2yvL48Bwa4Eqxd2>
+Command failed with exit code 1: (source_file [0, 0] - [6, 14]
+  (tool_result_section [0, 0] - [6, 0]
+    (tool_use_metadata [2, 0] - [2, 10])
+    (ERROR [4, 0] - [4, 13]
+      (ERROR [4, 0] - [4, 13]))
+    (text_content [5, 0] - [5, 5]))
+  (ERROR [6, 0] - [6, 14]
+    (ERROR [6, 0] - [6, 14])))
+test_simple.greger	Parse:    0.59 ms	   106 bytes/ms	(ERROR [4, 0] - [4, 13])
+
+</tool.toolu_011PgW34a2yvL48Bwa4Eqxd2>
+
+## ASSISTANT:
+
+Still not working. Let me debug this systematically. The issue is that tool_content is not being requested as a valid symbol. Let me verify this by checking what's happening in the parsing state when `<tool.` is encountered.
+
+From the debug output I saw earlier, I can see that the parser is in a tool_result_section looking for _tool_result_content. But when it sees `<`, it's not requesting TOOL_CONTENT as a valid symbol.
+
+Let me check if the issue is that the grammar expects tool_content in a different context. Looking at our current grammar:
+
+```javascript
+_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,       // This should make tool_content valid
+      $.text_content,
+      /\r?\n/,
+    ),
+```
+
+This looks correct. But maybe the issue is that `<` can start text_content as well, so the parser doesn't know which one to try.
+
+Let me try a different approach: exclude `<` from text_content when in tool result sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015ycsNo4gLwXTPDrSfZasxF
+
+### file-path
+
+<tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+grammar.js
+</tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+
+### original-content
+
+<tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),  // Allow N or I if not followed by :
+    )),
+</tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+
+### new-content
+
+<tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),  // Allow N or I if not followed by :
+    )),
+
+    // Text content specifically for tool sections (excludes <)
+    tool_text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),
+    )),
+</tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+
+### git-commit-message
+
+<tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+Add separate text content rule for tool sections
+</tool.toolu_015ycsNo4gLwXTPDrSfZasxF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015ycsNo4gLwXTPDrSfZasxF -->

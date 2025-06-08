@@ -139,6 +139,12 @@ module.exports = grammar({
       seq(/[NI]/, /[^#`<\n:]+/),  // Allow N or I if not followed by :
     )),
 
+    // Text content specifically for tool sections (excludes <)
+    tool_text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),
+    )),
+
     code_block: $ => choice(
       $.triple_backtick_block,
       $.single_backtick_inline,
