@@ -8278,4 +8278,213 @@ py
 Update debug test to use tool-use-with-code-in-params test case
 </tool.toolu_01CWbq6t3K2JTvQcJ4fbzrsB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CWbq6t3K2JTvQcJ4fbzrsB -->
+## TOOL RESULT:
+
+ID: toolu_01CWbq6t3K2JTvQcJ4fbzrsB
+
+<tool.toolu_01CWbq6t3K2JTvQcJ4fbzrsB>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Update debug test to use tool-use-with-code-in-params test case
+</tool.toolu_01CWbq6t3K2JTvQcJ4fbzrsB>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Vc7bo7hJzE37og5qt47Rnq
+
+### command
+
+<tool.toolu_01Vc7bo7hJzE37og5qt47Rnq>
+emacs --batch -l debug-test.el
+</tool.toolu_01Vc7bo7hJzE37og5qt47Rnq>
+
+## TOOL RESULT:
+
+ID: toolu_01Vc7bo7hJzE37og5qt47Rnq
+
+<tool.toolu_01Vc7bo7hJzE37og5qt47Rnq>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+</tool.toolu_01Vc7bo7hJzE37og5qt47Rnq>
+
+## ASSISTANT:
+
+Interesting! When I run this test in isolation, it correctly shows `tool_use` and `tool_result`. But in the test suite it was showing `server_tool_use` and `server_tool_result`. There might be some interference between tests or state leaking. Let me run just that one test from the test suite to see if it's a test isolation issue.
+
+First, let me focus on the other issues. Looking at the test results, I see several key problems:
+
+1. **Escaped quotes**: Some text has `\\\"` instead of `"` (e.g., in `multiple-tool-uses`)
+2. **Server tool result content**: Some tests expect structured content but we're returning raw JSON strings
+
+Let me address the escaped quotes issue first. This is likely happening because the JSON content contains escaped quotes which are getting double-escaped. Let me check where this happens:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01WmFD5mK1wQTHFwLYggJuNd
+
+### path
+
+<tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+test/corpus/multiple-tool-uses.greger
+</tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+
+### start-line
+
+<tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+35
+</tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+
+### end-line
+
+<tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+45
+</tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+
+## TOOL RESULT:
+
+ID: toolu_01WmFD5mK1wQTHFwLYggJuNd
+
+<tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+</tool.toolu_222>
+
+## TOOL RESULT:
+
+ID: toolu_222
+
+<tool.toolu_222>
+This is the content of file1.
+</tool.toolu_222>
+
+## ASSISTANT:
+</tool.toolu_01WmFD5mK1wQTHFwLYggJuNd>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VG7Cyuts8DWwk8cVQoJzvG
+
+### path
+
+<tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+test/corpus/multiple-tool-uses.greger
+</tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+
+### start-line
+
+<tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+40
+</tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+
+### end-line
+
+<tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+50
+</tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+
+## TOOL RESULT:
+
+ID: toolu_01VG7Cyuts8DWwk8cVQoJzvG
+
+<tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+
+<tool.toolu_222>
+This is the content of file1.
+</tool.toolu_222>
+
+## ASSISTANT:
+
+I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"
+</tool.toolu_01VG7Cyuts8DWwk8cVQoJzvG>
+
+## ASSISTANT:
+
+I see! The original markdown has `\"` in the assistant's text. The expected output has unescaped quotes `"`, but we're getting double-escaped `\\\"`. This suggests there's an escaping issue somewhere in the text processing.
+
+The input text has: `contains: \"This is`
+The expected output has: `contains: "This is`
+But we're getting: `contains: \"This is`
+
+This suggests that the expected output is supposed to unescape the quotes, but we're not doing that. Let me add quote unescaping to the text processing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Qx96RJPEUx2Nnw76y39Nmk
+
+### file-path
+
+<tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+greger-tree-sitter.el
+</tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+
+### original-content
+
+<tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (greger-tree-sitter--extract-text-without-comments child))
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
+                     (t ""))))
+                children ""))))
+</tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+
+### new-content
+
+<tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (let ((text (string-trim
+                 (mapconcat (lambda (child)
+                              (let ((node-type (treesit-node-type child)))
+                                (cond
+                                 ((string= node-type "text_block")
+                                  (greger-tree-sitter--extract-text-without-comments child))
+                                 ((string= node-type "code_block")
+                                  (treesit-node-text child))
+                                 ((string= node-type "cite_tag")
+                                  (treesit-node-text child))
+                                 ;; Could add other content types here
+                                 (t ""))))
+                            children ""))))
+      ;; Unescape quotes in the text
+      (replace-regexp-in-string "\\\\\"" "\"" text))))
+</tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+
+### git-commit-message
+
+<tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+Add quote unescaping to section text extraction
+</tool.toolu_01Qx96RJPEUx2Nnw76y39Nmk>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Qx96RJPEUx2Nnw76y39Nmk -->

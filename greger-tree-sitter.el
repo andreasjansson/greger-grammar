@@ -175,19 +175,21 @@
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
   (let ((children (treesit-node-children section-node)))
-    (string-trim
-     (mapconcat (lambda (child)
-                  (let ((node-type (treesit-node-type child)))
-                    (cond
-                     ((string= node-type "text_block")
-                      (greger-tree-sitter--extract-text-without-comments child))
-                     ((string= node-type "code_block")
-                      (treesit-node-text child))
-                     ((string= node-type "cite_tag")
-                      (treesit-node-text child))
-                     ;; Could add other content types here
-                     (t ""))))
-                children ""))))
+    (let ((text (string-trim
+                 (mapconcat (lambda (child)
+                              (let ((node-type (treesit-node-type child)))
+                                (cond
+                                 ((string= node-type "text_block")
+                                  (greger-tree-sitter--extract-text-without-comments child))
+                                 ((string= node-type "code_block")
+                                  (treesit-node-text child))
+                                 ((string= node-type "cite_tag")
+                                  (treesit-node-text child))
+                                 ;; Could add other content types here
+                                 (t ""))))
+                            children ""))))
+      ;; Unescape quotes in the text
+      (replace-regexp-in-string "\\\\\"" "\"" text))))
 
 (defun greger-tree-sitter--extract-tool-use (tool-use-section)
   "Extract tool use data from a tool use section."
