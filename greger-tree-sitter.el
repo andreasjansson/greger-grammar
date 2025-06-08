@@ -59,10 +59,9 @@ ERRORS:
          (root-node (treesit-node-child tree 0)))
     (greger-tree-sitter--extract-dialog-from-node root-node)))
 
-(defun greger-tree-sitter--extract-dialog (parser text)
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
   "Extract dialog structure from parsed greger conversation."
-  (let* ((root-node (treesit-parser-root-node parser))
-         (sections (treesit-node-children root-node))
+  (let* ((sections (treesit-node-children root-node))
          (dialog '()))
 
     (dolist (section sections)
