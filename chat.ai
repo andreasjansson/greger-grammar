@@ -5041,4 +5041,87 @@ tool_param: $ => prec(3, seq(
 Give tool_param much higher precedence and use token for ###
 </tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ELmhJJ4qLtPRwq9FmdTjdG -->
+## TOOL RESULT:
+
+ID: toolu_01ELmhJJ4qLtPRwq9FmdTjdG
+
+<tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Give tool_param much higher precedence and use token for ###
+</tool.toolu_01ELmhJJ4qLtPRwq9FmdTjdG>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Stcc8kEyb7KMmkLxAjFXtU
+
+### command
+
+<tool.toolu_01Stcc8kEyb7KMmkLxAjFXtU>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01Stcc8kEyb7KMmkLxAjFXtU>
+
+## TOOL RESULT:
+
+ID: toolu_01Stcc8kEyb7KMmkLxAjFXtU
+
+<tool.toolu_01Stcc8kEyb7KMmkLxAjFXtU>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [9, 0]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10])
+    (ERROR [5, 0] - [7, 13]
+      (ERROR [7, 0] - [7, 13]))
+    (text_content [8, 0] - [8, 5]))
+  (ERROR [9, 0] - [9, 14]
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:    0.43 ms	   192 bytes/ms	(ERROR [5, 0] - [7, 13])
+
+</tool.toolu_01Stcc8kEyb7KMmkLxAjFXtU>
+
+## ASSISTANT:
+
+The issue is still the same. Let me try a different approach. Since I'm hitting a lot of conflicts with complex grammar rules, let me simplify and get basic tool content working first. Let me create a minimal test that should work:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Nic7XDarQuqiARi8tRgoNF
+
+### file-path
+
+<tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+test_simple.greger
+</tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+
+### original-content
+
+<tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+## TOOL USE:
+
+Name: test
+ID: abc123
+
+### param
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+
+### new-content
+
+<tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+## TOOL RESULT:
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+
+### git-commit-message
+
+<tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+Simplify test to just tool result with tool content
+</tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Nic7XDarQuqiARi8tRgoNF -->
