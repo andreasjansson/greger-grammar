@@ -111,9 +111,9 @@ module.exports = grammar({
       'USE',
       ':',
       repeat(choice(
-        $.tool_name,
-        $.tool_id,
-        $.tool_param,
+        alias($.tool_name, $.name),
+        alias($.tool_id, $.id),
+        alias($.tool_param, $.param),
         $._section_content,
       )),
     )),

@@ -10083,4 +10083,132 @@ server_tool_use_section: $ => prec.right(seq(
 Revert to working server_tool_use structure
 </tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JKzjf1U4WV9GvBpg3SscyS -->
+## TOOL RESULT:
+
+ID: toolu_01JKzjf1U4WV9GvBpg3SscyS
+
+<tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert to working server_tool_use structure
+</tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GEJ538tEJd5gHzXyZYgVWs
+
+### command
+
+<tool.toolu_01GEJ538tEJd5gHzXyZYgVWs>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01GEJ538tEJd5gHzXyZYgVWs>
+
+## TOOL RESULT:
+
+ID: toolu_01GEJ538tEJd5gHzXyZYgVWs
+
+<tool.toolu_01GEJ538tEJd5gHzXyZYgVWs>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (tool_name [6, 0] - [7, 0])
+      (tool_id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (tool_param [9, 0] - [13, 40]
+        name: (param_name [9, 4] - [9, 9])
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      id: (tool_id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (citation_encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_01GEJ538tEJd5gHzXyZYgVWs>
+
+## ASSISTANT:
+
+Good, we're back to a working state. Now let me think about this differently. The issue is that the current grammar is parsing everything as a flat list of elements within each section, but we want a more structured approach.
+
+Looking at the desired output structure:
+
+```
+(server_tool_use [...]
+  (name [...])
+  (id [...])
+  (tool_param [...]
+    (name [...])
+    (value [...])))
+```
+
+The problem is that `tool_name`, `tool_id`, and `tool_param` should be direct children without intervening text_blocks, and without field prefixes.
+
+Let me try a different approach. Instead of using fields everywhere, let me try to restructure so the nodes themselves have the right names. The issue is that `tool_name` contains the actual name content, but I want just `name` as the node type. Let me use aliases:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016aRukfbSmDv1vXWann1FoP
+
+### file-path
+
+<tool.toolu_016aRukfbSmDv1vXWann1FoP>
+grammar.js
+</tool.toolu_016aRukfbSmDv1vXWann1FoP>
+
+### original-content
+
+<tool.toolu_016aRukfbSmDv1vXWann1FoP>
+server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        $.tool_name,
+        $.tool_id,
+        $.tool_param,
+        $._section_content,
+      )),
+    )),
+</tool.toolu_016aRukfbSmDv1vXWann1FoP>
+
+### new-content
+
+<tool.toolu_016aRukfbSmDv1vXWann1FoP>
+server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        alias($.tool_name, $.name),
+        alias($.tool_id, $.id),
+        alias($.tool_param, $.param),
+        $._section_content,
+      )),
+    )),
+</tool.toolu_016aRukfbSmDv1vXWann1FoP>
+
+### git-commit-message
+
+<tool.toolu_016aRukfbSmDv1vXWann1FoP>
+Use aliases to rename tool_name/tool_id/tool_param to name/id/param
+</tool.toolu_016aRukfbSmDv1vXWann1FoP>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016aRukfbSmDv1vXWann1FoP -->
