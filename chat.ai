@@ -10925,4 +10925,134 @@ greger-tree-sitter.el
 Simplify server tool result to always use web_search_tool_result
 </tool.toolu_01UhT6Rum37YWiRBUnwVMKDB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UhT6Rum37YWiRBUnwVMKDB -->
+## TOOL RESULT:
+
+ID: toolu_01UhT6Rum37YWiRBUnwVMKDB
+
+<tool.toolu_01UhT6Rum37YWiRBUnwVMKDB>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify server tool result to always use web_search_tool_result
+</tool.toolu_01UhT6Rum37YWiRBUnwVMKDB>
+
+## ASSISTANT:
+
+Now let me remove the problematic function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01FKQAwCZ8XcG2is5DA4Mi9f
+
+### pattern
+
+<tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+greger-tree-sitter--has-citations-in-context
+</tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+
+### path
+
+<tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+greger-tree-sitter.el
+</tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+
+## TOOL RESULT:
+
+ID: toolu_01FKQAwCZ8XcG2is5DA4Mi9f
+
+<tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+294:(defun greger-tree-sitter--has-citations-in-context (server-tool-result-section)
+
+</tool.toolu_01FKQAwCZ8XcG2is5DA4Mi9f>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01FeXTcbvbjYqU9YZSFS7fgj
+
+### path
+
+<tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+greger-tree-sitter.el
+</tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+
+### start-line
+
+<tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+294
+</tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+
+### end-line
+
+<tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+310
+</tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+
+## TOOL RESULT:
+
+ID: toolu_01FeXTcbvbjYqU9YZSFS7fgj
+
+<tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+(defun greger-tree-sitter--has-citations-in-context (server-tool-result-section)
+  "Check if there are citations sections in the same document."
+  ;; Navigate up to find the root and check for citations sections
+  (let ((root server-tool-result-section)
+        (max-depth 10)  ; Prevent infinite loops
+        (depth 0))
+    (while (and root
+                (< depth max-depth)
+                (not (string= (treesit-node-type root) "source_file")))
+      (setq root (treesit-node-parent root))
+      (setq depth (1+ depth)))
+    (when (and root (string= (treesit-node-type root) "source_file"))
+      (let ((has-citations nil))
+        (dolist (child (treesit-node-children root))
+          (when (string= (treesit-node-type child) "citations_section")
+            (setq has-citations t)))
+        has-citations))))
+</tool.toolu_01FeXTcbvbjYqU9YZSFS7fgj>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KCKEWXNFKCdeD5MkBLEoMs
+
+### file-path
+
+<tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+greger-tree-sitter.el
+</tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+### original-content
+
+<tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+(defun greger-tree-sitter--has-citations-in-context (server-tool-result-section)
+  "Check if there are citations sections in the same document."
+  ;; Navigate up to find the root and check for citations sections
+  (let ((root server-tool-result-section)
+        (max-depth 10)  ; Prevent infinite loops
+        (depth 0))
+    (while (and root
+                (< depth max-depth)
+                (not (string= (treesit-node-type root) "source_file")))
+      (setq root (treesit-node-parent root))
+      (setq depth (1+ depth)))
+    (when (and root (string= (treesit-node-type root) "source_file"))
+      (let ((has-citations nil))
+        (dolist (child (treesit-node-children root))
+          (when (string= (treesit-node-type child) "citations_section")
+            (setq has-citations t)))
+        has-citations))))
+</tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+### new-content
+
+<tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+</tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+### git-commit-message
+
+<tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+Remove problematic has-citations-in-context function
+</tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KCKEWXNFKCdeD5MkBLEoMs -->
