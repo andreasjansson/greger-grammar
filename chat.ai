@@ -6019,4 +6019,174 @@ greger-tree-sitter.el
 Rename function to work with node instead of parser
 </tool.toolu_01WRVHtJabG6598DtBiBkTX8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WRVHtJabG6598DtBiBkTX8 -->
+## TOOL RESULT:
+
+ID: toolu_01WRVHtJabG6598DtBiBkTX8
+
+<tool.toolu_01WRVHtJabG6598DtBiBkTX8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Rename function to work with node instead of parser
+</tool.toolu_01WRVHtJabG6598DtBiBkTX8>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd
+
+### command
+
+<tool.toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd>
+
+## TOOL RESULT:
+
+ID: toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd
+
+<tool.toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+Section type: ERROR
+  Child type: ERROR, text: "Hello"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: ERROR, text: "
+
+Hi there! How can"
+  Child type: text_content, text: " "
+  Child type: text_content, text: "I help you today?"
+nil
+</tool.toolu_01Hwpc4wEVCNzAvgXuSUJ5Sd>
+
+## ASSISTANT:
+
+Now I get no result at all. There seems to be a fundamental issue with how the elisp parsing is working vs the command line parsing. Let me check the exact difference by looking at the simple user message file through tree-sitter and finding out why it's parsing differently in elisp.
+
+The fact that `tree-sitter parse test/corpus/simple-conversation.greger` shows the correct structure but elisp doesn't suggests there might be a version mismatch or I need to rebuild the grammar. Let me rebuild it:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SuBQgYfeJq3BX8ZEYPi1ub
+
+### command
+
+<tool.toolu_01SuBQgYfeJq3BX8ZEYPi1ub>
+bash build.sh
+</tool.toolu_01SuBQgYfeJq3BX8ZEYPi1ub>
+
+## TOOL RESULT:
+
+ID: toolu_01SuBQgYfeJq3BX8ZEYPi1ub
+
+<tool.toolu_01SuBQgYfeJq3BX8ZEYPi1ub>
+Command executed successfully:
+(no output)
+</tool.toolu_01SuBQgYfeJq3BX8ZEYPi1ub>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RqTxatGh5peDcuHVkThwZm
+
+### command
+
+<tool.toolu_01RqTxatGh5peDcuHVkThwZm>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01RqTxatGh5peDcuHVkThwZm>
+
+## TOOL RESULT:
+
+ID: toolu_01RqTxatGh5peDcuHVkThwZm
+
+<tool.toolu_01RqTxatGh5peDcuHVkThwZm>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hello
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Hi there! How can I help you today?"
+nil
+</tool.toolu_01RqTxatGh5peDcuHVkThwZm>
+
+## ASSISTANT:
+
+Excellent! Now I can see the text_block children! The build fixed it. Now I can see that the text_block contains the actual content. Let me fix the text extraction function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AtFo6fB4D8hd8g3Nhsk2No
+
+### file-path
+
+<tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+greger-tree-sitter.el
+</tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+
+### original-content
+
+<tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((text-blocks (treesit-node-children section-node)))
+    (if text-blocks
+        (string-trim
+         (mapconcat (lambda (child)
+                      (if (string= (treesit-node-type child) "text_block")
+                          (treesit-node-text child)
+                        ""))
+                    text-blocks ""))
+      "")))
+</tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+
+### new-content
+
+<tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))))
+                children ""))))
+</tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+
+### git-commit-message
+
+<tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+Improve text extraction to handle text_block correctly
+</tool.toolu_01AtFo6fB4D8hd8g3Nhsk2No>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AtFo6fB4D8hd8g3Nhsk2No -->

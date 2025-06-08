@@ -105,15 +105,16 @@ ERRORS:
 
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
-  (let ((text-blocks (treesit-node-children section-node)))
-    (if text-blocks
-        (string-trim
-         (mapconcat (lambda (child)
-                      (if (string= (treesit-node-type child) "text_block")
-                          (treesit-node-text child)
-                        ""))
-                    text-blocks ""))
-      "")))
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))))
+                children ""))))
 
 (provide 'greger-tree-sitter)
 
