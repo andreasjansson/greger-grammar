@@ -86,7 +86,7 @@
 
     ;; Complex workflow with thinking, tool use, and multiple responses
     (:name "complex-workflow"
-           :markdown (greger-read-corpus-file "complex-workflow")
+           :markdown ,(greger-read-corpus-file "complex-workflow")
            :dialog (((role . "user")
                      (content . "who's the current king of sweden?"))
                     ((role . "assistant")
