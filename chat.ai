@@ -8027,4 +8027,441 @@ _tool_result_content: $ => choice(
 Use tool-specific text content in tool result sections
 </tool.toolu_01UTVUR9yVB9JCDS2BWpeZhS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UTVUR9yVB9JCDS2BWpeZhS -->
+## TOOL RESULT:
+
+ID: toolu_01UTVUR9yVB9JCDS2BWpeZhS
+
+<tool.toolu_01UTVUR9yVB9JCDS2BWpeZhS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use tool-specific text content in tool result sections
+</tool.toolu_01UTVUR9yVB9JCDS2BWpeZhS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017HMyEdxZWwBgJDAZoppWda
+
+### command
+
+<tool.toolu_017HMyEdxZWwBgJDAZoppWda>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_017HMyEdxZWwBgJDAZoppWda>
+
+## TOOL RESULT:
+
+ID: toolu_017HMyEdxZWwBgJDAZoppWda
+
+<tool.toolu_017HMyEdxZWwBgJDAZoppWda>
+Command failed with exit code 1: (source_file [0, 0] - [6, 14]
+  (tool_result_section [0, 0] - [6, 0]
+    (tool_use_metadata [2, 0] - [2, 10])
+    (ERROR [4, 0] - [4, 13]
+      (ERROR [4, 0] - [4, 13]))
+    (tool_text_content [5, 0] - [5, 5]))
+  (ERROR [6, 0] - [6, 14]
+    (ERROR [6, 0] - [6, 14])))
+test_simple.greger	Parse:    0.70 ms	    90 bytes/ms	(ERROR [4, 0] - [4, 13])
+
+</tool.toolu_017HMyEdxZWwBgJDAZoppWda>
+
+## ASSISTANT:
+
+Still not working, but I can see that "hello" is now parsed as tool_text_content instead of text_content, which is good. The `<tool.abc123>` is still being parsed as ERROR.
+
+Let me try another approach. Maybe the issue is that the external scanner isn't being built correctly. Let me rebuild with debug info:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PAEmrrcogUMgocwnTRs73b
+
+### command
+
+<tool.toolu_01PAEmrrcogUMgocwnTRs73b>
+bash build.sh
+</tool.toolu_01PAEmrrcogUMgocwnTRs73b>
+
+## TOOL RESULT:
+
+ID: toolu_01PAEmrrcogUMgocwnTRs73b
+
+<tool.toolu_01PAEmrrcogUMgocwnTRs73b>
+Command executed successfully:
+(no output)
+</tool.toolu_01PAEmrrcogUMgocwnTRs73b>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PF7CqfqHf8FbiZYMKb5cqU
+
+### command
+
+<tool.toolu_01PF7CqfqHf8FbiZYMKb5cqU>
+tree-sitter generate && tree-sitter parse -d pretty test_simple.greger
+</tool.toolu_01PF7CqfqHf8FbiZYMKb5cqU>
+
+## TOOL RESULT:
+
+ID: toolu_01PF7CqfqHf8FbiZYMKb5cqU
+
+<tool.toolu_01PF7CqfqHf8FbiZYMKb5cqU>
+Command failed with exit code 1: [37mnew_parse[0m
+[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
+[37mlex_external state:2, row:0, column:0[0m
+[37mlex_internal state:0, row:0, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mshift state:49[0m
+[37mprocess version:0, version_count:1, state:49, row:0, col:2[0m
+[37mlex_external state:2, row:0, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:19, row:0, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+[37mlexed_lookahead sym:TOOL, size:5[0m
+[37mshift state:71[0m
+[37mprocess version:0, version_count:1, state:71, row:0, col:7[0m
+[37mlex_external state:2, row:0, column:7[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:46, row:0, column:7[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'T'[0m
+[37mlexed_lookahead sym:RESULT, size:7[0m
+[37mshift state:77[0m
+[37mprocess version:0, version_count:1, state:77, row:0, col:14[0m
+[37mlex_external state:2, row:0, column:14[0m
+[37mlex_internal state:0, row:0, column:14[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:18[0m
+[37mprocess version:0, version_count:1, state:18, row:0, col:15[0m
+[37mlex_external state:1, row:0, column:15[0m
+[37mlex_internal state:115, row:0, column:15[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mshift state:20[0m
+[37mprocess version:0, version_count:1, state:20, row:1, col:0[0m
+[37mlex_external state:1, row:1, column:0[0m
+[37mlex_internal state:115, row:1, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mshift state:23[0m
+[37mprocess version:0, version_count:1, state:23, row:2, col:0[0m
+[37mlex_external state:1, row:2, column:0[0m
+[37mlex_internal state:115, row:2, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym:ID:, size:3[0m
+[37mreduce sym:tool_result_section_repeat1, child_count:2[0m
+[37mshift state:93[0m
+[37mprocess version:0, version_count:1, state:93, row:2, col:3[0m
+[37mlex_external state:2, row:2, column:3[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:151, row:2, column:3[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'3'[0m
+[37mlexed_lookahead sym:triple_backtick_block_token1, size:7[0m
+[37mshift state:44[0m
+[37mprocess version:0, version_count:1, state:44, row:2, col:10[0m
+[37mlex_external state:1, row:2, column:10[0m
+[37mlex_internal state:115, row:2, column:10[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:tool_use_metadata, child_count:2[0m
+[37mreduce sym:tool_result_section_repeat1, child_count:2[0m
+[37mshift state:23[0m
+[37mprocess version:0, version_count:1, state:23, row:3, col:0[0m
+[37mlex_external state:1, row:3, column:0[0m
+[37mlex_internal state:115, row:3, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:tool_result_section_repeat1, child_count:2[0m
+[37mshift state:23[0m
+[37mprocess version:0, version_count:1, state:23, row:4, col:0[0m
+[37mlex_external state:1, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:115, row:4, column:0[0m
+[37mlex_external state:1, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:0, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mskip_unrecognized_character[0m
+[37mlex_external state:1, row:4, column:1[0m
+[37mlex_internal state:0, row:4, column:1[0m
+  [37mconsume character:'t'[0m
+[37mlex_external state:1, row:4, column:2[0m
+[37mlex_internal state:0, row:4, column:2[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:4, column:3[0m
+[37mlex_internal state:0, row:4, column:3[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:4, column:4[0m
+[37mlex_internal state:0, row:4, column:4[0m
+  [37mconsume character:'l'[0m
+[37mlex_external state:1, row:4, column:5[0m
+[37mlex_internal state:0, row:4, column:5[0m
+  [37mconsume character:'.'[0m
+[37mlex_external state:1, row:4, column:6[0m
+[37mlex_internal state:0, row:4, column:6[0m
+  [37mconsume character:'a'[0m
+[37mlex_external state:1, row:4, column:7[0m
+[37mlex_internal state:0, row:4, column:7[0m
+  [37mconsume character:'b'[0m
+[37mlex_external state:1, row:4, column:8[0m
+[37mlex_internal state:0, row:4, column:8[0m
+  [37mconsume character:'c'[0m
+[37mlex_external state:1, row:4, column:9[0m
+[37mlex_internal state:0, row:4, column:9[0m
+  [37mconsume character:'1'[0m
+[37mlex_external state:1, row:4, column:10[0m
+[37mlex_internal state:0, row:4, column:10[0m
+  [37mconsume character:'2'[0m
+[37mlex_external state:1, row:4, column:11[0m
+[37mlex_internal state:0, row:4, column:11[0m
+  [37mconsume character:'3'[0m
+[37mlex_external state:1, row:4, column:12[0m
+[37mlex_internal state:0, row:4, column:12[0m
+  [37mconsume character:'>'[0m
+[37mlex_external state:1, row:4, column:13[0m
+[37mlex_internal state:0, row:4, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:ERROR, size:13[0m
+[37mdetect_error lookahead:ERROR[0m
+[37mresume version:0[0m
+[37mskip_token symbol:ERROR[0m
+[37mprocess version:0, version_count:1, state:0, row:4, col:13[0m
+[37mlex_external state:1, row:4, column:13[0m
+[37mlex_internal state:0, row:4, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mrecover_to_previous state:20, depth:2[0m
+[37mremoved paused version:2[0m
+[37mskip_token symbol:_tool_use_content_token1[0m
+[31mprocess version:1, version_count:2, state:20, row:4, col:13[0m
+[31mlex_external state:1, row:4, column:13[0m
+[31mlex_internal state:115, row:4, column:13[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[31mshift state:23[0m
+[31mcondense[0m
+[37mprocess version:0, version_count:1, state:23, row:5, col:0[0m
+[37mlex_external state:1, row:5, column:0[0m
+[37mlex_internal state:115, row:5, column:0[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'o'[0m
+[37mlexed_lookahead sym:text_content_token1, size:5[0m
+[37mreduce sym:tool_result_section_repeat1, child_count:2[0m
+[37mshift state:41[0m
+[37mprocess version:0, version_count:1, state:41, row:5, col:5[0m
+[37mlex_external state:1, row:5, column:5[0m
+[37mlex_internal state:115, row:5, column:5[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:tool_text_content, child_count:1[0m
+[37mreduce sym:tool_result_section_repeat1, child_count:2[0m
+[37mshift state:23[0m
+[37mprocess version:0, version_count:1, state:23, row:6, col:0[0m
+[37mlex_external state:1, row:6, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:115, row:6, column:0[0m
+[37mlex_external state:1, row:6, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:0, row:6, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+[37mskip_unrecognized_character[0m
+[37mlex_external state:1, row:6, column:2[0m
+[37mlex_internal state:0, row:6, column:2[0m
+  [37mconsume character:'t'[0m
+[37mlex_external state:1, row:6, column:3[0m
+[37mlex_internal state:0, row:6, column:3[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:6, column:4[0m
+[37mlex_internal state:0, row:6, column:4[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:6, column:5[0m
+[37mlex_internal state:0, row:6, column:5[0m
+  [37mconsume character:'l'[0m
+[37mlex_external state:1, row:6, column:6[0m
+[37mlex_internal state:0, row:6, column:6[0m
+  [37mconsume character:'.'[0m
+[37mlex_external state:1, row:6, column:7[0m
+[37mlex_internal state:0, row:6, column:7[0m
+  [37mconsume character:'a'[0m
+[37mlex_external state:1, row:6, column:8[0m
+[37mlex_internal state:0, row:6, column:8[0m
+  [37mconsume character:'b'[0m
+[37mlex_external state:1, row:6, column:9[0m
+[37mlex_internal state:0, row:6, column:9[0m
+  [37mconsume character:'c'[0m
+[37mlex_external state:1, row:6, column:10[0m
+[37mlex_internal state:0, row:6, column:10[0m
+  [37mconsume character:'1'[0m
+[37mlex_external state:1, row:6, column:11[0m
+[37mlex_internal state:0, row:6, column:11[0m
+  [37mconsume character:'2'[0m
+[37mlex_external state:1, row:6, column:12[0m
+[37mlex_internal state:0, row:6, column:12[0m
+  [37mconsume character:'3'[0m
+[37mlex_external state:1, row:6, column:13[0m
+[37mlex_internal state:0, row:6, column:13[0m
+  [37mconsume character:'>'[0m
+[37mlex_external state:1, row:6, column:14[0m
+[37mlex_internal state:0, row:6, column:14[0m
+[37mlexed_lookahead sym:ERROR, size:14[0m
+[37mdetect_error lookahead:ERROR[0m
+[37mresume version:0[0m
+[37mskip_token symbol:ERROR[0m
+[37mprocess version:0, version_count:1, state:0, row:6, col:14[0m
+[37mlex_external state:1, row:6, column:14[0m
+[37mlex_internal state:0, row:6, column:14[0m
+[37mlexed_lookahead sym:end, size:0[0m
+[37mrecover_to_previous state:20, depth:2[0m
+[37mremoved paused version:2[0m
+[37mrecover_eof[0m
+[37mselect_smaller_error symbol:ERROR, over_symbol:ERROR[0m
+[31mprocess version:1, version_count:2, state:20, row:6, col:14[0m
+[31mlex_external state:1, row:6, column:14[0m
+[31mlex_internal state:115, row:6, column:14[0m
+[31mlexed_lookahead sym:end, size:0[0m
+[31mreduce sym:tool_result_section, child_count:5[0m
+[31mreduce sym:source_file, child_count:1[0m
+[31maccept[0m
+[31mselect_smaller_error symbol:source_file, over_symbol:ERROR[0m
+[31mdone[0m
+(source_file [0, 0] - [6, 14]
+  (tool_result_section [0, 0] - [6, 0]
+    (tool_use_metadata [2, 0] - [2, 10])
+    (ERROR [4, 0] - [4, 13]
+      (ERROR [4, 0] - [4, 13]))
+    (tool_text_content [5, 0] - [5, 5]))
+  (ERROR [6, 0] - [6, 14]
+    (ERROR [6, 0] - [6, 14])))
+test_simple.greger	Parse:    9.79 ms	     6 bytes/ms	(ERROR [4, 0] - [4, 13])
+
+</tool.toolu_01PF7CqfqHf8FbiZYMKb5cqU>
+
+## ASSISTANT:
+
+Perfect! Now I can see exactly what's happening. Looking at the debug output, I can see:
+
+1. When the parser encounters `<` on row 4, column 0, it calls the external scanner (`lex_external state:1`)
+2. The external scanner is being called for each character: `<`, `t`, `o`, `o`, `l`, `.`, etc.
+3. But the external scanner is not returning true (not claiming to handle the token)
+4. The parser falls back to the internal scanner which doesn't recognize the pattern and returns ERROR
+
+The key insight is in this part:
+```
+[37mlex_external state:1, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:115, row:4, column:0[0m
+[37mlex_external state:1, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:0, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+[37mskip_unrecognized_character[0m
+```
+
+The fact that it calls `skip_unrecognized_character` suggests that the external scanner is not recognizing the pattern or not being called properly.
+
+Let me check if TOOL_CONTENT is actually being passed as a valid symbol. I suspect it's not. From the parser state, I can see we're in state 23 which is in the tool_result_section trying to parse _tool_result_content. The valid symbols should include TOOL_CONTENT, but maybe they don't.
+
+Let me add some debug output to the scanner to see what valid_symbols are being passed. But since I can't easily add printf debugging, let me try a different approach.
+
+Actually looking more carefully, I think I found the issue. Notice in the debug output:
+```
+[37mlex_external state:1, row:4, column:0[0m
+  [37mconsume character:'<'[0m
+```
+
+The external scanner is being called and it's consuming the `<` character. But then it's not returning true. This suggests that my scanner function is not working correctly.
+
+Looking at my scanner again, I think the issue might be the logic. Let me trace through what happens when the scanner encounters `<tool.abc123>`:
+
+1. `lexer->lookahead != '<'` - false, so continue
+2. `advance(lexer)` - now lookahead is `t`
+3. Check for "tool." - this should work
+4. Scan the tool ID until `>` - this should work
+5. `advance(lexer)` after `>` - now lookahead is `\n`
+6. Enter the loop to scan content until `</`
+
+The issue might be that when I call `advance(lexer)` in step 5, I'm at the newline after `>`. Then in the loop, I'm looking for `<` but I encounter `h` first (from "hello").
+
+Let me fix the scanner logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YVxuLuGte6T1dowTxLxeYB
+
+### file-path
+
+<tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+src/scanner.c
+</tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+
+### original-content
+
+<tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+// Now scan content until we see </tool.ID>
+    // For simplicity, just scan until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found closing tag, stop here (don't consume the </)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+        } else {
+            advance(lexer);
+        }
+    }
+</tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+
+### new-content
+
+<tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+// Now scan content until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Peek ahead to see if this is </
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found start of closing tag, we're done
+                // Don't consume the </ - let the parser handle it
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            // Not a closing tag, continue
+        } else {
+            advance(lexer);
+        }
+    }
+</tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+
+### git-commit-message
+
+<tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+Fix scanner logic to properly handle content between tags
+</tool.toolu_01YVxuLuGte6T1dowTxLxeYB>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YVxuLuGte6T1dowTxLxeYB -->
