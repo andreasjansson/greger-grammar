@@ -5124,4 +5124,92 @@ hello
 Simplify test to just tool result with tool content
 </tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Nic7XDarQuqiARi8tRgoNF -->
+## TOOL RESULT:
+
+ID: toolu_01Nic7XDarQuqiARi8tRgoNF
+
+<tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Simplify test to just tool result with tool content
+</tool.toolu_01Nic7XDarQuqiARi8tRgoNF>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016WaVboamjfTasHinTAPV5G
+
+### command
+
+<tool.toolu_016WaVboamjfTasHinTAPV5G>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_016WaVboamjfTasHinTAPV5G>
+
+## TOOL RESULT:
+
+ID: toolu_016WaVboamjfTasHinTAPV5G
+
+<tool.toolu_016WaVboamjfTasHinTAPV5G>
+Command failed with exit code 1: (source_file [0, 0] - [4, 14]
+  (tool_result_section [0, 0] - [0, 15])
+  (ERROR [0, 15] - [4, 14]
+    (ERROR [2, 0] - [2, 13])
+    (ERROR [3, 0] - [3, 5])
+    (ERROR [4, 0] - [4, 14])))
+test_simple.greger	Parse:    0.05 ms	  1085 bytes/ms	(ERROR [0, 15] - [4, 14])
+
+</tool.toolu_016WaVboamjfTasHinTAPV5G>
+
+## ASSISTANT:
+
+This shows that the tool_result_section header parsed correctly but immediately ended. This confirms that the issue is that nothing in the content is being recognized properly. The tool_content isn't a valid option for tool_result_content.
+
+Let me check the _tool_result_content definition:
+
+```javascript
+_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+    ),
+```
+
+This looks correct - tool_content is in there. But let me make sure the external scanner is being called when it should be. Let me check if the issue is that tool_content needs newlines:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0137yDW1EC7HGbCHWmWmdRBR
+
+### file-path
+
+<tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+grammar.js
+</tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+
+### original-content
+
+<tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+    ),
+</tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+
+### new-content
+
+<tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,
+      $.text_content,
+      /\r?\n/,
+    ),
+</tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+
+### git-commit-message
+
+<tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+Add newlines to tool result content
+</tool.toolu_0137yDW1EC7HGbCHWmWmdRBR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0137yDW1EC7HGbCHWmWmdRBR -->

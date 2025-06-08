@@ -114,6 +114,7 @@ module.exports = grammar({
       $.tool_use_metadata,
       $.tool_content,
       $.text_content,
+      /\r?\n/,
     ),
 
     _server_tool_use_content: $ => choice(
