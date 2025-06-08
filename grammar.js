@@ -134,7 +134,10 @@ module.exports = grammar({
       $.text_content,
     ),
 
-    text_content: $ => prec(-1, /[^#`<\n]+/),
+    text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),  // Allow N or I if not followed by :
+    )),
 
     code_block: $ => choice(
       $.triple_backtick_block,

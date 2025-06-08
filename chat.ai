@@ -7193,4 +7193,71 @@ tool_use_metadata: $ => prec(2, choice(
 Use higher precedence and character-level matching for metadata
 </tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019BKGrL5hkEf19rhtLvTgYH -->
+## TOOL RESULT:
+
+ID: toolu_019BKGrL5hkEf19rhtLvTgYH
+
+<tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use higher precedence and character-level matching for metadata
+</tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_018uaBD2ACj7nhEAb6zPWhkP
+
+### command
+
+<tool.toolu_018uaBD2ACj7nhEAb6zPWhkP>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_018uaBD2ACj7nhEAb6zPWhkP>
+
+## TOOL RESULT:
+
+ID: toolu_018uaBD2ACj7nhEAb6zPWhkP
+
+<tool.toolu_018uaBD2ACj7nhEAb6zPWhkP>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_result_section [0, 0] - [2, 10]
+    (text_content [2, 0] - [2, 10])))
+
+</tool.toolu_018uaBD2ACj7nhEAb6zPWhkP>
+
+## ASSISTANT:
+
+Still not working. Let me try a completely different approach. Let me modify the structure so that metadata is recognized by position rather than pattern. But first, let me try the simplest solution which actually worked: restrict text_content and then later add the excluded characters as separate tokens:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01F5GSAj9srW4PRUwUB2Gvhf
+
+### file-path
+
+<tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+grammar.js
+</tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+
+### original-content
+
+<tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+text_content: $ => prec(-1, /[^#`<\n]+/),
+</tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+
+### new-content
+
+<tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+text_content: $ => prec(-1, choice(
+      /[^#`<\nNI]+/,
+      seq(/[NI]/, /[^#`<\n:]+/),  // Allow N or I if not followed by :
+    )),
+</tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+
+### git-commit-message
+
+<tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+Allow N and I in text_content only when not followed by colon
+</tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F5GSAj9srW4PRUwUB2Gvhf -->
