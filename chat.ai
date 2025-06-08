@@ -5611,4 +5611,142 @@ greger-tree-sitter.el
 Simplify HTML comment filtering to just return empty string
 </tool.toolu_01EupSHk3wkiguE4XkANg5KK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EupSHk3wkiguE4XkANg5KK -->
+## TOOL RESULT:
+
+ID: toolu_01EupSHk3wkiguE4XkANg5KK
+
+<tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify HTML comment filtering to just return empty string
+</tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019PU1PTwsuqFCYEMgqyaZoA
+
+### command
+
+<tool.toolu_019PU1PTwsuqFCYEMgqyaZoA>
+emacs --batch -l debug-test.el
+</tool.toolu_019PU1PTwsuqFCYEMgqyaZoA>
+
+## TOOL RESULT:
+
+ID: toolu_019PU1PTwsuqFCYEMgqyaZoA
+
+<tool.toolu_019PU1PTwsuqFCYEMgqyaZoA>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_019PU1PTwsuqFCYEMgqyaZoA>
+
+## ASSISTANT:
+
+I'm still missing the text. Let me debug this by examining the tree structure again in a different way. Let me parse the tree and see the exact structure:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011Co5MTP65KDqQJCC21UDJb
+
+### command
+
+<tool.toolu_011Co5MTP65KDqQJCC21UDJb>
+tree-sitter generate && tree-sitter parse test/corpus/html-comments.greger
+</tool.toolu_011Co5MTP65KDqQJCC21UDJb>
+
+## TOOL RESULT:
+
+ID: toolu_011Co5MTP65KDqQJCC21UDJb
+
+<tool.toolu_011Co5MTP65KDqQJCC21UDJb>
+Command executed successfully:
+(source_file [0, 0] - [18, 18]
+  (user_section [0, 0] - [18, 18]
+    (text_block [0, 8] - [10, 0]
+      (html_comment [4, 0] - [4, 16])
+      (html_comment [5, 0] - [8, 11]))
+    (code_block [10, 0] - [16, 3]
+      (triple_backtick_block [10, 0] - [16, 3]
+        (html_comment [11, 0] - [11, 35])))
+    (text_block [16, 3] - [18, 18])))
+
+</tool.toolu_011Co5MTP65KDqQJCC21UDJb>
+
+## ASSISTANT:
+
+I see the issue! The text_block `[0, 8] - [10, 0]` includes the HTML comments but the raw text before the comments is not explicitly represented. In tree-sitter, when we have `extras` (like HTML comments), they can be interspersed within nodes. 
+
+The `treesit-node-text` should return the full text of the node, including the parts before/after the comments. But when I process recursively, I might be losing some parts. Let me try a different approach: instead of recursively extracting, let me get the full text and then post-process it to remove HTML comments:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XVhm8NSJ2XC6UvCEyoJg2J
+
+### file-path
+
+<tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+greger-tree-sitter.el
+</tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+
+### original-content
+
+<tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") "")
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+</tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+
+### new-content
+
+<tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((full-text (treesit-node-text node)))
+    ;; Get all HTML comment child nodes and their ranges
+    (let ((comment-nodes '()))
+      (greger-tree-sitter--collect-comment-nodes node comment-nodes)
+      ;; Sort comments by start position (reverse order for easier removal)
+      (setq comment-nodes (sort comment-nodes 
+                                (lambda (a b) (> (treesit-node-start a) 
+                                                 (treesit-node-start b)))))
+      ;; Remove comment text from back to front
+      (let ((result full-text)
+            (base-start (treesit-node-start node)))
+        (dolist (comment comment-nodes)
+          (let* ((comment-start (- (treesit-node-start comment) base-start))
+                 (comment-end (- (treesit-node-end comment) base-start)))
+            (when (and (>= comment-start 0) 
+                       (<= comment-end (length result)))
+              (setq result (concat (substring result 0 comment-start)
+                                   (substring result comment-end))))))
+        result))))
+
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list)
+  "Recursively collect all HTML comment nodes in a tree."
+  (when (string= (treesit-node-type node) "html_comment")
+    (push node comment-list))
+  (dolist (child (treesit-node-children node))
+    (greger-tree-sitter--collect-comment-nodes child comment-list)))
+</tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+
+### git-commit-message
+
+<tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+Replace recursive text extraction with post-processing approach
+</tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XVhm8NSJ2XC6UvCEyoJg2J -->
