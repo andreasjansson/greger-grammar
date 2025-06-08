@@ -10,33 +10,36 @@
           (buffer-string))
       (error "Corpus file not found: %s" file-path))))
 
-;; Test both cases to see which extraction functions are called
-(message "=== FUNCTION CALL DEBUGGING ===")
+;; Test citations-multiple parsing
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (result (greger-tree-sitter-parse markdown)))
 
-(message "\n--- citations-basic ---")
-(let ((result (greger-tree-sitter-parse (greger-read-corpus-file "citations-basic"))))
-  (message "Citations basic result length: %d" (length result)))
+  (message "=== CITATIONS MULTIPLE DEBUGGING ===")
+  (message "Result:")
+  (pp result)
 
-(message "\n--- tool-use-with-code-in-params ---")
-(let ((result (greger-tree-sitter-parse (greger-read-corpus-file "tool-use-with-code-in-params"))))
-  (message "Tool use result length: %d" (length result))
-  ;; Check the types
+  ;; Extract just the citations from the result
+  (message "\n=== CITATIONS ANALYSIS ===")
   (dolist (dialog-entry result)
     (let ((role (alist-get 'role dialog-entry))
           (content (alist-get 'content dialog-entry)))
       (when (equal role "assistant")
         (if (listp content)
             (dolist (content-item content)
-              (let ((type (alist-get 'type content-item)))
-                (when type
-                  (message "  Assistant content type: %s" type))))
-          (message "  Assistant content: %s" content)))
-      (when (equal role "user")
-        (if (listp content)
-            (dolist (content-item content)
-              (let ((type (alist-get 'type content-item)))
-                (when type
-                  (message "  User content type: %s" type))))
-          (message "  User content: %s" content))))))
+              (let ((type (alist-get 'type content-item))
+                    (text (alist-get 'text content-item))
+                    (citations (alist-get 'citations content-item)))
+                (when (equal type "text")
+                  (message "Text: %s" (or text "[no text]"))
+                  (when citations
+                    (message "  Citations:")
+                    (dolist (citation citations)
+                      (let ((url (alist-get 'url citation))
+                            (title (alist-get 'title citation))
+                            (cited-text (alist-get 'cited_text citation)))
+                        (message "    URL: %s" url)
+                        (message "    Title: %s" title)
+                        (message "    Cited text: %s" (substring cited-text 0 (min 50 (length cited-text))))))))))
+          (message "Assistant content: %s" content))))))
 
 (provide 'debug-test)

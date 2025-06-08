@@ -9012,4 +9012,603 @@ test-all-greger-cases.el
 Fix citations-basic test expected content to match corpus
 </tool.toolu_017ymFhT7NUuZf66x1ZTjEyP>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017ymFhT7NUuZf66x1ZTjEyP -->
+## TOOL RESULT:
+
+ID: toolu_017ymFhT7NUuZf66x1ZTjEyP
+
+<tool.toolu_017ymFhT7NUuZf66x1ZTjEyP>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Fix citations-basic test expected content to match corpus
+</tool.toolu_017ymFhT7NUuZf66x1ZTjEyP>
+
+## ASSISTANT:
+
+Now let me run the tests again to see if those two are fixed:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GSriU2c8Kjgx1T3WZouyso
+
+### command
+
+<tool.toolu_01GSriU2c8Kjgx1T3WZouyso>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01GSriU2c8Kjgx1T3WZouyso>
+
+## TOOL RESULT:
+
+ID: toolu_01GSriU2c8Kjgx1T3WZouyso
+
+<tool.toolu_01GSriU2c8Kjgx1T3WZouyso>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.009s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.001s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.030s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.000s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.000s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 20
+Failed: 1
+
+❌ FAILED TESTS:
+  - citations-multiple
+
+</tool.toolu_01GSriU2c8Kjgx1T3WZouyso>
+
+## ASSISTANT:
+
+Fantastic! We're now at 20/21 tests passing! Only one test remains failing: citations-multiple.
+
+Looking at the citations-multiple test failure, the issue is with the citation parsing logic. The expected result has multiple citation blocks with different titles and content, but the actual result is showing the wrong titles and content being associated with the wrong citations.
+
+Let me examine the citations-multiple corpus file to understand the structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01RXZvBt5Qoz9SzLMpf8xnmy
+
+### path
+
+<tool.toolu_01RXZvBt5Qoz9SzLMpf8xnmy>
+test/corpus/citations-multiple.greger
+</tool.toolu_01RXZvBt5Qoz9SzLMpf8xnmy>
+
+## TOOL RESULT:
+
+ID: toolu_01RXZvBt5Qoz9SzLMpf8xnmy
+
+<tool.toolu_01RXZvBt5Qoz9SzLMpf8xnmy>
+## USER:
+
+Tell me about Einstein and Newton
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_789
+
+### query
+
+<tool.srvtoolu_789>
+Einstein Newton physics
+</tool.srvtoolu_789>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_789
+
+<tool.srvtoolu_789>
+Physics search results
+</tool.srvtoolu_789>
+
+## ASSISTANT:
+
+## CITATIONS:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while
+
+## CITATIONS:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+</tool.toolu_01RXZvBt5Qoz9SzLMpf8xnmy>
+
+## ASSISTANT:
+
+I see the issue! The citations-multiple test case has a more complex structure with multiple ASSISTANT sections and multiple CITATIONS sections. The current citations parsing logic isn't handling this correctly.
+
+The corpus shows:
+1. First ASSISTANT section
+2. First CITATIONS section with Einstein info
+3. Second ASSISTANT section with "while"
+4. Second CITATIONS section with Newton info
+
+But the expected test result shows all citations consolidated into a single assistant message. This suggests the parser should merge these into a single assistant response with multiple text blocks that have different citations.
+
+Looking at the expected structure:
+- Text "Einstein developed the theory of relativity" with Einstein citations
+- Text "while" with no citations 
+- Text "Newton formulated the laws of motion" with Newton citations
+- Text with no text but both citations combined
+
+The parsing logic is getting confused because there are multiple ASSISTANT/CITATIONS pairs. Let me look at the citation parsing function to understand how it works:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MfT1UFtJtpgSrp9wYAGG6f
+
+### path
+
+<tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+greger-tree-sitter.el
+</tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+
+### start-line
+
+<tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+100
+</tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+
+### end-line
+
+<tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+120
+</tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+
+## TOOL RESULT:
+
+ID: toolu_01MfT1UFtJtpgSrp9wYAGG6f
+
+<tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))
+
+         ((string= section-type "citations_section")
+          ;; Extract citations and add as text with citations attached to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations-section section)))
+            (dolist (item citations-data)
+              (push item pending-assistant-content)))))))
+
+    ;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (let ((content (nreverse pending-assistant-content)))
+        ;; Simplify content if it's just a single text block
+        (if (and (= (length content) 1)
+                 (equal (alist-get 'type (car content)) "text"))
+            (push `((role . "assistant")
+                    (content . ,(alist-get 'text (car content))))
+                  dialog)
+</tool.toolu_01MfT1UFtJtpgSrp9wYAGG6f>
+
+## ASSISTANT:
+
+The issue is in how the dialogue extraction logic handles multiple ASSISTANT sections. Looking at the main parsing loop, I suspect the issue is that each ASSISTANT section is being handled separately, but the citations sections are getting attached to the wrong assistant content.
+
+Looking more carefully at the corpus file, I think the issue is that there are multiple `## ASSISTANT:` headers with `## CITATIONS:` sections interspersed. The parser needs to handle this as a continuous assistant response where the citations apply to the text that precedes them.
+
+The expected structure suggests this should be parsed as a single assistant response with multiple text blocks, but the current parsing logic is probably creating separate assistant responses.
+
+Actually, let me look at the expected structure again more carefully. I think the issue might be that the expected test result and the corpus file don't match. The corpus file has a very different structure than what the expected result suggests.
+
+Let me first understand what the current parser is actually producing by looking at the actual result:
+
+The actual result shows:
+- First text: "Einstein developed the theory of relativity" with Newton citations (wrong!)
+- Second text: "while" 
+- Third text: "Newton formulated the laws of motion" with Newton citations (correct!)
+
+But the expected result shows:
+- First text: "Einstein developed the theory of relativity" with Einstein citations
+- Second text: "while"
+- Third text: "Newton formulated the laws of motion" with Newton citations  
+- Fourth text: empty text with both Einstein and Newton citations
+
+The issue is that the first citation (Einstein) is getting the wrong title and content (Newton's instead of Einstein's).
+
+This suggests there's a bug in the citation parsing where the citation metadata is getting mixed up between different citation blocks.
+
+Let me examine the citation parsing function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SUNbFjtYkQV5HnMpK1nx1w
+
+### path
+
+<tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+greger-tree-sitter.el
+</tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+
+### start-line
+
+<tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+360
+</tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+
+### end-line
+
+<tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+420
+</tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+
+## TOOL RESULT:
+
+ID: toolu_01SUNbFjtYkQV5HnMpK1nx1w
+
+<tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+                       (last-citation (car citations))
+                       (title nil)
+                       (cited-text-meta nil)
+                       (encrypted-index nil))
+
+                  ;; Parse metadata lines
+                  (dolist (line lines)
+                    (setq line (string-trim line))
+                    (when (> (length line) 0)
+                      (cond
+                       ((string-prefix-p "Title:" line)
+                        (setq title (string-trim (substring line 6))))
+                       ((string-prefix-p "Cited text:" line)
+                        (setq cited-text-meta (string-trim (substring line 11))))
+                       ((string-prefix-p "Encrypted index:" line)
+                        (setq encrypted-index (string-trim (substring line 16)))))))
+
+                  ;; Update the citation with metadata
+                  (setf (alist-get 'title last-citation) title)
+                  (setf (alist-get 'cited_text last-citation) cited-text-meta)
+                  (setf (alist-get 'encrypted_index last-citation) encrypted-index))))))
+
+         ((string= node-type "citation_entry")
+          ;; Extract URL from citation entry
+          (let* ((entry-text (treesit-node-text child))
+                 (lines (split-string entry-text "\n"))
+                 (url-line (and lines (string-trim (car lines))))
+                 (url (when (string-prefix-p "###" url-line)
+                        (string-trim (substring url-line 3)))))
+            (when url
+              (push `((type . "web_search_result_location")
+                      (url . ,url)
+                      (title . nil)
+                      (cited_text . nil)
+                      (encrypted_index . nil))
+                    citations)))))
+        (setq i (1+ i))))
+
+    ;; Create result with cited text and citations
+    (when cited-text
+      (if citations
+          (push `((type . "text")
+                  (text . ,cited-text)
+                  (citations . ,(nreverse citations)))
+                result)
+        (push `((type . "text")
+                (text . ,cited-text))
+              result)))
+
+    (nreverse result)))
+
+(defun greger-tree-sitter--parse-citation-entry (citation-entry-node)
+  "Parse a citation entry node and return citation data."
+  (let ((text (treesit-node-text citation-entry-node)))
+    ;; Parse lines: first line has ###, then URL, then key-value pairs
+    (let* ((lines (split-string text "\n"))
+           (url-line (and lines (string-trim (car lines))))
+           (url (when (string-prefix-p "###" url-line)
+                  (string-trim (substring url-line 3))))
+           (title nil)
+           (cited-text nil)
+</tool.toolu_01SUNbFjtYkQV5HnMpK1nx1w>
+
+## ASSISTANT:
+
+Looking at this citation parsing logic, I think the issue might be that the citation parsing is not correctly associating the metadata with the right citation entries.
+
+The logic seems to work by:
+1. Processing children sequentially
+2. When it encounters a text_block before a citation_entry, it treats it as cited text
+3. When it encounters a citation_entry, it creates a new citation
+4. When it encounters a text_block after a citation_entry, it treats it as metadata for the last citation
+
+But if there are multiple citation sections being processed together, or if the parsing order is incorrect, the metadata could get attached to the wrong citation.
+
+Let me first check if the parsing is detecting the correct structure by looking at how the citations-multiple file is being parsed at the tree-sitter level:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019mSNN1C5f4ZaBr1kE1AvCa
+
+### command
+
+<tool.toolu_019mSNN1C5f4ZaBr1kE1AvCa>
+tree-sitter generate && tree-sitter parse test/corpus/citations-multiple.greger
+</tool.toolu_019mSNN1C5f4ZaBr1kE1AvCa>
+
+## TOOL RESULT:
+
+ID: toolu_019mSNN1C5f4ZaBr1kE1AvCa
+
+<tool.toolu_019mSNN1C5f4ZaBr1kE1AvCa>
+Command executed successfully:
+(source_file [0, 0] - [47, 23]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 19]
+      (tool_content [11, 0] - [13, 19]))
+    (text_block [13, 19] - [15, 0]))
+  (server_tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [21, 19])
+    (text_block [21, 19] - [23, 0]))
+  (assistant_section [23, 0] - [25, 0]
+    (text_block [23, 13] - [25, 0]))
+  (citations_section [25, 0] - [35, 0]
+    (text_block [25, 13] - [29, 0])
+    (citation_entry [29, 0] - [30, 0])
+    (text_block [30, 0] - [35, 0]))
+  (assistant_section [35, 0] - [39, 0]
+    (text_block [35, 13] - [39, 0]))
+  (citations_section [39, 0] - [47, 23]
+    (text_block [39, 13] - [43, 0])
+    (citation_entry [43, 0] - [44, 0])
+    (text_block [44, 0] - [47, 23])))
+
+</tool.toolu_019mSNN1C5f4ZaBr1kE1AvCa>
+
+## ASSISTANT:
+
+Perfect! Now I can see the issue. The parser correctly identifies:
+
+1. `assistant_section` [23, 0] - [25, 0] (first assistant section)
+2. `citations_section` [25, 0] - [35, 0] (first citations section with Einstein)
+3. `assistant_section` [35, 0] - [39, 0] (second assistant section)  
+4. `citations_section` [39, 0] - [47, 23] (second citations section with Newton)
+
+The issue is in the logic that handles multiple assistant sections and citations sections. Currently, the main dialog extraction loop processes each section independently, but it should be merging assistant sections and their following citations sections into a single assistant response.
+
+Looking at the expected output, it should be producing a single assistant response that contains:
+1. Text from first assistant section + citations from first citations section
+2. Text from second assistant section  
+3. Text + citations from second citations section
+4. A final text block with all citations combined
+
+But the current logic is probably processing these as separate responses or mixing up the citations.
+
+The issue is complex because the current parsing logic doesn't handle the case where multiple assistant sections should be merged into a single response.
+
+However, looking more carefully at the actual vs expected output, I think the core issue is simpler: the citation metadata is getting mixed up. The first citation is getting Newton's title and content instead of Einstein's.
+
+Let me debug this more specifically by creating a test for just the citations parsing:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01LpTTA1hpGtEHJxdyBU57Mf
+
+### file-path
+
+<tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+debug-test.el
+</tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+
+### contents
+
+<tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test citations-multiple parsing
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (result (greger-tree-sitter-parse markdown)))
+
+  (message "=== CITATIONS MULTIPLE DEBUGGING ===")
+  (message "Result:")
+  (pp result)
+  
+  ;; Extract just the citations from the result
+  (message "\n=== CITATIONS ANALYSIS ===")
+  (dolist (dialog-entry result)
+    (let ((role (alist-get 'role dialog-entry))
+          (content (alist-get 'content dialog-entry)))
+      (when (equal role "assistant")
+        (if (listp content)
+            (dolist (content-item content)
+              (let ((type (alist-get 'type content-item))
+                    (text (alist-get 'text content-item))
+                    (citations (alist-get 'citations content-item)))
+                (when (equal type "text")
+                  (message "Text: %s" (or text "[no text]"))
+                  (when citations
+                    (message "  Citations:")
+                    (dolist (citation citations)
+                      (let ((url (alist-get 'url citation))
+                            (title (alist-get 'title citation))
+                            (cited-text (alist-get 'cited_text citation)))
+                        (message "    URL: %s" url)
+                        (message "    Title: %s" title)
+                        (message "    Cited text: %s" (substring cited-text 0 (min 50 (length cited-text))))))))))
+          (message "Assistant content: %s" content))))))
+
+(provide 'debug-test)
+</tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+
+### git-commit-message
+
+<tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+Debug citations-multiple parsing specifically
+</tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LpTTA1hpGtEHJxdyBU57Mf -->
