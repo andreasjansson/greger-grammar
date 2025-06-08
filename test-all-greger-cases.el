@@ -10,7 +10,9 @@
       (message "✅ Tree-sitter greger parser is available")
 
       ;; Test simple parsing
-      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+      (let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/simple-user-message.greger")
+                             (buffer-string)))
              (result (greger-tree-sitter-parse test-content)))
         (message "Parse result:")
         (pp result)

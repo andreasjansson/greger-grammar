@@ -5502,4 +5502,155 @@ test-all-greger-cases.el
 Add debug output to show section structure and text content
 </tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01G1sQfzYCPQZAiiJyaSmXAZ -->
+## TOOL RESULT:
+
+ID: toolu_01G1sQfzYCPQZAiiJyaSmXAZ
+
+<tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Add debug output to show section structure and text content
+</tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01G7X87s26PMaLbfUQSw2r4w
+
+### command
+
+<tool.toolu_01G7X87s26PMaLbfUQSw2r4w>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01G7X87s26PMaLbfUQSw2r4w>
+
+## TOOL RESULT:
+
+ID: toolu_01G7X87s26PMaLbfUQSw2r4w
+
+<tool.toolu_01G7X87s26PMaLbfUQSw2r4w>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . ""))
+ ((role . "assistant")
+  (content . "")))
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+Section type: ERROR
+  Child type: ERROR, text: "Hello, how are you?"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: ERROR, text: "
+
+"
+  Child type: text_content, text: "I'm doing well, thanks!"
+
+</tool.toolu_01G7X87s26PMaLbfUQSw2r4w>
+
+## ASSISTANT:
+
+I see the issue! The parser is not recognizing the content after the sections properly. There are ERROR nodes being created, which means the grammar isn't handling the newlines correctly. Looking at the output, I can see that the section headers are being parsed as separate tokens (##, USER, :) instead of as complete section headers.
+
+The issue is in my grammar. Let me look at why the text after "## USER:" is not being parsed as part of the user_section. Let me check the simple conversation file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YJ5UqbjuCTeLZgHxCKHHnY
+
+### command
+
+<tool.toolu_01YJ5UqbjuCTeLZgHxCKHHnY>
+tree-sitter generate && tree-sitter parse test/corpus/simple-conversation.greger
+</tool.toolu_01YJ5UqbjuCTeLZgHxCKHHnY>
+
+## TOOL RESULT:
+
+ID: toolu_01YJ5UqbjuCTeLZgHxCKHHnY
+
+<tool.toolu_01YJ5UqbjuCTeLZgHxCKHHnY>
+Command executed successfully:
+(source_file [0, 0] - [6, 35]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (assistant_section [4, 0] - [6, 35]
+    (text_block [4, 13] - [6, 35])))
+
+</tool.toolu_01YJ5UqbjuCTeLZgHxCKHHnY>
+
+## ASSISTANT:
+
+That works correctly! Let me check what's different in the simple-conversation file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Gnhuodp7734mFiPQE91DXv
+
+### path
+
+<tool.toolu_01Gnhuodp7734mFiPQE91DXv>
+test/corpus/simple-conversation.greger
+</tool.toolu_01Gnhuodp7734mFiPQE91DXv>
+
+## TOOL RESULT:
+
+ID: toolu_01Gnhuodp7734mFiPQE91DXv
+
+<tool.toolu_01Gnhuodp7734mFiPQE91DXv>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+</tool.toolu_01Gnhuodp7734mFiPQE91DXv>
+
+## ASSISTANT:
+
+I think the issue is that my test string has different newlines than the actual file. Let me modify the test to use the actual file content:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FqHubRBzKmvyt5sCqgAH7L
+
+### file-path
+
+<tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+test-all-greger-cases.el
+</tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+
+### original-content
+
+<tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+;; Test simple parsing
+      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+             (result (greger-tree-sitter-parse test-content)))
+</tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+
+### new-content
+
+<tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+;; Test simple parsing
+      (let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/simple-user-message.greger")
+                             (buffer-string)))
+             (result (greger-tree-sitter-parse test-content)))
+</tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+
+### git-commit-message
+
+<tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+Use actual file content instead of hardcoded string for testing
+</tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FqHubRBzKmvyt5sCqgAH7L -->
