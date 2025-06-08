@@ -213,7 +213,7 @@ ERRORS:
               (when (string= (treesit-node-type param-child) "tool_content")
                 (let ((content-text (string-trim (treesit-node-text param-child))))
                   ;; Remove the <tool.ID> wrapper
-                  (when (string-match "^<tool\\.[^>]+>\\(.*\\)</tool\\.[^>]+>$" content-text)
+                  (when (string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
                     (setq content-text (match-string 1 content-text)))
                   (setq content-text (string-trim content-text))
                   (push (cons (intern param-name) content-text) input)))))))))

@@ -7877,4 +7877,125 @@ greger-tree-sitter.el
 Implement tool use, tool result, and server tool extraction functions
 </tool.toolu_015yV46uUBQPKmNckr2XieoK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_015yV46uUBQPKmNckr2XieoK -->
+## TOOL RESULT:
+
+ID: toolu_015yV46uUBQPKmNckr2XieoK
+
+<tool.toolu_015yV46uUBQPKmNckr2XieoK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Implement tool use, tool result, and server tool extraction functions
+</tool.toolu_015yV46uUBQPKmNckr2XieoK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MUbgmUFVYx8hqHWLzt5WkY
+
+### command
+
+<tool.toolu_01MUbgmUFVYx8hqHWLzt5WkY>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01MUbgmUFVYx8hqHWLzt5WkY>
+
+## TOOL RESULT:
+
+ID: toolu_01MUbgmUFVYx8hqHWLzt5WkY
+
+<tool.toolu_01MUbgmUFVYx8hqHWLzt5WkY>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing tool use parsing...
+✅ Tree-sitter greger parser is available
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "<tool.toolu_123>\nhello.txt\n</tool.toolu_123")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "<tool.toolu_123>\nHello, world!\n</tool.toolu_123"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+❌ Tool use test FAILED
+
+</tool.toolu_01MUbgmUFVYx8hqHWLzt5WkY>
+
+## ASSISTANT:
+
+Great progress! The structure is correct now, but I have two issues:
+
+1. The tool content wrapper isn't being stripped correctly 
+2. The input should be a list of key-value pairs, not a single key-value pair
+
+Let me fix the tool content extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018wQstggAJ8Jgkw2B3TNTBu
+
+### file-path
+
+<tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+greger-tree-sitter.el
+</tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+
+### original-content
+
+<tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (string-trim (treesit-node-text param-child))))
+                  ;; Remove the <tool.ID> wrapper
+                  (when (string-match "^<tool\\.[^>]+>\\(.*\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+
+### new-content
+
+<tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (string-trim (treesit-node-text param-child))))
+                  ;; Remove the <tool.ID> wrapper
+                  (when (string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+
+### git-commit-message
+
+<tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+Fix regex to properly strip tool content wrapper with whitespace handling
+</tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018wQstggAJ8Jgkw2B3TNTBu -->
