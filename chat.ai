@@ -9611,4 +9611,169 @@ debug-test.el
 Debug citations-multiple parsing specifically
 </tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LpTTA1hpGtEHJxdyBU57Mf -->
+## TOOL RESULT:
+
+ID: toolu_01LpTTA1hpGtEHJxdyBU57Mf
+
+<tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1919 characters. Successfully staged 2 file(s) and committed with message: Debug citations-multiple parsing specifically
+</tool.toolu_01LpTTA1hpGtEHJxdyBU57Mf>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01P1qjBaMLcqGHzSmdXH4j8o
+
+### command
+
+<tool.toolu_01P1qjBaMLcqGHzSmdXH4j8o>
+emacs --batch -l debug-test.el
+</tool.toolu_01P1qjBaMLcqGHzSmdXH4j8o>
+
+## TOOL RESULT:
+
+ID: toolu_01P1qjBaMLcqGHzSmdXH4j8o
+
+<tool.toolu_01P1qjBaMLcqGHzSmdXH4j8o>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== CITATIONS MULTIPLE DEBUGGING ===
+Result:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== CITATIONS ANALYSIS ===
+Text: Einstein developed the theory of relativity
+  Citations:
+    URL: https://physics.com/einstein
+    Title: Newton Biography
+    Cited text: Isaac Newton formulated the three laws of motion..
+Text: while
+Text: Newton formulated the laws of motion
+  Citations:
+    URL: https://physics.com/newton
+    Title: Newton Biography
+    Cited text: Isaac Newton formulated the three laws of motion..
+
+</tool.toolu_01P1qjBaMLcqGHzSmdXH4j8o>
+
+## ASSISTANT:
+
+Perfect! Now I can see the exact issue. The first citation has:
+- URL: `https://physics.com/einstein` (correct)
+- Title: `Newton Biography` (wrong! should be "Einstein Biography")
+- Cited text: `Isaac Newton formulated the three laws of motion...` (wrong! should be Einstein's text)
+- Encrypted index: `ghi789` (wrong! should be "def456")
+
+This means the citation parsing logic is somehow getting the metadata from the wrong citation block. The URL is correct, but the title, cited text, and encrypted index are all coming from the Newton citation.
+
+The issue must be in the citation parsing function `greger-tree-sitter--extract-citations-section`. Let me examine that function more carefully, particularly the part that associates metadata with citations.
+
+Looking at the corpus file again:
+
+```
+## CITATIONS:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while
+
+## CITATIONS:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+```
+
+The problem is that when multiple citations sections are processed, the metadata parsing logic is somehow getting confused and associating the wrong metadata with the wrong citations.
+
+Looking at the citation extraction function logic again, I think the issue might be that the function is designed to handle a single citations section, but when multiple citations sections are processed, there might be some state that's carrying over between calls.
+
+But that shouldn't be possible since each call to `greger-tree-sitter--extract-citations-section` should process a single citations section independently.
+
+Let me add some debugging to the citation extraction function to see what's happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ThQUyzQxo1j8tKge2cKvwQ
+
+### file-path
+
+<tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+greger-tree-sitter.el
+</tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+
+### original-content
+
+<tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+(defun greger-tree-sitter--extract-citations-section (citations-section)
+  "Extract citations section and return list of text blocks with citations attached."
+  (let ((children (treesit-node-children citations-section))
+        (cited-text nil)
+        (citations '())
+        (result '())
+        (i 0))
+</tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+
+### new-content
+
+<tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+(defun greger-tree-sitter--extract-citations-section (citations-section)
+  "Extract citations section and return list of text blocks with citations attached."
+  (message "[DEBUG] Processing citations section")
+  (let ((children (treesit-node-children citations-section))
+        (cited-text nil)
+        (citations '())
+        (result '())
+        (i 0))
+</tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+
+### git-commit-message
+
+<tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+Add debug print to citations section processing
+</tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ThQUyzQxo1j8tKge2cKvwQ -->
