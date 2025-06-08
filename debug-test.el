@@ -10,42 +10,30 @@
           (buffer-string))
       (error "Corpus file not found: %s" file-path))))
 
-;; Test just one case in isolation
-(defconst debug-test-cases
-  `((:name "tool-use-with-code-in-params"
-           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+;; Debug function to show section types
+(defun debug-show-section-types (text)
+  "Show what section types the parser detects."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
 
-(message "=== ISOLATED TEST DEBUG ===")
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser))
+           (sections (treesit-node-children root-node)))
 
-(dolist (test-case debug-test-cases)
-  (let* ((name (plist-get test-case :name))
-         (markdown (plist-get test-case :markdown))
-         (result (greger-tree-sitter-parse markdown)))
+      (message "Detected sections:")
+      (dolist (section sections)
+        (let ((section-type (treesit-node-type section)))
+          (message "  %s" section-type))))))
 
-    (message "\n--- Testing: %s ---" name)
+;; Test both cases
+(message "=== SECTION TYPE DETECTION ===")
 
-    ;; Look at tool use and tool result types specifically
-    (dolist (dialog-entry result)
-      (let ((role (alist-get 'role dialog-entry))
-            (content (alist-get 'content dialog-entry)))
-        (when (equal role "assistant")
-          (if (listp content)
-              (dolist (content-item content)
-                (let ((type (alist-get 'type content-item)))
-                  (when (or (string= type "tool_use")
-                            (string= type "server_tool_use"))
-                    (message "  Found tool use type: %s" type))))
-            ;; Single content item
-            (message "  Assistant content: %s" content)))
-        (when (equal role "user")
-          (if (listp content)
-              (dolist (content-item content)
-                (let ((type (alist-get 'type content-item)))
-                  (when (or (string= type "tool_result")
-                            (string= type "server_tool_result")
-                            (string= type "web_search_tool_result"))
-                    (message "  Found tool result type: %s" type))))
-            ;; Single content item
-            (message "  User content: %s" content)))))))
+(message "\n--- citations-basic ---")
+(debug-show-section-types (greger-read-corpus-file "citations-basic"))
+
+(message "\n--- tool-use-with-code-in-params ---")
+(debug-show-section-types (greger-read-corpus-file "tool-use-with-code-in-params"))
 
 (provide 'debug-test)

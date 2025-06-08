@@ -6290,4 +6290,326 @@ debug-test.el
 Test only tool-use-with-code-in-params in isolation
 </tool.toolu_01LfoigCbokJUN5Uync1VPZU>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LfoigCbokJUN5Uync1VPZU -->
+## TOOL RESULT:
+
+ID: toolu_01LfoigCbokJUN5Uync1VPZU
+
+<tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 2088 characters. Successfully staged 2 file(s) and committed with message: Test only tool-use-with-code-in-params in isolation
+</tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XoYpYfP4rdxi2mr2rAsHr2
+
+### command
+
+<tool.toolu_01XoYpYfP4rdxi2mr2rAsHr2>
+emacs --batch -l debug-test.el
+</tool.toolu_01XoYpYfP4rdxi2mr2rAsHr2>
+
+## TOOL RESULT:
+
+ID: toolu_01XoYpYfP4rdxi2mr2rAsHr2
+
+<tool.toolu_01XoYpYfP4rdxi2mr2rAsHr2>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== ISOLATED TEST DEBUG ===
+
+--- Testing: tool-use-with-code-in-params ---
+  User content: Write some Python code
+  Found tool use type: tool_use
+  Found tool result type: tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01XoYpYfP4rdxi2mr2rAsHr2>
+
+## ASSISTANT:
+
+Perfect! This confirms that the tool-use-with-code-in-params test works correctly in isolation - it returns "tool_use" and "tool_result" as expected.
+
+The contamination is definitely caused by running the citations-basic test first. Let me investigate what the citations-basic test is doing that affects subsequent tests.
+
+Let me look at the citations-basic corpus file again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019GFs9UMqHfCAgC32ptBfeZ
+
+### path
+
+<tool.toolu_019GFs9UMqHfCAgC32ptBfeZ>
+test/corpus/citations-basic.greger
+</tool.toolu_019GFs9UMqHfCAgC32ptBfeZ>
+
+## TOOL RESULT:
+
+ID: toolu_019GFs9UMqHfCAgC32ptBfeZ
+
+<tool.toolu_019GFs9UMqHfCAgC32ptBfeZ>
+## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## ASSISTANT:
+
+Based on the search results,
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
+</tool.toolu_019GFs9UMqHfCAgC32ptBfeZ>
+
+## ASSISTANT:
+
+I see! This test has both "## SERVER TOOL USE:" and "## SERVER TOOL RESULT:" sections, AND it has "## CITATIONS:". 
+
+Looking at the logic in `greger-tree-sitter--extract-server-tool-result`, the function checks if there are any citation sections in the parse tree and if so, it sets the result type to "web_search_tool_result".
+
+But I suspect there might be some global state that's not being properly reset between tests. The issue might be in how the citation detection is implemented.
+
+Let me look at the citation detection logic again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01B9YjtJu5vaMA1gUF2LD1oc
+
+### path
+
+<tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+greger-tree-sitter.el
+</tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+
+### start-line
+
+<tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+280
+</tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+
+### end-line
+
+<tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+310
+</tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+
+## TOOL RESULT:
+
+ID: toolu_01B9YjtJu5vaMA1gUF2LD1oc
+
+<tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+  "Extract server tool use data from a server tool use section."
+  ;; Similar to tool use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Check if this specific section or following sections have citations
+    ;; by looking at the section tree structure
+    (let ((content (alist-get 'content result))
+          (has-citations nil))
+
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (setq has-citations t)))))
+
+      (if has-citations
+          ;; Has citations - use web_search_tool_result
+          (setf (alist-get 'type result) "web_search_tool_result")
+        ;; No citations - use server_tool_result and parse JSON if applicable
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+</tool.toolu_01B9YjtJu5vaMA1gUF2LD1oc>
+
+## ASSISTANT:
+
+Wait, I see a potential issue. The function `greger-tree-sitter--extract-server-tool-result` is only supposed to be called for "server_tool_result_section" nodes. But somehow, regular "tool_result_section" nodes are getting processed by this function.
+
+Let me check the main dispatch logic again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01AdHBhN1C2gYKcfWLZ9dw4u
+
+### path
+
+<tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+greger-tree-sitter.el
+</tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+
+### start-line
+
+<tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+70
+</tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+
+### end-line
+
+<tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+105
+</tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+
+## TOOL RESULT:
+
+ID: toolu_01AdHBhN1C2gYKcfWLZ9dw4u
+
+<tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+                  pending-assistant-content)))
+
+         ((string= section-type "tool_use_section")
+          ;; Add tool use to pending assistant content
+          (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
+            (push tool-use-data pending-assistant-content)))
+
+         ((string= section-type "tool_result_section")
+          ;; Flush any pending assistant content and add tool result as user content
+          (when pending-assistant-content
+            (let ((content (nreverse pending-assistant-content)))
+              ;; Simplify content if it's just a single text block
+              (if (and (= (length content) 1)
+                       (equal (alist-get 'type (car content)) "text"))
+                  (push `((role . "assistant")
+                          (content . ,(alist-get 'text (car content))))
+                        dialog)
+                (push `((role . "assistant")
+                        (content . ,content))
+                      dialog)))
+            (setq pending-assistant-content '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user")
+                    (content . (,tool-result-data)))
+                  dialog)))
+
+         ((string= section-type "server_tool_use_section")
+          ;; Add server tool use to pending assistant content
+          (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
+            (push server-tool-use-data pending-assistant-content)))
+
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))
+
+</tool.toolu_01AdHBhN1C2gYKcfWLZ9dw4u>
+
+## ASSISTANT:
+
+The dispatch logic looks correct. "tool_result_section" calls `greger-tree-sitter--extract-tool-result`, and "server_tool_result_section" calls `greger-tree-sitter--extract-server-tool-result`.
+
+But somehow, the tool-use-with-code-in-params test (which has "## TOOL RESULT:" sections) is getting "web_search_tool_result" types instead of "tool_result" types.
+
+This can only happen if the "tool_result_section" is somehow getting processed as a "server_tool_result_section".
+
+Let me check if there's a grammar parsing issue. Maybe the grammar is ambiguous and "## TOOL RESULT:" is being parsed as "server_tool_result_section" in some contexts.
+
+But wait, let me check this more systematically. Let me create a debug that shows exactly what section types are being detected:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01JoHeTPQpLJF54HzjdDWbYW
+
+### file-path
+
+<tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+debug-test.el
+</tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+
+### contents
+
+<tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Debug function to show section types
+(defun debug-show-section-types (text)
+  "Show what section types the parser detects."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser))
+           (sections (treesit-node-children root-node)))
+      
+      (message "Detected sections:")
+      (dolist (section sections)
+        (let ((section-type (treesit-node-type section)))
+          (message "  %s" section-type))))))
+
+;; Test both cases
+(message "=== SECTION TYPE DETECTION ===")
+
+(message "\n--- citations-basic ---")
+(debug-show-section-types (greger-read-corpus-file "citations-basic"))
+
+(message "\n--- tool-use-with-code-in-params ---")
+(debug-show-section-types (greger-read-corpus-file "tool-use-with-code-in-params"))
+
+(provide 'debug-test)
+</tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+
+### git-commit-message
+
+<tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+Debug section type detection to find parsing issues
+</tool.toolu_01JoHeTPQpLJF54HzjdDWbYW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JoHeTPQpLJF54HzjdDWbYW -->
