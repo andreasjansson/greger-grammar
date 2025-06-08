@@ -143,7 +143,7 @@
 
     ;; Tool use without any following content
     (:name "tool-use-only"
-           :markdown (greger-read-corpus-file "tool-use-only")
+           :markdown ,(greger-read-corpus-file "tool-use-only")
            :dialog (((role . "user")
                      (content . "Read a file"))
                     ((role . "assistant")
