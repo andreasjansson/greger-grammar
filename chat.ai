@@ -8951,4 +8951,61 @@ greger-tree-sitter.el
 Fix tool content extraction to handle partial wrapper tags
 </tool.toolu_01KcrNQS6C7LTadrRRgyBpnK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KcrNQS6C7LTadrRRgyBpnK -->
+## TOOL RESULT:
+
+ID: toolu_01KcrNQS6C7LTadrRRgyBpnK
+
+<tool.toolu_01KcrNQS6C7LTadrRRgyBpnK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tool content extraction to handle partial wrapper tags
+</tool.toolu_01KcrNQS6C7LTadrRRgyBpnK>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018VMxqT2U3WpBqbEAtbVLAT
+
+### file-path
+
+<tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+greger-tree-sitter.el
+</tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+
+### original-content
+
+<tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper
+            (when (string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+            (setq content (string-trim content-text))))
+</tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+
+### new-content
+
+<tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            (cond
+             ;; Full wrapper case
+             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+             ;; Partial wrapper case (missing closing >)
+             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
+              (setq content-text (match-string 1 content-text)))
+             ;; Just remove the opening tag if present
+             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
+              (setq content-text (match-string 1 content-text))))
+            (setq content (string-trim content-text))))
+</tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+
+### git-commit-message
+
+<tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+Fix tool result content extraction as well
+</tool.toolu_018VMxqT2U3WpBqbEAtbVLAT>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018VMxqT2U3WpBqbEAtbVLAT -->
