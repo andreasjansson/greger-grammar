@@ -5378,4 +5378,128 @@ greger-tree-sitter.el
 Fix text extraction to use treesit-node-children instead of invalid query
 </tool.toolu_0114RHqAZut8WHC1AysG1TXH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0114RHqAZut8WHC1AysG1TXH -->
+## TOOL RESULT:
+
+ID: toolu_0114RHqAZut8WHC1AysG1TXH
+
+<tool.toolu_0114RHqAZut8WHC1AysG1TXH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix text extraction to use treesit-node-children instead of invalid query
+</tool.toolu_0114RHqAZut8WHC1AysG1TXH>
+
+
+## ASSISTANT:
+
+Now let me test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012sib3d3kLDrap81Lz6yd2w
+
+### command
+
+<tool.toolu_012sib3d3kLDrap81Lz6yd2w>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_012sib3d3kLDrap81Lz6yd2w>
+
+## TOOL RESULT:
+
+ID: toolu_012sib3d3kLDrap81Lz6yd2w
+
+<tool.toolu_012sib3d3kLDrap81Lz6yd2w>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . ""))
+ ((role . "assistant")
+  (content . "")))
+
+</tool.toolu_012sib3d3kLDrap81Lz6yd2w>
+
+## ASSISTANT:
+
+Good! The parsing is working but the content is empty. Looking at the tree structure, I can see that the text_block contains both newlines and text. Let me look at the tree-sitter output more carefully to see what the text_block content actually is:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CSNMNGm2smjGrpajAaQjGh
+
+### command
+
+<tool.toolu_01CSNMNGm2smjGrpajAaQjGh>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01CSNMNGm2smjGrpajAaQjGh>
+
+## TOOL RESULT:
+
+ID: toolu_01CSNMNGm2smjGrpajAaQjGh
+
+<tool.toolu_01CSNMNGm2smjGrpajAaQjGh>
+Command executed successfully:
+(source_file [0, 0] - [2, 19]
+  (user_section [0, 0] - [2, 19]
+    (text_block [0, 8] - [2, 19])))
+
+</tool.toolu_01CSNMNGm2smjGrpajAaQjGh>
+
+## ASSISTANT:
+
+I see the issue. The text_block spans from [0, 8] to [2, 19], which means it includes the part after the colon. But I think the text is being parsed as part of the `text_block` but includes newlines at the beginning. Let me update the test script to debug what the actual text content is:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01G1sQfzYCPQZAiiJyaSmXAZ
+
+### file-path
+
+<tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+test-all-greger-cases.el
+</tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+
+### original-content
+
+<tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+      ;; Test simple parsing
+      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+             (result (greger-tree-sitter-parse test-content)))
+        (message "Parse result:")
+        (pp result)))
+</tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+
+### new-content
+
+<tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+      ;; Test simple parsing
+      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+             (result (greger-tree-sitter-parse test-content)))
+        (message "Parse result:")
+        (pp result)
+
+        ;; Debug: show raw text extraction
+        (with-temp-buffer
+          (insert test-content)
+          (let* ((parser (treesit-parser-create 'greger))
+                 (root-node (treesit-parser-root-node parser))
+                 (sections (treesit-node-children root-node)))
+            (dolist (section sections)
+              (let ((section-type (treesit-node-type section)))
+                (message "Section type: %s" section-type)
+                (let ((children (treesit-node-children section)))
+                  (dolist (child children)
+                    (message "  Child type: %s, text: %S"
+                             (treesit-node-type child)
+                             (treesit-node-text child))))))))))
+</tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+
+### git-commit-message
+
+<tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+Add debug output to show section structure and text content
+</tool.toolu_01G1sQfzYCPQZAiiJyaSmXAZ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01G1sQfzYCPQZAiiJyaSmXAZ -->
