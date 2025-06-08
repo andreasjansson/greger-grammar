@@ -9603,4 +9603,77 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 Implement proper tool content scanning with opening and closing tag matching
 </tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MxowGTzZVhRiZDuSbpPzUp -->
+## TOOL RESULT:
+
+ID: toolu_01MxowGTzZVhRiZDuSbpPzUp
+
+<tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement proper tool content scanning with opening and closing tag matching
+</tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019h1KFckpcL4voCG1mVfPJc
+
+### command
+
+<tool.toolu_019h1KFckpcL4voCG1mVfPJc>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_019h1KFckpcL4voCG1mVfPJc>
+
+## TOOL RESULT:
+
+ID: toolu_019h1KFckpcL4voCG1mVfPJc
+
+<tool.toolu_019h1KFckpcL4voCG1mVfPJc>
+Command executed successfully:
+(source_file [0, 0] - [4, 14]
+  (tool_result_section [0, 0] - [4, 14]
+    (tool_content [2, 0] - [4, 13])
+    (tool_text_content [4, 13] - [4, 14])))
+
+</tool.toolu_019h1KFckpcL4voCG1mVfPJc>
+
+## ASSISTANT:
+
+Excellent! It's working, but there's a small issue. The tool_content is capturing everything including the closing tag, and then there's a separate tool_text_content for the `>` character. Let me fix the scanner to not include the closing tag:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YWLDuLnLVt8vG8LiaE1v8K
+
+### file-path
+
+<tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+src/scanner.c
+</tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+
+### original-content
+
+<tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+if (matches && lexer->lookahead == '>') {
+                                        // Found closing tag - return everything we've scanned
+                                        lexer->result_symbol = TOOL_CONTENT;
+                                        return true;
+                                    }
+</tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+
+### new-content
+
+<tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+if (matches && lexer->lookahead == '>') {
+                                        // Found closing tag - don't consume the closing tag
+                                        lexer->result_symbol = TOOL_CONTENT;
+                                        return true;
+                                    }
+</tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+
+### git-commit-message
+
+<tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+Don't consume the closing tag in tool content scanner
+</tool.toolu_01YWLDuLnLVt8vG8LiaE1v8K>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YWLDuLnLVt8vG8LiaE1v8K -->

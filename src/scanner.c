@@ -154,7 +154,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     }
 
                                     if (matches && lexer->lookahead == '>') {
-                                        // Found closing tag - return everything we've scanned
+                                        // Found closing tag - don't consume the closing tag
                                         lexer->result_symbol = TOOL_CONTENT;
                                         return true;
                                     }
