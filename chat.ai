@@ -7009,4 +7009,115 @@ test-all-greger-cases.el
 Test with thinking-section.greger to verify thinking parsing
 </tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CtqRydfTZHbhiLd8mrfZiK -->
+## TOOL RESULT:
+
+ID: toolu_01CtqRydfTZHbhiLd8mrfZiK
+
+<tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Test with thinking-section.greger to verify thinking parsing
+</tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MqfbRNAaP8KuNMa56t4h9Q
+
+### command
+
+<tool.toolu_01MqfbRNAaP8KuNMa56t4h9Q>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01MqfbRNAaP8KuNMa56t4h9Q>
+
+## TOOL RESULT:
+
+ID: toolu_01MqfbRNAaP8KuNMa56t4h9Q
+
+<tool.toolu_01MqfbRNAaP8KuNMa56t4h9Q>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))))
+ ((role . "assistant")
+  (content . "2 + 2 = 4")))
+
+Result type: cons
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+What's 2+2?
+
+"
+Section type: thinking_section
+  Child type: ##, text: "##"
+  Child type: THINKING, text: "THINKING"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+This is a simple arithmetic question. I can answer this directly without needing any tools.
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+2 + 2 = 4"
+
+</tool.toolu_01MqfbRNAaP8KuNMa56t4h9Q>
+
+## ASSISTANT:
+
+Excellent! The thinking section is being correctly parsed and converted to an assistant message with thinking content. This matches the expected output from the test cases.
+
+Looking at the results, the basic parsing is working well. The parser is correctly:
+
+1. Extracting user sections as `(role . "user")` with text content
+2. Extracting thinking sections as `(role . "assistant")` with `(type . "thinking")` content
+3. Extracting assistant sections as `(role . "assistant")` with text content
+
+Now I need to implement the more complex cases like tool use, server tool use, and citations. But first, let me run a test with the original simple test to make sure the basic functionality is working correctly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_014o1ubTxmvd3bpHMnAHQEsP
+
+### file-path
+
+<tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+test-all-greger-cases.el
+</tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+
+### original-content
+
+<tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+(let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/thinking-section.greger")
+                             (buffer-string)))
+</tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+
+### new-content
+
+<tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+(let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
+</tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+
+### git-commit-message
+
+<tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+Test with simple hardcoded content to verify basic functionality
+</tool.toolu_014o1ubTxmvd3bpHMnAHQEsP>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014o1ubTxmvd3bpHMnAHQEsP -->
