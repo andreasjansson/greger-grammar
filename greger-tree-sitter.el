@@ -288,7 +288,7 @@
 
   (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
     (setf (alist-get 'type result) "server_tool_use")
-    (message "[DEBUG] extract-server-tool-use returning type: %s" (alist-get 'type result))
+
     result))
 
 (defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
