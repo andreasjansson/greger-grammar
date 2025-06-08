@@ -285,7 +285,7 @@
 (defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
   "Extract server tool use data from a server tool use section."
   ;; Similar to tool use but with server_tool_use type
-  (message "[DEBUG] extract-server-tool-use called")
+
   (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
     (setf (alist-get 'type result) "server_tool_use")
     (message "[DEBUG] extract-server-tool-use returning type: %s" (alist-get 'type result))
