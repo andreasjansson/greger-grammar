@@ -130,8 +130,6 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     // Now scan content until we find </tool.ID>
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Don't advance yet, check if this is the closing tag
-            TSLexer saved_lexer = *lexer;
             advance(lexer);
             if (lexer->lookahead == '/') {
                 advance(lexer);
@@ -170,9 +168,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                     }
                 }
             }
-            // Not a closing tag, restore position and continue
-            *lexer = saved_lexer;
-            advance(lexer);
+            // Not a closing tag, just continue (already advanced)
             lexer->mark_end(lexer);
         } else {
             advance(lexer);
