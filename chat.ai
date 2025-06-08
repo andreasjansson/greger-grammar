@@ -7998,4 +7998,53 @@ greger-tree-sitter.el
 Fix regex to properly strip tool content wrapper with whitespace handling
 </tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018wQstggAJ8Jgkw2B3TNTBu -->
+## TOOL RESULT:
+
+ID: toolu_018wQstggAJ8Jgkw2B3TNTBu
+
+<tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix regex to properly strip tool content wrapper with whitespace handling
+</tool.toolu_018wQstggAJ8Jgkw2B3TNTBu>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01414ZdAwb56S51kBhqC6s7B
+
+### file-path
+
+<tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+greger-tree-sitter.el
+</tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+
+### original-content
+
+<tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper
+            (when (string-match "^<tool\\.[^>]+>\\(.*\\)</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+            (setq content (string-trim content-text))))
+</tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+
+### new-content
+
+<tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper
+            (when (string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+            (setq content (string-trim content-text))))
+</tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+
+### git-commit-message
+
+<tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+Fix tool result content extraction regex as well
+</tool.toolu_01414ZdAwb56S51kBhqC6s7B>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01414ZdAwb56S51kBhqC6s7B -->
