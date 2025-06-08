@@ -12,7 +12,7 @@ module.exports = grammar({
 
   extras: $ => [
     $.html_comment,
-    /[ \t\r\n]/,
+    /[ \t]/,
   ],
 
   externals: $ => [

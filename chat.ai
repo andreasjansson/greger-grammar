@@ -3964,4 +3964,77 @@ tool_param: $ => prec(1, seq(
 Give tool_param higher precedence
 </tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F6nUYsd3SRG1Ji7ZGaCJXg -->
+## TOOL RESULT:
+
+ID: toolu_01F6nUYsd3SRG1Ji7ZGaCJXg
+
+<tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Give tool_param higher precedence
+</tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HJkLyKaiNZjuBeAfyj5yzw
+
+### command
+
+<tool.toolu_01HJkLyKaiNZjuBeAfyj5yzw>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01HJkLyKaiNZjuBeAfyj5yzw>
+
+## TOOL RESULT:
+
+ID: toolu_01HJkLyKaiNZjuBeAfyj5yzw
+
+<tool.toolu_01HJkLyKaiNZjuBeAfyj5yzw>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [3, 10]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10]))
+  (ERROR [5, 0] - [9, 14]
+    (ERROR [7, 0] - [9, 14])))
+test_simple.greger	Parse:    0.03 ms	  2365 bytes/ms	(ERROR [5, 0] - [9, 14])
+
+</tool.toolu_01HJkLyKaiNZjuBeAfyj5yzw>
+
+## ASSISTANT:
+
+The issue is that the text_content is still capturing everything because whitespace including newlines are in extras. Let me try a different approach - make the patterns more explicit by excluding whitespace from extras and handling newlines explicitly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GhMEoxUvMQtHpn13T5cqn3
+
+### file-path
+
+<tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+grammar.js
+</tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+
+### original-content
+
+<tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+extras: $ => [
+    $.html_comment,
+    /[ \t\r\n]/,
+  ],
+</tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+
+### new-content
+
+<tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+</tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+
+### git-commit-message
+
+<tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+Remove newlines from extras to make parsing more explicit
+</tool.toolu_01GhMEoxUvMQtHpn13T5cqn3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GhMEoxUvMQtHpn13T5cqn3 -->
