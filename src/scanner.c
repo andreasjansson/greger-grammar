@@ -190,16 +190,14 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
-    // Debug: try to scan tool content even if not expected
-    if (lexer->lookahead == '<') {
-        if (valid_symbols[TOOL_CONTENT]) {
-            return scan_tool_content(scanner, lexer);
-        } else if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
-        } else {
-            // Force scan tool content anyway
-            return scan_tool_content(scanner, lexer);
-        }
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
     }
 
     return false;
