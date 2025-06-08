@@ -3421,4 +3421,89 @@ greger-tree-sitter.el
 Fix regex to match newlines in tool result parsing
 </tool.toolu_01ArGUxy2fEfe8rSb3uCFg8X>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ArGUxy2fEfe8rSb3uCFg8X -->
+## TOOL RESULT:
+
+ID: toolu_01ArGUxy2fEfe8rSb3uCFg8X
+
+<tool.toolu_01ArGUxy2fEfe8rSb3uCFg8X>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix regex to match newlines in tool result parsing
+</tool.toolu_01ArGUxy2fEfe8rSb3uCFg8X>
+
+## ASSISTANT:
+
+Now let me test the fix:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XjkcPEJTnxbt7h7gei2M8A
+
+### command
+
+<tool.toolu_01XjkcPEJTnxbt7h7gei2M8A>
+emacs --batch -l debug-test.el
+</tool.toolu_01XjkcPEJTnxbt7h7gei2M8A>
+
+## TOOL RESULT:
+
+ID: toolu_01XjkcPEJTnxbt7h7gei2M8A
+
+<tool.toolu_01XjkcPEJTnxbt7h7gei2M8A>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "<tool.toolu_123>\nhello.txt\n</tool.toolu_123"))))))
+
+</tool.toolu_01XjkcPEJTnxbt7h7gei2M8A>
+
+## ASSISTANT:
+
+The regex still isn't working. Let me use a simpler approach. The problem is that the `.*?` doesn't match newlines in Emacs regex. Let me use a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VYJvtinSUErbA86VPLoWJv
+
+### file-path
+
+<tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+greger-tree-sitter.el
+</tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+
+### original-content
+
+<tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      ;; Use [\s\S] to match any character including newlines
+                      (when (string-match "\\([[:ascii:]]*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))))
+</tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+
+### new-content
+
+<tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+</tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+
+### git-commit-message
+
+<tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+Simplify tool content extraction regex to handle newlines
+</tool.toolu_01VYJvtinSUErbA86VPLoWJv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VYJvtinSUErbA86VPLoWJv -->

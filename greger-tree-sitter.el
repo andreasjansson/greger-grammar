@@ -191,13 +191,8 @@
               (when (string= (treesit-node-type param-child) "tool_content")
                 (let ((content-text (treesit-node-text param-child)))
                   ;; Remove the <tool.ID> wrapper using string operations
-                  (when (string-match "^<tool\\.[^>]+>" content-text)
-                    (let* ((start-tag-end (match-end 0))
-                           (remaining-text (substring content-text start-tag-end)))
-                      ;; Look for closing tag (including possible whitespace/newlines before it)
-                      ;; Use [\s\S] to match any character including newlines
-                      (when (string-match "\\([[:ascii:]]*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
-                        (setq content-text (match-string 1 remaining-text)))))
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
                   (setq content-text (string-trim content-text))
                   (push (cons (intern param-name) content-text) input)))))))))
 
