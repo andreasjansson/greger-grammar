@@ -7724,4 +7724,157 @@ greger-tree-sitter.el
 Implement complex dialog extraction with pending assistant content for multi-block messages
 </tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018NwZfu54Lh9MKEMuhqGJu4 -->
+## TOOL RESULT:
+
+ID: toolu_018NwZfu54Lh9MKEMuhqGJu4
+
+<tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Implement complex dialog extraction with pending assistant content for multi-block messages
+</tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+
+## ASSISTANT:
+
+Now I need to implement the tool use extraction functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015yV46uUBQPKmNckr2XieoK
+
+### file-path
+
+<tool.toolu_015yV46uUBQPKmNckr2XieoK>
+greger-tree-sitter.el
+</tool.toolu_015yV46uUBQPKmNckr2XieoK>
+
+### original-content
+
+<tool.toolu_015yV46uUBQPKmNckr2XieoK>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))))
+                children ""))))
+</tool.toolu_015yV46uUBQPKmNckr2XieoK>
+
+### new-content
+
+<tool.toolu_015yV46uUBQPKmNckr2XieoK>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))))
+                children ""))))
+
+(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+  "Extract tool use data from a tool use section."
+  (let ((children (treesit-node-children tool-use-section))
+        (name nil)
+        (id nil)
+        (input '()))
+    
+    ;; Extract metadata and parameters
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text_block")
+          ;; Parse Name: and ID: lines from text_block
+          (let ((text (treesit-node-text child)))
+            (dolist (line (split-string text "\n"))
+              (setq line (string-trim line))
+              (cond
+               ((string-prefix-p "Name:" line)
+                (setq name (string-trim (substring line 5))))
+               ((string-prefix-p "ID:" line)
+                (setq id (string-trim (substring line 3))))))))
+         
+         ((string= node-type "tool_param")
+          ;; Extract parameter from tool_param node
+          (let* ((param-text (treesit-node-text child))
+                 (lines (split-string param-text "\n"))
+                 (header-line (string-trim (car lines)))
+                 (param-name (if (string-prefix-p "###" header-line)
+                                 (string-trim (substring header-line 3))
+                               header-line))
+                 (param-children (treesit-node-children child)))
+            ;; Look for tool_content in the children
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (string-trim (treesit-node-text param-child))))
+                  ;; Remove the <tool.ID> wrapper
+                  (when (string-match "^<tool\\.[^>]+>\\(.*\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input)))))))))
+    
+    `((type . "tool_use")
+      (id . ,id)
+      (name . ,name)
+      (input . ,(nreverse input)))))
+
+(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+  "Extract tool result data from a tool result section."
+  (let ((children (treesit-node-children tool-result-section))
+        (tool-use-id nil)
+        (content nil))
+    
+    ;; Extract ID and content
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text_block")
+          ;; Parse ID: line from text_block
+          (let ((text (treesit-node-text child)))
+            (dolist (line (split-string text "\n"))
+              (setq line (string-trim line))
+              (when (string-prefix-p "ID:" line)
+                (setq tool-use-id (string-trim (substring line 3)))))))
+         
+         ((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (string-trim (treesit-node-text child))))
+            ;; Remove the <tool.ID> wrapper
+            (when (string-match "^<tool\\.[^>]+>\\(.*\\)</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
+            (setq content (string-trim content-text)))))))
+    
+    `((type . "tool_result")
+      (tool_use_id . ,tool-use-id)
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+  "Extract server tool use data from a server tool use section."
+  ;; Similar to tool use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    (setf (alist-get 'type result) "web_search_tool_result")
+    result))
+</tool.toolu_015yV46uUBQPKmNckr2XieoK>
+
+### git-commit-message
+
+<tool.toolu_015yV46uUBQPKmNckr2XieoK>
+Implement tool use, tool result, and server tool extraction functions
+</tool.toolu_015yV46uUBQPKmNckr2XieoK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015yV46uUBQPKmNckr2XieoK -->
