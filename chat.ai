@@ -6804,4 +6804,95 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Debug scanner to check if TOOL_CONTENT is being requested as valid symbol
 </tool.toolu_01ANvHoBabUdsaLNNJ77vYwW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ANvHoBabUdsaLNNJ77vYwW -->
+## TOOL RESULT:
+
+ID: toolu_01ANvHoBabUdsaLNNJ77vYwW
+
+<tool.toolu_01ANvHoBabUdsaLNNJ77vYwW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Debug scanner to check if TOOL_CONTENT is being requested as valid symbol
+</tool.toolu_01ANvHoBabUdsaLNNJ77vYwW>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CXEzQXxkyA7PkRdG5zM3fN
+
+### command
+
+<tool.toolu_01CXEzQXxkyA7PkRdG5zM3fN>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01CXEzQXxkyA7PkRdG5zM3fN>
+
+## TOOL RESULT:
+
+ID: toolu_01CXEzQXxkyA7PkRdG5zM3fN
+
+<tool.toolu_01CXEzQXxkyA7PkRdG5zM3fN>
+Command failed with exit code 1: (source_file [0, 0] - [4, 14]
+  (tool_result_section [0, 0] - [4, 0]
+    (ERROR [2, 0] - [2, 13]
+      (ERROR [2, 0] - [2, 13]))
+    (text_content [3, 0] - [3, 5]))
+  (ERROR [4, 0] - [4, 14]
+    (ERROR [4, 0] - [4, 14])))
+test_simple.greger	Parse:    0.64 ms	    79 bytes/ms	(ERROR [2, 0] - [2, 13])
+
+</tool.toolu_01CXEzQXxkyA7PkRdG5zM3fN>
+
+## ASSISTANT:
+
+Still the same error. This confirms my suspicion: the tool_content symbol is not being requested as valid at the point where `<tool.` is encountered. This means the grammar is not expecting tool_content at that position.
+
+Looking back at the debug output, I can see that we're in a tool_result_section and looking for _tool_result_content. The content choices are:
+
+```javascript
+_tool_result_content: $ => choice(
+      $.tool_use_metadata,
+      $.tool_content,         // <- should be valid
+      $.text_content,
+      /\r?\n/,
+    ),
+```
+
+But the issue might be that there's a grammar conflict or the parser state machine is not correctly identifying this as a place where tool_content is valid.
+
+Let me try a different approach. Let me go back to the simple test cases and try to understand why the simpler patterns like tool_use_metadata aren't working first. If I can't get "Name: test" to be recognized as tool_use_metadata instead of text_content, then the issue is more fundamental.
+
+Let me create an even simpler test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QCFLaPK3dSR8Zm1TXc47r6
+
+### file-path
+
+<tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+test_simple.greger
+</tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+
+### original-content
+
+<tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+## TOOL RESULT:
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+
+### new-content
+
+<tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+## TOOL RESULT:
+
+ID: abc123
+</tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+
+### git-commit-message
+
+<tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+Test just tool metadata recognition without tool content
+</tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QCFLaPK3dSR8Zm1TXc47r6 -->
