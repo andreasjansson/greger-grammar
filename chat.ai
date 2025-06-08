@@ -12270,4 +12270,2017 @@ grammar.js
 Parse citation entry fields directly in grammar
 </tool.toolu_01REiEq39d1srt79FmGZiYsG>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01REiEq39d1srt79FmGZiYsG -->
+## TOOL RESULT:
+
+ID: toolu_01REiEq39d1srt79FmGZiYsG
+
+<tool.toolu_01REiEq39d1srt79FmGZiYsG>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Parse citation entry fields directly in grammar
+</tool.toolu_01REiEq39d1srt79FmGZiYsG>
+
+## ASSISTANT:
+
+Now let me build the grammar and test it:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01624hJ4DXyQvihyciQWtQ5x
+
+### command
+
+<tool.toolu_01624hJ4DXyQvihyciQWtQ5x>
+bash build.sh
+</tool.toolu_01624hJ4DXyQvihyciQWtQ5x>
+
+## TOOL RESULT:
+
+ID: toolu_01624hJ4DXyQvihyciQWtQ5x
+
+<tool.toolu_01624hJ4DXyQvihyciQWtQ5x>
+Command executed successfully:
+(no output)
+</tool.toolu_01624hJ4DXyQvihyciQWtQ5x>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SVgXNA9xaQVXiZdYMSLiF6
+
+### command
+
+<tool.toolu_01SVgXNA9xaQVXiZdYMSLiF6>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01SVgXNA9xaQVXiZdYMSLiF6>
+
+## TOOL RESULT:
+
+ID: toolu_01SVgXNA9xaQVXiZdYMSLiF6
+
+<tool.toolu_01SVgXNA9xaQVXiZdYMSLiF6>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01SVgXNA9xaQVXiZdYMSLiF6>
+
+## ASSISTANT:
+
+I see the issue - the citation fields are not being parsed as expected. Let me check what's happening. The citation entry is parsing the URL correctly but the fields after it are being treated as text_block instead of citation fields.
+
+Let me check the parse with pretty format to see the structure better:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01KpZFAoxjgEsqfLB3Pv5X4b
+
+### command
+
+<tool.toolu_01KpZFAoxjgEsqfLB3Pv5X4b>
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/citations-basic.greger
+</tool.toolu_01KpZFAoxjgEsqfLB3Pv5X4b>
+
+## TOOL RESULT:
+
+ID: toolu_01KpZFAoxjgEsqfLB3Pv5X4b
+
+<tool.toolu_01KpZFAoxjgEsqfLB3Pv5X4b>
+Command executed successfully:
+[37mnew_parse[0m
+[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
+[37mlex_external state:2, row:0, column:0[0m
+[37mlex_internal state:138, row:0, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mshift state:46[0m
+[37mprocess version:0, version_count:1, state:46, row:0, col:2[0m
+[37mlex_external state:2, row:0, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:3, row:0, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+[37mlexed_lookahead sym:USER, size:5[0m
+[37mshift state:80[0m
+[37mprocess version:0, version_count:1, state:80, row:0, col:7[0m
+[37mlex_external state:2, row:0, column:7[0m
+[37mlex_internal state:0, row:0, column:7[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:8[0m
+[37mprocess version:0, version_count:1, state:8, row:0, col:8[0m
+[37mlex_external state:2, row:0, column:8[0m
+[37mlex_internal state:138, row:0, column:8[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mshift state:26[0m
+[37mprocess version:0, version_count:1, state:26, row:1, col:0[0m
+[37mlex_external state:2, row:1, column:0[0m
+[37mlex_internal state:138, row:1, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:29[0m
+[31mprocess version:1, version_count:2, state:7, row:1, col:0[0m
+[31mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:2, col:0[0m
+[37mlex_external state:2, row:2, column:0[0m
+[37mlex_internal state:138, row:2, column:0[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'?'[0m
+[37mlexed_lookahead sym:text_block_token1, size:29[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:2, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:2, col:0[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[32mprocess version:3, version_count:4, state:7, row:2, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:2, col:29[0m
+[37mlex_external state:2, row:2, column:29[0m
+[37mlex_internal state:138, row:2, column:29[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:2, col:29[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:2, col:29[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:7, row:2, col:29[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:3, col:0[0m
+[37mlex_external state:2, row:3, column:0[0m
+[37mlex_internal state:138, row:3, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:3, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:3, col:0[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:7, row:3, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:4, col:0[0m
+[37mlex_external state:2, row:4, column:0[0m
+[37mlex_internal state:138, row:4, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:4, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:user_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mprocess version:2, version_count:3, state:7, row:4, col:0[0m
+[34mreduce sym:user_section, child_count:4[0m
+[34mselect_earlier symbol:user_section, over_symbol:user_section[0m
+[34mshift state:46[0m
+[37mprocess version:0, version_count:1, state:46, row:4, col:2[0m
+[37mlex_external state:2, row:4, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:3, row:4, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'V'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+[37mlexed_lookahead sym:SERVER, size:7[0m
+[37mshift state:89[0m
+[37mprocess version:0, version_count:1, state:89, row:4, col:9[0m
+[37mlex_external state:2, row:4, column:9[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:0, row:4, column:9[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+[37mlexed_lookahead sym:TOOL, size:5[0m
+[37mshift state:56[0m
+[37mprocess version:0, version_count:1, state:56, row:4, col:14[0m
+[37mlex_external state:2, row:4, column:14[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:49, row:4, column:14[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:USE, size:4[0m
+[37mshift state:71[0m
+[37mprocess version:0, version_count:1, state:71, row:4, col:18[0m
+[37mlex_external state:2, row:4, column:18[0m
+[37mlex_internal state:0, row:4, column:18[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:17[0m
+[37mprocess version:0, version_count:1, state:17, row:4, col:19[0m
+[37mlex_external state:1, row:4, column:19[0m
+[37mlex_internal state:140, row:4, column:19[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mshift state:30[0m
+[37mprocess version:0, version_count:1, state:30, row:5, col:0[0m
+[37mlex_external state:1, row:5, column:0[0m
+[37mlex_internal state:140, row:5, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:31[0m
+[31mprocess version:1, version_count:2, state:20, row:5, col:0[0m
+[31mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:6, col:0[0m
+[37mlex_external state:1, row:6, column:0[0m
+[37mlex_internal state:140, row:6, column:0[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+[37mlexed_lookahead sym:text_block_token1, size:16[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:6, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:6, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[32mprocess version:3, version_count:4, state:20, row:6, col:0[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:6, col:16[0m
+[37mlex_external state:1, row:6, column:16[0m
+[37mlex_internal state:140, row:6, column:16[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:6, col:16[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:6, col:16[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:20, row:6, col:16[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:7, col:0[0m
+[37mlex_external state:1, row:7, column:0[0m
+[37mlex_internal state:140, row:7, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:text_block_token1, size:37[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:7, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:7, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:20, row:7, col:0[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:7, col:37[0m
+[37mlex_external state:1, row:7, column:37[0m
+[37mlex_internal state:140, row:7, column:37[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:7, col:37[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:7, col:37[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:20, row:7, col:37[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:8, col:0[0m
+[37mlex_external state:1, row:8, column:0[0m
+[37mlex_internal state:140, row:8, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:8, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:8, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:20, row:8, col:0[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:9, col:0[0m
+[37mlex_external state:1, row:9, column:0[0m
+[37mlex_internal state:140, row:9, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:###, size:3[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:9, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mprocess version:2, version_count:3, state:20, row:9, col:0[0m
+[34mshift state:75[0m
+[37mprocess version:0, version_count:1, state:75, row:9, col:3[0m
+[37mlex_external state:2, row:9, column:3[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:183, row:9, column:3[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'q'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+[37mlexed_lookahead sym:triple_backtick_block_token1, size:6[0m
+[37mshift state:88[0m
+[37mprocess version:0, version_count:1, state:88, row:9, col:9[0m
+[37mlex_external state:2, row:9, column:9[0m
+[37mlex_internal state:3, row:9, column:9[0m
+  [37mconsume character:10[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:tool_param_token1, size:2[0m
+[37mshift state:70[0m
+[37mprocess version:0, version_count:1, state:70, row:11, col:0[0m
+[37mlex_external state:1, row:11, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:tool_content, size:107[0m
+[37mshift state:40[0m
+[37mprocess version:0, version_count:1, state:40, row:13, col:40[0m
+[37mlex_external state:1, row:13, column:40[0m
+[37mlex_internal state:140, row:13, column:40[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:text_block_token1, size:1[0m
+[37mreduce sym:tool_param, child_count:4[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[37mshift state:30[0m
+[37mprocess version:0, version_count:1, state:30, row:13, col:41[0m
+[37mlex_external state:1, row:13, column:41[0m
+[37mlex_internal state:140, row:13, column:41[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:31[0m
+[31mprocess version:1, version_count:2, state:19, row:13, col:41[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:14, col:0[0m
+[37mlex_external state:1, row:14, column:0[0m
+[37mlex_internal state:140, row:14, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:14, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:3, state:19, row:14, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:15, col:0[0m
+[37mlex_external state:1, row:15, column:0[0m
+[37mlex_internal state:140, row:15, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:15, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mreduce sym:server_tool_use_section, child_count:6[0m
+[31mreduce sym:source_file_repeat1, child_count:2[0m
+[31mshift state:46[0m
+[37mprocess version:0, version_count:1, state:46, row:15, col:2[0m
+[37mlex_external state:2, row:15, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:3, row:15, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'V'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'R'[0m
+[37mlexed_lookahead sym:SERVER, size:7[0m
+[37mshift state:89[0m
+[37mprocess version:0, version_count:1, state:89, row:15, col:9[0m
+[37mlex_external state:2, row:15, column:9[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:0, row:15, column:9[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+[37mlexed_lookahead sym:TOOL, size:5[0m
+[37mshift state:56[0m
+[37mprocess version:0, version_count:1, state:56, row:15, col:14[0m
+[37mlex_external state:2, row:15, column:14[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:49, row:15, column:14[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'T'[0m
+[37mlexed_lookahead sym:RESULT, size:7[0m
+[37mshift state:63[0m
+[37mprocess version:0, version_count:1, state:63, row:15, col:21[0m
+[37mlex_external state:2, row:15, column:21[0m
+[37mlex_internal state:0, row:15, column:21[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:15, col:22[0m
+[37mlex_external state:1, row:15, column:22[0m
+[37mlex_internal state:140, row:15, column:22[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mshift state:30[0m
+[37mprocess version:0, version_count:1, state:30, row:16, col:0[0m
+[37mlex_external state:1, row:16, column:0[0m
+[37mlex_internal state:140, row:16, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:31[0m
+[31mprocess version:1, version_count:2, state:21, row:16, col:0[0m
+[31mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:17, col:0[0m
+[37mlex_external state:1, row:17, column:0[0m
+[37mlex_internal state:140, row:17, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:text_block_token1, size:37[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:17, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:17, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[32mprocess version:3, version_count:4, state:21, row:17, col:0[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:17, col:37[0m
+[37mlex_external state:1, row:17, column:37[0m
+[37mlex_internal state:140, row:17, column:37[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:17, col:37[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:17, col:37[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:21, row:17, col:37[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:18, col:0[0m
+[37mlex_external state:1, row:18, column:0[0m
+[37mlex_internal state:140, row:18, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:18, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:4, state:19, row:18, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:21, row:18, col:0[0m
+[32mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:19, col:0[0m
+[37mlex_external state:1, row:19, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'>'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'['[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'{'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'-'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'q'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'f'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'R'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'\'[0m
+  [37mconsume character:'"'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'}'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:']'[0m
+  [37mconsume character:10[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'v'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'G'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'5'[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'K'[0m
+  [37mconsume character:'L'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:'X'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:tool_content, size:374[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:19, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mprocess version:2, version_count:3, state:21, row:19, col:0[0m
+[34mshift state:19[0m
+[37mprocess version:0, version_count:1, state:19, row:29, col:40[0m
+[37mlex_external state:1, row:29, column:40[0m
+[37mlex_internal state:140, row:29, column:40[0m
+  [37mconsume character:'>'[0m
+[37mlexed_lookahead sym:text_block_token1, size:1[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[37mshift state:30[0m
+[37mprocess version:0, version_count:1, state:30, row:29, col:41[0m
+[37mlex_external state:1, row:29, column:41[0m
+[37mlex_internal state:140, row:29, column:41[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:31[0m
+[31mprocess version:1, version_count:2, state:19, row:29, col:41[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:30, col:0[0m
+[37mlex_external state:1, row:30, column:0[0m
+[37mlex_internal state:140, row:30, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:30, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:31[0m
+[34mprocess version:2, version_count:3, state:19, row:30, col:0[0m
+[34mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[34mshift state:30[0m
+[37mprocess version:0, version_count:2, state:31, row:31, col:0[0m
+[37mlex_external state:1, row:31, column:0[0m
+[37mlex_internal state:140, row:31, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:30, row:31, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mselect_earlier symbol:tool_use_section_repeat1, over_symbol:tool_use_section_repeat1[0m
+[31mreduce sym:server_tool_result_section, child_count:6[0m
+[31mreduce sym:source_file_repeat1, child_count:2[0m
+[31mshift state:46[0m
+[37mprocess version:0, version_count:1, state:46, row:31, col:2[0m
+[37mlex_external state:2, row:31, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:3, row:31, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'T'[0m
+[37mlexed_lookahead sym:ASSISTANT, size:10[0m
+[37mshift state:76[0m
+[37mprocess version:0, version_count:1, state:76, row:31, col:12[0m
+[37mlex_external state:2, row:31, column:12[0m
+[37mlex_internal state:0, row:31, column:12[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:4[0m
+[37mprocess version:0, version_count:1, state:4, row:31, col:13[0m
+[37mlex_external state:2, row:31, column:13[0m
+[37mlex_internal state:138, row:31, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mshift state:26[0m
+[37mprocess version:0, version_count:1, state:26, row:32, col:0[0m
+[37mlex_external state:2, row:32, column:0[0m
+[37mlex_internal state:138, row:32, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:29[0m
+[31mprocess version:1, version_count:2, state:11, row:32, col:0[0m
+[31mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:33, col:0[0m
+[37mlex_external state:2, row:33, column:0[0m
+[37mlex_internal state:138, row:33, column:0[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:','[0m
+[37mlexed_lookahead sym:text_block_token1, size:28[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:33, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:33, col:0[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[32mprocess version:3, version_count:4, state:11, row:33, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:33, col:28[0m
+[37mlex_external state:2, row:33, column:28[0m
+[37mlex_internal state:138, row:33, column:28[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:33, col:28[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:33, col:28[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:11, row:33, col:28[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:34, col:0[0m
+[37mlex_external state:2, row:34, column:0[0m
+[37mlex_internal state:138, row:34, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:34, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:12, row:34, col:0[0m
+[34mreduce sym:user_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:11, row:34, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:35, col:0[0m
+[37mlex_external state:2, row:35, column:0[0m
+[37mlex_internal state:138, row:35, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:35, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:user_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[31mselect_earlier symbol:user_section_repeat1, over_symbol:user_section_repeat1[0m
+[34mprocess version:2, version_count:3, state:11, row:35, col:0[0m
+[34mreduce sym:assistant_section, child_count:4[0m
+[34mselect_earlier symbol:assistant_section, over_symbol:assistant_section[0m
+[34mreduce sym:source_file_repeat1, child_count:2[0m
+[34mshift state:46[0m
+[37mprocess version:0, version_count:1, state:46, row:35, col:2[0m
+[37mlex_external state:2, row:35, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:3, row:35, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'S'[0m
+[37mlexed_lookahead sym:CITATIONS, size:10[0m
+[37mshift state:69[0m
+[37mprocess version:0, version_count:1, state:69, row:35, col:12[0m
+[37mlex_external state:2, row:35, column:12[0m
+[37mlex_internal state:0, row:35, column:12[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:27[0m
+[37mprocess version:0, version_count:1, state:27, row:35, col:13[0m
+[37mlex_external state:2, row:35, column:13[0m
+[37mlex_internal state:138, row:35, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mshift state:26[0m
+[37mprocess version:0, version_count:1, state:26, row:36, col:0[0m
+[37mlex_external state:2, row:36, column:0[0m
+[37mlex_internal state:138, row:36, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:29[0m
+[31mprocess version:1, version_count:2, state:25, row:36, col:0[0m
+[31mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:37, col:0[0m
+[37mlex_external state:2, row:37, column:0[0m
+[37mlex_internal state:138, row:37, column:0[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'9'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'6'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'P'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'M'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+[37mlexed_lookahead sym:text_block_token1, size:64[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:37, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:28, row:37, col:0[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[32mprocess version:3, version_count:4, state:25, row:37, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:37, col:64[0m
+[37mlex_external state:2, row:37, column:64[0m
+[37mlex_internal state:138, row:37, column:64[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:37, col:64[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:28, row:37, col:64[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:25, row:37, col:64[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:38, col:0[0m
+[37mlex_external state:2, row:38, column:0[0m
+[37mlex_internal state:138, row:38, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:38, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:4, state:28, row:38, col:0[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[32mprocess version:3, version_count:4, state:25, row:38, col:0[0m
+[32mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:39, col:0[0m
+[37mlex_external state:2, row:39, column:0[0m
+[37mlex_internal state:138, row:39, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:###, size:3[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:39, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:citations_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mprocess version:2, version_count:3, state:25, row:39, col:0[0m
+[34mshift state:57[0m
+[37mprocess version:0, version_count:1, state:57, row:39, col:3[0m
+[37mlex_external state:2, row:39, column:3[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:183, row:39, column:3[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'/'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'_'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+[37mlexed_lookahead sym:triple_backtick_block_token1, size:45[0m
+[37mshift state:83[0m
+[37mprocess version:0, version_count:1, state:83, row:39, col:48[0m
+[37mlex_external state:2, row:39, column:48[0m
+[37mlex_internal state:0, row:39, column:48[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:citation_url, child_count:1[0m
+[37mshift state:22[0m
+[37mprocess version:0, version_count:1, state:22, row:40, col:0[0m
+[37mlex_external state:2, row:40, column:0[0m
+[37mlex_internal state:139, row:40, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:citation_entry, child_count:3[0m
+[37mreduce sym:citations_section_repeat1, child_count:2[0m
+[37mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[37mshift state:26[0m
+[37mprocess version:0, version_count:1, state:26, row:41, col:0[0m
+[37mlex_external state:2, row:41, column:0[0m
+[37mlex_internal state:138, row:41, column:0[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'-'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'k'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+[37mlexed_lookahead sym:text_block_token1, size:33[0m
+[37mreduce sym:text_block, child_count:1[0m
+[37mshift state:29[0m
+[31mprocess version:1, version_count:2, state:28, row:41, col:0[0m
+[31mreduce sym:citations_section_repeat1, child_count:2[0m
+[31mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:41, col:33[0m
+[37mlex_external state:2, row:41, column:33[0m
+[37mlex_internal state:138, row:41, column:33[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:41, col:33[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:3, state:28, row:41, col:33[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:42, col:0[0m
+[37mlex_external state:2, row:42, column:0[0m
+[37mlex_internal state:138, row:42, column:0[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'('[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'3'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'9'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'6'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:8211[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'F'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'4'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:')'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'w'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'u'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:','[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+[37mlexed_lookahead sym:text_block_token1, size:167[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:42, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:3, state:28, row:42, col:0[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:42, col:167[0m
+[37mlex_external state:2, row:42, column:167[0m
+[37mlex_internal state:138, row:42, column:167[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:text_block_token2, size:1[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:42, col:167[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:3, state:28, row:42, col:167[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:43, col:0[0m
+[37mlex_external state:2, row:43, column:0[0m
+[37mlex_internal state:138, row:43, column:0[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'n'[0m
+  [37mconsume character:'d'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'x'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'E'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'8'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'C'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'o'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'A'[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'g'[0m
+  [37mconsume character:'B'[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'y'[0m
+  [37mconsume character:'Y'[0m
+  [37mconsume character:'j'[0m
+  [37mconsume character:'Q'[0m
+  [37mconsume character:'0'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'W'[0m
+  [37mconsume character:'J'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'Z'[0m
+  [37mconsume character:'i'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'.'[0m
+  [37mconsume character:'.'[0m
+[37mlexed_lookahead sym:text_block_token1, size:49[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:43, col:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mshift state:29[0m
+[34mprocess version:2, version_count:3, state:28, row:43, col:0[0m
+[34mreduce sym:citations_section_repeat1, child_count:2[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[34mshift state:26[0m
+[37mprocess version:0, version_count:2, state:29, row:43, col:49[0m
+[37mlex_external state:2, row:43, column:49[0m
+[37mlex_internal state:138, row:43, column:49[0m
+[37mlexed_lookahead sym:end, size:0[0m
+[37mreduce sym:text_block_repeat1, child_count:2[0m
+[31mprocess version:1, version_count:2, state:26, row:43, col:49[0m
+[31mlex_external state:2, row:43, column:49[0m
+[31mlex_internal state:138, row:43, column:49[0m
+[31mlexed_lookahead sym:end, size:0[0m
+[31mreduce sym:text_block, child_count:1[0m
+[31mreduce sym:citations_section_repeat1, child_count:2[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mselect_earlier symbol:citations_section_repeat1, over_symbol:citations_section_repeat1[0m
+[31mreduce sym:citations_section, child_count:4[0m
+[31mreduce sym:source_file_repeat1, child_count:2[0m
+[31mreduce sym:source_file, child_count:1[0m
+[31maccept[0m
+[31mdone[0m
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01KpZFAoxjgEsqfLB3Pv5X4b>
+
+## ASSISTANT:
+
+I can see the issue. The citation entry is only parsing the URL (the `citation_url` is parsed correctly), but the citation fields like "Title:", "Cited text:", etc. are being treated as regular `text_block` instead of `citation_field` nodes.
+
+The problem is that the parser is looking for specific tokens like `Title:`, `Cited`, `text:`, etc., but it's encountering plain text that happens to start with these words. The grammar needs to be more flexible about parsing the citation metadata.
+
+Let me look at a simpler approach. Instead of trying to parse each field explicitly with specific tokens, let me modify the grammar to parse them as pattern-based fields:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LHYekRJNfa72vXgMGH3nsq
+
+### file-path
+
+<tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+grammar.js
+</tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+
+### original-content
+
+<tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+citation_entry: $ => seq(
+      '###',
+      $.citation_url,
+      /\n/,
+      repeat($.citation_field),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_field: $ => choice(
+      $.citation_title,
+      $.citation_cited_text,
+      $.citation_encrypted_index,
+    ),
+
+    citation_title: $ => seq(
+      'Title:',
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_cited_text: $ => seq(
+      'Cited',
+      'text:',
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted',
+      'index:',
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_field_value: $ => /[^\n]*/,
+</tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+
+### new-content
+
+<tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+citation_entry: $ => seq(
+      '###',
+      $.citation_url,
+      /\n/,
+      repeat($.citation_field),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_field: $ => choice(
+      $.citation_title,
+      $.citation_cited_text,
+      $.citation_encrypted_index,
+    ),
+
+    citation_title: $ => seq(
+      /Title:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_cited_text: $ => seq(
+      /Cited\s+text:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      /Encrypted\s+index:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_field_value: $ => /[^\n]*/,
+</tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+
+### git-commit-message
+
+<tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+Use regex patterns for citation field parsing
+</tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LHYekRJNfa72vXgMGH3nsq -->

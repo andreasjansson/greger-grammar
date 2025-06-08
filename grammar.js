@@ -191,21 +191,19 @@ module.exports = grammar({
     ),
 
     citation_title: $ => seq(
-      'Title:',
+      /Title:\s*/,
       $.citation_field_value,
       /\n/,
     ),
 
     citation_cited_text: $ => seq(
-      'Cited',
-      'text:',
+      /Cited\s+text:\s*/,
       $.citation_field_value,
       /\n/,
     ),
 
     citation_encrypted_index: $ => seq(
-      'Encrypted',
-      'index:',
+      /Encrypted\s+index:\s*/,
       $.citation_field_value,
       /\n/,
     ),
