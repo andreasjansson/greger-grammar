@@ -1,1 +1,77 @@
-0
+====================
+Multiple tool uses
+====================
+
+## USER:
+
+List files and read the first one
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_111
+
+### path
+
+<tool.toolu_111>
+.
+</tool.toolu_111>
+
+## TOOL RESULT:
+
+ID: toolu_111
+
+<tool.toolu_111>
+file1.txt
+file2.txt
+README.md
+</tool.toolu_111>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_222
+
+### path
+
+<tool.toolu_222>
+file1.txt
+</tool.toolu_222>
+
+## TOOL RESULT:
+
+ID: toolu_222
+
+<tool.toolu_222>
+This is the content of file1.
+</tool.toolu_222>
+
+## ASSISTANT:
+
+I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (tool_result
+    (id)
+    (content))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (tool_result
+    (id)
+    (content))
+  (assistant
+    (text)))
