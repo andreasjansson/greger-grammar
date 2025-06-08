@@ -301,9 +301,9 @@
                      (string-match-p "^\\s-*\\[\\s-*{" content))
             (condition-case nil
                 (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
-                  ;; If it's a single-element array, extract the first element
+                  ;; If it's a single-element array, extract the first element and wrap it in an extra list
                   (when (and (listp parsed-json) (= (length parsed-json) 1))
-                    (setf (alist-get 'content result) (car parsed-json))))
+                    (setf (alist-get 'content result) (list (car parsed-json)))))
               (error nil))))))
     result))
 
