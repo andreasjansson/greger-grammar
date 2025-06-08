@@ -39,7 +39,7 @@
 
     ;; Thinking section (becomes part of assistant message)
     (:name "thinking-section"
-           :markdown (greger-read-corpus-file "thinking-section")
+           :markdown ,(greger-read-corpus-file "thinking-section")
            :dialog (((role . "user")
                      (content . "What's 2+2?"))
                     ((role . "assistant")
