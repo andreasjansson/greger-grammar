@@ -14283,4 +14283,116 @@ citation_entry: $ => seq(
 Use regex patterns for citation field parsing
 </tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LHYekRJNfa72vXgMGH3nsq -->
+## TOOL RESULT:
+
+ID: toolu_01LHYekRJNfa72vXgMGH3nsq
+
+<tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use regex patterns for citation field parsing
+</tool.toolu_01LHYekRJNfa72vXgMGH3nsq>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CNGhWjsDtZaoqBigD3XLGm
+
+### command
+
+<tool.toolu_01CNGhWjsDtZaoqBigD3XLGm>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01CNGhWjsDtZaoqBigD3XLGm>
+
+## TOOL RESULT:
+
+ID: toolu_01CNGhWjsDtZaoqBigD3XLGm
+
+<tool.toolu_01CNGhWjsDtZaoqBigD3XLGm>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01CNGhWjsDtZaoqBigD3XLGm>
+
+## ASSISTANT:
+
+Still the same issue. The citation fields are not being parsed. Let me check if there's a precedence issue or if the citation_field pattern is not matching. Let me try a different approach - let me make the citation_field patterns more explicit and see if that helps:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GGkcCBk9eMBn2m1B1QEG7A
+
+### file-path
+
+<tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+grammar.js
+</tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+
+### original-content
+
+<tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+citation_field: $ => choice(
+      $.citation_title,
+      $.citation_cited_text,
+      $.citation_encrypted_index,
+    ),
+
+    citation_title: $ => seq(
+      /Title:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_cited_text: $ => seq(
+      /Cited\s+text:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      /Encrypted\s+index:\s*/,
+      $.citation_field_value,
+      /\n/,
+    ),
+</tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+
+### new-content
+
+<tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+citation_field: $ => seq(
+      $.citation_field_name,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_field_name: $ => choice(
+      /Title:\s*/,
+      /Cited\s+text:\s*/,
+      /Encrypted\s+index:\s*/,
+    ),
+</tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+
+### git-commit-message
+
+<tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+Simplify citation field parsing structure
+</tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GGkcCBk9eMBn2m1B1QEG7A -->
