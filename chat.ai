@@ -6877,4 +6877,136 @@ test-all-greger-cases.el
 Test with tool-use-single-param.greger instead
 </tool.toolu_01CNCtzNvmAApTPM7SqqrFzH>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CNCtzNvmAApTPM7SqqrFzH -->
+## TOOL RESULT:
+
+ID: toolu_01CNCtzNvmAApTPM7SqqrFzH
+
+<tool.toolu_01CNCtzNvmAApTPM7SqqrFzH>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Test with tool-use-single-param.greger instead
+</tool.toolu_01CNCtzNvmAApTPM7SqqrFzH>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CPRrTfYpn13bN6GHdxH2eJ
+
+### command
+
+<tool.toolu_01CPRrTfYpn13bN6GHdxH2eJ>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01CPRrTfYpn13bN6GHdxH2eJ>
+
+## TOOL RESULT:
+
+ID: toolu_01CPRrTfYpn13bN6GHdxH2eJ
+
+<tool.toolu_01CPRrTfYpn13bN6GHdxH2eJ>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+Result type: cons
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Read the file hello.txt
+
+"
+Section type: tool_use_section
+  Child type: ##, text: "##"
+  Child type: TOOL, text: "TOOL"
+  Child type: USE, text: "USE"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+Name: read-file
+ID: toolu_123
+
+"
+  Child type: tool_param, text: "### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123"
+  Child type: text_block, text: ">
+
+"
+Section type: tool_result_section
+  Child type: ##, text: "##"
+  Child type: TOOL, text: "TOOL"
+  Child type: RESULT, text: "RESULT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+ID: toolu_123
+
+"
+  Child type: tool_content, text: "<tool.toolu_123>
+Hello, world!
+</tool.toolu_123"
+  Child type: text_block, text: ">
+
+"
+Section type: assistant_section
+  Child type: ##, text: "##"
+  Child type: ASSISTANT, text: "ASSISTANT"
+  Child type: :, text: ":"
+  Child type: text_block, text: "
+
+The file contains: Hello, world!"
+
+</tool.toolu_01CPRrTfYpn13bN6GHdxH2eJ>
+
+## ASSISTANT:
+
+Great! It's parsing correctly and extracting the user and assistant sections. However, I notice that it's not extracting the tool_use_section and tool_result_section. That's because I haven't implemented those extraction functions yet. I can see from the debug output that these sections contain:
+
+1. `tool_use_section` with `tool_param` and `text_block` children
+2. `tool_result_section` with `tool_content` and `text_block` children
+
+But since the test just shows user and assistant roles being extracted, that suggests that the current implementation focuses on simpler dialog extraction first. Let me now move on to implement tool use parsing, but first, let me test with a thinking section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CtqRydfTZHbhiLd8mrfZiK
+
+### file-path
+
+<tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+test-all-greger-cases.el
+</tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+
+### original-content
+
+<tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+(let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/tool-use-single-param.greger")
+                             (buffer-string)))
+</tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+
+### new-content
+
+<tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+(let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/thinking-section.greger")
+                             (buffer-string)))
+</tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+
+### git-commit-message
+
+<tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+Test with thinking-section.greger to verify thinking parsing
+</tool.toolu_01CtqRydfTZHbhiLd8mrfZiK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CtqRydfTZHbhiLd8mrfZiK -->
