@@ -2230,4 +2230,526 @@ test-all-greger-cases.el
 Fix template evaluation for server-tool-use-string-result test
 </tool.toolu_01LKt8TTC36fpuY8s4sRYbbK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LKt8TTC36fpuY8s4sRYbbK -->
+## TOOL RESULT:
+
+ID: toolu_01LKt8TTC36fpuY8s4sRYbbK
+
+<tool.toolu_01LKt8TTC36fpuY8s4sRYbbK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Fix template evaluation for server-tool-use-string-result test
+</tool.toolu_01LKt8TTC36fpuY8s4sRYbbK>
+
+## ASSISTANT:
+
+Now let me focus on the main issue: the tool content parsing. The problem is that the scanner is including the `<tool.ID>` tags in the content instead of just extracting the content between them. Let me examine the scanner code more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012iYRD5TwripaY2mUs6dYoJ
+
+### path
+
+<tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+src/scanner.c
+</tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+
+### start-line
+
+<tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+85
+</tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+
+### end-line
+
+<tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+150
+</tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+
+## TOOL RESULT:
+
+ID: toolu_012iYRD5TwripaY2mUs6dYoJ
+
+<tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+            advance(lexer);
+        } else if (lexer->lookahead == '>' && dashes >= 2) {
+            advance(lexer);
+            lexer->result_symbol = HTML_COMMENT;
+            return true;
+        } else {
+            dashes = 0;
+            advance(lexer);
+        }
+    }
+
+    return false;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID
+    char tool_id[256];
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we find </tool.ID>
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                advance(lexer);
+
+                // Check if this is our closing tag
+                if (lexer->lookahead == 't') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'o') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'o') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                advance(lexer);
+                                if (lexer->lookahead == '.') {
+                                    advance(lexer);
+
+                                    // Check if ID matches
+                                    bool matches = true;
+                                    for (int i = 0; i < id_len && matches; i++) {
+                                        if (lexer->lookahead != tool_id[i]) {
+                                            matches = false;
+</tool.toolu_012iYRD5TwripaY2mUs6dYoJ>
+
+## ASSISTANT:
+
+I see the issue now. The scanner is consuming the entire `<tool.ID>content</tool.ID>` including the tags. But based on the test expectations, we want to extract just the content inside the tags. Let me look at how this is being used in the grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CrtBm39MGNgmBhEDNbiPqF
+
+### path
+
+<tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+grammar.js
+</tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+
+### start-line
+
+<tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+100
+</tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+
+### end-line
+
+<tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+110
+</tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+
+## TOOL RESULT:
+
+ID: toolu_01CrtBm39MGNgmBhEDNbiPqF
+
+<tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+      'RESULT',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    citations_section: $ => prec.right(seq(
+      '##',
+      'CITATIONS',
+      ':',
+      repeat($._citations_content),
+    )),
+</tool.toolu_01CrtBm39MGNgmBhEDNbiPqF>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PSAoypv2YhpDTeCffHMUV6
+
+### path
+
+<tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+grammar.js
+</tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+
+### start-line
+
+<tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+125
+</tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+
+### end-line
+
+<tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+135
+</tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+
+## TOOL RESULT:
+
+ID: toolu_01PSAoypv2YhpDTeCffHMUV6
+
+<tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+
+    _citations_content: $ => prec(-1, choice(
+      $.citation_entry,
+      $.text_block,
+    )),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+      /\n/,
+    )),
+
+</tool.toolu_01PSAoypv2YhpDTeCffHMUV6>
+
+## ASSISTANT:
+
+Let me look at the current greger-tree-sitter.el to see how it's processing the tool content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015SVPo8JKn1HRmCs36xNnF4
+
+### path
+
+<tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+greger-tree-sitter.el
+</tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+
+### start-line
+
+<tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+1
+</tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+
+### end-line
+
+<tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+50
+</tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+
+## TOOL RESULT:
+
+ID: toolu_015SVPo8JKn1HRmCs36xNnF4
+
+<tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      (greger-tree-sitter--extract-dialog-from-node root-node))))
+
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '())
+         (pending-assistant-content '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          ;; Flush any pending assistant content before processing user section
+          (when pending-assistant-content
+            (let ((content (nreverse pending-assistant-content)))
+              ;; Simplify content if it's just a single text block
+              (if (and (= (length content) 1)
+                       (equal (alist-get 'type (car content)) "text"))
+                  (push `((role . "assistant")
+                          (content . ,(alist-get 'text (car content))))
+                        dialog)
+                (push `((role . "assistant")
+                        (content . ,content))
+                      dialog)))
+            (setq pending-assistant-content '()))
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+
+         ((string= section-type "assistant_section")
+          ;; Add assistant text to pending content (don't flush yet)
+          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
+            (when (> (length (string-trim assistant-text)) 0)
+              (push `((type . "text")
+                      (text . ,assistant-text))
+                    pending-assistant-content))))
+
+         ((string= section-type "system_section")
+          ;; Flush any pending assistant content before processing system section
+</tool.toolu_015SVPo8JKn1HRmCs36xNnF4>
+
+## ASSISTANT:
+
+Let me look at how tool content is extracted:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01PbcznCFiKKT3AaGfs6SUyQ
+
+### pattern
+
+<tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+extract.*tool
+</tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+
+### path
+
+<tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+greger-tree-sitter.el
+</tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+
+## TOOL RESULT:
+
+ID: toolu_01PbcznCFiKKT3AaGfs6SUyQ
+
+<tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+74:          (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
+91:          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+98:          (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
+103:          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+158:(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+159:  "Extract tool use data from a tool use section."
+181:          ;; Extract parameter from tool_param node
+208:(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+209:  "Extract tool result data from a tool result section."
+227:          ;; Extract content from tool_content node
+243:(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+244:  "Extract server tool use data from a server tool use section."
+246:  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+250:(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+251:  "Extract server tool result data from a server tool result section."
+253:  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+
+</tool.toolu_01PbcznCFiKKT3AaGfs6SUyQ>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011KKCUjLRtvEa1jD1g5S2TB
+
+### path
+
+<tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+greger-tree-sitter.el
+</tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+
+### start-line
+
+<tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+175
+</tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+
+### end-line
+
+<tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+195
+</tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+
+## TOOL RESULT:
+
+ID: toolu_011KKCUjLRtvEa1jD1g5S2TB
+
+<tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+               ((string-prefix-p "Name:" line)
+                (setq name (string-trim (substring line 5))))
+               ((string-prefix-p "ID:" line)
+                (setq id (string-trim (substring line 3))))))))
+
+         ((string= node-type "tool_param")
+          ;; Extract parameter from tool_param node
+          (let* ((param-text (treesit-node-text child))
+                 (lines (split-string param-text "\n"))
+                 (header-line (string-trim (car lines)))
+                 (param-name (if (string-prefix-p "###" header-line)
+                                 (string-trim (substring header-line 3))
+                               header-line))
+                 (param-children (treesit-node-children child)))
+            ;; Look for tool_content in the children
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+</tool.toolu_011KKCUjLRtvEa1jD1g5S2TB>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014CGKbhNNmGutF9CmsJghyt
+
+### path
+
+<tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+greger-tree-sitter.el
+</tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+
+### start-line
+
+<tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+190
+</tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+
+### end-line
+
+<tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+210
+</tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+
+## TOOL RESULT:
+
+ID: toolu_014CGKbhNNmGutF9CmsJghyt
+
+<tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+            (dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input)))))))))
+
+    `((type . "tool_use")
+      (id . ,id)
+      (name . ,name)
+      (input . ,(nreverse input)))))
+
+(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+  "Extract tool result data from a tool result section."
+  (let ((children (treesit-node-children tool-result-section))
+</tool.toolu_014CGKbhNNmGutF9CmsJghyt>
+
+## ASSISTANT:
+
+I can see that the Emacs code is trying to strip the `<tool.ID>` tags using string manipulation. However, the scanner should ideally not include the tags in the first place. But let me test if this string processing is working correctly.
+
+Let me look at the current processing of tool content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01HGauhzUy85jrJTLCDq8xbj
+
+### path
+
+<tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+greger-tree-sitter.el
+</tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+
+### start-line
+
+<tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+220
+</tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+
+### end-line
+
+<tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+240
+</tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+
+## TOOL RESULT:
+
+ID: toolu_01HGauhzUy85jrJTLCDq8xbj
+
+<tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+          (let ((text (treesit-node-text child)))
+            (dolist (line (split-string text "\n"))
+              (setq line (string-trim line))
+              (when (string-prefix-p "ID:" line)
+                (setq tool-use-id (string-trim (substring line 3)))))))
+
+         ((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag (including possible whitespace/newlines before it)
+                (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                  (setq content-text (match-string 1 remaining-text)))))
+            (setq content (string-trim content-text)))))))
+
+    `((type . "tool_result")
+      (tool_use_id . ,tool-use-id)
+</tool.toolu_01HGauhzUy85jrJTLCDq8xbj>
+
+## ASSISTANT:
+
+I see the issue. The regex isn't working properly because the tools content might have newlines. Let me debug this by creating a simpler test case:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Jbr7b7E4r1hEkZT73qWka5
+
+### file-path
+
+<tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+debug.greger
+</tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+
+### contents
+
+<tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+</tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+
+### git-commit-message
+
+<tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+Add debug file for tool content parsing
+</tool.toolu_01Jbr7b7E4r1hEkZT73qWka5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Jbr7b7E4r1hEkZT73qWka5 -->
