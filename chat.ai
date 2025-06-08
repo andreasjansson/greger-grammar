@@ -11055,4 +11055,105 @@ greger-tree-sitter.el
 Remove problematic has-citations-in-context function
 </tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KCKEWXNFKCdeD5MkBLEoMs -->
+## TOOL RESULT:
+
+ID: toolu_01KCKEWXNFKCdeD5MkBLEoMs
+
+<tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove problematic has-citations-in-context function
+</tool.toolu_01KCKEWXNFKCdeD5MkBLEoMs>
+
+## ASSISTANT:
+
+Now let me test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UfqaLTwiaJ6UjdZmo1PGcw
+
+### command
+
+<tool.toolu_01UfqaLTwiaJ6UjdZmo1PGcw>
+emacs --batch -l debug-test.el
+</tool.toolu_01UfqaLTwiaJ6UjdZmo1PGcw>
+
+## TOOL RESULT:
+
+ID: toolu_01UfqaLTwiaJ6UjdZmo1PGcw
+
+<tool.toolu_01UfqaLTwiaJ6UjdZmo1PGcw>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "What's the current weather?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "current weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Weather search results"))
+   ((type . "text")
+    (text . "It's currently sunny and 75°F")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://weather.com")
+      (title . "Weather.com")
+      (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+      (encrypted_index . "xyz789")))))))
+
+</tool.toolu_01UfqaLTwiaJ6UjdZmo1PGcw>
+
+## ASSISTANT:
+
+Great! That worked. Now the server tool result is correctly showing as `web_search_tool_result`. However, I need to handle the case where some should be `server_tool_result`. Let me look at the specific failing test `server-tool-use-basic` to see what differentiates it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AmbtHYD7qwXvBDJe5bYssz
+
+### file-path
+
+<tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+debug-test.el
+</tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+
+### original-content
+
+<tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+(load-file "./greger-tree-sitter.el")
+
+(let* ((text (with-temp-buffer
+               (insert-file-contents "./test/corpus/citations-after-tool-result.greger")
+               (buffer-string)))
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+
+### new-content
+
+<tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+(load-file "./greger-tree-sitter.el")
+
+(let* ((text (with-temp-buffer
+               (insert-file-contents "./test/corpus/server-tool-use-basic.greger")
+               (buffer-string)))
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+
+### git-commit-message
+
+<tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+Update debug test to check server-tool-use-basic
+</tool.toolu_01AmbtHYD7qwXvBDJe5bYssz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AmbtHYD7qwXvBDJe5bYssz -->
