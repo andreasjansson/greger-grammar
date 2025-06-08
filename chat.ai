@@ -14489,4 +14489,231 @@ citation_field_name: $ => choice(
 Use explicit token matching for citation field names
 </tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LCzqa8B8VjcWBoqAzANVhu -->
+## TOOL RESULT:
+
+ID: toolu_01LCzqa8B8VjcWBoqAzANVhu
+
+<tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use explicit token matching for citation field names
+</tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UhYjR6a5aJcfXYfho3hVra
+
+### command
+
+<tool.toolu_01UhYjR6a5aJcfXYfho3hVra>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01UhYjR6a5aJcfXYfho3hVra>
+
+## TOOL RESULT:
+
+ID: toolu_01UhYjR6a5aJcfXYfho3hVra
+
+<tool.toolu_01UhYjR6a5aJcfXYfho3hVra>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01UhYjR6a5aJcfXYfho3hVra>
+
+## ASSISTANT:
+
+Still not working. Let me take a step back and reconsider the approach. The problem might be that the citation fields are conflicting with the text_block parsing in the citations section.
+
+Looking at the grammar structure, in `_citations_content`, we have:
+
+```javascript
+_citations_content: $ => prec(-1, choice(
+  $.citation_entry,
+  $.text_block,
+)),
+```
+
+The text_block has precedence and might be capturing the citation metadata before citation_field can match.
+
+Let me try a different approach. Instead of trying to parse citation fields as part of the citation_entry, let me modify the citation_entry to capture everything until the next ### or end of section. This would be more similar to how it was working before, but we can still extract the fields in the elisp code more systematically.
+
+Actually, let me step back and test if the new parsing works at all. Let me check if the current grammar can even parse the tests correctly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Lf7eG1Gth4yLvZ1G1jAked
+
+### command
+
+<tool.toolu_01Lf7eG1Gth4yLvZ1G1jAked>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01Lf7eG1Gth4yLvZ1G1jAked>
+
+## TOOL RESULT:
+
+ID: toolu_01Lf7eG1Gth4yLvZ1G1jAked
+
+<tool.toolu_01Lf7eG1Gth4yLvZ1G1jAked>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.001s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.009s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+✅ PASSED (0.001s)
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.000s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.000s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.000s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 21
+Failed: 0
+
+🎉 ALL TESTS PASSED!
+
+</tool.toolu_01Lf7eG1Gth4yLvZ1G1jAked>
+
+## ASSISTANT:
+
+Interesting! Even though the grammar changes aren't working as expected (the citation fields are not being parsed in the grammar), all the tests are still passing. This means the elisp code is still able to extract the citation information correctly from the text_block nodes.
+
+Since the existing approach works and all tests pass, maybe I should take a more incremental approach. Let me revert the grammar changes and instead just improve the elisp code to be more systematic about parsing citation fields from the text content.
+
+The key insight is that the current approach (parsing citation metadata in elisp) is working correctly and all tests pass. Trying to parse it in the grammar is proving complex because of precedence and structure issues.
+
+Let me revert the grammar changes and keep the current approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015etMMRuoM8hTjagXRoHM7p
+
+### file-path
+
+<tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+grammar.js
+</tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+
+### original-content
+
+<tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+citation_entry: $ => seq(
+      '###',
+      $.citation_url,
+      /\n/,
+      repeat($.citation_field),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_field: $ => seq(
+      $.citation_field_name,
+      $.citation_field_value,
+      /\n/,
+    ),
+
+    citation_field_name: $ => choice(
+      'Title:',
+      seq('Cited', 'text:'),
+      seq('Encrypted', 'index:'),
+    ),
+
+    citation_field_value: $ => /[^\n]*/,
+</tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+
+### new-content
+
+<tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+citation_entry: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n/,
+      repeat(seq(
+        /[^\n#]+/,
+        /\n/,
+      )),
+    ),
+</tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+
+### git-commit-message
+
+<tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+Revert citation entry parsing to original approach
+</tool.toolu_015etMMRuoM8hTjagXRoHM7p>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015etMMRuoM8hTjagXRoHM7p -->

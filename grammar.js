@@ -177,26 +177,13 @@ module.exports = grammar({
 
     citation_entry: $ => seq(
       '###',
-      $.citation_url,
+      /[^\n]*/,
       /\n/,
-      repeat($.citation_field),
+      repeat(seq(
+        /[^\n#]+/,
+        /\n/,
+      )),
     ),
-
-    citation_url: $ => /[^\n]*/,
-
-    citation_field: $ => seq(
-      $.citation_field_name,
-      $.citation_field_value,
-      /\n/,
-    ),
-
-    citation_field_name: $ => choice(
-      'Title:',
-      seq('Cited', 'text:'),
-      seq('Encrypted', 'index:'),
-    ),
-
-    citation_field_value: $ => /[^\n]*/,
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
