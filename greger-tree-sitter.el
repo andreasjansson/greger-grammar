@@ -229,18 +229,16 @@
 
          ((string= node-type "tool_content")
           ;; Extract content from tool_content node
-          (let ((content-text (string-trim (treesit-node-text child))))
+          (let ((content-text (treesit-node-text child)))
             ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
-            (cond
-             ;; Full wrapper case
-             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+>$" content-text)
-              (setq content-text (match-string 1 content-text)))
-             ;; Partial wrapper case (missing closing >)
-             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*?\\)\\s-*</tool\\.[^>]+$" content-text)
-              (setq content-text (match-string 1 content-text)))
-             ;; Just remove the opening tag if present
-             ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
-              (setq content-text (match-string 1 content-text))))
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag
+                (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                    (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                  (setq content-text remaining-text))))
             (setq content (string-trim content-text)))))))
 
     `((type . "tool_result")
