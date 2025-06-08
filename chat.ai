@@ -10577,4 +10577,173 @@ _citations_content: $ => choice(
 Restructure citations to group title/text/encrypted_index under citation_entry
 </tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Wd5Me2dWKH6gsxwRN5X3oQ -->
+## TOOL RESULT:
+
+ID: toolu_01Wd5Me2dWKH6gsxwRN5X3oQ
+
+<tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restructure citations to group title/text/encrypted_index under citation_entry
+</tool.toolu_01Wd5Me2dWKH6gsxwRN5X3oQ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VaEmWNee5XfKtYQbnGE8do
+
+### command
+
+<tool.toolu_01VaEmWNee5XfKtYQbnGE8do>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01VaEmWNee5XfKtYQbnGE8do>
+
+## TOOL RESULT:
+
+ID: toolu_01VaEmWNee5XfKtYQbnGE8do
+
+<tool.toolu_01VaEmWNee5XfKtYQbnGE8do>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [44, 0])))
+
+</tool.toolu_01VaEmWNee5XfKtYQbnGE8do>
+
+## ASSISTANT:
+
+Hmm, the citation_title, citation_text, and citation_encrypted_index are not being parsed as part of the citation_entry. The issue is that they are defined as tokens, and the parser doesn't know they should be part of the citation_entry.
+
+Let me check what the citation rules look like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Hzxw4Phd5kCbe9MaNDaPy3
+
+### path
+
+<tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+grammar.js
+</tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+
+### start-line
+
+<tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+185
+</tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+
+### end-line
+
+<tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+205
+</tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+
+## TOOL RESULT:
+
+ID: toolu_01Hzxw4Phd5kCbe9MaNDaPy3
+
+<tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    ))),
+
+    citation_encrypted_index: $ => field('encrypted_index', token(seq(
+      'Encrypted index:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    ))),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+      /\n/,
+    )),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+</tool.toolu_01Hzxw4Phd5kCbe9MaNDaPy3>
+
+## ASSISTANT:
+
+The issue is that `citation_title`, `citation_text`, and `citation_encrypted_index` are defined as tokens, so they will be matched by the lexer independently rather than as part of the citation_entry structure.
+
+Let me try a different approach. Instead of trying to make them part of citation_entry during parsing, let me structure the grammar so that citation_entry is followed by these components as separate children of the citations section, but with proper aliases:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VSsBsomdnSvF29Xq2JLXPu
+
+### file-path
+
+<tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+grammar.js
+</tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+
+### original-content
+
+<tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+_citations_content: $ => choice(
+      $.citation_entry,
+      prec(-1, $.text_block),
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      alias($.citation_url, $.url),
+      /\n/,
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    ),
+</tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+
+### new-content
+
+<tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+_citations_content: $ => choice(
+      alias($.citation_entry, $.entry),
+      alias($.citation_title, $.title),
+      alias($.citation_text, $.cited_text),
+      alias($.citation_encrypted_index, $.encrypted_index),
+      prec(-1, $.text_block),
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      alias($.citation_url, $.url),
+      /\n/,
+    ),
+</tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+
+### git-commit-message
+
+<tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+Revert citation_entry and use aliases for cleaner citation component names
+</tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VSsBsomdnSvF29Xq2JLXPu -->

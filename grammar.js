@@ -159,7 +159,10 @@ module.exports = grammar({
     param_name: $ => /[^\n]+/,
 
     _citations_content: $ => choice(
-      $.citation_entry,
+      alias($.citation_entry, $.entry),
+      alias($.citation_title, $.title),
+      alias($.citation_text, $.cited_text),
+      alias($.citation_encrypted_index, $.encrypted_index),
       prec(-1, $.text_block),
     ),
 
@@ -167,9 +170,6 @@ module.exports = grammar({
       '###',
       alias($.citation_url, $.url),
       /\n/,
-      optional(alias($.citation_title, $.title)),
-      optional(alias($.citation_text, $.cited_text)),
-      optional(alias($.citation_encrypted_index, $.encrypted_index)),
     ),
 
     citation_url: $ => /[^\n]*/,
