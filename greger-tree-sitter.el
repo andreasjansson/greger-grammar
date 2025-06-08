@@ -331,7 +331,7 @@
 
 (defun greger-tree-sitter--extract-citations-section (citations-section)
   "Extract citations section and return list of text blocks with citations attached."
-  (message "[DEBUG] Processing citations section")
+
   (let ((children (treesit-node-children citations-section))
         (cited-text nil)
         (citations '())
