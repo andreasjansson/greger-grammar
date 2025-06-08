@@ -298,7 +298,7 @@ bar
                      (content . "You can use triple backticks:\n\n```\nHere's how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?"))))
 
     (:name "html-comments"
-           :markdown (greger-read-corpus-file "html-comments")
+           :markdown ,(greger-read-corpus-file "html-comments")
            :dialog (((role . "user")
                      (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
 
