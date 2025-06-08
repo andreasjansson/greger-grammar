@@ -6077,4 +6077,217 @@ debug-test.el
 Add sequential test debug to isolate contamination
 </tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WTNF8YRd3L2QemFEQ7KJeM -->
+## TOOL RESULT:
+
+ID: toolu_01WTNF8YRd3L2QemFEQ7KJeM
+
+<tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 2207 characters. Successfully staged 2 file(s) and committed with message: Add sequential test debug to isolate contamination
+</tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RSG6uPkANDDkzZjsuxtu8A
+
+### command
+
+<tool.toolu_01RSG6uPkANDDkzZjsuxtu8A>
+emacs --batch -l debug-test.el
+</tool.toolu_01RSG6uPkANDDkzZjsuxtu8A>
+
+## TOOL RESULT:
+
+ID: toolu_01RSG6uPkANDDkzZjsuxtu8A
+
+<tool.toolu_01RSG6uPkANDDkzZjsuxtu8A>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== SEQUENTIAL TEST DEBUG ===
+
+--- Testing: citations-basic ---
+  User content: When was Claude Shannon born?
+  Found tool use type: server_tool_use
+
+--- Testing: tool-use-with-code-in-params ---
+  User content: Write some Python code
+  Found tool use type: server_tool_use
+  Found tool result type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01RSG6uPkANDDkzZjsuxtu8A>
+
+## ASSISTANT:
+
+Very interesting! This shows the contamination happening. The tool-use-with-code-in-params test is showing "server_tool_use" and "web_search_tool_result" instead of "tool_use" and "tool_result".
+
+And this happens even when running just these two tests in sequence. This suggests that running the citations-basic test first is somehow contaminating the state for the tool-use-with-code-in-params test.
+
+Let me check if this happens when I run tool-use-with-code-in-params by itself:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FK5Q7sQ6oEsXDcNepfSYDT
+
+### file-path
+
+<tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+debug-test.el
+</tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+
+### original-content
+
+<tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+;; Test just a few cases to isolate the issue
+(defconst debug-test-cases
+  `(
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic"))
+    
+    (:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+</tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+
+### new-content
+
+<tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+;; Test just a few cases to isolate the issue
+(defconst debug-test-cases
+  `(
+    (:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+</tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+
+### git-commit-message
+
+<tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+Test only tool-use-with-code-in-params to see if it works in isolation
+</tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+
+## TOOL RESULT:
+
+ID: toolu_01FK5Q7sQ6oEsXDcNepfSYDT
+
+<tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01FK5Q7sQ6oEsXDcNepfSYDT>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Wfie5sus2mWChLCC73a6nd
+
+### file-path
+
+<tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+debug-test.el
+</tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+
+### original-content
+
+<tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic"))
+    
+    (:name "tool-use-with-code-in-params"
+</tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+
+### new-content
+
+<tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+    (:name "tool-use-with-code-in-params"
+</tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+
+### git-commit-message
+
+<tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+Test only tool-use-with-code-in-params to see if it works in isolation
+</tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+
+## TOOL RESULT:
+
+ID: toolu_01Wfie5sus2mWChLCC73a6nd
+
+<tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01Wfie5sus2mWChLCC73a6nd>
+
+## ASSISTANT:
+
+Let me just replace the whole file:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01LfoigCbokJUN5Uync1VPZU
+
+### file-path
+
+<tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+debug-test.el
+</tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+
+### contents
+
+<tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test just one case in isolation
+(defconst debug-test-cases
+  `((:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+
+(message "=== ISOLATED TEST DEBUG ===")
+
+(dolist (test-case debug-test-cases)
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (result (greger-tree-sitter-parse markdown)))
+    
+    (message "\n--- Testing: %s ---" name)
+    
+    ;; Look at tool use and tool result types specifically
+    (dolist (dialog-entry result)
+      (let ((role (alist-get 'role dialog-entry))
+            (content (alist-get 'content dialog-entry)))
+        (when (equal role "assistant")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_use")
+                            (string= type "server_tool_use"))
+                    (message "  Found tool use type: %s" type))))
+            ;; Single content item
+            (message "  Assistant content: %s" content)))
+        (when (equal role "user")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_result")
+                            (string= type "server_tool_result")
+                            (string= type "web_search_tool_result"))
+                    (message "  Found tool result type: %s" type))))
+            ;; Single content item  
+            (message "  User content: %s" content)))))))
+
+(provide 'debug-test)
+</tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+
+### git-commit-message
+
+<tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+Test only tool-use-with-code-in-params in isolation
+</tool.toolu_01LfoigCbokJUN5Uync1VPZU>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LfoigCbokJUN5Uync1VPZU -->

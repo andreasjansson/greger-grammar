@@ -10,16 +10,12 @@
           (buffer-string))
       (error "Corpus file not found: %s" file-path))))
 
-;; Test just a few cases to isolate the issue
+;; Test just one case in isolation
 (defconst debug-test-cases
-  `(
-    (:name "citations-basic"
-           :markdown ,(greger-read-corpus-file "citations-basic"))
-
-    (:name "tool-use-with-code-in-params"
+  `((:name "tool-use-with-code-in-params"
            :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
 
-(message "=== SEQUENTIAL TEST DEBUG ===")
+(message "=== ISOLATED TEST DEBUG ===")
 
 (dolist (test-case debug-test-cases)
   (let* ((name (plist-get test-case :name))
