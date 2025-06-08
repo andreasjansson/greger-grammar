@@ -5749,4 +5749,79 @@ greger-tree-sitter.el
 Replace recursive text extraction with post-processing approach
 </tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XVhm8NSJ2XC6UvCEyoJg2J -->
+## TOOL RESULT:
+
+ID: toolu_01XVhm8NSJ2XC6UvCEyoJg2J
+
+<tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Replace recursive text extraction with post-processing approach
+</tool.toolu_01XVhm8NSJ2XC6UvCEyoJg2J>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UXZKvWKG38z2Yq5CWrqR39
+
+### command
+
+<tool.toolu_01UXZKvWKG38z2Yq5CWrqR39>
+emacs --batch -l debug-test.el
+</tool.toolu_01UXZKvWKG38z2Yq5CWrqR39>
+
+## TOOL RESULT:
+
+ID: toolu_01UXZKvWKG38z2Yq5CWrqR39
+
+<tool.toolu_01UXZKvWKG38z2Yq5CWrqR39>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Here's some code:\n\n<!-- comment -->\n<!-- multi\nline\n\ncomment -->\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_01UXZKvWKG38z2Yq5CWrqR39>
+
+## ASSISTANT:
+
+Hmm, the HTML comments are still there. The issue is that I'm not properly handling the variable passing. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CgjpA1uvmWvfJydfiqCUvL
+
+### file-path
+
+<tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+greger-tree-sitter.el
+</tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+
+### original-content
+
+<tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list)
+  "Recursively collect all HTML comment nodes in a tree."
+  (when (string= (treesit-node-type node) "html_comment")
+    (push node comment-list))
+  (dolist (child (treesit-node-children node))
+    (greger-tree-sitter--collect-comment-nodes child comment-list)))
+</tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+
+### new-content
+
+<tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list-ref)
+  "Recursively collect all HTML comment nodes in a tree."
+  (when (string= (treesit-node-type node) "html_comment")
+    (setcar comment-list-ref (cons node (car comment-list-ref))))
+  (dolist (child (treesit-node-children node))
+    (greger-tree-sitter--collect-comment-nodes child comment-list-ref)))
+</tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+
+### git-commit-message
+
+<tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+Fix comment collection to use reference parameter
+</tool.toolu_01CgjpA1uvmWvfJydfiqCUvL>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CgjpA1uvmWvfJydfiqCUvL -->

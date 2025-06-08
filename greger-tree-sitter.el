@@ -164,12 +164,12 @@
                                    (substring result comment-end))))))
         result))))
 
-(defun greger-tree-sitter--collect-comment-nodes (node comment-list)
+(defun greger-tree-sitter--collect-comment-nodes (node comment-list-ref)
   "Recursively collect all HTML comment nodes in a tree."
   (when (string= (treesit-node-type node) "html_comment")
-    (push node comment-list))
+    (setcar comment-list-ref (cons node (car comment-list-ref))))
   (dolist (child (treesit-node-children node))
-    (greger-tree-sitter--collect-comment-nodes child comment-list)))
+    (greger-tree-sitter--collect-comment-nodes child comment-list-ref)))
 
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
