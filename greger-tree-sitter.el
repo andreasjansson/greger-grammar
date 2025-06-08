@@ -310,6 +310,55 @@ ERRORS:
     (setf (alist-get 'type result) "web_search_tool_result")
     result))
 
+(defun greger-tree-sitter--extract-citations (citations-section)
+  "Extract citations data from a citations section."
+  (let ((children (treesit-node-children citations-section))
+        (cited-text "")
+        (citations '()))
+
+    ;; Extract cited text and citation entries
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text_block")
+          ;; Add to cited text
+          (setq cited-text (concat cited-text (treesit-node-text child))))
+
+         ((string= node-type "citation_entry")
+          ;; Parse citation entry
+          (let* ((entry-text (treesit-node-text child))
+                 (lines (split-string entry-text "\n"))
+                 (url-line (string-trim (car lines)))
+                 (url (if (string-prefix-p "###" url-line)
+                          (string-trim (substring url-line 3))
+                        url-line))
+                 (title "")
+                 (cited-text-detail "")
+                 (encrypted-index ""))
+
+            ;; Parse the following lines for title, cited text, encrypted index
+            (dolist (line (cdr lines))
+              (setq line (string-trim line))
+              (cond
+               ((string-prefix-p "Title:" line)
+                (setq title (string-trim (substring line 6))))
+               ((string-prefix-p "Cited text:" line)
+                (setq cited-text-detail (string-trim (substring line 11))))
+               ((string-prefix-p "Encrypted index:" line)
+                (setq encrypted-index (string-trim (substring line 16))))))
+
+            (push `((type . "web_search_result_location")
+                    (url . ,url)
+                    (title . ,title)
+                    (cited_text . ,cited-text-detail)
+                    (encrypted_index . ,encrypted-index))
+                  citations))))))
+
+    ;; Return text block with citations
+    `((type . "text")
+      (text . ,(string-trim cited-text))
+      (citations . ,(nreverse citations)))))
+
 (provide 'greger-tree-sitter)
 
 ;;; greger-tree-sitter.el ends here
