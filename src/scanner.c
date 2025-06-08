@@ -135,8 +135,35 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return true;
     }
 
-    if (valid_symbols[TOOL_CONTENT] && scan_tool_content(scanner, lexer)) {
-        return true;
+    // DEBUG: Always try to scan tool content when we see <tool. to see if it's the valid_symbols issue
+    if (lexer->lookahead == '<') {
+        advance(lexer);
+        if (lexer->lookahead == 't') {
+            advance(lexer);
+            if (lexer->lookahead == 'o') {
+                advance(lexer);
+                if (lexer->lookahead == 'o') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'l') {
+                        advance(lexer);
+                        if (lexer->lookahead == '.') {
+                            // Found <tool. - check if TOOL_CONTENT is valid
+                            if (valid_symbols[TOOL_CONTENT]) {
+                                // It's valid, continue scanning
+                                advance(lexer);
+                                while (lexer->lookahead != 0) {
+                                    advance(lexer);
+                                }
+                                lexer->result_symbol = TOOL_CONTENT;
+                                return true;
+                            }
+                            // Not valid - return false to let internal scanner handle it
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return false;
