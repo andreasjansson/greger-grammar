@@ -279,7 +279,7 @@
     (let ((result (list (cons 'type "tool_result")
                         (cons 'tool_use_id tool-use-id)
                         (cons 'content content))))
-      (message "[DEBUG] extract-tool-result returning type: %s" (alist-get 'type result))
+
       result)))
 
 (defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
