@@ -9461,4 +9461,146 @@ hello world
 Test tool content with actual content between tags
 </tool.toolu_01NrFtrGG6wuyfjYZkTfPQCE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NrFtrGG6wuyfjYZkTfPQCE -->
+## TOOL RESULT:
+
+ID: toolu_01NrFtrGG6wuyfjYZkTfPQCE
+
+<tool.toolu_01NrFtrGG6wuyfjYZkTfPQCE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Test tool content with actual content between tags
+</tool.toolu_01NrFtrGG6wuyfjYZkTfPQCE>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MxowGTzZVhRiZDuSbpPzUp
+
+### file-path
+
+<tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+src/scanner.c
+</tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+
+### original-content
+
+<tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    // Simple test: just recognize <tool. and return immediately
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Now we're inside the tool tag, scan until we find >
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '>') {
+            advance(lexer);
+            lexer->result_symbol = TOOL_CONTENT;
+            return true;
+        }
+        advance(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+
+### new-content
+
+<tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID
+    char tool_id[256];
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    tool_id[id_len] = '\0';
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we find </tool.ID>
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                advance(lexer);
+                
+                // Check if this is our closing tag
+                if (lexer->lookahead == 't') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'o') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'o') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                advance(lexer);
+                                if (lexer->lookahead == '.') {
+                                    advance(lexer);
+                                    
+                                    // Check if ID matches
+                                    bool matches = true;
+                                    for (int i = 0; i < id_len && matches; i++) {
+                                        if (lexer->lookahead != tool_id[i]) {
+                                            matches = false;
+                                        } else {
+                                            advance(lexer);
+                                        }
+                                    }
+                                    
+                                    if (matches && lexer->lookahead == '>') {
+                                        // Found closing tag - return everything we've scanned
+                                        lexer->result_symbol = TOOL_CONTENT;
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            advance(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+
+### git-commit-message
+
+<tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+Implement proper tool content scanning with opening and closing tag matching
+</tool.toolu_01MxowGTzZVhRiZDuSbpPzUp>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MxowGTzZVhRiZDuSbpPzUp -->
