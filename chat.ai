@@ -63,7 +63,8 @@ I want to work on the grammar in isolation here in a clean repo before integrati
 ### Current state
 
 * I have installed the tree-sitter CLI and run `tree-sitter init`.
-* I have a boilerplate for the elisp postprocessing code in greger-tree-sitter.el.
+* I have boilerplate for the elisp postprocessing code in greger-tree-sitter.el.
+* I have a start of grammar.js and src/scanner.c
 * I have ported over the test cases from ~/projects/greger.el/test/test-greger-parser.el to test-all-greger-cases.el
 
 ### Instructions
@@ -162,30 +163,30 @@ And very important: Remember to not run any other shell commands than the safe s
 
 ## ASSISTANT:
 
-I'll start by exploring the current state of the project and understanding the test cases to build the tree-sitter grammar.
+I'll start by examining the current state of the project and understanding the test cases to build the tree-sitter grammar for the greger markdown-like format.
 
 ## TOOL USE:
 
 Name: list-directory
-ID: toolu_01QyL7GDbibkixA7hvZ86vXo
+ID: toolu_0171exTrDFaPu6vYTfEFbU17
 
 ### path
 
-<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+<tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 .
-</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+</tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 
 ### recursive
 
-<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+<tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 true
-</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+</tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 
 ## TOOL RESULT:
 
-ID: toolu_01QyL7GDbibkixA7hvZ86vXo
+ID: toolu_0171exTrDFaPu6vYTfEFbU17
 
-<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+<tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 ./:
 drwxr-xr-x  (dir)  .
 drwxr-xr-x  (dir)  ..
@@ -200,15 +201,15 @@ drwxr-xr-x  (dir)  .git
 -rw-r--r--       765  binding.gyp
 drwxr-xr-x  (dir)  bindings
 -rwxr-xr-x        97  build.sh
--rw-r--r--      9342  chat.ai
+-rw-r--r--     62816  chat.ai
 -rw-r--r--    302576  chat2.ai
 -rw-r--r--     31609  chat3.greger
 -rw-r--r--      1072  debug_comprehensive.greger
 -rw-r--r--       113  go.mod
--rw-r--r--       289  grammar.js
+-rw-r--r--      3126  grammar.js
 -rw-r--r--      2570  grammar.old.js
 -rw-r--r--      2291  greger-tree-sitter.el
--rwxr-xr-x     51304  libtree-sitter-greger.dylib
+-rwxr-xr-x     51464  libtree-sitter-greger.dylib
 -rw-r--r--      1041  package.json
 -rw-r--r--       771  pyproject.toml
 -rw-r--r--      2066  setup.py
@@ -217,7 +218,7 @@ drwxr-xr-x  (dir)  test
 -rw-r--r--     24615  test-all-greger-cases.el
 -rw-r--r--       308  test_citations.greger
 -rw-r--r--       874  tree-sitter.json
-</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+</tool.toolu_0171exTrDFaPu6vYTfEFbU17>
 
 ## ASSISTANT:
 
@@ -226,19 +227,19 @@ Let me first examine the test cases to understand what needs to be parsed:
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01HBERaBxw6tDD2W12CSardF
+ID: toolu_015caLkSPsBJ4r2JMsXvQd7z
 
 ### path
 
-<tool.toolu_01HBERaBxw6tDD2W12CSardF>
+<tool.toolu_015caLkSPsBJ4r2JMsXvQd7z>
 test-all-greger-cases.el
-</tool.toolu_01HBERaBxw6tDD2W12CSardF>
+</tool.toolu_015caLkSPsBJ4r2JMsXvQd7z>
 
 ## TOOL RESULT:
 
-ID: toolu_01HBERaBxw6tDD2W12CSardF
+ID: toolu_015caLkSPsBJ4r2JMsXvQd7z
 
-<tool.toolu_01HBERaBxw6tDD2W12CSardF>
+<tool.toolu_015caLkSPsBJ4r2JMsXvQd7z>
 ;;; test-all-greger-cases.el --- Comprehensive test of greger-tree-sitter against all test cases -*- lexical-binding: t -*-
 
 (load-file "./greger-tree-sitter.el")
@@ -676,758 +677,28 @@ bar
   (message "❌ Tree-sitter greger parser not available"))
 
 (provide 'test-all-greger-cases)
-</tool.toolu_01HBERaBxw6tDD2W12CSardF>
+</tool.toolu_015caLkSPsBJ4r2JMsXvQd7z>
 
 ## ASSISTANT:
 
-Now let me examine the corpus test files to understand the structure:
-
-## TOOL USE:
-
-Name: list-directory
-ID: toolu_015ABLyHP1duvA3n6iamSCbw
-
-### path
-
-<tool.toolu_015ABLyHP1duvA3n6iamSCbw>
-test/corpus
-</tool.toolu_015ABLyHP1duvA3n6iamSCbw>
-
-## TOOL RESULT:
-
-ID: toolu_015ABLyHP1duvA3n6iamSCbw
-
-<tool.toolu_015ABLyHP1duvA3n6iamSCbw>
-test/corpus/:
-drwxr-xr-x  (dir)  .
-drwxr-xr-x  (dir)  ..
--rw-r--r--       460  citations-after-tool-result.greger
--rw-r--r--      1106  citations-basic.greger
--rw-r--r--       755  citations-multiple.greger
--rw-r--r--       149  code-block-triple-backticks.greger
--rw-r--r--      1035  complex-workflow.greger
--rw-r--r--       232  html-comments.greger
--rw-r--r--       213  mixed-code-blocks-and-sections.greger
--rw-r--r--       559  multiple-tool-uses.greger
--rw-r--r--       208  nested-code-blocks.greger
--rw-r--r--       481  server-tool-use-basic.greger
--rw-r--r--       313  server-tool-use-string-result.greger
--rw-r--r--        67  simple-conversation.greger
--rw-r--r--        29  simple-user-message.greger
--rw-r--r--        76  system-and-user.greger
--rw-r--r--       112  thinking-only.greger
--rw-r--r--       154  thinking-section.greger
--rw-r--r--       463  tool-use-multiple-params.greger
--rw-r--r--       122  tool-use-only.greger
--rw-r--r--       265  tool-use-single-param.greger
--rw-r--r--       471  tool-use-with-code-in-params.greger
--rw-r--r--       371  tool-use-with-tool-use-in-params.greger
-</tool.toolu_015ABLyHP1duvA3n6iamSCbw>
-
-## ASSISTANT:
-
-Let me examine a few key examples to understand the format:
+Now let me examine the current grammar and test files to understand the structure:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01TWzFusgGfJ1rkxuKdadf7q
+ID: toolu_01HATgQfkQsktJdxziuk8dnc
 
 ### path
 
-<tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
-test/corpus/simple-user-message.greger
-</tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
-
-## TOOL RESULT:
-
-ID: toolu_01TWzFusgGfJ1rkxuKdadf7q
-
-<tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
-## USER:
-
-Hello, how are you?
-</tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_012W71o8DHh5DPU8dsaKmgn6
-
-### path
-
-<tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
-test/corpus/simple-conversation.greger
-</tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
-
-## TOOL RESULT:
-
-ID: toolu_012W71o8DHh5DPU8dsaKmgn6
-
-<tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
-## USER:
-
-Hello
-
-## ASSISTANT:
-
-Hi there! How can I help you today?
-</tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01UoZxYncAgcPUovTCSAXiDK
-
-### path
-
-<tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
-test/corpus/thinking-section.greger
-</tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
-
-## TOOL RESULT:
-
-ID: toolu_01UoZxYncAgcPUovTCSAXiDK
-
-<tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
-## USER:
-
-What's 2+2?
-
-## THINKING:
-
-This is a simple arithmetic question. I can answer this directly without needing any tools.
-
-## ASSISTANT:
-
-2 + 2 = 4
-</tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01DL9hcSuTyY8nmnCUdKjuAJ
-
-### path
-
-<tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
-test/corpus/tool-use-single-param.greger
-</tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
-
-## TOOL RESULT:
-
-ID: toolu_01DL9hcSuTyY8nmnCUdKjuAJ
-
-<tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
-## USER:
-
-Read the file hello.txt
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_123
-
-### path
-
-<tool.toolu_123>
-hello.txt
-</tool.toolu_123>
-
-## TOOL RESULT:
-
-ID: toolu_123
-
-<tool.toolu_123>
-Hello, world!
-</tool.toolu_123>
-
-## ASSISTANT:
-
-The file contains: Hello, world!
-</tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01WJgnJJv44T1eJZRQ8Kng8V
-
-### path
-
-<tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
-test/corpus/citations-basic.greger
-</tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
-
-## TOOL RESULT:
-
-ID: toolu_01WJgnJJv44T1eJZRQ8Kng8V
-
-<tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
-## USER:
-
-When was Claude Shannon born?
-
-## SERVER TOOL USE:
-
-Name: web_search
-ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
-
-### query
-
-<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
-claude shannon birth date
-</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
-
-## SERVER TOOL RESULT:
-
-ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
-
-<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
-[
-  {
-    \"type\": \"web_search_result\",
-    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
-    \"title\": \"Claude Shannon - Wikipedia\",
-    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
-    \"page_age\": \"April 30, 2025\"
-  }
-]
-</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
-
-## ASSISTANT:
-
-Based on the search results,
-
-## CITATIONS:
-
-Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
-
-### https://en.wikipedia.org/wiki/Claude_Shannon
-
-Title: Claude Shannon - Wikipedia
-Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
-Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
-</tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
-
-## ASSISTANT:
-
-Now let me look at the current grammar:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01MaMNE2zq9fLvmkK3MntD4G
-
-### path
-
-<tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+<tool.toolu_01HATgQfkQsktJdxziuk8dnc>
 grammar.js
-</tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+</tool.toolu_01HATgQfkQsktJdxziuk8dnc>
 
 ## TOOL RESULT:
 
-ID: toolu_01MaMNE2zq9fLvmkK3MntD4G
+ID: toolu_01HATgQfkQsktJdxziuk8dnc
 
-<tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
-/**
- * @file Greger grammar for tree-sitter
- * @author Andreas Jansson
- * @license MIT
- */
-
-/// <reference types="tree-sitter-cli/dsl" />
-// @ts-check
-
-module.exports = grammar({
-  name: "greger",
-
-  rules: {
-    // TODO: add the actual grammar rules
-    source_file: $ => "hello"
-  }
-});
-</tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
-
-## ASSISTANT:
-
-I need to understand the current tree-sitter setup structure:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01XpkVWLmU6GCkF6fjmxQMr8
-
-### path
-
-<tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
-src/scanner.c
-</tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
-
-## TOOL RESULT:
-
-ID: toolu_01XpkVWLmU6GCkF6fjmxQMr8
-
-<tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
-Error executing tool: File does not exist: /Users/andreas/scratch/greger-grammar/src/scanner.c
-</tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
-
-## TOOL USE:
-
-Name: list-directory
-ID: toolu_01BnUzdWUjnydMuWuznTuGnD
-
-### path
-
-<tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
-src
-</tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
-
-## TOOL RESULT:
-
-ID: toolu_01BnUzdWUjnydMuWuznTuGnD
-
-<tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
-src/:
-drwxr-xr-x  (dir)  .
-drwxr-xr-x  (dir)  ..
--rw-r--r--     15133  grammar.json
--rw-r--r--      9993  node-types.json
--rw-r--r--    127173  parser.c
-drwxr-xr-x  (dir)  tree_sitter
-</tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
-
-## ASSISTANT:
-
-Now let me examine a more complex example to understand tool use structure:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01ArVeZn4TMSPDQTBD7iYtgu
-
-### path
-
-<tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
-test/corpus/tool-use-with-tool-use-in-params.greger
-</tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
-
-## TOOL RESULT:
-
-ID: toolu_01ArVeZn4TMSPDQTBD7iYtgu
-
-<tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
-## USER:
-
-Write some Python code
-
-## TOOL USE:
-
-Name: write-file
-ID: toolu_999
-
-### filename
-
-<tool.toolu_999>
-example.py
-</tool.toolu_999>
-
-### content
-
-<tool.toolu_999>
-foo
-<tool.toolu_123>
-bar
-</tool.toolu_123>
-</tool.toolu_999>
-
-## TOOL RESULT:
-
-ID: toolu_999
-
-<tool.toolu_999>
-File written successfully
-</tool.toolu_999>
-
-## ASSISTANT:
-
-I've written the Python file.
-</tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
-
-## ASSISTANT:
-
-Let me look at HTML comments and code blocks:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_018LKVtba84KNLpDUYJUmiLK
-
-### path
-
-<tool.toolu_018LKVtba84KNLpDUYJUmiLK>
-test/corpus/html-comments.greger
-</tool.toolu_018LKVtba84KNLpDUYJUmiLK>
-
-## TOOL RESULT:
-
-ID: toolu_018LKVtba84KNLpDUYJUmiLK
-
-<tool.toolu_018LKVtba84KNLpDUYJUmiLK>
-## USER:
-
-Here's some code:
-
-<!-- comment -->
-<!-- multi
-line
-
-comment -->
-
-```
-<!-- comment should be included -->
-## ASSISTANT:
-This should not be parsed as a section header
-## TOOL USE:
-Neither should this
-```
-
-What do you think?
-</tool.toolu_018LKVtba84KNLpDUYJUmiLK>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_019osx1bybaUAYHaihwhkPCg
-
-### path
-
-<tool.toolu_019osx1bybaUAYHaihwhkPCg>
-test/corpus/code-block-triple-backticks.greger
-</tool.toolu_019osx1bybaUAYHaihwhkPCg>
-
-## TOOL RESULT:
-
-ID: toolu_019osx1bybaUAYHaihwhkPCg
-
-<tool.toolu_019osx1bybaUAYHaihwhkPCg>
-## USER:
-
-Here's some code:
-
-```
-## ASSISTANT:
-This should not be parsed as a section header
-## TOOL USE:
-Neither should this
-```
-
-What do you think?
-</tool.toolu_019osx1bybaUAYHaihwhkPCg>
-
-## ASSISTANT:
-
-Now let me examine the current elisp code:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01XPQD2ht6F6APQMo3bSPPt5
-
-### path
-
-<tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
-greger-tree-sitter.el
-</tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
-
-## TOOL RESULT:
-
-ID: toolu_01XPQD2ht6F6APQMo3bSPPt5
-
-<tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
-(require 'treesit)
-
-(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
-
-(defun greger-tree-sitter-parse (text)
-  "Parse greger conversation TEXT using tree-sitter and return structured dialog.
-
-INPUT:
-  TEXT - A string containing greger conversation format, e.g.:
-    \"## USER:
-
-    Hello, how are you?
-
-    ## ASSISTANT:
-
-    I'm doing well, thanks! <cite>This is cited text</cite>
-
-    ## CITATIONS:
-
-    ### https://example.com
-
-    Title: Example Site
-    Cited text: This is cited text from the source
-    Encrypted index: abc123\"
-
-OUTPUT:
-  Returns a list of message objects, each with 'role and 'content fields:
-  - Role is one of: \"user\", \"assistant\", \"system\"
-  - Content can be either:
-    a) A simple string for basic messages
-    b) A list of content blocks for complex messages
-
-  Content blocks have 'type field and additional fields:
-  - type=\"text\": Has 'text field, optionally 'citations field
-  - type=\"thinking\": Has 'thinking field
-  - type=\"tool_use\": Has 'id, 'name, 'input fields
-  - type=\"tool_result\": Has 'tool_use_id, 'content fields
-  - type=\"server_tool_use\": Has 'id, 'name, 'input fields
-  - type=\"web_search_tool_result\": Has 'tool_use_id, 'content fields
-
-EXAMPLE OUTPUT:
-  ((role . \"user\") (content . \"Hello, how are you?\"))
-  ((role . \"assistant\")
-   (content . (((type . \"text\") (text . \"I'm doing well, thanks!\"))
-               ((type . \"text\")
-                (text . \"This is cited text\")
-                (citations . (((type . \"web_search_result_location\")
-                               (url . \"https://example.com\")
-                               (title . \"Example Site\")
-                               (cited_text . \"This is cited text from the source\")
-                               (encrypted_index . \"abc123\"))))))))
-
-ERRORS:
-  Throws an error if tree-sitter greger parser is not available."
-  (unless (treesit-ready-p 'greger)
-    (error "Tree-sitter greger parser not available"))
-
-  (with-temp-buffer
-    (insert text)
-    (let ((parser (treesit-parser-create 'greger)))
-      (greger-tree-sitter--extract-dialog parser text))))
-
-(defun greger-tree-sitter--extract-dialog (parser text)
-  ;; TODO
-  )
-
-(provide 'greger-tree-sitter)
-
-;;; greger-tree-sitter.el ends here
-</tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
-
-## ASSISTANT:
-
-Let me also check some HTML examples to understand their scanner approach:
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_0145whLswFZAj2ZWEiaDMryU
-
-### path
-
-<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
-</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-
-### start-line
-
-<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-1
-</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-
-### end-line
-
-<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-50
-</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-
-## TOOL RESULT:
-
-ID: toolu_0145whLswFZAj2ZWEiaDMryU
-
-<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-/**
- * @file HTML grammar for tree-sitter
- * @author Max Brunsfeld <maxbrunsfeld@gmail.com>
- * @author Amaan Qureshi <amaanq12@gmail.com>
- * @license MIT
- */
-
-/// <reference types="tree-sitter-cli/dsl" />
-// @ts-check
-
-module.exports = grammar({
-  name: 'html',
-
-  extras: $ => [
-    $.comment,
-    /\s+/,
-  ],
-
-  conflicts: [
-    [$.text_content],
-  ],
-
-  externals: $ => [
-    $._start_tag_name,
-    $._script_start_tag_name,
-    $._style_start_tag_name,
-    $._end_tag_name,
-    $.erroneous_end_tag_name,
-    '/>',
-    $._implicit_end_tag,
-    $.raw_text,
-    $.comment,
-  ],
-
-  rules: {
-    document: $ => repeat($._node),
-
-    doctype: $ => seq(
-      '<!',
-      alias($._doctype, 'doctype'),
-      /[^>]+/,
-      '>',
-    ),
-
-    _doctype: _ => /[Dd][Oo][Cc][Tt][Yy][Pp][Ee]/,
-
-    _node: $ => choice(
-      $.doctype,
-      $.entity,
-      $.text,
-</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
-
-## TOOL USE:
-
-Name: read-file
-ID: toolu_01XfTPJfUVutvdAZ9gRqKWLm
-
-### path
-
-<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/src/scanner.c
-</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-
-### start-line
-
-<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-1
-</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-
-### end-line
-
-<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-50
-</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-
-## TOOL RESULT:
-
-ID: toolu_01XfTPJfUVutvdAZ9gRqKWLm
-
-<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-#include "tag.h"
-#include "tree_sitter/parser.h"
-
-#include <wctype.h>
-
-enum TokenType {
-    START_TAG_NAME,
-    SCRIPT_START_TAG_NAME,
-    STYLE_START_TAG_NAME,
-    END_TAG_NAME,
-    ERRONEOUS_END_TAG_NAME,
-    SELF_CLOSING_TAG_DELIMITER,
-    IMPLICIT_END_TAG,
-    RAW_TEXT,
-    COMMENT,
-};
-
-typedef struct {
-    Array(Tag) tags;
-} Scanner;
-
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
-
-static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
-
-static unsigned serialize(Scanner *scanner, char *buffer) {
-    uint16_t tag_count = scanner->tags.size > UINT16_MAX ? UINT16_MAX : scanner->tags.size;
-    uint16_t serialized_tag_count = 0;
-
-    unsigned size = sizeof(tag_count);
-    memcpy(&buffer[size], &tag_count, sizeof(tag_count));
-    size += sizeof(tag_count);
-
-    for (; serialized_tag_count < tag_count; serialized_tag_count++) {
-        Tag tag = scanner->tags.contents[serialized_tag_count];
-        if (tag.type == CUSTOM) {
-            unsigned name_length = tag.custom_tag_name.size;
-            if (name_length > UINT8_MAX) {
-                name_length = UINT8_MAX;
-            }
-            if (size + 2 + name_length >= TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
-                break;
-            }
-            buffer[size++] = (char)tag.type;
-            buffer[size++] = (char)name_length;
-            strncpy(&buffer[size], tag.custom_tag_name.contents, name_length);
-            size += name_length;
-        } else {
-</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
-
-## ASSISTANT:
-
-Now let me start building the grammar. Based on the examples, I need to handle:
-
-1. Section headers (## USER:, ## ASSISTANT:, ## THINKING:, etc.)
-2. Tool content with dynamic tags (`<tool.XXX>...</tool.XXX>`)
-3. Citations parsing
-4. Code blocks (both ``` and single backticks)
-5. HTML comments that should be ignored
-6. Safe shell commands
-
-Let me start by creating a basic grammar structure:
-
-## TOOL USE:
-
-Name: str-replace
-ID: toolu_01PYdAzNfRamGtrTDaXdgNvN
-
-### file-path
-
-<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-grammar.js
-</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-
-### original-content
-
-<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-/**
- * @file Greger grammar for tree-sitter
- * @author Andreas Jansson
- * @license MIT
- */
-
-/// <reference types="tree-sitter-cli/dsl" />
-// @ts-check
-
-module.exports = grammar({
-  name: "greger",
-
-  rules: {
-    // TODO: add the actual grammar rules
-    source_file: $ => "hello"
-  }
-});
-</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-
-### new-content
-
-<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+<tool.toolu_01HATgQfkQsktJdxziuk8dnc>
 /**
  * @file Greger grammar for tree-sitter
  * @author Andreas Jansson
@@ -1481,7 +752,7 @@ module.exports = grammar({
 
     section_content: $ => repeat1(choice(
       $.tool_use_content,
-      $.server_tool_use_content, 
+      $.server_tool_use_content,
       $.safe_shell_commands,
       $.code_block,
       $.text_content,
@@ -1564,42 +835,24 @@ module.exports = grammar({
     ),
   }
 });
-</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-
-### git-commit-message
-
-<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-Add basic grammar structure for greger format
-</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-
-## TOOL RESULT:
-
-ID: toolu_01PYdAzNfRamGtrTDaXdgNvN
-
-<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add basic grammar structure for greger format
-</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
-
-## ASSISTANT:
-
-
-
-Now I need to create the scanner.c file to handle tool content and HTML comments:
+</tool.toolu_01HATgQfkQsktJdxziuk8dnc>
 
 ## TOOL USE:
 
-Name: write-new-file
-ID: toolu_01Cd96ojdLFtLBaGe4VQSHt3
+Name: read-file
+ID: toolu_01RvmQ5qAzwFYYfoeejTkMs5
 
-### file-path
+### path
 
-<tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
+<tool.toolu_01RvmQ5qAzwFYYfoeejTkMs5>
 src/scanner.c
-</tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
+</tool.toolu_01RvmQ5qAzwFYYfoeejTkMs5>
 
-### contents
+## TOOL RESULT:
 
-<tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
+ID: toolu_01RvmQ5qAzwFYYfoeejTkMs5
+
+<tool.toolu_01RvmQ5qAzwFYYfoeejTkMs5>
 #include "tree_sitter/parser.h"
 #include <wctype.h>
 #include <string.h>
@@ -1620,26 +873,26 @@ static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
 unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
     Scanner *scanner = (Scanner *)payload;
-    
+
     size_t tool_id_len = strlen(scanner->tool_id);
     if (tool_id_len >= 255) tool_id_len = 255;
-    
+
     buffer[0] = scanner->in_tool_content ? 1 : 0;
     buffer[1] = tool_id_len;
     memcpy(buffer + 2, scanner->tool_id, tool_id_len);
-    
+
     return 2 + tool_id_len;
 }
 
 void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
     Scanner *scanner = (Scanner *)payload;
-    
+
     if (length == 0) {
         scanner->in_tool_content = false;
         scanner->tool_id[0] = '\0';
         return;
     }
-    
+
     scanner->in_tool_content = buffer[0] == 1;
     if (length > 1) {
         unsigned tool_id_len = buffer[1];
@@ -1669,16 +922,16 @@ void tree_sitter_greger_external_scanner_destroy(void *payload) {
 static bool scan_html_comment(TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
     advance(lexer);
-    
+
     if (lexer->lookahead != '!') return false;
     advance(lexer);
-    
+
     if (lexer->lookahead != '-') return false;
     advance(lexer);
-    
+
     if (lexer->lookahead != '-') return false;
     advance(lexer);
-    
+
     // Now we're inside the comment, scan until we find -->
     int dashes = 0;
     while (lexer->lookahead != 0) {
@@ -1694,23 +947,23 @@ static bool scan_html_comment(TSLexer *lexer) {
             advance(lexer);
         }
     }
-    
+
     return false;
 }
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     // Look for <tool.ID> or </tool.ID>
     if (lexer->lookahead != '<') return false;
-    
+
     lexer->mark_end(lexer);
     advance(lexer);
-    
+
     bool is_closing = false;
     if (lexer->lookahead == '/') {
         is_closing = true;
         advance(lexer);
     }
-    
+
     // Check for "tool."
     if (lexer->lookahead != 't') return false;
     advance(lexer);
@@ -1722,7 +975,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     advance(lexer);
     if (lexer->lookahead != '.') return false;
     advance(lexer);
-    
+
     // Extract the tool ID
     char tool_id[256];
     int id_len = 0;
@@ -1731,10 +984,10 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         advance(lexer);
     }
     tool_id[id_len] = '\0';
-    
+
     if (lexer->lookahead != '>') return false;
     advance(lexer);
-    
+
     if (is_closing) {
         // Closing tag - check if it matches our current tool ID
         if (scanner->in_tool_content && strcmp(scanner->tool_id, tool_id) == 0) {
@@ -1748,17 +1001,17 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         // Opening tag - start tool content mode
         strcpy(scanner->tool_id, tool_id);
         scanner->in_tool_content = true;
-        
+
         // Scan until we find the matching closing tag
         while (lexer->lookahead != 0) {
             if (lexer->lookahead == '<') {
                 // Check if this might be our closing tag
                 lexer->mark_end(lexer);
                 advance(lexer);
-                
+
                 if (lexer->lookahead == '/') {
                     advance(lexer);
-                    
+
                     // Check for "tool."
                     if (lexer->lookahead == 't') {
                         advance(lexer);
@@ -1770,7 +1023,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     advance(lexer);
                                     if (lexer->lookahead == '.') {
                                         advance(lexer);
-                                        
+
                                         // Check if the ID matches
                                         char close_id[256];
                                         int close_id_len = 0;
@@ -1779,7 +1032,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                             advance(lexer);
                                         }
                                         close_id[close_id_len] = '\0';
-                                        
+
                                         if (lexer->lookahead == '>' && strcmp(scanner->tool_id, close_id) == 0) {
                                             // Found matching closing tag
                                             scanner->in_tool_content = false;
@@ -1796,7 +1049,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             }
             advance(lexer);
         }
-        
+
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
@@ -1804,28 +1057,688 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
-    
+
     // Skip whitespace
     while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
         skip(lexer);
     }
-    
+
     if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
         return true;
     }
-    
+
     if (valid_symbols[TOOL_CONTENT] && scan_tool_content(scanner, lexer)) {
         return true;
     }
-    
+
     return false;
 }
-</tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
+</tool.toolu_01RvmQ5qAzwFYYfoeejTkMs5>
+
+## ASSISTANT:
+
+Now let me check the existing test files to understand the structure:
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_01U9VYEYzGQCq2d46BDYd2qq
+
+### path
+
+<tool.toolu_01U9VYEYzGQCq2d46BDYd2qq>
+test/corpus
+</tool.toolu_01U9VYEYzGQCq2d46BDYd2qq>
+
+## TOOL RESULT:
+
+ID: toolu_01U9VYEYzGQCq2d46BDYd2qq
+
+<tool.toolu_01U9VYEYzGQCq2d46BDYd2qq>
+test/corpus/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       460  citations-after-tool-result.greger
+-rw-r--r--      1106  citations-basic.greger
+-rw-r--r--       755  citations-multiple.greger
+-rw-r--r--       149  code-block-triple-backticks.greger
+-rw-r--r--      1035  complex-workflow.greger
+-rw-r--r--       232  html-comments.greger
+-rw-r--r--       213  mixed-code-blocks-and-sections.greger
+-rw-r--r--       559  multiple-tool-uses.greger
+-rw-r--r--       208  nested-code-blocks.greger
+-rw-r--r--       481  server-tool-use-basic.greger
+-rw-r--r--       313  server-tool-use-string-result.greger
+-rw-r--r--        67  simple-conversation.greger
+-rw-r--r--        29  simple-user-message.greger
+-rw-r--r--        76  system-and-user.greger
+-rw-r--r--       112  thinking-only.greger
+-rw-r--r--       154  thinking-section.greger
+-rw-r--r--       463  tool-use-multiple-params.greger
+-rw-r--r--       122  tool-use-only.greger
+-rw-r--r--       265  tool-use-single-param.greger
+-rw-r--r--       471  tool-use-with-code-in-params.greger
+-rw-r--r--       371  tool-use-with-tool-use-in-params.greger
+</tool.toolu_01U9VYEYzGQCq2d46BDYd2qq>
+
+## ASSISTANT:
+
+Let me examine a few test cases to understand the expected format:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TWzs5ZVXUB5xHajJ37mFiR
+
+### path
+
+<tool.toolu_01TWzs5ZVXUB5xHajJ37mFiR>
+test/corpus/simple-user-message.greger
+</tool.toolu_01TWzs5ZVXUB5xHajJ37mFiR>
+
+## TOOL RESULT:
+
+ID: toolu_01TWzs5ZVXUB5xHajJ37mFiR
+
+<tool.toolu_01TWzs5ZVXUB5xHajJ37mFiR>
+## USER:
+
+Hello, how are you?
+</tool.toolu_01TWzs5ZVXUB5xHajJ37mFiR>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01S8uMGYGFKJt8Cg5x9b1TYr
+
+### path
+
+<tool.toolu_01S8uMGYGFKJt8Cg5x9b1TYr>
+test/corpus/tool-use-single-param.greger
+</tool.toolu_01S8uMGYGFKJt8Cg5x9b1TYr>
+
+## TOOL RESULT:
+
+ID: toolu_01S8uMGYGFKJt8Cg5x9b1TYr
+
+<tool.toolu_01S8uMGYGFKJt8Cg5x9b1TYr>
+## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The file contains: Hello, world!
+</tool.toolu_01S8uMGYGFKJt8Cg5x9b1TYr>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01JJeB6tik8Dzj5pBJDsDVT8
+
+### path
+
+<tool.toolu_01JJeB6tik8Dzj5pBJDsDVT8>
+test/corpus/citations-basic.greger
+</tool.toolu_01JJeB6tik8Dzj5pBJDsDVT8>
+
+## TOOL RESULT:
+
+ID: toolu_01JJeB6tik8Dzj5pBJDsDVT8
+
+<tool.toolu_01JJeB6tik8Dzj5pBJDsDVT8>
+## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## ASSISTANT:
+
+Based on the search results,
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
+</tool.toolu_01JJeB6tik8Dzj5pBJDsDVT8>
+
+## ASSISTANT:
+
+Now let me examine the current greger-tree-sitter.el to understand what functions need to be implemented:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01GU5i8jyJ8LLwtwx64PNed6
+
+### path
+
+<tool.toolu_01GU5i8jyJ8LLwtwx64PNed6>
+greger-tree-sitter.el
+</tool.toolu_01GU5i8jyJ8LLwtwx64PNed6>
+
+## TOOL RESULT:
+
+ID: toolu_01GU5i8jyJ8LLwtwx64PNed6
+
+<tool.toolu_01GU5i8jyJ8LLwtwx64PNed6>
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog.
+
+INPUT:
+  TEXT - A string containing greger conversation format, e.g.:
+    \"## USER:
+
+    Hello, how are you?
+
+    ## ASSISTANT:
+
+    I'm doing well, thanks! <cite>This is cited text</cite>
+
+    ## CITATIONS:
+
+    ### https://example.com
+
+    Title: Example Site
+    Cited text: This is cited text from the source
+    Encrypted index: abc123\"
+
+OUTPUT:
+  Returns a list of message objects, each with 'role and 'content fields:
+  - Role is one of: \"user\", \"assistant\", \"system\"
+  - Content can be either:
+    a) A simple string for basic messages
+    b) A list of content blocks for complex messages
+
+  Content blocks have 'type field and additional fields:
+  - type=\"text\": Has 'text field, optionally 'citations field
+  - type=\"thinking\": Has 'thinking field
+  - type=\"tool_use\": Has 'id, 'name, 'input fields
+  - type=\"tool_result\": Has 'tool_use_id, 'content fields
+  - type=\"server_tool_use\": Has 'id, 'name, 'input fields
+  - type=\"web_search_tool_result\": Has 'tool_use_id, 'content fields
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))
+  ((role . \"assistant\")
+   (content . (((type . \"text\") (text . \"I'm doing well, thanks!\"))
+               ((type . \"text\")
+                (text . \"This is cited text\")
+                (citations . (((type . \"web_search_result_location\")
+                               (url . \"https://example.com\")
+                               (title . \"Example Site\")
+                               (cited_text . \"This is cited text from the source\")
+                               (encrypted_index . \"abc123\"))))))))
+
+ERRORS:
+  Throws an error if tree-sitter greger parser is not available."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+
+(defun greger-tree-sitter--extract-dialog (parser text)
+  ;; TODO
+  )
+
+(provide 'greger-tree-sitter)
+
+;;; greger-tree-sitter.el ends here
+</tool.toolu_01GU5i8jyJ8LLwtwx64PNed6>
+
+## ASSISTANT:
+
+Now let me test the current grammar to see what it parses:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WQmDGRbQERFD4AorzZMWz6
+
+### command
+
+<tool.toolu_01WQmDGRbQERFD4AorzZMWz6>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01WQmDGRbQERFD4AorzZMWz6>
+
+## TOOL RESULT:
+
+ID: toolu_01WQmDGRbQERFD4AorzZMWz6
+
+<tool.toolu_01WQmDGRbQERFD4AorzZMWz6>
+Command failed with exit code 1: Warning: rule single_backtick_inline contains a `seq` or `choice` rule with a single element. This is unnecessary.
+Error when generating parser
+
+Caused by:
+    The rule `tool_use_content` matches the empty string.
+    
+    Tree-sitter does not support syntactic rules that match the empty string
+    unless they are used only as the grammar's start rule.
+    
+
+</tool.toolu_01WQmDGRbQERFD4AorzZMWz6>
+
+## ASSISTANT:
+
+The grammar has issues. Let me fix the immediate problems and rebuild from a better foundation. Let me look at some HTML grammar examples first:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01YAzcMJNa2THzqJyifchhG8
+
+### path
+
+<tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
+</tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+
+### start-line
+
+<tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+1
+</tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+
+### end-line
+
+<tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+50
+</tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+
+## TOOL RESULT:
+
+ID: toolu_01YAzcMJNa2THzqJyifchhG8
+
+<tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+/**
+ * @file HTML grammar for tree-sitter
+ * @author Max Brunsfeld <maxbrunsfeld@gmail.com>
+ * @author Amaan Qureshi <amaanq12@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: 'html',
+
+  extras: $ => [
+    $.comment,
+    /\s+/,
+  ],
+
+  conflicts: [
+    [$.text_content],
+  ],
+
+  externals: $ => [
+    $._start_tag_name,
+    $._script_start_tag_name,
+    $._style_start_tag_name,
+    $._end_tag_name,
+    $.erroneous_end_tag_name,
+    '/>',
+    $._implicit_end_tag,
+    $.raw_text,
+    $.comment,
+  ],
+
+  rules: {
+    document: $ => repeat($._node),
+
+    doctype: $ => seq(
+      '<!',
+      alias($._doctype, 'doctype'),
+      /[^>]+/,
+      '>',
+    ),
+
+    _doctype: _ => /[Dd][Oo][Cc][Tt][Yy][Pp][Ee]/,
+
+    _node: $ => choice(
+      $.doctype,
+      $.entity,
+      $.text,
+</tool.toolu_01YAzcMJNa2THzqJyifchhG8>
+
+## ASSISTANT:
+
+Let me check a simpler grammar to understand the patterns better. Let me start by rewriting the grammar step by step to handle the basic structure first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_014Dn81hZppUSfzdwYozUPm9
+
+### file-path
+
+<tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+grammar.js
+</tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+
+### original-content
+
+<tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.citations_block,
+      $.text_content,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => seq(
+      $.section_header,
+      optional($.section_content),
+    ),
+
+    section_header: $ => choice(
+      seq(/##[ \t]*/, 'USER', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'ASSISTANT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SYSTEM', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'THINKING', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+    ),
+
+    section_content: $ => repeat1(choice(
+      $.tool_use_content,
+      $.server_tool_use_content,
+      $.safe_shell_commands,
+      $.code_block,
+      $.text_content,
+      $._newline,
+    )),
+
+    tool_use_content: $ => seq(
+      optional(seq('Name:', /[^\n]*/, $._newline)),
+      optional(seq('ID:', /[^\n]*/, $._newline)),
+      optional($._newline),
+      repeat(seq(
+        seq(/###[ \t]*/, /[^\n]*/, $._newline),
+        optional($._newline),
+        $.tool_content,
+        optional($._newline),
+      )),
+    ),
+
+    server_tool_use_content: $ => seq(
+      optional(seq('Name:', /[^\n]*/, $._newline)),
+      optional(seq('ID:', /[^\n]*/, $._newline)),
+      optional($._newline),
+      repeat(seq(
+        seq(/###[ \t]*/, /[^\n]*/, $._newline),
+        optional($._newline),
+        $.tool_content,
+        optional($._newline),
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional($._newline),
+      repeat(seq(/[^\n<]*/, $._newline)),
+      '</safe-shell-commands>',
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      $._newline,
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        $._newline,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      repeat(choice(
+        /[^`\n]+/,
+      )),
+      '`',
+    ),
+
+    citations_block: $ => seq(
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+      optional($._newline),
+      repeat($.citation_entry),
+    ),
+
+    citation_entry: $ => seq(
+      seq(/###[ \t]*/, /[^\n]*/, $._newline),
+      optional($._newline),
+      repeat(seq(/[^\n#]*/, $._newline)),
+    ),
+
+    text_content: $ => choice(
+      /[^#\n`<]+/,
+      /#[^#\n]/,
+      /#$/,
+    ),
+  }
+});
+</tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+
+### new-content
+
+<tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.text_line,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => seq(
+      $.section_header,
+      optional($.section_content),
+    ),
+
+    section_header: $ => choice(
+      seq(/##[ \t]*/, 'USER', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'ASSISTANT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SYSTEM', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'THINKING', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+    ),
+
+    section_content: $ => repeat1(choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.safe_shell_commands,
+      $.code_block,
+      $.cite_tag,
+      $.text_line,
+      $._newline,
+    )),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, $._newline),
+      seq('ID:', /[^\n]*/, $._newline),
+    ),
+
+    tool_param: $ => seq(
+      seq(/###[ \t]*/, /[^\n]*/, $._newline),
+      optional($._newline),
+      $.tool_content,
+      optional($._newline),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional($._newline),
+      repeat(seq(/[^\n<]*/, $._newline)),
+      '</safe-shell-commands>',
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      $._newline,
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        $._newline,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(choice(
+        /[^<\n]+/,
+        /<[^/]/,
+      )),
+      '</cite>',
+    ),
+
+    text_line: $ => /[^#\n`<]+/,
+  }
+});
+</tool.toolu_014Dn81hZppUSfzdwYozUPm9>
 
 ### git-commit-message
 
-<tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
-Add external scanner for tool content and HTML comments
-</tool.toolu_01Cd96ojdLFtLBaGe4VQSHt3>
+<tool.toolu_014Dn81hZppUSfzdwYozUPm9>
+Simplify grammar to fix empty string matching issues
+</tool.toolu_014Dn81hZppUSfzdwYozUPm9>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Cd96ojdLFtLBaGe4VQSHt3 -->
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014Dn81hZppUSfzdwYozUPm9 -->

@@ -25,8 +25,7 @@ module.exports = grammar({
 
     _item: $ => choice(
       $.section,
-      $.citations_block,
-      $.text_content,
+      $.text_line,
       $._newline,
     ),
 
@@ -50,36 +49,25 @@ module.exports = grammar({
     ),
 
     section_content: $ => repeat1(choice(
-      $.tool_use_content,
-      $.server_tool_use_content,
+      $.tool_use_metadata,
+      $.tool_param,
       $.safe_shell_commands,
       $.code_block,
-      $.text_content,
+      $.cite_tag,
+      $.text_line,
       $._newline,
     )),
 
-    tool_use_content: $ => seq(
-      optional(seq('Name:', /[^\n]*/, $._newline)),
-      optional(seq('ID:', /[^\n]*/, $._newline)),
-      optional($._newline),
-      repeat(seq(
-        seq(/###[ \t]*/, /[^\n]*/, $._newline),
-        optional($._newline),
-        $.tool_content,
-        optional($._newline),
-      )),
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, $._newline),
+      seq('ID:', /[^\n]*/, $._newline),
     ),
 
-    server_tool_use_content: $ => seq(
-      optional(seq('Name:', /[^\n]*/, $._newline)),
-      optional(seq('ID:', /[^\n]*/, $._newline)),
+    tool_param: $ => seq(
+      seq(/###[ \t]*/, /[^\n]*/, $._newline),
       optional($._newline),
-      repeat(seq(
-        seq(/###[ \t]*/, /[^\n]*/, $._newline),
-        optional($._newline),
-        $.tool_content,
-        optional($._newline),
-      )),
+      $.tool_content,
+      optional($._newline),
     ),
 
     safe_shell_commands: $ => seq(
@@ -109,28 +97,19 @@ module.exports = grammar({
 
     single_backtick_inline: $ => seq(
       '`',
-      repeat(choice(
-        /[^`\n]+/,
-      )),
+      /[^`\n]+/,
       '`',
     ),
 
-    citations_block: $ => seq(
-      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
-      optional($._newline),
-      repeat($.citation_entry),
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(choice(
+        /[^<\n]+/,
+        /<[^/]/,
+      )),
+      '</cite>',
     ),
 
-    citation_entry: $ => seq(
-      seq(/###[ \t]*/, /[^\n]*/, $._newline),
-      optional($._newline),
-      repeat(seq(/[^\n#]*/, $._newline)),
-    ),
-
-    text_content: $ => choice(
-      /[^#\n`<]+/,
-      /#[^#\n]/,
-      /#$/,
-    ),
+    text_line: $ => /[^#\n`<]+/,
   }
 });
