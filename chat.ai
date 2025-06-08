@@ -5653,4 +5653,87 @@ test-all-greger-cases.el
 Use actual file content instead of hardcoded string for testing
 </tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FqHubRBzKmvyt5sCqgAH7L -->
+## TOOL RESULT:
+
+ID: toolu_01FqHubRBzKmvyt5sCqgAH7L
+
+<tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Use actual file content instead of hardcoded string for testing
+</tool.toolu_01FqHubRBzKmvyt5sCqgAH7L>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QrXzXP9Do5KohFmCMq2avc
+
+### command
+
+<tool.toolu_01QrXzXP9Do5KohFmCMq2avc>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01QrXzXP9Do5KohFmCMq2avc>
+
+## TOOL RESULT:
+
+ID: toolu_01QrXzXP9Do5KohFmCMq2avc
+
+<tool.toolu_01QrXzXP9Do5KohFmCMq2avc>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing greger-tree-sitter...
+✅ Tree-sitter greger parser is available
+Parse result:
+(((role . "user")
+  (content . "")))
+
+Section type: user_section
+  Child type: ##, text: "##"
+  Child type: USER, text: "USER"
+  Child type: :, text: ":"
+Section type: ERROR
+  Child type: ERROR, text: "Hello, how are you?"
+
+</tool.toolu_01QrXzXP9Do5KohFmCMq2avc>
+
+## ASSISTANT:
+
+The issue is that my grammar is expecting to parse each token separately rather than seeing the text after the section header as part of the section. The problem is with my grammar structure. Looking at the actual tree-sitter parse output, I can see that when it works correctly, the text_block includes all the content after the section header.
+
+Let me examine why the working example works by looking at its debug output:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TvTCzi3xuvEdWG2Yqv7uPx
+
+### file-path
+
+<tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+test-all-greger-cases.el
+</tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+
+### original-content
+
+<tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+      (let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/simple-user-message.greger")
+                             (buffer-string)))
+             (result (greger-tree-sitter-parse test-content)))
+</tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+
+### new-content
+
+<tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+      (let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/simple-conversation.greger")
+                             (buffer-string)))
+             (result (greger-tree-sitter-parse test-content)))
+</tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+
+### git-commit-message
+
+<tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+Use simple-conversation.greger which parses correctly to debug structure
+</tool.toolu_01TvTCzi3xuvEdWG2Yqv7uPx>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TvTCzi3xuvEdWG2Yqv7uPx -->

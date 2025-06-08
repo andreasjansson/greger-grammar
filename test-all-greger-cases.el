@@ -11,7 +11,7 @@
 
       ;; Test simple parsing
       (let* ((test-content (with-temp-buffer
-                             (insert-file-contents "test/corpus/simple-user-message.greger")
+                             (insert-file-contents "test/corpus/simple-conversation.greger")
                              (buffer-string)))
              (result (greger-tree-sitter-parse test-content)))
         (message "Parse result:")
