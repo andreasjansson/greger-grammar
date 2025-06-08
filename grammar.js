@@ -20,10 +20,6 @@ module.exports = grammar({
     $.html_comment,
   ],
 
-  conflicts: $ => [
-    [$.text_block],
-  ],
-
   rules: {
     source_file: $ => repeat($._block),
 
@@ -37,7 +33,7 @@ module.exports = grammar({
       $.server_tool_use,
       $.server_tool_result,
       $.citations,
-      $.text_block,
+      $.text,
     ),
 
     // Use aliases to shorten section names
@@ -51,152 +47,165 @@ module.exports = grammar({
     server_tool_result: $ => alias($.server_tool_result_section, 'server_tool_result'),
     citations: $ => alias($.citations_section, 'citations'),
 
-    user_section: $ => prec.right(seq(
+    user_section: $ => seq(
       '##',
       'USER',
       ':',
-      alias(repeat1($._section_content), $.text),
-    )),
+      /\n/,
+      optional(alias($._section_content, $.text)),
+    ),
 
-    assistant_section: $ => prec.right(seq(
+    assistant_section: $ => seq(
       '##',
       'ASSISTANT',
       ':',
-      alias(repeat1($._section_content), $.text),
-    )),
+      /\n/,
+      optional(alias($._section_content, $.text)),
+    ),
 
-    system_section: $ => prec.right(seq(
+    system_section: $ => seq(
       '##',
       'SYSTEM',
       ':',
-      alias(repeat($._section_content), $.text),
-    )),
+      /\n/,
+      optional(alias($._section_content, $.text)),
+    ),
 
-    thinking_section: $ => prec.right(seq(
+    thinking_section: $ => seq(
       '##',
       'THINKING',
       ':',
-      alias(repeat($._section_content), $.text),
-    )),
+      /\n/,
+      optional(alias($._section_content, $.text)),
+    ),
 
-    tool_use_section: $ => prec.right(seq(
+    tool_use_section: $ => seq(
       '##',
       'TOOL',
       'USE',
       ':',
-      repeat(choice(
-        field('name', $.tool_name),
-        field('id', $.tool_id),
-        field('param', $.tool_param),
-        $._section_content,
-      )),
-    )),
-
-    tool_result_section: $ => prec.right(seq(
-      '##',
-      'TOOL',
-      'RESULT',
-      ':',
-      repeat(choice(
-        field('id', $.tool_id),
-        field('content', $.tool_content),
-        $._section_content,
-      )),
-    )),
-
-    server_tool_use_section: $ => prec.right(seq(
-      '##',
-      'SERVER',
-      'TOOL',
-      'USE',
-      ':',
+      /\n/,
+      optional(/\n/),
       repeat(choice(
         alias($.tool_name, $.name),
         alias($.tool_id, $.id),
-        alias($.tool_param, $.param),
-        $._section_content,
+        $.tool_param,
       )),
-    )),
+    ),
 
-    server_tool_result_section: $ => prec.right(seq(
+    tool_result_section: $ => seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        alias($.tool_id, $.id),
+        alias($.tool_content, $.content),
+      )),
+    ),
+
+    server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        alias($.tool_name, $.name),
+        alias($.tool_id, $.id),
+        $.tool_param,
+      )),
+    ),
+
+    server_tool_result_section: $ => seq(
       '##',
       'SERVER',
       'TOOL',
       'RESULT',
       ':',
+      /\n/,
+      optional(/\n/),
       repeat(choice(
         alias($.tool_id, $.id),
         alias($.tool_content, $.content),
-        $._section_content,
       )),
-    )),
+    ),
 
-    citations_section: $ => prec.right(seq(
+    citations_section: $ => seq(
       '##',
       'CITATIONS',
       ':',
-      repeat($._citations_content),
-    )),
+      /\n/,
+      optional(/\n/),
+      optional(alias($._section_content, $.text)),
+      repeat($.citation_entry),
+    ),
 
-    _section_content: $ => prec(-1, choice(
-      $.text_block,
+    _section_content: $ => repeat1(choice(
       $.code_block,
       $.cite_tag,
       $.safe_shell_commands,
+      /[^#<`\n]+/,
+      /\n/,
     )),
 
-    tool_name: $ => token(prec(1, seq('Name:', /[^\n]*/, /\n/))),
-    tool_id: $ => token(prec(1, seq('ID:', /[^\n]*/, /\n/))),
+    tool_name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
+    tool_id: $ => token(seq('ID:', /[^\n]*/, /\n/)),
 
     tool_param: $ => seq(
       '###',
       /[ ]*/,
       alias($.param_name, $.name),
-      /\n+/,
+      /\n/,
+      optional(/\n/),
       alias($.tool_content, $.value),
     ),
 
     param_name: $ => /[^\n]+/,
 
-    _citations_content: $ => choice(
-      alias($.citation_entry, $.entry),
-      alias($.citation_title, $.title),
-      alias($.citation_text, $.cited_text),
-      alias($.citation_encrypted_index, $.encrypted_index),
-      prec(-1, $.text_block),
-    ),
-
     citation_entry: $ => seq(
       '###',
+      /[ ]*/,
       alias($.citation_url, $.url),
       /\n/,
+      optional(/\n/),
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
     ),
 
     citation_url: $ => /[^\n]*/,
 
-    citation_title: $ => field('title', token(seq(
+    citation_title: $ => token(seq(
       'Title:',
       /[ ]+/,
       /[^\n]*/,
       /\n/,
-    ))),
+    )),
 
-    citation_text: $ => field('cited_text', token(seq(
+    citation_text: $ => token(seq(
       'Cited text:',
       /[ ]+/,
       /[^\n]*/,
       /\n/,
-    ))),
+    )),
 
-    citation_encrypted_index: $ => field('encrypted_index', token(seq(
+    citation_encrypted_index: $ => token(seq(
       'Encrypted index:',
       /[ ]+/,
       /[^\n]*/,
       /\n/,
-    ))),
+    )),
 
-    text_block: $ => repeat1(choice(
-      /[^\n#`<]+/,
+    text: $ => repeat1(choice(
+      $.code_block,
+      $.cite_tag,
+      $.safe_shell_commands,
+      /[^#<`\n]+/,
       /\n/,
     )),
 
