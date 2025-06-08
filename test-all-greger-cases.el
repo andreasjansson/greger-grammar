@@ -164,7 +164,7 @@
                                   (input . ((query . "claude shannon birth date"))))
                                  ((type . "web_search_tool_result")
                                   (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
-                                  (content . "Search results about Claude Shannon"))
+                                  (content . "[\n  {\n    \"type\": \"web_search_result\",\n    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",\n    \"title\": \"Claude Shannon - Wikipedia\",\n    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",\n    \"page_age\": \"April 30, 2025\"\n  }\n]"))
                                  ((type . "text")
                                   (text . "Based on the search results,"))
                                  ((type . "text")
