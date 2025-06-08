@@ -11392,4 +11392,155 @@ debug-test.el
 Simplify debug to focus on the assistant content structure
 </tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JT2SWGbunrDnaacqnGLCNV -->
+## TOOL RESULT:
+
+ID: toolu_01JT2SWGbunrDnaacqnGLCNV
+
+<tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1651 characters. Successfully staged 2 file(s) and committed with message: Simplify debug to focus on the assistant content structure
+</tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01M2vRhwpNgLm3fYXrneGHAd
+
+### command
+
+<tool.toolu_01M2vRhwpNgLm3fYXrneGHAd>
+emacs --batch -l debug-test.el
+</tool.toolu_01M2vRhwpNgLm3fYXrneGHAd>
+
+## TOOL RESULT:
+
+ID: toolu_01M2vRhwpNgLm3fYXrneGHAd
+
+<tool.toolu_01M2vRhwpNgLm3fYXrneGHAd>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== CITATIONS MULTIPLE DEBUG ===
+Assistant content has 6 items
+
+Item 0:
+  Type: server_tool_use
+  Text: [no text]
+
+Item 1:
+  Type: web_search_tool_result
+  Text: [no text]
+
+Item 2:
+  Type: text
+  Text: Einstein developed the theory of relativity
+  Citations count: 1
+    Citation 0: URL=https://physics.com/einstein, Title=Einstein Biography
+
+Item 3:
+  Type: text
+  Text: while
+
+Item 4:
+  Type: text
+  Text: Newton formulated the laws of motion
+  Citations count: 1
+    Citation 0: URL=https://physics.com/newton, Title=Newton Biography
+
+Item 5:
+  Type: text
+  Text: Title: Einstein Biography
+Cited text: Albert Einst
+  Citations count: 2
+    Citation 0: URL=https://physics.com/einstein, Title=nil
+    Citation 1: URL=https://physics.com/newton, Title=Newton Biography
+
+</tool.toolu_01M2vRhwpNgLm3fYXrneGHAd>
+
+## ASSISTANT:
+
+Perfect! Now I can see exactly what's wrong. Item 5 is the problematic one:
+
+- **Text**: `"Title: Einstein Biography\nCited text: Albert Einst..."` (should be empty)
+- **Citations**: 2 citations, but the first one has `Title=nil` (should have Einstein's title)
+
+This confirms that the citation parsing logic is incorrectly treating Einstein's metadata as regular text instead of parsing it as metadata for the Einstein citation.
+
+The issue is in the citation parsing logic. When processing the third citations section, the sequence is:
+
+1. text_block (empty) 
+2. citation_entry (Einstein URL) ← Creates Einstein citation with empty metadata
+3. text_block (Einstein metadata) ← Should update Einstein citation metadata, but it's being treated as regular text
+4. citation_entry (Newton URL) ← Creates Newton citation 
+5. text_block (Newton metadata) ← Correctly updates Newton citation metadata
+
+The problem is in the logic that determines whether a text_block is cited text vs metadata. Let me look at the specific condition:
+
+```elisp
+(if (and next-child (string= (treesit-node-type next-child) "citation_entry"))
+    ;; This text_block comes before citation_entry, so it's cited text
+    ...
+    ;; This text_block comes after citation_entry, so it's metadata
+    ...)
+```
+
+For text_block #3 (Einstein metadata):
+- The next child is citation_entry #4 (Newton URL)
+- So the condition `(and next-child (string= (treesit-node-type next-child) "citation_entry"))` is TRUE
+- Therefore it's treated as cited text, not metadata!
+
+This is the bug! The logic assumes that a text_block followed by a citation_entry is cited text, but in this case, text_block #3 is actually metadata for the previous citation_entry #2.
+
+The logic needs to be more sophisticated. It should consider whether this text_block comes immediately after a citation_entry, in which case it's metadata for that citation.
+
+Let me fix this by changing the logic to look at the previous child instead of just the next child:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WguGA1WQT56aqaw6gH9Qh9
+
+### file-path
+
+<tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+greger-tree-sitter.el
+</tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+
+### original-content
+
+<tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+;; Check if this is before a citation_entry (cited text) or after (metadata)
+          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children))))
+            (if (and next-child (string= (treesit-node-type next-child) "citation_entry"))
+                ;; This text_block comes before citation_entry, so it's cited text
+                (let ((text (string-trim (treesit-node-text child))))
+                  (when (> (length text) 0)
+                    (setq cited-text (if cited-text
+                                         (concat cited-text " " text)
+                                       text))))
+              ;; This text_block comes after citation_entry, so it's metadata
+</tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+
+### new-content
+
+<tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+;; Check if this is before a citation_entry (cited text) or after (metadata)
+          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children)))
+                (prev-child (when (> i 0) (nth (1- i) children))))
+            (if (and next-child 
+                     (string= (treesit-node-type next-child) "citation_entry")
+                     (not (and prev-child (string= (treesit-node-type prev-child) "citation_entry"))))
+                ;; This text_block comes before citation_entry AND not after another citation_entry, so it's cited text
+                (let ((text (string-trim (treesit-node-text child))))
+                  (when (> (length text) 0)
+                    (setq cited-text (if cited-text
+                                         (concat cited-text " " text)
+                                       text))))
+              ;; This text_block comes after citation_entry, so it's metadata
+</tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+
+### git-commit-message
+
+<tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+Fix citation parsing to correctly detect metadata vs cited text
+</tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WguGA1WQT56aqaw6gH9Qh9 -->

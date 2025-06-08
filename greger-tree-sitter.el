@@ -345,9 +345,12 @@
         (cond
          ((string= node-type "text_block")
           ;; Check if this is before a citation_entry (cited text) or after (metadata)
-          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children))))
-            (if (and next-child (string= (treesit-node-type next-child) "citation_entry"))
-                ;; This text_block comes before citation_entry, so it's cited text
+          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children)))
+                (prev-child (when (> i 0) (nth (1- i) children))))
+            (if (and next-child
+                     (string= (treesit-node-type next-child) "citation_entry")
+                     (not (and prev-child (string= (treesit-node-type prev-child) "citation_entry"))))
+                ;; This text_block comes before citation_entry AND not after another citation_entry, so it's cited text
                 (let ((text (string-trim (treesit-node-text child))))
                   (when (> (length text) 0)
                     (setq cited-text (if cited-text
