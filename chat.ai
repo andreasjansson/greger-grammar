@@ -11334,4 +11334,98 @@ greger-tree-sitter.el
 Add citations-based server tool result type detection
 </tool.toolu_01VEcZnsTMM1aVa63fKTWebC>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VEcZnsTMM1aVa63fKTWebC -->
+## TOOL RESULT:
+
+ID: toolu_01VEcZnsTMM1aVa63fKTWebC
+
+<tool.toolu_01VEcZnsTMM1aVa63fKTWebC>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add citations-based server tool result type detection
+</tool.toolu_01VEcZnsTMM1aVa63fKTWebC>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Kz8f6ZHusrHgYBdoVS7rQ3
+
+### command
+
+<tool.toolu_01Kz8f6ZHusrHgYBdoVS7rQ3>
+emacs --batch -l debug-test.el
+</tool.toolu_01Kz8f6ZHusrHgYBdoVS7rQ3>
+
+## TOOL RESULT:
+
+ID: toolu_01Kz8f6ZHusrHgYBdoVS7rQ3
+
+<tool.toolu_01Kz8f6ZHusrHgYBdoVS7rQ3>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content
+     (title . "Weather in San Francisco")
+     (url . "https://weather.com/sf")
+     (content . "Sunny, 72°F")))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+</tool.toolu_01Kz8f6ZHusrHgYBdoVS7rQ3>
+
+## ASSISTANT:
+
+Perfect! Now the `server-tool-use-basic` test correctly shows `server_tool_result` with parsed JSON content. Let me run a quick test of the citation case to make sure it still works:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XsWgir3yxNo32jpxDG63Mk
+
+### file-path
+
+<tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+debug-test.el
+</tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+
+### original-content
+
+<tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+(load-file "./greger-tree-sitter.el")
+
+(let* ((text (with-temp-buffer
+               (insert-file-contents "./test/corpus/server-tool-use-basic.greger")
+               (buffer-string)))
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+
+### new-content
+
+<tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+(load-file "./greger-tree-sitter.el")
+
+(let* ((text (with-temp-buffer
+               (insert-file-contents "./test/corpus/citations-after-tool-result.greger")
+               (buffer-string)))
+       (result (greger-tree-sitter-parse text)))
+  (message "Result:")
+  (pp result))
+</tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+
+### git-commit-message
+
+<tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+Test citations case to ensure web_search_tool_result still works
+</tool.toolu_01XsWgir3yxNo32jpxDG63Mk>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XsWgir3yxNo32jpxDG63Mk -->
