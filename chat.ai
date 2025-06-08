@@ -7010,4 +7010,80 @@ text_content: $ => prec(-2, /[^#`<\nNI]+/),
 Temporarily exclude N and I from text_content to test metadata recognition
 </tool.toolu_01UprHFAcPdQhZd6RChZgHen>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UprHFAcPdQhZd6RChZgHen -->
+## TOOL RESULT:
+
+ID: toolu_01UprHFAcPdQhZd6RChZgHen
+
+<tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Temporarily exclude N and I from text_content to test metadata recognition
+</tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LjknoBCtQEuyzmfyJ5jGFk
+
+### command
+
+<tool.toolu_01LjknoBCtQEuyzmfyJ5jGFk>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01LjknoBCtQEuyzmfyJ5jGFk>
+
+## TOOL RESULT:
+
+ID: toolu_01LjknoBCtQEuyzmfyJ5jGFk
+
+<tool.toolu_01LjknoBCtQEuyzmfyJ5jGFk>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_result_section [0, 0] - [2, 10]
+    (tool_use_metadata [2, 0] - [2, 10])))
+
+</tool.toolu_01LjknoBCtQEuyzmfyJ5jGFk>
+
+## ASSISTANT:
+
+Excellent! Now it recognizes tool_use_metadata correctly. This confirms that the issue was purely with grammar precedence. Now let me fix this properly using a better approach rather than excluding characters.
+
+The issue is that when the parser sees "ID: abc123", it can either:
+1. Parse the whole thing as text_content  
+2. Parse "ID:" + " abc123" as tool_use_metadata
+
+To make it unambiguous, I should use word() or make the patterns more specific. Let me try word():
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TdEVJPiMtieLDBSCE9TiZi
+
+### file-path
+
+<tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+grammar.js
+</tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+
+### original-content
+
+<tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+tool_use_metadata: $ => choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    ),
+</tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+
+### new-content
+
+<tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+tool_use_metadata: $ => choice(
+      seq(token(seq('Name:', /[^\r\n]*/))),
+      seq(token(seq('ID:', /[^\r\n]*/))),
+    ),
+</tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+
+### git-commit-message
+
+<tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+Use token() for entire metadata line to give it lexical precedence
+</tool.toolu_01TdEVJPiMtieLDBSCE9TiZi>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TdEVJPiMtieLDBSCE9TiZi -->
