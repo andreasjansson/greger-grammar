@@ -107,6 +107,24 @@
                   ((type . "text")
                    (text . "2 + 2 = 4")))))))
 
+  ;; System and user
+  (greger-tree-sitter-run-single-test
+   "system-and-user"
+   (greger-read-corpus-file "system-and-user")
+   '(((role . "system")
+      (content . "You are a helpful assistant."))
+     ((role . "user")
+      (content . "What's the weather like?"))))
+
+  ;; Simple conversation
+  (greger-tree-sitter-run-single-test
+   "simple-conversation"
+   (greger-read-corpus-file "simple-conversation")
+   '(((role . "user")
+      (content . "Hello"))
+     ((role . "assistant")
+      (content . "Hi there! How can I help you today?"))))
+
   ;; Report summary
   (message "\n📊 TEST SUMMARY:")
   (message "Total tests: %d" (+ greger-tree-sitter-tests-passed greger-tree-sitter-tests-failed))

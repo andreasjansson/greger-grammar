@@ -10479,4 +10479,275 @@ greger-tree-sitter.el
 Apply content simplification when flushing during tool result processing
 </tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CkTqcsatJJ3CmsdBh8Bbm2 -->
+## TOOL RESULT:
+
+ID: toolu_01CkTqcsatJJ3CmsdBh8Bbm2
+
+<tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Apply content simplification when flushing during tool result processing
+</tool.toolu_01CkTqcsatJJ3CmsdBh8Bbm2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NWWYeJHGhGKKByAKVnAuio
+
+### command
+
+<tool.toolu_01NWWYeJHGhGKKByAKVnAuio>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01NWWYeJHGhGKKByAKVnAuio>
+
+## TOOL RESULT:
+
+ID: toolu_01NWWYeJHGhGKKByAKVnAuio
+
+<tool.toolu_01NWWYeJHGhGKKByAKVnAuio>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+📊 TEST SUMMARY:
+Total tests: 4
+Passed: 4
+Failed: 0
+
+🎉 ALL TESTS PASSED!
+
+</tool.toolu_01NWWYeJHGhGKKByAKVnAuio>
+
+## ASSISTANT:
+
+Excellent! All tests are now passing. Let me add more test cases to increase coverage. I'll add some of the more complex cases from the original test suite:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MC7QZGKhLFk9YQXQPe7hGE
+
+### file-path
+
+<tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+test-all-greger-cases.el
+</tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+
+### original-content
+
+<tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test 
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+
+### new-content
+
+<tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test 
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; System and user
+  (greger-tree-sitter-run-single-test 
+   "system-and-user"
+   (greger-read-corpus-file "system-and-user")
+   '(((role . "system")
+      (content . "You are a helpful assistant."))
+     ((role . "user")
+      (content . "What's the weather like?"))))
+
+  ;; Simple conversation
+  (greger-tree-sitter-run-single-test 
+   "simple-conversation"
+   (greger-read-corpus-file "simple-conversation")
+   '(((role . "user")
+      (content . "Hello"))
+     ((role . "assistant")
+      (content . "Hi there! How can I help you today?"))))
+
+  ;; Tool use with multiple parameters (if this exists)
+  (when (file-exists-p "./test/corpus/tool-use-multiple-params.greger")
+    (greger-tree-sitter-run-single-test 
+     "tool-use-multiple-params"
+     (greger-read-corpus-file "tool-use-multiple-params")
+     '(((role . "user")
+        (content . "Search for python files containing 'def main'"))
+       ((role . "assistant")
+        (content . (((type . "tool_use")
+                     (id . "toolu_456")
+                     (name . "ripgrep")
+                     (input . ((pattern . "def main")
+                               (file-type . "py")
+                               (context-lines . 2)))))))
+       ((role . "user")
+        (content . (((type . "tool_result")
+                     (tool_use_id . "toolu_456")
+                     (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():")))))
+       ((role . "assistant")
+        (content . "I found 2 matches for 'def main' in Python files.")))))
+
+  ;; Report summary
+</tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+
+### git-commit-message
+
+<tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+Add more comprehensive test cases including system, conversation, and multi-param tool use
+</tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+
+## TOOL RESULT:
+
+ID: toolu_01MC7QZGKhLFk9YQXQPe7hGE
+
+<tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el -- Try again!
+</tool.toolu_01MC7QZGKhLFk9YQXQPe7hGE>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NY1RpGDowzVcPtUxbcGQdi
+
+### path
+
+<tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+test-all-greger-cases.el
+</tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+
+### start-line
+
+<tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+95
+</tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+
+### end-line
+
+<tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+110
+</tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+
+## TOOL RESULT:
+
+ID: toolu_01NY1RpGDowzVcPtUxbcGQdi
+
+<tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_01NY1RpGDowzVcPtUxbcGQdi>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LNxBoDJQWM8TaqFjKb32Hu
+
+### file-path
+
+<tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+test-all-greger-cases.el
+</tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+
+### original-content
+
+<tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+
+### new-content
+
+<tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; System and user
+  (greger-tree-sitter-run-single-test 
+   "system-and-user"
+   (greger-read-corpus-file "system-and-user")
+   '(((role . "system")
+      (content . "You are a helpful assistant."))
+     ((role . "user")
+      (content . "What's the weather like?"))))
+
+  ;; Simple conversation
+  (greger-tree-sitter-run-single-test 
+   "simple-conversation"
+   (greger-read-corpus-file "simple-conversation")
+   '(((role . "user")
+      (content . "Hello"))
+     ((role . "assistant")
+      (content . "Hi there! How can I help you today?"))))
+
+  ;; Report summary
+</tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+
+### git-commit-message
+
+<tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+Add system-and-user and simple-conversation test cases
+</tool.toolu_01LNxBoDJQWM8TaqFjKb32Hu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LNxBoDJQWM8TaqFjKb32Hu -->
