@@ -11296,4 +11296,100 @@ debug-test.el
 Debug third citations section parsing specifically
 </tool.toolu_01JGFUpPJDVikC7D995ovQw3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JGFUpPJDVikC7D995ovQw3 -->
+## TOOL RESULT:
+
+ID: toolu_01JGFUpPJDVikC7D995ovQw3
+
+<tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 2286 characters. Successfully staged 2 file(s) and committed with message: Debug third citations section parsing specifically
+</tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CLE5GUBcV8r8CzP7i1odL2
+
+### command
+
+<tool.toolu_01CLE5GUBcV8r8CzP7i1odL2>
+emacs --batch -l debug-test.el
+</tool.toolu_01CLE5GUBcV8r8CzP7i1odL2>
+
+## TOOL RESULT:
+
+ID: toolu_01CLE5GUBcV8r8CzP7i1odL2
+
+<tool.toolu_01CLE5GUBcV8r8CzP7i1odL2>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== CITATIONS MULTIPLE - THIRD SECTION DEBUG ===
+
+</tool.toolu_01CLE5GUBcV8r8CzP7i1odL2>
+
+## ASSISTANT:
+
+Let me simplify the debug to just look at the final result structure:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01JT2SWGbunrDnaacqnGLCNV
+
+### file-path
+
+<tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+debug-test.el
+</tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+
+### contents
+
+<tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test citations-multiple parsing and focus on the problematic part
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (result (greger-tree-sitter-parse markdown)))
+
+  (message "=== CITATIONS MULTIPLE DEBUG ===")
+  
+  ;; Look at the assistant content items
+  (let ((assistant-content (alist-get 'content (nth 1 result))))
+    (message "Assistant content has %d items" (length assistant-content))
+    
+    ;; Look at each item
+    (dotimes (i (length assistant-content))
+      (let* ((item (nth i assistant-content))
+             (type (alist-get 'type item))
+             (text (alist-get 'text item))
+             (citations (alist-get 'citations item)))
+        (message "\nItem %d:" i)
+        (message "  Type: %s" type)
+        (message "  Text: %s" (if text (substring text 0 (min 50 (length text))) "[no text]"))
+        (when citations
+          (message "  Citations count: %d" (length citations))
+          (dotimes (j (length citations))
+            (let* ((citation (nth j citations))
+                   (url (alist-get 'url citation))
+                   (title (alist-get 'title citation)))
+              (message "    Citation %d: URL=%s, Title=%s" j url title))))))))
+
+(provide 'debug-test)
+</tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+
+### git-commit-message
+
+<tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+Simplify debug to focus on the assistant content structure
+</tool.toolu_01JT2SWGbunrDnaacqnGLCNV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JT2SWGbunrDnaacqnGLCNV -->
