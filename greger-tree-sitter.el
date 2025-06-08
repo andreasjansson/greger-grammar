@@ -277,9 +277,9 @@
             ;; Unescape quotes in tool result content
             (setq content (replace-regexp-in-string "\\\\\"" "\"" content-text)))))))
 
-    (let ((result `((type . "tool_result")
-                    (tool_use_id . ,tool-use-id)
-                    (content . ,content))))
+    (let ((result (list (cons 'type "tool_result")
+                        (cons 'tool_use_id tool-use-id)
+                        (cons 'content content))))
       (message "[DEBUG] extract-tool-result returning type: %s" (alist-get 'type result))
       result)))
 

@@ -7984,4 +7984,59 @@ if has-citations
 Add debug print when setting web_search_tool_result type
 </tool.toolu_01DpAmuy77xgCzT1qCSCS58z>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DpAmuy77xgCzT1qCSCS58z -->
+## TOOL RESULT:
+
+ID: toolu_01DpAmuy77xgCzT1qCSCS58z
+
+<tool.toolu_01DpAmuy77xgCzT1qCSCS58z>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print when setting web_search_tool_result type
+</tool.toolu_01DpAmuy77xgCzT1qCSCS58z>
+
+## ASSISTANT:
+
+But wait, I realize there's a fundamental flaw in my reasoning. The `extract-server-tool-result` function should ONLY be called for "server_tool_result_section" nodes. But the tool-use-with-code-in-params test has a "tool_result_section" node, which should call `extract-tool-result` directly.
+
+So the contamination must be happening somewhere else. Maybe there's some global variable or shared state that's getting corrupted.
+
+Actually, let me take a completely different approach. The issue might be that there's some variable capture or closure issue causing the `extract-tool-result` function to return the wrong type.
+
+Let me try using the same fix I used for `extract-tool-use` - replace the backquote syntax with explicit list construction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DasuRpqPfYgpSiXPbRyhph
+
+### file-path
+
+<tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+greger-tree-sitter.el
+</tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+
+### original-content
+
+<tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+(let ((result `((type . "tool_result")
+                    (tool_use_id . ,tool-use-id)
+                    (content . ,content))))
+      (message "[DEBUG] extract-tool-result returning type: %s" (alist-get 'type result))
+      result)
+</tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+
+### new-content
+
+<tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+(let ((result (list (cons 'type "tool_result")
+                        (cons 'tool_use_id tool-use-id)
+                        (cons 'content content))))
+      (message "[DEBUG] extract-tool-result returning type: %s" (alist-get 'type result))
+      result)
+</tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+
+### git-commit-message
+
+<tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+Fix extract-tool-result to use explicit list construction
+</tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DasuRpqPfYgpSiXPbRyhph -->
