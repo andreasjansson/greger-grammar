@@ -224,13 +224,8 @@
           (let ((content-text (treesit-node-text child)))
             ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
             ;; Use string operations instead of regex to handle multiline content
-            (when (string-match "^<tool\\.[^>]+>" content-text)
-              (let* ((start-tag-end (match-end 0))
-                     (remaining-text (substring content-text start-tag-end)))
-                ;; Look for closing tag (including possible whitespace/newlines before it)
-                ;; Use [\s\S] to match any character including newlines
-                (when (string-match "\\([[:ascii:]]*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
-                  (setq content-text (match-string 1 remaining-text)))))
+            (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+              (setq content-text (match-string 1 content-text)))
             (setq content (string-trim content-text)))))))
 
     `((type . "tool_result")
