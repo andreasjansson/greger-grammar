@@ -105,18 +105,10 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Skip whitespace
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-        skip(lexer);
-    }
-
-    // Debug: always try tool content if we see '<'
-    if (lexer->lookahead == '<' && scan_tool_content(scanner, lexer)) {
+    // Debug: always return tool content
+    if (lexer->lookahead == '<') {
+        advance(lexer);
         lexer->result_symbol = TOOL_CONTENT;
-        return true;
-    }
-
-    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
         return true;
     }
 
