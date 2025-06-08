@@ -28,44 +28,55 @@ module.exports = grammar({
     source_file: $ => repeat($._block),
 
     _block: $ => choice(
-      $.user_section,
-      $.assistant_section,
-      $.system_section,
-      $.thinking_section,
-      $.tool_use_section,
-      $.tool_result_section,
-      $.server_tool_use_section,
-      $.server_tool_result_section,
-      $.citations_section,
+      $.user,
+      $.assistant,
+      $.system,
+      $.thinking,
+      $.tool_use,
+      $.tool_result,
+      $.server_tool_use,
+      $.server_tool_result,
+      $.citations,
       $.text_block,
     ),
+
+    // Use aliases to shorten section names
+    user: $ => alias($.user_section, 'user'),
+    assistant: $ => alias($.assistant_section, 'assistant'),
+    system: $ => alias($.system_section, 'system'),
+    thinking: $ => alias($.thinking_section, 'thinking'),
+    tool_use: $ => alias($.tool_use_section, 'tool_use'),
+    tool_result: $ => alias($.tool_result_section, 'tool_result'),
+    server_tool_use: $ => alias($.server_tool_use_section, 'server_tool_use'),
+    server_tool_result: $ => alias($.server_tool_result_section, 'server_tool_result'),
+    citations: $ => alias($.citations_section, 'citations'),
 
     user_section: $ => prec.right(seq(
       '##',
       'USER',
       ':',
-      repeat($._section_content),
+      field('text', repeat($._section_content)),
     )),
 
     assistant_section: $ => prec.right(seq(
       '##',
       'ASSISTANT',
       ':',
-      repeat($._section_content),
+      field('text', repeat($._section_content)),
     )),
 
     system_section: $ => prec.right(seq(
       '##',
       'SYSTEM',
       ':',
-      repeat($._section_content),
+      field('text', repeat($._section_content)),
     )),
 
     thinking_section: $ => prec.right(seq(
       '##',
       'THINKING',
       ':',
-      repeat($._section_content),
+      field('text', repeat($._section_content)),
     )),
 
     tool_use_section: $ => prec.right(seq(
@@ -73,7 +84,10 @@ module.exports = grammar({
       'TOOL',
       'USE',
       ':',
-      repeat($._tool_section_content),
+      field('name', optional($.tool_name)),
+      field('id', optional($.tool_id)),
+      repeat(field('param', $.tool_param)),
+      repeat($._section_content),
     )),
 
     tool_result_section: $ => prec.right(seq(
@@ -81,7 +95,9 @@ module.exports = grammar({
       'TOOL',
       'RESULT',
       ':',
-      repeat($._tool_section_content),
+      field('id', optional($.tool_id)),
+      field('content', optional($.tool_content)),
+      repeat($._section_content),
     )),
 
     server_tool_use_section: $ => prec.right(seq(
@@ -90,7 +106,10 @@ module.exports = grammar({
       'TOOL',
       'USE',
       ':',
-      repeat($._tool_section_content),
+      field('name', optional($.tool_name)),
+      field('id', optional($.tool_id)),
+      repeat(field('param', $.tool_param)),
+      repeat($._section_content),
     )),
 
     server_tool_result_section: $ => prec.right(seq(
@@ -99,14 +118,16 @@ module.exports = grammar({
       'TOOL',
       'RESULT',
       ':',
-      repeat($._tool_section_content),
+      field('id', optional($.tool_id)),
+      field('content', optional($.tool_content)),
+      repeat($._section_content),
     )),
 
     citations_section: $ => prec.right(seq(
       '##',
       'CITATIONS',
       ':',
-      repeat($._citations_content),
+      field('text', repeat($._citations_content)),
     )),
 
     _section_content: $ => prec(-1, choice(
@@ -116,12 +137,15 @@ module.exports = grammar({
       $.safe_shell_commands,
     )),
 
-    _tool_section_content: $ => prec(-1, choice(
-      $.tool_use_metadata,
-      $.tool_param,
-      $.tool_content,
-      $.text_block,
-    )),
+    tool_name: $ => seq('Name:', /[^\n]*/),
+    tool_id: $ => seq('ID:', /[^\n]*/),
+
+    tool_param: $ => seq(
+      '###',
+      field('name', /[^\n]*/),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
 
     _citations_content: $ => choice(
       $.citation_entry,
@@ -130,6 +154,35 @@ module.exports = grammar({
       $.citation_encrypted_index,
       prec(-1, $.text_block),
     ),
+
+    citation_entry: $ => seq(
+      '###',
+      field('url', $.citation_url),
+      /\n/,
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => field('title', token(seq(
+      'Title:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    ))),
+
+    citation_text: $ => field('cited_text', token(seq(
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    ))),
+
+    citation_encrypted_index: $ => field('encrypted_index', token(seq(
+      'Encrypted index:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    ))),
 
     text_block: $ => repeat1(choice(
       /[^\n#`<]+/,
@@ -165,51 +218,6 @@ module.exports = grammar({
       /[^<]*/,
       '</cite>',
     ),
-
-    tool_use_metadata: $ => choice(
-      seq('Name:', /[^\n]*/),
-      seq('ID:', /[^\n]*/),
-    ),
-
-    tool_param: $ => seq(
-      '###',
-      /[^\n]*/,
-      /\n+/,
-      $.tool_content,
-    ),
-
-    citation_entry: $ => seq(
-      '###',
-      $.citation_url,
-      /\n/,
-    ),
-
-    citation_url: $ => /[^\n]*/,
-
-    citation_title: $ => token(seq(
-      'Title:',
-      /[ ]+/,
-      /[^\n]*/,
-      /\n/,
-    )),
-
-    citation_text: $ => token(seq(
-      'Cited text:',
-      /[ ]+/,
-      /[^\n]*/,
-      /\n/,
-    )),
-
-    citation_encrypted_index: $ => token(seq(
-      'Encrypted index:',
-      /[ ]+/,
-      /[^\n]*/,
-      /\n/,
-    )),
-
-    citation_title_text: $ => /[^\n]*/,
-    citation_text_content: $ => /[^\n]*/,
-    citation_encrypted_index_content: $ => /[^\n]*/,
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
