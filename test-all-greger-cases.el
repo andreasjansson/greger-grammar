@@ -134,7 +134,7 @@
 
     ;; Just thinking without any other content
     (:name "thinking-only"
-           :markdown (greger-read-corpus-file "thinking-only")
+           :markdown ,(greger-read-corpus-file "thinking-only")
            :dialog (((role . "user")
                      (content . "Let me think about this"))
                     ((role . "assistant")
