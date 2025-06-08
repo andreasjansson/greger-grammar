@@ -101,7 +101,7 @@
                     ((role . "user")
                      (content . (((type . "tool_result")
                                   (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
-                                  (content . "JSON result content")))))
+                                  (content . "{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}")))))
                     ((role . "assistant")
                      (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history."))))
 

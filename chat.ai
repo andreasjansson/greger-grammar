@@ -8445,4 +8445,376 @@ greger-tree-sitter.el
 Remove debug print from web_search_tool_result assignment
 </tool.toolu_017QoXoxEikvY5fLM6XpFCjc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017QoXoxEikvY5fLM6XpFCjc -->
+## TOOL RESULT:
+
+ID: toolu_017QoXoxEikvY5fLM6XpFCjc
+
+<tool.toolu_017QoXoxEikvY5fLM6XpFCjc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove debug print from web_search_tool_result assignment
+</tool.toolu_017QoXoxEikvY5fLM6XpFCjc>
+
+## ASSISTANT:
+
+Now let me run the full test suite to see the current status:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01L8Mk9XcMS3fUrS9JQcN6CR
+
+### command
+
+<tool.toolu_01L8Mk9XcMS3fUrS9JQcN6CR>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01L8Mk9XcMS3fUrS9JQcN6CR>
+
+## TOOL RESULT:
+
+ID: toolu_01L8Mk9XcMS3fUrS9JQcN6CR
+
+<tool.toolu_01L8Mk9XcMS3fUrS9JQcN6CR>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.001s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "[\n  {\n    \"type\": \"web_search_result\",\n    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",\n    \"title\": \"Claude Shannon - Wikipedia\",\n    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",\n    \"page_age\": \"April 30, 2025\"\n  }\n]"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.001s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.001s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.001s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.003s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 18
+Failed: 3
+
+❌ FAILED TESTS:
+  - complex-workflow
+  - citations-basic
+  - citations-multiple
+
+</tool.toolu_01L8Mk9XcMS3fUrS9JQcN6CR>
+
+## ASSISTANT:
+
+Excellent progress! We went from 16/21 tests passing to 18/21 tests passing. The fixes for the backquote syntax issues resolved the tool-use-with-code-in-params and tool-use-with-tool-use-in-params tests.
+
+Now the remaining 3 failing tests are:
+
+1. **complex-workflow** - This is a content mismatch where the expected result has placeholder text "JSON result content" but the actual content is the real JSON `{"query": "current king of Sweden 2024", "answer": "Carl XVI Gustaf", "response_time": 2.38}`. This is a test case issue, not a parser issue.
+
+2. **citations-basic** - Same issue as above. Expected placeholder text "Search results about Claude Shannon" but got the actual JSON content.
+
+3. **citations-multiple** - This has citation parsing issues where the titles and content are getting mixed up between citations.
+
+Let me first fix the test case issues for complex-workflow and citations-basic by updating the expected results to match the actual corpus content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Vchm4Lqf5XEoQs44WydpcF
+
+### path
+
+<tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+test/corpus/complex-workflow.greger
+</tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+
+### start-line
+
+<tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+30
+</tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+
+### end-line
+
+<tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+40
+</tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+
+## TOOL RESULT:
+
+ID: toolu_01Vchm4Lqf5XEoQs44WydpcF
+
+<tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+
+## TOOL RESULT:
+
+ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
+
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+
+## ASSISTANT:
+</tool.toolu_01Vchm4Lqf5XEoQs44WydpcF>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016tvM7GfM3eEwhfUN27es18
+
+### file-path
+
+<tool.toolu_016tvM7GfM3eEwhfUN27es18>
+test-all-greger-cases.el
+</tool.toolu_016tvM7GfM3eEwhfUN27es18>
+
+### original-content
+
+<tool.toolu_016tvM7GfM3eEwhfUN27es18>
+((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+                                  (content . "JSON result content")))))
+</tool.toolu_016tvM7GfM3eEwhfUN27es18>
+
+### new-content
+
+<tool.toolu_016tvM7GfM3eEwhfUN27es18>
+((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+                                  (content . "{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}")))))
+</tool.toolu_016tvM7GfM3eEwhfUN27es18>
+
+### git-commit-message
+
+<tool.toolu_016tvM7GfM3eEwhfUN27es18>
+Fix complex-workflow test expected content to match corpus
+</tool.toolu_016tvM7GfM3eEwhfUN27es18>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016tvM7GfM3eEwhfUN27es18 -->
