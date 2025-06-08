@@ -151,9 +151,9 @@ module.exports = grammar({
     tool_param: $ => seq(
       '###',
       /[ ]*/,
-      field('name', $.param_name),
+      alias($.param_name, $.name),
       /\n+/,
-      field('value', $.tool_content),
+      alias($.tool_content, $.value),
     ),
 
     param_name: $ => /[^\n]+/,

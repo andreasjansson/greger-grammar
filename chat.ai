@@ -10211,4 +10211,121 @@ server_tool_use_section: $ => prec.right(seq(
 Use aliases to rename tool_name/tool_id/tool_param to name/id/param
 </tool.toolu_016aRukfbSmDv1vXWann1FoP>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016aRukfbSmDv1vXWann1FoP -->
+## TOOL RESULT:
+
+ID: toolu_016aRukfbSmDv1vXWann1FoP
+
+<tool.toolu_016aRukfbSmDv1vXWann1FoP>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use aliases to rename tool_name/tool_id/tool_param to name/id/param
+</tool.toolu_016aRukfbSmDv1vXWann1FoP>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FLG8T6bDbpvAujXcQiHqQu
+
+### command
+
+<tool.toolu_01FLG8T6bDbpvAujXcQiHqQu>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01FLG8T6bDbpvAujXcQiHqQu>
+
+## TOOL RESULT:
+
+ID: toolu_01FLG8T6bDbpvAujXcQiHqQu
+
+<tool.toolu_01FLG8T6bDbpvAujXcQiHqQu>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        name: (param_name [9, 4] - [9, 9])
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      id: (tool_id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (citation_encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_01FLG8T6bDbpvAujXcQiHqQu>
+
+## ASSISTANT:
+
+Good! That's much better. Now the server_tool_use section has:
+- `(name [6, 0] - [7, 0])`
+- `(id [7, 0] - [8, 0])`  
+- `(param [9, 0] - [13, 40])`
+
+This is closer to the desired structure. Now I need to:
+
+1. Fix the tool_param structure to use aliases for name/value instead of fields
+2. Fix the server_tool_result section 
+3. Fix the citations section
+4. Eliminate the scattered text_blocks
+
+Let me first fix the tool_param structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Devh87iCHcwbrWwGgC2qFW
+
+### file-path
+
+<tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+grammar.js
+</tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+
+### original-content
+
+<tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      field('name', $.param_name),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+
+    param_name: $ => /[^\n]+/,
+</tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+
+### new-content
+
+<tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      alias($.param_name, $.name),
+      /\n+/,
+      alias($.tool_content, $.value),
+    ),
+
+    param_name: $ => /[^\n]+/,
+</tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+
+### git-commit-message
+
+<tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+Use aliases in tool_param for name/value instead of fields
+</tool.toolu_01Devh87iCHcwbrWwGgC2qFW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Devh87iCHcwbrWwGgC2qFW -->
