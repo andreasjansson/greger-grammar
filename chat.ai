@@ -3891,4 +3891,77 @@ tool_use_metadata: $ => prec(1, choice(
 Give tool_use_metadata higher precedence than text_content
 </tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HPc2BZbPuZfX1PfX38gYmv -->
+## TOOL RESULT:
+
+ID: toolu_01HPc2BZbPuZfX1PfX38gYmv
+
+<tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Give tool_use_metadata higher precedence than text_content
+</tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015cnrdz51zQ7uDBDzjCfBgn
+
+### command
+
+<tool.toolu_015cnrdz51zQ7uDBDzjCfBgn>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_015cnrdz51zQ7uDBDzjCfBgn>
+
+## TOOL RESULT:
+
+ID: toolu_015cnrdz51zQ7uDBDzjCfBgn
+
+<tool.toolu_015cnrdz51zQ7uDBDzjCfBgn>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [3, 10]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10]))
+  (ERROR [5, 0] - [9, 14]
+    (ERROR [7, 0] - [9, 14])))
+test_simple.greger	Parse:    0.04 ms	  2249 bytes/ms	(ERROR [5, 0] - [9, 14])
+
+</tool.toolu_015cnrdz51zQ7uDBDzjCfBgn>
+
+## ASSISTANT:
+
+Still not working. Let me also give tool_param higher precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01F6nUYsd3SRG1Ji7ZGaCJXg
+
+### file-path
+
+<tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+grammar.js
+</tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+
+### original-content
+
+<tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+tool_param: $ => seq(
+      '###', /[^\r\n]*/,
+      $.tool_content,
+    ),
+</tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+
+### new-content
+
+<tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+tool_param: $ => prec(1, seq(
+      '###', /[^\r\n]*/,
+      $.tool_content,
+    )),
+</tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+
+### git-commit-message
+
+<tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+Give tool_param higher precedence
+</tool.toolu_01F6nUYsd3SRG1Ji7ZGaCJXg>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F6nUYsd3SRG1Ji7ZGaCJXg -->

@@ -168,10 +168,10 @@ module.exports = grammar({
       seq('ID:', /[^\r\n]*/),
     )),
 
-    tool_param: $ => seq(
+    tool_param: $ => prec(1, seq(
       '###', /[^\r\n]*/,
       $.tool_content,
-    ),
+    )),
 
     citation_entry: $ => seq(
       '###', /[^\r\n]*/,
