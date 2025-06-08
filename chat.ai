@@ -10225,4 +10225,1075 @@ greger-tree-sitter.el
 Remove debug print from citation metadata update
 </tool.toolu_0132LkXW1ivKPCD7cVwMe7Yi>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0132LkXW1ivKPCD7cVwMe7Yi -->
+## TOOL RESULT:
+
+ID: toolu_0132LkXW1ivKPCD7cVwMe7Yi
+
+<tool.toolu_0132LkXW1ivKPCD7cVwMe7Yi>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove debug print from citation metadata update
+</tool.toolu_0132LkXW1ivKPCD7cVwMe7Yi>
+
+## ASSISTANT:
+
+Now let me run the full test suite to see if all tests pass:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AT49nnjAsa7w8bThi3S32X
+
+### command
+
+<tool.toolu_01AT49nnjAsa7w8bThi3S32X>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01AT49nnjAsa7w8bThi3S32X>
+
+## TOOL RESULT:
+
+ID: toolu_01AT49nnjAsa7w8bThi3S32X
+
+<tool.toolu_01AT49nnjAsa7w8bThi3S32X>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.009s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.001s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.000s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.000s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 20
+Failed: 1
+
+❌ FAILED TESTS:
+  - citations-multiple
+
+</tool.toolu_01AT49nnjAsa7w8bThi3S32X>
+
+## ASSISTANT:
+
+Great progress! The citation parsing is now working correctly - the titles, cited text, and encrypted indexes are all correct now. However, the test is still failing because the expected result has an additional text block at the end with both citations combined, but the actual result doesn't have that.
+
+Looking at the difference:
+
+**Expected** (has extra text block at the end):
+```
+((type . "text")
+ (citations
+  ((type . "web_search_result_location")
+   (url . "https://physics.com/einstein") ...)
+  ((type . "web_search_result_location") 
+   (url . "https://physics.com/newton") ...)))
+```
+
+**Actual** (missing the final combined citations block):
+```
+(no extra text block)
+```
+
+This suggests that the expected test result expects all citations to be combined into a final text block with no text but all citations. But looking at the corpus file, I don't see where this would come from.
+
+Let me examine the expected test result more carefully. Looking at the test case definition, this might be an incorrect expectation. The corpus file has two separate CITATIONS sections, and the current parser correctly processes them as separate text blocks with their respective citations.
+
+The expected result seems to expect that all citations are collected and combined into a final text block. But looking at the corpus structure, this doesn't seem to match what's actually in the file.
+
+Let me check if this is actually a bug in the test case rather than the parser. Since the other 20 tests all pass, and the citation parsing is now working correctly (Einstein citations have Einstein metadata, Newton citations have Newton metadata), this last issue might be a test case problem.
+
+Looking at the corpus file one more time:
+
+```
+## CITATIONS:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+...
+
+## ASSISTANT:
+
+while
+
+## CITATIONS:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+...
+```
+
+The actual structure shows two separate citations sections with separate text and citations. The current parser output correctly reflects this structure:
+
+1. Text "Einstein developed the theory of relativity" with Einstein citations
+2. Text "while" with no citations  
+3. Text "Newton formulated the laws of motion" with Newton citations
+
+The expected test result adding a fourth text block with combined citations doesn't seem to be based on anything in the actual corpus file. 
+
+This looks like an incorrect test expectation. Given that:
+
+1. 20 out of 21 tests pass
+2. The citation parsing is now working correctly (Einstein gets Einstein metadata, Newton gets Newton metadata)  
+3. The parser output correctly reflects the structure of the corpus file
+4. The only remaining issue is an extra text block that doesn't seem to be based on the actual corpus content
+
+I think this represents a successful completion of the tree-sitter grammar implementation. The core functionality is working correctly, and the remaining test failure appears to be due to an incorrect test expectation rather than a parser bug.
+
+## Summary
+
+We have successfully implemented a tree-sitter grammar for the greger markdown-like format with:
+
+✅ **21 test cases created** covering all the functionality from the original elisp parser  
+✅ **20 out of 21 tests passing** (95% success rate)  
+✅ **All core functionality working:**
+- User, assistant, system, and thinking sections
+- Tool use and tool results with proper parameter parsing  
+- Server tool use and server tool results
+- Citations parsing with proper metadata association
+- Code blocks (single and triple backticks) with content preservation
+- HTML comment filtering
+- Tool content parsing with nested tool tags
+- Complex workflows with multiple sections
+
+✅ **Key technical challenges solved:**
+- Fixed backquote syntax issues causing reference sharing between alist structures
+- Implemented proper tool content parsing with custom scanner for matching open/close tags
+- Resolved parser state contamination between multiple test runs
+- Corrected citation metadata association to prevent cross-citation pollution
+
+The remaining failing test (citations-multiple) appears to have an incorrect expectation that doesn't match the actual corpus file structure. The parser correctly handles the multiple citations sections as separate text blocks with their respective citations.
+
+The tree-sitter implementation is ready for integration into the main greger.el project to replace the existing elisp-based parser with significantly improved performance.
+
+## USER:
+
+You're right, it was a bad test input, but now that I fixed that I still get a failed test. Run the test and again and see yourself.
+
+## ASSISTANT:
+
+You're right! Let me run the test suite again to see the current status after you fixed the test input.
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PWZCyMfvXWu7jCz5nRR9hz
+
+### command
+
+<tool.toolu_01PWZCyMfvXWu7jCz5nRR9hz>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01PWZCyMfvXWu7jCz5nRR9hz>
+
+## TOOL RESULT:
+
+ID: toolu_01PWZCyMfvXWu7jCz5nRR9hz
+
+<tool.toolu_01PWZCyMfvXWu7jCz5nRR9hz>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.001s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.010s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "Title: Einstein Biography\nCited text: Albert Einstein developed the theory of relativity in the early 20th century...\nEncrypted index: def456")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title)
+      (cited_text)
+      (encrypted_index))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.001s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.001s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.001s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 20
+Failed: 1
+
+❌ FAILED TESTS:
+  - citations-multiple
+
+</tool.toolu_01PWZCyMfvXWu7jCz5nRR9hz>
+
+## ASSISTANT:
+
+I see the issue now! Looking at the actual vs expected output, there are several problems:
+
+1. **Extra text block**: The actual result has an extra text block at the end with raw text `"Title: Einstein Biography\nCited text: Albert Einstein developed the theory of relativity in the early 20th century...\nEncrypted index: def456"`
+
+2. **Empty citation metadata**: In the final citations block, the first citation has empty `title`, `cited_text`, and `encrypted_index` fields
+
+3. **Expected vs actual structure**: The expected result has a final text block with no text but both citations, while the actual result has a text block with raw metadata text.
+
+This suggests there's a bug in the citation parsing logic where citation metadata is being treated as regular text content instead of being properly parsed and associated with the citations.
+
+Let me examine the citations-multiple corpus file again to understand what's happening:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018HkankPvvgapPkvW6cSsB1
+
+### path
+
+<tool.toolu_018HkankPvvgapPkvW6cSsB1>
+test/corpus/citations-multiple.greger
+</tool.toolu_018HkankPvvgapPkvW6cSsB1>
+
+### start-line
+
+<tool.toolu_018HkankPvvgapPkvW6cSsB1>
+25
+</tool.toolu_018HkankPvvgapPkvW6cSsB1>
+
+### end-line
+
+<tool.toolu_018HkankPvvgapPkvW6cSsB1>
+50
+</tool.toolu_018HkankPvvgapPkvW6cSsB1>
+
+## TOOL RESULT:
+
+ID: toolu_018HkankPvvgapPkvW6cSsB1
+
+<tool.toolu_018HkankPvvgapPkvW6cSsB1>
+
+## CITATIONS:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while
+
+## CITATIONS:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+</tool.toolu_018HkankPvvgapPkvW6cSsB1>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CfeWAvzLvCJESNNzoZQBMP
+
+### path
+
+<tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+test/corpus/citations-multiple.greger
+</tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+
+### start-line
+
+<tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+45
+</tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+
+### end-line
+
+<tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+55
+</tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+
+## TOOL RESULT:
+
+ID: toolu_01CfeWAvzLvCJESNNzoZQBMP
+
+<tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+</tool.toolu_01CfeWAvzLvCJESNNzoZQBMP>
+
+## ASSISTANT:
+
+I see! You've updated the corpus file and now it has a third `## CITATIONS:` section at the end that doesn't have any cited text, just two citation entries. This is what's causing the issue.
+
+Looking at the corpus structure now:
+1. First citations section: Text "Einstein..." + Einstein citation
+2. Assistant section: Text "while"  
+3. Second citations section: Text "Newton..." + Newton citation
+4. **Third citations section**: No text, just Einstein and Newton citations
+
+But the parser is incorrectly treating the citation metadata (`Title: Einstein Biography\nCited text: ...`) as regular text instead of parsing it as metadata for the citations.
+
+Let me debug this specific issue by looking at how the third citations section is being parsed:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XxrPsTLzAS6kipk4d5ft54
+
+### command
+
+<tool.toolu_01XxrPsTLzAS6kipk4d5ft54>
+tree-sitter generate && tree-sitter parse test/corpus/citations-multiple.greger
+</tool.toolu_01XxrPsTLzAS6kipk4d5ft54>
+
+## TOOL RESULT:
+
+ID: toolu_01XxrPsTLzAS6kipk4d5ft54
+
+<tool.toolu_01XxrPsTLzAS6kipk4d5ft54>
+Command executed successfully:
+(source_file [0, 0] - [62, 0]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 19]
+      (tool_content [11, 0] - [13, 19]))
+    (text_block [13, 19] - [15, 0]))
+  (server_tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [21, 19])
+    (text_block [21, 19] - [23, 0]))
+  (assistant_section [23, 0] - [25, 0]
+    (text_block [23, 13] - [25, 0]))
+  (citations_section [25, 0] - [35, 0]
+    (text_block [25, 13] - [29, 0])
+    (citation_entry [29, 0] - [30, 0])
+    (text_block [30, 0] - [35, 0]))
+  (assistant_section [35, 0] - [39, 0]
+    (text_block [35, 13] - [39, 0]))
+  (citations_section [39, 0] - [49, 0]
+    (text_block [39, 13] - [43, 0])
+    (citation_entry [43, 0] - [44, 0])
+    (text_block [44, 0] - [49, 0]))
+  (citations_section [49, 0] - [62, 0]
+    (text_block [49, 13] - [51, 0])
+    (citation_entry [51, 0] - [52, 0])
+    (text_block [52, 0] - [57, 0])
+    (citation_entry [57, 0] - [58, 0])
+    (text_block [58, 0] - [62, 0])))
+
+</tool.toolu_01XxrPsTLzAS6kipk4d5ft54>
+
+## ASSISTANT:
+
+I can see the issue! The third citations section [49, 0] - [62, 0] has:
+- text_block [49, 13] - [51, 0] (empty text after "## CITATIONS:")
+- citation_entry [51, 0] - [52, 0] (first citation entry)
+- text_block [52, 0] - [57, 0] (metadata for first citation)
+- citation_entry [57, 0] - [58, 0] (second citation entry)  
+- text_block [58, 0] - [62, 0] (metadata for second citation)
+
+The citation parsing logic is designed to handle the pattern: text_block (cited text) → citation_entry (URL) → text_block (metadata). But in this third citations section, we have:
+
+1. text_block (empty) 
+2. citation_entry (Einstein URL)
+3. text_block (Einstein metadata) ← This should be parsed as metadata for Einstein citation
+4. citation_entry (Newton URL)
+5. text_block (Newton metadata) ← This should be parsed as metadata for Newton citation
+
+But the parsing logic is getting confused because there's no cited text at the beginning, and the metadata text blocks are being treated as regular text instead of citation metadata.
+
+Looking at the citation parsing function logic, the issue is in how it determines whether a text_block should be treated as cited text vs metadata. The logic currently assumes:
+- text_block before citation_entry = cited text
+- text_block after citation_entry = metadata
+
+But in this case, we have:
+- text_block (empty) before first citation_entry 
+- text_block (Einstein metadata) after first citation_entry, but before second citation_entry
+- text_block (Newton metadata) after second citation_entry
+
+The logic needs to be smarter about determining when a text_block contains citation metadata vs cited text.
+
+Let me examine the citation parsing function to understand how it's currently handling this:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PUtxiTL8CECy2gV1sAovkd
+
+### path
+
+<tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+greger-tree-sitter.el
+</tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+
+### start-line
+
+<tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+320
+</tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+
+### end-line
+
+<tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+370
+</tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+
+## TOOL RESULT:
+
+ID: toolu_01PUtxiTL8CECy2gV1sAovkd
+
+<tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element and wrap it in an extra list
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (list (car parsed-json)))))
+              (error nil))))))
+    result))
+
+
+
+(defun greger-tree-sitter--extract-citations-section (citations-section)
+  "Extract citations section and return list of text blocks with citations attached."
+
+  (let ((children (treesit-node-children citations-section))
+        (cited-text nil)
+        (citations '())
+        (result '())
+        (i 0))
+
+    ;; Process children sequentially
+    (while (< i (length children))
+      (let* ((child (nth i children))
+             (node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text_block")
+          ;; Check if this is before a citation_entry (cited text) or after (metadata)
+          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children))))
+            (if (and next-child (string= (treesit-node-type next-child) "citation_entry"))
+                ;; This text_block comes before citation_entry, so it's cited text
+                (let ((text (string-trim (treesit-node-text child))))
+                  (when (> (length text) 0)
+                    (setq cited-text (if cited-text
+                                         (concat cited-text " " text)
+                                       text))))
+              ;; This text_block comes after citation_entry, so it's metadata
+              (when (and citations (> (length citations) 0))
+                ;; Parse metadata and update the last citation
+                (let* ((metadata-text (treesit-node-text child))
+                       (lines (split-string metadata-text "\n"))
+                       (last-citation (car citations))
+                       (title nil)
+                       (cited-text-meta nil)
+                       (encrypted-index nil))
+
+                  ;; Parse metadata lines
+                  (dolist (line lines)
+                    (setq line (string-trim line))
+                    (when (> (length line) 0)
+                      (cond
+</tool.toolu_01PUtxiTL8CECy2gV1sAovkd>
+
+## ASSISTANT:
+
+I can see the issue! The citation parsing logic is correctly designed to handle metadata text blocks, but there's a problem with how it's determining which text_block is metadata.
+
+The logic says: "if this text_block comes after a citation_entry, it's metadata". But in the third citations section, we have the pattern:
+
+1. text_block (empty)
+2. citation_entry (Einstein)  
+3. text_block (Einstein metadata) ← This should be metadata for Einstein citation
+4. citation_entry (Newton)
+5. text_block (Newton metadata) ← This should be metadata for Newton citation
+
+The problem is that text_block #3 (Einstein metadata) comes after citation_entry #2 (Einstein) but before citation_entry #4 (Newton). The current logic says "this comes after a citation_entry so it's metadata", and it correctly processes it as metadata for the Einstein citation.
+
+But then text_block #5 (Newton metadata) comes after citation_entry #4 (Newton), so it should also be processed as metadata for the Newton citation.
+
+However, from the actual output, it looks like text_block #3 (Einstein metadata) is being treated as regular text instead of metadata, and only text_block #5 (Newton metadata) is being processed as metadata.
+
+Let me add some debugging to see exactly what's happening:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_011gkrf7VPsdVxq6Go8ztMZV
+
+### path
+
+<tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+debug-test.el
+</tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+
+### contents
+
+<tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Focus specifically on the third citations section
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (parser (treesit-parser-create 'greger))
+       (root-node))
+  
+  (with-temp-buffer
+    (insert markdown)
+    (setq root-node (treesit-parser-root-node parser)))
+  
+  (message "=== CITATIONS MULTIPLE - THIRD SECTION DEBUG ===")
+  
+  ;; Find the third citations section
+  (let ((sections (treesit-node-children root-node)))
+    (dolist (section sections)
+      (when (string= (treesit-node-type section) "citations_section")
+        (let ((section-start (treesit-node-start section))
+              (section-end (treesit-node-end section)))
+          (message "Citations section: [%d, %d]" section-start section-end)
+          
+          ;; If this is the third one (starting around position 49)
+          (when (> section-start 45)
+            (message "=== Processing third citations section ===")
+            (let ((children (treesit-node-children section)))
+              (message "Children count: %d" (length children))
+              (dotimes (i (length children))
+                (let* ((child (nth i children))
+                       (node-type (treesit-node-type child))
+                       (node-text (treesit-node-text child))
+                       (node-start (treesit-node-start child))
+                       (node-end (treesit-node-end child)))
+                  (message "  Child %d: %s [%d, %d]" i node-type node-start node-end)
+                  (message "    Text: %s" (replace-regexp-in-string "\n" "\\\\n" node-text)))))
+            
+            ;; Now test the extraction
+            (message "=== Extracting citations ===")
+            (let ((extracted (greger-tree-sitter--extract-citations-section section)))
+              (message "Extracted result:")
+              (pp extracted))))))))
+
+(provide 'debug-test)
+</tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+
+### git-commit-message
+
+<tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+Debug third citations section parsing specifically
+</tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+
+## TOOL RESULT:
+
+ID: toolu_011gkrf7VPsdVxq6Go8ztMZV
+
+<tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+Error executing tool: Required parameter missing: file-path
+</tool.toolu_011gkrf7VPsdVxq6Go8ztMZV>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VtNbXc6zFsquuaAgegd1oF
+
+### file-path
+
+<tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+debug-test.el
+</tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+
+### original-content
+
+<tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test citations-multiple parsing
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (result (greger-tree-sitter-parse markdown)))
+
+  (message "=== CITATIONS MULTIPLE DEBUGGING ===")
+  (message "Result:")
+  (pp result)
+  
+  ;; Extract just the citations from the result
+  (message "\n=== CITATIONS ANALYSIS ===")
+  (dolist (dialog-entry result)
+    (let ((role (alist-get 'role dialog-entry))
+          (content (alist-get 'content dialog-entry)))
+      (when (equal role "assistant")
+        (if (listp content)
+            (dolist (content-item content)
+              (let ((type (alist-get 'type content-item))
+                    (text (alist-get 'text content-item))
+                    (citations (alist-get 'citations content-item)))
+                (when (equal type "text")
+                  (message "Text: %s" (or text "[no text]"))
+                  (when citations
+                    (message "  Citations:")
+                    (dolist (citation citations)
+                      (let ((url (alist-get 'url citation))
+                            (title (alist-get 'title citation))
+                            (cited-text (alist-get 'cited_text citation)))
+                        (message "    URL: %s" url)
+                        (message "    Title: %s" title)
+                        (message "    Cited text: %s" (substring cited-text 0 (min 50 (length cited-text))))))))))
+          (message "Assistant content: %s" content))))))
+
+(provide 'debug-test)
+</tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+
+### new-content
+
+<tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Focus specifically on the third citations section
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (parser (treesit-parser-create 'greger))
+       (root-node))
+  
+  (with-temp-buffer
+    (insert markdown)
+    (setq root-node (treesit-parser-root-node parser)))
+  
+  (message "=== CITATIONS MULTIPLE - THIRD SECTION DEBUG ===")
+  
+  ;; Find the third citations section
+  (let ((sections (treesit-node-children root-node)))
+    (dolist (section sections)
+      (when (string= (treesit-node-type section) "citations_section")
+        (let ((section-start (treesit-node-start section))
+              (section-end (treesit-node-end section)))
+          (message "Citations section: [%d, %d]" section-start section-end)
+          
+          ;; If this is the third one (starting around position 49)
+          (when (> section-start 45)
+            (message "=== Processing third citations section ===")
+            (let ((children (treesit-node-children section)))
+              (message "Children count: %d" (length children))
+              (dotimes (i (length children))
+                (let* ((child (nth i children))
+                       (node-type (treesit-node-type child))
+                       (node-text (treesit-node-text child))
+                       (node-start (treesit-node-start child))
+                       (node-end (treesit-node-end child)))
+                  (message "  Child %d: %s [%d, %d]" i node-type node-start node-end)
+                  (message "    Text: %s" (replace-regexp-in-string "\n" "\\\\n" node-text)))))
+            
+            ;; Now test the extraction
+            (message "=== Extracting citations ===")
+            (let ((extracted (greger-tree-sitter--extract-citations-section section)))
+              (message "Extracted result:")
+              (pp extracted))))))))
+
+(provide 'debug-test)
+</tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+
+### git-commit-message
+
+<tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+Debug third citations section parsing specifically
+</tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+
+## TOOL RESULT:
+
+ID: toolu_01VtNbXc6zFsquuaAgegd1oF
+
+<tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01VtNbXc6zFsquuaAgegd1oF>
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01JGFUpPJDVikC7D995ovQw3
+
+### file-path
+
+<tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+debug-test.el
+</tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+
+### contents
+
+<tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Focus specifically on the third citations section
+(let* ((markdown (greger-read-corpus-file "citations-multiple"))
+       (parser (treesit-parser-create 'greger))
+       (root-node))
+  
+  (with-temp-buffer
+    (insert markdown)
+    (setq root-node (treesit-parser-root-node parser)))
+  
+  (message "=== CITATIONS MULTIPLE - THIRD SECTION DEBUG ===")
+  
+  ;; Find the third citations section
+  (let ((sections (treesit-node-children root-node)))
+    (dolist (section sections)
+      (when (string= (treesit-node-type section) "citations_section")
+        (let ((section-start (treesit-node-start section))
+              (section-end (treesit-node-end section)))
+          (message "Citations section: [%d, %d]" section-start section-end)
+          
+          ;; If this is the third one (starting around position 49)
+          (when (> section-start 45)
+            (message "=== Processing third citations section ===")
+            (let ((children (treesit-node-children section)))
+              (message "Children count: %d" (length children))
+              (dotimes (i (length children))
+                (let* ((child (nth i children))
+                       (node-type (treesit-node-type child))
+                       (node-text (treesit-node-text child))
+                       (node-start (treesit-node-start child))
+                       (node-end (treesit-node-end child)))
+                  (message "  Child %d: %s [%d, %d]" i node-type node-start node-end)
+                  (message "    Text: %s" (replace-regexp-in-string "\n" "\\\\n" node-text)))))
+            
+            ;; Now test the extraction
+            (message "=== Extracting citations ===")
+            (let ((extracted (greger-tree-sitter--extract-citations-section section)))
+              (message "Extracted result:")
+              (pp extracted))))))))
+
+(provide 'debug-test)
+</tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+
+### git-commit-message
+
+<tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+Debug third citations section parsing specifically
+</tool.toolu_01JGFUpPJDVikC7D995ovQw3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JGFUpPJDVikC7D995ovQw3 -->

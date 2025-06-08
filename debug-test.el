@@ -10,36 +10,43 @@
           (buffer-string))
       (error "Corpus file not found: %s" file-path))))
 
-;; Test citations-multiple parsing
+;; Focus specifically on the third citations section
 (let* ((markdown (greger-read-corpus-file "citations-multiple"))
-       (result (greger-tree-sitter-parse markdown)))
+       (parser (treesit-parser-create 'greger))
+       (root-node))
 
-  (message "=== CITATIONS MULTIPLE DEBUGGING ===")
-  (message "Result:")
-  (pp result)
+  (with-temp-buffer
+    (insert markdown)
+    (setq root-node (treesit-parser-root-node parser)))
 
-  ;; Extract just the citations from the result
-  (message "\n=== CITATIONS ANALYSIS ===")
-  (dolist (dialog-entry result)
-    (let ((role (alist-get 'role dialog-entry))
-          (content (alist-get 'content dialog-entry)))
-      (when (equal role "assistant")
-        (if (listp content)
-            (dolist (content-item content)
-              (let ((type (alist-get 'type content-item))
-                    (text (alist-get 'text content-item))
-                    (citations (alist-get 'citations content-item)))
-                (when (equal type "text")
-                  (message "Text: %s" (or text "[no text]"))
-                  (when citations
-                    (message "  Citations:")
-                    (dolist (citation citations)
-                      (let ((url (alist-get 'url citation))
-                            (title (alist-get 'title citation))
-                            (cited-text (alist-get 'cited_text citation)))
-                        (message "    URL: %s" url)
-                        (message "    Title: %s" title)
-                        (message "    Cited text: %s" (substring cited-text 0 (min 50 (length cited-text))))))))))
-          (message "Assistant content: %s" content))))))
+  (message "=== CITATIONS MULTIPLE - THIRD SECTION DEBUG ===")
+
+  ;; Find the third citations section
+  (let ((sections (treesit-node-children root-node)))
+    (dolist (section sections)
+      (when (string= (treesit-node-type section) "citations_section")
+        (let ((section-start (treesit-node-start section))
+              (section-end (treesit-node-end section)))
+          (message "Citations section: [%d, %d]" section-start section-end)
+
+          ;; If this is the third one (starting around position 49)
+          (when (> section-start 45)
+            (message "=== Processing third citations section ===")
+            (let ((children (treesit-node-children section)))
+              (message "Children count: %d" (length children))
+              (dotimes (i (length children))
+                (let* ((child (nth i children))
+                       (node-type (treesit-node-type child))
+                       (node-text (treesit-node-text child))
+                       (node-start (treesit-node-start child))
+                       (node-end (treesit-node-end child)))
+                  (message "  Child %d: %s [%d, %d]" i node-type node-start node-end)
+                  (message "    Text: %s" (replace-regexp-in-string "\n" "\\\\n" node-text)))))
+
+            ;; Now test the extraction
+            (message "=== Extracting citations ===")
+            (let ((extracted (greger-tree-sitter--extract-citations-section section)))
+              (message "Extracted result:")
+              (pp extracted))))))))
 
 (provide 'debug-test)
