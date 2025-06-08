@@ -7482,4 +7482,105 @@ greger-tree-sitter.el
 Use explicit alist construction to avoid backquote issues
 </tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ft59dMJobu6A9eKrEFxNiz -->
+## TOOL RESULT:
+
+ID: toolu_01Ft59dMJobu6A9eKrEFxNiz
+
+<tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Use explicit alist construction to avoid backquote issues
+</tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SvHZ6dQmVLridqvGiuPhpV
+
+### command
+
+<tool.toolu_01SvHZ6dQmVLridqvGiuPhpV>
+emacs --batch -l debug-test.el
+</tool.toolu_01SvHZ6dQmVLridqvGiuPhpV>
+
+## TOOL RESULT:
+
+ID: toolu_01SvHZ6dQmVLridqvGiuPhpV
+
+<tool.toolu_01SvHZ6dQmVLridqvGiuPhpV>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date")))
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "toolu_999") (name . "write-file") (input (filename . "example.py") (content . "```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```")))
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: tool_use
+  User content type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01SvHZ6dQmVLridqvGiuPhpV>
+
+## ASSISTANT:
+
+EXCELLENT! That fixed the tool_use type issue! Now `extract-tool-use` correctly returns "tool_use" for the second test.
+
+So the issue was with the backquote syntax somehow causing strange behavior. Using explicit `list` and `cons` construction fixed it.
+
+But there's still one more issue: the tool result is showing type "web_search_tool_result" instead of "tool_result". Let me add debugging to the tool result extraction function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Ewx8PUBgr1xrtZNvB4PXy5
+
+### file-path
+
+<tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+greger-tree-sitter.el
+</tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+
+### original-content
+
+<tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+  "Extract tool result data from a tool result section."
+  (let ((children (treesit-node-children tool-result-section))
+        (tool-use-id nil)
+        (content nil))
+</tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+
+### new-content
+
+<tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+  "Extract tool result data from a tool result section."
+  (message "[DEBUG] extract-tool-result called")
+  (let ((children (treesit-node-children tool-result-section))
+        (tool-use-id nil)
+        (content nil))
+</tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+
+### git-commit-message
+
+<tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+Add debug print to extract-tool-result
+</tool.toolu_01Ewx8PUBgr1xrtZNvB4PXy5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ewx8PUBgr1xrtZNvB4PXy5 -->
