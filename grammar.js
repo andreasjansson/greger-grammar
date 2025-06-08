@@ -179,16 +179,13 @@ module.exports = grammar({
       '###',
       $.citation_url,
       /\n/,
-      repeat($._citation_metadata),
+      optional(/\n/), // Empty line after URL
+      optional($.citation_title),
+      optional($.citation_text),
+      optional($.citation_encrypted_index),
     ),
 
     citation_url: $ => /[^\n]*/,
-
-    _citation_metadata: $ => choice(
-      $.citation_title,
-      $.citation_text,
-      $.citation_encrypted_index,
-    ),
 
     citation_title: $ => seq(
       'Title:',
