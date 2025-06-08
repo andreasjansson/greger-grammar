@@ -3858,4 +3858,155 @@ citation_entry: $ => seq(
 Fix citation metadata parsing by making them optional and sequential
 </tool.toolu_01S2tS2Zh8cxCEv42Dm1JHuW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01S2tS2Zh8cxCEv42Dm1JHuW -->
+## TOOL RESULT:
+
+ID: toolu_01S2tS2Zh8cxCEv42Dm1JHuW
+
+<tool.toolu_01S2tS2Zh8cxCEv42Dm1JHuW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix citation metadata parsing by making them optional and sequential
+</tool.toolu_01S2tS2Zh8cxCEv42Dm1JHuW>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NrRRMgR1nRTntwMPC5nKRp
+
+### command
+
+<tool.toolu_01NrRRMgR1nRTntwMPC5nKRp>
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/citations-multiple.greger
+</tool.toolu_01NrRRMgR1nRTntwMPC5nKRp>
+
+## TOOL RESULT:
+
+ID: toolu_01NrRRMgR1nRTntwMPC5nKRp
+
+<tool.toolu_01NrRRMgR1nRTntwMPC5nKRp>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      '##'  'CITATIONS'  ':'  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  …
+    
+    Possible interpretations:
+    
+      1:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_encrypted_index)
+      2:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_text  citation_encrypted_index)
+      3:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_text)
+      4:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_title  citation_encrypted_index)
+      5:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_title  citation_text  citation_encrypted_index)
+      6:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_title  citation_text)
+      7:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2'  citation_title)
+      8:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2'  •  'text_block_token2')
+      9:  '##'  'CITATIONS'  ':'  (citation_entry  '###'  citation_url  'text_block_token2')  •  'text_block_token2'  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `citation_entry`
+      2:  Add a conflict for these rules: `citation_entry`
+    
+
+</tool.toolu_01NrRRMgR1nRTntwMPC5nKRp>
+
+## ASSISTANT:
+
+There's a conflict because the parser can't decide between the optional citation metadata and text_block. Let me revise the approach to be more precise:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WQxtCHSsD1Fft1xgakAe4X
+
+### file-path
+
+<tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+grammar.js
+</tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+
+### original-content
+
+<tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+citation_entry: $ => seq(
+      '###',
+      $.citation_url,
+      /\n/,
+      optional(/\n/), // Empty line after URL
+      optional($.citation_title),
+      optional($.citation_text),
+      optional($.citation_encrypted_index),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => seq(
+      'Title:',
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+
+    citation_title_text: $ => /[^\n]*/,
+    citation_text_content: $ => /[^\n]*/,
+    citation_encrypted_index_content: $ => /[^\n]*/,
+</tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+
+### new-content
+
+<tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+citation_entry: $ => seq(
+      '###',
+      $.citation_url,
+      /\n/,
+      repeat(seq(
+        choice(
+          $.citation_title,
+          $.citation_text,
+          $.citation_encrypted_index
+        )
+      )),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => seq(
+      'Title:',
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+
+    citation_title_text: $ => /[^\n]*/,
+    citation_text_content: $ => /[^\n]*/,
+    citation_encrypted_index_content: $ => /[^\n]*/,
+</tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+
+### git-commit-message
+
+<tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+Restructure citation_entry to use repeat with choice for metadata
+</tool.toolu_01WQxtCHSsD1Fft1xgakAe4X>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WQxtCHSsD1Fft1xgakAe4X -->
