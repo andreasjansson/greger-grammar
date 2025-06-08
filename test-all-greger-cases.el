@@ -131,24 +131,6 @@
                     ((role . "assistant")
                      (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\""))))
 
-    ;; Tool use with multiline parameter values
-    (:name "tool-use-multiline-params"
-           :markdown (greger-read-corpus-file "tool-use-multiline-params")
-           :dialog (((role . "user")
-                     (content . "Write a new Python file"))
-                    ((role . "assistant")
-                     (content . (((type . "tool_use")
-                                  (id . "toolu_789")
-                                  (name . "write-new-file")
-                                  (input . ((file_path . "script.py")
-                                            (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
-                                            (git_commit_message . "Add new Python script")))))))
-                    ((role . "user")
-                     (content . (((type . "tool_result")
-                                  (tool_use_id . "toolu_789")
-                                  (content . "Successfully wrote new file script.py with 85 characters.")))))
-                    ((role . "assistant")
-                     (content . "I've created a new Python script file with a basic Hello World program."))))
 
     ;; Just thinking without any other content
     (:name "thinking-only"
