@@ -2473,4 +2473,316 @@ section: $ => prec.left(seq(
 Add left associativity to section parsing
 </tool.toolu_01R1Rj8Tk3Kxhi48c3K6n6tK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01R1Rj8Tk3Kxhi48c3K6n6tK -->
+## TOOL RESULT:
+
+ID: toolu_01R1Rj8Tk3Kxhi48c3K6n6tK
+
+<tool.toolu_01R1Rj8Tk3Kxhi48c3K6n6tK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add left associativity to section parsing
+</tool.toolu_01R1Rj8Tk3Kxhi48c3K6n6tK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YbVJJvHM5SskGgpXpoZcAC
+
+### command
+
+<tool.toolu_01YbVJJvHM5SskGgpXpoZcAC>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01YbVJJvHM5SskGgpXpoZcAC>
+
+## TOOL RESULT:
+
+ID: toolu_01YbVJJvHM5SskGgpXpoZcAC
+
+<tool.toolu_01YbVJJvHM5SskGgpXpoZcAC>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      section_header  '<safe-shell-commands>'  '</safe-shell-commands>'  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  section_header  (safe_shell_commands  '<safe-shell-commands>'  '</safe-shell-commands>'  •  '
+    ')
+      2:  section_header  (safe_shell_commands  '<safe-shell-commands>'  '</safe-shell-commands>')  •  '
+    '  …
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `safe_shell_commands`
+      2:  Add a conflict for these rules: `safe_shell_commands`
+    
+
+</tool.toolu_01YbVJJvHM5SskGgpXpoZcAC>
+
+## ASSISTANT:
+
+Let me try a different approach. The issue is always about optional newlines. Let me make the grammar simpler and treat newlines as whitespace first to get basic parsing working:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01KM72QYPcqYWjyuwS3Bv1Sw
+
+### file-path
+
+<tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+grammar.js
+</tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+
+### original-content
+
+<tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => prec.left(seq(
+      $.section_header,
+      repeat($._section_item),
+    )),
+
+    section_header: $ => choice(
+      seq('##', /[ \t]*/, 'USER', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'ASSISTANT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SYSTEM', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'THINKING', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT', /[ \t]*/, ':', /[ \t]*/, '\n'),
+      seq('##', /[ \t]*/, 'CITATIONS', /[ \t]*/, ':', /[ \t]*/, '\n'),
+    ),
+
+    _section_item: $ => choice(
+      $.text_line,
+      $.code_block,
+      $.cite_tag,
+      $.tool_use_metadata,
+      $.tool_param,
+      $.citation_entry,
+      $.safe_shell_commands,
+      $._newline,
+    ),
+
+    text_line: $ => seq(
+      /[^#\n`<]+/,
+      '\n'
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      '\n',
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        '\n',
+      )),
+      '```',
+      optional('\n'),
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(/[^<\n]+/),
+      '</cite>',
+    ),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, '\n'),
+      seq('ID:', /[^\n]*/, '\n'),
+    ),
+
+    tool_param: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      optional('\n'),
+      $.tool_content,
+      optional('\n'),
+    ),
+
+    citation_entry: $ => seq(
+      '###', /[ \t]*/, /[^\n]*/, '\n',
+      repeat(choice(
+        seq(/[^\n#]+/, '\n'),
+        '\n',
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional('\n'),
+      repeat(seq(/[^\n<]*/, '\n')),
+      '</safe-shell-commands>',
+      optional('\n'),
+    ),
+  }
+});
+</tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+
+### new-content
+
+<tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t\r\n]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+    ),
+
+    section: $ => seq(
+      $.section_header,
+      repeat($._section_item),
+    ),
+
+    section_header: $ => choice(
+      seq('##', 'USER', ':'),
+      seq('##', 'ASSISTANT', ':'),
+      seq('##', 'SYSTEM', ':'),
+      seq('##', 'THINKING', ':'),
+      seq('##', 'TOOL', 'USE', ':'),
+      seq('##', 'TOOL', 'RESULT', ':'),
+      seq('##', 'SERVER', 'TOOL', 'USE', ':'),
+      seq('##', 'SERVER', 'TOOL', 'RESULT', ':'),
+      seq('##', 'CITATIONS', ':'),
+    ),
+
+    _section_item: $ => choice(
+      $.text_content,
+      $.code_block,
+      $.cite_tag,
+      $.tool_use_metadata,
+      $.tool_param,
+      $.citation_entry,
+      $.safe_shell_commands,
+    ),
+
+    text_content: $ => /[^#`<]+/,
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\r\n]*/),
+      repeat(choice(
+        /[^`\r\n]+/,
+        /\r?\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\r\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      repeat(/[^<\r\n]+/),
+      '</cite>',
+    ),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    ),
+
+    tool_param: $ => seq(
+      '###', /[^\r\n]*/,
+      $.tool_content,
+    ),
+
+    citation_entry: $ => seq(
+      '###', /[^\r\n]*/,
+      repeat(/[^\r\n#]+/),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      repeat(/[^\r\n<]+/),
+      '</safe-shell-commands>',
+    ),
+  }
+});
+</tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+
+### git-commit-message
+
+<tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+Simplify grammar by treating whitespace as extras
+</tool.toolu_01KM72QYPcqYWjyuwS3Bv1Sw>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KM72QYPcqYWjyuwS3Bv1Sw -->
