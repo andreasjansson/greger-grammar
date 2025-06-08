@@ -9314,4 +9314,79 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Try tool content scanning first before HTML comments
 </tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HQpH9D2KxXyF4c7j9ziFLZ -->
+## TOOL RESULT:
+
+ID: toolu_01HQpH9D2KxXyF4c7j9ziFLZ
+
+<tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Try tool content scanning first before HTML comments
+</tool.toolu_01HQpH9D2KxXyF4c7j9ziFLZ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XzumYkqXgYvf72x19yvvLv
+
+### command
+
+<tool.toolu_01XzumYkqXgYvf72x19yvvLv>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01XzumYkqXgYvf72x19yvvLv>
+
+## TOOL RESULT:
+
+ID: toolu_01XzumYkqXgYvf72x19yvvLv
+
+<tool.toolu_01XzumYkqXgYvf72x19yvvLv>
+Command executed successfully:
+(source_file [0, 0] - [2, 13]
+  (tool_result_section [0, 0] - [2, 13]
+    (tool_content [2, 0] - [2, 13])))
+
+</tool.toolu_01XzumYkqXgYvf72x19yvvLv>
+
+## ASSISTANT:
+
+FINALLY! It works! The tool content is being recognized. The issue was that TOOL_CONTENT wasn't being marked as a valid symbol in the context where `<tool.` appears, but by ignoring the validity check and always trying to scan when we see `<`, it works.
+
+Now I understand the issue. Let me fix this properly by ensuring that TOOL_CONTENT is correctly included in the valid symbols. The issue was that when the parser is looking for _tool_result_content, it expects specific symbols but somehow TOOL_CONTENT wasn't being marked as valid.
+
+But for now, let me put back the validity check and see if it works:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Wv4t7NY2na28n484vvbApF
+
+### file-path
+
+<tool.toolu_01Wv4t7NY2na28n484vvbApF>
+src/scanner.c
+</tool.toolu_01Wv4t7NY2na28n484vvbApF>
+
+### original-content
+
+<tool.toolu_01Wv4t7NY2na28n484vvbApF>
+// Try tool content first, regardless of validity for debugging
+    if (lexer->lookahead == '<') {
+        if (scan_tool_content(scanner, lexer)) {
+            return true;
+        }
+    }
+</tool.toolu_01Wv4t7NY2na28n484vvbApF>
+
+### new-content
+
+<tool.toolu_01Wv4t7NY2na28n484vvbApF>
+if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<' && scan_tool_content(scanner, lexer)) {
+        return true;
+    }
+</tool.toolu_01Wv4t7NY2na28n484vvbApF>
+
+### git-commit-message
+
+<tool.toolu_01Wv4t7NY2na28n484vvbApF>
+Restore validity check for tool content but ensure it works
+</tool.toolu_01Wv4t7NY2na28n484vvbApF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Wv4t7NY2na28n484vvbApF -->
