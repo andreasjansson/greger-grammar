@@ -313,7 +313,9 @@
 
       (if has-citations
           ;; Has citations - use web_search_tool_result
-          (setf (alist-get 'type result) "web_search_tool_result")
+          (progn
+            (message "[DEBUG] Setting type to web_search_tool_result due to citations")
+            (setf (alist-get 'type result) "web_search_tool_result"))
         ;; No citations - use server_tool_result and parse JSON if applicable
         (progn
           (setf (alist-get 'type result) "server_tool_result")
