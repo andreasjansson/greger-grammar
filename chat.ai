@@ -7370,4 +7370,116 @@ greger-tree-sitter.el
 Add more detailed debugging to extract-tool-use
 </tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011ZMpuaUcbUk4ZUkCpSXdMq -->
+## TOOL RESULT:
+
+ID: toolu_011ZMpuaUcbUk4ZUkCpSXdMq
+
+<tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add more detailed debugging to extract-tool-use
+</tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HoZd8NmrtdKt1HMGv2b4rp
+
+### command
+
+<tool.toolu_01HoZd8NmrtdKt1HMGv2b4rp>
+emacs --batch -l debug-test.el
+</tool.toolu_01HoZd8NmrtdKt1HMGv2b4rp>
+
+## TOOL RESULT:
+
+ID: toolu_01HoZd8NmrtdKt1HMGv2b4rp
+
+<tool.toolu_01HoZd8NmrtdKt1HMGv2b4rp>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date")))
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: server_tool_use
+[DEBUG] extract-tool-use result: ((type . "server_tool_use") (id . "toolu_999") (name . "write-file") (input (filename . "example.py") (content . "```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```")))
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: server_tool_use
+  User content type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01HoZd8NmrtdKt1HMGv2b4rp>
+
+## ASSISTANT:
+
+This is very strange! The debug output shows that in the second call, `extract-tool-use` is somehow creating a result with `type . "server_tool_use"` instead of `type . "tool_use"`.
+
+But the code literally hardcodes `(type . "tool_use")` in the alist creation. This should be impossible unless there's some very deep elisp bug or memory corruption.
+
+Wait! I think I found the issue. Let me look at the input alist construction. 
+
+The `input` alist is built up by `push`ing elements and then `nreverse`ing. If there's any sharing of the `input` list structure between calls, that could cause issues.
+
+But that still wouldn't explain how the type field gets changed.
+
+Actually, let me try a different hypothesis. Maybe there's some issue with the backquote evaluation or some bizarre scoping issue.
+
+Let me try creating the alist in a more explicit way to see if that fixes it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Ft59dMJobu6A9eKrEFxNiz
+
+### file-path
+
+<tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+greger-tree-sitter.el
+</tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+
+### original-content
+
+<tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+(let ((result `((type . "tool_use")
+                    (id . ,id)
+                    (name . ,name)
+                    (input . ,(nreverse input)))))
+      (message "[DEBUG] extract-tool-use created result with type: %s" (alist-get 'type result))
+      (message "[DEBUG] extract-tool-use result: %S" result)
+      result)
+</tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+
+### new-content
+
+<tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+(let ((result (list (cons 'type "tool_use")
+                        (cons 'id id)
+                        (cons 'name name)
+                        (cons 'input (nreverse input)))))
+      (message "[DEBUG] extract-tool-use created result with type: %s" (alist-get 'type result))
+      (message "[DEBUG] extract-tool-use result: %S" result)
+      result)
+</tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+
+### git-commit-message
+
+<tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+Use explicit alist construction to avoid backquote issues
+</tool.toolu_01Ft59dMJobu6A9eKrEFxNiz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ft59dMJobu6A9eKrEFxNiz -->
