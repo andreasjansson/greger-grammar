@@ -169,8 +169,8 @@ module.exports = grammar({
     ),
 
     tool_use_metadata: $ => prec(2, choice(
-      seq('Name:', repeat(/[^\r\n]/)),
-      seq('ID:', repeat(/[^\r\n]/)),
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
     )),
 
     tool_param: $ => prec(3, seq(

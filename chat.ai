@@ -7260,4 +7260,75 @@ text_content: $ => prec(-1, choice(
 Allow N and I in text_content only when not followed by colon
 </tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01F5GSAj9srW4PRUwUB2Gvhf -->
+## TOOL RESULT:
+
+ID: toolu_01F5GSAj9srW4PRUwUB2Gvhf
+
+<tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Allow N and I in text_content only when not followed by colon
+</tool.toolu_01F5GSAj9srW4PRUwUB2Gvhf>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01J2VWNBoV48NpGTVtmABtav
+
+### command
+
+<tool.toolu_01J2VWNBoV48NpGTVtmABtav>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01J2VWNBoV48NpGTVtmABtav>
+
+## TOOL RESULT:
+
+ID: toolu_01J2VWNBoV48NpGTVtmABtav
+
+<tool.toolu_01J2VWNBoV48NpGTVtmABtav>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_result_section [0, 0] - [2, 10]
+    (tool_use_metadata [2, 0] - [2, 3])
+    (text_content [2, 3] - [2, 10])))
+
+</tool.toolu_01J2VWNBoV48NpGTVtmABtav>
+
+## ASSISTANT:
+
+Progress! Now it recognizes "ID:" as tool_use_metadata and " abc123" as text_content. But this splits the metadata incorrectly. I need to fix the tool_use_metadata pattern to consume the entire line:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01V3KGe24cDnxMy3BwW7X5mE
+
+### file-path
+
+<tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+grammar.js
+</tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+
+### original-content
+
+<tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+tool_use_metadata: $ => prec(2, choice(
+      seq('Name:', repeat(/[^\r\n]/)),
+      seq('ID:', repeat(/[^\r\n]/)),
+    )),
+</tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+
+### new-content
+
+<tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+tool_use_metadata: $ => prec(2, choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    )),
+</tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+
+### git-commit-message
+
+<tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+Revert metadata to consume whole line after colon
+</tool.toolu_01V3KGe24cDnxMy3BwW7X5mE>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01V3KGe24cDnxMy3BwW7X5mE -->
