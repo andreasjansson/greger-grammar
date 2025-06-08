@@ -7535,4 +7535,351 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Revert scanner to clean version
 </tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WiZR4kUhavD1tBj1owVYaF -->
+## TOOL RESULT:
+
+ID: toolu_01WiZR4kUhavD1tBj1owVYaF
+
+<tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert scanner to clean version
+</tool.toolu_01WiZR4kUhavD1tBj1owVYaF>
+
+## ASSISTANT:
+
+Now let me implement a very simple tool content scanner that just looks for the pattern and consumes until the end tag:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ESKno7yt17cJz5qzkjea3t
+
+### file-path
+
+<tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+src/scanner.c
+</tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+
+### original-content
+
+<tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    // Simple test: just recognize <tool. and return immediately
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Just consume everything until the end for now
+    while (lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+
+### new-content
+
+<tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </tool.ID>
+    // For simplicity, just scan until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found closing tag, stop here (don't consume the </)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+        } else {
+            advance(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+
+### git-commit-message
+
+<tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+Implement simple tool content scanner that stops at closing tag
+</tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+
+## TOOL RESULT:
+
+ID: toolu_01ESKno7yt17cJz5qzkjea3t
+
+<tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01ESKno7yt17cJz5qzkjea3t>
+
+## ASSISTANT:
+
+Let me check the current scanner function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TVucepsemJ7J45PFj51b1e
+
+### path
+
+<tool.toolu_01TVucepsemJ7J45PFj51b1e>
+src/scanner.c
+</tool.toolu_01TVucepsemJ7J45PFj51b1e>
+
+### start-line
+
+<tool.toolu_01TVucepsemJ7J45PFj51b1e>
+99
+</tool.toolu_01TVucepsemJ7J45PFj51b1e>
+
+### end-line
+
+<tool.toolu_01TVucepsemJ7J45PFj51b1e>
+120
+</tool.toolu_01TVucepsemJ7J45PFj51b1e>
+
+## TOOL RESULT:
+
+ID: toolu_01TVucepsemJ7J45PFj51b1e
+
+<tool.toolu_01TVucepsemJ7J45PFj51b1e>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    // Simple test: just recognize <tool. and return immediately
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Just consume everything until the end for now
+    while (lexer->lookahead != 0) {
+        advance(lexer);
+    }
+</tool.toolu_01TVucepsemJ7J45PFj51b1e>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0147XJNUejEMqnQxqYfLa3wQ
+
+### file-path
+
+<tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+src/scanner.c
+</tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+
+### original-content
+
+<tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+    // Just consume everything until the end for now
+    while (lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+
+### new-content
+
+<tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </tool.ID>
+    // For simplicity, just scan until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found closing tag, stop here (don't consume the </)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+        } else {
+            advance(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+
+### git-commit-message
+
+<tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+Replace simple scanner with one that handles opening and closing tags
+</tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+
+## TOOL RESULT:
+
+ID: toolu_0147XJNUejEMqnQxqYfLa3wQ
+
+<tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_0147XJNUejEMqnQxqYfLa3wQ>
+
+## ASSISTANT:
+
+Let me see more of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01745wTLXRKmZWgnT1h7HpDN
+
+### path
+
+<tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+src/scanner.c
+</tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+
+### start-line
+
+<tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+115
+</tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+
+### end-line
+
+<tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+125
+</tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+
+## TOOL RESULT:
+
+ID: toolu_01745wTLXRKmZWgnT1h7HpDN
+
+<tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+    advance(lexer);
+
+    // Just consume everything until the end for now
+    while (lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+
+</tool.toolu_01745wTLXRKmZWgnT1h7HpDN>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Tj9hjYr9LgzUtGdmfoEebk
+
+### file-path
+
+<tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+src/scanner.c
+</tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+
+### original-content
+
+<tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+advance(lexer);
+
+    // Just consume everything until the end for now
+    while (lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+
+### new-content
+
+<tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </tool.ID>
+    // For simplicity, just scan until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found closing tag, stop here (don't consume the </)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+        } else {
+            advance(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+
+### git-commit-message
+
+<tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+Replace consume-all scanner with proper tag matching
+</tool.toolu_01Tj9hjYr9LgzUtGdmfoEebk>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Tj9hjYr9LgzUtGdmfoEebk -->

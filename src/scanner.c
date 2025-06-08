@@ -114,9 +114,27 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '.') return false;
     advance(lexer);
 
-    // Just consume everything until the end for now
-    while (lexer->lookahead != 0) {
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
         advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </tool.ID>
+    // For simplicity, just scan until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found closing tag, stop here (don't consume the </)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+        } else {
+            advance(lexer);
+        }
     }
 
     lexer->result_symbol = TOOL_CONTENT;
