@@ -4117,4 +4117,593 @@ _tool_use_content: $ => choice(
 Add explicit newline handling to tool use content
 </tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DEVxeq1eS7uPw8g4UqYiR8 -->
+## TOOL RESULT:
+
+ID: toolu_01DEVxeq1eS7uPw8g4UqYiR8
+
+<tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add explicit newline handling to tool use content
+</tool.toolu_01DEVxeq1eS7uPw8g4UqYiR8>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NkTToaFPPPVeDVSLbHAEHT
+
+### command
+
+<tool.toolu_01NkTToaFPPPVeDVSLbHAEHT>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01NkTToaFPPPVeDVSLbHAEHT>
+
+## TOOL RESULT:
+
+ID: toolu_01NkTToaFPPPVeDVSLbHAEHT
+
+<tool.toolu_01NkTToaFPPPVeDVSLbHAEHT>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [9, 0]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10])
+    (ERROR [5, 0] - [7, 13]
+      (ERROR [7, 0] - [7, 13]))
+    (text_content [8, 0] - [8, 5]))
+  (ERROR [9, 0] - [9, 14]
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:    0.05 ms	  1494 bytes/ms	(ERROR [5, 0] - [7, 13])
+
+</tool.toolu_01NkTToaFPPPVeDVSLbHAEHT>
+
+## ASSISTANT:
+
+Better, but still not recognizing the patterns. Let me debug by checking if the keywords are the issue. Let me look at the debug output more closely:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WBPdtyvy17BNCmVCQN6e8W
+
+### command
+
+<tool.toolu_01WBPdtyvy17BNCmVCQN6e8W>
+tree-sitter generate && tree-sitter parse -d pretty test_simple.greger
+</tool.toolu_01WBPdtyvy17BNCmVCQN6e8W>
+
+## TOOL RESULT:
+
+ID: toolu_01WBPdtyvy17BNCmVCQN6e8W
+
+<tool.toolu_01WBPdtyvy17BNCmVCQN6e8W>
+Command failed with exit code 1: [37mnew_parse[0m
+[37mprocess version:0, version_count:1, state:1, row:0, col:0[0m
+[37mlex_external state:2, row:0, column:0[0m
+[37mlex_internal state:0, row:0, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:##, size:2[0m
+[37mshift state:41[0m
+[37mprocess version:0, version_count:1, state:41, row:0, col:2[0m
+[37mlex_external state:2, row:0, column:2[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:19, row:0, column:2[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'T'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'O'[0m
+  [37mconsume character:'L'[0m
+[37mlexed_lookahead sym:TOOL, size:5[0m
+[37mshift state:65[0m
+[37mprocess version:0, version_count:1, state:65, row:0, col:7[0m
+[37mlex_external state:2, row:0, column:7[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:47, row:0, column:7[0m
+  [37mskip character:' '[0m
+  [37mconsume character:'U'[0m
+  [37mconsume character:'S'[0m
+  [37mconsume character:'E'[0m
+[37mlexed_lookahead sym:USE, size:4[0m
+[37mshift state:75[0m
+[37mprocess version:0, version_count:1, state:75, row:0, col:11[0m
+[37mlex_external state:2, row:0, column:11[0m
+[37mlex_internal state:0, row:0, column:11[0m
+  [37mconsume character:':'[0m
+[37mlexed_lookahead sym::, size:1[0m
+[37mshift state:13[0m
+[37mprocess version:0, version_count:1, state:13, row:0, col:12[0m
+[37mlex_external state:2, row:0, column:12[0m
+[37mlex_internal state:116, row:0, column:12[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mshift state:14[0m
+[37mprocess version:0, version_count:1, state:14, row:1, col:0[0m
+[37mlex_external state:2, row:1, column:0[0m
+[37mlex_internal state:116, row:1, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:2, col:0[0m
+[37mlex_external state:2, row:2, column:0[0m
+[37mlex_internal state:116, row:2, column:0[0m
+  [37mconsume character:'N'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'m'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'t'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'s'[0m
+  [37mconsume character:'t'[0m
+[37mlexed_lookahead sym:text_content_token1, size:10[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:33[0m
+[37mprocess version:0, version_count:1, state:33, row:2, col:10[0m
+[37mlex_external state:2, row:2, column:10[0m
+[37mlex_internal state:116, row:2, column:10[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:text_content, child_count:1[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:3, col:0[0m
+[37mlex_external state:2, row:3, column:0[0m
+[37mlex_internal state:116, row:3, column:0[0m
+  [37mconsume character:'I'[0m
+  [37mconsume character:'D'[0m
+  [37mconsume character:':'[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'b'[0m
+  [37mconsume character:'c'[0m
+  [37mconsume character:'1'[0m
+  [37mconsume character:'2'[0m
+  [37mconsume character:'3'[0m
+[37mlexed_lookahead sym:text_content_token1, size:10[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:33[0m
+[37mprocess version:0, version_count:1, state:33, row:3, col:10[0m
+[37mlex_external state:2, row:3, column:10[0m
+[37mlex_internal state:116, row:3, column:10[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:text_content, child_count:1[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:4, col:0[0m
+[37mlex_external state:2, row:4, column:0[0m
+[37mlex_internal state:116, row:4, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:5, col:0[0m
+[37mlex_external state:2, row:5, column:0[0m
+[37mlex_internal state:116, row:5, column:0[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+  [37mconsume character:'#'[0m
+[37mlexed_lookahead sym:###, size:3[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:66[0m
+[37mprocess version:0, version_count:1, state:66, row:5, col:3[0m
+[37mlex_external state:2, row:5, column:3[0m
+  [37mskip character:' '[0m
+[37mlex_internal state:153, row:5, column:3[0m
+  [37mconsume character:' '[0m
+  [37mconsume character:'p'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'r'[0m
+  [37mconsume character:'a'[0m
+  [37mconsume character:'m'[0m
+[37mlexed_lookahead sym:triple_backtick_block_token1, size:6[0m
+[37mshift state:68[0m
+[37mprocess version:0, version_count:1, state:68, row:5, col:9[0m
+[37mlex_external state:1, row:5, column:9[0m
+[37mlex_internal state:0, row:5, column:9[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mdetect_error lookahead:_tool_use_content_token1[0m
+[37mresume version:0[0m
+[37mrecover_with_missing symbol:tool_content, state:14[0m
+[37mrecover_to_previous state:13, depth:4[0m
+[37mskip_token symbol:_tool_use_content_token1[0m
+[37mprocess version:0, version_count:3, state:0, row:6, col:0[0m
+[37mlex_external state:1, row:6, column:0[0m
+[37mlex_internal state:0, row:6, column:0[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mrecover_to_previous state:14, depth:4[0m
+[37mskip_token symbol:_tool_use_content_token1[0m
+[31mprocess version:1, version_count:4, state:14, row:5, col:9[0m
+[31mlex_external state:2, row:5, column:9[0m
+[31mlex_internal state:116, row:5, column:9[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[31mshift state:15[0m
+[31mprocess version:1, version_count:4, state:15, row:6, col:0[0m
+[31mlex_external state:2, row:6, column:0[0m
+[31mlex_internal state:116, row:6, column:0[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[31mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[31mshift state:15[0m
+[34mprocess version:2, version_count:4, state:13, row:5, col:9[0m
+[34mlex_external state:2, row:5, column:9[0m
+[34mlex_internal state:116, row:5, column:9[0m
+  [34mconsume character:10[0m
+[34mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[34mshift state:14[0m
+[34mprocess version:2, version_count:4, state:14, row:6, col:0[0m
+[34mlex_external state:2, row:6, column:0[0m
+[34mlex_internal state:116, row:6, column:0[0m
+  [34mconsume character:10[0m
+[34mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[34mshift state:15[0m
+[32mprocess version:3, version_count:4, state:14, row:6, col:0[0m
+[32mshift state:15[0m
+[32mcondense[0m
+[37mprocess version:0, version_count:4, state:15, row:7, col:0[0m
+[37mlex_external state:2, row:7, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:116, row:7, column:0[0m
+[37mlex_external state:1, row:7, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:0, row:7, column:0[0m
+  [37mconsume character:'<'[0m
+[37mskip_unrecognized_character[0m
+[37mlex_external state:1, row:7, column:1[0m
+[37mlex_internal state:0, row:7, column:1[0m
+  [37mconsume character:'t'[0m
+[37mlex_external state:1, row:7, column:2[0m
+[37mlex_internal state:0, row:7, column:2[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:7, column:3[0m
+[37mlex_internal state:0, row:7, column:3[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:7, column:4[0m
+[37mlex_internal state:0, row:7, column:4[0m
+  [37mconsume character:'l'[0m
+[37mlex_external state:1, row:7, column:5[0m
+[37mlex_internal state:0, row:7, column:5[0m
+  [37mconsume character:'.'[0m
+[37mlex_external state:1, row:7, column:6[0m
+[37mlex_internal state:0, row:7, column:6[0m
+  [37mconsume character:'a'[0m
+[37mlex_external state:1, row:7, column:7[0m
+[37mlex_internal state:0, row:7, column:7[0m
+  [37mconsume character:'b'[0m
+[37mlex_external state:1, row:7, column:8[0m
+[37mlex_internal state:0, row:7, column:8[0m
+  [37mconsume character:'c'[0m
+[37mlex_external state:1, row:7, column:9[0m
+[37mlex_internal state:0, row:7, column:9[0m
+  [37mconsume character:'1'[0m
+[37mlex_external state:1, row:7, column:10[0m
+[37mlex_internal state:0, row:7, column:10[0m
+  [37mconsume character:'2'[0m
+[37mlex_external state:1, row:7, column:11[0m
+[37mlex_internal state:0, row:7, column:11[0m
+  [37mconsume character:'3'[0m
+[37mlex_external state:1, row:7, column:12[0m
+[37mlex_internal state:0, row:7, column:12[0m
+  [37mconsume character:'>'[0m
+[37mlex_external state:1, row:7, column:13[0m
+[37mlex_internal state:0, row:7, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:ERROR, size:13[0m
+[37mdetect_error lookahead:ERROR[0m
+[31mprocess version:1, version_count:4, state:15, row:7, col:0[0m
+[31mlex_external state:2, row:7, column:0[0m
+  [31mconsume character:'<'[0m
+[31mlex_internal state:116, row:7, column:0[0m
+[31mlex_external state:1, row:7, column:0[0m
+  [31mconsume character:'<'[0m
+[31mlex_internal state:0, row:7, column:0[0m
+  [31mconsume character:'<'[0m
+[31mskip_unrecognized_character[0m
+[31mlex_external state:1, row:7, column:1[0m
+[31mlex_internal state:0, row:7, column:1[0m
+  [31mconsume character:'t'[0m
+[31mlex_external state:1, row:7, column:2[0m
+[31mlex_internal state:0, row:7, column:2[0m
+  [31mconsume character:'o'[0m
+[31mlex_external state:1, row:7, column:3[0m
+[31mlex_internal state:0, row:7, column:3[0m
+  [31mconsume character:'o'[0m
+[31mlex_external state:1, row:7, column:4[0m
+[31mlex_internal state:0, row:7, column:4[0m
+  [31mconsume character:'l'[0m
+[31mlex_external state:1, row:7, column:5[0m
+[31mlex_internal state:0, row:7, column:5[0m
+  [31mconsume character:'.'[0m
+[31mlex_external state:1, row:7, column:6[0m
+[31mlex_internal state:0, row:7, column:6[0m
+  [31mconsume character:'a'[0m
+[31mlex_external state:1, row:7, column:7[0m
+[31mlex_internal state:0, row:7, column:7[0m
+  [31mconsume character:'b'[0m
+[31mlex_external state:1, row:7, column:8[0m
+[31mlex_internal state:0, row:7, column:8[0m
+  [31mconsume character:'c'[0m
+[31mlex_external state:1, row:7, column:9[0m
+[31mlex_internal state:0, row:7, column:9[0m
+  [31mconsume character:'1'[0m
+[31mlex_external state:1, row:7, column:10[0m
+[31mlex_internal state:0, row:7, column:10[0m
+  [31mconsume character:'2'[0m
+[31mlex_external state:1, row:7, column:11[0m
+[31mlex_internal state:0, row:7, column:11[0m
+  [31mconsume character:'3'[0m
+[31mlex_external state:1, row:7, column:12[0m
+[31mlex_internal state:0, row:7, column:12[0m
+  [31mconsume character:'>'[0m
+[31mlex_external state:1, row:7, column:13[0m
+[31mlex_internal state:0, row:7, column:13[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:ERROR, size:13[0m
+[31mdetect_error lookahead:ERROR[0m
+[34mprocess version:2, version_count:4, state:15, row:7, col:0[0m
+[34mlex_external state:2, row:7, column:0[0m
+  [34mconsume character:'<'[0m
+[34mlex_internal state:116, row:7, column:0[0m
+[34mlex_external state:1, row:7, column:0[0m
+  [34mconsume character:'<'[0m
+[34mlex_internal state:0, row:7, column:0[0m
+  [34mconsume character:'<'[0m
+[34mskip_unrecognized_character[0m
+[34mlex_external state:1, row:7, column:1[0m
+[34mlex_internal state:0, row:7, column:1[0m
+  [34mconsume character:'t'[0m
+[34mlex_external state:1, row:7, column:2[0m
+[34mlex_internal state:0, row:7, column:2[0m
+  [34mconsume character:'o'[0m
+[34mlex_external state:1, row:7, column:3[0m
+[34mlex_internal state:0, row:7, column:3[0m
+  [34mconsume character:'o'[0m
+[34mlex_external state:1, row:7, column:4[0m
+[34mlex_internal state:0, row:7, column:4[0m
+  [34mconsume character:'l'[0m
+[34mlex_external state:1, row:7, column:5[0m
+[34mlex_internal state:0, row:7, column:5[0m
+  [34mconsume character:'.'[0m
+[34mlex_external state:1, row:7, column:6[0m
+[34mlex_internal state:0, row:7, column:6[0m
+  [34mconsume character:'a'[0m
+[34mlex_external state:1, row:7, column:7[0m
+[34mlex_internal state:0, row:7, column:7[0m
+  [34mconsume character:'b'[0m
+[34mlex_external state:1, row:7, column:8[0m
+[34mlex_internal state:0, row:7, column:8[0m
+  [34mconsume character:'c'[0m
+[34mlex_external state:1, row:7, column:9[0m
+[34mlex_internal state:0, row:7, column:9[0m
+  [34mconsume character:'1'[0m
+[34mlex_external state:1, row:7, column:10[0m
+[34mlex_internal state:0, row:7, column:10[0m
+  [34mconsume character:'2'[0m
+[34mlex_external state:1, row:7, column:11[0m
+[34mlex_internal state:0, row:7, column:11[0m
+  [34mconsume character:'3'[0m
+[34mlex_external state:1, row:7, column:12[0m
+[34mlex_internal state:0, row:7, column:12[0m
+  [34mconsume character:'>'[0m
+[34mlex_external state:1, row:7, column:13[0m
+[34mlex_internal state:0, row:7, column:13[0m
+  [34mconsume character:10[0m
+[34mlexed_lookahead sym:ERROR, size:13[0m
+[34mdetect_error lookahead:ERROR[0m
+[32mprocess version:3, version_count:4, state:0, row:7, col:0[0m
+[32mlex_external state:1, row:7, column:0[0m
+  [32mconsume character:'<'[0m
+[32mlex_internal state:0, row:7, column:0[0m
+  [32mconsume character:'<'[0m
+[32mskip_unrecognized_character[0m
+[32mlex_external state:1, row:7, column:1[0m
+[32mlex_internal state:0, row:7, column:1[0m
+  [32mconsume character:'t'[0m
+[32mlex_external state:1, row:7, column:2[0m
+[32mlex_internal state:0, row:7, column:2[0m
+  [32mconsume character:'o'[0m
+[32mlex_external state:1, row:7, column:3[0m
+[32mlex_internal state:0, row:7, column:3[0m
+  [32mconsume character:'o'[0m
+[32mlex_external state:1, row:7, column:4[0m
+[32mlex_internal state:0, row:7, column:4[0m
+  [32mconsume character:'l'[0m
+[32mlex_external state:1, row:7, column:5[0m
+[32mlex_internal state:0, row:7, column:5[0m
+  [32mconsume character:'.'[0m
+[32mlex_external state:1, row:7, column:6[0m
+[32mlex_internal state:0, row:7, column:6[0m
+  [32mconsume character:'a'[0m
+[32mlex_external state:1, row:7, column:7[0m
+[32mlex_internal state:0, row:7, column:7[0m
+  [32mconsume character:'b'[0m
+[32mlex_external state:1, row:7, column:8[0m
+[32mlex_internal state:0, row:7, column:8[0m
+  [32mconsume character:'c'[0m
+[32mlex_external state:1, row:7, column:9[0m
+[32mlex_internal state:0, row:7, column:9[0m
+  [32mconsume character:'1'[0m
+[32mlex_external state:1, row:7, column:10[0m
+[32mlex_internal state:0, row:7, column:10[0m
+  [32mconsume character:'2'[0m
+[32mlex_external state:1, row:7, column:11[0m
+[32mlex_internal state:0, row:7, column:11[0m
+  [32mconsume character:'3'[0m
+[32mlex_external state:1, row:7, column:12[0m
+[32mlex_internal state:0, row:7, column:12[0m
+  [32mconsume character:'>'[0m
+[32mlex_external state:1, row:7, column:13[0m
+[32mlex_internal state:0, row:7, column:13[0m
+  [32mconsume character:10[0m
+[32mlexed_lookahead sym:ERROR, size:13[0m
+[32mdetect_error lookahead:ERROR[0m
+[32mresume version:0[0m
+[32mskip_token symbol:ERROR[0m
+[32mcondense[0m
+[37mprocess version:0, version_count:1, state:0, row:7, col:13[0m
+[37mlex_external state:1, row:7, column:13[0m
+[37mlex_internal state:0, row:7, column:13[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mrecover_to_previous state:14, depth:6[0m
+[37mskip_token symbol:_tool_use_content_token1[0m
+[31mprocess version:1, version_count:2, state:14, row:7, col:13[0m
+[31mlex_external state:2, row:7, column:13[0m
+[31mlex_internal state:116, row:7, column:13[0m
+  [31mconsume character:10[0m
+[31mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[31mshift state:15[0m
+[31mcondense[0m
+[37mprocess version:0, version_count:1, state:15, row:8, col:0[0m
+[37mlex_external state:2, row:8, column:0[0m
+[37mlex_internal state:116, row:8, column:0[0m
+  [37mconsume character:'h'[0m
+  [37mconsume character:'e'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'l'[0m
+  [37mconsume character:'o'[0m
+[37mlexed_lookahead sym:text_content_token1, size:5[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:33[0m
+[37mprocess version:0, version_count:1, state:33, row:8, col:5[0m
+[37mlex_external state:2, row:8, column:5[0m
+[37mlex_internal state:116, row:8, column:5[0m
+  [37mconsume character:10[0m
+[37mlexed_lookahead sym:_tool_use_content_token1, size:1[0m
+[37mreduce sym:text_content, child_count:1[0m
+[37mreduce sym:tool_use_section_repeat1, child_count:2[0m
+[37mshift state:15[0m
+[37mprocess version:0, version_count:1, state:15, row:9, col:0[0m
+[37mlex_external state:2, row:9, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:116, row:9, column:0[0m
+[37mlex_external state:1, row:9, column:0[0m
+  [37mconsume character:'<'[0m
+[37mlex_internal state:0, row:9, column:0[0m
+  [37mconsume character:'<'[0m
+  [37mconsume character:'/'[0m
+[37mskip_unrecognized_character[0m
+[37mlex_external state:1, row:9, column:2[0m
+[37mlex_internal state:0, row:9, column:2[0m
+  [37mconsume character:'t'[0m
+[37mlex_external state:1, row:9, column:3[0m
+[37mlex_internal state:0, row:9, column:3[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:9, column:4[0m
+[37mlex_internal state:0, row:9, column:4[0m
+  [37mconsume character:'o'[0m
+[37mlex_external state:1, row:9, column:5[0m
+[37mlex_internal state:0, row:9, column:5[0m
+  [37mconsume character:'l'[0m
+[37mlex_external state:1, row:9, column:6[0m
+[37mlex_internal state:0, row:9, column:6[0m
+  [37mconsume character:'.'[0m
+[37mlex_external state:1, row:9, column:7[0m
+[37mlex_internal state:0, row:9, column:7[0m
+  [37mconsume character:'a'[0m
+[37mlex_external state:1, row:9, column:8[0m
+[37mlex_internal state:0, row:9, column:8[0m
+  [37mconsume character:'b'[0m
+[37mlex_external state:1, row:9, column:9[0m
+[37mlex_internal state:0, row:9, column:9[0m
+  [37mconsume character:'c'[0m
+[37mlex_external state:1, row:9, column:10[0m
+[37mlex_internal state:0, row:9, column:10[0m
+  [37mconsume character:'1'[0m
+[37mlex_external state:1, row:9, column:11[0m
+[37mlex_internal state:0, row:9, column:11[0m
+  [37mconsume character:'2'[0m
+[37mlex_external state:1, row:9, column:12[0m
+[37mlex_internal state:0, row:9, column:12[0m
+  [37mconsume character:'3'[0m
+[37mlex_external state:1, row:9, column:13[0m
+[37mlex_internal state:0, row:9, column:13[0m
+  [37mconsume character:'>'[0m
+[37mlex_external state:1, row:9, column:14[0m
+[37mlex_internal state:0, row:9, column:14[0m
+[37mlexed_lookahead sym:ERROR, size:14[0m
+[37mdetect_error lookahead:ERROR[0m
+[37mresume version:0[0m
+[37mskip_token symbol:ERROR[0m
+[37mprocess version:0, version_count:1, state:0, row:9, col:14[0m
+[37mlex_external state:1, row:9, column:14[0m
+[37mlex_internal state:0, row:9, column:14[0m
+[37mlexed_lookahead sym:end, size:0[0m
+[37mrecover_to_previous state:14, depth:2[0m
+[37mremoved paused version:2[0m
+[37mrecover_eof[0m
+[37mselect_smaller_error symbol:ERROR, over_symbol:ERROR[0m
+[31mprocess version:1, version_count:2, state:14, row:9, col:14[0m
+[31mlex_external state:2, row:9, column:14[0m
+[31mlex_internal state:116, row:9, column:14[0m
+[31mlexed_lookahead sym:end, size:0[0m
+[31mreduce sym:tool_use_section, child_count:5[0m
+[31mreduce sym:source_file, child_count:1[0m
+[31maccept[0m
+[31mselect_smaller_error symbol:source_file, over_symbol:ERROR[0m
+[31mdone[0m
+(source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [9, 0]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10])
+    (ERROR [5, 0] - [7, 13]
+      (ERROR [7, 0] - [7, 13]))
+    (text_content [8, 0] - [8, 5]))
+  (ERROR [9, 0] - [9, 14]
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:   15.07 ms	     5 bytes/ms	(ERROR [5, 0] - [7, 13])
+
+</tool.toolu_01WBPdtyvy17BNCmVCQN6e8W>
+
+## ASSISTANT:
+
+I can see from the debug output that:
+
+1. The tool use section header is parsing correctly
+2. "Name: test" and "ID: abc123" are being parsed as `text_content_token1`, not as tool_use_metadata 
+3. The external scanner is being called (`lex_external state:1`) when it encounters `<tool.`, but it's not recognizing it as tool_content and returning ERROR instead
+
+Two issues:
+1. Tool use metadata patterns aren't being recognized - they're being treated as regular text
+2. The external scanner isn't working properly for tool content
+
+Let me check the issue with the metadata first. I think the problem is that the patterns "Name:" and "ID:" are not being matched because they're competing with the more general text_content pattern. Let me fix the precedence and be more specific:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01H4ZjgcueaiFEx3WVAGGHRW
+
+### file-path
+
+<tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+grammar.js
+</tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+
+### original-content
+
+<tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+tool_use_metadata: $ => prec(1, choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    )),
+</tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+
+### new-content
+
+<tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+tool_use_metadata: $ => prec(2, choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    )),
+</tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+
+### git-commit-message
+
+<tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+Increase precedence of tool_use_metadata
+</tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01H4ZjgcueaiFEx3WVAGGHRW -->
