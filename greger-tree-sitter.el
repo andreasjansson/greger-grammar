@@ -149,6 +149,11 @@ ERRORS:
          ((string= section-type "server_tool_result_section")
           ;; Add server tool result to pending assistant content
           (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+
+         ((string= section-type "citations_section")
+          ;; Parse citations and add as text with citations to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations section)))
+            (push citations-data pending-assistant-content)))
             (push server-tool-result-data pending-assistant-content))))))
 
     ;; Flush any remaining pending assistant content

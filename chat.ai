@@ -12101,4 +12101,264 @@ greger-tree-sitter.el
 Add citations extraction function to parse citation entries
 </tool.toolu_01ECZgaG4qgQ3w5D2sEVqXcQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ECZgaG4qgQ3w5D2sEVqXcQ -->
+## TOOL RESULT:
+
+ID: toolu_01ECZgaG4qgQ3w5D2sEVqXcQ
+
+<tool.toolu_01ECZgaG4qgQ3w5D2sEVqXcQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add citations extraction function to parse citation entries
+</tool.toolu_01ECZgaG4qgQ3w5D2sEVqXcQ>
+
+## ASSISTANT:
+
+Now I need to manually add the citations handling to the cond block. Let me find the exact location and add it:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XLZHb81KHMdX2Q1Ajgk5j6
+
+### path
+
+<tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+greger-tree-sitter.el
+</tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+
+### start-line
+
+<tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+148
+</tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+
+### end-line
+
+<tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+156
+</tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+
+## TOOL RESULT:
+
+ID: toolu_01XLZHb81KHMdX2Q1Ajgk5j6
+
+<tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content))))))
+
+    ;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (let ((content (nreverse pending-assistant-content)))
+</tool.toolu_01XLZHb81KHMdX2Q1Ajgk5j6>
+
+## ASSISTANT:
+
+I need to add the citations handling before the last 5 closing parentheses:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011VRSUK2WcDQnMXXz9tRyzX
+
+### file-path
+
+<tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+greger-tree-sitter.el
+</tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+
+### original-content
+
+<tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))))))
+</tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+
+### new-content
+
+<tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))
+         
+         ((string= section-type "citations_section")
+          ;; Parse citations and add as text with citations to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations section)))
+            (push citations-data pending-assistant-content)))))))
+</tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+
+### git-commit-message
+
+<tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+Add citations section handling to the main dialog extraction cond block
+</tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+
+## TOOL RESULT:
+
+ID: toolu_011VRSUK2WcDQnMXXz9tRyzX
+
+<tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_011VRSUK2WcDQnMXXz9tRyzX>
+
+## ASSISTANT:
+
+Let me try a different approach - let me find the line numbers and manually edit:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01GjfrRUK3trr9pDGYpNoboB
+
+### pattern
+
+<tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+server-tool-result-data pending-assistant-content
+</tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+
+### path
+
+<tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+greger-tree-sitter.el
+</tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+
+### context-lines
+
+<tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+3
+</tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+
+## TOOL RESULT:
+
+ID: toolu_01GjfrRUK3trr9pDGYpNoboB
+
+<tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+149-         ((string= section-type "server_tool_result_section")
+150-          ;; Add server tool result to pending assistant content
+151-          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+152:            (push server-tool-result-data pending-assistant-content))))))
+153-
+154-    ;; Flush any remaining pending assistant content
+155-    (when pending-assistant-content
+
+</tool.toolu_01GjfrRUK3trr9pDGYpNoboB>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QpFcnJNLHRK6jketWp1ZjR
+
+### file-path
+
+<tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+greger-tree-sitter.el
+</tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+
+### original-content
+
+<tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+            (push server-tool-result-data pending-assistant-content)))))))
+</tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+
+### new-content
+
+<tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+            (push server-tool-result-data pending-assistant-content)))
+         
+         ((string= section-type "citations_section")
+          ;; Parse citations and add as text with citations to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations section)))
+            (push citations-data pending-assistant-content)))))))
+</tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+
+### git-commit-message
+
+<tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+Add citations section handling to dialog extraction
+</tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+
+## TOOL RESULT:
+
+ID: toolu_01QpFcnJNLHRK6jketWp1ZjR
+
+<tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01QpFcnJNLHRK6jketWp1ZjR>
+
+## ASSISTANT:
+
+Let me just replace the whole file at this point to fix the citations handling:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01C5V2fKF158dLTAj1gVYihZ
+
+### path
+
+<tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+greger-tree-sitter.el
+</tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+
+### start-line
+
+<tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+150
+</tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+
+### end-line
+
+<tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+155
+</tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+
+## TOOL RESULT:
+
+ID: toolu_01C5V2fKF158dLTAj1gVYihZ
+
+<tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content))))))
+
+    ;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+</tool.toolu_01C5V2fKF158dLTAj1gVYihZ>
+
+## ASSISTANT:
+
+I need to insert the citations handling manually. Let me use insert instead:
+
+## TOOL USE:
+
+Name: insert
+ID: toolu_01PJx62iEJAUCLbrz9cSEG2G
+
+### file-path
+
+<tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+greger-tree-sitter.el
+</tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+
+### line-number
+
+<tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+152
+</tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+
+### content
+
+<tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+         
+         ((string= section-type "citations_section")
+          ;; Parse citations and add as text with citations to pending assistant content
+          (let ((citations-data (greger-tree-sitter--extract-citations section)))
+            (push citations-data pending-assistant-content)))
+</tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+
+### git-commit-message
+
+<tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+Insert citations section handling into dialog extraction
+</tool.toolu_01PJx62iEJAUCLbrz9cSEG2G>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PJx62iEJAUCLbrz9cSEG2G -->
