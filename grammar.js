@@ -15,7 +15,7 @@ module.exports = grammar({
     /[ \t]/,
   ],
 
-  conflicts: [
+  conflicts: $ => [
     [$.section_content],
   ],
 
