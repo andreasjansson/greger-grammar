@@ -52,6 +52,7 @@ module.exports = grammar({
       $.tool_param,
       $.citation_entry,
       $.safe_shell_commands,
+      $.tool_content,
     ),
 
     text_content: $ => /[^#`<]+/,
