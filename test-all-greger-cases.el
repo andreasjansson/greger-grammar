@@ -31,7 +31,7 @@
 
     ;; Simple conversation
     (:name "simple-conversation"
-           :markdown (greger-read-corpus-file "simple-conversation")
+           :markdown ,(greger-read-corpus-file "simple-conversation")
            :dialog (((role . "user")
                      (content . "Hello"))
                     ((role . "assistant")
