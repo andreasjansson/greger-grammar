@@ -3786,4 +3786,109 @@ text_content: $ => prec(-1, /[^#`<\n]+/),
 Make text_content lower precedence and exclude newlines
 </tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Tzry9Fr3YpsJd8ZmB7s6ou -->
+## TOOL RESULT:
+
+ID: toolu_01Tzry9Fr3YpsJd8ZmB7s6ou
+
+<tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make text_content lower precedence and exclude newlines
+</tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01X8WFxYzxyFsjZxzDAMpqG8
+
+### command
+
+<tool.toolu_01X8WFxYzxyFsjZxzDAMpqG8>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01X8WFxYzxyFsjZxzDAMpqG8>
+
+## TOOL RESULT:
+
+ID: toolu_01X8WFxYzxyFsjZxzDAMpqG8
+
+<tool.toolu_01X8WFxYzxyFsjZxzDAMpqG8>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [3, 10]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10]))
+  (ERROR [5, 0] - [9, 14]
+    (ERROR [7, 0] - [9, 14])))
+test_simple.greger	Parse:    0.28 ms	   294 bytes/ms	(ERROR [5, 0] - [9, 14])
+
+</tool.toolu_01X8WFxYzxyFsjZxzDAMpqG8>
+
+## ASSISTANT:
+
+Now it's recognizing some text, but the metadata isn't being picked up. Let me look at the actual content again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VFKXrSwat9EJ9nh2pNDfTk
+
+### path
+
+<tool.toolu_01VFKXrSwat9EJ9nh2pNDfTk>
+test_simple.greger
+</tool.toolu_01VFKXrSwat9EJ9nh2pNDfTk>
+
+## TOOL RESULT:
+
+ID: toolu_01VFKXrSwat9EJ9nh2pNDfTk
+
+<tool.toolu_01VFKXrSwat9EJ9nh2pNDfTk>
+## TOOL USE:
+
+Name: test
+ID: abc123
+
+### param
+
+<tool.abc123>
+hello
+</tool.abc123>
+</tool.toolu_01VFKXrSwat9EJ9nh2pNDfTk>
+
+## ASSISTANT:
+
+The issue is that "Name: test" and "ID: abc123" should be recognized as tool_use_metadata, but they're being seen as text_content. Let me give tool_use_metadata higher precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HPc2BZbPuZfX1PfX38gYmv
+
+### file-path
+
+<tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+grammar.js
+</tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+
+### original-content
+
+<tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+tool_use_metadata: $ => choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    ),
+</tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+
+### new-content
+
+<tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+tool_use_metadata: $ => prec(1, choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    )),
+</tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+
+### git-commit-message
+
+<tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+Give tool_use_metadata higher precedence than text_content
+</tool.toolu_01HPc2BZbPuZfX1PfX38gYmv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HPc2BZbPuZfX1PfX38gYmv -->
