@@ -33,7 +33,7 @@ module.exports = grammar({
 
     section: $ => seq(
       $.section_header,
-      optional($.section_content),
+      $.section_content,
     ),
 
     section_header: $ => choice(
