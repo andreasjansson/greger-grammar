@@ -2,23 +2,30 @@
 
 (let* ((text "## USER:
 
-Here's some code:
+Search for python files containing 'def main'
 
-<!-- comment -->
-<!-- multi
-line
-
-comment -->
-
-```
-<!-- comment should be included -->
-## ASSISTANT:
-This should not be parsed as a section header
 ## TOOL USE:
-Neither should this
-```
 
-What do you think?")
+Name: ripgrep
+ID: toolu_456
+
+### pattern
+
+<tool.toolu_456>
+def main
+</tool.toolu_456>
+
+### file-type
+
+<tool.toolu_456>
+py
+</tool.toolu_456>
+
+### context-lines
+
+<tool.toolu_456>
+2
+</tool.toolu_456>")
        (result (greger-tree-sitter-parse text)))
   (message "Result:")
   (pp result))
