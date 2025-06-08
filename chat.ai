@@ -5538,4 +5538,77 @@ greger-tree-sitter.el
 Fix count function usage in HTML comment filtering
 </tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01D8FSW6Ss99GJQqKvRLvG3N -->
+## TOOL RESULT:
+
+ID: toolu_01D8FSW6Ss99GJQqKvRLvG3N
+
+<tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix count function usage in HTML comment filtering
+</tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UC8YDJDEUrxUehSDnRifoV
+
+### command
+
+<tool.toolu_01UC8YDJDEUrxUehSDnRifoV>
+emacs --batch -l debug-test.el
+</tool.toolu_01UC8YDJDEUrxUehSDnRifoV>
+
+## TOOL RESULT:
+
+ID: toolu_01UC8YDJDEUrxUehSDnRifoV
+
+<tool.toolu_01UC8YDJDEUrxUehSDnRifoV>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_01UC8YDJDEUrxUehSDnRifoV>
+
+## ASSISTANT:
+
+I'm still missing the text before the comments. Let me examine the tree structure more carefully. The issue seems to be that the text is being skipped. Let me use a simpler approach and just return empty string for HTML comments, which should preserve the basic structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EupSHk3wkiguE4XkANg5KK
+
+### file-path
+
+<tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+greger-tree-sitter.el
+</tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+
+### original-content
+
+<tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+((string= node-type "html_comment")
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((comment-text (treesit-node-text node)))
+        ;; Count newlines in the original comment and replace with equivalent newlines
+        (let ((newline-count 0))
+          (dotimes (i (length comment-text))
+            (when (= (aref comment-text i) ?\n)
+              (setq newline-count (1+ newline-count))))
+          (make-string newline-count ?\n))))
+</tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+
+### new-content
+
+<tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+((string= node-type "html_comment") "")
+</tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+
+### git-commit-message
+
+<tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+Simplify HTML comment filtering to just return empty string
+</tool.toolu_01EupSHk3wkiguE4XkANg5KK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EupSHk3wkiguE4XkANg5KK -->
