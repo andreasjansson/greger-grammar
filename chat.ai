@@ -8837,4 +8837,106 @@ src/scanner.c
 Replace complex content scanning with simple immediate return
 </tool.toolu_01HcsiXq36c8udMphaMt9h7f>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HcsiXq36c8udMphaMt9h7f -->
+## TOOL RESULT:
+
+ID: toolu_01HcsiXq36c8udMphaMt9h7f
+
+<tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Replace complex content scanning with simple immediate return
+</tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01FQfS2qdxw48NH23MVSrV48
+
+### command
+
+<tool.toolu_01FQfS2qdxw48NH23MVSrV48>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01FQfS2qdxw48NH23MVSrV48>
+
+## TOOL RESULT:
+
+ID: toolu_01FQfS2qdxw48NH23MVSrV48
+
+<tool.toolu_01FQfS2qdxw48NH23MVSrV48>
+Command failed with exit code 1: (source_file [0, 0] - [2, 13]
+  (tool_result_section [0, 0] - [2, 0])
+  (ERROR [2, 0] - [2, 13]
+    (ERROR [2, 0] - [2, 13])))
+test_simple.greger	Parse:    0.38 ms	    78 bytes/ms	(ERROR [2, 0] - [2, 13])
+
+</tool.toolu_01FQfS2qdxw48NH23MVSrV48>
+
+## ASSISTANT:
+
+Still ERROR. Let me try one more debug approach. The issue might be that TOOL_CONTENT is not valid in the parser state when `<tool.` is encountered. Let me debug this by making the scanner always try to scan tool_content regardless of validity:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Pm24K4S8oqMAN48cx1mTyN
+
+### file-path
+
+<tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+src/scanner.c
+</tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+
+### original-content
+
+<tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    if (valid_symbols[TOOL_CONTENT] && scan_tool_content(scanner, lexer)) {
+        return true;
+    }
+
+    return false;
+}
+</tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+
+### new-content
+
+<tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
+        return true;
+    }
+
+    // DEBUG: Always try tool content when we see < to check if validity is the issue
+    if (lexer->lookahead == '<') {
+        if (scan_tool_content(scanner, lexer)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+</tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+
+### git-commit-message
+
+<tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+Debug: Always try tool content scanning when we see < regardless of validity
+</tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Pm24K4S8oqMAN48cx1mTyN -->
