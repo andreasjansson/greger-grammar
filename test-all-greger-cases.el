@@ -16,6 +16,7 @@
              (result (greger-tree-sitter-parse test-content)))
         (message "Parse result:")
         (pp result)
+        (message "Result type: %s" (type-of result))
 
         ;; Debug: show raw text extraction
         (with-temp-buffer
