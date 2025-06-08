@@ -177,7 +177,7 @@
 
     ;; Citations after tool result
     (:name "citations-after-tool-result"
-           :markdown (greger-read-corpus-file "citations-after-tool-result")
+           :markdown ,(greger-read-corpus-file "citations-after-tool-result")
            :dialog (((role . "user")
                      (content . "What's the current weather?"))
                     ((role . "assistant")
