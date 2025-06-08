@@ -248,7 +248,7 @@
 
 (defun greger-tree-sitter--extract-tool-result (tool-result-section)
   "Extract tool result data from a tool result section."
-  (message "[DEBUG] extract-tool-result called")
+
   (let ((children (treesit-node-children tool-result-section))
         (tool-use-id nil)
         (content nil))
