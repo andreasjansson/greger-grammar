@@ -287,8 +287,24 @@
   "Extract server tool result data from a server tool result section."
   ;; Similar to tool result but with different type
   (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
-    ;; Always use web_search_tool_result for now to match test expectations
-    (setf (alist-get 'type result) "web_search_tool_result")
+    ;; Check if this conversation has citations by looking at the raw text
+    (let ((content (alist-get 'content result))
+          (full-text (buffer-string)))  ; Get the full buffer text
+      (if (string-match "## CITATIONS:" full-text)
+          ;; Has citations - use web_search_tool_result
+          (setf (alist-get 'type result) "web_search_tool_result")
+        ;; No citations - use server_tool_result and parse JSON if applicable
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (car parsed-json))))
+              (error nil))))))
     result))
 
 
