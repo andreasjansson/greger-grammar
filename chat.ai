@@ -8541,4 +8541,79 @@ Hello <!-- comment --> world
 Test HTML comment recognition first
 </tool.toolu_01XkuX4EPtRfYthjdQEHTMxo>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XkuX4EPtRfYthjdQEHTMxo -->
+## TOOL RESULT:
+
+ID: toolu_01XkuX4EPtRfYthjdQEHTMxo
+
+<tool.toolu_01XkuX4EPtRfYthjdQEHTMxo>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Test HTML comment recognition first
+</tool.toolu_01XkuX4EPtRfYthjdQEHTMxo>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DzUtpJv8Vek1Qv8P2bSW6K
+
+### command
+
+<tool.toolu_01DzUtpJv8Vek1Qv8P2bSW6K>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01DzUtpJv8Vek1Qv8P2bSW6K>
+
+## TOOL RESULT:
+
+ID: toolu_01DzUtpJv8Vek1Qv8P2bSW6K
+
+<tool.toolu_01DzUtpJv8Vek1Qv8P2bSW6K>
+Command failed with exit code 1: (source_file [0, 0] - [2, 28]
+  (user_section [0, 0] - [0, 8])
+  (ERROR [0, 8] - [2, 28]
+    (ERROR [2, 0] - [2, 5])
+    (html_comment [2, 6] - [2, 22])
+    (ERROR [2, 23] - [2, 28])))
+test_simple.greger	Parse:    0.31 ms	   121 bytes/ms	(ERROR [0, 8] - [2, 28])
+
+</tool.toolu_01DzUtpJv8Vek1Qv8P2bSW6K>
+
+## ASSISTANT:
+
+Interesting! The HTML comment is being recognized (I can see `html_comment [2, 6] - [2, 22]`), which means the external scanner is working. The ERROR parts are because the rest of the text isn't following expected patterns, but the key point is that `html_comment` was successfully parsed.
+
+This means the external scanner infrastructure is working. The issue must be specifically with the tool_content scanning logic or that TOOL_CONTENT is not being requested as a valid symbol when `<tool.` is encountered.
+
+Let me go back to the tool test but with a debug approach. Let me make the tool content scanner much simpler and just try to recognize the opening tag pattern:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01E84MxPsHsRSPwj7SLZjaQ5
+
+### file-path
+
+<tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+test_simple.greger
+</tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+
+### original-content
+
+<tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+## USER:
+
+Hello <!-- comment --> world
+</tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+
+### new-content
+
+<tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+## TOOL RESULT:
+
+<tool.abc123>
+</tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+
+### git-commit-message
+
+<tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+Test minimal tool content - just opening tag
+</tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01E84MxPsHsRSPwj7SLZjaQ5 -->
