@@ -314,10 +314,15 @@
 (defun greger-tree-sitter--has-citations-in-context (server-tool-result-section)
   "Check if there are citations sections in the same document."
   ;; Navigate up to find the root and check for citations sections
-  (let ((root (treesit-node-parent server-tool-result-section)))
-    (while (and root (not (string= (treesit-node-type root) "source_file")))
-      (setq root (treesit-node-parent root)))
-    (when root
+  (let ((root server-tool-result-section)
+        (max-depth 10)  ; Prevent infinite loops
+        (depth 0))
+    (while (and root
+                (< depth max-depth)
+                (not (string= (treesit-node-type root) "source_file")))
+      (setq root (treesit-node-parent root))
+      (setq depth (1+ depth)))
+    (when (and root (string= (treesit-node-type root) "source_file"))
       (let ((has-citations nil))
         (dolist (child (treesit-node-children root))
           (when (string= (treesit-node-type child) "citations_section")
