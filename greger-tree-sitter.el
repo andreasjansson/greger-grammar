@@ -146,7 +146,13 @@
   "Extract text from a node, filtering out HTML comments."
   (let ((node-type (treesit-node-type node)))
     (cond
-     ((string= node-type "html_comment") "")
+     ((string= node-type "html_comment")
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((start-pos (treesit-node-start node))
+            (end-pos (treesit-node-end node)))
+        ;; Count newlines in the original comment
+        (let ((comment-text (treesit-node-text node)))
+          (make-string (count ?\n comment-text) ?\n))))
      ((treesit-node-child node 0)
       ;; Node has children, recursively process them
       (mapconcat #'greger-tree-sitter--extract-text-without-comments

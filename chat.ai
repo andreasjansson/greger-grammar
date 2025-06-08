@@ -5170,4 +5170,121 @@ What do you think?")
 Update debug test to test HTML comment filtering
 </tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018ymcTGQdzf3zHe3nUwjyZA -->
+## TOOL RESULT:
+
+ID: toolu_018ymcTGQdzf3zHe3nUwjyZA
+
+<tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Update debug test to test HTML comment filtering
+</tool.toolu_018ymcTGQdzf3zHe3nUwjyZA>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MqSvtHLjXEcxQ8ENf19M3W
+
+### command
+
+<tool.toolu_01MqSvtHLjXEcxQ8ENf19M3W>
+emacs --batch -l debug-test.el
+</tool.toolu_01MqSvtHLjXEcxQ8ENf19M3W>
+
+## TOOL RESULT:
+
+ID: toolu_01MqSvtHLjXEcxQ8ENf19M3W
+
+<tool.toolu_01MqSvtHLjXEcxQ8ENf19M3W>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_01MqSvtHLjXEcxQ8ENf19M3W>
+
+## ASSISTANT:
+
+Good! The HTML comments outside code blocks are now filtered out, but the HTML comments inside code blocks are preserved. However, looking at the expected output more carefully, there should be more text. Let me check the expected result:
+
+The expected result is:
+```
+"Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"
+```
+
+But I'm getting:
+```
+"```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"
+```
+
+The `"Here's some code:"` part is missing, and there should be more newlines. Let me check what the tree structure looks like more closely. Looking at the tree structure I saw earlier:
+
+```
+(user_section [0, 0] - [18, 18]
+  (text_block [0, 8] - [10, 0]
+    (html_comment [4, 0] - [4, 16])
+    (html_comment [5, 0] - [8, 11]))
+  (code_block [10, 0] - [16, 3]
+    ...)
+  (text_block [16, 3] - [18, 18]))
+```
+
+It looks like there are multiple text blocks and code blocks. The first text_block `[0, 8] - [10, 0]` should include the "Here's some code:" text plus the newlines where the HTML comments were. But my HTML comment filtering might be removing too much. Let me debug this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019FrxRioiXy5nhE48fqdmuv
+
+### file-path
+
+<tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+greger-tree-sitter.el
+</tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+
+### original-content
+
+<tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") "")
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+</tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+
+### new-content
+
+<tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") 
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((start-pos (treesit-node-start node))
+            (end-pos (treesit-node-end node)))
+        ;; Count newlines in the original comment
+        (let ((comment-text (treesit-node-text node)))
+          (make-string (count ?\n comment-text) ?\n))))
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+</tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+
+### git-commit-message
+
+<tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+Preserve newlines when filtering HTML comments
+</tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019FrxRioiXy5nhE48fqdmuv -->
