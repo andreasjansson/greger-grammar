@@ -7180,4 +7180,194 @@ debug-test.el
 Simplified debug test to trace function calls
 </tool.toolu_01MGzKVoYb37k9nawZVLoMmP>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MGzKVoYb37k9nawZVLoMmP -->
+## TOOL RESULT:
+
+ID: toolu_01MGzKVoYb37k9nawZVLoMmP
+
+<tool.toolu_01MGzKVoYb37k9nawZVLoMmP>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/debug-test.el with 1732 characters. Successfully staged 2 file(s) and committed with message: Simplified debug test to trace function calls
+</tool.toolu_01MGzKVoYb37k9nawZVLoMmP>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013veNH5RBChWe7wwW13gwK5
+
+### command
+
+<tool.toolu_013veNH5RBChWe7wwW13gwK5>
+emacs --batch -l debug-test.el
+</tool.toolu_013veNH5RBChWe7wwW13gwK5>
+
+## TOOL RESULT:
+
+ID: toolu_013veNH5RBChWe7wwW13gwK5
+
+<tool.toolu_013veNH5RBChWe7wwW13gwK5>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use returning type: tool_use
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use returning type: server_tool_use
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: server_tool_use
+  User content type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_013veNH5RBChWe7wwW13gwK5>
+
+## ASSISTANT:
+
+BINGO! I found the bug! 
+
+Look at this output:
+1. In the first test (citations-basic), `extract-tool-use` correctly returns type "tool_use", then `extract-server-tool-use` correctly changes it to "server_tool_use"
+2. In the second test (tool-use-with-code-in-params), `extract-tool-use` is returning type "server_tool_use" instead of "tool_use"!
+
+This means that the `extract-tool-use` function is somehow returning the wrong type. But wait, that doesn't make sense - the function hardcodes the type to "tool_use".
+
+Let me look at the exact implementation again. The bug must be that the function is returning a type from a previous call or there's some shared state.
+
+Actually, looking more carefully at the output, I notice:
+
+```
+[DEBUG] extract-tool-use returning type: tool_use
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+```
+
+Then later:
+
+```
+[DEBUG] extract-tool-use returning type: server_tool_use
+```
+
+Wait, that's impossible! The `extract-tool-use` function hardcodes the type to "tool_use". Unless...
+
+Let me check if there's some reference sharing happening. Maybe the `result` alist is being shared between calls.
+
+Looking at the `extract-server-tool-use` function:
+
+```elisp
+(let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+  (setf (alist-get 'type result) "server_tool_use")
+  ...)
+```
+
+This calls `extract-tool-use` and then modifies the result in place with `setf`. If there's any shared state in the alist, this could cause problems.
+
+But that shouldn't be possible since `extract-tool-use` creates a fresh alist each time.
+
+Wait, let me look at the `extract-tool-use` function return more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CDoaa4DNvS9mR2BArFpp53
+
+### path
+
+<tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+greger-tree-sitter.el
+</tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+
+### start-line
+
+<tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+244
+</tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+
+### end-line
+
+<tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+250
+</tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+
+## TOOL RESULT:
+
+ID: toolu_01CDoaa4DNvS9mR2BArFpp53
+
+<tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+                    (name . ,name)
+                    (input . ,(nreverse input)))))
+      (message "[DEBUG] extract-tool-use returning type: %s" (alist-get 'type result))
+      result)))
+
+(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+  "Extract tool result data from a tool result section."
+</tool.toolu_01CDoaa4DNvS9mR2BArFpp53>
+
+## ASSISTANT:
+
+The `extract-tool-use` function creates a fresh alist, so there shouldn't be any sharing.
+
+But wait! I think I see the issue. Let me check if the problem is that the `input` alist is being shared.
+
+Actually, let me check something else. Maybe the issue is that the `setf` call in `extract-server-tool-use` is somehow affecting a shared structure.
+
+But looking at the code, I don't see how that's possible.
+
+Wait, let me look at this from a different angle. The debug output shows:
+
+```
+[DEBUG] extract-tool-use returning type: server_tool_use
+```
+
+This is coming from the `extract-tool-use` function itself, not from `extract-server-tool-use`. This can only happen if:
+
+1. The `extract-tool-use` function is being called with a modified alist structure
+2. There's some corruption in the alist creation
+3. There's some very subtle bug I'm missing
+
+Let me add more debugging to the alist creation:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011ZMpuaUcbUk4ZUkCpSXdMq
+
+### file-path
+
+<tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+greger-tree-sitter.el
+</tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+
+### original-content
+
+<tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+(let ((result `((type . "tool_use")
+                    (id . ,id)
+                    (name . ,name)
+                    (input . ,(nreverse input)))))
+      (message "[DEBUG] extract-tool-use returning type: %s" (alist-get 'type result))
+      result)
+</tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+
+### new-content
+
+<tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+(let ((result `((type . "tool_use")
+                    (id . ,id)
+                    (name . ,name)
+                    (input . ,(nreverse input)))))
+      (message "[DEBUG] extract-tool-use created result with type: %s" (alist-get 'type result))
+      (message "[DEBUG] extract-tool-use result: %S" result)
+      result)
+</tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+
+### git-commit-message
+
+<tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+Add more detailed debugging to extract-tool-use
+</tool.toolu_011ZMpuaUcbUk4ZUkCpSXdMq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011ZMpuaUcbUk4ZUkCpSXdMq -->

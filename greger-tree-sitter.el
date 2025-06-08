@@ -243,7 +243,8 @@
                     (id . ,id)
                     (name . ,name)
                     (input . ,(nreverse input)))))
-      (message "[DEBUG] extract-tool-use returning type: %s" (alist-get 'type result))
+      (message "[DEBUG] extract-tool-use created result with type: %s" (alist-get 'type result))
+      (message "[DEBUG] extract-tool-use result: %S" result)
       result)))
 
 (defun greger-tree-sitter--extract-tool-result (tool-result-section)
