@@ -104,19 +104,17 @@ module.exports = grammar({
       )),
     )),
 
-    server_tool_use_section: $ => prec.right(seq(
+    server_tool_use_section: $ => seq(
       '##',
       'SERVER',
       'TOOL',
       'USE',
       ':',
-      repeat(choice(
-        alias($.tool_name, $.name),
-        alias($.tool_id, $.id),
-        alias($.tool_param, $.param),
-        $._section_content,
-      )),
-    )),
+      repeat(/\s/),
+      optional(alias($.tool_name, $.name)),
+      optional(alias($.tool_id, $.id)),
+      repeat(alias($.tool_param, $.param)),
+    ),
 
     server_tool_result_section: $ => prec.right(seq(
       '##',

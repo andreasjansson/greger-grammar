@@ -11015,4 +11015,166 @@ citations_section: $ => prec.right(seq(
 Remove field wrapper from citations section
 </tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RWz6LFuAKcC2Y7H62tZnkE -->
+## TOOL RESULT:
+
+ID: toolu_01RWz6LFuAKcC2Y7H62tZnkE
+
+<tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove field wrapper from citations section
+</tool.toolu_01RWz6LFuAKcC2Y7H62tZnkE>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QdKrLBaY3JTpMx5UViTTpa
+
+### command
+
+<tool.toolu_01QdKrLBaY3JTpMx5UViTTpa>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01QdKrLBaY3JTpMx5UViTTpa>
+
+## TOOL RESULT:
+
+ID: toolu_01QdKrLBaY3JTpMx5UViTTpa
+
+<tool.toolu_01QdKrLBaY3JTpMx5UViTTpa>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      (text [0, 8] - [4, 0]
+        (text_block [0, 8] - [4, 0])))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      (text [31, 13] - [35, 0]
+        (text_block [31, 13] - [35, 0])))
+  (citations [35, 0] - [44, 0]
+      (text_block [35, 13] - [39, 0])
+      (entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      (text_block [40, 0] - [41, 0])
+      (title [41, 0] - [42, 0])
+      (cited_text [42, 0] - [43, 0])
+      (encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_01QdKrLBaY3JTpMx5UViTTpa>
+
+## ASSISTANT:
+
+Great! Now the citations section is much cleaner without the "text:" field prefixes. We have:
+
+```
+(citations [35, 0] - [44, 0]
+  (text_block [35, 13] - [39, 0])
+  (entry [39, 0] - [40, 0]
+    (url [39, 3] - [39, 48]))
+  (text_block [40, 0] - [41, 0])
+  (title [41, 0] - [42, 0])
+  (cited_text [42, 0] - [43, 0])
+  (encrypted_index [43, 0] - [44, 0]))
+```
+
+The structure is getting much closer to the target! Now let me group the citation components under a single entry as desired. Looking at the desired structure:
+
+```
+(citations [...]
+  (text [...])
+  (citation_entry [...]
+    (url [...])
+    (title [...])
+    (cited_text [...])
+    (encrypted_index [...])))
+```
+
+The issue is that the `title`, `cited_text`, and `encrypted_index` should be children of the `entry` (citation_entry) rather than siblings. But since they're tokens, they get parsed independently.
+
+Let me try a different approach. Instead of trying to restructure the citation parsing (which is complex due to the token-based approach), let me focus on cleaning up the text_blocks that are scattered in the tool sections.
+
+Looking at the current output, the main issues remaining are:
+
+1. Scattered text_blocks in server_tool_use and server_tool_result sections
+2. The citations could be grouped better but the current structure is workable
+
+For the tool sections, the text_blocks contain just whitespace between the structured elements. Let me see if I can eliminate them by being more precise about whitespace handling.
+
+Looking at the current structure:
+```
+(server_tool_use [4, 0] - [15, 0]
+  (text_block [4, 19] - [6, 0])  <- whitespace before name
+  (name [6, 0] - [7, 0])
+  (id [7, 0] - [8, 0])
+  (text_block [8, 0] - [9, 0])   <- whitespace before param
+  (param [9, 0] - [13, 40] ...)
+  (text_block [13, 40] - [15, 0]) <- whitespace after param
+```
+
+These text_blocks are just newlines and whitespace. Since the desired output doesn't show them, I should try to eliminate them by not including `$._section_content` (which includes text_block) in the tool sections.
+
+Let me create a more restrictive version of the server_tool_use section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DCb1Sy6Zh7u88WYfUXsxPG
+
+### file-path
+
+<tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+grammar.js
+</tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+
+### original-content
+
+<tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        alias($.tool_name, $.name),
+        alias($.tool_id, $.id),
+        alias($.tool_param, $.param),
+        $._section_content,
+      )),
+    )),
+</tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+
+### new-content
+
+<tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(/\s/),
+      optional(alias($.tool_name, $.name)),
+      optional(alias($.tool_id, $.id)),
+      repeat(alias($.tool_param, $.param)),
+    ),
+</tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+
+### git-commit-message
+
+<tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+Make server_tool_use structure more restrictive to eliminate scattered text_blocks
+</tool.toolu_01DCb1Sy6Zh7u88WYfUXsxPG>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DCb1Sy6Zh7u88WYfUXsxPG -->
