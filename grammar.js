@@ -15,6 +15,10 @@ module.exports = grammar({
     /[ \t]/,
   ],
 
+  conflicts: [
+    [$.section_content],
+  ],
+
   externals: $ => [
     $.tool_content,
     $.html_comment,

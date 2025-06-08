@@ -1826,4 +1826,109 @@ grammar.js
 Make section content required to avoid parsing conflicts
 </tool.toolu_01XDahfijq2ha4bgEQrAFEhw>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XDahfijq2ha4bgEQrAFEhw -->
+## TOOL RESULT:
+
+ID: toolu_01XDahfijq2ha4bgEQrAFEhw
+
+<tool.toolu_01XDahfijq2ha4bgEQrAFEhw>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make section content required to avoid parsing conflicts
+</tool.toolu_01XDahfijq2ha4bgEQrAFEhw>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DDVsVN7ozuTp4uQCvWUJg3
+
+### command
+
+<tool.toolu_01DDVsVN7ozuTp4uQCvWUJg3>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01DDVsVN7ozuTp4uQCvWUJg3>
+
+## TOOL RESULT:
+
+ID: toolu_01DDVsVN7ozuTp4uQCvWUJg3
+
+<tool.toolu_01DDVsVN7ozuTp4uQCvWUJg3>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      section_header  section_content_repeat1  •  '
+    '  …
+    
+    Possible interpretations:
+    
+      1:  section_header  (section_content  section_content_repeat1)  •  '
+    '  …
+      2:  section_header  (section_content_repeat1  section_content_repeat1  •  section_content_repeat1)
+    
+    Possible resolutions:
+    
+      1:  Specify a left or right associativity in `section_content`
+      2:  Add a conflict for these rules: `section_content`
+    
+
+</tool.toolu_01DDVsVN7ozuTp4uQCvWUJg3>
+
+## ASSISTANT:
+
+The issue is that newlines can be part of section content or they can end sections. Let me add conflicts to handle this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015gDF2qPr95jY7cSGMkjcJ3
+
+### file-path
+
+<tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+grammar.js
+</tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+
+### original-content
+
+<tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+</tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+
+### new-content
+
+<tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  conflicts: [
+    [$.section_content],
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+</tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+
+### git-commit-message
+
+<tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+Add conflict resolution for section content parsing
+</tool.toolu_015gDF2qPr95jY7cSGMkjcJ3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015gDF2qPr95jY7cSGMkjcJ3 -->
