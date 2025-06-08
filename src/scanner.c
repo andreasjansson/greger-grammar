@@ -124,12 +124,14 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
-    // Mark the end of the opening tag to establish the token start
+    // Mark the initial end (after opening tag)
     lexer->mark_end(lexer);
 
     // Now scan content until we find </tool.ID>
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
+            // Don't advance yet, check if this is the closing tag
+            TSLexer saved_lexer = *lexer;
             advance(lexer);
             if (lexer->lookahead == '/') {
                 advance(lexer);
@@ -157,8 +159,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     }
 
                                     if (matches && lexer->lookahead == '>') {
-                                        // Found closing tag - consume it
-                                        advance(lexer);
+                                        // Found closing tag - don't consume it, just return
                                         lexer->result_symbol = TOOL_CONTENT;
                                         return true;
                                     }
@@ -168,6 +169,10 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                     }
                 }
             }
+            // Not a closing tag, restore position and continue
+            *lexer = saved_lexer;
+            advance(lexer);
+            lexer->mark_end(lexer);
         } else {
             advance(lexer);
             lexer->mark_end(lexer);
