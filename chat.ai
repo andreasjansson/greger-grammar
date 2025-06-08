@@ -3554,4 +3554,82 @@ greger-tree-sitter.el
 Simplify tool result extraction regex to handle newlines
 </tool.toolu_01GLvh7tX1WSxcGU2d3uzL5U>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GLvh7tX1WSxcGU2d3uzL5U -->
+## TOOL RESULT:
+
+ID: toolu_01GLvh7tX1WSxcGU2d3uzL5U
+
+<tool.toolu_01GLvh7tX1WSxcGU2d3uzL5U>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify tool result extraction regex to handle newlines
+</tool.toolu_01GLvh7tX1WSxcGU2d3uzL5U>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01K5KfyupFcUXS8F9bEJKnQ1
+
+### command
+
+<tool.toolu_01K5KfyupFcUXS8F9bEJKnQ1>
+emacs --batch -l debug-test.el
+</tool.toolu_01K5KfyupFcUXS8F9bEJKnQ1>
+
+## TOOL RESULT:
+
+ID: toolu_01K5KfyupFcUXS8F9bEJKnQ1
+
+<tool.toolu_01K5KfyupFcUXS8F9bEJKnQ1>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "<tool.toolu_123>\nhello.txt\n</tool.toolu_123"))))))
+
+</tool.toolu_01K5KfyupFcUXS8F9bEJKnQ1>
+
+## ASSISTANT:
+
+The regex is still not working. Let me examine the exact content being parsed. Let me add some debug prints:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016Z5zhpvsnmUaMS1xXRupCz
+
+### file-path
+
+<tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+greger-tree-sitter.el
+</tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+
+### original-content
+
+<tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+</tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+
+### new-content
+
+<tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+;; Remove the <tool.ID> wrapper using string operations
+                  (message "DEBUG: tool content before: %S" content-text)
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (message "DEBUG: tool content after: %S" content-text)
+</tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+
+### git-commit-message
+
+<tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+Add debug prints for tool content parsing
+</tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016Z5zhpvsnmUaMS1xXRupCz -->

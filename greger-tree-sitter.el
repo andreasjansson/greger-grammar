@@ -191,8 +191,10 @@
               (when (string= (treesit-node-type param-child) "tool_content")
                 (let ((content-text (treesit-node-text param-child)))
                   ;; Remove the <tool.ID> wrapper using string operations
+                  (message "DEBUG: tool content before: %S" content-text)
                   (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
                     (setq content-text (match-string 1 content-text)))
+                  (message "DEBUG: tool content after: %S" content-text)
                   (setq content-text (string-trim content-text))
                   (push (cons (intern param-name) content-text) input)))))))))
 
