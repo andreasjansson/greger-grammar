@@ -245,7 +245,7 @@
 
     ;; Mixed code blocks and real sections
     (:name "mixed-code-blocks-and-sections"
-           :markdown (greger-read-corpus-file "mixed-code-blocks-and-sections")
+           :markdown ,(greger-read-corpus-file "mixed-code-blocks-and-sections")
            :dialog (((role . "user")
                      (content . "Here's a code example:\n\n```python\ndef example():\n    # This has ## USER: in a comment\n    print(\"## ASSISTANT: not a real header\")\n```\n\nNow please analyze it."))
                     ((role . "assistant")
