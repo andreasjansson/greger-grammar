@@ -107,7 +107,7 @@
 
     ;; Multiple tool uses in sequence
     (:name "multiple-tool-uses"
-           :markdown (greger-read-corpus-file "multiple-tool-uses")
+           :markdown ,(greger-read-corpus-file "multiple-tool-uses")
            :dialog (((role . "user")
                      (content . "List files and read the first one"))
                     ((role . "assistant")

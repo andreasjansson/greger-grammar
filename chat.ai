@@ -6056,4 +6056,266 @@ test-all-greger-cases.el
 Fix complex-workflow test case
 </tool.toolu_01Mx3ZRgyE5T49MruQubB9Pj>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Mx3ZRgyE5T49MruQubB9Pj -->
+## TOOL RESULT:
+
+ID: toolu_01Mx3ZRgyE5T49MruQubB9Pj
+
+<tool.toolu_01Mx3ZRgyE5T49MruQubB9Pj>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Fix complex-workflow test case
+</tool.toolu_01Mx3ZRgyE5T49MruQubB9Pj>
+
+
+## ASSISTANT:
+
+Let me fix multiple ones at once with a bigger replacement:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015s8NgqKaMgyvekqQfe886j
+
+### file-path
+
+<tool.toolu_015s8NgqKaMgyvekqQfe886j>
+test-all-greger-cases.el
+</tool.toolu_015s8NgqKaMgyvekqQfe886j>
+
+### original-content
+
+<tool.toolu_015s8NgqKaMgyvekqQfe886j>
+    ;; Multiple tool uses in sequence
+    (:name "multiple-tool-uses"
+           :markdown (greger-read-corpus-file "multiple-tool-uses")
+           :dialog (((role . "user")
+                     (content . "List files and read the first one"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_111")
+                                  (name . "list-directory")
+                                  (input . ((path . ".")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_111")
+                                  (content . "file1.txt\nfile2.txt\nREADME.md")))))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_222")
+                                  (name . "read-file")
+                                  (input . ((path . "file1.txt")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_222")
+                                  (content . "This is the content of file1.")))))
+                    ((role . "assistant")
+                     (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\""))))
+
+    ;; Just thinking without any other content
+    (:name "thinking-only"
+           :markdown (greger-read-corpus-file "thinking-only")
+           :dialog (((role . "user")
+                     (content . "Let me think about this"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "I need to consider all the options carefully before responding.")))))))
+
+    ;; Tool use without any following content
+    (:name "tool-use-only"
+           :markdown (greger-read-corpus-file "tool-use-only")
+           :dialog (((role . "user")
+                     (content . "Read a file"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_999")
+                                  (name . "read-file")
+                                  (input . ((path . "test.txt")))))))))
+
+    ;; Citations basic test
+    (:name "citations-basic"
+           :markdown (greger-read-corpus-file "citations-basic")
+</tool.toolu_015s8NgqKaMgyvekqQfe886j>
+
+### new-content
+
+<tool.toolu_015s8NgqKaMgyvekqQfe886j>
+    ;; Multiple tool uses in sequence
+    (:name "multiple-tool-uses"
+           :markdown ,(greger-read-corpus-file "multiple-tool-uses")
+           :dialog (((role . "user")
+                     (content . "List files and read the first one"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_111")
+                                  (name . "list-directory")
+                                  (input . ((path . ".")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_111")
+                                  (content . "file1.txt\nfile2.txt\nREADME.md")))))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_222")
+                                  (name . "read-file")
+                                  (input . ((path . "file1.txt")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_222")
+                                  (content . "This is the content of file1.")))))
+                    ((role . "assistant")
+                     (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\""))))
+
+    ;; Just thinking without any other content
+    (:name "thinking-only"
+           :markdown ,(greger-read-corpus-file "thinking-only")
+           :dialog (((role . "user")
+                     (content . "Let me think about this"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "I need to consider all the options carefully before responding.")))))))
+
+    ;; Tool use without any following content
+    (:name "tool-use-only"
+           :markdown ,(greger-read-corpus-file "tool-use-only")
+           :dialog (((role . "user")
+                     (content . "Read a file"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_999")
+                                  (name . "read-file")
+                                  (input . ((path . "test.txt")))))))))
+
+    ;; Citations basic test
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic")
+</tool.toolu_015s8NgqKaMgyvekqQfe886j>
+
+### git-commit-message
+
+<tool.toolu_015s8NgqKaMgyvekqQfe886j>
+Fix multiple test cases markdown evaluation
+</tool.toolu_015s8NgqKaMgyvekqQfe886j>
+
+## TOOL RESULT:
+
+ID: toolu_015s8NgqKaMgyvekqQfe886j
+
+<tool.toolu_015s8NgqKaMgyvekqQfe886j>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el -- Try again!
+</tool.toolu_015s8NgqKaMgyvekqQfe886j>
+
+## ASSISTANT:
+
+Let me try a different approach. Let me fix them one by one:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0163oJUznuhaoN6aRCWfG5hg
+
+### path
+
+<tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+test-all-greger-cases.el
+</tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+
+### start-line
+
+<tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+90
+</tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+
+### end-line
+
+<tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+95
+</tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+
+## TOOL RESULT:
+
+ID: toolu_0163oJUznuhaoN6aRCWfG5hg
+
+<tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+           :dialog (((role . "user")
+                     (content . "who's the current king of sweden?"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+                                 ((type . "tool_use")
+</tool.toolu_0163oJUznuhaoN6aRCWfG5hg>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01T5D8sXhoHHsLJXeLYMusTG
+
+### path
+
+<tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+test-all-greger-cases.el
+</tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+
+### start-line
+
+<tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+105
+</tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+
+### end-line
+
+<tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+115
+</tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+
+## TOOL RESULT:
+
+ID: toolu_01T5D8sXhoHHsLJXeLYMusTG
+
+<tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+                    ((role . "assistant")
+                     (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history."))))
+
+    ;; Multiple tool uses in sequence
+    (:name "multiple-tool-uses"
+           :markdown (greger-read-corpus-file "multiple-tool-uses")
+           :dialog (((role . "user")
+                     (content . "List files and read the first one"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_111")
+</tool.toolu_01T5D8sXhoHHsLJXeLYMusTG>
+
+## ASSISTANT:
+
+Let me fix them in smaller chunks:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JVzmnFMdJZeaS4VZioNPae
+
+### file-path
+
+<tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+test-all-greger-cases.el
+</tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+
+### original-content
+
+<tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+(:name "multiple-tool-uses"
+           :markdown (greger-read-corpus-file "multiple-tool-uses")
+</tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+
+### new-content
+
+<tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+(:name "multiple-tool-uses"
+           :markdown ,(greger-read-corpus-file "multiple-tool-uses")
+</tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+
+### git-commit-message
+
+<tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+Fix multiple-tool-uses test case
+</tool.toolu_01JVzmnFMdJZeaS4VZioNPae>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JVzmnFMdJZeaS4VZioNPae -->
