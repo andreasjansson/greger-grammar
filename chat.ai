@@ -49,6 +49,7 @@ tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-co
 tree-sitter generate && tree-sitter parse test/corpus/tool-use-with-tool-use-in-params.greger
 tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-tool-use-in-params.greger
 emacs --batch -l debug-test.el
+tree-sitter generate && tree-sitter parse test_simple.greger
 tree-sitter generate && tree-sitter parse -d pretty test_simple.greger
 </safe-shell-commands>
 
@@ -3715,4 +3716,74 @@ hello
 Update test to use tool use section with proper structure
 </tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LySvGMpNzj2RR9VLP6Wgr5 -->
+## TOOL RESULT:
+
+ID: toolu_01LySvGMpNzj2RR9VLP6Wgr5
+
+<tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Update test to use tool use section with proper structure
+</tool.toolu_01LySvGMpNzj2RR9VLP6Wgr5>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E6iHujJTW4Fg1o2bZD4jFs
+
+### command
+
+<tool.toolu_01E6iHujJTW4Fg1o2bZD4jFs>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01E6iHujJTW4Fg1o2bZD4jFs>
+
+## TOOL RESULT:
+
+ID: toolu_01E6iHujJTW4Fg1o2bZD4jFs
+
+<tool.toolu_01E6iHujJTW4Fg1o2bZD4jFs>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [5, 0]
+    (text_content [0, 12] - [5, 0]))
+  (ERROR [5, 0] - [9, 14]
+    (ERROR [7, 0] - [9, 14])))
+test_simple.greger	Parse:    0.41 ms	   197 bytes/ms	(ERROR [5, 0] - [9, 14])
+
+</tool.toolu_01E6iHujJTW4Fg1o2bZD4jFs>
+
+## ASSISTANT:
+
+The tool use metadata isn't being recognized properly. The issue is that the text is being captured as text_content instead of recognizing the specific patterns. I need to be more specific about the text content patterns to avoid consuming
+
+## ASSISTANT:
+
+ everything. Let me adjust the text_content pattern:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Tzry9Fr3YpsJd8ZmB7s6ou
+
+### file-path
+
+<tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+grammar.js
+</tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+
+### original-content
+
+<tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+text_content: $ => /[^#`<]+/,
+</tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+
+### new-content
+
+<tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+text_content: $ => prec(-1, /[^#`<\n]+/),
+</tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+
+### git-commit-message
+
+<tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+Make text_content lower precedence and exclude newlines
+</tool.toolu_01Tzry9Fr3YpsJd8ZmB7s6ou>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Tzry9Fr3YpsJd8ZmB7s6ou -->
