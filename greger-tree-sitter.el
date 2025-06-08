@@ -264,36 +264,78 @@
 (defun greger-tree-sitter--extract-citations-section (citations-section)
   "Extract citations section and return list of text blocks with citations attached."
   (let ((children (treesit-node-children citations-section))
-        (current-text nil)
-        (current-citations '())
-        (result '()))
+        (cited-text nil)
+        (citations '())
+        (result '())
+        (i 0))
 
-    (dolist (child children)
-      (let ((node-type (treesit-node-type child)))
+    ;; Process children sequentially
+    (while (< i (length children))
+      (let* ((child (nth i children))
+             (node-type (treesit-node-type child)))
         (cond
          ((string= node-type "text_block")
-          ;; Accumulate text content
-          (let ((text (string-trim (treesit-node-text child))))
-            (when (> (length text) 0)
-              (setq current-text (if current-text
-                                     (concat current-text " " text)
-                                   text)))))
+          ;; Check if this is before a citation_entry (cited text) or after (metadata)
+          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children))))
+            (if (and next-child (string= (treesit-node-type next-child) "citation_entry"))
+                ;; This text_block comes before citation_entry, so it's cited text
+                (let ((text (string-trim (treesit-node-text child))))
+                  (when (> (length text) 0)
+                    (setq cited-text (if cited-text
+                                         (concat cited-text " " text)
+                                       text))))
+              ;; This text_block comes after citation_entry, so it's metadata
+              (when (and citations (> (length citations) 0))
+                ;; Parse metadata and update the last citation
+                (let* ((metadata-text (treesit-node-text child))
+                       (lines (split-string metadata-text "\n"))
+                       (last-citation (car citations))
+                       (title nil)
+                       (cited-text-meta nil)
+                       (encrypted-index nil))
+
+                  ;; Parse metadata lines
+                  (dolist (line lines)
+                    (setq line (string-trim line))
+                    (when (> (length line) 0)
+                      (cond
+                       ((string-prefix-p "Title:" line)
+                        (setq title (string-trim (substring line 6))))
+                       ((string-prefix-p "Cited text:" line)
+                        (setq cited-text-meta (string-trim (substring line 11))))
+                       ((string-prefix-p "Encrypted index:" line)
+                        (setq encrypted-index (string-trim (substring line 16)))))))
+
+                  ;; Update the citation with metadata
+                  (setf (alist-get 'title last-citation) title)
+                  (setf (alist-get 'cited_text last-citation) cited-text-meta)
+                  (setf (alist-get 'encrypted_index last-citation) encrypted-index))))))
 
          ((string= node-type "citation_entry")
-          ;; Parse citation entry and add to current citations
-          (let ((citation (greger-tree-sitter--parse-citation-entry child)))
-            (when citation
-              (push citation current-citations)))))))
+          ;; Extract URL from citation entry
+          (let* ((entry-text (treesit-node-text child))
+                 (lines (split-string entry-text "\n"))
+                 (url-line (and lines (string-trim (car lines))))
+                 (url (when (string-prefix-p "###" url-line)
+                        (string-trim (substring url-line 3)))))
+            (when url
+              (push `((type . "web_search_result_location")
+                      (url . ,url)
+                      (title . nil)
+                      (cited_text . nil)
+                      (encrypted_index . nil))
+                    citations)))))
+        (setq i (1+ i))))
 
-    ;; If we have text with citations, create a text block with citations attached
-    (when current-text
-      (if current-citations
+    ;; Create result with cited text and citations
+    (when cited-text
+      (if citations
           (push `((type . "text")
-                  (text . ,current-text)
-                  (citations . ,(nreverse current-citations)))
+                  (text . ,cited-text)
+                  (citations . ,(nreverse citations)))
                 result)
         (push `((type . "text")
-                (text . ,current-text))
+                (text . ,cited-text))
               result)))
 
     (nreverse result)))
