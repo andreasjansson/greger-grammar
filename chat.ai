@@ -7626,4 +7626,127 @@ greger-tree-sitter.el
 Add debug print to extract-tool-result return
 </tool.toolu_01A39HcBwMZ7ozW3gvpf3Hyi>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01A39HcBwMZ7ozW3gvpf3Hyi -->
+## TOOL RESULT:
+
+ID: toolu_01A39HcBwMZ7ozW3gvpf3Hyi
+
+<tool.toolu_01A39HcBwMZ7ozW3gvpf3Hyi>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print to extract-tool-result return
+</tool.toolu_01A39HcBwMZ7ozW3gvpf3Hyi>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UdU42ibDs1LCbGucidatKe
+
+### command
+
+<tool.toolu_01UdU42ibDs1LCbGucidatKe>
+emacs --batch -l debug-test.el
+</tool.toolu_01UdU42ibDs1LCbGucidatKe>
+
+## TOOL RESULT:
+
+ID: toolu_01UdU42ibDs1LCbGucidatKe
+
+<tool.toolu_01UdU42ibDs1LCbGucidatKe>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date")))
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: tool_result
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "toolu_999") (name . "write-file") (input (filename . "example.py") (content . "```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```")))
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: web_search_tool_result
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: tool_use
+  User content type: web_search_tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_01UdU42ibDs1LCbGucidatKe>
+
+## ASSISTANT:
+
+Now I see the issue! The `extract-tool-result` function is correctly being called and it correctly returns type "tool_result" initially. But somehow it's being changed to "web_search_tool_result".
+
+Wait, that's strange. The debug output shows:
+
+```
+[DEBUG] extract-tool-result returning type: web_search_tool_result
+```
+
+But the function should be hardcoding `type . "tool_result"`. This suggests that the `extract-tool-result` function is also somehow getting contaminated.
+
+But looking at the function, it should be creating a fresh alist. Unless... there's the same backquote issue.
+
+Actually, wait! I think I see the issue. The `extract-tool-result` function is being called by both the regular tool result handler AND by the server tool result handler. And the server tool result handler modifies the result.
+
+Let me check if `extract-tool-result` is being called by `extract-server-tool-result`. Looking at the server tool result function:
+
+```elisp
+(let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+```
+
+Yes! The `extract-server-tool-result` function calls `extract-tool-result` and then modifies the result. If there's any sharing of the result structure, this could cause contamination.
+
+But wait, that doesn't make sense either, because the debug output shows that `extract-tool-result` is being called only once for the tool-use-with-code-in-params test (not twice), and it's directly returning "web_search_tool_result".
+
+Let me add even more debugging to see if there are any calls to `extract-server-tool-result`:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018J9r9V1xELPwFnxcQwf4q2
+
+### file-path
+
+<tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+greger-tree-sitter.el
+</tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+
+### original-content
+
+<tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+</tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+
+### new-content
+
+<tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (message "[DEBUG] extract-server-tool-result called")
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+</tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+
+### git-commit-message
+
+<tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+Add debug print to extract-server-tool-result entry
+</tool.toolu_018J9r9V1xELPwFnxcQwf4q2>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018J9r9V1xELPwFnxcQwf4q2 -->
