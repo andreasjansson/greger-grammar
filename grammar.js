@@ -151,10 +151,12 @@ module.exports = grammar({
     tool_param: $ => seq(
       '###',
       /[ ]*/,
-      field('name', /[^\n]+/),
+      field('name', $.param_name),
       /\n+/,
       field('value', $.tool_content),
     ),
+
+    param_name: $ => /[^\n]+/,
 
     _citations_content: $ => choice(
       $.citation_entry,
