@@ -6321,4 +6321,139 @@ tool_param: $ => seq(
 Make tool param name a token
 </tool.toolu_011aotoQy6A3wTa1hSYC9cjS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011aotoQy6A3wTa1hSYC9cjS -->
+## TOOL RESULT:
+
+ID: toolu_011aotoQy6A3wTa1hSYC9cjS
+
+<tool.toolu_011aotoQy6A3wTa1hSYC9cjS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make tool param name a token
+</tool.toolu_011aotoQy6A3wTa1hSYC9cjS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Kx86yGBRLeuCjXGqms2qsF
+
+### command
+
+<tool.toolu_01Kx86yGBRLeuCjXGqms2qsF>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01Kx86yGBRLeuCjXGqms2qsF>
+
+## TOOL RESULT:
+
+ID: toolu_01Kx86yGBRLeuCjXGqms2qsF
+
+<tool.toolu_01Kx86yGBRLeuCjXGqms2qsF>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      name: (tool_name [6, 0] - [7, 0])
+      id: (tool_id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      param: (tool_param [9, 0] - [13, 40]
+        value: (tool_content [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      id: (tool_id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [43, 49]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (text_block [43, 0] - [43, 49])))
+
+</tool.toolu_01Kx86yGBRLeuCjXGqms2qsF>
+
+## ASSISTANT:
+
+Hmm, the tool param name is still not showing up. That's because it's just part of the `###` line. Let me check what's happening. The issue is that the parameter name is not being captured. Let me debug that with a simpler case. Let me look at the exact text in the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019xUcLrABUt4tARveMw8ydQ
+
+### path
+
+<tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+test/corpus/citations-basic.greger
+</tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+
+### start-line
+
+<tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+9
+</tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+
+### end-line
+
+<tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+11
+</tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+
+## TOOL RESULT:
+
+ID: toolu_019xUcLrABUt4tARveMw8ydQ
+
+<tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+
+### query
+
+</tool.toolu_019xUcLrABUt4tARveMw8ydQ>
+
+## ASSISTANT:
+
+Ah, the param name is " query" (with a leading space). Let me fix that:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VmG2thfyxnRyhVuubx8dYD
+
+### file-path
+
+<tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+grammar.js
+</tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+
+### original-content
+
+<tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+tool_param: $ => seq(
+      '###',
+      field('name', token(/[^\n]*/)),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+
+### new-content
+
+<tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+tool_param: $ => seq(
+      '###',
+      field('name', token(/[ ]*[^\n]*/)),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+
+### git-commit-message
+
+<tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+Fix tool param name to handle leading spaces
+</tool.toolu_01VmG2thfyxnRyhVuubx8dYD>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VmG2thfyxnRyhVuubx8dYD -->

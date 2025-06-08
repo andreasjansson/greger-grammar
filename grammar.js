@@ -150,7 +150,7 @@ module.exports = grammar({
 
     tool_param: $ => seq(
       '###',
-      field('name', token(/[^\n]*/)),
+      field('name', token(/[ ]*[^\n]*/)),
       /\n+/,
       field('value', $.tool_content),
     ),
