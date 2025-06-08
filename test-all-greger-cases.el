@@ -270,7 +270,7 @@
                      (content . "I've written the Python file."))))
 
     (:name "tool-use-with-tool-use-in-params"
-           :markdown (greger-read-corpus-file "tool-use-with-tool-use-in-params")
+           :markdown ,(greger-read-corpus-file "tool-use-with-tool-use-in-params")
            :dialog (((role . "user")
                      (content . "Write some Python code"))
                     ((role . "assistant")
