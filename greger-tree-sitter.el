@@ -268,7 +268,9 @@
             ;; Use string operations instead of regex to handle multiline content
             (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
               (setq content-text (match-string 1 content-text)))
-            (setq content (string-trim content-text)))))))
+            (setq content-text (string-trim content-text))
+            ;; Unescape quotes in tool result content
+            (setq content (replace-regexp-in-string "\\\\\"" "\"" content-text)))))))
 
     `((type . "tool_result")
       (tool_use_id . ,tool-use-id)
