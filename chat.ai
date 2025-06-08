@@ -7541,4 +7541,187 @@ test-all-greger-cases.el
 Create focused test for tool use parsing
 </tool.toolu_01NMDcLdUfvUKQLvyYb2wa9V>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NMDcLdUfvUKQLvyYb2wa9V -->
+## TOOL RESULT:
+
+ID: toolu_01NMDcLdUfvUKQLvyYb2wa9V
+
+<tool.toolu_01NMDcLdUfvUKQLvyYb2wa9V>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el with 1680 characters. Successfully staged 2 file(s) and committed with message: Create focused test for tool use parsing
+</tool.toolu_01NMDcLdUfvUKQLvyYb2wa9V>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013ajZK5UaDGTFRoNTjdTbhQ
+
+### command
+
+<tool.toolu_013ajZK5UaDGTFRoNTjdTbhQ>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_013ajZK5UaDGTFRoNTjdTbhQ>
+
+## TOOL RESULT:
+
+ID: toolu_013ajZK5UaDGTFRoNTjdTbhQ
+
+<tool.toolu_013ajZK5UaDGTFRoNTjdTbhQ>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Testing tool use parsing...
+✅ Tree-sitter greger parser is available
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+❌ Tool use test FAILED
+
+</tool.toolu_013ajZK5UaDGTFRoNTjdTbhQ>
+
+## ASSISTANT:
+
+As expected, it's not parsing the tool use and tool result sections yet. I need to implement the extraction functions for these. First, let me add the extraction functions for tool use and tool result sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018NwZfu54Lh9MKEMuhqGJu4
+
+### file-path
+
+<tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+greger-tree-sitter.el
+</tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+
+### original-content
+
+<tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         ((string= section-type "assistant_section")
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (nreverse dialog)))
+</tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+
+### new-content
+
+<tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+(defun greger-tree-sitter--extract-dialog-from-node (root-node)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((sections (treesit-node-children root-node))
+         (dialog '())
+         (pending-assistant-content '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          ;; Flush any pending assistant content before processing user section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         
+         ((string= section-type "assistant_section")
+          ;; Flush any pending assistant content before processing new assistant section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         
+         ((string= section-type "system_section")
+          ;; Flush any pending assistant content before processing system section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         
+         ((string= section-type "thinking_section")
+          ;; Add thinking to pending assistant content
+          (let ((thinking-content (greger-tree-sitter--extract-section-text section)))
+            (push `((type . "thinking")
+                    (thinking . ,thinking-content))
+                  pending-assistant-content)))
+         
+         ((string= section-type "tool_use_section")
+          ;; Add tool use to pending assistant content
+          (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
+            (push tool-use-data pending-assistant-content)))
+         
+         ((string= section-type "tool_result_section")
+          ;; Flush any pending assistant content and add tool result as user content
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user")
+                    (content . (,tool-result-data)))
+                  dialog)))
+         
+         ((string= section-type "server_tool_use_section")
+          ;; Add server tool use to pending assistant content
+          (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
+            (push server-tool-use-data pending-assistant-content)))
+         
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content))))))
+
+    ;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (push `((role . "assistant")
+              (content . ,(nreverse pending-assistant-content)))
+            dialog))
+
+    (nreverse dialog)))
+</tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+
+### git-commit-message
+
+<tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+Implement complex dialog extraction with pending assistant content for multi-block messages
+</tool.toolu_018NwZfu54Lh9MKEMuhqGJu4>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018NwZfu54Lh9MKEMuhqGJu4 -->

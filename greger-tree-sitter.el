@@ -64,19 +64,78 @@ ERRORS:
 (defun greger-tree-sitter--extract-dialog-from-node (root-node)
   "Extract dialog structure from parsed greger conversation."
   (let* ((sections (treesit-node-children root-node))
-         (dialog '()))
+         (dialog '())
+         (pending-assistant-content '()))
 
     (dolist (section sections)
       (let ((section-type (treesit-node-type section)))
         (cond
          ((string= section-type "user_section")
+          ;; Flush any pending assistant content before processing user section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
           (push (greger-tree-sitter--extract-user-section section) dialog))
+
          ((string= section-type "assistant_section")
+          ;; Flush any pending assistant content before processing new assistant section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
           (push (greger-tree-sitter--extract-assistant-section section) dialog))
+
          ((string= section-type "system_section")
+          ;; Flush any pending assistant content before processing system section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
           (push (greger-tree-sitter--extract-system-section section) dialog))
+
          ((string= section-type "thinking_section")
-          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+          ;; Add thinking to pending assistant content
+          (let ((thinking-content (greger-tree-sitter--extract-section-text section)))
+            (push `((type . "thinking")
+                    (thinking . ,thinking-content))
+                  pending-assistant-content)))
+
+         ((string= section-type "tool_use_section")
+          ;; Add tool use to pending assistant content
+          (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
+            (push tool-use-data pending-assistant-content)))
+
+         ((string= section-type "tool_result_section")
+          ;; Flush any pending assistant content and add tool result as user content
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user")
+                    (content . (,tool-result-data)))
+                  dialog)))
+
+         ((string= section-type "server_tool_use_section")
+          ;; Add server tool use to pending assistant content
+          (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
+            (push server-tool-use-data pending-assistant-content)))
+
+         ((string= section-type "server_tool_result_section")
+          ;; Add server tool result to pending assistant content
+          (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content))))))
+
+    ;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (push `((role . "assistant")
+              (content . ,(nreverse pending-assistant-content)))
+            dialog))
 
     (nreverse dialog)))
 
