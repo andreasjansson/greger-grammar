@@ -11555,4 +11555,122 @@ user_section: $ => prec.right(seq(
 Remove text_block wrapper from user/assistant text
 </tool.toolu_01JPnavdJTXcoA5AXP5uiN8t>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JPnavdJTXcoA5AXP5uiN8t -->
+## TOOL RESULT:
+
+ID: toolu_01JPnavdJTXcoA5AXP5uiN8t
+
+<tool.toolu_01JPnavdJTXcoA5AXP5uiN8t>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove text_block wrapper from user/assistant text
+</tool.toolu_01JPnavdJTXcoA5AXP5uiN8t>
+
+## ASSISTANT:
+
+Let me check the result:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014BngHYtqhQuma2WYK4wcHx
+
+### command
+
+<tool.toolu_014BngHYtqhQuma2WYK4wcHx>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_014BngHYtqhQuma2WYK4wcHx>
+
+## TOOL RESULT:
+
+ID: toolu_014BngHYtqhQuma2WYK4wcHx
+
+<tool.toolu_014BngHYtqhQuma2WYK4wcHx>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      (text [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [32, 0]
+      (text [31, 13] - [32, 0]))
+  (text_block [32, 0] - [35, 0])
+  (citations [35, 0] - [44, 0]
+      (text_block [35, 13] - [39, 0])
+      (entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      (text_block [40, 0] - [41, 0])
+      (title [41, 0] - [42, 0])
+      (cited_text [42, 0] - [43, 0])
+      (encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_014BngHYtqhQuma2WYK4wcHx>
+
+## ASSISTANT:
+
+Good! Now we have `(text [31, 13] - [32, 0])` instead of the wrapped version. But there's an issue - the assistant section is ending too early and there's a stray `text_block` afterward. Let me fix this by making the text capture all content until the next section:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QDmc2ddiDdsUFScoNerKsX
+
+### file-path
+
+<tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+grammar.js
+</tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+
+### original-content
+
+<tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+user_section: $ => prec.right(seq(
+      '##',
+      'USER',
+      ':',
+      alias($.text_block, $.text),
+    )),
+
+    assistant_section: $ => prec.right(seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      alias($.text_block, $.text),
+    )),
+</tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+
+### new-content
+
+<tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+user_section: $ => prec.right(seq(
+      '##',
+      'USER',
+      ':',
+      alias(repeat1($._section_content), $.text),
+    )),
+
+    assistant_section: $ => prec.right(seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      alias(repeat1($._section_content), $.text),
+    )),
+</tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+
+### git-commit-message
+
+<tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+Fix user/assistant to capture all content properly
+</tool.toolu_01QDmc2ddiDdsUFScoNerKsX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QDmc2ddiDdsUFScoNerKsX -->
