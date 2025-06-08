@@ -111,11 +111,19 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return false;
     }
 
-    // Debug: always return tool content for '<'
-    if (lexer->lookahead == '<') {
-        advance(lexer);
-        lexer->result_symbol = TOOL_CONTENT;
-        return true;
+    // Skip whitespace but preserve newlines
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
     }
 
     return false;
