@@ -191,9 +191,9 @@ module.exports = grammar({
     ),
 
     citation_field_name: $ => choice(
-      /Title:\s*/,
-      /Cited\s+text:\s*/,
-      /Encrypted\s+index:\s*/,
+      'Title:',
+      seq('Cited', 'text:'),
+      seq('Encrypted', 'index:'),
     ),
 
     citation_field_value: $ => /[^\n]*/,

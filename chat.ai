@@ -14395,4 +14395,98 @@ citation_field: $ => seq(
 Simplify citation field parsing structure
 </tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GGkcCBk9eMBn2m1B1QEG7A -->
+## TOOL RESULT:
+
+ID: toolu_01GGkcCBk9eMBn2m1B1QEG7A
+
+<tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Simplify citation field parsing structure
+</tool.toolu_01GGkcCBk9eMBn2m1B1QEG7A>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019Xx59mqdPrab8u1ceivJDy
+
+### command
+
+<tool.toolu_019Xx59mqdPrab8u1ceivJDy>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_019Xx59mqdPrab8u1ceivJDy>
+
+## TOOL RESULT:
+
+ID: toolu_019Xx59mqdPrab8u1ceivJDy
+
+<tool.toolu_019Xx59mqdPrab8u1ceivJDy>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_019Xx59mqdPrab8u1ceivJDy>
+
+## ASSISTANT:
+
+The issue persists. The citation_entry is only capturing the URL line, and the metadata lines are being treated as text_block. Let me think about this differently. 
+
+The problem might be that once the citation_entry is complete (after parsing the URL and newline), the parser moves on to trying to parse the next element in the citations_section, which is `_citations_content`. And `_citations_content` can be either `citation_entry` or `text_block`.
+
+Since the next lines after the citation_entry don't start with "###", they're being parsed as text_block instead of being consumed as part of the citation_entry.
+
+The issue is that the citation metadata lines don't have a clear distinguishing prefix that prevents them from being parsed as regular text. Let me modify the approach by making citation_field_name match even more explicitly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LCzqa8B8VjcWBoqAzANVhu
+
+### file-path
+
+<tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+grammar.js
+</tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+
+### original-content
+
+<tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+citation_field_name: $ => choice(
+      /Title:\s*/,
+      /Cited\s+text:\s*/,
+      /Encrypted\s+index:\s*/,
+    ),
+</tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+
+### new-content
+
+<tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+citation_field_name: $ => choice(
+      'Title:',
+      seq('Cited', 'text:'),
+      seq('Encrypted', 'index:'),
+    ),
+</tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+
+### git-commit-message
+
+<tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+Use explicit token matching for citation field names
+</tool.toolu_01LCzqa8B8VjcWBoqAzANVhu>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LCzqa8B8VjcWBoqAzANVhu -->
