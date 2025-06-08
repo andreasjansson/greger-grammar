@@ -7055,4 +7055,53 @@ greger-tree-sitter.el
 Add debug print to extract-tool-use return
 </tool.toolu_01PSp4Nv2CvekxukqwaSbcg8>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PSp4Nv2CvekxukqwaSbcg8 -->
+## TOOL RESULT:
+
+ID: toolu_01PSp4Nv2CvekxukqwaSbcg8
+
+<tool.toolu_01PSp4Nv2CvekxukqwaSbcg8>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print to extract-tool-use return
+</tool.toolu_01PSp4Nv2CvekxukqwaSbcg8>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EhGR7G13c1mQSjf6E9AUnE
+
+### file-path
+
+<tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+greger-tree-sitter.el
+</tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+
+### original-content
+
+<tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+  "Extract server tool use data from a server tool use section."
+  ;; Similar to tool use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    result))
+</tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+
+### new-content
+
+<tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+  "Extract server tool use data from a server tool use section."
+  ;; Similar to tool use but with server_tool_use type
+  (message "[DEBUG] extract-server-tool-use called")
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    (message "[DEBUG] extract-server-tool-use returning type: %s" (alist-get 'type result))
+    result))
+</tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+
+### git-commit-message
+
+<tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+Add debug prints to extract-server-tool-use
+</tool.toolu_01EhGR7G13c1mQSjf6E9AUnE>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EhGR7G13c1mQSjf6E9AUnE -->
