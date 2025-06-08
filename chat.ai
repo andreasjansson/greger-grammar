@@ -6895,4 +6895,78 @@ ID: abc123
 Test just tool metadata recognition without tool content
 </tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QCFLaPK3dSR8Zm1TXc47r6 -->
+## TOOL RESULT:
+
+ID: toolu_01QCFLaPK3dSR8Zm1TXc47r6
+
+<tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Test just tool metadata recognition without tool content
+</tool.toolu_01QCFLaPK3dSR8Zm1TXc47r6>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx
+
+### command
+
+<tool.toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx>
+
+## TOOL RESULT:
+
+ID: toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx
+
+<tool.toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_result_section [0, 0] - [2, 10]
+    (text_content [2, 0] - [2, 10])))
+
+</tool.toolu_01Aqd8Yjo6Hp7CNXkgKsCBjx>
+
+## ASSISTANT:
+
+Good! This parses without errors, but "ID: abc123" is being recognized as text_content instead of tool_use_metadata. This confirms that the issue is with grammar rule precedence, not with the external scanner.
+
+The problem is that text_content is matching before tool_use_metadata gets a chance. I need to fix the precedence or make the grammar more deterministic.
+
+Looking back at the token() approach I tried earlier, let me try a more comprehensive fix by making all the keyword patterns use token():
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0168Dadq6mXsd5PSxKVFXTmk
+
+### file-path
+
+<tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+grammar.js
+</tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+
+### original-content
+
+<tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+tool_use_metadata: $ => prec(2, choice(
+      seq(token('Name:'), /[^\r\n]*/),
+      seq(token('ID:'), /[^\r\n]*/),
+    )),
+</tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+
+### new-content
+
+<tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+tool_use_metadata: $ => choice(
+      seq('Name:', /[^\r\n]*/),
+      seq('ID:', /[^\r\n]*/),
+    ),
+</tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+
+### git-commit-message
+
+<tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+Remove precedence and token() from tool_use_metadata to simplify
+</tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0168Dadq6mXsd5PSxKVFXTmk -->
