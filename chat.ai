@@ -6,8 +6,48 @@
 bash build.sh
 tree-sitter generate && tree-sitter parse debug.greger
 tree-sitter generate && tree-sitter parse -d pretty debug.greger
-tree-sitter generate && tree-sitter parse debug_comprehensive.greger
-tree-sitter generate && tree-sitter parse -d pretty debug_comprehensive.greger
+tree-sitter generate && tree-sitter parse test/corpus/citations-after-tool-result.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/citations-after-tool-result.greger
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/citations-basic.greger
+tree-sitter generate && tree-sitter parse test/corpus/citations-multiple.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/citations-multiple.greger
+tree-sitter generate && tree-sitter parse test/corpus/code-block-triple-backticks.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/code-block-triple-backticks.greger
+tree-sitter generate && tree-sitter parse test/corpus/complex-workflow.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/complex-workflow.greger
+tree-sitter generate && tree-sitter parse test/corpus/html-comments.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/html-comments.greger
+tree-sitter generate && tree-sitter parse test/corpus/mixed-code-blocks-and-sections.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/mixed-code-blocks-and-sections.greger
+tree-sitter generate && tree-sitter parse test/corpus/multiple-tool-uses.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/multiple-tool-uses.greger
+tree-sitter generate && tree-sitter parse test/corpus/nested-code-blocks.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/nested-code-blocks.greger
+tree-sitter generate && tree-sitter parse test/corpus/server-tool-use-basic.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/server-tool-use-basic.greger
+tree-sitter generate && tree-sitter parse test/corpus/server-tool-use-string-result.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/server-tool-use-string-result.greger
+tree-sitter generate && tree-sitter parse test/corpus/simple-conversation.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/simple-conversation.greger
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/simple-user-message.greger
+tree-sitter generate && tree-sitter parse test/corpus/system-and-user.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/system-and-user.greger
+tree-sitter generate && tree-sitter parse test/corpus/thinking-only.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/thinking-only.greger
+tree-sitter generate && tree-sitter parse test/corpus/thinking-section.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/thinking-section.greger
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-multiple-params.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-multiple-params.greger
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-only.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-only.greger
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-single-param.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-single-param.greger
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-with-code-in-params.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-code-in-params.greger
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-with-tool-use-in-params.greger
+tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-tool-use-in-params.greger
 emacs --batch -l debug-test.el
 tree-sitter parse -d pretty test_simple.greger
 </safe-shell-commands>
@@ -24,7 +64,7 @@ I want to work on the grammar in isolation here in a clean repo before integrati
 
 * I have installed the tree-sitter CLI and run `tree-sitter init`.
 * I have a boilerplate for the elisp postprocessing code in greger-tree-sitter.el.
-* I have ported over the test cases from ~/projects/greger.el/test/test-greger-parser.el to test-all-test-cases.el
+* I have ported over the test cases from ~/projects/greger.el/test/test-greger-parser.el to test-all-greger-cases.el
 
 ### Instructions
 
@@ -32,7 +72,7 @@ IMPORTANT: Any time you modify the grammar.js, run build.sh to update the genera
 
 Make sure you parse citations in the grammar. Parsing in elisp is much slower than parsing in tree-sitter.
 
-Read test-all-test-cases.el and read all the test cases to understand what's expected. Below are some detailed notes explaining the behavior I expect.
+Read test-all-greger-cases.el and read all the test cases to understand what's expected. Below are some detailed notes explaining the behavior I expect.
 
 #### Citation parsing logic
 
@@ -107,12 +147,11 @@ The HTML grammar is especially interesting: ~/src/github/emacs-tree-sitter/tree-
 ### Next steps
 
 Focus on the parser first:
-* Copy the different test case markdown snippets from the test into debug.greger
-* Run `tree-sitter parse -d pretty debug.greger` to inspect the parse result
+* Make the parser work with the test cases in test/corpus
 * Now and then, read some examples from /Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos to get ideas and inspiration
 * Repeat until all the markdown snippets from the test file parse without errors, and have good parse results (e.g. `citations_with_text` work, backticks work, etc.)
 
-Once the parser works, then work on greger-tree-sitter.el
+Once the parser works, then work on greger-tree-sitter.el to make the tests in test-all-greger-cases.el work
 
 ## USER:
 
