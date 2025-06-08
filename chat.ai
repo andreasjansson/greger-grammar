@@ -3900,4 +3900,849 @@ greger-tree-sitter.el
 Remove debug prints from tool content parsing
 </tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01K3uAzVXDXw1mbVT7GJjrKR -->
+## TOOL RESULT:
+
+ID: toolu_01K3uAzVXDXw1mbVT7GJjrKR
+
+<tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Remove debug prints from tool content parsing
+</tool.toolu_01K3uAzVXDXw1mbVT7GJjrKR>
+
+## ASSISTANT:
+
+Now let me run the full test suite again to see how many tests are now passing:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QFCDkwymxDxy7ausgMTy4N
+
+### command
+
+<tool.toolu_01QFCDkwymxDxy7ausgMTy4N>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01QFCDkwymxDxy7ausgMTy4N>
+
+## TOOL RESULT:
+
+ID: toolu_01QFCDkwymxDxy7ausgMTy4N
+
+<tool.toolu_01QFCDkwymxDxy7ausgMTy4N>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "{\\\"query\\\": \\\"current king of Sweden 2024\\\", \\\"answer\\\": \\\"Carl XVI Gustaf\\\", \\\"response_time\\\": 2.38}"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \\\"This is the content of file1.\\\"")))
+
+
+=== Testing: thinking-only ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "[\n  {\n    \\\"type\\\": \\\"web_search_result\\\",\n    \\\"url\\\": \\\"https://en.wikipedia.org/wiki/Claude_Shannon\\\",\n    \\\"title\\\": \\\"Claude Shannon - Wikipedia\\\",\n    \\\"encrypted_content\\\": \\\"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\\\",\n    \\\"page_age\\\": \\\"April 30, 2025\\\"\n  }\n]"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Here's some code:\n\n\n\nWhat do you think?")))
+
+
+=== Testing: mixed-code-blocks-and-sections ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Here's a code example:\n\n```python\ndef example():\n    # This has ## USER: in a comment\n    print(\"## ASSISTANT: not a real header\")\n```\n\nNow please analyze it."))
+ ((role . "assistant")
+  (content . "I can see your code example.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Here's a code example:\n\n\n\nNow please analyze it."))
+ ((role . "assistant")
+  (content . "I can see your code example.")))
+
+
+=== Testing: tool-use-with-code-in-params ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "web_search_tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+=== Testing: tool-use-with-tool-use-in-params ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
+ ((role . "user")
+  (content
+   ((type . "web_search_tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+=== Testing: nested-code-blocks ===
+❌ FAILED (0.029s)
+
+Expected:
+(((role . "user")
+  (content . "How do I use backticks in markdown?"))
+ ((role . "assistant")
+  (content . "You can use triple backticks:\n\n```\nHere's how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?")))
+
+
+Actual:
+(((role . "user")
+  (content . "How do I use backticks in markdown?"))
+ ((role . "assistant")
+  (content . "You can use triple backticks:\n\n\n\nDoes that help?")))
+
+
+=== Testing: html-comments ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+
+Actual:
+(((role . "user")
+  (content . "Here's some code:\n\n<!-- comment -->\n<!-- multi\nline\n\ncomment -->\n\n\n\nWhat do you think?")))
+
+
+=== Testing: server-tool-use-basic ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content
+     ((title . "Weather in San Francisco")
+      (url . "https://weather.com/sf")
+      (content . "Sunny, 72°F"))))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content . "[\n  {\n    \\\"title\\\": \\\"Weather in San Francisco\\\",\n    \\\"url\\\": \\\"https://weather.com/sf\\\",\n    \\\"content\\\": \\\"Sunny, 72°F\\\"\n  }\n]"))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+
+=== Testing: server-tool-use-string-result ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "What's the weather like?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "weather")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Sunny and warm today"))
+   ((type . "text")
+    (text . "It looks like it's sunny and warm today!")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's the weather like?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Sunny and warm today"))
+   ((type . "text")
+    (text . "It looks like it's sunny and warm today!")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 8
+Failed: 13
+
+❌ FAILED TESTS:
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - citations-basic
+  - citations-multiple
+  - code-block-triple-backticks
+  - mixed-code-blocks-and-sections
+  - tool-use-with-code-in-params
+  - tool-use-with-tool-use-in-params
+  - nested-code-blocks
+  - html-comments
+  - server-tool-use-basic
+  - server-tool-use-string-result
+
+</tool.toolu_01QFCDkwymxDxy7ausgMTy4N>
+
+## ASSISTANT:
+
+Great! We made significant progress. We went from 5 to 8 passing tests. Let me address the remaining issues:
+
+1. **Numbers vs strings**: In some cases the expected result has numbers (like `2`) but we're getting strings (`"2"`). This is likely because tool content is always parsed as strings.
+2. **Code blocks**: Triple backtick code blocks are not being parsed correctly - the content is disappearing.
+3. **Citation parsing**: Some citation tests are failing.
+4. **Server tool types**: Some server tool results should be `server_tool_result` but we're getting `web_search_tool_result`.
+
+Let me start with the code block issue. Let me look at how code blocks are supposed to work:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017EpmgmA3KNGRLZBB1qhbtU
+
+### path
+
+<tool.toolu_017EpmgmA3KNGRLZBB1qhbtU>
+test/corpus/code-block-triple-backticks.greger
+</tool.toolu_017EpmgmA3KNGRLZBB1qhbtU>
+
+## TOOL RESULT:
+
+ID: toolu_017EpmgmA3KNGRLZBB1qhbtU
+
+<tool.toolu_017EpmgmA3KNGRLZBB1qhbtU>
+## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?
+</tool.toolu_017EpmgmA3KNGRLZBB1qhbtU>
+
+## ASSISTANT:
+
+I see - the code block content is getting lost. Let me check the grammar for code blocks:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XwykYL9qF831t6Z6BLg8LJ
+
+### path
+
+<tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+grammar.js
+</tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+
+### start-line
+
+<tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+135
+</tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+
+### end-line
+
+<tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+155
+</tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+
+## TOOL RESULT:
+
+ID: toolu_01XwykYL9qF831t6Z6BLg8LJ
+
+<tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      /\n/,
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+</tool.toolu_01XwykYL9qF831t6Z6BLg8LJ>
+
+## ASSISTANT:
+
+The grammar looks correct for parsing code blocks. Let me test if the code blocks are being parsed correctly by the tree-sitter:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YHaifo2dtJQ3JcKhG7WvvU
+
+### command
+
+<tool.toolu_01YHaifo2dtJQ3JcKhG7WvvU>
+tree-sitter generate && tree-sitter parse test/corpus/code-block-triple-backticks.greger
+</tool.toolu_01YHaifo2dtJQ3JcKhG7WvvU>
+
+## TOOL RESULT:
+
+ID: toolu_01YHaifo2dtJQ3JcKhG7WvvU
+
+<tool.toolu_01YHaifo2dtJQ3JcKhG7WvvU>
+Command executed successfully:
+(source_file [0, 0] - [11, 18]
+  (user_section [0, 0] - [11, 18]
+    (text_block [0, 8] - [4, 0])
+    (code_block [4, 0] - [9, 3]
+      (triple_backtick_block [4, 0] - [9, 3]))
+    (text_block [9, 3] - [11, 18])))
+
+</tool.toolu_01YHaifo2dtJQ3JcKhG7WvvU>
+
+## ASSISTANT:
+
+The parser is correctly identifying the code block. The issue must be in the Emacs code that extracts the content. Let me look at the text extraction logic:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01JFCMPCU5Ryyd2UomMxrFLJ
+
+### pattern
+
+<tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+extract.*text
+</tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+
+### path
+
+<tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+greger-tree-sitter.el
+</tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+
+## TOOL RESULT:
+
+ID: toolu_01JFCMPCU5Ryyd2UomMxrFLJ
+
+<tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+43:          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
+67:          (let ((thinking-content (greger-tree-sitter--extract-section-text section)))
+107:          ;; Extract citations and add as text with citations attached to pending assistant content
+129:  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+135:  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+141:  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+145:(defun greger-tree-sitter--extract-section-text (section-node)
+146:  "Extract text content from a section node."
+250:  "Extract citations section and return list of text blocks with citations attached."
+
+</tool.toolu_01JFCMPCU5Ryyd2UomMxrFLJ>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PK8GAFYX8eUfwicMtos7SC
+
+### path
+
+<tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+greger-tree-sitter.el
+</tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+
+### start-line
+
+<tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+145
+</tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+
+### end-line
+
+<tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+155
+</tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+
+## TOOL RESULT:
+
+ID: toolu_01PK8GAFYX8eUfwicMtos7SC
+
+<tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))))
+</tool.toolu_01PK8GAFYX8eUfwicMtos7SC>
+
+## ASSISTANT:
+
+Ah! The issue is that the `greger-tree-sitter--extract-section-text` function only extracts `text_block` nodes, but it ignores `code_block` nodes. I need to add support for code blocks:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CQN84Tnds6tCe7QAqKtv3L
+
+### file-path
+
+<tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+greger-tree-sitter.el
+</tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+
+### original-content
+
+<tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     (t ""))
+</tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+
+### new-content
+
+<tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
+                     (t ""))
+</tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+
+### git-commit-message
+
+<tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+Add support for code blocks and cite tags in section text extraction
+</tool.toolu_01CQN84Tnds6tCe7QAqKtv3L>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CQN84Tnds6tCe7QAqKtv3L -->

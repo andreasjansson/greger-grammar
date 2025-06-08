@@ -151,7 +151,11 @@
                     (cond
                      ((string= node-type "text_block")
                       (treesit-node-text child))
-                     ;; Could add other content types here like code_block, cite_tag, etc.
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
                      (t ""))))
                 children ""))))
 
