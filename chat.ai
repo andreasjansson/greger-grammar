@@ -7123,4 +7123,74 @@ text_content: $ => prec(-1, /[^#`<\n]+/),
 Revert text_content pattern now that metadata uses token()
 </tool.toolu_01TiZaJmGuyyESf8L54BYtF4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TiZaJmGuyyESf8L54BYtF4 -->
+## TOOL RESULT:
+
+ID: toolu_01TiZaJmGuyyESf8L54BYtF4
+
+<tool.toolu_01TiZaJmGuyyESf8L54BYtF4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert text_content pattern now that metadata uses token()
+</tool.toolu_01TiZaJmGuyyESf8L54BYtF4>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BFAnnfh5M3F239uNG82Pok
+
+### command
+
+<tool.toolu_01BFAnnfh5M3F239uNG82Pok>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01BFAnnfh5M3F239uNG82Pok>
+
+## TOOL RESULT:
+
+ID: toolu_01BFAnnfh5M3F239uNG82Pok
+
+<tool.toolu_01BFAnnfh5M3F239uNG82Pok>
+Command executed successfully:
+(source_file [0, 0] - [2, 10]
+  (tool_result_section [0, 0] - [2, 10]
+    (text_content [2, 0] - [2, 10])))
+
+</tool.toolu_01BFAnnfh5M3F239uNG82Pok>
+
+## ASSISTANT:
+
+The token() approach doesn't work. Let me try a different approach - use word boundaries more explicitly by changing the structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019BKGrL5hkEf19rhtLvTgYH
+
+### file-path
+
+<tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+grammar.js
+</tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+
+### original-content
+
+<tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+tool_use_metadata: $ => choice(
+      seq(token(seq('Name:', /[^\r\n]*/))),
+      seq(token(seq('ID:', /[^\r\n]*/))),
+    ),
+</tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+
+### new-content
+
+<tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+tool_use_metadata: $ => prec(2, choice(
+      seq('Name:', repeat(/[^\r\n]/)),
+      seq('ID:', repeat(/[^\r\n]/)),
+    )),
+</tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+
+### git-commit-message
+
+<tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+Use higher precedence and character-level matching for metadata
+</tool.toolu_019BKGrL5hkEf19rhtLvTgYH>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019BKGrL5hkEf19rhtLvTgYH -->

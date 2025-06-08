@@ -165,10 +165,10 @@ module.exports = grammar({
       '</cite>',
     ),
 
-    tool_use_metadata: $ => choice(
-      seq(token(seq('Name:', /[^\r\n]*/))),
-      seq(token(seq('ID:', /[^\r\n]*/))),
-    ),
+    tool_use_metadata: $ => prec(2, choice(
+      seq('Name:', repeat(/[^\r\n]/)),
+      seq('ID:', repeat(/[^\r\n]/)),
+    )),
 
     tool_param: $ => prec(3, seq(
       token('###'), /[^\r\n]*/,
