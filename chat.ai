@@ -3860,4 +3860,230 @@ grammar.js
 No change to _citations_content rule for now
 </tool.toolu_01EDburziggZjPvwZDTj1tez>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EDburziggZjPvwZDTj1tez -->
+## TOOL RESULT:
+
+ID: toolu_01EDburziggZjPvwZDTj1tez
+
+<tool.toolu_01EDburziggZjPvwZDTj1tez>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: No change to _citations_content rule for now
+</tool.toolu_01EDburziggZjPvwZDTj1tez>
+
+## ASSISTANT:
+
+I notice the citation rules are already defined. Let me examine the specific patterns more carefully:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015XacnTUfnEDWMq1iuhNg7L
+
+### path
+
+<tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+grammar.js
+</tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+
+### start-line
+
+<tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+125
+</tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+
+### end-line
+
+<tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+155
+</tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+
+## TOOL RESULT:
+
+ID: toolu_015XacnTUfnEDWMq1iuhNg7L
+
+<tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+
+    _citations_content: $ => prec(-1, choice(
+      $.citation_entry,
+      $.citation_title,
+      $.citation_text,
+      $.citation_encrypted_index,
+      $.text_block,
+    )),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+      /\n/,
+    )),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      /\n/,
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+    ),
+</tool.toolu_015XacnTUfnEDWMq1iuhNg7L>
+
+## ASSISTANT:
+
+Let me look at the citation rules themselves:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QeSxGGWvnmfL4ry2B3nzyi
+
+### path
+
+<tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+grammar.js
+</tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+
+### start-line
+
+<tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+185
+</tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+
+### end-line
+
+<tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+215
+</tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+
+## TOOL RESULT:
+
+ID: toolu_01QeSxGGWvnmfL4ry2B3nzyi
+
+<tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => seq(
+      'Title:',
+      ' ',
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      ' ',
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      ' ',
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+
+    citation_title_text: $ => /[^\n]*/,
+    citation_text_content: $ => /[^\n]*/,
+    citation_encrypted_index_content: $ => /[^\n]*/,
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+</tool.toolu_01QeSxGGWvnmfL4ry2B3nzyi>
+
+## ASSISTANT:
+
+The citation rules are defined but they're not matching. This is likely because of precedence issues - the `text_block` rule is matching these lines before the specific citation rules can. Let me regenerate and test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PTDLFGvB2EACjB7ReWZAzH
+
+### command
+
+<tool.toolu_01PTDLFGvB2EACjB7ReWZAzH>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01PTDLFGvB2EACjB7ReWZAzH>
+
+## TOOL RESULT:
+
+ID: toolu_01PTDLFGvB2EACjB7ReWZAzH
+
+<tool.toolu_01PTDLFGvB2EACjB7ReWZAzH>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01PTDLFGvB2EACjB7ReWZAzH>
+
+## ASSISTANT:
+
+I see the issue. The citation metadata (Title:, Cited text:, Encrypted index:) comes after the citation_entry, but it's being parsed as a general text_block. I need to adjust the precedence. Let me give the citation rules higher precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01C5fBhSaxD2E4WFv6ToEDuS
+
+### file-path
+
+<tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+grammar.js
+</tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+
+### original-content
+
+<tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+    _citations_content: $ => prec(-1, choice(
+      $.citation_entry,
+      $.citation_title,
+      $.citation_text,
+      $.citation_encrypted_index,
+      $.text_block,
+    )),
+</tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+
+### new-content
+
+<tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+    _citations_content: $ => choice(
+      $.citation_entry,
+      $.citation_title,
+      $.citation_text,
+      $.citation_encrypted_index,
+      prec(-1, $.text_block),
+    ),
+</tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+
+### git-commit-message
+
+<tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+Increase precedence of citation rules over text_block
+</tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01C5fBhSaxD2E4WFv6ToEDuS -->

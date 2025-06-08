@@ -123,13 +123,13 @@ module.exports = grammar({
       $.text_block,
     )),
 
-    _citations_content: $ => prec(-1, choice(
+    _citations_content: $ => choice(
       $.citation_entry,
       $.citation_title,
       $.citation_text,
       $.citation_encrypted_index,
-      $.text_block,
-    )),
+      prec(-1, $.text_block),
+    ),
 
     text_block: $ => repeat1(choice(
       /[^\n#`<]+/,
