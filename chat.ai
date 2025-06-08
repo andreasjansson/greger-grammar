@@ -51,6 +51,7 @@ tree-sitter generate && tree-sitter parse -d pretty test/corpus/tool-use-with-to
 tree-sitter generate && tree-sitter parse test_simple.greger
 tree-sitter generate && tree-sitter parse -d pretty test_simple.greger
 emacs --batch -l debug-test.el
+emacs --batch -l test-all-greger-cases.el
 </safe-shell-commands>
 
 IMPORTANT: Don't run any other shell commands than the safe shell commands since I will be afk and not able to approve use of unsafe shell commands. Re-use existing debug scripts etc so you don't have to run unsafe shell commands. If you try to run unsafe commands you'll get stuck waiting for approval indefinitely. Use replicate-file with existing debug and test files instead of creating new debug and test files.
@@ -4617,4 +4618,192 @@ greger-tree-sitter.el
 Implement basic dialog extraction from tree-sitter parse tree
 </tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CdS5hvqpSLyCAQDhtbmNYC -->
+## TOOL RESULT:
+
+ID: toolu_01CdS5hvqpSLyCAQDhtbmNYC
+
+<tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Implement basic dialog extraction from tree-sitter parse tree
+</tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+
+
+## ASSISTANT:
+
+Let me test this by running the test suite:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E44PcJGtkyfqnMGnT3S5YK
+
+### command
+
+<tool.toolu_01E44PcJGtkyfqnMGnT3S5YK>
+emacs --batch -l debug-test.el
+</tool.toolu_01E44PcJGtkyfqnMGnT3S5YK>
+
+## TOOL RESULT:
+
+ID: toolu_01E44PcJGtkyfqnMGnT3S5YK
+
+<tool.toolu_01E44PcJGtkyfqnMGnT3S5YK>
+Command failed with exit code 255:
+Error: file-missing ("Cannot open load file" "No such file or directory" "debug-test.el")
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (file-missing "Cannot open load file" "No such file or directory" "debug-test.el"))
+  load("debug-test.el" nil t)
+  command-line-1(("-l" "debug-test.el"))
+  command-line()
+  normal-top-level()
+Cannot open load file: No such file or directory, debug-test.el
+
+</tool.toolu_01E44PcJGtkyfqnMGnT3S5YK>
+
+## ASSISTANT:
+
+I need to run the actual test file. Let me try running our test file:
+
+
+## ASSISTANT:
+
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SynJXT7tL5SL1hjAzTpkwx
+
+### command
+
+<tool.toolu_01SynJXT7tL5SL1hjAzTpkwx>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01SynJXT7tL5SL1hjAzTpkwx>
+
+## TOOL RESULT:
+
+ID: toolu_01SynJXT7tL5SL1hjAzTpkwx
+
+<tool.toolu_01SynJXT7tL5SL1hjAzTpkwx>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "simple-user-message")
+
+=== Testing: system-and-user ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "system-and-user")
+
+=== Testing: simple-conversation ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "simple-conversation")
+
+=== Testing: thinking-section ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "thinking-section")
+
+=== Testing: tool-use-single-param ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-single-param")
+
+=== Testing: tool-use-multiple-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-multiple-params")
+
+=== Testing: complex-workflow ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "complex-workflow")
+
+=== Testing: multiple-tool-uses ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "multiple-tool-uses")
+
+=== Testing: tool-use-multiline-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-multiline-params")
+
+=== Testing: thinking-only ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "thinking-only")
+
+=== Testing: tool-use-only ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-only")
+
+=== Testing: citations-basic ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-basic")
+
+=== Testing: citations-after-tool-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-after-tool-result")
+
+=== Testing: citations-multiple ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-multiple")
+
+=== Testing: code-block-triple-backticks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "code-block-triple-backticks")
+
+=== Testing: mixed-code-blocks-and-sections ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "mixed-code-blocks-and-sections")
+
+=== Testing: tool-use-with-code-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-code-in-params")
+
+=== Testing: tool-use-with-tool-use-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-tool-use-in-params")
+
+=== Testing: nested-code-blocks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "nested-code-blocks")
+
+=== Testing: html-comments ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "html-comments")
+
+=== Testing: server-tool-use-basic ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-basic")
+
+=== Testing: server-tool-use-string-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-string-result")
+
+📊 TEST SUMMARY:
+Total tests: 22
+Passed: 0
+Failed: 22
+
+❌ FAILED TESTS:
+
+</tool.toolu_01SynJXT7tL5SL1hjAzTpkwx>
+
+## ASSISTANT:
+
+There's an issue with the test file structure - the `greger-read-corpus-file` function calls are not being evaluated. Let me fix this in the test file:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CULueWnUdUi66kFu4AvnKX
+
+### file-path
+
+<tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+test-all-greger-cases.el
+</tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+
+### original-content
+
+<tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+    ;; Simple user message
+    (:name "simple-user-message"
+           :markdown (greger-read-corpus-file "simple-user-message")
+           :dialog (((role . "user")
+                     (content . "Hello, how are you?"))))
+</tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+
+### new-content
+
+<tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+    ;; Simple user message
+    (:name "simple-user-message"
+           :markdown ,(greger-read-corpus-file "simple-user-message")
+           :dialog (((role . "user")
+                     (content . "Hello, how are you?"))))
+</tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+
+### git-commit-message
+
+<tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+Fix test data evaluation by adding commas before function calls
+</tool.toolu_01CULueWnUdUi66kFu4AvnKX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CULueWnUdUi66kFu4AvnKX -->

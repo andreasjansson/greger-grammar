@@ -17,7 +17,7 @@
   '(
     ;; Simple user message
     (:name "simple-user-message"
-           :markdown (greger-read-corpus-file "simple-user-message")
+           :markdown ,(greger-read-corpus-file "simple-user-message")
            :dialog (((role . "user")
                      (content . "Hello, how are you?"))))
 
