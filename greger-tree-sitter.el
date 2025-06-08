@@ -233,7 +233,8 @@
               (let* ((start-tag-end (match-end 0))
                      (remaining-text (substring content-text start-tag-end)))
                 ;; Look for closing tag (including possible whitespace/newlines before it)
-                (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                ;; Use [\s\S] to match any character including newlines
+                (when (string-match "\\([[:ascii:]]*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
                   (setq content-text (match-string 1 remaining-text)))))
             (setq content (string-trim content-text)))))))
 
