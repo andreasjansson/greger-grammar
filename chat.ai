@@ -6786,4 +6786,164 @@ greger-tree-sitter.el
 Fix server tool result type to be server_tool_result instead of web_search_tool_result
 </tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AAN3zb5TtnXDhDHik2C2ZS -->
+## TOOL RESULT:
+
+ID: toolu_01AAN3zb5TtnXDhDHik2C2ZS
+
+<tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix server tool result type to be server_tool_result instead of web_search_tool_result
+</tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+
+## ASSISTANT:
+
+Wait, let me check what the expected types are by looking at the test cases more carefully. Some tests expect `web_search_tool_result` and others expect `server_tool_result`. Let me check the citations-basic test:
+
+Looking at the expected result for citations-basic, it shows:
+- `server_tool_use` (correct)
+- `web_search_tool_result` (we're generating this correctly!)
+- `text` with citations
+
+But there are also cases where it expects `server_tool_result`. Let me check the server-tool-use-basic test which expects `server_tool_result`. This suggests that the type depends on the context. Looking more carefully at the expected results:
+
+1. `citations-basic` expects `web_search_tool_result`
+2. `server-tool-use-basic` expects `server_tool_result` 
+
+Let me check if there's a difference in the source files:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016SsKuvVEz56uLTfnqyETiq
+
+### path
+
+<tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+test/corpus/citations-basic.greger
+</tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+
+### start-line
+
+<tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+15
+</tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+
+### end-line
+
+<tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+25
+</tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+
+## TOOL RESULT:
+
+ID: toolu_016SsKuvVEz56uLTfnqyETiq
+
+<tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+</tool.toolu_016SsKuvVEz56uLTfnqyETiq>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01671icUXGfDuztei4SoiiRe
+
+### path
+
+<tool.toolu_01671icUXGfDuztei4SoiiRe>
+test/corpus/server-tool-use-basic.greger
+</tool.toolu_01671icUXGfDuztei4SoiiRe>
+
+### start-line
+
+<tool.toolu_01671icUXGfDuztei4SoiiRe>
+15
+</tool.toolu_01671icUXGfDuztei4SoiiRe>
+
+### end-line
+
+<tool.toolu_01671icUXGfDuztei4SoiiRe>
+25
+</tool.toolu_01671icUXGfDuztei4SoiiRe>
+
+## TOOL RESULT:
+
+ID: toolu_01671icUXGfDuztei4SoiiRe
+
+<tool.toolu_01671icUXGfDuztei4SoiiRe>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_123
+
+<tool.srvtoolu_123>
+[
+  {
+    \"title\": \"Weather in San Francisco\",
+    \"url\": \"https://weather.com/sf\",
+    \"content\": \"Sunny, 72°F\"
+</tool.toolu_01671icUXGfDuztei4SoiiRe>
+
+## ASSISTANT:
+
+Both have similar structures but the expected types are different. Let me check if there's content inside the tool result that determines the type. Looking at the expected outputs again:
+
+- `citations-basic`: Contains JSON with `"type": "web_search_result"` → expects `web_search_tool_result`
+- `server-tool-use-basic`: Contains different JSON structure → expects `server_tool_result`
+
+Ah! It seems like the type should be determined by the content of the tool result. If the JSON contains `"type": "web_search_result"`, then it should be `web_search_tool_result`. Otherwise, it should be `server_tool_result`.
+
+Let me implement this logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SbodUu6ZCyNXPruQKLsZWy
+
+### file-path
+
+<tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+greger-tree-sitter.el
+</tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+
+### original-content
+
+<tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    (setf (alist-get 'type result) "server_tool_result")
+    result))
+</tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+
+### new-content
+
+<tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Determine type based on content
+    (let ((content (alist-get 'content result)))
+      (if (and (stringp content) (string-match "\"type\":\\s-*\"web_search_result\"" content))
+          (setf (alist-get 'type result) "web_search_tool_result")
+        (setf (alist-get 'type result) "server_tool_result")))
+    result))
+</tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+
+### git-commit-message
+
+<tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+Determine server tool result type based on content
+</tool.toolu_01SbodUu6ZCyNXPruQKLsZWy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SbodUu6ZCyNXPruQKLsZWy -->
