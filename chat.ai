@@ -6969,4 +6969,45 @@ tool_use_metadata: $ => choice(
 Remove precedence and token() from tool_use_metadata to simplify
 </tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0168Dadq6mXsd5PSxKVFXTmk -->
+## TOOL RESULT:
+
+ID: toolu_0168Dadq6mXsd5PSxKVFXTmk
+
+<tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove precedence and token() from tool_use_metadata to simplify
+</tool.toolu_0168Dadq6mXsd5PSxKVFXTmk>
+
+## ASSISTANT:
+
+Now let me try a different approach. The issue is that when tree-sitter sees "I", it doesn't know if it should start matching "ID:" as tool_use_metadata or "ID: abc123" as text_content. Let me try making the grammar unambiguous by adding word boundaries or by restricting text_content more:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UprHFAcPdQhZd6RChZgHen
+
+### file-path
+
+<tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+grammar.js
+</tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+
+### original-content
+
+<tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+text_content: $ => prec(-1, /[^#`<\n]+/),
+</tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+
+### new-content
+
+<tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+text_content: $ => prec(-2, /[^#`<\nNI]+/),
+</tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+
+### git-commit-message
+
+<tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+Temporarily exclude N and I from text_content to test metadata recognition
+</tool.toolu_01UprHFAcPdQhZd6RChZgHen>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UprHFAcPdQhZd6RChZgHen -->

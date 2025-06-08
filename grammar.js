@@ -134,7 +134,7 @@ module.exports = grammar({
       $.text_content,
     ),
 
-    text_content: $ => prec(-1, /[^#`<\n]+/),
+    text_content: $ => prec(-2, /[^#`<\nNI]+/),
 
     code_block: $ => choice(
       $.triple_backtick_block,
