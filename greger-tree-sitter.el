@@ -142,6 +142,19 @@
     `((role . "system")
       (content . ,content))))
 
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") "")
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+
 (defun greger-tree-sitter--extract-section-text (section-node)
   "Extract text content from a section node."
   (let ((children (treesit-node-children section-node)))
@@ -150,7 +163,7 @@
                   (let ((node-type (treesit-node-type child)))
                     (cond
                      ((string= node-type "text_block")
-                      (treesit-node-text child))
+                      (greger-tree-sitter--extract-text-without-comments child))
                      ((string= node-type "code_block")
                       (treesit-node-text child))
                      ((string= node-type "cite_tag")

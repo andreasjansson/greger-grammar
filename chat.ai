@@ -4816,4 +4816,282 @@ What do you think?")
 Update debug test to test code block parsing
 </tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019vMCuGU7F4UkqBfNN5ykWt -->
+## TOOL RESULT:
+
+ID: toolu_019vMCuGU7F4UkqBfNN5ykWt
+
+<tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Update debug test to test code block parsing
+</tool.toolu_019vMCuGU7F4UkqBfNN5ykWt>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GuGnoE1EMbL5T47amCz1sj
+
+### command
+
+<tool.toolu_01GuGnoE1EMbL5T47amCz1sj>
+emacs --batch -l debug-test.el
+</tool.toolu_01GuGnoE1EMbL5T47amCz1sj>
+
+## TOOL RESULT:
+
+ID: toolu_01GuGnoE1EMbL5T47amCz1sj
+
+<tool.toolu_01GuGnoE1EMbL5T47amCz1sj>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_01GuGnoE1EMbL5T47amCz1sj>
+
+## ASSISTANT:
+
+Great! The code blocks are now working. Let me also fix the HTML comments issue. The problem is that HTML comments are being treated as external tokens but they're configured to be skipped in the `extras` rule. However, the user wants them to be excluded from the output, which means they should be filtered from extras and not returned. Let me check the grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0185fJvzqozwcJ3NtSJi3aeK
+
+### path
+
+<tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+grammar.js
+</tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+
+### start-line
+
+<tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+8
+</tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+
+### end-line
+
+<tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+18
+</tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+
+## TOOL RESULT:
+
+ID: toolu_0185fJvzqozwcJ3NtSJi3aeK
+
+<tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+</tool.toolu_0185fJvzqozwcJ3NtSJi3aeK>
+
+## ASSISTANT:
+
+The HTML comments are in the `extras` which means they are parsed but ignored. That should work correctly. Let me test if the issue is in the text extraction:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018pftCihinUEnkyTjhqqSuD
+
+### path
+
+<tool.toolu_018pftCihinUEnkyTjhqqSuD>
+test/corpus/html-comments.greger
+</tool.toolu_018pftCihinUEnkyTjhqqSuD>
+
+## TOOL RESULT:
+
+ID: toolu_018pftCihinUEnkyTjhqqSuD
+
+<tool.toolu_018pftCihinUEnkyTjhqqSuD>
+## USER:
+
+Here's some code:
+
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
+```
+<!-- comment should be included -->
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?
+</tool.toolu_018pftCihinUEnkyTjhqqSuD>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01X3ncb3RYRg8uZZSt77xaJL
+
+### command
+
+<tool.toolu_01X3ncb3RYRg8uZZSt77xaJL>
+tree-sitter generate && tree-sitter parse test/corpus/html-comments.greger
+</tool.toolu_01X3ncb3RYRg8uZZSt77xaJL>
+
+## TOOL RESULT:
+
+ID: toolu_01X3ncb3RYRg8uZZSt77xaJL
+
+<tool.toolu_01X3ncb3RYRg8uZZSt77xaJL>
+Command executed successfully:
+(source_file [0, 0] - [18, 18]
+  (user_section [0, 0] - [18, 18]
+    (text_block [0, 8] - [10, 0]
+      (html_comment [4, 0] - [4, 16])
+      (html_comment [5, 0] - [8, 11]))
+    (code_block [10, 0] - [16, 3]
+      (triple_backtick_block [10, 0] - [16, 3]
+        (html_comment [11, 0] - [11, 35])))
+    (text_block [16, 3] - [18, 18])))
+
+</tool.toolu_01X3ncb3RYRg8uZZSt77xaJL>
+
+## ASSISTANT:
+
+I see the issue. The HTML comments are being included in the text_block structure, but they shouldn't appear in the final text output. Let me modify the text extraction to skip html_comment nodes within text blocks:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01JG1s9hbTs4rJ6J5DKFdXwG
+
+### path
+
+<tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+greger-tree-sitter.el
+</tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+
+### start-line
+
+<tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+145
+</tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+
+### end-line
+
+<tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+165
+</tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+
+## TOOL RESULT:
+
+ID: toolu_01JG1s9hbTs4rJ6J5DKFdXwG
+
+<tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
+                     (t ""))))
+                children ""))))
+
+(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+  "Extract tool use data from a tool use section."
+  (let ((children (treesit-node-children tool-use-section))
+        (name nil)
+</tool.toolu_01JG1s9hbTs4rJ6J5DKFdXwG>
+
+## ASSISTANT:
+
+The issue is that `treesit-node-text` returns the full text of the node including HTML comments. I need to recursively extract the text while filtering out HTML comments. Let me create a helper function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016FNqmoTahg3rqWPdC9Pjfy
+
+### file-path
+
+<tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+greger-tree-sitter.el
+</tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+
+### original-content
+
+<tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (treesit-node-text child))
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
+                     (t ""))))
+                children ""))))
+</tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+
+### new-content
+
+<tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") "")
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((children (treesit-node-children section-node)))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (let ((node-type (treesit-node-type child)))
+                    (cond
+                     ((string= node-type "text_block")
+                      (greger-tree-sitter--extract-text-without-comments child))
+                     ((string= node-type "code_block")
+                      (treesit-node-text child))
+                     ((string= node-type "cite_tag")
+                      (treesit-node-text child))
+                     ;; Could add other content types here
+                     (t ""))))
+                children ""))))
+</tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+
+### git-commit-message
+
+<tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+Add function to extract text while filtering HTML comments
+</tool.toolu_016FNqmoTahg3rqWPdC9Pjfy>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016FNqmoTahg3rqWPdC9Pjfy -->
