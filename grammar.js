@@ -33,7 +33,6 @@ module.exports = grammar({
       $.server_tool_use,
       $.server_tool_result,
       $.citations,
-      $.text,
     ),
 
     // Use aliases to shorten section names
