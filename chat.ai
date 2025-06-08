@@ -9982,4 +9982,105 @@ server_tool_use_section: $ => seq(
 Add whitespace handling and tool_param to server_tool_use structure
 </tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ -->
+## TOOL RESULT:
+
+ID: toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ
+
+<tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add whitespace handling and tool_param to server_tool_use structure
+</tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BYMecfbkvfpXb5SgEvVGKN
+
+### command
+
+<tool.toolu_01BYMecfbkvfpXb5SgEvVGKN>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01BYMecfbkvfpXb5SgEvVGKN>
+
+## TOOL RESULT:
+
+ID: toolu_01BYMecfbkvfpXb5SgEvVGKN
+
+<tool.toolu_01BYMecfbkvfpXb5SgEvVGKN>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+    
+      '##'  'SERVER'  'TOOL'  'USE'  ':'  server_tool_use_section_repeat1  server_tool_use_section_repeat1  •  '##'  …
+    
+    Possible interpretations:
+    
+      1:  '##'  'SERVER'  'TOOL'  'USE'  ':'  (server_tool_use_section_repeat1  server_tool_use_section_repeat1  server_tool_use_section_repeat1)  •  '##'  …
+      2:  (server_tool_use_section  '##'  'SERVER'  'TOOL'  'USE'  ':'  server_tool_use_section_repeat1  server_tool_use_section_repeat1)  •  '##'  …
+    
+    Possible resolutions:
+    
+      1:  Add a conflict for these rules: `server_tool_use_section`
+    
+
+</tool.toolu_01BYMecfbkvfpXb5SgEvVGKN>
+
+## ASSISTANT:
+
+The grammar is conflicting because it can't decide when the section ends. Let me take a different approach. Let me look at some examples of tree-sitter grammars to see how they handle this kind of structure. 
+
+Let me revert to a working state and take a more systematic approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JKzjf1U4WV9GvBpg3SscyS
+
+### file-path
+
+<tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+grammar.js
+</tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+
+### original-content
+
+<tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(/\s/),
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat(/\s/),
+      repeat($.tool_param),
+    ),
+</tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+
+### new-content
+
+<tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(choice(
+        $.tool_name,
+        $.tool_id,
+        $.tool_param,
+        $._section_content,
+      )),
+    )),
+</tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+
+### git-commit-message
+
+<tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+Revert to working server_tool_use structure
+</tool.toolu_01JKzjf1U4WV9GvBpg3SscyS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JKzjf1U4WV9GvBpg3SscyS -->
