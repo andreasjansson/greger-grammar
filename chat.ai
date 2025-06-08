@@ -9776,4 +9776,68 @@ greger-tree-sitter.el
 Add debug print to citations section processing
 </tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ThQUyzQxo1j8tKge2cKvwQ -->
+## TOOL RESULT:
+
+ID: toolu_01ThQUyzQxo1j8tKge2cKvwQ
+
+<tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print to citations section processing
+</tool.toolu_01ThQUyzQxo1j8tKge2cKvwQ>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QPoMECgg1eSBVYejHPhHgh
+
+### file-path
+
+<tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+greger-tree-sitter.el
+</tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+
+### original-content
+
+<tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+((string= node-type "citation_entry")
+          ;; Extract URL from citation entry
+          (let* ((entry-text (treesit-node-text child))
+                 (lines (split-string entry-text "\n"))
+                 (url-line (and lines (string-trim (car lines))))
+                 (url (when (string-prefix-p "###" url-line)
+                        (string-trim (substring url-line 3)))))
+            (when url
+              (push `((type . "web_search_result_location")
+                      (url . ,url)
+                      (title . nil)
+                      (cited_text . nil)
+                      (encrypted_index . nil))
+                    citations))))
+</tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+
+### new-content
+
+<tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+((string= node-type "citation_entry")
+          ;; Extract URL from citation entry
+          (let* ((entry-text (treesit-node-text child))
+                 (lines (split-string entry-text "\n"))
+                 (url-line (and lines (string-trim (car lines))))
+                 (url (when (string-prefix-p "###" url-line)
+                        (string-trim (substring url-line 3)))))
+            (when url
+              (message "[DEBUG] Found citation entry with URL: %s" url)
+              (push `((type . "web_search_result_location")
+                      (url . ,url)
+                      (title . nil)
+                      (cited_text . nil)
+                      (encrypted_index . nil))
+                    citations))))
+</tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+
+### git-commit-message
+
+<tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+Add debug print to citation entry processing
+</tool.toolu_01QPoMECgg1eSBVYejHPhHgh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QPoMECgg1eSBVYejHPhHgh -->
