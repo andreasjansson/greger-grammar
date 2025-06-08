@@ -20,6 +20,10 @@ module.exports = grammar({
     $.html_comment,
   ],
 
+  conflicts: $ => [
+    [$.text_block],
+  ],
+
   rules: {
     source_file: $ => repeat($._block),
 
