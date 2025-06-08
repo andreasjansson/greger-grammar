@@ -4706,4 +4706,74 @@ tool_use_metadata: $ => prec(2, choice(
 Increase precedence of tool_use_metadata
 </tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01H4ZjgcueaiFEx3WVAGGHRW -->
+## TOOL RESULT:
+
+ID: toolu_01H4ZjgcueaiFEx3WVAGGHRW
+
+<tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Increase precedence of tool_use_metadata
+</tool.toolu_01H4ZjgcueaiFEx3WVAGGHRW>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MAPKj4aKPD99YbTWAwSmWP
+
+### command
+
+<tool.toolu_01MAPKj4aKPD99YbTWAwSmWP>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01MAPKj4aKPD99YbTWAwSmWP>
+
+## TOOL RESULT:
+
+ID: toolu_01MAPKj4aKPD99YbTWAwSmWP
+
+<tool.toolu_01MAPKj4aKPD99YbTWAwSmWP>
+Command failed with exit code 1: (source_file [0, 0] - [9, 14]
+  (tool_use_section [0, 0] - [9, 0]
+    (text_content [2, 0] - [2, 10])
+    (text_content [3, 0] - [3, 10])
+    (ERROR [5, 0] - [7, 13]
+      (ERROR [7, 0] - [7, 13]))
+    (text_content [8, 0] - [8, 5]))
+  (ERROR [9, 0] - [9, 14]
+    (ERROR [9, 0] - [9, 14])))
+test_simple.greger	Parse:    0.70 ms	   116 bytes/ms	(ERROR [5, 0] - [7, 13])
+
+</tool.toolu_01MAPKj4aKPD99YbTWAwSmWP>
+
+## ASSISTANT:
+
+Still not working. The issue might be that when the parser sees "Name:", it doesn't know which rule to use because text_content is more general. Let me try a different approach - let me make the text_content pattern much more restrictive:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YJHVsvSk4dzS8uMVQDqhtL
+
+### file-path
+
+<tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+grammar.js
+</tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+
+### original-content
+
+<tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+text_content: $ => prec(-1, /[^#`<\n]+/),
+</tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+
+### new-content
+
+<tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+text_content: $ => prec(-1, /[^#`<\nNI]+/),
+</tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+
+### git-commit-message
+
+<tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+Exclude characters N and I from text_content to allow metadata recognition
+</tool.toolu_01YJHVsvSk4dzS8uMVQDqhtL>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YJHVsvSk4dzS8uMVQDqhtL -->
