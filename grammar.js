@@ -175,18 +175,17 @@ module.exports = grammar({
       $.tool_content,
     ),
 
-    citation_entry: $ => seq(
+    citation_entry: $ => prec.right(seq(
       '###',
       $.citation_url,
       /\n/,
-      optional(/\n/), // Empty line after URL
       repeat(choice(
         $.citation_title,
         $.citation_text,
         $.citation_encrypted_index,
-        /\n/  // Allow empty lines within the citation
+        seq(/[^\n#T]/, /[^\n]*/, /\n/)  // Other lines that are not metadata or section headers
       )),
-    ),
+    )),
 
     citation_url: $ => /[^\n]*/,
 
