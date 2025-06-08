@@ -186,26 +186,26 @@ module.exports = grammar({
 
     citation_url: $ => /[^\n]*/,
 
-    citation_title: $ => seq(
-      token('Title:'),
+    citation_title: $ => token(seq(
+      'Title:',
       /[ ]+/,
-      $.citation_title_text,
+      /[^\n]*/,
       /\n/,
-    ),
+    )),
 
-    citation_text: $ => seq(
-      token('Cited text:'),
+    citation_text: $ => token(seq(
+      'Cited text:',
       /[ ]+/,
-      $.citation_text_content,
+      /[^\n]*/,
       /\n/,
-    ),
+    )),
 
-    citation_encrypted_index: $ => seq(
-      token('Encrypted index:'),
+    citation_encrypted_index: $ => token(seq(
+      'Encrypted index:',
       /[ ]+/,
-      $.citation_encrypted_index_content,
+      /[^\n]*/,
       /\n/,
-    ),
+    )),
 
     citation_title_text: $ => /[^\n]*/,
     citation_text_content: $ => /[^\n]*/,

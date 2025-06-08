@@ -4522,4 +4522,110 @@ citation_title: $ => seq(
 Use token() for citation prefixes
 </tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_017gddUfyQDdu5XTWMRUNkgN -->
+## TOOL RESULT:
+
+ID: toolu_017gddUfyQDdu5XTWMRUNkgN
+
+<tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use token() for citation prefixes
+</tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E7zgxHZNS8U9YkK5A1yYun
+
+### command
+
+<tool.toolu_01E7zgxHZNS8U9YkK5A1yYun>
+tree-sitter generate && tree-sitter parse debug_citations.greger
+</tool.toolu_01E7zgxHZNS8U9YkK5A1yYun>
+
+## TOOL RESULT:
+
+ID: toolu_01E7zgxHZNS8U9YkK5A1yYun
+
+<tool.toolu_01E7zgxHZNS8U9YkK5A1yYun>
+Command executed successfully:
+(source_file [0, 0] - [4, 23]
+  (citations_section [0, 0] - [4, 23]
+    (text_block [0, 13] - [4, 23])))
+
+</tool.toolu_01E7zgxHZNS8U9YkK5A1yYun>
+
+## ASSISTANT:
+
+
+
+Still not working. Let me try a different approach. The issue might be that I need to adjust the text_block pattern specifically for citations sections. Let me look at how other grammars handle similar situations.
+
+Let me try a different approach by making the citation patterns more specific and using tokens with precedence:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018Wu6inPhukBADG6YNr58Rc
+
+### file-path
+
+<tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+grammar.js
+</tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+
+### original-content
+
+<tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+citation_title: $ => seq(
+      token('Title:'),
+      /[ ]+/,
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      token('Cited text:'),
+      /[ ]+/,
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      token('Encrypted index:'),
+      /[ ]+/,
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+</tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+
+### new-content
+
+<tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+citation_title: $ => token(seq(
+      'Title:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_text: $ => token(seq(
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_encrypted_index: $ => token(seq(
+      'Encrypted index:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+</tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+
+### git-commit-message
+
+<tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+Make citation rules single tokens
+</tool.toolu_018Wu6inPhukBADG6YNr58Rc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_018Wu6inPhukBADG6YNr58Rc -->
