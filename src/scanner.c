@@ -97,7 +97,7 @@ static bool scan_html_comment(TSLexer *lexer) {
 }
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
-    // Look for <tool.ID> opening tag and scan until closing tag
+    // Simple test: just recognize <tool. and return immediately
     if (lexer->lookahead != '<') return false;
 
     advance(lexer);
