@@ -389,7 +389,7 @@
                  (url (when (string-prefix-p "###" url-line)
                         (string-trim (substring url-line 3)))))
             (when url
-              (message "[DEBUG] Found citation entry with URL: %s" url)
+
               (push (list (cons 'type "web_search_result_location")
                         (cons 'url url)
                         (cons 'title nil)
