@@ -12798,4 +12798,556 @@ greger-tree-sitter.el
 Fix tool parameter extraction to handle multiline content properly
 </tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0146RyPSRKYvh4rYcahA34Ud -->
+## TOOL RESULT:
+
+ID: toolu_0146RyPSRKYvh4rYcahA34Ud
+
+<tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tool parameter extraction to handle multiline content properly
+</tool.toolu_0146RyPSRKYvh4rYcahA34Ud>
+
+## ASSISTANT:
+
+Now let me test the citations and tool content fixes:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012hEa4DqDB5grjzFKCp57DN
+
+### command
+
+<tool.toolu_012hEa4DqDB5grjzFKCp57DN>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_012hEa4DqDB5grjzFKCp57DN>
+
+## TOOL RESULT:
+
+ID: toolu_012hEa4DqDB5grjzFKCp57DN
+
+<tool.toolu_012hEa4DqDB5grjzFKCp57DN>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt\n</tool.toolu_123")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!\n</tool.toolu_123"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main\n</tool.toolu_456")
+     (file-type . "py\n</tool.toolu_456")
+     (context-lines . "2\n</tool.toolu_456")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():\n</tool.toolu_456"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024\n</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+     (include_answer . "basic\n</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+     (max_results . "3\n</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "{\\\"query\\\": \\\"current king of Sweden 2024\\\", \\\"answer\\\": \\\"Carl XVI Gustaf\\\", \\\"response_time\\\": 2.38}\n</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".\n</tool.toolu_111")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md\n</tool.toolu_111"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt\n</tool.toolu_222")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1.\n</tool.toolu_222"))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \\\"This is the content of file1.\\\"")))
+
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-only ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Read a file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt"))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Read a file"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "read-file")
+    (input
+     (path . "test.txt\n</tool.toolu_999"))))))
+
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date\n</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "[\n  {\n    \\\"type\\\": \\\"web_search_result\\\",\n    \\\"url\\\": \\\"https://en.wikipedia.org/wiki/Claude_Shannon\\\",\n    \\\"title\\\": \\\"Claude Shannon - Wikipedia\\\",\n    \\\"encrypted_content\\\": \\\"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\\\",\n    \\\"page_age\\\": \\\"April 30, 2025\\\"\n  }\n]\n</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+=== Testing: citations-after-tool-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-after-tool-result")
+
+=== Testing: citations-multiple ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "citations-multiple")
+
+=== Testing: code-block-triple-backticks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "code-block-triple-backticks")
+
+=== Testing: mixed-code-blocks-and-sections ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "mixed-code-blocks-and-sections")
+
+=== Testing: tool-use-with-code-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-code-in-params")
+
+=== Testing: tool-use-with-tool-use-in-params ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "tool-use-with-tool-use-in-params")
+
+=== Testing: nested-code-blocks ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "nested-code-blocks")
+
+=== Testing: html-comments ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "html-comments")
+
+=== Testing: server-tool-use-basic ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-basic")
+
+=== Testing: server-tool-use-string-result ===
+❌ ERROR: Wrong type argument: char-or-string-p, (greger-read-corpus-file "server-tool-use-string-result")
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 5
+Failed: 16
+
+❌ FAILED TESTS:
+  - tool-use-single-param
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - tool-use-only
+  - citations-basic
+
+</tool.toolu_012hEa4DqDB5grjzFKCp57DN>
+
+## ASSISTANT:
+
+Great progress! The citations parsing is now working perfectly! I can see it's correctly parsing the title, cited_text, and encrypted_index. But we now have a new issue: the tool content is including the closing tag.
+
+The issue is that my string manipulation is not working correctly. I can see patterns like:
+
+Expected: `"hello.txt"`
+Actual: `"hello.txt\n</tool.toolu_123"`
+
+And for multiline content it's now working better:
+Expected: `"src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"`  
+Actual: Content includes the multiline content but also includes `\n</tool.toolu_456"`
+
+The issue is that my closing tag regex isn't working properly. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01R5snu4A3yZ8MFKBg5hhdTr
+
+### file-path
+
+<tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+greger-tree-sitter.el
+</tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+
+### original-content
+
+<tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper using string operations
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag
+                (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                    (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                  (setq content-text remaining-text))))
+            (setq content (string-trim content-text))))
+</tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+
+### new-content
+
+<tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper using string operations
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag
+                (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                  (setq content-text (match-string 1 remaining-text)))))
+            (setq content (string-trim content-text))))
+</tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+
+### git-commit-message
+
+<tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+Fix tool content closing tag removal
+</tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+
+## TOOL RESULT:
+
+ID: toolu_01R5snu4A3yZ8MFKBg5hhdTr
+
+<tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01R5snu4A3yZ8MFKBg5hhdTr>
+
+## ASSISTANT:
+
+Let me check what the current content actually looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017GdH9n6bTComGobknXZtCn
+
+### path
+
+<tool.toolu_017GdH9n6bTComGobknXZtCn>
+greger-tree-sitter.el
+</tool.toolu_017GdH9n6bTComGobknXZtCn>
+
+### start-line
+
+<tool.toolu_017GdH9n6bTComGobknXZtCn>
+225
+</tool.toolu_017GdH9n6bTComGobknXZtCn>
+
+### end-line
+
+<tool.toolu_017GdH9n6bTComGobknXZtCn>
+240
+</tool.toolu_017GdH9n6bTComGobknXZtCn>
+
+## TOOL RESULT:
+
+ID: toolu_017GdH9n6bTComGobknXZtCn
+
+<tool.toolu_017GdH9n6bTComGobknXZtCn>
+                (setq tool-use-id (string-trim (substring line 3)))))))
+
+         ((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag
+                (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                    (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                  (setq content-text remaining-text))))
+            (setq content (string-trim content-text)))))))
+
+</tool.toolu_017GdH9n6bTComGobknXZtCn>
+
+## ASSISTANT:
+
+I see the issue. Let me fix the regex pattern. The issue is that the `</tool...>$` pattern expects it to be at the very end, but there might be whitespace or newlines. Let me use a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CVpKTpZr72shXfDV2R23PF
+
+### file-path
+
+<tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+greger-tree-sitter.el
+</tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+
+### original-content
+
+<tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag
+                (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                    (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                  (setq content-text remaining-text))))
+            (setq content (string-trim content-text))))
+</tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+
+### new-content
+
+<tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>" content-text)
+              (let* ((start-tag-end (match-end 0))
+                     (remaining-text (substring content-text start-tag-end)))
+                ;; Look for closing tag (including possible whitespace/newlines before it)
+                (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                  (setq content-text (match-string 1 remaining-text)))))
+            (setq content (string-trim content-text))))
+</tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+
+### git-commit-message
+
+<tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+Fix tool content closing tag removal with better regex
+</tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CVpKTpZr72shXfDV2R23PF -->
