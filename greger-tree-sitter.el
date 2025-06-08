@@ -390,11 +390,11 @@
                         (string-trim (substring url-line 3)))))
             (when url
               (message "[DEBUG] Found citation entry with URL: %s" url)
-              (push `((type . "web_search_result_location")
-                      (url . ,url)
-                      (title . nil)
-                      (cited_text . nil)
-                      (encrypted_index . nil))
+              (push (list (cons 'type "web_search_result_location")
+                        (cons 'url url)
+                        (cons 'title nil)
+                        (cons 'cited_text nil)
+                        (cons 'encrypted_index nil))
                     citations)))))
         (setq i (1+ i))))
 

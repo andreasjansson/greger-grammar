@@ -9884,4 +9884,150 @@ greger-tree-sitter.el
 Add debug print to citation metadata update
 </tool.toolu_01UbZayVaKTnMtnNUjho1nuq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UbZayVaKTnMtnNUjho1nuq -->
+## TOOL RESULT:
+
+ID: toolu_01UbZayVaKTnMtnNUjho1nuq
+
+<tool.toolu_01UbZayVaKTnMtnNUjho1nuq>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug print to citation metadata update
+</tool.toolu_01UbZayVaKTnMtnNUjho1nuq>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TkTyKaMtmUdS5Huv7nTekJ
+
+### command
+
+<tool.toolu_01TkTyKaMtmUdS5Huv7nTekJ>
+emacs --batch -l debug-test.el
+</tool.toolu_01TkTyKaMtmUdS5Huv7nTekJ>
+
+## TOOL RESULT:
+
+ID: toolu_01TkTyKaMtmUdS5Huv7nTekJ
+
+<tool.toolu_01TkTyKaMtmUdS5Huv7nTekJ>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+[DEBUG] Processing citations section
+[DEBUG] Found citation entry with URL: https://physics.com/einstein
+[DEBUG] Updating citation with title: Einstein Biography, cited_text: Albert Einstein developed the theory of relativity in the early 20th century..., encrypted_index: def456
+[DEBUG] Processing citations section
+[DEBUG] Found citation entry with URL: https://physics.com/newton
+[DEBUG] Updating citation with title: Newton Biography, cited_text: Isaac Newton formulated the three laws of motion..., encrypted_index: ghi789
+=== CITATIONS MULTIPLE DEBUGGING ===
+Result:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== CITATIONS ANALYSIS ===
+Text: Einstein developed the theory of relativity
+  Citations:
+    URL: https://physics.com/einstein
+    Title: Newton Biography
+    Cited text: Isaac Newton formulated the three laws of motion..
+Text: while
+Text: Newton formulated the laws of motion
+  Citations:
+    URL: https://physics.com/newton
+    Title: Newton Biography
+    Cited text: Isaac Newton formulated the three laws of motion..
+
+</tool.toolu_01TkTyKaMtmUdS5Huv7nTekJ>
+
+## ASSISTANT:
+
+This is very strange! The debug output shows that the citation extraction is working correctly:
+
+1. First citations section: URL `https://physics.com/einstein`, title `Einstein Biography`, cited text `Albert Einstein...`, encrypted index `def456`
+2. Second citations section: URL `https://physics.com/newton`, title `Newton Biography`, cited text `Isaac Newton...`, encrypted index `ghi789`
+
+But somehow in the final result, the first citation has the correct URL but the wrong title, cited text, and encrypted index from the second citation!
+
+This suggests that the citation data is getting corrupted somewhere AFTER the extraction function returns. There must be some reference sharing or mutation happening somewhere else in the code.
+
+Let me check if there's any place where citations are being modified after extraction. This could be a case where the alist structure is being shared between citations, and modifying one affects the other.
+
+Actually, let me check if the issue is in the backquote syntax again. I notice that the citations creation uses backquote syntax:
+
+```elisp
+(push `((type . "web_search_result_location")
+        (url . ,url)
+        (title . nil)
+        (cited_text . nil)
+        (encrypted_index . nil))
+      citations)
+```
+
+This could be causing the same kind of reference sharing issue that we saw with the tool use and tool result functions. Let me fix this by using explicit list construction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011Msr5v7VwYoD8n4BDQp1cv
+
+### file-path
+
+<tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+greger-tree-sitter.el
+</tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+
+### original-content
+
+<tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+(push `((type . "web_search_result_location")
+                      (url . ,url)
+                      (title . nil)
+                      (cited_text . nil)
+                      (encrypted_index . nil))
+                    citations)
+</tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+
+### new-content
+
+<tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+(push (list (cons 'type "web_search_result_location")
+                        (cons 'url url)
+                        (cons 'title nil)
+                        (cons 'cited_text nil)
+                        (cons 'encrypted_index nil))
+                    citations)
+</tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+
+### git-commit-message
+
+<tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+Fix citation creation to use explicit list construction
+</tool.toolu_011Msr5v7VwYoD8n4BDQp1cv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011Msr5v7VwYoD8n4BDQp1cv -->
