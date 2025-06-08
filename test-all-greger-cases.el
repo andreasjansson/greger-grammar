@@ -50,7 +50,7 @@
 
     ;; Tool use with single parameter
     (:name "tool-use-single-param"
-           :markdown (greger-read-corpus-file "tool-use-single-param")
+           :markdown ,(greger-read-corpus-file "tool-use-single-param")
            :dialog (((role . "user")
                      (content . "Read the file hello.txt"))
                     ((role . "assistant")
