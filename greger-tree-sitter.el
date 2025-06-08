@@ -132,9 +132,16 @@ ERRORS:
 
     ;; Flush any remaining pending assistant content
     (when pending-assistant-content
-      (push `((role . "assistant")
-              (content . ,(nreverse pending-assistant-content)))
-            dialog))
+      (let ((content (nreverse pending-assistant-content)))
+        ;; Simplify content if it's just a single text block
+        (if (and (= (length content) 1)
+                 (equal (alist-get 'type (car content)) "text"))
+            (push `((role . "assistant")
+                    (content . ,(alist-get 'text (car content))))
+                  dialog)
+          (push `((role . "assistant")
+                  (content . ,content))
+                dialog))))
 
     (nreverse dialog)))
 

@@ -10151,4 +10151,148 @@ greger-tree-sitter.el
 Modify assistant section handling to accumulate content instead of creating separate messages
 </tool.toolu_01MUCyDNA4npm8ARmALbitPK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MUCyDNA4npm8ARmALbitPK -->
+## TOOL RESULT:
+
+ID: toolu_01MUCyDNA4npm8ARmALbitPK
+
+<tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Modify assistant section handling to accumulate content instead of creating separate messages
+</tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DEUtNKmNy6uDEQCQsr6ek4
+
+### command
+
+<tool.toolu_01DEUtNKmNy6uDEQCQsr6ek4>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01DEUtNKmNy6uDEQCQsr6ek4>
+
+## TOOL RESULT:
+
+ID: toolu_01DEUtNKmNy6uDEQCQsr6ek4
+
+<tool.toolu_01DEUtNKmNy6uDEQCQsr6ek4>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content . "The file contains: Hello, world!")))
+
+
+Actual:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "hello.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_123")
+    (content . "Hello, world!"))))
+ ((role . "assistant")
+  (content
+   ((type . "text")
+    (text . "The file contains: Hello, world!")))))
+
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+📊 TEST SUMMARY:
+Total tests: 4
+Passed: 3
+Failed: 1
+
+❌ Some tests failed
+
+</tool.toolu_01DEUtNKmNy6uDEQCQsr6ek4>
+
+## ASSISTANT:
+
+Great progress! The thinking-section test is now passing, but I broke the tool-use-single-param test. The issue is that for simple assistant messages (without thinking or tool use), the content should just be a string, not a list with a single text block.
+
+Let me fix this by detecting when there's only one text content block and simplifying it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017FN4C48hLieNfSvoEfAcM1
+
+### file-path
+
+<tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+greger-tree-sitter.el
+</tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+
+### original-content
+
+<tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (push `((role . "assistant")
+              (content . ,(nreverse pending-assistant-content)))
+            dialog))
+
+    (nreverse dialog))
+</tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+
+### new-content
+
+<tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+;; Flush any remaining pending assistant content
+    (when pending-assistant-content
+      (let ((content (nreverse pending-assistant-content)))
+        ;; Simplify content if it's just a single text block
+        (if (and (= (length content) 1)
+                 (equal (alist-get 'type (car content)) "text"))
+            (push `((role . "assistant")
+                    (content . ,(alist-get 'text (car content))))
+                  dialog)
+          (push `((role . "assistant")
+                  (content . ,content))
+                dialog))))
+
+    (nreverse dialog))
+</tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+
+### git-commit-message
+
+<tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+Simplify assistant content when it's just a single text block
+</tool.toolu_017FN4C48hLieNfSvoEfAcM1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017FN4C48hLieNfSvoEfAcM1 -->
