@@ -4086,4 +4086,167 @@ grammar.js
 Increase precedence of citation rules over text_block
 </tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01C5fBhSaxD2E4WFv6ToEDuS -->
+## TOOL RESULT:
+
+ID: toolu_01C5fBhSaxD2E4WFv6ToEDuS
+
+<tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Increase precedence of citation rules over text_block
+</tool.toolu_01C5fBhSaxD2E4WFv6ToEDuS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014qUbeWDZdzyk3Lkk5DzDZu
+
+### command
+
+<tool.toolu_014qUbeWDZdzyk3Lkk5DzDZu>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_014qUbeWDZdzyk3Lkk5DzDZu>
+
+## TOOL RESULT:
+
+ID: toolu_014qUbeWDZdzyk3Lkk5DzDZu
+
+<tool.toolu_014qUbeWDZdzyk3Lkk5DzDZu>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0]
+      (citation_url [39, 3] - [39, 48]))
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_014qUbeWDZdzyk3Lkk5DzDZu>
+
+## ASSISTANT:
+
+Still not working. Let me check if it's an issue with the citation rule patterns. Let me look at the exact text:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01R115YujpNdWE1BnyXcwANq
+
+### path
+
+<tool.toolu_01R115YujpNdWE1BnyXcwANq>
+test/corpus/citations-basic.greger
+</tool.toolu_01R115YujpNdWE1BnyXcwANq>
+
+### start-line
+
+<tool.toolu_01R115YujpNdWE1BnyXcwANq>
+35
+</tool.toolu_01R115YujpNdWE1BnyXcwANq>
+
+### end-line
+
+<tool.toolu_01R115YujpNdWE1BnyXcwANq>
+43
+</tool.toolu_01R115YujpNdWE1BnyXcwANq>
+
+## TOOL RESULT:
+
+ID: toolu_01R115YujpNdWE1BnyXcwANq
+
+<tool.toolu_01R115YujpNdWE1BnyXcwANq>
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+</tool.toolu_01R115YujpNdWE1BnyXcwANq>
+
+## ASSISTANT:
+
+I see the issue. The citation rules expect the titles to be on their own lines, but the actual file content after the `### https://...` URL has these lines immediately following. Let me adjust the patterns. The problem is that `citation_title` expects to start at the beginning of a line, but it might be following other text.
+
+Let me modify the pattern to be more flexible:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01QnVh88YXPfVR849CaDokjg
+
+### file-path
+
+<tool.toolu_01QnVh88YXPfVR849CaDokjg>
+grammar.js
+</tool.toolu_01QnVh88YXPfVR849CaDokjg>
+
+### original-content
+
+<tool.toolu_01QnVh88YXPfVR849CaDokjg>
+citation_title: $ => seq(
+      'Title:',
+      ' ',
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      ' ',
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      ' ',
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+</tool.toolu_01QnVh88YXPfVR849CaDokjg>
+
+### new-content
+
+<tool.toolu_01QnVh88YXPfVR849CaDokjg>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+</tool.toolu_01QnVh88YXPfVR849CaDokjg>
+
+### git-commit-message
+
+<tool.toolu_01QnVh88YXPfVR849CaDokjg>
+Allow flexible spacing in citation metadata rules
+</tool.toolu_01QnVh88YXPfVR849CaDokjg>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QnVh88YXPfVR849CaDokjg -->
