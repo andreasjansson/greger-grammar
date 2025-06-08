@@ -97,9 +97,16 @@ ERRORS:
          ((string= section-type "system_section")
           ;; Flush any pending assistant content before processing system section
           (when pending-assistant-content
-            (push `((role . "assistant")
-                    (content . ,(nreverse pending-assistant-content)))
-                  dialog)
+            (let ((content (nreverse pending-assistant-content)))
+              ;; Simplify content if it's just a single text block
+              (if (and (= (length content) 1)
+                       (equal (alist-get 'type (car content)) "text"))
+                  (push `((role . "assistant")
+                          (content . ,(alist-get 'text (car content))))
+                        dialog)
+                (push `((role . "assistant")
+                        (content . ,content))
+                      dialog)))
             (setq pending-assistant-content '()))
           (push (greger-tree-sitter--extract-system-section section) dialog))
 
