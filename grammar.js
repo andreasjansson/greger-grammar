@@ -18,7 +18,6 @@ module.exports = grammar({
   externals: $ => [
     $.tool_content,
     $.html_comment,
-    $.error_sentinel,
   ],
 
   rules: {
