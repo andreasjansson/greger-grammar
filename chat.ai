@@ -8039,4 +8039,111 @@ greger-tree-sitter.el
 Fix extract-tool-result to use explicit list construction
 </tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DasuRpqPfYgpSiXPbRyhph -->
+## TOOL RESULT:
+
+ID: toolu_01DasuRpqPfYgpSiXPbRyhph
+
+<tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix extract-tool-result to use explicit list construction
+</tool.toolu_01DasuRpqPfYgpSiXPbRyhph>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016iGiWE58ZTjERm72WCK5AX
+
+### command
+
+<tool.toolu_016iGiWE58ZTjERm72WCK5AX>
+emacs --batch -l debug-test.el
+</tool.toolu_016iGiWE58ZTjERm72WCK5AX>
+
+## TOOL RESULT:
+
+ID: toolu_016iGiWE58ZTjERm72WCK5AX
+
+<tool.toolu_016iGiWE58ZTjERm72WCK5AX>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== FUNCTION CALL DEBUGGING ===
+
+--- citations-basic ---
+[DEBUG] extract-server-tool-use called
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE") (name . "web_search") (input (query . "claude shannon birth date")))
+[DEBUG] extract-server-tool-use returning type: server_tool_use
+[DEBUG] extract-server-tool-result called
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: tool_result
+[DEBUG] Found citations section, setting has-citations to t
+[DEBUG] Setting type to web_search_tool_result due to citations
+Citations basic result length: 2
+
+--- tool-use-with-code-in-params ---
+[DEBUG] extract-tool-use called
+[DEBUG] extract-tool-use created result with type: tool_use
+[DEBUG] extract-tool-use result: ((type . "tool_use") (id . "toolu_999") (name . "write-file") (input (filename . "example.py") (content . "```python
+def main():
+    # This ## USER: comment should not break parsing
+    print(\"Hello world\")
+
+if __name__ == \"__main__\":
+    main()
+```")))
+[DEBUG] extract-tool-result called
+[DEBUG] extract-tool-result returning type: tool_result
+Tool use result length: 4
+  User content: Write some Python code
+  Assistant content type: tool_use
+  User content type: tool_result
+  Assistant content: I've written the Python file.
+
+</tool.toolu_016iGiWE58ZTjERm72WCK5AX>
+
+## ASSISTANT:
+
+PERFECT! Now both issues are fixed!
+
+The debug output shows:
+1. For citations-basic: `extract-tool-result` correctly returns "tool_result", then the server tool result function correctly changes it to "web_search_tool_result" due to the presence of citations.
+2. For tool-use-with-code-in-params: `extract-tool-result` correctly returns "tool_result" and it stays that way.
+
+The final output shows:
+- Assistant content type: tool_use ✅ 
+- User content type: tool_result ✅
+
+So the issue was indeed with the backquote syntax in both functions. Using explicit `list` and `cons` construction fixed the problem.
+
+Now let me remove all the debug prints and run the full test suite to see how many tests pass:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WRFxQs86Zfp7Db69fVkGsF
+
+### file-path
+
+<tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+greger-tree-sitter.el
+</tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+
+### original-content
+
+<tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+  (message "[DEBUG] extract-tool-use called")
+</tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+
+### new-content
+
+<tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+
+</tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+
+### git-commit-message
+
+<tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+Remove debug print from extract-tool-use
+</tool.toolu_01WRFxQs86Zfp7Db69fVkGsF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WRFxQs86Zfp7Db69fVkGsF -->
