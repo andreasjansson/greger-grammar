@@ -10026,4 +10026,129 @@ test-all-greger-cases.el
 Add thinking-section test case which combines thinking with text response
 </tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013Bfdwsf9YhSTHptYCc64gs -->
+## TOOL RESULT:
+
+ID: toolu_013Bfdwsf9YhSTHptYCc64gs
+
+<tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el. Successfully staged 2 file(s) and committed with message: Add thinking-section test case which combines thinking with text response
+</tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YXDGwpMMTZXzRxpKD3JQqd
+
+### command
+
+<tool.toolu_01YXDGwpMMTZXzRxpKD3JQqd>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01YXDGwpMMTZXzRxpKD3JQqd>
+
+## TOOL RESULT:
+
+ID: toolu_01YXDGwpMMTZXzRxpKD3JQqd
+
+<tool.toolu_01YXDGwpMMTZXzRxpKD3JQqd>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+❌ FAILED (0.000s)
+
+Expected:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+   ((type . "text")
+    (text . "2 + 2 = 4")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's 2+2?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))))
+ ((role . "assistant")
+  (content . "2 + 2 = 4")))
+
+
+📊 TEST SUMMARY:
+Total tests: 4
+Passed: 3
+Failed: 1
+
+❌ Some tests failed
+
+</tool.toolu_01YXDGwpMMTZXzRxpKD3JQqd>
+
+## ASSISTANT:
+
+Perfect! This shows exactly what I need to implement. The issue is that when there's a thinking section followed by an assistant section, they should be combined into one assistant message with multiple content blocks, rather than creating separate assistant messages.
+
+Looking at the actual vs expected:
+
+**Expected**: One assistant message with both thinking and text content blocks
+**Actual**: Two separate assistant messages (one with thinking, one with text)
+
+This is exactly the type of complex parsing that the original test cases expect. I need to modify the parsing logic to handle consecutive sections that should be combined. Let me implement this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MUCyDNA4npm8ARmALbitPK
+
+### file-path
+
+<tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+greger-tree-sitter.el
+</tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+
+### original-content
+
+<tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+         ((string= section-type "assistant_section")
+          ;; Flush any pending assistant content before processing new assistant section
+          (when pending-assistant-content
+            (push `((role . "assistant")
+                    (content . ,(nreverse pending-assistant-content)))
+                  dialog)
+            (setq pending-assistant-content '()))
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+</tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+
+### new-content
+
+<tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+         ((string= section-type "assistant_section")
+          ;; Add assistant text to pending content (don't flush yet)
+          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
+            (when (> (length (string-trim assistant-text)) 0)
+              (push `((type . "text")
+                      (text . ,assistant-text))
+                    pending-assistant-content))))
+</tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+
+### git-commit-message
+
+<tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+Modify assistant section handling to accumulate content instead of creating separate messages
+</tool.toolu_01MUCyDNA4npm8ARmALbitPK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MUCyDNA4npm8ARmALbitPK -->

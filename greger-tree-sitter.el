@@ -80,13 +80,12 @@ ERRORS:
           (push (greger-tree-sitter--extract-user-section section) dialog))
 
          ((string= section-type "assistant_section")
-          ;; Flush any pending assistant content before processing new assistant section
-          (when pending-assistant-content
-            (push `((role . "assistant")
-                    (content . ,(nreverse pending-assistant-content)))
-                  dialog)
-            (setq pending-assistant-content '()))
-          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+          ;; Add assistant text to pending content (don't flush yet)
+          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
+            (when (> (length (string-trim assistant-text)) 0)
+              (push `((type . "text")
+                      (text . ,assistant-text))
+                    pending-assistant-content))))
 
          ((string= section-type "system_section")
           ;; Flush any pending assistant content before processing system section
