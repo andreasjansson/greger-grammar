@@ -187,21 +187,21 @@ module.exports = grammar({
     citation_url: $ => /[^\n]*/,
 
     citation_title: $ => seq(
-      'Title:',
+      token('Title:'),
       /[ ]+/,
       $.citation_title_text,
       /\n/,
     ),
 
     citation_text: $ => seq(
-      'Cited text:',
+      token('Cited text:'),
       /[ ]+/,
       $.citation_text_content,
       /\n/,
     ),
 
     citation_encrypted_index: $ => seq(
-      'Encrypted index:',
+      token('Encrypted index:'),
       /[ ]+/,
       $.citation_encrypted_index_content,
       /\n/,

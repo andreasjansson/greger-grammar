@@ -4327,4 +4327,199 @@ Encrypted index: abc123
 Add debug file for citation parsing
 </tool.toolu_01NRXhQPoGKDLUs1KzcAser6>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NRXhQPoGKDLUs1KzcAser6 -->
+## TOOL RESULT:
+
+ID: toolu_01NRXhQPoGKDLUs1KzcAser6
+
+<tool.toolu_01NRXhQPoGKDLUs1KzcAser6>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug_citations.greger with 99 characters. Successfully staged 2 file(s) and committed with message: Add debug file for citation parsing
+</tool.toolu_01NRXhQPoGKDLUs1KzcAser6>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WF5pW3xq1Jpx8TKCEz66kv
+
+### command
+
+<tool.toolu_01WF5pW3xq1Jpx8TKCEz66kv>
+tree-sitter generate && tree-sitter parse debug_citations.greger
+</tool.toolu_01WF5pW3xq1Jpx8TKCEz66kv>
+
+## TOOL RESULT:
+
+ID: toolu_01WF5pW3xq1Jpx8TKCEz66kv
+
+<tool.toolu_01WF5pW3xq1Jpx8TKCEz66kv>
+Command executed successfully:
+(source_file [0, 0] - [4, 23]
+  (citations_section [0, 0] - [4, 23]
+    (text_block [0, 13] - [4, 23])))
+
+</tool.toolu_01WF5pW3xq1Jpx8TKCEz66kv>
+
+## ASSISTANT:
+
+The whole content is being parsed as a text_block. This suggests the citation rules aren't matching at all. Let me try to understand why. The issue might be that the lexer state in the external scanner is affecting this. Let me see what lexer state is being used for citations sections:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016bTEUSY8J8HQTt758CHksr
+
+### path
+
+<tool.toolu_016bTEUSY8J8HQTt758CHksr>
+grammar.js
+</tool.toolu_016bTEUSY8J8HQTt758CHksr>
+
+### start-line
+
+<tool.toolu_016bTEUSY8J8HQTt758CHksr>
+6
+</tool.toolu_016bTEUSY8J8HQTt758CHksr>
+
+### end-line
+
+<tool.toolu_016bTEUSY8J8HQTt758CHksr>
+20
+</tool.toolu_016bTEUSY8J8HQTt758CHksr>
+
+## TOOL RESULT:
+
+ID: toolu_016bTEUSY8J8HQTt758CHksr
+
+<tool.toolu_016bTEUSY8J8HQTt758CHksr>
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+</tool.toolu_016bTEUSY8J8HQTt758CHksr>
+
+## ASSISTANT:
+
+I see that the lexer has different external states. Let me check which regex patterns for text_block might be matching instead of the citation patterns. The issue could be in the text_block definition:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01M37RcfXfBtCJkrfhofpc62
+
+### path
+
+<tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+grammar.js
+</tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+
+### start-line
+
+<tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+130
+</tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+
+### end-line
+
+<tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+135
+</tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+
+## TOOL RESULT:
+
+ID: toolu_01M37RcfXfBtCJkrfhofpc62
+
+<tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+      $.citation_encrypted_index,
+      prec(-1, $.text_block),
+    ),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+</tool.toolu_01M37RcfXfBtCJkrfhofpc62>
+
+## ASSISTANT:
+
+The text_block pattern `/[^\n#`<]+/` will match "Title:" and "Cited text:", preventing the specific citation rules from matching. I need to make the text_block pattern more restrictive when inside citations sections, or structure this differently.
+
+Looking at other tree-sitter grammars, a common pattern is to use negative lookahead or modify the text_block pattern. However, since I'm working with an LR parser, I need a different approach.
+
+Let me try using `token` to force the citation patterns to be lexed as single tokens:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017gddUfyQDdu5XTWMRUNkgN
+
+### file-path
+
+<tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+grammar.js
+</tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+
+### original-content
+
+<tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+</tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+
+### new-content
+
+<tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+citation_title: $ => seq(
+      token('Title:'),
+      /[ ]+/,
+      $.citation_title_text,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      token('Cited text:'),
+      /[ ]+/,
+      $.citation_text_content,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      token('Encrypted index:'),
+      /[ ]+/,
+      $.citation_encrypted_index_content,
+      /\n/,
+    ),
+</tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+
+### git-commit-message
+
+<tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+Use token() for citation prefixes
+</tool.toolu_017gddUfyQDdu5XTWMRUNkgN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017gddUfyQDdu5XTWMRUNkgN -->
