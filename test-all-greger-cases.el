@@ -2,6 +2,16 @@
 
 (load-file "./greger-tree-sitter.el")
 
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
 ;; All test cases from greger-parser-test-cases
 (defconst greger-tree-sitter-test-cases
   '(
