@@ -154,7 +154,7 @@
 
     ;; Citations basic test
     (:name "citations-basic"
-           :markdown (greger-read-corpus-file "citations-basic")
+           :markdown ,(greger-read-corpus-file "citations-basic")
            :dialog (((role . "user")
                      (content . "When was Claude Shannon born?"))
                     ((role . "assistant")
