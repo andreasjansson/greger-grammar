@@ -5364,4 +5364,138 @@ debug-test.el
 Add debugging instrumentation to track section processing
 </tool.toolu_01KevVuE8eU6ZpdWBpaPeaVX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KevVuE8eU6ZpdWBpaPeaVX -->
+## TOOL RESULT:
+
+ID: toolu_01KevVuE8eU6ZpdWBpaPeaVX
+
+<tool.toolu_01KevVuE8eU6ZpdWBpaPeaVX>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Add debugging instrumentation to track section processing
+</tool.toolu_01KevVuE8eU6ZpdWBpaPeaVX>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AmvzBZqf86yY8eRcLuKKnh
+
+### command
+
+<tool.toolu_01AmvzBZqf86yY8eRcLuKKnh>
+emacs --batch -l debug-test.el
+</tool.toolu_01AmvzBZqf86yY8eRcLuKKnh>
+
+## TOOL RESULT:
+
+ID: toolu_01AmvzBZqf86yY8eRcLuKKnh
+
+<tool.toolu_01AmvzBZqf86yY8eRcLuKKnh>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== DEBUGGING TOOL USE WITH CODE IN PARAMS ===
+Final result:
+nil
+</tool.toolu_01AmvzBZqf86yY8eRcLuKKnh>
+
+## ASSISTANT:
+
+Hmm, let me fix the debug script - there was an issue with the parser creation:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UEBk3xGQ9S5ePy1dGqdJtz
+
+### file-path
+
+<tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+debug-test.el
+</tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+
+### original-content
+
+<tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+;; Test the tool-use-with-code-in-params case specifically with debug
+(let* ((markdown (with-temp-buffer
+                   (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                   (buffer-string)))
+       (parser (treesit-parser-create 'greger))
+       (root-node))
+  (with-temp-buffer
+    (insert markdown)
+    (setq root-node (treesit-parser-root-node parser)))
+  
+  (message "=== DEBUGGING TOOL USE WITH CODE IN PARAMS ===")
+  (let ((result (debug-greger-tree-sitter--extract-dialog-from-node root-node)))
+    (message "Final result:")
+    (pp result)))
+</tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+
+### new-content
+
+<tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+;; Test the tool-use-with-code-in-params case specifically with debug
+(let* ((markdown (with-temp-buffer
+                   (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                   (buffer-string)))
+       (root-node))
+  (with-temp-buffer
+    (insert markdown)
+    (let ((parser (treesit-parser-create 'greger)))
+      (setq root-node (treesit-parser-root-node parser))))
+  
+  (message "=== DEBUGGING TOOL USE WITH CODE IN PARAMS ===")
+  (let ((result (debug-greger-tree-sitter--extract-dialog-from-node root-node)))
+    (message "Final result:")
+    (pp result)))
+</tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+
+### git-commit-message
+
+<tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+Fix parser creation in debug script
+</tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+
+## TOOL RESULT:
+
+ID: toolu_01UEBk3xGQ9S5ePy1dGqdJtz
+
+<tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_01UEBk3xGQ9S5ePy1dGqdJtz>
+
+## ASSISTANT:
+
+Let me rewrite the debug script more simply:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01RQ3D46nFnHPFcwKs6cWa3a
+
+### file-path
+
+<tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+debug-test.el
+</tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+
+### contents
+
+<tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+(load-file "./greger-tree-sitter.el")
+
+;; Simple test to see what's happening
+(let* ((markdown "## USER:\n\nHello\n\n## TOOL USE:\n\nName: test\nID: test123\n\n### param\n\n<tool.test123>\nvalue\n</tool.test123>\n\n## TOOL RESULT:\n\nID: test123\n\n<tool.test123>\nresult\n</tool.test123>\n\n## ASSISTANT:\n\nDone")
+       (result (greger-tree-sitter-parse markdown)))
+  (message "=== SIMPLE TOOL USE TEST ===")
+  (message "Parse result:")
+  (pp result))
+
+(provide 'debug-test)
+</tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+
+### git-commit-message
+
+<tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+Simplify debug test to use inline markdown
+</tool.toolu_01RQ3D46nFnHPFcwKs6cWa3a>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01RQ3D46nFnHPFcwKs6cWa3a -->
