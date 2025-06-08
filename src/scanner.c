@@ -122,23 +122,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
-    // Now scan content until we see </
-    while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '<') {
-            // Peek ahead to see if this is </
-            advance(lexer);
-            if (lexer->lookahead == '/') {
-                // Found start of closing tag, we're done
-                // Don't consume the </ - let the parser handle it
-                lexer->result_symbol = TOOL_CONTENT;
-                return true;
-            }
-            // Not a closing tag, continue
-        } else {
-            advance(lexer);
-        }
-    }
-
+    // For now, just recognize the opening tag and return
     lexer->result_symbol = TOOL_CONTENT;
     return true;
 }

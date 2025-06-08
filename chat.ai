@@ -8616,4 +8616,225 @@ Hello <!-- comment --> world
 Test minimal tool content - just opening tag
 </tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01E84MxPsHsRSPwj7SLZjaQ5 -->
+## TOOL RESULT:
+
+ID: toolu_01E84MxPsHsRSPwj7SLZjaQ5
+
+<tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test_simple.greger. Successfully staged 2 file(s) and committed with message: Test minimal tool content - just opening tag
+</tool.toolu_01E84MxPsHsRSPwj7SLZjaQ5>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FMz3oW4GFEunw3m95nehSe
+
+### file-path
+
+<tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+src/scanner.c
+</tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+
+### original-content
+
+<tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Peek ahead to see if this is </
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found start of closing tag, we're done
+                // Don't consume the </ - let the parser handle it
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            // Not a closing tag, continue
+        } else {
+            advance(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+
+### new-content
+
+<tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // For now, just recognize the opening tag and return
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+
+### git-commit-message
+
+<tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+Simplify tool content scanner to just recognize opening tag
+</tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+
+## TOOL RESULT:
+
+ID: toolu_01FMz3oW4GFEunw3m95nehSe
+
+<tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01FMz3oW4GFEunw3m95nehSe>
+
+## ASSISTANT:
+
+Let me check the current scanner content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01BukVNm4k5h7AXKBQsZtgbk
+
+### path
+
+<tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+src/scanner.c
+</tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+
+### start-line
+
+<tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+120
+</tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+
+### end-line
+
+<tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+140
+</tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+
+## TOOL RESULT:
+
+ID: toolu_01BukVNm4k5h7AXKBQsZtgbk
+
+<tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now scan content until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Peek ahead to see if this is </
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found start of closing tag, we're done
+                // Don't consume the </ - let the parser handle it
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            // Not a closing tag, continue
+        } else {
+            advance(lexer);
+        }
+    }
+</tool.toolu_01BukVNm4k5h7AXKBQsZtgbk>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HcsiXq36c8udMphaMt9h7f
+
+### file-path
+
+<tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+src/scanner.c
+</tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+
+### original-content
+
+<tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+// Now scan content until we see </
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Peek ahead to see if this is </
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                // Found start of closing tag, we're done
+                // Don't consume the </ - let the parser handle it
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            // Not a closing tag, continue
+        } else {
+            advance(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+
+### new-content
+
+<tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+// For now, just recognize the opening tag and return
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+
+### git-commit-message
+
+<tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+Replace complex content scanning with simple immediate return
+</tool.toolu_01HcsiXq36c8udMphaMt9h7f>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HcsiXq36c8udMphaMt9h7f -->
