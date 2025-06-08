@@ -3632,4 +3632,145 @@ greger-tree-sitter.el
 Add debug prints for tool content parsing
 </tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016Z5zhpvsnmUaMS1xXRupCz -->
+## TOOL RESULT:
+
+ID: toolu_016Z5zhpvsnmUaMS1xXRupCz
+
+<tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Add debug prints for tool content parsing
+</tool.toolu_016Z5zhpvsnmUaMS1xXRupCz>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016pjxDXPuZmtn8gj1s3xi5Q
+
+### command
+
+<tool.toolu_016pjxDXPuZmtn8gj1s3xi5Q>
+emacs --batch -l debug-test.el
+</tool.toolu_016pjxDXPuZmtn8gj1s3xi5Q>
+
+## TOOL RESULT:
+
+ID: toolu_016pjxDXPuZmtn8gj1s3xi5Q
+
+<tool.toolu_016pjxDXPuZmtn8gj1s3xi5Q>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+DEBUG: tool content before: "<tool.toolu_123>
+hello.txt
+</tool.toolu_123"
+DEBUG: tool content after: "<tool.toolu_123>
+hello.txt
+</tool.toolu_123"
+Result:
+(((role . "user")
+  (content . "Read the file hello.txt"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_123")
+    (name . "read-file")
+    (input
+     (path . "<tool.toolu_123>\nhello.txt\n</tool.toolu_123"))))))
+
+</tool.toolu_016pjxDXPuZmtn8gj1s3xi5Q>
+
+## ASSISTANT:
+
+I can see the issue! The closing tag is incomplete - it's missing the `>`. The scanner is not including the final `>` in the tool content. This is because in the scanner logic, when we find the closing tag, we don't consume it. Let me look at the scanner again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016YxLuFjj7VZLYAKrs1fL9a
+
+### path
+
+<tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+src/scanner.c
+</tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+
+### start-line
+
+<tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+140
+</tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+
+### end-line
+
+<tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+160
+</tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+
+## TOOL RESULT:
+
+ID: toolu_016YxLuFjj7VZLYAKrs1fL9a
+
+<tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                advance(lexer);
+                                if (lexer->lookahead == '.') {
+                                    advance(lexer);
+
+                                    // Check if ID matches
+                                    bool matches = true;
+                                    for (int i = 0; i < id_len && matches; i++) {
+                                        if (lexer->lookahead != tool_id[i]) {
+                                            matches = false;
+                                        } else {
+                                            advance(lexer);
+                                        }
+                                    }
+
+                                    if (matches && lexer->lookahead == '>') {
+                                        // Found closing tag - don't consume the closing tag
+                                        lexer->result_symbol = TOOL_CONTENT;
+                                        return true;
+                                    }
+</tool.toolu_016YxLuFjj7VZLYAKrs1fL9a>
+
+## ASSISTANT:
+
+The issue is that the scanner doesn't consume the final `>` of the closing tag. So the tool content includes everything up to but not including the final `>` of the closing tag. Let me fix the regex to account for this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016FvUbURn2hhSQAX88xefbh
+
+### file-path
+
+<tool.toolu_016FvUbURn2hhSQAX88xefbh>
+greger-tree-sitter.el
+</tool.toolu_016FvUbURn2hhSQAX88xefbh>
+
+### original-content
+
+<tool.toolu_016FvUbURn2hhSQAX88xefbh>
+;; Remove the <tool.ID> wrapper using string operations
+                  (message "DEBUG: tool content before: %S" content-text)
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+>$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (message "DEBUG: tool content after: %S" content-text)
+</tool.toolu_016FvUbURn2hhSQAX88xefbh>
+
+### new-content
+
+<tool.toolu_016FvUbURn2hhSQAX88xefbh>
+;; Remove the <tool.ID> wrapper using string operations
+                  (message "DEBUG: tool content before: %S" content-text)
+                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
+                    (setq content-text (match-string 1 content-text)))
+                  (message "DEBUG: tool content after: %S" content-text)
+</tool.toolu_016FvUbURn2hhSQAX88xefbh>
+
+### git-commit-message
+
+<tool.toolu_016FvUbURn2hhSQAX88xefbh>
+Fix regex to handle incomplete closing tag in tool content
+</tool.toolu_016FvUbURn2hhSQAX88xefbh>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_016FvUbURn2hhSQAX88xefbh -->
