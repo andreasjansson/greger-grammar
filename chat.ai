@@ -3424,4 +3424,858 @@ module.exports = grammar({
 Rewrite grammar with explicit section headers and better content handling
 </tool.toolu_01QYLEg44QsRVFw4PjuCJ2xS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01QYLEg44QsRVFw4PjuCJ2xS -->
+## TOOL RESULT:
+
+ID: toolu_01QYLEg44QsRVFw4PjuCJ2xS
+
+<tool.toolu_01QYLEg44QsRVFw4PjuCJ2xS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Rewrite grammar with explicit section headers and better content handling
+</tool.toolu_01QYLEg44QsRVFw4PjuCJ2xS>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015bZAcYFGrKyWBHdf6hzwQs
+
+### command
+
+<tool.toolu_015bZAcYFGrKyWBHdf6hzwQs>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_015bZAcYFGrKyWBHdf6hzwQs>
+
+## TOOL RESULT:
+
+ID: toolu_015bZAcYFGrKyWBHdf6hzwQs
+
+<tool.toolu_015bZAcYFGrKyWBHdf6hzwQs>
+Command failed with exit code 1: Error when generating parser
+
+Caused by:
+    Unresolved conflict for symbol sequence:
+
+      section_header_user  •  'section_header_user_token1'  …
+
+    Possible interpretations:
+
+      1:  (user_section  section_header_user  •  user_section_repeat1)
+      2:  (user_section  section_header_user)  •  'section_header_user_token1'  …
+
+    Possible resolutions:
+
+      1:  Specify a left or right associativity in `user_section`
+      2:  Add a conflict for these rules: `user_section`
+
+
+</tool.toolu_015bZAcYFGrKyWBHdf6hzwQs>
+
+## ASSISTANT:
+
+There's a conflict because the parser doesn't know when to stop looking for section content. I need to rethink this approach. Let me study the HTML grammar for inspiration:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01EJMY2L3nfhtPkYSDcrVNDu
+
+### path
+
+<tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
+</tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+
+### start-line
+
+<tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+1
+</tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+
+### end-line
+
+<tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+50
+</tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+
+## TOOL RESULT:
+
+ID: toolu_01EJMY2L3nfhtPkYSDcrVNDu
+
+<tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+/**
+ * @file HTML grammar for tree-sitter
+ * @author Max Brunsfeld <maxbrunsfeld@gmail.com>
+ * @author Amaan Qureshi <amaanq12@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: 'html',
+
+  extras: $ => [
+    $.comment,
+    /\s+/,
+  ],
+
+  conflicts: [
+    [$.text_content],
+  ],
+
+  externals: $ => [
+    $._start_tag_name,
+    $._script_start_tag_name,
+    $._style_start_tag_name,
+    $._end_tag_name,
+    $.erroneous_end_tag_name,
+    '/>',
+    $._implicit_end_tag,
+    $.raw_text,
+    $.comment,
+  ],
+
+  rules: {
+    document: $ => repeat($._node),
+
+    doctype: $ => seq(
+      '<!',
+      alias($._doctype, 'doctype'),
+      /[^>]+/,
+      '>',
+    ),
+
+    _doctype: _ => /[Dd][Oo][Cc][Tt][Yy][Pp][Ee]/,
+
+    _node: $ => choice(
+      $.doctype,
+      $.entity,
+      $.text,
+</tool.toolu_01EJMY2L3nfhtPkYSDcrVNDu>
+
+## ASSISTANT:
+
+Let me look at a simpler approach. Let me also check the markdown grammar:
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_01PGh1Fjj4pJ5jpxCe4HUDC4
+
+### path
+
+<tool.toolu_01PGh1Fjj4pJ5jpxCe4HUDC4>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos
+</tool.toolu_01PGh1Fjj4pJ5jpxCe4HUDC4>
+
+## TOOL RESULT:
+
+ID: toolu_01PGh1Fjj4pJ5jpxCe4HUDC4
+
+<tool.toolu_01PGh1Fjj4pJ5jpxCe4HUDC4>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+drwxr-xr-x  (dir)  actionscript
+drwxr-xr-x  (dir)  ada
+drwxr-xr-x  (dir)  agda
+drwxr-xr-x  (dir)  arduino
+drwxr-xr-x  (dir)  asm
+drwxr-xr-x  (dir)  astro
+drwxr-xr-x  (dir)  bash
+drwxr-xr-x  (dir)  beancount
+drwxr-xr-x  (dir)  bibtex
+drwxr-xr-x  (dir)  c
+drwxr-xr-x  (dir)  c-sharp
+drwxr-xr-x  (dir)  clojure
+drwxr-xr-x  (dir)  cmake
+drwxr-xr-x  (dir)  comment
+drwxr-xr-x  (dir)  commonlisp
+drwxr-xr-x  (dir)  cpp
+drwxr-xr-x  (dir)  css
+drwxr-xr-x  (dir)  csv
+drwxr-xr-x  (dir)  d
+drwxr-xr-x  (dir)  dart
+drwxr-xr-x  (dir)  dockerfile
+drwxr-xr-x  (dir)  doxygen
+drwxr-xr-x  (dir)  editorconfig
+drwxr-xr-x  (dir)  elisp
+drwxr-xr-x  (dir)  elixir
+drwxr-xr-x  (dir)  elm
+drwxr-xr-x  (dir)  erlang
+drwxr-xr-x  (dir)  fennel
+drwxr-xr-x  (dir)  fish
+drwxr-xr-x  (dir)  fluent
+drwxr-xr-x  (dir)  fortran
+drwxr-xr-x  (dir)  gdscript
+drwxr-xr-x  (dir)  git-rebase
+drwxr-xr-x  (dir)  gitattributes
+drwxr-xr-x  (dir)  gitcommit
+drwxr-xr-x  (dir)  gitignore
+drwxr-xr-x  (dir)  gleam
+drwxr-xr-x  (dir)  glsl
+drwxr-xr-x  (dir)  go
+drwxr-xr-x  (dir)  gpr
+drwxr-xr-x  (dir)  groovy
+drwxr-xr-x  (dir)  haskell
+drwxr-xr-x  (dir)  haxe
+drwxr-xr-x  (dir)  hcl
+drwxr-xr-x  (dir)  heex
+drwxr-xr-x  (dir)  hlsl
+drwxr-xr-x  (dir)  html
+drwxr-xr-x  (dir)  jai
+drwxr-xr-x  (dir)  janet-simple
+drwxr-xr-x  (dir)  java
+drwxr-xr-x  (dir)  javascript
+drwxr-xr-x  (dir)  jsdoc
+drwxr-xr-x  (dir)  json
+drwxr-xr-x  (dir)  jsonnet
+drwxr-xr-x  (dir)  julia
+drwxr-xr-x  (dir)  kotlin
+drwxr-xr-x  (dir)  latex
+drwxr-xr-x  (dir)  llvm
+drwxr-xr-x  (dir)  llvm-mir
+drwxr-xr-x  (dir)  lua
+drwxr-xr-x  (dir)  magik
+drwxr-xr-x  (dir)  make
+drwxr-xr-x  (dir)  markdown
+drwxr-xr-x  (dir)  markdown-inline
+drwxr-xr-x  (dir)  matlab
+drwxr-xr-x  (dir)  mermaid
+drwxr-xr-x  (dir)  meson
+drwxr-xr-x  (dir)  ninja
+drwxr-xr-x  (dir)  nix
+drwxr-xr-x  (dir)  noir
+drwxr-xr-x  (dir)  ocaml
+drwxr-xr-x  (dir)  ocaml-interface
+drwxr-xr-x  (dir)  org
+drwxr-xr-x  (dir)  pascal
+drwxr-xr-x  (dir)  perl
+drwxr-xr-x  (dir)  pgn
+drwxr-xr-x  (dir)  php
+drwxr-xr-x  (dir)  prisma
+drwxr-xr-x  (dir)  purescript
+drwxr-xr-x  (dir)  python
+drwxr-xr-x  (dir)  r
+drwxr-xr-x  (dir)  racket
+drwxr-xr-x  (dir)  rst
+drwxr-xr-x  (dir)  ruby
+drwxr-xr-x  (dir)  rust
+drwxr-xr-x  (dir)  scala
+drwxr-xr-x  (dir)  scheme
+drwxr-xr-x  (dir)  smithy
+drwxr-xr-x  (dir)  solidity
+drwxr-xr-x  (dir)  sql
+drwxr-xr-x  (dir)  svelte
+drwxr-xr-x  (dir)  swift
+drwxr-xr-x  (dir)  tablegen
+drwxr-xr-x  (dir)  tcl
+drwxr-xr-x  (dir)  toml
+drwxr-xr-x  (dir)  twig
+drwxr-xr-x  (dir)  typescript
+drwxr-xr-x  (dir)  typst
+drwxr-xr-x  (dir)  verilog
+drwxr-xr-x  (dir)  vhdl
+drwxr-xr-x  (dir)  xml
+drwxr-xr-x  (dir)  yaml
+drwxr-xr-x  (dir)  zig
+</tool.toolu_01PGh1Fjj4pJ5jpxCe4HUDC4>
+
+## ASSISTANT:
+
+Let me check the markdown grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01KaLYoa3ERVKJukpXP2WQvi
+
+### path
+
+<tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/grammar.js
+</tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+
+### start-line
+
+<tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+1
+</tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+
+### end-line
+
+<tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+100
+</tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+
+## TOOL RESULT:
+
+ID: toolu_01KaLYoa3ERVKJukpXP2WQvi
+
+<tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+Error executing tool: File does not exist: /Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/grammar.js
+</tool.toolu_01KaLYoa3ERVKJukpXP2WQvi>
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_01LSUP3XXL54xFoL1hGPiMFR
+
+### path
+
+<tool.toolu_01LSUP3XXL54xFoL1hGPiMFR>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown
+</tool.toolu_01LSUP3XXL54xFoL1hGPiMFR>
+
+## TOOL RESULT:
+
+ID: toolu_01LSUP3XXL54xFoL1hGPiMFR
+
+<tool.toolu_01LSUP3XXL54xFoL1hGPiMFR>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       473  .editorconfig
+-rw-r--r--        42  .git
+-rw-r--r--       838  .gitattributes
+drwxr-xr-x  (dir)  .github
+-rw-r--r--       421  .gitignore
+-rw-r--r--      3189  CMakeLists.txt
+-rw-r--r--      3395  CONTRIBUTING.md
+-rw-r--r--      1195  Cargo.toml
+-rw-r--r--      1071  LICENSE
+-rw-r--r--       145  Makefile
+-rw-r--r--       333  Package.resolved
+-rw-r--r--      1618  Package.swift
+-rw-r--r--      4750  README.md
+-rw-r--r--       582  binding.gyp
+drwxr-xr-x  (dir)  bindings
+drwxr-xr-x  (dir)  common
+-rw-r--r--       200  go.mod
+-rw-r--r--     12974  package-lock.json
+-rw-r--r--      1249  package.json
+-rw-r--r--       795  pyproject.toml
+drwxr-xr-x  (dir)  scripts
+-rw-r--r--      2061  setup.py
+drwxr-xr-x  (dir)  tree-sitter-markdown
+drwxr-xr-x  (dir)  tree-sitter-markdown-inline
+-rw-r--r--      1082  tree-sitter.json
+</tool.toolu_01LSUP3XXL54xFoL1hGPiMFR>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019vNYEgsMLwMt19KNyfewce
+
+### path
+
+<tool.toolu_019vNYEgsMLwMt19KNyfewce>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_019vNYEgsMLwMt19KNyfewce>
+
+### start-line
+
+<tool.toolu_019vNYEgsMLwMt19KNyfewce>
+1
+</tool.toolu_019vNYEgsMLwMt19KNyfewce>
+
+### end-line
+
+<tool.toolu_019vNYEgsMLwMt19KNyfewce>
+80
+</tool.toolu_019vNYEgsMLwMt19KNyfewce>
+
+## TOOL RESULT:
+
+ID: toolu_019vNYEgsMLwMt19KNyfewce
+
+<tool.toolu_019vNYEgsMLwMt19KNyfewce>
+// This grammar only concerns the block structure according to the CommonMark Spec
+// (https://spec.commonmark.org/0.30/#blocks-and-inlines)
+// For more information see README.md
+
+/// <reference types="tree-sitter-cli/dsl" />
+
+const common = require('../common/common');
+
+const PRECEDENCE_LEVEL_LINK = common.PRECEDENCE_LEVEL_LINK;
+
+const PUNCTUATION_CHARACTERS_REGEX = '!-/:-@\\[-`\\{-~';
+
+module.exports = grammar({
+    name: 'markdown',
+
+    rules: {
+        document: $ => seq(
+            optional(choice(
+                common.EXTENSION_MINUS_METADATA ? $.minus_metadata : choice(),
+                common.EXTENSION_PLUS_METADATA ? $.plus_metadata : choice(),
+            )),
+            alias(prec.right(repeat($._block_not_section)), $.section),
+            repeat($.section),
+        ),
+
+        ...common.rules,
+        _last_token_punctuation: $ => choice(), // needed for compatability with common rules
+
+        // BLOCK STRUCTURE
+
+        // All blocks. Every block contains a trailing newline.
+        _block: $ => choice(
+            $._block_not_section,
+            $.section,
+        ),
+        _block_not_section: $ => choice(
+            alias($._setext_heading1, $.setext_heading),
+            alias($._setext_heading2, $.setext_heading),
+            $.paragraph,
+            $.indented_code_block,
+            $.block_quote,
+            $.thematic_break,
+            $.list,
+            $.fenced_code_block,
+            $._blank_line,
+            $.html_block,
+            $.link_reference_definition,
+            common.EXTENSION_PIPE_TABLE ? $.pipe_table : choice(),
+        ),
+        section: $ => choice($._section1, $._section2, $._section3, $._section4, $._section5, $._section6),
+        _section1: $ => prec.right(seq(
+            alias($._atx_heading1, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4, $._section3, $._section2), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section2: $ => prec.right(seq(
+            alias($._atx_heading2, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4, $._section3), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section3: $ => prec.right(seq(
+            alias($._atx_heading3, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section4: $ => prec.right(seq(
+            alias($._atx_heading4, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section5: $ => prec.right(seq(
+            alias($._atx_heading5, $.atx_heading),
+</tool.toolu_019vNYEgsMLwMt19KNyfewce>
+
+## ASSISTANT:
+
+I can see how the markdown parser handles sections - it uses `prec.right` to handle nesting and repetition properly. Let me take a completely different approach and simplify the grammar to start with the basics:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JYo9FjVeK4SwdoXKTWUBNN
+
+### file-path
+
+<tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+grammar.js
+</tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+
+### original-content
+
+<tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._section_or_content),
+
+    _section_or_content: $ => choice(
+      $.user_section,
+      $.assistant_section,
+      $.system_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+      $.content_line,
+      $.empty_line,
+    ),
+
+    user_section: $ => seq(
+      $.section_header_user,
+      repeat($._section_content),
+    ),
+
+    assistant_section: $ => seq(
+      $.section_header_assistant,
+      repeat($._section_content),
+    ),
+
+    system_section: $ => seq(
+      $.section_header_system,
+      repeat($._section_content),
+    ),
+
+    thinking_section: $ => seq(
+      $.section_header_thinking,
+      repeat($._section_content),
+    ),
+
+    tool_use_section: $ => seq(
+      $.section_header_tool_use,
+      repeat($._tool_section_content),
+    ),
+
+    tool_result_section: $ => seq(
+      $.section_header_tool_result,
+      repeat($._tool_section_content),
+    ),
+
+    server_tool_use_section: $ => seq(
+      $.section_header_server_tool_use,
+      repeat($._tool_section_content),
+    ),
+
+    server_tool_result_section: $ => seq(
+      $.section_header_server_tool_result,
+      repeat($._tool_section_content),
+    ),
+
+    citations_section: $ => seq(
+      $.section_header_citations,
+      repeat($._citations_content),
+    ),
+
+    section_header_user: $ => seq('##', 'USER', ':', /\n/),
+    section_header_assistant: $ => seq('##', 'ASSISTANT', ':', /\n/),
+    section_header_system: $ => seq('##', 'SYSTEM', ':', /\n/),
+    section_header_thinking: $ => seq('##', 'THINKING', ':', /\n/),
+    section_header_tool_use: $ => seq('##', 'TOOL', 'USE', ':', /\n/),
+    section_header_tool_result: $ => seq('##', 'TOOL', 'RESULT', ':', /\n/),
+    section_header_server_tool_use: $ => seq('##', 'SERVER', 'TOOL', 'USE', ':', /\n/),
+    section_header_server_tool_result: $ => seq('##', 'SERVER', 'TOOL', 'RESULT', ':', /\n/),
+    section_header_citations: $ => seq('##', 'CITATIONS', ':', /\n/),
+
+    _section_content: $ => prec.dynamic(-1, choice(
+      $.content_line,
+      $.empty_line,
+      $.code_block,
+      $.cite_tag,
+      $.safe_shell_commands,
+    )),
+
+    _tool_section_content: $ => prec.dynamic(-1, choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.tool_content,
+      $.content_line,
+      $.empty_line,
+    )),
+
+    _citations_content: $ => prec.dynamic(-1, choice(
+      $.citation_entry,
+      $.content_line,
+      $.empty_line,
+    )),
+
+    content_line: $ => seq(/[^#`<\n\r]+/, /\n/),
+    empty_line: $ => /\n/,
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      /\n/,
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+      optional(/\n/),
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      /[^<]*/,
+      '</cite>',
+    ),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/, /\n/),
+      seq('ID:', /[^\n]*/, /\n/),
+    ),
+
+    tool_param: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n+/,
+      $.tool_content,
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n/,
+      repeat(seq(
+        /[^\n#]+/,
+        /\n/,
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      repeat(choice(
+        /[^<\n]+/,
+        /\n/,
+      )),
+      '</safe-shell-commands>',
+    ),
+  }
+});
+</tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+
+### new-content
+
+<tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._block),
+
+    _block: $ => choice(
+      $.user_section,
+      $.assistant_section,
+      $.system_section,
+      $.thinking_section,
+      $.tool_use_section,
+      $.tool_result_section,
+      $.server_tool_use_section,
+      $.server_tool_result_section,
+      $.citations_section,
+      $.text_block,
+    ),
+
+    user_section: $ => prec.right(seq(
+      '##',
+      'USER',
+      ':',
+      repeat($._section_content),
+    )),
+
+    assistant_section: $ => prec.right(seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      repeat($._section_content),
+    )),
+
+    system_section: $ => prec.right(seq(
+      '##',
+      'SYSTEM',
+      ':',
+      repeat($._section_content),
+    )),
+
+    thinking_section: $ => prec.right(seq(
+      '##',
+      'THINKING',
+      ':',
+      repeat($._section_content),
+    )),
+
+    tool_use_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'USE',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    tool_result_section: $ => prec.right(seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    server_tool_use_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    server_tool_result_section: $ => prec.right(seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'RESULT',
+      ':',
+      repeat($._tool_section_content),
+    )),
+
+    citations_section: $ => prec.right(seq(
+      '##',
+      'CITATIONS',
+      ':',
+      repeat($._citations_content),
+    )),
+
+    _section_content: $ => prec(-1, choice(
+      $.text_block,
+      $.code_block,
+      $.cite_tag,
+      $.safe_shell_commands,
+    )),
+
+    _tool_section_content: $ => prec(-1, choice(
+      $.tool_use_metadata,
+      $.tool_param,
+      $.tool_content,
+      $.text_block,
+    )),
+
+    _citations_content: $ => prec(-1, choice(
+      $.citation_entry,
+      $.text_block,
+    )),
+
+    text_block: $ => repeat1(choice(
+      /[^\n#`<]+/,
+      /\n/,
+    )),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      /\n/,
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    cite_tag: $ => seq(
+      '<cite>',
+      /[^<]*/,
+      '</cite>',
+    ),
+
+    tool_use_metadata: $ => choice(
+      seq('Name:', /[^\n]*/),
+      seq('ID:', /[^\n]*/),
+    ),
+
+    tool_param: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n+/,
+      $.tool_content,
+    ),
+
+    citation_entry: $ => seq(
+      '###',
+      /[^\n]*/,
+      /\n/,
+      repeat(seq(
+        /[^\n#]+/,
+        /\n/,
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      repeat(choice(
+        /[^<\n]+/,
+        /\n/,
+      )),
+      '</safe-shell-commands>',
+    ),
+  }
+});
+</tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+
+### git-commit-message
+
+<tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+Simplify grammar using prec.right pattern from markdown grammar
+</tool.toolu_01JYo9FjVeK4SwdoXKTWUBNN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JYo9FjVeK4SwdoXKTWUBNN -->
