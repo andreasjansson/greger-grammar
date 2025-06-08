@@ -317,7 +317,7 @@ bar
                                                       ((type . "text") (text . "The current weather in San Francisco is sunny and 72°F.")))))))
 
     (:name "server-tool-use-string-result"
-           :markdown (greger-read-corpus-file "server-tool-use-string-result")
+           :markdown ,(greger-read-corpus-file "server-tool-use-string-result")
            :dialog (((role . "user") (content . "What's the weather like?"))
                     ((role . "assistant") (content . (((type . "server_tool_use")
                                                        (id . "srvtoolu_456")
