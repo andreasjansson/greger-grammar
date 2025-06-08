@@ -158,3 +158,1418 @@ Once the parser works, then work on greger-tree-sitter.el to make the tests in t
 Go!
 
 And very important: Remember to not run any other shell commands than the safe shell commands since I will be afk and not able to approve use of unsafe shell commands. Re-use existing debug scripts etc so you don't have to run unsafe shell commands. If you try to run unsafe commands you'll get stuck waiting for approval indefinitely.
+
+
+## ASSISTANT:
+
+I'll start by exploring the current state of the project and understanding the test cases to build the tree-sitter grammar.
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_01QyL7GDbibkixA7hvZ86vXo
+
+### path
+
+<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+.
+</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+
+### recursive
+
+<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+true
+</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+
+## TOOL RESULT:
+
+ID: toolu_01QyL7GDbibkixA7hvZ86vXo
+
+<tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+./:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       541  .editorconfig
+drwxr-xr-x  (dir)  .git
+-rw-r--r--       941  .gitattributes
+-rw-r--r--       431  .gitignore
+-rw-r--r--      2820  CMakeLists.txt
+-rw-r--r--       725  Cargo.toml
+-rw-r--r--      3451  Makefile
+-rw-r--r--      1090  Package.swift
+-rw-r--r--       765  binding.gyp
+drwxr-xr-x  (dir)  bindings
+-rwxr-xr-x        97  build.sh
+-rw-r--r--      9342  chat.ai
+-rw-r--r--    302576  chat2.ai
+-rw-r--r--     31609  chat3.greger
+-rw-r--r--      1072  debug_comprehensive.greger
+-rw-r--r--       113  go.mod
+-rw-r--r--       289  grammar.js
+-rw-r--r--      2570  grammar.old.js
+-rw-r--r--      2291  greger-tree-sitter.el
+-rwxr-xr-x     51304  libtree-sitter-greger.dylib
+-rw-r--r--      1041  package.json
+-rw-r--r--       771  pyproject.toml
+-rw-r--r--      2066  setup.py
+drwxr-xr-x  (dir)  src
+drwxr-xr-x  (dir)  test
+-rw-r--r--     24615  test-all-greger-cases.el
+-rw-r--r--       308  test_citations.greger
+-rw-r--r--       874  tree-sitter.json
+</tool.toolu_01QyL7GDbibkixA7hvZ86vXo>
+
+## ASSISTANT:
+
+Let me first examine the test cases to understand what needs to be parsed:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01HBERaBxw6tDD2W12CSardF
+
+### path
+
+<tool.toolu_01HBERaBxw6tDD2W12CSardF>
+test-all-greger-cases.el
+</tool.toolu_01HBERaBxw6tDD2W12CSardF>
+
+## TOOL RESULT:
+
+ID: toolu_01HBERaBxw6tDD2W12CSardF
+
+<tool.toolu_01HBERaBxw6tDD2W12CSardF>
+;;; test-all-greger-cases.el --- Comprehensive test of greger-tree-sitter against all test cases -*- lexical-binding: t -*-
+
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; All test cases from greger-parser-test-cases
+(defconst greger-tree-sitter-test-cases
+  '(
+    ;; Simple user message
+    (:name "simple-user-message"
+           :markdown (greger-read-corpus-file "simple-user-message")
+           :dialog (((role . "user")
+                     (content . "Hello, how are you?"))))
+
+    ;; System and user message
+    (:name "system-and-user"
+           :markdown (greger-read-corpus-file "system-and-user")
+           :dialog (((role . "system")
+                     (content . "You are a helpful assistant."))
+                    ((role . "user")
+                     (content . "What's the weather like?"))))
+
+    ;; Simple conversation
+    (:name "simple-conversation"
+           :markdown (greger-read-corpus-file "simple-conversation")
+           :dialog (((role . "user")
+                     (content . "Hello"))
+                    ((role . "assistant")
+                     (content . "Hi there! How can I help you today?"))))
+
+    ;; Thinking section (becomes part of assistant message)
+    (:name "thinking-section"
+           :markdown (greger-read-corpus-file "thinking-section")
+           :dialog (((role . "user")
+                     (content . "What's 2+2?"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                                 ((type . "text")
+                                  (text . "2 + 2 = 4")))))))
+
+    ;; Tool use with single parameter
+    (:name "tool-use-single-param"
+           :markdown (greger-read-corpus-file "tool-use-single-param")
+           :dialog (((role . "user")
+                     (content . "Read the file hello.txt"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_123")
+                                  (name . "read-file")
+                                  (input . ((path . "hello.txt")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_123")
+                                  (content . "Hello, world!")))))
+                    ((role . "assistant")
+                     (content . "The file contains: Hello, world!"))))
+
+    ;; Tool use with multiple parameters
+    (:name "tool-use-multiple-params"
+           :markdown (greger-read-corpus-file "tool-use-multiple-params")
+           :dialog (((role . "user")
+                     (content . "Search for python files containing 'def main'"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_456")
+                                  (name . "ripgrep")
+                                  (input . ((pattern . "def main")
+                                            (file-type . "py")
+                                            (context-lines . 2)))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_456")
+                                  (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():")))))
+                    ((role . "assistant")
+                     (content . "I found 2 matches for 'def main' in Python files."))))
+
+    ;; Complex workflow with thinking, tool use, and multiple responses
+    (:name "complex-workflow"
+           :markdown (greger-read-corpus-file "complex-workflow")
+           :dialog (((role . "user")
+                     (content . "who's the current king of sweden?"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+                                 ((type . "tool_use")
+                                  (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+                                  (name . "search-286d2fd3")
+                                  (input . ((query . "current king of Sweden 2024")
+                                            (include_answer . "basic")
+                                            (max_results . 3)))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+                                  (content . "JSON result content")))))
+                    ((role . "assistant")
+                     (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history."))))
+
+    ;; Multiple tool uses in sequence
+    (:name "multiple-tool-uses"
+           :markdown (greger-read-corpus-file "multiple-tool-uses")
+           :dialog (((role . "user")
+                     (content . "List files and read the first one"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_111")
+                                  (name . "list-directory")
+                                  (input . ((path . ".")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_111")
+                                  (content . "file1.txt\nfile2.txt\nREADME.md")))))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_222")
+                                  (name . "read-file")
+                                  (input . ((path . "file1.txt")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_222")
+                                  (content . "This is the content of file1.")))))
+                    ((role . "assistant")
+                     (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\""))))
+
+    ;; Tool use with multiline parameter values
+    (:name "tool-use-multiline-params"
+           :markdown (greger-read-corpus-file "tool-use-multiline-params")
+           :dialog (((role . "user")
+                     (content . "Write a new Python file"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_789")
+                                  (name . "write-new-file")
+                                  (input . ((file_path . "script.py")
+                                            (contents . "#!/usr/bin/env python3\n\ndef main():\n    print(\"Hello, world!\")\n\nif __name__ == \"__main__\":\n    main()")
+                                            (git_commit_message . "Add new Python script")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_789")
+                                  (content . "Successfully wrote new file script.py with 85 characters.")))))
+                    ((role . "assistant")
+                     (content . "I've created a new Python script file with a basic Hello World program."))))
+
+    ;; Just thinking without any other content
+    (:name "thinking-only"
+           :markdown (greger-read-corpus-file "thinking-only")
+           :dialog (((role . "user")
+                     (content . "Let me think about this"))
+                    ((role . "assistant")
+                     (content . (((type . "thinking")
+                                  (thinking . "I need to consider all the options carefully before responding.")))))))
+
+    ;; Tool use without any following content
+    (:name "tool-use-only"
+           :markdown (greger-read-corpus-file "tool-use-only")
+           :dialog (((role . "user")
+                     (content . "Read a file"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_999")
+                                  (name . "read-file")
+                                  (input . ((path . "test.txt")))))))))
+
+    ;; Citations basic test
+    (:name "citations-basic"
+           :markdown (greger-read-corpus-file "citations-basic")
+           :dialog (((role . "user")
+                     (content . "When was Claude Shannon born?"))
+                    ((role . "assistant")
+                     (content . (((type . "server_tool_use")
+                                  (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                  (name . "web_search")
+                                  (input . ((query . "claude shannon birth date"))))
+                                 ((type . "web_search_tool_result")
+                                  (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+                                  (content . "Search results about Claude Shannon"))
+                                 ((type . "text")
+                                  (text . "Based on the search results,"))
+                                 ((type . "text")
+                                  (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+                                  (citations . (((type . "web_search_result_location")
+                                                 (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+                                                 (title . "Claude Shannon - Wikipedia")
+                                                 (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+                                                 (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm.."))))))))))
+
+    ;; Citations after tool result
+    (:name "citations-after-tool-result"
+           :markdown (greger-read-corpus-file "citations-after-tool-result")
+           :dialog (((role . "user")
+                     (content . "What's the current weather?"))
+                    ((role . "assistant")
+                     (content . (((type . "server_tool_use")
+                                  (id . "srvtoolu_456")
+                                  (name . "web_search")
+                                  (input . ((query . "current weather"))))
+                                 ((type . "web_search_tool_result")
+                                  (tool_use_id . "srvtoolu_456")
+                                  (content . "Weather search results"))
+                                 ((type . "text")
+                                  (text . "It's currently sunny and 75°F")
+                                  (citations . (((type . "web_search_result_location")
+                                                 (url . "https://weather.com")
+                                                 (title . "Weather.com")
+                                                 (cited_text . "Currently sunny with a temperature of 75 degrees Fahrenheit...")
+                                                 (encrypted_index . "xyz789"))))))))))
+
+    ;; Multiple citations test
+    (:name "citations-multiple"
+           :markdown (greger-read-corpus-file "citations-multiple")
+           :dialog (((role . "user")
+                     (content . "Tell me about Einstein and Newton"))
+                    ((role . "assistant")
+                     (content . (((type . "server_tool_use")
+                                  (id . "srvtoolu_789")
+                                  (name . "web_search")
+                                  (input . ((query . "Einstein Newton physics"))))
+                                 ((type . "web_search_tool_result")
+                                  (tool_use_id . "srvtoolu_789")
+                                  (content . "Physics search results"))
+                                 ((type . "text")
+                                  (text . "Einstein developed the theory of relativity")
+                                  (citations . (((type . "web_search_result_location")
+                                                 (url . "https://physics.com/einstein")
+                                                 (title . "Einstein Biography")
+                                                 (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+                                                 (encrypted_index . "def456")))))
+                                 ((type . "text")
+                                  (text . "while"))
+                                 ((type . "text")
+                                  (text . "Newton formulated the laws of motion")
+                                  (citations . (((type . "web_search_result_location")
+                                                 (url . "https://physics.com/newton")
+                                                 (title . "Newton Biography")
+                                                 (cited_text . "Isaac Newton formulated the three laws of motion...")
+                                                 (encrypted_index . "ghi789")))))
+                                 ((type . "text")
+                                  (citations . (((type . "web_search_result_location")
+                                                 (url . "https://physics.com/einstein")
+                                                 (title . "Einstein Biography")
+                                                 (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+                                                 (encrypted_index . "def456"))
+                                                ((type . "web_search_result_location")
+                                                 (url . "https://physics.com/newton")
+                                                 (title . "Newton Biography")
+                                                 (cited_text . "Isaac Newton formulated the three laws of motion...")
+                                                 (encrypted_index . "ghi789"))))))))))
+
+    ;; Tool result with empty lines preserved
+    (:name "code-block-triple-backticks"
+           :markdown (greger-read-corpus-file "code-block-triple-backticks")
+           :dialog (((role . "user")
+                     (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
+
+    ;; Mixed code blocks and real sections
+    (:name "mixed-code-blocks-and-sections"
+           :markdown (greger-read-corpus-file "mixed-code-blocks-and-sections")
+           :dialog (((role . "user")
+                     (content . "Here's a code example:\n\n```python\ndef example():\n    # This has ## USER: in a comment\n    print(\"## ASSISTANT: not a real header\")\n```\n\nNow please analyze it."))
+                    ((role . "assistant")
+                     (content . "I can see your code example."))))
+
+    ;; Tool use with code blocks in parameters
+    (:name "tool-use-with-code-in-params"
+           :markdown (greger-read-corpus-file "tool-use-with-code-in-params")
+           :dialog (((role . "user")
+                     (content . "Write some Python code"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_999")
+                                  (name . "write-file")
+                                  (input . ((filename . "example.py")
+                                            (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_999")
+                                  (content . "File written successfully")))))
+                    ((role . "assistant")
+                     (content . "I've written the Python file."))))
+
+    (:name "tool-use-with-tool-use-in-params"
+           :markdown (greger-read-corpus-file "tool-use-with-tool-use-in-params")
+           :dialog (((role . "user")
+                     (content . "Write some Python code"))
+                    ((role . "assistant")
+                     (content . (((type . "tool_use")
+                                  (id . "toolu_999")
+                                  (name . "write-file")
+                                  (input . ((filename . "example.py")
+                                            (content . "foo
+<tool.toolu_123>
+bar
+</tool.toolu_123>")))))))
+                    ((role . "user")
+                     (content . (((type . "tool_result")
+                                  (tool_use_id . "toolu_999")
+                                  (content . "File written successfully")))))
+                    ((role . "assistant")
+                     (content . "I've written the Python file."))))
+
+    ;; Nested code blocks (backticks inside code blocks)
+    (:name "nested-code-blocks"
+           :markdown (greger-read-corpus-file "nested-code-blocks")
+           :dialog (((role . "user")
+                     (content . "How do I use backticks in markdown?"))
+                    ((role . "assistant")
+                     (content . "You can use triple backticks:\n\n```\nHere's how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?"))))
+
+    (:name "html-comments"
+           :markdown (greger-read-corpus-file "html-comments")
+           :dialog (((role . "user")
+                     (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
+
+    (:name "server-tool-use-basic"
+           :markdown (greger-read-corpus-file "server-tool-use-basic")
+           :dialog (((role . "user") (content . "Search for current weather in San Francisco"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_123")
+                                                       (name . "web_search")
+                                                       (input . ((query . "current weather San Francisco"))))
+                                                      ((type . "server_tool_result")
+                                                       (tool_use_id . "srvtoolu_123")
+                                                       (content . (((title . "Weather in San Francisco")
+                                                                    (url . "https://weather.com/sf")
+                                                                    (content . "Sunny, 72°F")))))
+                                                      ((type . "text") (text . "The current weather in San Francisco is sunny and 72°F.")))))))
+
+    (:name "server-tool-use-string-result"
+           :markdown (greger-read-corpus-file "server-tool-use-string-result")
+           :dialog (((role . "user") (content . "What's the weather like?"))
+                    ((role . "assistant") (content . (((type . "server_tool_use")
+                                                       (id . "srvtoolu_456")
+                                                       (name . "web_search")
+                                                       (input . ((query . "weather"))))
+                                                      ((type . "server_tool_result")
+                                                       (tool_use_id . "srvtoolu_456")
+                                                       (content . "Sunny and warm today"))
+                                                      ((type . "text")
+                                                       (text . "It looks like it's sunny and warm today!")))))))
+
+    ))
+
+(defvar greger-tree-sitter-test-results '())
+(defvar greger-tree-sitter-tests-passed 0)
+(defvar greger-tree-sitter-tests-failed 0)
+
+(defun greger-tree-sitter-test-equal (expected actual)
+  "Compare two dialog structures for equality."
+  (equal expected actual))
+
+(defun greger-tree-sitter-run-single-test (test-case)
+  "Run a single test case and return result."
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (expected (plist-get test-case :dialog))
+         (start-time (current-time)))
+
+    (message "\n=== Testing: %s ===" name)
+
+    (condition-case err
+        (let* ((actual (greger-tree-sitter-parse markdown))
+               (elapsed (float-time (time-subtract (current-time) start-time))))
+
+          ;; Check if results match
+          (if (greger-tree-sitter-test-equal expected actual)
+              (progn
+                (message "✅ PASSED (%.3fs)" elapsed)
+                (setq greger-tree-sitter-tests-passed (1+ greger-tree-sitter-tests-passed))
+                (push `(:name ,name :status passed :time ,elapsed) greger-tree-sitter-test-results))
+            (progn
+              (message "❌ FAILED (%.3fs)" elapsed)
+              (message "\nExpected:")
+              (pp expected)
+              (message "\nActual:")
+              (pp actual)
+              (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
+              (push `(:name ,name :status failed :time ,elapsed :expected ,expected :actual ,actual)
+                    greger-tree-sitter-test-results))))
+
+      (error
+       (message "❌ ERROR: %s" (error-message-string err))
+       (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
+       (push `(:name ,name :status error :error ,(error-message-string err))
+             greger-tree-sitter-test-results)))))
+
+(defun greger-tree-sitter-run-all-tests ()
+  "Run all test cases and report results."
+  (interactive)
+  (message "\n🧪 Running greger-tree-sitter comprehensive tests...")
+
+  ;; Reset counters
+  (setq greger-tree-sitter-test-results '())
+  (setq greger-tree-sitter-tests-passed 0)
+  (setq greger-tree-sitter-tests-failed 0)
+
+  ;; Check if tree-sitter is available
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  ;; Run all tests
+  (dolist (test-case greger-tree-sitter-test-cases)
+    (greger-tree-sitter-run-single-test test-case))
+
+  ;; Report summary
+  (message "\n📊 TEST SUMMARY:")
+  (message "Total tests: %d" (+ greger-tree-sitter-tests-passed greger-tree-sitter-tests-failed))
+  (message "Passed: %d" greger-tree-sitter-tests-passed)
+  (message "Failed: %d" greger-tree-sitter-tests-failed)
+
+  (if (> greger-tree-sitter-tests-failed 0)
+      (progn
+        (message "\n❌ FAILED TESTS:")
+        (dolist (result (reverse greger-tree-sitter-test-results))
+          (when (eq (plist-get result :status) 'failed)
+            (message "  - %s" (plist-get result :name)))))
+    (message "\n🎉 ALL TESTS PASSED!"))
+
+  ;; Return results for programmatic use
+  (list :passed greger-tree-sitter-tests-passed
+        :failed greger-tree-sitter-tests-failed
+        :results (reverse greger-tree-sitter-test-results)))
+
+;; Run tests automatically when loaded
+(if (treesit-ready-p 'greger)
+    (greger-tree-sitter-run-all-tests)
+  (message "❌ Tree-sitter greger parser not available"))
+
+(provide 'test-all-greger-cases)
+</tool.toolu_01HBERaBxw6tDD2W12CSardF>
+
+## ASSISTANT:
+
+Now let me examine the corpus test files to understand the structure:
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_015ABLyHP1duvA3n6iamSCbw
+
+### path
+
+<tool.toolu_015ABLyHP1duvA3n6iamSCbw>
+test/corpus
+</tool.toolu_015ABLyHP1duvA3n6iamSCbw>
+
+## TOOL RESULT:
+
+ID: toolu_015ABLyHP1duvA3n6iamSCbw
+
+<tool.toolu_015ABLyHP1duvA3n6iamSCbw>
+test/corpus/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       460  citations-after-tool-result.greger
+-rw-r--r--      1106  citations-basic.greger
+-rw-r--r--       755  citations-multiple.greger
+-rw-r--r--       149  code-block-triple-backticks.greger
+-rw-r--r--      1035  complex-workflow.greger
+-rw-r--r--       232  html-comments.greger
+-rw-r--r--       213  mixed-code-blocks-and-sections.greger
+-rw-r--r--       559  multiple-tool-uses.greger
+-rw-r--r--       208  nested-code-blocks.greger
+-rw-r--r--       481  server-tool-use-basic.greger
+-rw-r--r--       313  server-tool-use-string-result.greger
+-rw-r--r--        67  simple-conversation.greger
+-rw-r--r--        29  simple-user-message.greger
+-rw-r--r--        76  system-and-user.greger
+-rw-r--r--       112  thinking-only.greger
+-rw-r--r--       154  thinking-section.greger
+-rw-r--r--       463  tool-use-multiple-params.greger
+-rw-r--r--       122  tool-use-only.greger
+-rw-r--r--       265  tool-use-single-param.greger
+-rw-r--r--       471  tool-use-with-code-in-params.greger
+-rw-r--r--       371  tool-use-with-tool-use-in-params.greger
+</tool.toolu_015ABLyHP1duvA3n6iamSCbw>
+
+## ASSISTANT:
+
+Let me examine a few key examples to understand the format:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TWzFusgGfJ1rkxuKdadf7q
+
+### path
+
+<tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
+test/corpus/simple-user-message.greger
+</tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
+
+## TOOL RESULT:
+
+ID: toolu_01TWzFusgGfJ1rkxuKdadf7q
+
+<tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
+## USER:
+
+Hello, how are you?
+</tool.toolu_01TWzFusgGfJ1rkxuKdadf7q>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012W71o8DHh5DPU8dsaKmgn6
+
+### path
+
+<tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
+test/corpus/simple-conversation.greger
+</tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
+
+## TOOL RESULT:
+
+ID: toolu_012W71o8DHh5DPU8dsaKmgn6
+
+<tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
+## USER:
+
+Hello
+
+## ASSISTANT:
+
+Hi there! How can I help you today?
+</tool.toolu_012W71o8DHh5DPU8dsaKmgn6>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01UoZxYncAgcPUovTCSAXiDK
+
+### path
+
+<tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
+test/corpus/thinking-section.greger
+</tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
+
+## TOOL RESULT:
+
+ID: toolu_01UoZxYncAgcPUovTCSAXiDK
+
+<tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
+## USER:
+
+What's 2+2?
+
+## THINKING:
+
+This is a simple arithmetic question. I can answer this directly without needing any tools.
+
+## ASSISTANT:
+
+2 + 2 = 4
+</tool.toolu_01UoZxYncAgcPUovTCSAXiDK>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01DL9hcSuTyY8nmnCUdKjuAJ
+
+### path
+
+<tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
+test/corpus/tool-use-single-param.greger
+</tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
+
+## TOOL RESULT:
+
+ID: toolu_01DL9hcSuTyY8nmnCUdKjuAJ
+
+<tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
+## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The file contains: Hello, world!
+</tool.toolu_01DL9hcSuTyY8nmnCUdKjuAJ>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01WJgnJJv44T1eJZRQ8Kng8V
+
+### path
+
+<tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
+test/corpus/citations-basic.greger
+</tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
+
+## TOOL RESULT:
+
+ID: toolu_01WJgnJJv44T1eJZRQ8Kng8V
+
+<tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
+## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+### query
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+claude shannon birth date
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+
+<tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+[
+  {
+    \"type\": \"web_search_result\",
+    \"url\": \"https://en.wikipedia.org/wiki/Claude_Shannon\",
+    \"title\": \"Claude Shannon - Wikipedia\",
+    \"encrypted_content\": \"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\",
+    \"page_age\": \"April 30, 2025\"
+  }
+]
+</tool.srvtoolu_01WYG3ziw53XMcoyKL4XcZmE>
+
+## ASSISTANT:
+
+Based on the search results,
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+Title: Claude Shannon - Wikipedia
+Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+Encrypted index: Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..
+</tool.toolu_01WJgnJJv44T1eJZRQ8Kng8V>
+
+## ASSISTANT:
+
+Now let me look at the current grammar:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MaMNE2zq9fLvmkK3MntD4G
+
+### path
+
+<tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+grammar.js
+</tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+
+## TOOL RESULT:
+
+ID: toolu_01MaMNE2zq9fLvmkK3MntD4G
+
+<tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  rules: {
+    // TODO: add the actual grammar rules
+    source_file: $ => "hello"
+  }
+});
+</tool.toolu_01MaMNE2zq9fLvmkK3MntD4G>
+
+## ASSISTANT:
+
+I need to understand the current tree-sitter setup structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XpkVWLmU6GCkF6fjmxQMr8
+
+### path
+
+<tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
+src/scanner.c
+</tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
+
+## TOOL RESULT:
+
+ID: toolu_01XpkVWLmU6GCkF6fjmxQMr8
+
+<tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
+Error executing tool: File does not exist: /Users/andreas/scratch/greger-grammar/src/scanner.c
+</tool.toolu_01XpkVWLmU6GCkF6fjmxQMr8>
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_01BnUzdWUjnydMuWuznTuGnD
+
+### path
+
+<tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
+src
+</tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
+
+## TOOL RESULT:
+
+ID: toolu_01BnUzdWUjnydMuWuznTuGnD
+
+<tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
+src/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--     15133  grammar.json
+-rw-r--r--      9993  node-types.json
+-rw-r--r--    127173  parser.c
+drwxr-xr-x  (dir)  tree_sitter
+</tool.toolu_01BnUzdWUjnydMuWuznTuGnD>
+
+## ASSISTANT:
+
+Now let me examine a more complex example to understand tool use structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01ArVeZn4TMSPDQTBD7iYtgu
+
+### path
+
+<tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
+test/corpus/tool-use-with-tool-use-in-params.greger
+</tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
+
+## TOOL RESULT:
+
+ID: toolu_01ArVeZn4TMSPDQTBD7iYtgu
+
+<tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
+## USER:
+
+Write some Python code
+
+## TOOL USE:
+
+Name: write-file
+ID: toolu_999
+
+### filename
+
+<tool.toolu_999>
+example.py
+</tool.toolu_999>
+
+### content
+
+<tool.toolu_999>
+foo
+<tool.toolu_123>
+bar
+</tool.toolu_123>
+</tool.toolu_999>
+
+## TOOL RESULT:
+
+ID: toolu_999
+
+<tool.toolu_999>
+File written successfully
+</tool.toolu_999>
+
+## ASSISTANT:
+
+I've written the Python file.
+</tool.toolu_01ArVeZn4TMSPDQTBD7iYtgu>
+
+## ASSISTANT:
+
+Let me look at HTML comments and code blocks:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_018LKVtba84KNLpDUYJUmiLK
+
+### path
+
+<tool.toolu_018LKVtba84KNLpDUYJUmiLK>
+test/corpus/html-comments.greger
+</tool.toolu_018LKVtba84KNLpDUYJUmiLK>
+
+## TOOL RESULT:
+
+ID: toolu_018LKVtba84KNLpDUYJUmiLK
+
+<tool.toolu_018LKVtba84KNLpDUYJUmiLK>
+## USER:
+
+Here's some code:
+
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
+```
+<!-- comment should be included -->
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?
+</tool.toolu_018LKVtba84KNLpDUYJUmiLK>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019osx1bybaUAYHaihwhkPCg
+
+### path
+
+<tool.toolu_019osx1bybaUAYHaihwhkPCg>
+test/corpus/code-block-triple-backticks.greger
+</tool.toolu_019osx1bybaUAYHaihwhkPCg>
+
+## TOOL RESULT:
+
+ID: toolu_019osx1bybaUAYHaihwhkPCg
+
+<tool.toolu_019osx1bybaUAYHaihwhkPCg>
+## USER:
+
+Here's some code:
+
+```
+## ASSISTANT:
+This should not be parsed as a section header
+## TOOL USE:
+Neither should this
+```
+
+What do you think?
+</tool.toolu_019osx1bybaUAYHaihwhkPCg>
+
+## ASSISTANT:
+
+Now let me examine the current elisp code:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XPQD2ht6F6APQMo3bSPPt5
+
+### path
+
+<tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
+greger-tree-sitter.el
+</tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
+
+## TOOL RESULT:
+
+ID: toolu_01XPQD2ht6F6APQMo3bSPPt5
+
+<tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog.
+
+INPUT:
+  TEXT - A string containing greger conversation format, e.g.:
+    \"## USER:
+
+    Hello, how are you?
+
+    ## ASSISTANT:
+
+    I'm doing well, thanks! <cite>This is cited text</cite>
+
+    ## CITATIONS:
+
+    ### https://example.com
+
+    Title: Example Site
+    Cited text: This is cited text from the source
+    Encrypted index: abc123\"
+
+OUTPUT:
+  Returns a list of message objects, each with 'role and 'content fields:
+  - Role is one of: \"user\", \"assistant\", \"system\"
+  - Content can be either:
+    a) A simple string for basic messages
+    b) A list of content blocks for complex messages
+
+  Content blocks have 'type field and additional fields:
+  - type=\"text\": Has 'text field, optionally 'citations field
+  - type=\"thinking\": Has 'thinking field
+  - type=\"tool_use\": Has 'id, 'name, 'input fields
+  - type=\"tool_result\": Has 'tool_use_id, 'content fields
+  - type=\"server_tool_use\": Has 'id, 'name, 'input fields
+  - type=\"web_search_tool_result\": Has 'tool_use_id, 'content fields
+
+EXAMPLE OUTPUT:
+  ((role . \"user\") (content . \"Hello, how are you?\"))
+  ((role . \"assistant\")
+   (content . (((type . \"text\") (text . \"I'm doing well, thanks!\"))
+               ((type . \"text\")
+                (text . \"This is cited text\")
+                (citations . (((type . \"web_search_result_location\")
+                               (url . \"https://example.com\")
+                               (title . \"Example Site\")
+                               (cited_text . \"This is cited text from the source\")
+                               (encrypted_index . \"abc123\"))))))))
+
+ERRORS:
+  Throws an error if tree-sitter greger parser is not available."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let ((parser (treesit-parser-create 'greger)))
+      (greger-tree-sitter--extract-dialog parser text))))
+
+(defun greger-tree-sitter--extract-dialog (parser text)
+  ;; TODO
+  )
+
+(provide 'greger-tree-sitter)
+
+;;; greger-tree-sitter.el ends here
+</tool.toolu_01XPQD2ht6F6APQMo3bSPPt5>
+
+## ASSISTANT:
+
+Let me also check some HTML examples to understand their scanner approach:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0145whLswFZAj2ZWEiaDMryU
+
+### path
+
+<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
+</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+
+### start-line
+
+<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+1
+</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+
+### end-line
+
+<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+50
+</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+
+## TOOL RESULT:
+
+ID: toolu_0145whLswFZAj2ZWEiaDMryU
+
+<tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+/**
+ * @file HTML grammar for tree-sitter
+ * @author Max Brunsfeld <maxbrunsfeld@gmail.com>
+ * @author Amaan Qureshi <amaanq12@gmail.com>
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: 'html',
+
+  extras: $ => [
+    $.comment,
+    /\s+/,
+  ],
+
+  conflicts: [
+    [$.text_content],
+  ],
+
+  externals: $ => [
+    $._start_tag_name,
+    $._script_start_tag_name,
+    $._style_start_tag_name,
+    $._end_tag_name,
+    $.erroneous_end_tag_name,
+    '/>',
+    $._implicit_end_tag,
+    $.raw_text,
+    $.comment,
+  ],
+
+  rules: {
+    document: $ => repeat($._node),
+
+    doctype: $ => seq(
+      '<!',
+      alias($._doctype, 'doctype'),
+      /[^>]+/,
+      '>',
+    ),
+
+    _doctype: _ => /[Dd][Oo][Cc][Tt][Yy][Pp][Ee]/,
+
+    _node: $ => choice(
+      $.doctype,
+      $.entity,
+      $.text,
+</tool.toolu_0145whLswFZAj2ZWEiaDMryU>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XfTPJfUVutvdAZ9gRqKWLm
+
+### path
+
+<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+/Users/andreas/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/src/scanner.c
+</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+
+### start-line
+
+<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+1
+</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+
+### end-line
+
+<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+50
+</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+
+## TOOL RESULT:
+
+ID: toolu_01XfTPJfUVutvdAZ9gRqKWLm
+
+<tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+#include "tag.h"
+#include "tree_sitter/parser.h"
+
+#include <wctype.h>
+
+enum TokenType {
+    START_TAG_NAME,
+    SCRIPT_START_TAG_NAME,
+    STYLE_START_TAG_NAME,
+    END_TAG_NAME,
+    ERRONEOUS_END_TAG_NAME,
+    SELF_CLOSING_TAG_DELIMITER,
+    IMPLICIT_END_TAG,
+    RAW_TEXT,
+    COMMENT,
+};
+
+typedef struct {
+    Array(Tag) tags;
+} Scanner;
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
+
+static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
+
+static unsigned serialize(Scanner *scanner, char *buffer) {
+    uint16_t tag_count = scanner->tags.size > UINT16_MAX ? UINT16_MAX : scanner->tags.size;
+    uint16_t serialized_tag_count = 0;
+
+    unsigned size = sizeof(tag_count);
+    memcpy(&buffer[size], &tag_count, sizeof(tag_count));
+    size += sizeof(tag_count);
+
+    for (; serialized_tag_count < tag_count; serialized_tag_count++) {
+        Tag tag = scanner->tags.contents[serialized_tag_count];
+        if (tag.type == CUSTOM) {
+            unsigned name_length = tag.custom_tag_name.size;
+            if (name_length > UINT8_MAX) {
+                name_length = UINT8_MAX;
+            }
+            if (size + 2 + name_length >= TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
+                break;
+            }
+            buffer[size++] = (char)tag.type;
+            buffer[size++] = (char)name_length;
+            strncpy(&buffer[size], tag.custom_tag_name.contents, name_length);
+            size += name_length;
+        } else {
+</tool.toolu_01XfTPJfUVutvdAZ9gRqKWLm>
+
+## ASSISTANT:
+
+Now let me start building the grammar. Based on the examples, I need to handle:
+
+1. Section headers (## USER:, ## ASSISTANT:, ## THINKING:, etc.)
+2. Tool content with dynamic tags (`<tool.XXX>...</tool.XXX>`)
+3. Citations parsing
+4. Code blocks (both ``` and single backticks)
+5. HTML comments that should be ignored
+6. Safe shell commands
+
+Let me start by creating a basic grammar structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PYdAzNfRamGtrTDaXdgNvN
+
+### file-path
+
+<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+grammar.js
+</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+
+### original-content
+
+<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  rules: {
+    // TODO: add the actual grammar rules
+    source_file: $ => "hello"
+  }
+});
+</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+
+### new-content
+
+<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    $.html_comment,
+    /[ \t]/,
+  ],
+
+  externals: $ => [
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  rules: {
+    source_file: $ => repeat($._item),
+
+    _item: $ => choice(
+      $.section,
+      $.citations_block,
+      $.text_content,
+      $._newline,
+    ),
+
+    _newline: _ => '\n',
+
+    section: $ => seq(
+      $.section_header,
+      optional($.section_content),
+    ),
+
+    section_header: $ => choice(
+      seq(/##[ \t]*/, 'USER', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'ASSISTANT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SYSTEM', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'THINKING', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL USE', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'SERVER TOOL RESULT', /[ \t]*:[ \t]*/, $._newline),
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+    ),
+
+    section_content: $ => repeat1(choice(
+      $.tool_use_content,
+      $.server_tool_use_content, 
+      $.safe_shell_commands,
+      $.code_block,
+      $.text_content,
+      $._newline,
+    )),
+
+    tool_use_content: $ => seq(
+      optional(seq('Name:', /[^\n]*/, $._newline)),
+      optional(seq('ID:', /[^\n]*/, $._newline)),
+      optional($._newline),
+      repeat(seq(
+        seq(/###[ \t]*/, /[^\n]*/, $._newline),
+        optional($._newline),
+        $.tool_content,
+        optional($._newline),
+      )),
+    ),
+
+    server_tool_use_content: $ => seq(
+      optional(seq('Name:', /[^\n]*/, $._newline)),
+      optional(seq('ID:', /[^\n]*/, $._newline)),
+      optional($._newline),
+      repeat(seq(
+        seq(/###[ \t]*/, /[^\n]*/, $._newline),
+        optional($._newline),
+        $.tool_content,
+        optional($._newline),
+      )),
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      optional($._newline),
+      repeat(seq(/[^\n<]*/, $._newline)),
+      '</safe-shell-commands>',
+    ),
+
+    code_block: $ => choice(
+      $.triple_backtick_block,
+      $.single_backtick_inline,
+    ),
+
+    triple_backtick_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      $._newline,
+      repeat(choice(
+        /[^`\n]+/,
+        /`[^`]/,
+        /``[^`]/,
+        $._newline,
+      )),
+      '```',
+    ),
+
+    single_backtick_inline: $ => seq(
+      '`',
+      repeat(choice(
+        /[^`\n]+/,
+      )),
+      '`',
+    ),
+
+    citations_block: $ => seq(
+      seq(/##[ \t]*/, 'CITATIONS', /[ \t]*:[ \t]*/, $._newline),
+      optional($._newline),
+      repeat($.citation_entry),
+    ),
+
+    citation_entry: $ => seq(
+      seq(/###[ \t]*/, /[^\n]*/, $._newline),
+      optional($._newline),
+      repeat(seq(/[^\n#]*/, $._newline)),
+    ),
+
+    text_content: $ => choice(
+      /[^#\n`<]+/,
+      /#[^#\n]/,
+      /#$/,
+    ),
+  }
+});
+</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+
+### git-commit-message
+
+<tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+Add basic grammar structure for greger format
+</tool.toolu_01PYdAzNfRamGtrTDaXdgNvN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PYdAzNfRamGtrTDaXdgNvN -->
