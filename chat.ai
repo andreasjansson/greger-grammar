@@ -8939,4 +8939,274 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 Debug: Always try tool content scanning when we see < regardless of validity
 </tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Pm24K4S8oqMAN48cx1mTyN -->
+## TOOL RESULT:
+
+ID: toolu_01Pm24K4S8oqMAN48cx1mTyN
+
+<tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Debug: Always try tool content scanning when we see < regardless of validity
+</tool.toolu_01Pm24K4S8oqMAN48cx1mTyN>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BrictjA1kcrAeHYEDAKER8
+
+### command
+
+<tool.toolu_01BrictjA1kcrAeHYEDAKER8>
+tree-sitter generate && tree-sitter parse test_simple.greger
+</tool.toolu_01BrictjA1kcrAeHYEDAKER8>
+
+## TOOL RESULT:
+
+ID: toolu_01BrictjA1kcrAeHYEDAKER8
+
+<tool.toolu_01BrictjA1kcrAeHYEDAKER8>
+Command failed with exit code 1: (source_file [0, 0] - [2, 13]
+  (tool_result_section [0, 0] - [2, 0])
+  (ERROR [2, 0] - [2, 13]
+    (ERROR [2, 0] - [2, 13])))
+test_simple.greger	Parse:    0.63 ms	    47 bytes/ms	(ERROR [2, 0] - [2, 13])
+
+</tool.toolu_01BrictjA1kcrAeHYEDAKER8>
+
+## ASSISTANT:
+
+This is really puzzling. Even when I force the scanner to try to scan tool_content whenever it sees `<`, it's still not working. This suggests that there might be a fundamental issue with either:
+
+1. The scanner function itself
+2. The way I'm building/linking the external scanner
+3. Something about how the external scanner state is managed
+
+Let me try a different debugging approach. Since HTML comments work, let me temporarily make the tool content scanner behave exactly like the HTML comment scanner to see if that works:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017oeiZ8wWGw2VwLK7fxRaZs
+
+### file-path
+
+<tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+src/scanner.c
+</tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+
+### original-content
+
+<tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // For now, just recognize the opening tag and return
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+
+### new-content
+
+<tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    // Copy the HTML comment scanner logic but look for <tool. instead of <!--
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Now we're inside the tool tag, scan until we find >
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '>') {
+            advance(lexer);
+            lexer->result_symbol = TOOL_CONTENT;
+            return true;
+        }
+        advance(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+
+### git-commit-message
+
+<tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+Rewrite tool scanner using HTML comment scanner as template
+</tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+
+## TOOL RESULT:
+
+ID: toolu_017oeiZ8wWGw2VwLK7fxRaZs
+
+<tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_017oeiZ8wWGw2VwLK7fxRaZs>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Gjhw3k9H2rCa1CR9kLyqK2
+
+### path
+
+<tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+src/scanner.c
+</tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+
+### start-line
+
+<tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+99
+</tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+
+### end-line
+
+<tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+130
+</tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+
+## TOOL RESULT:
+
+ID: toolu_01Gjhw3k9H2rCa1CR9kLyqK2
+
+<tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    // Simple test: just recognize <tool. and return immediately
+    if (lexer->lookahead != '<') return false;
+
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // For now, just recognize the opening tag and return
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+</tool.toolu_01Gjhw3k9H2rCa1CR9kLyqK2>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017EpCXyiYqd2fuq3LJDiYMc
+
+### file-path
+
+<tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+src/scanner.c
+</tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+
+### original-content
+
+<tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+// Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan the tool ID
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // For now, just recognize the opening tag and return
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+
+### new-content
+
+<tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+if (lexer->lookahead != 't') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Now we're inside the tool tag, scan until we find >
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '>') {
+            advance(lexer);
+            lexer->result_symbol = TOOL_CONTENT;
+            return true;
+        }
+        advance(lexer);
+    }
+
+    return false;
+</tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+
+### git-commit-message
+
+<tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+Simplify tool scanner to match HTML comment pattern
+</tool.toolu_017EpCXyiYqd2fuq3LJDiYMc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017EpCXyiYqd2fuq3LJDiYMc -->

@@ -102,29 +102,29 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     advance(lexer);
 
-    // Check for "tool."
     if (lexer->lookahead != 't') return false;
     advance(lexer);
+
     if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-    if (lexer->lookahead != '.') return false;
     advance(lexer);
 
-    // Scan the tool ID
-    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Now we're inside the tool tag, scan until we find >
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '>') {
+            advance(lexer);
+            lexer->result_symbol = TOOL_CONTENT;
+            return true;
+        }
         advance(lexer);
     }
 
-    if (lexer->lookahead != '>') return false;
-    advance(lexer);
-
-    // For now, just recognize the opening tag and return
-    lexer->result_symbol = TOOL_CONTENT;
-    return true;
+    return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
