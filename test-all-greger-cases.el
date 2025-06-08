@@ -1,35 +1,41 @@
-;;; Simple debug test for greger-tree-sitter -*- lexical-binding: t -*-
+;;; Simple test for implementing tool use parsing -*- lexical-binding: t -*-
 
 (load-file "./greger-tree-sitter.el")
 
-;; Simple test
-(message "Testing greger-tree-sitter...")
+;; Test tool use parsing
+(message "Testing tool use parsing...")
 
 (if (treesit-ready-p 'greger)
     (progn
       (message "✅ Tree-sitter greger parser is available")
 
-      ;; Test simple parsing
-      (let* ((test-content "## USER:\n\nHello, how are you?\n\n## ASSISTANT:\n\nI'm doing well, thanks!")
-             (result (greger-tree-sitter-parse test-content)))
-        (message "Parse result:")
-        (pp result)
-        (message "Result type: %s" (type-of result))
+      ;; Test with tool-use-single-param
+      (let* ((test-content (with-temp-buffer
+                             (insert-file-contents "test/corpus/tool-use-single-param.greger")
+                             (buffer-string)))
+             (result (greger-tree-sitter-parse test-content))
+             (expected '(((role . "user")
+                          (content . "Read the file hello.txt"))
+                         ((role . "assistant")
+                          (content . (((type . "tool_use")
+                                       (id . "toolu_123")
+                                       (name . "read-file")
+                                       (input . ((path . "hello.txt")))))))
+                         ((role . "user")
+                          (content . (((type . "tool_result")
+                                       (tool_use_id . "toolu_123")
+                                       (content . "Hello, world!")))))
+                         ((role . "assistant")
+                          (content . "The file contains: Hello, world!")))))
 
-        ;; Debug: show raw text extraction
-        (with-temp-buffer
-          (insert test-content)
-          (let* ((parser (treesit-parser-create 'greger))
-                 (root-node (treesit-parser-root-node parser))
-                 (sections (treesit-node-children root-node)))
-            (dolist (section sections)
-              (let ((section-type (treesit-node-type section)))
-                (message "Section type: %s" section-type)
-                (let ((children (treesit-node-children section)))
-                  (dolist (child children)
-                    (message "  Child type: %s, text: %S"
-                             (treesit-node-type child)
-                             (treesit-node-text child))))))))))
+        (message "Expected:")
+        (pp expected)
+        (message "\nActual:")
+        (pp result)
+
+        (if (equal expected result)
+            (message "✅ Tool use test PASSED")
+          (message "❌ Tool use test FAILED"))))
   (message "❌ Tree-sitter greger parser not available"))
 
 (provide 'test-all-greger-cases)
