@@ -148,11 +148,13 @@
     (cond
      ((string= node-type "html_comment")
       ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
-      (let ((start-pos (treesit-node-start node))
-            (end-pos (treesit-node-end node)))
-        ;; Count newlines in the original comment
-        (let ((comment-text (treesit-node-text node)))
-          (make-string (count ?\n comment-text) ?\n))))
+      (let ((comment-text (treesit-node-text node)))
+        ;; Count newlines in the original comment and replace with equivalent newlines
+        (let ((newline-count 0))
+          (dotimes (i (length comment-text))
+            (when (= (aref comment-text i) ?\n)
+              (setq newline-count (1+ newline-count))))
+          (make-string newline-count ?\n))))
      ((treesit-node-child node 0)
       ;; Node has children, recursively process them
       (mapconcat #'greger-tree-sitter--extract-text-without-comments

@@ -5287,4 +5287,255 @@ greger-tree-sitter.el
 Preserve newlines when filtering HTML comments
 </tool.toolu_019FrxRioiXy5nhE48fqdmuv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019FrxRioiXy5nhE48fqdmuv -->
+## TOOL RESULT:
+
+ID: toolu_019FrxRioiXy5nhE48fqdmuv
+
+<tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Preserve newlines when filtering HTML comments
+</tool.toolu_019FrxRioiXy5nhE48fqdmuv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_017JWzxihDYb6eAbqi5nd5qG
+
+### command
+
+<tool.toolu_017JWzxihDYb6eAbqi5nd5qG>
+emacs --batch -l debug-test.el
+</tool.toolu_017JWzxihDYb6eAbqi5nd5qG>
+
+## TOOL RESULT:
+
+ID: toolu_017JWzxihDYb6eAbqi5nd5qG
+
+<tool.toolu_017JWzxihDYb6eAbqi5nd5qG>
+Command failed with exit code 255: Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+Error: void-function (count)
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (void-function count))
+  (count 10 comment-text)
+  (make-string (count 10 comment-text) 10)
+  (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10))
+  (let ((start-pos (treesit-node-start node)) (end-pos (treesit-node-end node))) (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10)))
+  (cond ((string= node-type "html_comment") (let ((start-pos (treesit-node-start node)) (end-pos (treesit-node-end node))) (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10)))) ((treesit-node-child node 0) (mapconcat #'greger-tree-sitter--extract-text-without-comments (treesit-node-children node) "")) (t (treesit-node-text node)))
+  (let ((node-type (treesit-node-type node))) (cond ((string= node-type "html_comment") (let ((start-pos (treesit-node-start node)) (end-pos (treesit-node-end node))) (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10)))) ((treesit-node-child node 0) (mapconcat #'greger-tree-sitter--extract-text-without-comments (treesit-node-children node) "")) (t (treesit-node-text node))))
+  greger-tree-sitter--extract-text-without-comments(#<treesit-node html_comment in 30-46>)
+  mapconcat(greger-tree-sitter--extract-text-without-comments (#<treesit-node html_comment in 30-46> #<treesit-node html_comment in 47-75>) "")
+  (cond ((string= node-type "html_comment") (let ((start-pos (treesit-node-start node)) (end-pos (treesit-node-end node))) (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10)))) ((treesit-node-child node 0) (mapconcat #'greger-tree-sitter--extract-text-without-comments (treesit-node-children node) "")) (t (treesit-node-text node)))
+  (let ((node-type (treesit-node-type node))) (cond ((string= node-type "html_comment") (let ((start-pos (treesit-node-start node)) (end-pos (treesit-node-end node))) (let ((comment-text (treesit-node-text node))) (make-string (count 10 comment-text) 10)))) ((treesit-node-child node 0) (mapconcat #'greger-tree-sitter--extract-text-without-comments (treesit-node-children node) "")) (t (treesit-node-text node))))
+  greger-tree-sitter--extract-text-without-comments(#<treesit-node text_block in 9-77>)
+  (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t ""))
+  (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t "")))
+  (lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t ""))))(#<treesit-node text_block in 9-77>)
+  mapconcat((lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t "")))) (#<treesit-node "##" in 1-3> #<treesit-node "USER" in 4-8> #<treesit-node ":" in 8-9> #<treesit-node text_block in 9-77> #<treesit-node code_block in 77-213> #<treesit-node text_block in 213-233>) "")
+  (string-trim (mapconcat #'(lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t "")))) children ""))
+  (let ((children (treesit-node-children section-node))) (string-trim (mapconcat #'(lambda (child) (let ((node-type (treesit-node-type child))) (cond ((string= node-type "text_block") (greger-tree-sitter--extract-text-without-comments child)) ((string= node-type "code_block") (treesit-node-text child)) ((string= node-type "cite_tag") (treesit-node-text child)) (t "")))) children "")))
+  greger-tree-sitter--extract-section-text(#<treesit-node user_section in 1-233>)
+  (let ((content (greger-tree-sitter--extract-section-text section-node))) (list '(role . "user") (cons 'content content)))
+  greger-tree-sitter--extract-user-section(#<treesit-node user_section in 1-233>)
+  (cons (greger-tree-sitter--extract-user-section section) dialog)
+  (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))
+  (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail))))))))
+  (let ((section-type (treesit-node-type section))) (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail)))))))))
+  (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail))))))))) (setq tail (cdr tail)))
+  (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail))))))))) (setq tail (cdr tail))))
+  (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail))))))))) (setq tail (cdr tail)))))
+  (let* ((sections (treesit-node-children root-node)) (dialog 'nil) (pending-assistant-content 'nil)) (let ((tail sections)) (while tail (let ((section (car tail))) (let ((section-type (treesit-node-type section))) (cond ((string= section-type "user_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-user-section section) dialog))) ((string= section-type "assistant_section") (let ((assistant-text (greger-tree-sitter--extract-section-text section))) (if (> (length (string-trim assistant-text)) 0) (progn (setq pending-assistant-content (cons (list '(type . "text") (cons 'text assistant-text)) pending-assistant-content)))))) ((string= section-type "system_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (setq dialog (cons (greger-tree-sitter--extract-system-section section) dialog))) ((string= section-type "thinking_section") (let ((thinking-content (greger-tree-sitter--extract-section-text section))) (setq pending-assistant-content (cons (list '(type . "thinking") (cons 'thinking thinking-content)) pending-assistant-content)))) ((string= section-type "tool_use_section") (let ((tool-use-data (greger-tree-sitter--extract-tool-use section))) (setq pending-assistant-content (cons tool-use-data pending-assistant-content)))) ((string= section-type "tool_result_section") (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))) (setq pending-assistant-content 'nil))) (let ((tool-result-data (greger-tree-sitter--extract-tool-result section))) (setq dialog (cons (list '(role . "user") (list 'content tool-result-data)) dialog)))) ((string= section-type "server_tool_use_section") (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section))) (setq pending-assistant-content (cons server-tool-use-data pending-assistant-content)))) ((string= section-type "server_tool_result_section") (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section))) (setq pending-assistant-content (cons server-tool-result-data pending-assistant-content)))) ((string= section-type "citations_section") (let ((citations-data (greger-tree-sitter--extract-citations-section section))) (let ((tail citations-data)) (while tail (let ((item (car tail))) (setq pending-assistant-content (cons item pending-assistant-content)) (setq tail (cdr tail))))))))) (setq tail (cdr tail))))) (if pending-assistant-content (progn (let ((content (nreverse pending-assistant-content))) (if (and (= (length content) 1) (equal (alist-get 'type (car content)) "text")) (setq dialog (cons (list '(role . "assistant") (cons 'content (alist-get 'text (car content)))) dialog)) (setq dialog (cons (list '(role . "assistant") (cons 'content content)) dialog)))))) (nreverse dialog))
+  greger-tree-sitter--extract-dialog-from-node(#<treesit-node source_file in 1-233>)
+  (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser))) (greger-tree-sitter--extract-dialog-from-node root-node))
+  (progn (insert text) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser))) (greger-tree-sitter--extract-dialog-from-node root-node)))
+  (unwind-protect (progn (insert text) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser))) (greger-tree-sitter--extract-dialog-from-node root-node))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert text) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser))) (greger-tree-sitter--extract-dialog-from-node root-node))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer))))
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert text) (let* ((parser (treesit-parser-create 'greger)) (root-node (treesit-parser-root-node parser))) (greger-tree-sitter--extract-dialog-from-node root-node))) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))
+  greger-tree-sitter-parse("## USER:\n\nHere's some code:\n\n<!-- comment -->\n<!-- multi\nline\n\ncomment -->\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")
+  (let* ((text "## USER:\n\nHere's some code:\n\n<!-- comment -->\n<!-- multi\nline\n\ncomment -->\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?") (result (greger-tree-sitter-parse text))) (message "Result:") (pp result))
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  load-with-code-conversion("/Users/andreas/scratch/greger-grammar/debug-test.el" "/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  load("/Users/andreas/scratch/greger-grammar/debug-test.el" nil t)
+  command-line-1(("-l" "debug-test.el"))
+  command-line()
+  normal-top-level()
+Symbol’s function definition is void: count
+
+</tool.toolu_017JWzxihDYb6eAbqi5nd5qG>
+
+## ASSISTANT:
+
+I made a mistake with the `count` function. Let me fix it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TkpLtbQgHbHRoTnSodJM4y
+
+### file-path
+
+<tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+greger-tree-sitter.el
+</tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+
+### original-content
+
+<tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") 
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((start-pos (treesit-node-start node))
+            (end-pos (treesit-node-end node)))
+        ;; Count newlines in the original comment
+        (let ((comment-text (treesit-node-text node)))
+          (make-string (count ?\n comment-text) ?\n))))
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+</tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+
+### new-content
+
+<tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment") 
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((comment-text (treesit-node-text node)))
+        ;; Count newlines in the original comment and replace with equivalent newlines
+        (let ((newline-count 0))
+          (dotimes (i (length comment-text))
+            (when (= (aref comment-text i) ?\n)
+              (setq newline-count (1+ newline-count))))
+          (make-string newline-count ?\n))))
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+</tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+
+### git-commit-message
+
+<tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+Fix count function usage in HTML comment filtering
+</tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+
+## TOOL RESULT:
+
+ID: toolu_01TkpLtbQgHbHRoTnSodJM4y
+
+<tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el -- Try again!
+</tool.toolu_01TkpLtbQgHbHRoTnSodJM4y>
+
+## ASSISTANT:
+
+Let me check the current content of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CHrbTTxsvaHPf9JSaXFN5E
+
+### path
+
+<tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+greger-tree-sitter.el
+</tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+
+### start-line
+
+<tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+145
+</tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+
+### end-line
+
+<tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+165
+</tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+
+## TOOL RESULT:
+
+ID: toolu_01CHrbTTxsvaHPf9JSaXFN5E
+
+<tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+(defun greger-tree-sitter--extract-text-without-comments (node)
+  "Extract text from a node, filtering out HTML comments."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "html_comment")
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((start-pos (treesit-node-start node))
+            (end-pos (treesit-node-end node)))
+        ;; Count newlines in the original comment
+        (let ((comment-text (treesit-node-text node)))
+          (make-string (count ?\n comment-text) ?\n))))
+     ((treesit-node-child node 0)
+      ;; Node has children, recursively process them
+      (mapconcat #'greger-tree-sitter--extract-text-without-comments
+                 (treesit-node-children node) ""))
+     (t
+      ;; Leaf node, return its text
+      (treesit-node-text node)))))
+
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+</tool.toolu_01CHrbTTxsvaHPf9JSaXFN5E>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01D8FSW6Ss99GJQqKvRLvG3N
+
+### file-path
+
+<tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+greger-tree-sitter.el
+</tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+
+### original-content
+
+<tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+     ((string= node-type "html_comment")
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((start-pos (treesit-node-start node))
+            (end-pos (treesit-node-end node)))
+        ;; Count newlines in the original comment
+        (let ((comment-text (treesit-node-text node)))
+          (make-string (count ?\n comment-text) ?\n))))
+</tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+
+### new-content
+
+<tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+     ((string= node-type "html_comment")
+      ;; Return equivalent whitespace/newlines for the html_comment to preserve layout
+      (let ((comment-text (treesit-node-text node)))
+        ;; Count newlines in the original comment and replace with equivalent newlines
+        (let ((newline-count 0))
+          (dotimes (i (length comment-text))
+            (when (= (aref comment-text i) ?\n)
+              (setq newline-count (1+ newline-count))))
+          (make-string newline-count ?\n))))
+</tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+
+### git-commit-message
+
+<tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+Fix count function usage in HTML comment filtering
+</tool.toolu_01D8FSW6Ss99GJQqKvRLvG3N>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01D8FSW6Ss99GJQqKvRLvG3N -->
