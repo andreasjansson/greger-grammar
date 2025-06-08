@@ -105,11 +105,11 @@ module.exports = grammar({
       optional($._citations_content),
     ),
 
-    _section_content: $ => repeat1($._content_item),
+    _section_content: $ => repeat($._content_item),
 
-    _tool_section_content: $ => repeat1($._tool_content_item),
+    _tool_section_content: $ => repeat($._tool_content_item),
 
-    _citations_content: $ => repeat1($._citation_content_item),
+    _citations_content: $ => repeat($._citation_content_item),
 
     _content_item: $ => choice(
       $.text_content,
