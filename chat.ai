@@ -4386,4 +4386,235 @@ module.exports = grammar({
 Add conflicts for text_block to resolve parsing ambiguity
 </tool.toolu_01PTPez7WdtfyuGt1KXbbwRA>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PTPez7WdtfyuGt1KXbbwRA -->
+## TOOL RESULT:
+
+ID: toolu_01PTPez7WdtfyuGt1KXbbwRA
+
+<tool.toolu_01PTPez7WdtfyuGt1KXbbwRA>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add conflicts for text_block to resolve parsing ambiguity
+</tool.toolu_01PTPez7WdtfyuGt1KXbbwRA>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WwtDaEAQM7vyBQdFm1THHy
+
+### command
+
+<tool.toolu_01WwtDaEAQM7vyBQdFm1THHy>
+tree-sitter generate && tree-sitter parse test/corpus/simple-user-message.greger
+</tool.toolu_01WwtDaEAQM7vyBQdFm1THHy>
+
+## TOOL RESULT:
+
+ID: toolu_01WwtDaEAQM7vyBQdFm1THHy
+
+<tool.toolu_01WwtDaEAQM7vyBQdFm1THHy>
+Command executed successfully:
+(source_file [0, 0] - [2, 19]
+  (user_section [0, 0] - [2, 19]
+    (text_block [0, 8] - [2, 19])))
+
+</tool.toolu_01WwtDaEAQM7vyBQdFm1THHy>
+
+## ASSISTANT:
+
+Great! Now it's parsing the simple user message correctly. Let me test with a more complex file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011EtuoMSCJccwHaBscqqXjB
+
+### command
+
+<tool.toolu_011EtuoMSCJccwHaBscqqXjB>
+tree-sitter generate && tree-sitter parse test/corpus/simple-conversation.greger
+</tool.toolu_011EtuoMSCJccwHaBscqqXjB>
+
+## TOOL RESULT:
+
+ID: toolu_011EtuoMSCJccwHaBscqqXjB
+
+<tool.toolu_011EtuoMSCJccwHaBscqqXjB>
+Command executed successfully:
+(source_file [0, 0] - [6, 35]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (assistant_section [4, 0] - [6, 35]
+    (text_block [4, 13] - [6, 35])))
+
+</tool.toolu_011EtuoMSCJccwHaBscqqXjB>
+
+## ASSISTANT:
+
+Excellent! Let me test with a tool use example:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01F3z67f3KGToEgfRkFF1g7P
+
+### command
+
+<tool.toolu_01F3z67f3KGToEgfRkFF1g7P>
+tree-sitter generate && tree-sitter parse test/corpus/tool-use-single-param.greger
+</tool.toolu_01F3z67f3KGToEgfRkFF1g7P>
+
+## TOOL RESULT:
+
+ID: toolu_01F3z67f3KGToEgfRkFF1g7P
+
+<tool.toolu_01F3z67f3KGToEgfRkFF1g7P>
+Command executed successfully:
+(source_file [0, 0] - [25, 32]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 12] - [9, 0])
+    (tool_param [9, 0] - [13, 16]
+      (tool_content [11, 0] - [13, 16]))
+    (text_block [13, 16] - [15, 0]))
+  (tool_result_section [15, 0] - [23, 0]
+    (text_block [15, 15] - [19, 0])
+    (tool_content [19, 0] - [21, 16])
+    (text_block [21, 16] - [23, 0]))
+  (assistant_section [23, 0] - [25, 32]
+    (text_block [23, 13] - [25, 32])))
+
+</tool.toolu_01F3z67f3KGToEgfRkFF1g7P>
+
+## ASSISTANT:
+
+Good progress! I can see the tool content is being parsed. Now let me test a citations example:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QbbvWLWoX8Js9KWfGveRv2
+
+### command
+
+<tool.toolu_01QbbvWLWoX8Js9KWfGveRv2>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01QbbvWLWoX8Js9KWfGveRv2>
+
+## TOOL RESULT:
+
+ID: toolu_01QbbvWLWoX8Js9KWfGveRv2
+
+<tool.toolu_01QbbvWLWoX8Js9KWfGveRv2>
+Command executed successfully:
+(source_file [0, 0] - [43, 49]
+  (user_section [0, 0] - [4, 0]
+    (text_block [0, 8] - [4, 0]))
+  (server_tool_use_section [4, 0] - [15, 0]
+    (text_block [4, 19] - [9, 0])
+    (tool_param [9, 0] - [13, 40]
+      (tool_content [11, 0] - [13, 40]))
+    (text_block [13, 40] - [15, 0]))
+  (server_tool_result_section [15, 0] - [31, 0]
+    (text_block [15, 22] - [19, 0])
+    (tool_content [19, 0] - [29, 40])
+    (text_block [29, 40] - [31, 0]))
+  (assistant_section [31, 0] - [35, 0]
+    (text_block [31, 13] - [35, 0]))
+  (citations_section [35, 0] - [43, 49]
+    (text_block [35, 13] - [39, 0])
+    (citation_entry [39, 0] - [40, 0])
+    (text_block [40, 0] - [43, 49])))
+
+</tool.toolu_01QbbvWLWoX8Js9KWfGveRv2>
+
+## ASSISTANT:
+
+Great! Now let me work on implementing the elisp part. First, let me understand what the current greger-tree-sitter.el is missing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CdS5hvqpSLyCAQDhtbmNYC
+
+### file-path
+
+<tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+greger-tree-sitter.el
+</tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+
+### original-content
+
+<tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  ;; TODO
+  )
+</tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+
+### new-content
+
+<tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+(defun greger-tree-sitter--extract-dialog (parser text)
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((root-node (treesit-parser-root-node parser))
+         (sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         ((string= section-type "assistant_section")
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (nreverse dialog)))
+
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "user")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "assistant")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "system")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking section and convert to assistant content with thinking type."
+  (let ((thinking-content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,thinking-content)))))))
+
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((text-blocks (treesit-query-capture
+                     section-node
+                     '((text_block) @text))))
+    (if text-blocks
+        (string-trim
+         (mapconcat (lambda (capture)
+                      (treesit-node-text (cdr capture)))
+                    text-blocks ""))
+      "")))
+</tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+
+### git-commit-message
+
+<tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+Implement basic dialog extraction from tree-sitter parse tree
+</tool.toolu_01CdS5hvqpSLyCAQDhtbmNYC>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CdS5hvqpSLyCAQDhtbmNYC -->

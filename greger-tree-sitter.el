@@ -61,8 +61,61 @@ ERRORS:
       (greger-tree-sitter--extract-dialog parser text))))
 
 (defun greger-tree-sitter--extract-dialog (parser text)
-  ;; TODO
-  )
+  "Extract dialog structure from parsed greger conversation."
+  (let* ((root-node (treesit-parser-root-node parser))
+         (sections (treesit-node-children root-node))
+         (dialog '()))
+
+    (dolist (section sections)
+      (let ((section-type (treesit-node-type section)))
+        (cond
+         ((string= section-type "user_section")
+          (push (greger-tree-sitter--extract-user-section section) dialog))
+         ((string= section-type "assistant_section")
+          (push (greger-tree-sitter--extract-assistant-section section) dialog))
+         ((string= section-type "system_section")
+          (push (greger-tree-sitter--extract-system-section section) dialog))
+         ((string= section-type "thinking_section")
+          (push (greger-tree-sitter--extract-thinking-section section) dialog)))))
+
+    (nreverse dialog)))
+
+(defun greger-tree-sitter--extract-user-section (section-node)
+  "Extract user section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "user")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-assistant-section (section-node)
+  "Extract assistant section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "assistant")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-system-section (section-node)
+  "Extract system section content."
+  (let ((content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "system")
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-thinking-section (section-node)
+  "Extract thinking section and convert to assistant content with thinking type."
+  (let ((thinking-content (greger-tree-sitter--extract-section-text section-node)))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,thinking-content)))))))
+
+(defun greger-tree-sitter--extract-section-text (section-node)
+  "Extract text content from a section node."
+  (let ((text-blocks (treesit-query-capture
+                     section-node
+                     '((text_block) @text))))
+    (if text-blocks
+        (string-trim
+         (mapconcat (lambda (capture)
+                      (treesit-node-text (cdr capture)))
+                    text-blocks ""))
+      "")))
 
 (provide 'greger-tree-sitter)
 
