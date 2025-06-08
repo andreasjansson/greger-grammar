@@ -8471,4 +8471,114 @@ hello
 Add simple debug file for tool param
 </tool.toolu_01NV1ESji58tMExecyR1bFAt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NV1ESji58tMExecyR1bFAt -->
+## TOOL RESULT:
+
+ID: toolu_01NV1ESji58tMExecyR1bFAt
+
+<tool.toolu_01NV1ESji58tMExecyR1bFAt>
+Successfully wrote new file /Users/andreas/scratch/greger-grammar/debug_param.greger with 55 characters. Successfully staged 2 file(s) and committed with message: Add simple debug file for tool param
+</tool.toolu_01NV1ESji58tMExecyR1bFAt>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01F6gam5otHQTh4uoGGHpf3s
+
+### command
+
+<tool.toolu_01F6gam5otHQTh4uoGGHpf3s>
+tree-sitter generate && tree-sitter parse debug_param.greger
+</tool.toolu_01F6gam5otHQTh4uoGGHpf3s>
+
+## TOOL RESULT:
+
+ID: toolu_01F6gam5otHQTh4uoGGHpf3s
+
+<tool.toolu_01F6gam5otHQTh4uoGGHpf3s>
+Command executed successfully:
+(source_file [0, 0] - [6, 12]
+  (tool_use [0, 0] - [6, 12]
+      (text_block [0, 12] - [2, 0])
+      param: (tool_param [2, 0] - [6, 11]
+        value: (tool_content [4, 0] - [6, 11]))
+      (text_block [6, 11] - [6, 12])))
+
+</tool.toolu_01F6gam5otHQTh4uoGGHpf3s>
+
+## ASSISTANT:
+
+Still no name field. This suggests that the regex `/[^\n]*/` is not matching anything, or there's something else going on. Let me check what's on line 2 of the debug file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0134VfeHMHo8zxfTd2WfMjbZ
+
+### path
+
+<tool.toolu_0134VfeHMHo8zxfTd2WfMjbZ>
+debug_param.greger
+</tool.toolu_0134VfeHMHo8zxfTd2WfMjbZ>
+
+## TOOL RESULT:
+
+ID: toolu_0134VfeHMHo8zxfTd2WfMjbZ
+
+<tool.toolu_0134VfeHMHo8zxfTd2WfMjbZ>
+## TOOL USE:
+
+### query
+
+<tool.test>
+hello
+</tool.test>
+</tool.toolu_0134VfeHMHo8zxfTd2WfMjbZ>
+
+## ASSISTANT:
+
+I see the issue! The line has "### query" but the regex `/[^\n]*/` matches everything until newline, including an empty string. The issue is that when a field contains an empty match, tree-sitter might not display it.
+
+Let me check if "query" is actually being matched by making the name regex require at least one character:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017JsewfQRqaSHUcWoJVBwqk
+
+### file-path
+
+<tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+grammar.js
+</tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+
+### original-content
+
+<tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      field('name', /[^\n]*/),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+
+### new-content
+
+<tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      field('name', /[^\n]+/),
+      /\n+/,
+      field('value', $.tool_content),
+    ),
+</tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+
+### git-commit-message
+
+<tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+Require at least one character for tool param name
+</tool.toolu_017JsewfQRqaSHUcWoJVBwqk>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017JsewfQRqaSHUcWoJVBwqk -->
