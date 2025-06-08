@@ -287,10 +287,20 @@
   "Extract server tool result data from a server tool result section."
   ;; Similar to tool result but with different type
   (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
-    ;; Check if this conversation has citations by looking at the raw text
+    ;; Check if this specific section or following sections have citations
+    ;; by looking at the section tree structure
     (let ((content (alist-get 'content result))
-          (full-text (buffer-string)))  ; Get the full buffer text
-      (if (string-match "## CITATIONS:" full-text)
+          (has-citations nil))
+
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (setq has-citations t)))))
+
+      (if has-citations
           ;; Has citations - use web_search_tool_result
           (setf (alist-get 'type result) "web_search_tool_result")
         ;; No citations - use server_tool_result and parse JSON if applicable

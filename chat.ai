@@ -4343,4 +4343,163 @@ debug-test.el
 Debug tool types more specifically
 </tool.toolu_01JJHW27PbbCHHyaw1uWy4zi>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JJHW27PbbCHHyaw1uWy4zi -->
+## TOOL RESULT:
+
+ID: toolu_01JJHW27PbbCHHyaw1uWy4zi
+
+<tool.toolu_01JJHW27PbbCHHyaw1uWy4zi>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Debug tool types more specifically
+</tool.toolu_01JJHW27PbbCHHyaw1uWy4zi>
+
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CQy8TiBj6zGTJ3oKKZir6Q
+
+### command
+
+<tool.toolu_01CQy8TiBj6zGTJ3oKKZir6Q>
+emacs --batch -l debug-test.el
+</tool.toolu_01CQy8TiBj6zGTJ3oKKZir6Q>
+
+## TOOL RESULT:
+
+ID: toolu_01CQy8TiBj6zGTJ3oKKZir6Q
+
+<tool.toolu_01CQy8TiBj6zGTJ3oKKZir6Q>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== TOOL USE WITH CODE IN PARAMS ===
+Parse result:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Assistant content first item type: tool_use
+Tool result type: tool_result
+
+</tool.toolu_01CQy8TiBj6zGTJ3oKKZir6Q>
+
+## ASSISTANT:
+
+That's strange! When I run the test individually, it returns the correct types: "tool_use" and "tool_result". But when I run the full test suite, it shows "server_tool_use" and "web_search_tool_result".
+
+This suggests there might be some state being preserved between tests or some caching issue. Let me check if there's any global state in the greger-tree-sitter.el file.
+
+Looking at the `greger-tree-sitter--extract-server-tool-result` function again, I see the issue:
+
+```elisp
+(let ((content (alist-get 'content result))
+      (full-text (buffer-string)))  ; Get the full buffer text
+```
+
+The `(buffer-string)` call is getting the text from whatever buffer is current, not necessarily the buffer that contains the text being parsed. When running multiple tests, this could be getting text from a different test case.
+
+Let me fix this by removing this global check and making the logic more precise. The issue is that the function is trying to determine if a tool result should be a "web_search_tool_result" based on whether there are citations in the document, but it's doing this check globally instead of contextually.
+
+Looking at the actual test cases, I think the logic should be:
+1. "## TOOL USE:" and "## TOOL RESULT:" should always be "tool_use" and "tool_result"
+2. "## SERVER TOOL USE:" and "## SERVER TOOL RESULT:" should be "server_tool_use" and either "server_tool_result" or "web_search_tool_result" depending on context
+
+Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ETiwMTb67bX7Sg7Gq8wSFc
+
+### file-path
+
+<tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+greger-tree-sitter.el
+</tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+
+### original-content
+
+<tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Check if this conversation has citations by looking at the raw text
+    (let ((content (alist-get 'content result))
+          (full-text (buffer-string)))  ; Get the full buffer text
+      (if (string-match "## CITATIONS:" full-text)
+          ;; Has citations - use web_search_tool_result
+          (setf (alist-get 'type result) "web_search_tool_result")
+        ;; No citations - use server_tool_result and parse JSON if applicable
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element and wrap it in an extra list
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (list (car parsed-json)))))
+              (error nil))))))
+    result))
+</tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+
+### new-content
+
+<tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    ;; Check if this specific section or following sections have citations
+    ;; by looking at the section tree structure
+    (let ((content (alist-get 'content result))
+          (has-citations nil))
+
+      ;; Check if there are any citation sections in the current parse tree
+      ;; by walking up to the parent and checking siblings
+      (let ((parent-node (treesit-node-parent server-tool-result-section)))
+        (when parent-node
+          (dolist (sibling (treesit-node-children parent-node))
+            (when (string= (treesit-node-type sibling) "citations_section")
+              (setq has-citations t)))))
+
+      (if has-citations
+          ;; Has citations - use web_search_tool_result
+          (setf (alist-get 'type result) "web_search_tool_result")
+        ;; No citations - use server_tool_result and parse JSON if applicable
+        (progn
+          (setf (alist-get 'type result) "server_tool_result")
+          ;; Try to parse JSON content for server_tool_result
+          (when (and (stringp content)
+                     (string-match-p "^\\s-*\\[\\s-*{" content))
+            (condition-case nil
+                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
+                  ;; If it's a single-element array, extract the first element and wrap it in an extra list
+                  (when (and (listp parsed-json) (= (length parsed-json) 1))
+                    (setf (alist-get 'content result) (list (car parsed-json)))))
+              (error nil))))))
+    result))
+</tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+
+### git-commit-message
+
+<tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+Fix server tool result type detection to avoid global state issues
+</tool.toolu_01ETiwMTb67bX7Sg7Gq8wSFc>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ETiwMTb67bX7Sg7Gq8wSFc -->
