@@ -5623,4 +5623,458 @@ debug-test.el
 Test specific failing case in isolation
 </tool.toolu_0139JENZbEQovbnb757vBc53>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0139JENZbEQovbnb757vBc53 -->
+## TOOL RESULT:
+
+ID: toolu_0139JENZbEQovbnb757vBc53
+
+<tool.toolu_0139JENZbEQovbnb757vBc53>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/debug-test.el. Successfully staged 2 file(s) and committed with message: Test specific failing case in isolation
+</tool.toolu_0139JENZbEQovbnb757vBc53>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0134ncfuP5x1qhFbQkxMbhxP
+
+### command
+
+<tool.toolu_0134ncfuP5x1qhFbQkxMbhxP>
+emacs --batch -l debug-test.el
+</tool.toolu_0134ncfuP5x1qhFbQkxMbhxP>
+
+## TOOL RESULT:
+
+ID: toolu_0134ncfuP5x1qhFbQkxMbhxP
+
+<tool.toolu_0134ncfuP5x1qhFbQkxMbhxP>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== ISOLATED TEST: tool-use-with-code-in-params ===
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Equal? t
+
+</tool.toolu_0134ncfuP5x1qhFbQkxMbhxP>
+
+## ASSISTANT:
+
+Perfect! The isolated test passes completely - it returns the correct "tool_use" and "tool_result" types and the result is equal to the expected output.
+
+This confirms that there's some kind of state pollution or cross-test contamination happening in the full test suite. The issue is likely that when multiple tests run together, some global state is being modified.
+
+Looking back at the `greger-tree-sitter--extract-server-tool-result` function, I think the problem might be that the tree-sitter parser state or buffer state is being shared between tests.
+
+Let me look more carefully at how the citation detection works. The issue is probably that when running multiple tests, some tests have citations and this affects how later tool results are processed.
+
+Looking at this part of the code again:
+
+```elisp
+;; Check if there are any citation sections in the current parse tree
+;; by walking up to the parent and checking siblings
+(let ((parent-node (treesit-node-parent server-tool-result-section)))
+  (when parent-node
+    (dolist (sibling (treesit-node-children parent-node))
+      (when (string= (treesit-node-type sibling) "citations_section")
+        (setq has-citations t)))))
+```
+
+But wait - this code is only called for `server-tool-result-section`, not for regular `tool-result-section`. And the failing tests are using `tool-result-section` (regular tool results), not server tool results.
+
+But somehow regular tool results are getting processed as "web_search_tool_result" instead of "tool_result". This suggests that regular tool results are somehow being processed by the server tool result function.
+
+Let me check if there's a mismatch in the section detection. The issue might be that the test has "## TOOL RESULT:" but it's being parsed as "server_tool_result_section" instead of "tool_result_section".
+
+Actually, wait. Looking back at the test output, I notice that the failing test shows:
+- "server_tool_use" instead of "tool_use"
+- "web_search_tool_result" instead of "tool_result"
+
+But my isolated test shows:
+- "tool_use" (correct)
+- "tool_result" (correct)
+
+This suggests that there might be some parser caching or state issue. Let me look at the main test runner to see what might be different.
+
+Actually, let me step back and look at this more systematically. The issue seems to be that when running the full test suite, some tests are being processed incorrectly. Let me check if there's a way to identify which tests are passing vs failing more precisely.
+
+Looking at the current status:
+- 16 tests pass
+- 5 tests fail
+
+The failing tests are:
+1. complex-workflow - content mismatch (expected placeholder vs actual content)
+2. citations-basic - content mismatch (expected placeholder vs actual content)  
+3. citations-multiple - citation parsing issues
+4. tool-use-with-code-in-params - type mismatch (server_tool_use vs tool_use)
+5. tool-use-with-tool-use-in-params - type mismatch (server_tool_use vs tool_use)
+
+I think issues 1 and 2 are actually test case issues - the expected results have placeholder content but the corpus files have real content.
+
+Issues 4 and 5 seem to be the parser state pollution issue.
+
+Issue 3 is a real citations parsing problem.
+
+Let me focus on the most critical issues first. Let me check the content mismatches for complex-workflow and citations-basic:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Qi9DQvjhAbEhwTW3a268rs
+
+### path
+
+<tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+test/corpus/complex-workflow.greger
+</tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+
+### start-line
+
+<tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+30
+</tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+
+### end-line
+
+<tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+40
+</tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+
+## TOOL RESULT:
+
+ID: toolu_01Qi9DQvjhAbEhwTW3a268rs
+
+<tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+
+## TOOL RESULT:
+
+ID: toolu_01Kf8avk1cBqH5ZHoXL92Duc
+
+<tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+{\"query\": \"current king of Sweden 2024\", \"answer\": \"Carl XVI Gustaf\", \"response_time\": 2.38}
+</tool.toolu_01Kf8avk1cBqH5ZHoXL92Duc>
+
+## ASSISTANT:
+</tool.toolu_01Qi9DQvjhAbEhwTW3a268rs>
+
+## ASSISTANT:
+
+The corpus file has `{"query": "current king of Sweden 2024", "answer": "Carl XVI Gustaf", "response_time": 2.38}` but the test expects `"JSON result content"`. This is clearly a test case issue where the expected result uses placeholder text.
+
+The same issue applies to citations-basic. Let me fix these test cases by updating the expected results to match the actual corpus content.
+
+But first, let me tackle the parser state pollution issue. I suspect the problem is that the test runner is reusing tree-sitter parser state between tests. Let me modify the parser to ensure clean state for each test.
+
+Looking at the `greger-tree-sitter-parse` function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01THMCDHC53e2KJhM5NopCXj
+
+### path
+
+<tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+greger-tree-sitter.el
+</tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+
+### start-line
+
+<tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+1
+</tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+
+### end-line
+
+<tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+15
+</tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+
+## TOOL RESULT:
+
+ID: toolu_01THMCDHC53e2KJhM5NopCXj
+
+<tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+(require 'treesit)
+
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
+
+(defun greger-tree-sitter-parse (text)
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
+
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      (greger-tree-sitter--extract-dialog-from-node root-node))))
+
+</tool.toolu_01THMCDHC53e2KJhM5NopCXj>
+
+## ASSISTANT:
+
+The parser looks clean - it creates a new temp buffer and a new parser for each call. But there might be some global state in the extraction functions.
+
+Actually, let me re-examine the failing tests. Looking at the output again:
+
+For `tool-use-with-code-in-params`, the test expects:
+```
+((type . "tool_use") ...)
+```
+
+But gets:
+```
+((type . "server_tool_use") ...)
+```
+
+But when I run the same test in isolation, it correctly returns "tool_use". This strongly suggests some kind of cross-test contamination.
+
+Let me try a different approach. Let me examine the test harness more carefully and see if I can identify the source of the contamination.
+
+Looking at the test suite, I notice that it runs all tests in sequence in the same Emacs process. If there's any global state or caching, that could cause issues.
+
+Actually, let me try to debug this by running just a subset of tests to see if I can isolate which test is causing the contamination.
+
+Let me modify the test suite to run fewer tests and see if I can isolate the issue:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012tSDwrNhbjkeTQ9dunUvE9
+
+### file-path
+
+<tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+debug-test.el
+</tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+
+### original-content
+
+<tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+(load-file "./greger-tree-sitter.el")
+
+;; Test just the tool-use-with-code-in-params case
+(defconst greger-test-case 
+  `(:name "tool-use-with-code-in-params"
+          :markdown ,(with-temp-buffer
+                       (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
+                       (buffer-string))
+          :dialog (((role . "user")
+                    (content . "Write some Python code"))
+                   ((role . "assistant")
+                    (content . (((type . "tool_use")
+                                 (id . "toolu_999")
+                                 (name . "write-file")
+                                 (input . ((filename . "example.py")
+                                           (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))))
+                   ((role . "user")
+                    (content . (((type . "tool_result")
+                                 (tool_use_id . "toolu_999")
+                                 (content . "File written successfully")))))
+                   ((role . "assistant")
+                    (content . "I've written the Python file.")))))
+
+(let* ((markdown (plist-get greger-test-case :markdown))
+       (expected (plist-get greger-test-case :dialog))
+       (actual (greger-tree-sitter-parse markdown)))
+
+  (message "=== ISOLATED TEST: tool-use-with-code-in-params ===")
+  (message "Expected:")
+  (pp expected)
+  (message "\nActual:")
+  (pp actual)
+  (message "\nEqual? %s" (equal expected actual)))
+
+(provide 'debug-test)
+</tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+
+### new-content
+
+<tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test just a few cases to isolate the issue
+(defconst debug-test-cases
+  `(
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic"))
+    
+    (:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+
+(message "=== SEQUENTIAL TEST DEBUG ===")
+
+(dolist (test-case debug-test-cases)
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (result (greger-tree-sitter-parse markdown)))
+    
+    (message "\n--- Testing: %s ---" name)
+    
+    ;; Look at tool use and tool result types specifically
+    (dolist (dialog-entry result)
+      (let ((role (alist-get 'role dialog-entry))
+            (content (alist-get 'content dialog-entry)))
+        (when (equal role "assistant")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_use")
+                            (string= type "server_tool_use"))
+                    (message "  Found tool use type: %s" type))))
+            ;; Single content item
+            (message "  Assistant content: %s" content)))
+        (when (equal role "user")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_result")
+                            (string= type "server_tool_result")
+                            (string= type "web_search_tool_result"))
+                    (message "  Found tool result type: %s" type))))
+            ;; Single content item  
+            (message "  User content: %s" content)))))))
+
+(provide 'debug-test)
+</tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+
+### git-commit-message
+
+<tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+Add sequential test debug to isolate contamination
+</tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+
+## TOOL RESULT:
+
+ID: toolu_012tSDwrNhbjkeTQ9dunUvE9
+
+<tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/debug-test.el -- Try again!
+</tool.toolu_012tSDwrNhbjkeTQ9dunUvE9>
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01WTNF8YRd3L2QemFEQ7KJeM
+
+### file-path
+
+<tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+debug-test.el
+</tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+
+### contents
+
+<tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+(load-file "./greger-tree-sitter.el")
+
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
+
+;; Test just a few cases to isolate the issue
+(defconst debug-test-cases
+  `(
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic"))
+    
+    (:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+
+(message "=== SEQUENTIAL TEST DEBUG ===")
+
+(dolist (test-case debug-test-cases)
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (result (greger-tree-sitter-parse markdown)))
+    
+    (message "\n--- Testing: %s ---" name)
+    
+    ;; Look at tool use and tool result types specifically
+    (dolist (dialog-entry result)
+      (let ((role (alist-get 'role dialog-entry))
+            (content (alist-get 'content dialog-entry)))
+        (when (equal role "assistant")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_use")
+                            (string= type "server_tool_use"))
+                    (message "  Found tool use type: %s" type))))
+            ;; Single content item
+            (message "  Assistant content: %s" content)))
+        (when (equal role "user")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_result")
+                            (string= type "server_tool_result")
+                            (string= type "web_search_tool_result"))
+                    (message "  Found tool result type: %s" type))))
+            ;; Single content item  
+            (message "  User content: %s" content)))))))
+
+(provide 'debug-test)
+</tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+
+### git-commit-message
+
+<tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+Add sequential test debug to isolate contamination
+</tool.toolu_01WTNF8YRd3L2QemFEQ7KJeM>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WTNF8YRd3L2QemFEQ7KJeM -->

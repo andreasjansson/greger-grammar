@@ -1,35 +1,55 @@
 (load-file "./greger-tree-sitter.el")
 
-;; Test just the tool-use-with-code-in-params case
-(defconst greger-test-case
-  `(:name "tool-use-with-code-in-params"
-          :markdown ,(with-temp-buffer
-                       (insert-file-contents "./test/corpus/tool-use-with-code-in-params.greger")
-                       (buffer-string))
-          :dialog (((role . "user")
-                    (content . "Write some Python code"))
-                   ((role . "assistant")
-                    (content . (((type . "tool_use")
-                                 (id . "toolu_999")
-                                 (name . "write-file")
-                                 (input . ((filename . "example.py")
-                                           (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))))
-                   ((role . "user")
-                    (content . (((type . "tool_result")
-                                 (tool_use_id . "toolu_999")
-                                 (content . "File written successfully")))))
-                   ((role . "assistant")
-                    (content . "I've written the Python file.")))))
+;; Helper function to read markdown from corpus files
+(defun greger-read-corpus-file (name)
+  "Read markdown content from a corpus file."
+  (let ((file-path (format "./test/corpus/%s.greger" name)))
+    (if (file-exists-p file-path)
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          (buffer-string))
+      (error "Corpus file not found: %s" file-path))))
 
-(let* ((markdown (plist-get greger-test-case :markdown))
-       (expected (plist-get greger-test-case :dialog))
-       (actual (greger-tree-sitter-parse markdown)))
+;; Test just a few cases to isolate the issue
+(defconst debug-test-cases
+  `(
+    (:name "citations-basic"
+           :markdown ,(greger-read-corpus-file "citations-basic"))
 
-  (message "=== ISOLATED TEST: tool-use-with-code-in-params ===")
-  (message "Expected:")
-  (pp expected)
-  (message "\nActual:")
-  (pp actual)
-  (message "\nEqual? %s" (equal expected actual)))
+    (:name "tool-use-with-code-in-params"
+           :markdown ,(greger-read-corpus-file "tool-use-with-code-in-params"))))
+
+(message "=== SEQUENTIAL TEST DEBUG ===")
+
+(dolist (test-case debug-test-cases)
+  (let* ((name (plist-get test-case :name))
+         (markdown (plist-get test-case :markdown))
+         (result (greger-tree-sitter-parse markdown)))
+
+    (message "\n--- Testing: %s ---" name)
+
+    ;; Look at tool use and tool result types specifically
+    (dolist (dialog-entry result)
+      (let ((role (alist-get 'role dialog-entry))
+            (content (alist-get 'content dialog-entry)))
+        (when (equal role "assistant")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_use")
+                            (string= type "server_tool_use"))
+                    (message "  Found tool use type: %s" type))))
+            ;; Single content item
+            (message "  Assistant content: %s" content)))
+        (when (equal role "user")
+          (if (listp content)
+              (dolist (content-item content)
+                (let ((type (alist-get 'type content-item)))
+                  (when (or (string= type "tool_result")
+                            (string= type "server_tool_result")
+                            (string= type "web_search_tool_result"))
+                    (message "  Found tool result type: %s" type))))
+            ;; Single content item
+            (message "  User content: %s" content)))))))
 
 (provide 'debug-test)
