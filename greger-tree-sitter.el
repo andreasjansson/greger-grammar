@@ -3,55 +3,7 @@
 (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
 
 (defun greger-tree-sitter-parse (text)
-  "Parse greger conversation TEXT using tree-sitter and return structured dialog.
-
-INPUT:
-  TEXT - A string containing greger conversation format, e.g.:
-    \"## USER:
-
-    Hello, how are you?
-
-    ## ASSISTANT:
-
-    I'm doing well, thanks! <cite>This is cited text</cite>
-
-    ## CITATIONS:
-
-    ### https://example.com
-
-    Title: Example Site
-    Cited text: This is cited text from the source
-    Encrypted index: abc123\"
-
-OUTPUT:
-  Returns a list of message objects, each with 'role and 'content fields:
-  - Role is one of: \"user\", \"assistant\", \"system\"
-  - Content can be either:
-    a) A simple string for basic messages
-    b) A list of content blocks for complex messages
-
-  Content blocks have 'type field and additional fields:
-  - type=\"text\": Has 'text field, optionally 'citations field
-  - type=\"thinking\": Has 'thinking field
-  - type=\"tool_use\": Has 'id, 'name, 'input fields
-  - type=\"tool_result\": Has 'tool_use_id, 'content fields
-  - type=\"server_tool_use\": Has 'id, 'name, 'input fields
-  - type=\"web_search_tool_result\": Has 'tool_use_id, 'content fields
-
-EXAMPLE OUTPUT:
-  ((role . \"user\") (content . \"Hello, how are you?\"))
-  ((role . \"assistant\")
-   (content . (((type . \"text\") (text . \"I'm doing well, thanks!\"))
-               ((type . \"text\")
-                (text . \"This is cited text\")
-                (citations . (((type . \"web_search_result_location\")
-                               (url . \"https://example.com\")
-                               (title . \"Example Site\")
-                               (cited_text . \"This is cited text from the source\")
-                               (encrypted_index . \"abc123\"))))))))
-
-ERRORS:
-  Throws an error if tree-sitter greger parser is not available."
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog."
   (unless (treesit-ready-p 'greger)
     (error "Tree-sitter greger parser not available"))
 
@@ -149,12 +101,12 @@ ERRORS:
          ((string= section-type "server_tool_result_section")
           ;; Add server tool result to pending assistant content
           (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
+            (push server-tool-result-data pending-assistant-content)))
 
          ((string= section-type "citations_section")
           ;; Parse citations and add as text with citations to pending assistant content
           (let ((citations-data (greger-tree-sitter--extract-citations section)))
-            (push citations-data pending-assistant-content)))
-            (push server-tool-result-data pending-assistant-content))))))
+            (push citations-data pending-assistant-content))))))
 
     ;; Flush any remaining pending assistant content
     (when pending-assistant-content
@@ -256,7 +208,7 @@ ERRORS:
                    ((string-match "^<tool\\.[^>]+>\\s-*\\(.*\\)" content-text)
                     (setq content-text (match-string 1 content-text))))
                   (setq content-text (string-trim content-text))
-                  (push (cons (intern param-name) content-text) input)))))))))
+                  (push (cons (intern param-name) content-text) input))))))))
 
     `((type . "tool_use")
       (id . ,id)
