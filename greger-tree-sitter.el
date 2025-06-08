@@ -261,6 +261,75 @@
     (setf (alist-get 'type result) "web_search_tool_result")
     result))
 
+(defun greger-tree-sitter--extract-citations-section (citations-section)
+  "Extract citations section and return list of text blocks with citations attached."
+  (let ((children (treesit-node-children citations-section))
+        (current-text nil)
+        (current-citations '())
+        (result '()))
+
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text_block")
+          ;; Accumulate text content
+          (let ((text (string-trim (treesit-node-text child))))
+            (when (> (length text) 0)
+              (setq current-text (if current-text
+                                     (concat current-text " " text)
+                                   text)))))
+
+         ((string= node-type "citation_entry")
+          ;; Parse citation entry and add to current citations
+          (let ((citation (greger-tree-sitter--parse-citation-entry child)))
+            (when citation
+              (push citation current-citations)))))))
+
+    ;; If we have text with citations, create a text block with citations attached
+    (when current-text
+      (if current-citations
+          (push `((type . "text")
+                  (text . ,current-text)
+                  (citations . ,(nreverse current-citations)))
+                result)
+        (push `((type . "text")
+                (text . ,current-text))
+              result)))
+
+    (nreverse result)))
+
+(defun greger-tree-sitter--parse-citation-entry (citation-entry-node)
+  "Parse a citation entry node and return citation data."
+  (let ((text (treesit-node-text citation-entry-node)))
+    ;; Parse lines: first line has ###, then URL, then key-value pairs
+    (let* ((lines (split-string text "\n"))
+           (url-line (and lines (string-trim (car lines))))
+           (url (when (string-prefix-p "###" url-line)
+                  (string-trim (substring url-line 3))))
+           (title nil)
+           (cited-text nil)
+           (encrypted-index nil))
+
+      ;; Parse subsequent lines for metadata
+      (dolist (line (cdr lines))
+        (setq line (string-trim line))
+        (when (> (length line) 0)
+          (cond
+           ((string-prefix-p "Title:" line)
+            (setq title (string-trim (substring line 6))))
+           ((string-prefix-p "Cited text:" line)
+            (setq cited-text (string-trim (substring line 11))))
+           ((string-prefix-p "Encrypted index:" line)
+            (setq encrypted-index (string-trim (substring line 16)))))))
+
+      ;; Return citation object if we have a URL
+      (when url
+        `((type . "web_search_result_location")
+          (url . ,url)
+          (title . ,title)
+          (cited_text . ,cited-text)
+          (encrypted_index . ,encrypted-index))))))
+
 (provide 'greger-tree-sitter)
 
 ;;; greger-tree-sitter.el ends here
