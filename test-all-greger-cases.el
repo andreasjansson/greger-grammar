@@ -239,7 +239,7 @@
 
     ;; Tool result with empty lines preserved
     (:name "code-block-triple-backticks"
-           :markdown (greger-read-corpus-file "code-block-triple-backticks")
+           :markdown ,(greger-read-corpus-file "code-block-triple-backticks")
            :dialog (((role . "user")
                      (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
 
