@@ -9873,4 +9873,113 @@ grammar.js
 Restructure server_tool_use to have clean structure without scattered text_blocks
 </tool.toolu_01D8HVYcFRc7B3BjoC7UFPCd>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01D8HVYcFRc7B3BjoC7UFPCd -->
+## TOOL RESULT:
+
+ID: toolu_01D8HVYcFRc7B3BjoC7UFPCd
+
+<tool.toolu_01D8HVYcFRc7B3BjoC7UFPCd>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restructure server_tool_use to have clean structure without scattered text_blocks
+</tool.toolu_01D8HVYcFRc7B3BjoC7UFPCd>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VfAfxRR6EPe1awbHqDagAE
+
+### command
+
+<tool.toolu_01VfAfxRR6EPe1awbHqDagAE>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_01VfAfxRR6EPe1awbHqDagAE>
+
+## TOOL RESULT:
+
+ID: toolu_01VfAfxRR6EPe1awbHqDagAE
+
+<tool.toolu_01VfAfxRR6EPe1awbHqDagAE>
+Command failed with exit code 1: (source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [8, 0]
+      (tool_name [6, 0] - [7, 0])
+      (tool_id [7, 0] - [8, 0]))
+  (text_block [8, 0] - [9, 0])
+  (ERROR [9, 0] - [15, 0]
+    (ERROR [9, 4] - [9, 9])
+    (tool_content [11, 0] - [13, 40])
+    (ERROR [13, 40] - [13, 41]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      id: (tool_id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      content: (tool_content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (citation_entry [39, 0] - [40, 0]
+        url: (citation_url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (citation_title [41, 0] - [42, 0])
+      text: (citation_text [42, 0] - [43, 0])
+      text: (citation_encrypted_index [43, 0] - [44, 0])))
+test/corpus/citations-basic.greger	Parse:    1.03 ms	  1076 bytes/ms	(ERROR [9, 0] - [15, 0])
+
+</tool.toolu_01VfAfxRR6EPe1awbHqDagAE>
+
+## ASSISTANT:
+
+That broke the parsing because the tool_param is no longer being captured. Let me fix this by including tool_param in the server_tool_use structure:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ
+
+### file-path
+
+<tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+grammar.js
+</tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+
+### original-content
+
+<tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      optional(/\s*/),
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat($.tool_param),
+    ),
+</tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+
+### new-content
+
+<tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+server_tool_use_section: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      repeat(/\s/),
+      optional($.tool_name),
+      optional($.tool_id),
+      repeat(/\s/),
+      repeat($.tool_param),
+    ),
+</tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+
+### git-commit-message
+
+<tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+Add whitespace handling and tool_param to server_tool_use structure
+</tool.toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01LRGA4SQ2dxb1BGJxQ7fSyQ -->

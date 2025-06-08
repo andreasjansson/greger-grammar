@@ -110,9 +110,10 @@ module.exports = grammar({
       'TOOL',
       'USE',
       ':',
-      optional(/\s*/),
+      repeat(/\s/),
       optional($.tool_name),
       optional($.tool_id),
+      repeat(/\s/),
       repeat($.tool_param),
     ),
 
