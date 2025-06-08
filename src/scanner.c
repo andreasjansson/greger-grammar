@@ -5,6 +5,7 @@
 enum TokenType {
     TOOL_CONTENT,
     HTML_COMMENT,
+    ERROR_SENTINEL,
 };
 
 typedef struct {
