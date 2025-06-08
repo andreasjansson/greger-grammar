@@ -277,9 +277,11 @@
             ;; Unescape quotes in tool result content
             (setq content (replace-regexp-in-string "\\\\\"" "\"" content-text)))))))
 
-    `((type . "tool_result")
-      (tool_use_id . ,tool-use-id)
-      (content . ,content))))
+    (let ((result `((type . "tool_result")
+                    (tool_use_id . ,tool-use-id)
+                    (content . ,content))))
+      (message "[DEBUG] extract-tool-result returning type: %s" (alist-get 'type result))
+      result)))
 
 (defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
   "Extract server tool use data from a server tool use section."
