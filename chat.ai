@@ -13350,4 +13350,68 @@ greger-tree-sitter.el
 Fix tool content closing tag removal with better regex
 </tool.toolu_01CVpKTpZr72shXfDV2R23PF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01CVpKTpZr72shXfDV2R23PF -->
+## TOOL RESULT:
+
+ID: toolu_01CVpKTpZr72shXfDV2R23PF
+
+<tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix tool content closing tag removal with better regex
+</tool.toolu_01CVpKTpZr72shXfDV2R23PF>
+
+## ASSISTANT:
+
+I need to apply the same fix to the tool parameter extraction:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012NunUGKX54rDHQDzWM2MtX
+
+### file-path
+
+<tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+greger-tree-sitter.el
+</tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+
+### original-content
+
+<tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+(dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag
+                      (if (string-match "</tool\\.[^>]+>$" remaining-text)
+                          (setq content-text (substring remaining-text 0 (match-beginning 0)))
+                        (setq content-text remaining-text))))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+
+### new-content
+
+<tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+(dolist (param-child param-children)
+              (when (string= (treesit-node-type param-child) "tool_content")
+                (let ((content-text (treesit-node-text param-child)))
+                  ;; Remove the <tool.ID> wrapper using string operations
+                  (when (string-match "^<tool\\.[^>]+>" content-text)
+                    (let* ((start-tag-end (match-end 0))
+                           (remaining-text (substring content-text start-tag-end)))
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))))
+                  (setq content-text (string-trim content-text))
+                  (push (cons (intern param-name) content-text) input))))
+</tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+
+### git-commit-message
+
+<tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+Fix tool parameter closing tag removal with better regex
+</tool.toolu_012NunUGKX54rDHQDzWM2MtX>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012NunUGKX54rDHQDzWM2MtX -->

@@ -194,10 +194,9 @@
                   (when (string-match "^<tool\\.[^>]+>" content-text)
                     (let* ((start-tag-end (match-end 0))
                            (remaining-text (substring content-text start-tag-end)))
-                      ;; Look for closing tag
-                      (if (string-match "</tool\\.[^>]+>$" remaining-text)
-                          (setq content-text (substring remaining-text 0 (match-beginning 0)))
-                        (setq content-text remaining-text))))
+                      ;; Look for closing tag (including possible whitespace/newlines before it)
+                      (when (string-match "\\(.*?\\)\\s-*</tool\\.[^>]+>\\s-*$" remaining-text)
+                        (setq content-text (match-string 1 remaining-text)))))
                   (setq content-text (string-trim content-text))
                   (push (cons (intern param-name) content-text) input)))))))))
 
