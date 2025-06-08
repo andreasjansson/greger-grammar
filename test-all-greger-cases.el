@@ -67,7 +67,7 @@
 
     ;; Tool use with multiple parameters
     (:name "tool-use-multiple-params"
-           :markdown (greger-read-corpus-file "tool-use-multiple-params")
+           :markdown ,(greger-read-corpus-file "tool-use-multiple-params")
            :dialog (((role . "user")
                      (content . "Search for python files containing 'def main'"))
                     ((role . "assistant")
