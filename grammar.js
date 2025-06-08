@@ -12,6 +12,7 @@ module.exports = grammar({
 
   extras: $ => [
     $.html_comment,
+    /[ \t]/,
   ],
 
   externals: $ => [
@@ -32,84 +33,107 @@ module.exports = grammar({
       $.server_tool_use_section,
       $.server_tool_result_section,
       $.citations_section,
-      $._whitespace,
+      /\n+/,
     ),
 
-    _whitespace: $ => /\s+/,
-
     user_section: $ => seq(
-      token(seq('##', /\s+/, 'USER', /\s*/, ':')),
+      '##',
+      'USER',
+      ':',
       optional($._section_content),
     ),
 
     assistant_section: $ => seq(
-      token(seq('##', /\s+/, 'ASSISTANT', /\s*/, ':')),
+      '##',
+      'ASSISTANT',
+      ':',
       optional($._section_content),
     ),
 
     system_section: $ => seq(
-      token(seq('##', /\s+/, 'SYSTEM', /\s*/, ':')),
+      '##',
+      'SYSTEM',
+      ':',
       optional($._section_content),
     ),
 
     thinking_section: $ => seq(
-      token(seq('##', /\s+/, 'THINKING', /\s*/, ':')),
+      '##',
+      'THINKING',
+      ':',
       optional($._section_content),
     ),
 
     tool_use_section: $ => seq(
-      token(seq('##', /\s+/, 'TOOL', /\s+/, 'USE', /\s*/, ':')),
+      '##',
+      'TOOL',
+      'USE',
+      ':',
       optional($._tool_section_content),
     ),
 
     tool_result_section: $ => seq(
-      token(seq('##', /\s+/, 'TOOL', /\s+/, 'RESULT', /\s*/, ':')),
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
       optional($._tool_section_content),
     ),
 
     server_tool_use_section: $ => seq(
-      token(seq('##', /\s+/, 'SERVER', /\s+/, 'TOOL', /\s+/, 'USE', /\s*/, ':')),
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
       optional($._tool_section_content),
     ),
 
     server_tool_result_section: $ => seq(
-      token(seq('##', /\s+/, 'SERVER', /\s+/, 'TOOL', /\s+/, 'RESULT', /\s*/, ':')),
+      '##',
+      'SERVER',
+      'TOOL',
+      'RESULT',
+      ':',
       optional($._tool_section_content),
     ),
 
     citations_section: $ => seq(
-      token(seq('##', /\s+/, 'CITATIONS', /\s*/, ':')),
+      '##',
+      'CITATIONS',
+      ':',
       optional($._citations_content),
     ),
 
-    _section_content: $ => repeat1(choice(
-      $.text_line,
+    _section_content: $ => repeat1($._content_item),
+
+    _tool_section_content: $ => repeat1($._tool_content_item),
+
+    _citations_content: $ => repeat1($._citation_content_item),
+
+    _content_item: $ => choice(
+      $.text_content,
       $.code_block,
       $.cite_tag,
       $.safe_shell_commands,
-      $._empty_line,
-    )),
+      /\n/,
+    ),
 
-    _tool_section_content: $ => repeat1(choice(
+    _tool_content_item: $ => choice(
       $.tool_use_metadata,
       $.tool_param,
       $.tool_content,
-      $.text_line,
-      $._empty_line,
-    )),
-
-    _citations_content: $ => repeat1(choice(
-      $.citation_entry,
-      $.text_line,
-      $._empty_line,
-    )),
-
-    _empty_line: $ => /\n/,
-
-    text_line: $ => seq(
-      /[^#`<\n]+/,
-      optional(/\n/),
+      $.text_content,
+      /\n/,
     ),
+
+    _citation_content_item: $ => choice(
+      $.citation_entry,
+      $.text_content,
+      /\n/,
+    ),
+
+    text_content: $ => prec(-1, /[^#`<\n]+/),
 
     code_block: $ => choice(
       $.triple_backtick_block,
@@ -117,7 +141,7 @@ module.exports = grammar({
     ),
 
     triple_backtick_block: $ => seq(
-      token('```'),
+      '```',
       optional(/[^\n]*/),
       /\n/,
       repeat(choice(
@@ -126,8 +150,7 @@ module.exports = grammar({
         /`[^`]/,
         /``[^`]/,
       )),
-      token('```'),
-      optional(/\n/),
+      '```',
     ),
 
     single_backtick_inline: $ => seq(
@@ -138,25 +161,24 @@ module.exports = grammar({
 
     cite_tag: $ => seq(
       '<cite>',
-      repeat(/[^<\n]+/),
+      /[^<]*/,
       '</cite>',
     ),
 
     tool_use_metadata: $ => choice(
-      seq(token('Name:'), /[^\n]*/, optional(/\n/)),
-      seq(token('ID:'), /[^\n]*/, optional(/\n/)),
+      seq('Name:', /[^\n]*/),
+      seq('ID:', /[^\n]*/),
     ),
 
     tool_param: $ => seq(
-      token('###'),
+      '###',
       /[^\n]*/,
-      /\n/,
-      optional(/\n/),
+      /\n+/,
       $.tool_content,
     ),
 
     citation_entry: $ => seq(
-      token('###'),
+      '###',
       /[^\n]*/,
       /\n/,
       repeat(seq(
