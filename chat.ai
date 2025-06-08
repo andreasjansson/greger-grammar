@@ -11543,4 +11543,457 @@ greger-tree-sitter.el
 Fix citation parsing to correctly detect metadata vs cited text
 </tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WguGA1WQT56aqaw6gH9Qh9 -->
+## TOOL RESULT:
+
+ID: toolu_01WguGA1WQT56aqaw6gH9Qh9
+
+<tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Fix citation parsing to correctly detect metadata vs cited text
+</tool.toolu_01WguGA1WQT56aqaw6gH9Qh9>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016GPpBZwoRr6orgBWyNUZPh
+
+### command
+
+<tool.toolu_016GPpBZwoRr6orgBWyNUZPh>
+emacs --batch -l debug-test.el
+</tool.toolu_016GPpBZwoRr6orgBWyNUZPh>
+
+## TOOL RESULT:
+
+ID: toolu_016GPpBZwoRr6orgBWyNUZPh
+
+<tool.toolu_016GPpBZwoRr6orgBWyNUZPh>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+=== CITATIONS MULTIPLE DEBUG ===
+Assistant content has 5 items
+
+Item 0:
+  Type: server_tool_use
+  Text: [no text]
+
+Item 1:
+  Type: web_search_tool_result
+  Text: [no text]
+
+Item 2:
+  Type: text
+  Text: Einstein developed the theory of relativity
+  Citations count: 1
+    Citation 0: URL=https://physics.com/einstein, Title=Einstein Biography
+
+Item 3:
+  Type: text
+  Text: while
+
+Item 4:
+  Type: text
+  Text: Newton formulated the laws of motion
+  Citations count: 1
+    Citation 0: URL=https://physics.com/newton, Title=Newton Biography
+
+</tool.toolu_016GPpBZwoRr6orgBWyNUZPh>
+
+## ASSISTANT:
+
+Great! That fixed part of the issue. Now we have 5 items instead of 6, which means the Einstein metadata is no longer being treated as regular text. And both citations have correct titles now.
+
+But we're still missing the final text block that should have no text but both citations combined. Let me run the full test to see the current status:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01DmCPjVH9iJmkKMQ1EghJhP
+
+### command
+
+<tool.toolu_01DmCPjVH9iJmkKMQ1EghJhP>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01DmCPjVH9iJmkKMQ1EghJhP>
+
+## TOOL RESULT:
+
+ID: toolu_01DmCPjVH9iJmkKMQ1EghJhP
+
+<tool.toolu_01DmCPjVH9iJmkKMQ1EghJhP>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-multiple-params ===
+✅ PASSED (0.001s)
+
+=== Testing: complex-workflow ===
+✅ PASSED (0.001s)
+
+=== Testing: multiple-tool-uses ===
+✅ PASSED (0.010s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.000s)
+
+=== Testing: citations-basic ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.001s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-with-code-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-with-tool-use-in-params ===
+✅ PASSED (0.001s)
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.000s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.000s)
+
+=== Testing: server-tool-use-basic ===
+✅ PASSED (0.002s)
+
+=== Testing: server-tool-use-string-result ===
+✅ PASSED (0.001s)
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 20
+Failed: 1
+
+❌ FAILED TESTS:
+  - citations-multiple
+
+</tool.toolu_01DmCPjVH9iJmkKMQ1EghJhP>
+
+## ASSISTANT:
+
+Good progress! The citation parsing is now working correctly - all the individual citations have the right metadata. The only remaining issue is that we're missing the final text block that should have no text but both citations combined.
+
+Looking at the expected vs actual:
+
+**Expected** has a final item:
+```elisp
+((type . "text")
+ (citations
+  ((type . "web_search_result_location")
+   (url . "https://physics.com/einstein") ...)
+  ((type . "web_search_result_location")
+   (url . "https://physics.com/newton") ...)))
+```
+
+**Actual** doesn't have this final item.
+
+Looking at the corpus file structure again, the third citations section has:
+
+```
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+```
+
+This third citations section has no cited text at the beginning, just two citation entries with their metadata. According to the expected result, this should produce a text block with no text but both citations attached.
+
+The issue is that the citation parsing logic only creates a text block when there's cited text. But in this case, there's no cited text, only citations. The logic needs to handle the case where there are citations but no cited text.
+
+Let me look at the end of the citation parsing function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NXfUcTy2SGjVpdq9wuTunu
+
+### path
+
+<tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+greger-tree-sitter.el
+</tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+
+### start-line
+
+<tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+390
+</tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+
+### end-line
+
+<tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+410
+</tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+
+## TOOL RESULT:
+
+ID: toolu_01NXfUcTy2SGjVpdq9wuTunu
+
+<tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+                 (lines (split-string entry-text "\n"))
+                 (url-line (and lines (string-trim (car lines))))
+                 (url (when (string-prefix-p "###" url-line)
+                        (string-trim (substring url-line 3)))))
+            (when url
+
+              (push (list (cons 'type "web_search_result_location")
+                        (cons 'url url)
+                        (cons 'title nil)
+                        (cons 'cited_text nil)
+                        (cons 'encrypted_index nil))
+                    citations)))))
+        (setq i (1+ i))))
+
+    ;; Create result with cited text and citations
+    (when cited-text
+      (if citations
+          (push `((type . "text")
+                  (text . ,cited-text)
+                  (citations . ,(nreverse citations)))
+                result)
+</tool.toolu_01NXfUcTy2SGjVpdq9wuTunu>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01LaEFMSXtVqQvMz3eqdPxNk
+
+### path
+
+<tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+greger-tree-sitter.el
+</tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+
+### start-line
+
+<tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+400
+</tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+
+### end-line
+
+<tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+420
+</tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+
+## TOOL RESULT:
+
+ID: toolu_01LaEFMSXtVqQvMz3eqdPxNk
+
+<tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+                        (cons 'encrypted_index nil))
+                    citations)))))
+        (setq i (1+ i))))
+
+    ;; Create result with cited text and citations
+    (when cited-text
+      (if citations
+          (push `((type . "text")
+                  (text . ,cited-text)
+                  (citations . ,(nreverse citations)))
+                result)
+        (push `((type . "text")
+                (text . ,cited-text))
+              result)))
+
+    (nreverse result)))
+
+(defun greger-tree-sitter--parse-citation-entry (citation-entry-node)
+  "Parse a citation entry node and return citation data."
+  (let ((text (treesit-node-text citation-entry-node)))
+    ;; Parse lines: first line has ###, then URL, then key-value pairs
+</tool.toolu_01LaEFMSXtVqQvMz3eqdPxNk>
+
+## ASSISTANT:
+
+Found it! The issue is in this section:
+
+```elisp
+;; Create result with cited text and citations
+(when cited-text
+  (if citations
+      (push `((type . "text")
+              (text . ,cited-text)
+              (citations . ,(nreverse citations)))
+            result)
+    (push `((type . "text")
+            (text . ,cited-text))
+          result)))
+```
+
+The logic only creates a result `(when cited-text ...)`. But in the third citations section, there's no cited text, only citations. So no result is created.
+
+The logic should also handle the case where there are citations but no cited text. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DjuvaLYQ9xDR3MQfmJk2Ew
+
+### file-path
+
+<tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+greger-tree-sitter.el
+</tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+
+### original-content
+
+<tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+;; Create result with cited text and citations
+    (when cited-text
+      (if citations
+          (push `((type . "text")
+                  (text . ,cited-text)
+                  (citations . ,(nreverse citations)))
+                result)
+        (push `((type . "text")
+                (text . ,cited-text))
+              result)))
+</tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+
+### new-content
+
+<tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+;; Create result with cited text and citations
+    (cond
+     ;; Case 1: Both cited text and citations
+     ((and cited-text citations)
+      (push `((type . "text")
+              (text . ,cited-text)
+              (citations . ,(nreverse citations)))
+            result))
+     ;; Case 2: Only cited text, no citations
+     (cited-text
+      (push `((type . "text")
+              (text . ,cited-text))
+            result))
+     ;; Case 3: Only citations, no cited text
+     (citations
+      (push `((type . "text")
+              (citations . ,(nreverse citations)))
+            result)))
+</tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+
+### git-commit-message
+
+<tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+Fix citation parsing to handle citations without cited text
+</tool.toolu_01DjuvaLYQ9xDR3MQfmJk2Ew>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DjuvaLYQ9xDR3MQfmJk2Ew -->

@@ -402,15 +402,23 @@
         (setq i (1+ i))))
 
     ;; Create result with cited text and citations
-    (when cited-text
-      (if citations
-          (push `((type . "text")
-                  (text . ,cited-text)
-                  (citations . ,(nreverse citations)))
-                result)
-        (push `((type . "text")
-                (text . ,cited-text))
-              result)))
+    (cond
+     ;; Case 1: Both cited text and citations
+     ((and cited-text citations)
+      (push `((type . "text")
+              (text . ,cited-text)
+              (citations . ,(nreverse citations)))
+            result))
+     ;; Case 2: Only cited text, no citations
+     (cited-text
+      (push `((type . "text")
+              (text . ,cited-text))
+            result))
+     ;; Case 3: Only citations, no cited text
+     (citations
+      (push `((type . "text")
+              (citations . ,(nreverse citations)))
+            result)))
 
     (nreverse result)))
 
