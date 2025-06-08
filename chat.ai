@@ -10746,4 +10746,158 @@ _citations_content: $ => choice(
 Revert citation_entry and use aliases for cleaner citation component names
 </tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01VSsBsomdnSvF29Xq2JLXPu -->
+## TOOL RESULT:
+
+ID: toolu_01VSsBsomdnSvF29Xq2JLXPu
+
+<tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert citation_entry and use aliases for cleaner citation component names
+</tool.toolu_01VSsBsomdnSvF29Xq2JLXPu>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016LVueidP5YpDh4E7UYXja8
+
+### command
+
+<tool.toolu_016LVueidP5YpDh4E7UYXja8>
+tree-sitter generate && tree-sitter parse test/corpus/citations-basic.greger
+</tool.toolu_016LVueidP5YpDh4E7UYXja8>
+
+## TOOL RESULT:
+
+ID: toolu_016LVueidP5YpDh4E7UYXja8
+
+<tool.toolu_016LVueidP5YpDh4E7UYXja8>
+Command executed successfully:
+(source_file [0, 0] - [44, 0]
+  (user [0, 0] - [4, 0]
+      text: (text_block [0, 8] - [4, 0]))
+  (server_tool_use [4, 0] - [15, 0]
+      (text_block [4, 19] - [6, 0])
+      (name [6, 0] - [7, 0])
+      (id [7, 0] - [8, 0])
+      (text_block [8, 0] - [9, 0])
+      (param [9, 0] - [13, 40]
+        (name [9, 4] - [9, 9])
+        (value [11, 0] - [13, 40]))
+      (text_block [13, 40] - [15, 0]))
+  (server_tool_result [15, 0] - [31, 0]
+      (text_block [15, 22] - [17, 0])
+      (id [17, 0] - [18, 0])
+      (text_block [18, 0] - [19, 0])
+      (content [19, 0] - [29, 40])
+      (text_block [29, 40] - [31, 0]))
+  (assistant [31, 0] - [35, 0]
+      text: (text_block [31, 13] - [35, 0]))
+  (citations [35, 0] - [44, 0]
+      text: (text_block [35, 13] - [39, 0])
+      text: (entry [39, 0] - [40, 0]
+        (url [39, 3] - [39, 48]))
+      text: (text_block [40, 0] - [41, 0])
+      text: (title [41, 0] - [42, 0])
+      text: (cited_text [42, 0] - [43, 0])
+      text: (encrypted_index [43, 0] - [44, 0])))
+
+</tool.toolu_016LVueidP5YpDh4E7UYXja8>
+
+## ASSISTANT:
+
+Good! Now the citations section has much cleaner names:
+- `(entry [...])` instead of `(citation_entry [...])`
+- `(title [...])` instead of `(citation_title [...])`
+- `(cited_text [...])` instead of `(citation_text [...])`
+- `(encrypted_index [...])` instead of `(citation_encrypted_index [...])`
+
+Now I need to address the scattered text_blocks. The issue is that whitespace and newlines between structured elements are being captured as text_block. For the desired clean structure, I need to either:
+
+1. Remove the field prefixes ("text:") and consolidate text_blocks
+2. Or restructure to eliminate unnecessary text_blocks
+
+Looking at the desired output, it seems like we want `(text [...])` for actual content, not for every text_block.
+
+Let me remove the field usage for the user/assistant/citations sections:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DLBobuhyAR3YLmuWNBU1Au
+
+### file-path
+
+<tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+grammar.js
+</tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+
+### original-content
+
+<tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+user_section: $ => prec.right(seq(
+      '##',
+      'USER',
+      ':',
+      field('text', repeat($._section_content)),
+    )),
+
+    assistant_section: $ => prec.right(seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      field('text', repeat($._section_content)),
+    )),
+
+    system_section: $ => prec.right(seq(
+      '##',
+      'SYSTEM',
+      ':',
+      field('text', repeat($._section_content)),
+    )),
+
+    thinking_section: $ => prec.right(seq(
+      '##',
+      'THINKING',
+      ':',
+      field('text', repeat($._section_content)),
+    )),
+</tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+
+### new-content
+
+<tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+user_section: $ => prec.right(seq(
+      '##',
+      'USER',
+      ':',
+      alias(repeat($._section_content), $.text),
+    )),
+
+    assistant_section: $ => prec.right(seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      alias(repeat($._section_content), $.text),
+    )),
+
+    system_section: $ => prec.right(seq(
+      '##',
+      'SYSTEM',
+      ':',
+      alias(repeat($._section_content), $.text),
+    )),
+
+    thinking_section: $ => prec.right(seq(
+      '##',
+      'THINKING',
+      ':',
+      alias(repeat($._section_content), $.text),
+    )),
+</tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+
+### git-commit-message
+
+<tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+Use aliases instead of fields for section content to get cleaner structure
+</tool.toolu_01DLBobuhyAR3YLmuWNBU1Au>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DLBobuhyAR3YLmuWNBU1Au -->

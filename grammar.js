@@ -55,28 +55,28 @@ module.exports = grammar({
       '##',
       'USER',
       ':',
-      field('text', repeat($._section_content)),
+      alias(repeat($._section_content), $.text),
     )),
 
     assistant_section: $ => prec.right(seq(
       '##',
       'ASSISTANT',
       ':',
-      field('text', repeat($._section_content)),
+      alias(repeat($._section_content), $.text),
     )),
 
     system_section: $ => prec.right(seq(
       '##',
       'SYSTEM',
       ':',
-      field('text', repeat($._section_content)),
+      alias(repeat($._section_content), $.text),
     )),
 
     thinking_section: $ => prec.right(seq(
       '##',
       'THINKING',
       ':',
-      field('text', repeat($._section_content)),
+      alias(repeat($._section_content), $.text),
     )),
 
     tool_use_section: $ => prec.right(seq(
