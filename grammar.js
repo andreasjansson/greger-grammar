@@ -113,7 +113,7 @@ module.exports = grammar({
     _tool_result_content: $ => choice(
       $.tool_use_metadata,
       $.tool_content,
-      $.text_content,
+      $.tool_text_content,
       /\r?\n/,
     ),
 
