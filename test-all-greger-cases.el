@@ -95,6 +95,18 @@
       (content . (((type . "thinking")
                    (thinking . "I need to consider all the options carefully before responding.")))))))
 
+  ;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
   ;; Report summary
   (message "\n📊 TEST SUMMARY:")
   (message "Total tests: %d" (+ greger-tree-sitter-tests-passed greger-tree-sitter-tests-failed))

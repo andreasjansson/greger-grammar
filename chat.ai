@@ -9726,4 +9726,304 @@ test-all-greger-cases.el
 Simplify test file with inline test cases to avoid syntax errors
 </tool.toolu_011dcNWsW2L3HjVXJeeYZQBj>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011dcNWsW2L3HjVXJeeYZQBj -->
+## TOOL RESULT:
+
+ID: toolu_011dcNWsW2L3HjVXJeeYZQBj
+
+<tool.toolu_011dcNWsW2L3HjVXJeeYZQBj>
+Successfully replaced contents of /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el with 4081 characters. Successfully staged 2 file(s) and committed with message: Simplify test file with inline test cases to avoid syntax errors
+</tool.toolu_011dcNWsW2L3HjVXJeeYZQBj>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01C8C47ohqhSSq2qqbDMnkzx
+
+### command
+
+<tool.toolu_01C8C47ohqhSSq2qqbDMnkzx>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_01C8C47ohqhSSq2qqbDMnkzx>
+
+## TOOL RESULT:
+
+ID: toolu_01C8C47ohqhSSq2qqbDMnkzx
+
+<tool.toolu_01C8C47ohqhSSq2qqbDMnkzx>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: thinking-only ===
+✅ PASSED (0.000s)
+
+📊 TEST SUMMARY:
+Total tests: 3
+Passed: 3
+Failed: 0
+
+🎉 ALL TESTS PASSED!
+
+</tool.toolu_01C8C47ohqhSSq2qqbDMnkzx>
+
+## ASSISTANT:
+
+Excellent! All the current tests are passing. Now let me add more test cases to cover the features that need implementation. I notice that the thinking-section test case from the original file expects a different structure - it should have both thinking AND text content. Let me check that test case:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ANVi37zmQ7vjd4bi7cH4Az
+
+### file-path
+
+<tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+test-all-greger-cases.el
+</tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+
+### original-content
+
+<tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test 
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Report summary
+</tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+
+### new-content
+
+<tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test 
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test 
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+
+### git-commit-message
+
+<tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+Add thinking-section test case which combines thinking with text response
+</tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+
+## TOOL RESULT:
+
+ID: toolu_01ANVi37zmQ7vjd4bi7cH4Az
+
+<tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el -- Try again!
+</tool.toolu_01ANVi37zmQ7vjd4bi7cH4Az>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FyRsj76FDT7ksryZVfvTLk
+
+### file-path
+
+<tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+test-all-greger-cases.el
+</tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+
+### original-content
+
+<tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test 
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Report summary
+</tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+
+### new-content
+
+<tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test 
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test 
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+
+### git-commit-message
+
+<tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+Add thinking-section test case which combines thinking with text response
+</tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+
+## TOOL RESULT:
+
+ID: toolu_01FyRsj76FDT7ksryZVfvTLk
+
+<tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test-all-greger-cases.el -- Try again!
+</tool.toolu_01FyRsj76FDT7ksryZVfvTLk>
+
+## ASSISTANT:
+
+Let me look at the current file again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012JJJAjoMfjxVfbz8xohQTe
+
+### path
+
+<tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+test-all-greger-cases.el
+</tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+
+### start-line
+
+<tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+85
+</tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+
+### end-line
+
+<tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+100
+</tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+
+## TOOL RESULT:
+
+ID: toolu_012JJJAjoMfjxVfbz8xohQTe
+
+<tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+     ((role . "assistant")
+      (content . "The file contains: Hello, world!"))))
+
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Report summary
+  (message "\n📊 TEST SUMMARY:")
+  (message "Total tests: %d" (+ greger-tree-sitter-tests-passed greger-tree-sitter-tests-failed))
+</tool.toolu_012JJJAjoMfjxVfbz8xohQTe>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013Bfdwsf9YhSTHptYCc64gs
+
+### file-path
+
+<tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+test-all-greger-cases.el
+</tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+
+### original-content
+
+<tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Report summary
+</tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+
+### new-content
+
+<tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+  ;; Thinking only
+  (greger-tree-sitter-run-single-test
+   "thinking-only"
+   (greger-read-corpus-file "thinking-only")
+   '(((role . "user")
+      (content . "Let me think about this"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "I need to consider all the options carefully before responding.")))))))
+
+  ;; Thinking section (thinking + assistant text)
+  (greger-tree-sitter-run-single-test 
+   "thinking-section"
+   (greger-read-corpus-file "thinking-section")
+   '(((role . "user")
+      (content . "What's 2+2?"))
+     ((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . "This is a simple arithmetic question. I can answer this directly without needing any tools."))
+                  ((type . "text")
+                   (text . "2 + 2 = 4")))))))
+
+  ;; Report summary
+</tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+
+### git-commit-message
+
+<tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+Add thinking-section test case which combines thinking with text response
+</tool.toolu_013Bfdwsf9YhSTHptYCc64gs>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013Bfdwsf9YhSTHptYCc64gs -->
