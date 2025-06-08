@@ -277,7 +277,7 @@
   "Extract server tool result data from a server tool result section."
   ;; Similar to tool result but with different type
   (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
-    (setf (alist-get 'type result) "web_search_tool_result")
+    (setf (alist-get 'type result) "server_tool_result")
     result))
 
 (defun greger-tree-sitter--extract-citations-section (citations-section)

@@ -6063,4 +6063,727 @@ greger-tree-sitter.el
 Simplify comment collection to return list directly
 </tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012YyAHaEhYvYaEZDL3bLTKG -->
+## TOOL RESULT:
+
+ID: toolu_012YyAHaEhYvYaEZDL3bLTKG
+
+<tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el. Successfully staged 2 file(s) and committed with message: Simplify comment collection to return list directly
+</tool.toolu_012YyAHaEhYvYaEZDL3bLTKG>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E4XikgKsQZkDWdXF2dmmBc
+
+### command
+
+<tool.toolu_01E4XikgKsQZkDWdXF2dmmBc>
+emacs --batch -l debug-test.el
+</tool.toolu_01E4XikgKsQZkDWdXF2dmmBc>
+
+## TOOL RESULT:
+
+ID: toolu_01E4XikgKsQZkDWdXF2dmmBc
+
+<tool.toolu_01E4XikgKsQZkDWdXF2dmmBc>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+Result:
+(((role . "user")
+  (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?")))
+
+</tool.toolu_01E4XikgKsQZkDWdXF2dmmBc>
+
+## ASSISTANT:
+
+Excellent! Now the HTML comments outside of code blocks are properly filtered out, and the ones inside code blocks are preserved. The output now matches the expected result better. Let's run a quick test on the multiple issues to see how much we've improved:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019Vw9riLQebm6ZzC5fM2FDp
+
+### command
+
+<tool.toolu_019Vw9riLQebm6ZzC5fM2FDp>
+emacs --batch -l test-all-greger-cases.el
+</tool.toolu_019Vw9riLQebm6ZzC5fM2FDp>
+
+## TOOL RESULT:
+
+ID: toolu_019Vw9riLQebm6ZzC5fM2FDp
+
+<tool.toolu_019Vw9riLQebm6ZzC5fM2FDp>
+Command executed successfully:
+Loading /Users/andreas/scratch/greger-grammar/greger-tree-sitter.el (source)...
+
+🧪 Running greger-tree-sitter comprehensive tests...
+
+=== Testing: simple-user-message ===
+✅ PASSED (0.000s)
+
+=== Testing: system-and-user ===
+✅ PASSED (0.000s)
+
+=== Testing: simple-conversation ===
+✅ PASSED (0.000s)
+
+=== Testing: thinking-section ===
+✅ PASSED (0.000s)
+
+=== Testing: tool-use-single-param ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-multiple-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . 2)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for python files containing 'def main'"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_456")
+    (name . "ripgrep")
+    (input
+     (pattern . "def main")
+     (file-type . "py")
+     (context-lines . "2")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_456")
+    (content . "src/main.py:10:def main():\nsrc/utils.py:25:def main_helper():"))))
+ ((role . "assistant")
+  (content . "I found 2 matches for 'def main' in Python files.")))
+
+
+=== Testing: complex-workflow ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . 3)))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "JSON result content"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.")))
+
+
+Actual:
+(((role . "user")
+  (content . "who's the current king of sweden?"))
+ ((role . "assistant")
+  (content
+   ((type . "thinking")
+    (thinking . "The user is asking about the current king of Sweden. This is a factual question that I can search for to get the most up-to-date information. I'll use the search function to find this information."))
+   ((type . "tool_use")
+    (id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (name . "search-286d2fd3")
+    (input
+     (query . "current king of Sweden 2024")
+     (include_answer . "basic")
+     (max_results . "3")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_01Kf8avk1cBqH5ZHoXL92Duc")
+    (content . "{\\\"query\\\": \\\"current king of Sweden 2024\\\", \\\"answer\\\": \\\"Carl XVI Gustaf\\\", \\\"response_time\\\": 2.38}"))))
+ ((role . "assistant")
+  (content . "The current King of Sweden is **Carl XVI Gustaf**. He has been reigning since 1973 and is the longest-reigning monarch in Swedish history.0")))
+
+
+=== Testing: multiple-tool-uses ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \"This is the content of file1.\"")))
+
+
+Actual:
+(((role . "user")
+  (content . "List files and read the first one"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_111")
+    (name . "list-directory")
+    (input
+     (path . ".")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_111")
+    (content . "file1.txt\nfile2.txt\nREADME.md"))))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_222")
+    (name . "read-file")
+    (input
+     (path . "file1.txt")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_222")
+    (content . "This is the content of file1."))))
+ ((role . "assistant")
+  (content . "I found 3 files in the directory. The first file (file1.txt) contains: \\\"This is the content of file1.\\\"")))
+
+
+=== Testing: thinking-only ===
+✅ PASSED (0.001s)
+
+=== Testing: tool-use-only ===
+✅ PASSED (0.001s)
+
+=== Testing: citations-basic ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "Search results about Claude Shannon"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "When was Claude Shannon born?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (name . "web_search")
+    (input
+     (query . "claude shannon birth date")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_01WYG3ziw53XMcoyKL4XcZmE")
+    (content . "[\n  {\n    \\\"type\\\": \\\"web_search_result\\\",\n    \\\"url\\\": \\\"https://en.wikipedia.org/wiki/Claude_Shannon\\\",\n    \\\"title\\\": \\\"Claude Shannon - Wikipedia\\\",\n    \\\"encrypted_content\\\": \\\"EqgfCioIARgBIiQ3YTAwMjY1Mi1mZjM5LTQ1NGUtODgxNC1kNjNjNTk1ZWI3Y...\\\",\n    \\\"page_age\\\": \\\"April 30, 2025\\\"\n  }\n]"))
+   ((type . "text")
+    (text . "Based on the search results,"))
+   ((type . "text")
+    (text . "Claude Shannon was born on April 30, 1916, in Petoskey, Michigan")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://en.wikipedia.org/wiki/Claude_Shannon")
+      (title . "Claude Shannon - Wikipedia")
+      (cited_text . "Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...")
+      (encrypted_index . "Eo8BCioIAhgBIiQyYjQ0OWJmZi1lNm..")))))))
+
+
+=== Testing: citations-after-tool-result ===
+✅ PASSED (0.003s)
+
+=== Testing: citations-multiple ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Einstein Biography")
+      (cited_text . "Albert Einstein developed the theory of relativity in the early 20th century...")
+      (encrypted_index . "def456"))
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+Actual:
+(((role . "user")
+  (content . "Tell me about Einstein and Newton"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_789")
+    (name . "web_search")
+    (input
+     (query . "Einstein Newton physics")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_789")
+    (content . "Physics search results"))
+   ((type . "text")
+    (text . "Einstein developed the theory of relativity")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/einstein")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789"))))
+   ((type . "text")
+    (text . "while"))
+   ((type . "text")
+    (text . "Newton formulated the laws of motion")
+    (citations
+     ((type . "web_search_result_location")
+      (url . "https://physics.com/newton")
+      (title . "Newton Biography")
+      (cited_text . "Isaac Newton formulated the three laws of motion...")
+      (encrypted_index . "ghi789")))))))
+
+
+=== Testing: code-block-triple-backticks ===
+✅ PASSED (0.002s)
+
+=== Testing: mixed-code-blocks-and-sections ===
+✅ PASSED (0.002s)
+
+=== Testing: tool-use-with-code-in-params ===
+❌ FAILED (0.001s)
+
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "```python\ndef main():\n    # This ## USER: comment should not break parsing\n    print(\"Hello world\")\n\nif __name__ == \"__main__\":\n    main()\n```")))))
+ ((role . "user")
+  (content
+   ((type . "web_search_tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+=== Testing: tool-use-with-tool-use-in-params ===
+❌ FAILED (0.003s)
+
+Expected:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
+ ((role . "user")
+  (content
+   ((type . "tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+Actual:
+(((role . "user")
+  (content . "Write some Python code"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "toolu_999")
+    (name . "write-file")
+    (input
+     (filename . "example.py")
+     (content . "foo\n<tool.toolu_123>\nbar\n</tool.toolu_123>")))))
+ ((role . "user")
+  (content
+   ((type . "web_search_tool_result")
+    (tool_use_id . "toolu_999")
+    (content . "File written successfully"))))
+ ((role . "assistant")
+  (content . "I've written the Python file.")))
+
+
+=== Testing: nested-code-blocks ===
+✅ PASSED (0.003s)
+
+=== Testing: html-comments ===
+✅ PASSED (0.001s)
+
+=== Testing: server-tool-use-basic ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content
+     ((title . "Weather in San Francisco")
+      (url . "https://weather.com/sf")
+      (content . "Sunny, 72°F"))))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+
+Actual:
+(((role . "user")
+  (content . "Search for current weather in San Francisco"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_123")
+    (name . "web_search")
+    (input
+     (query . "current weather San Francisco")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_123")
+    (content . "[\n  {\n    \\\"title\\\": \\\"Weather in San Francisco\\\",\n    \\\"url\\\": \\\"https://weather.com/sf\\\",\n    \\\"content\\\": \\\"Sunny, 72°F\\\"\n  }\n]"))
+   ((type . "text")
+    (text . "The current weather in San Francisco is sunny and 72°F.")))))
+
+
+=== Testing: server-tool-use-string-result ===
+❌ FAILED (0.002s)
+
+Expected:
+(((role . "user")
+  (content . "What's the weather like?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "weather")))
+   ((type . "server_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Sunny and warm today"))
+   ((type . "text")
+    (text . "It looks like it's sunny and warm today!")))))
+
+
+Actual:
+(((role . "user")
+  (content . "What's the weather like?"))
+ ((role . "assistant")
+  (content
+   ((type . "server_tool_use")
+    (id . "srvtoolu_456")
+    (name . "web_search")
+    (input
+     (query . "weather")))
+   ((type . "web_search_tool_result")
+    (tool_use_id . "srvtoolu_456")
+    (content . "Sunny and warm today"))
+   ((type . "text")
+    (text . "It looks like it's sunny and warm today!")))))
+
+
+📊 TEST SUMMARY:
+Total tests: 21
+Passed: 12
+Failed: 9
+
+❌ FAILED TESTS:
+  - tool-use-multiple-params
+  - complex-workflow
+  - multiple-tool-uses
+  - citations-basic
+  - citations-multiple
+  - tool-use-with-code-in-params
+  - tool-use-with-tool-use-in-params
+  - server-tool-use-basic
+  - server-tool-use-string-result
+
+</tool.toolu_019Vw9riLQebm6ZzC5fM2FDp>
+
+## ASSISTANT:
+
+Great progress! We went from 8 to 12 passing tests. The HTML comments and code blocks are now working correctly. Let me focus on the remaining issues:
+
+1. **Numbers vs strings**: Some expected values are numbers but we get strings (e.g., `2` vs `"2"`)
+2. **Server tool types**: Some tests expect `server_tool_result` and `tool_result` but we're getting `web_search_tool_result`
+3. **Tool result content mismatch**: In some tests we're getting JSON when we should get simplified content
+4. **Citations parsing issues**
+
+Let me first address the server tool result type issue. It looks like the expected behavior is different between regular tool results vs server tool results. Let me examine what the grammar and the code are doing:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01FQGWnBR2ZbpcQe4zv5ZXfq
+
+### path
+
+<tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+greger-tree-sitter.el
+</tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+
+### start-line
+
+<tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+250
+</tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+
+### end-line
+
+<tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+270
+</tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+
+## TOOL RESULT:
+
+ID: toolu_01FQGWnBR2ZbpcQe4zv5ZXfq
+
+<tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+          (let ((text (treesit-node-text child)))
+            (dolist (line (split-string text "\n"))
+              (setq line (string-trim line))
+              (when (string-prefix-p "ID:" line)
+                (setq tool-use-id (string-trim (substring line 3)))))))
+
+         ((string= node-type "tool_content")
+          ;; Extract content from tool_content node
+          (let ((content-text (treesit-node-text child)))
+            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
+            ;; Use string operations instead of regex to handle multiline content
+            (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
+              (setq content-text (match-string 1 content-text)))
+            (setq content (string-trim content-text)))))))
+
+    `((type . "tool_result")
+      (tool_use_id . ,tool-use-id)
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+  "Extract server tool use data from a server tool use section."
+</tool.toolu_01FQGWnBR2ZbpcQe4zv5ZXfq>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01SnJmu69W4XTHU9HrQgkHDc
+
+### path
+
+<tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+greger-tree-sitter.el
+</tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+
+### start-line
+
+<tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+265
+</tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+
+### end-line
+
+<tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+285
+</tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+
+## TOOL RESULT:
+
+ID: toolu_01SnJmu69W4XTHU9HrQgkHDc
+
+<tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+    `((type . "tool_result")
+      (tool_use_id . ,tool-use-id)
+      (content . ,content))))
+
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
+  "Extract server tool use data from a server tool use section."
+  ;; Similar to tool use but with server_tool_use type
+  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
+    (setf (alist-get 'type result) "server_tool_use")
+    result))
+
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    (setf (alist-get 'type result) "web_search_tool_result")
+    result))
+
+(defun greger-tree-sitter--extract-citations-section (citations-section)
+  "Extract citations section and return list of text blocks with citations attached."
+  (let ((children (treesit-node-children citations-section))
+</tool.toolu_01SnJmu69W4XTHU9HrQgkHDc>
+
+## ASSISTANT:
+
+I see the issue! The `greger-tree-sitter--extract-server-tool-result` function is hardcoded to return `"web_search_tool_result"` instead of `"server_tool_result"`. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AAN3zb5TtnXDhDHik2C2ZS
+
+### file-path
+
+<tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+greger-tree-sitter.el
+</tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+
+### original-content
+
+<tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    (setf (alist-get 'type result) "web_search_tool_result")
+    result))
+</tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+
+### new-content
+
+<tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+  "Extract server tool result data from a server tool result section."
+  ;; Similar to tool result but with different type
+  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
+    (setf (alist-get 'type result) "server_tool_result")
+    result))
+</tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+
+### git-commit-message
+
+<tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+Fix server tool result type to be server_tool_result instead of web_search_tool_result
+</tool.toolu_01AAN3zb5TtnXDhDHik2C2ZS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AAN3zb5TtnXDhDHik2C2ZS -->
