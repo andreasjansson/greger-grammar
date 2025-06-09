@@ -126,11 +126,15 @@ module.exports = grammar({
       '##',
       'CITATIONS',
       ':',
-      choice(
-        prec(1, repeat1($.citation_entry)),
-        seq($.text, repeat($.citation_entry)),
-      ),
+      optional($.citations_text),
+      repeat($.citation_entry),
     ),
+
+    citations_text: $ => prec.right(repeat1(choice(
+      $.cite_tag,
+      $.safe_shell_commands,
+      $._text_content,
+    ))),
 
     name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
     id: $ => token(seq('ID:', /[^\n]*/, /\n/)),
