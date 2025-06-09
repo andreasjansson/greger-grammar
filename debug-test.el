@@ -56,5 +56,8 @@
       (message "=== Debugging content extraction ===")
       (message "User node type: %s" (treesit-node-type user-node))
       (message "User node text: %S" (treesit-node-text user-node))
+      (message "User node children:")
+      (dolist (child (treesit-node-children user-node))
+        (message "  Child type: %s, text: %S" (treesit-node-type child) (treesit-node-text child)))
       (let ((content (greger-tree-sitter--extract-content-blocks user-node)))
         (message "Extracted content: %S" content)))))
