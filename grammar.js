@@ -126,8 +126,10 @@ module.exports = grammar({
       '##',
       'CITATIONS',
       ':',
-      optional($.text),
-      repeat($.citation_entry),
+      choice(
+        seq($.text, repeat($.citation_entry)),
+        repeat1($.citation_entry),
+      ),
     ),
 
     name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
