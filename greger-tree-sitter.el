@@ -168,6 +168,12 @@
   "Strip a single newline from the front and back of STR."
   (string-trim str "\\`\n?" "\n?\\'"))
 
+(defun greger-tree-sitter--convert-param-value (value)
+  "Convert VALUE to appropriate type (number if it looks like a number, otherwise string)."
+  (if (string-match "^[0-9]+$" value)
+      (string-to-number value)
+    value))
+
 (defun greger-tree-sitter--extract-tool-result-entry (node)
   "Extract tool result entry from NODE."
   (let ((id nil)
@@ -178,7 +184,7 @@
          ((string= child-type "id")
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
-          (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
+          (setq content (treesit-node-text child t))))))
     `((role . "user")
       (content . (((type . "tool_result")
                    (tool_use_id . ,id)
@@ -215,7 +221,7 @@
          ((string= child-type "id")
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
-          (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
+          (setq content (treesit-node-text child t))))))
     ;; Check if this is a web search result and parse accordingly
     (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
       `((role . "assistant")
@@ -250,7 +256,7 @@
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
   (let ((result (greger-tree-sitter--collect-text-blocks node "")))
-    (string-trim (greger-tree-sitter--strip-html-comments result))))
+    (string-trim result)))
 
 (defun greger-tree-sitter--collect-text-blocks (node result)
   "Recursively collect text from text nodes in NODE and append to RESULT."
@@ -269,63 +275,6 @@
         (dolist (child (treesit-node-children node))
           (setq text-result (greger-tree-sitter--collect-text-blocks child text-result)))
         text-result)))))
-
-(defun greger-tree-sitter--extract-tool-params (node)
-  "Extract tool parameters from tool use NODE."
-  (let ((params '())
-        (children (treesit-node-children node)))
-    (dolist (child children)
-      (when (string= (treesit-node-type child) "tool_param")
-        (let ((param-name (greger-tree-sitter--extract-tool-param-name child))
-              (param-value (greger-tree-sitter--extract-tool-param-value child)))
-          (when (and param-name param-value)
-            (push (cons (intern param-name) (greger-tree-sitter--convert-param-value param-value)) params)))))
-    (nreverse params)))
-
-(defun greger-tree-sitter--convert-param-value (value)
-  "Convert VALUE to appropriate type (number if it looks like a number, otherwise string)."
-  (if (string-match "^[0-9]+$" value)
-      (string-to-number value)
-    value))
-
-(defun greger-tree-sitter--extract-tool-param-name (node)
-  "Extract parameter name from tool_param NODE."
-  (let ((name-node (treesit-node-child-by-field-name node "name")))
-    (if name-node
-        (treesit-node-text name-node t)
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "name")
-              (setq result (treesit-node-text child t)))
-            (setq children (cdr children))))
-        result))))
-
-(defun greger-tree-sitter--extract-tool-param-value (node)
-  "Extract parameter value from tool_param NODE."
-  (let ((value-node (treesit-node-child-by-field-name node "value")))
-    (if value-node
-        (greger-tree-sitter--extract-xml-content (treesit-node-text value-node t))
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "value")
-              (setq result (greger-tree-sitter--extract-xml-content (treesit-node-text child t))))
-            (setq children (cdr children))))
-        result))))
-
-(defun greger-tree-sitter--extract-xml-content (text)
-  "Extract content from XML wrapper tags in TEXT."
-  (let ((content (if (string-match "^\\s-*<[^>]+>\\s-*\\(\\(?:.\\|\n\\)*?\\)\\s-*</[^>]+>\\s-*$" text)
-                     (string-trim (match-string 1 text))
-                   (string-trim text))))
-    ;; Unescape JSON quotes if this looks like JSON
-    (if (and (string-match-p "^\\s-*[{\\[]" content)
-             (string-match-p "[}\\]]\\s-*$" content))
-        (replace-regexp-in-string "\\\\\"" "\"" content)
-      content)))
 
 (defun greger-tree-sitter--parse-json-or-plain-content (content)
   "Parse CONTENT as JSON if it looks like JSON, otherwise return as plain text."
