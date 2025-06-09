@@ -16,7 +16,7 @@
               (error "Could not parse test file format: %s" file-path))))
       (error "Corpus file not found: %s" file-path))))
 
-(let* ((markdown (greger-read-corpus-file "complex-workflow"))
+(let* ((markdown (greger-read-corpus-file "code-block-triple-backticks"))
        (expected '(((role . "user")
                     (content . "who's the current king of sweden?"))
                    ((role . "assistant")
