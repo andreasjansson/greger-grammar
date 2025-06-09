@@ -4289,7 +4289,7 @@ Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100
 
 Great! I can see from the debug output that the citation fields are being parsed correctly with the new field structure. The test passes and the fields are working as expected:
 
-- `title` field contains a `citation_title_value` 
+- `title` field contains a `citation_title_value`
 - `cited_text` field contains a `citation_text_value`
 - `encrypted_index` field contains a `citation_encrypted_index_value`
 
@@ -4701,7 +4701,7 @@ Great! There's only one `value` rule definition now.
 
 ## Summary
 
-I successfully replaced all the specific value types (`name_value`, `id_value`, `citation_title_value`, `citation_text_value`, `citation_encrypted_index_value`) with a single generic `value` type. 
+I successfully replaced all the specific value types (`name_value`, `id_value`, `citation_title_value`, `citation_text_value`, `citation_encrypted_index_value`) with a single generic `value` type.
 
 ### Changes made:
 
@@ -5482,4 +5482,211 @@ citation_title: $ => seq(
 Remove field labels from citation values to match expected test structure
 </tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FLDaSkuHTV4vW9xhLpMgRq -->
+## TOOL RESULT:
+
+ID: toolu_01FLDaSkuHTV4vW9xhLpMgRq
+
+<tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove field labels from citation values to match expected test structure
+</tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+
+## ASSISTANT:
+
+Now I need to update all the test files to expect `value` instead of `name_value` and `id_value`. Let me do this systematically:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PXbmSH93mQwUwmCD3RfX3e
+
+### command
+
+<tool.toolu_01PXbmSH93mQwUwmCD3RfX3e>
+tree-sitter test -u
+</tool.toolu_01PXbmSH93mQwUwmCD3RfX3e>
+
+## TOOL RESULT:
+
+ID: toolu_01PXbmSH93mQwUwmCD3RfX3e
+
+<tool.toolu_01PXbmSH93mQwUwmCD3RfX3e>
+Command executed successfully:
+  citations-after-tool-result:
+      1. ✓ [34mCitations after tool result[0m[31m -- Warning: Slow parse rate (655.083 bytes/ms)[0m
+  citations-basic:
+      2. ✓ [34mCitations basic[0m
+  citations-multiple:
+      3. ✓ [34mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✓ [34mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✓ [34mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✓ [34mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✓ [34mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✓ [34mTool use multiple params[0m
+  tool-use-only:
+     19. ✓ [34mTool use only[0m
+  tool-use-single-param:
+     20. ✓ [34mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✓ [34mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✓ [34mTool use with tool use in params[0m
+
+12 updates:
+
+  1. Citations after tool result
+  2. Citations basic
+  3. Citations multiple
+  4. Complex workflow
+  5. Multiple tool uses
+  6. Server tool use basic
+  7. Server tool use string result
+  8. Tool use multiple params
+  9. Tool use only
+  10. Tool use single param
+  11. Tool use with code in params
+  12. Tool use with tool use in params
+
+Total parses: 22; successful parses: 10; failed parses: 12; success percentage: 45.45%; average speed: 8152 bytes/ms
+
+
+</tool.toolu_01PXbmSH93mQwUwmCD3RfX3e>
+
+## ASSISTANT:
+
+Great! The update worked. Now let's run the tests again to make sure everything passes:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0121eSg5gEfo5RB16VtjbU4h
+
+### command
+
+<tool.toolu_0121eSg5gEfo5RB16VtjbU4h>
+tree-sitter test
+</tool.toolu_0121eSg5gEfo5RB16VtjbU4h>
+
+## TOOL RESULT:
+
+ID: toolu_0121eSg5gEfo5RB16VtjbU4h
+
+<tool.toolu_0121eSg5gEfo5RB16VtjbU4h>
+Command executed successfully:
+  citations-after-tool-result:
+      1. ✓ [32mCitations after tool result[0m
+  citations-basic:
+      2. ✓ [32mCitations basic[0m
+  citations-multiple:
+      3. ✓ [32mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✓ [32mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✓ [32mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✓ [32mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✓ [32mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✓ [32mTool use multiple params[0m
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+  tool-use-single-param:
+     20. ✓ [32mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✓ [32mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✓ [32mTool use with tool use in params[0m
+
+Total parses: 22; successful parses: 22; failed parses: 0; success percentage: 100.00%; average speed: 31054 bytes/ms
+
+
+</tool.toolu_0121eSg5gEfo5RB16VtjbU4h>
+
+## ASSISTANT:
+
+Perfect! Let me also verify that the citation structure is correct now by looking at one of the updated test files:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01K3qwg7n92g6GfK12KGygVi
+
+### path
+
+<tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+test/corpus/citations-basic.txt
+</tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+
+### start-line
+
+<tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+75
+</tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+
+### end-line
+
+<tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+85
+</tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+
+## TOOL RESULT:
+
+ID: toolu_01K3qwg7n92g6GfK12KGygVi
+
+<tool.toolu_01K3qwg7n92g6GfK12KGygVi>
+  (citations
+    (text)
+    (citation_entry
+      (url)
+      (title
+        (value))
+      (cited_text
+        (value))
+      (encrypted_index
+        (value)))))
+</tool.toolu_01K3qwg7n92g6GfK12KGygVi>

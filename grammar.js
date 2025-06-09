@@ -178,21 +178,21 @@ module.exports = grammar({
     citation_title: $ => seq(
       'Title:',
       /[ ]+/,
-      $.value,
+      field("value", $.value),
       /\n/,
     ),
 
     citation_text: $ => seq(
       'Cited text:',
       /[ ]+/,
-      $.value,
+      field("value", $.value),
       /\n/,
     ),
 
     citation_encrypted_index: $ => seq(
       'Encrypted index:',
       /[ ]+/,
-      $.value,
+      field("value", $.value),
       /\n/,
     ),
 
