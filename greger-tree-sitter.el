@@ -258,6 +258,9 @@
     (cond
      ((string= node-type "text")
       (concat result (treesit-node-text node t)))
+     ((string= node-type "code_block")
+      ;; For code blocks, include the entire text content
+      (concat result (treesit-node-text node t)))
      (t
       (let ((text-result result))
         (dolist (child (treesit-node-children node))
