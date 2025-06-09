@@ -15756,4 +15756,580 @@ test/corpus/tool-use-single-param.txt
 Update tool-use-single-param test to include explicit name_value and id_value nodes
 </tool.toolu_01NYKLJpZTPEd7TUyKQnq3H3>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NYKLJpZTPEd7TUyKQnq3H3 -->
+## TOOL RESULT:
+
+ID: toolu_01NYKLJpZTPEd7TUyKQnq3H3
+
+<tool.toolu_01NYKLJpZTPEd7TUyKQnq3H3>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-single-param.txt. Successfully staged 2 file(s) and committed with message: Update tool-use-single-param test to include explicit name_value and id_value nodes
+</tool.toolu_01NYKLJpZTPEd7TUyKQnq3H3>
+
+## ASSISTANT:
+
+Rather than doing this one by one, let me use a more efficient approach and update all the test files at once using a script-like approach:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WpNqY1BWPafRNWeF1iWXka
+
+### command
+
+<tool.toolu_01WpNqY1BWPafRNWeF1iWXka>
+find test/corpus -name "*.txt" -exec sed -i.bak 's/(name)/(name\n      (name_value))/g' {} \;
+</tool.toolu_01WpNqY1BWPafRNWeF1iWXka>
+
+## TOOL RESULT:
+
+ID: toolu_01WpNqY1BWPafRNWeF1iWXka
+
+<tool.toolu_01WpNqY1BWPafRNWeF1iWXka>
+Command executed successfully:
+(no output)
+</tool.toolu_01WpNqY1BWPafRNWeF1iWXka>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01L2prDzncdCWm4wbxBLyJZ3
+
+### command
+
+<tool.toolu_01L2prDzncdCWm4wbxBLyJZ3>
+find test/corpus -name "*.txt" -exec sed -i.bak 's/(id)/(id\n      (id_value))/g' {} \;
+</tool.toolu_01L2prDzncdCWm4wbxBLyJZ3>
+
+## TOOL RESULT:
+
+ID: toolu_01L2prDzncdCWm4wbxBLyJZ3
+
+<tool.toolu_01L2prDzncdCWm4wbxBLyJZ3>
+Command executed successfully:
+(no output)
+</tool.toolu_01L2prDzncdCWm4wbxBLyJZ3>
+
+## ASSISTANT:
+
+Wait, that's not quite right because the `sed` approach won't handle the indentation properly and might affect other places where `id` appears (like inside other content). Let me revert this and do it more carefully:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MW8px19DbVE86EpwJ1Z5A1
+
+### command
+
+<tool.toolu_01MW8px19DbVE86EpwJ1Z5A1>
+find test/corpus -name "*.bak" -exec rm {} \;
+</tool.toolu_01MW8px19DbVE86EpwJ1Z5A1>
+
+## TOOL RESULT:
+
+ID: toolu_01MW8px19DbVE86EpwJ1Z5A1
+
+<tool.toolu_01MW8px19DbVE86EpwJ1Z5A1>
+Command executed successfully:
+(no output)
+</tool.toolu_01MW8px19DbVE86EpwJ1Z5A1>
+
+## ASSISTANT:
+
+Let me manually update the key test files one by one with the correct patterns. Let me update a few more important ones:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SjoJ3SP4Z1QEA1XvH3F5YU
+
+### file-path
+
+<tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+test/corpus/tool-use-multiple-params.txt
+</tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+
+### original-content
+
+<tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id)
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (assistant
+    (text)))
+</tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+
+### new-content
+
+<tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id
+      (id_value))
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (assistant
+    (text)))
+</tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+
+### git-commit-message
+
+<tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+Update tool-use-multiple-params test to include explicit name_value and id_value nodes
+</tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+
+## TOOL RESULT:
+
+ID: toolu_01SjoJ3SP4Z1QEA1XvH3F5YU
+
+<tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-multiple-params.txt -- Try again!
+</tool.toolu_01SjoJ3SP4Z1QEA1XvH3F5YU>
+
+## ASSISTANT:
+
+It seems the content might have been affected by the sed command. Let me check what the current content looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012NxMZxK8gtgWFjSPcgNkM4
+
+### path
+
+<tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+test/corpus/tool-use-multiple-params.txt
+</tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+### start-line
+
+<tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+35
+</tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+### end-line
+
+<tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+55
+</tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+### include-line-numbers
+
+<tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+true
+</tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+## TOOL RESULT:
+
+ID: toolu_012NxMZxK8gtgWFjSPcgNkM4
+
+<tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+<tool.toolu_456>
+src/main.py:10:def main():
+src/utils.py:25:def main_helper():
+</tool.toolu_456>
+
+## ASSISTANT:
+
+I found 2 matches for 'def main' in Python files.
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_012NxMZxK8gtgWFjSPcgNkM4>
+
+## ASSISTANT:
+
+I see the sed command did work. Let me check if it's working correctly. Let me test one file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SLeqn769qhQ1YQYJ835LWJ
+
+### command
+
+<tool.toolu_01SLeqn769qhQ1YQYJ835LWJ>
+tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01SLeqn769qhQ1YQYJ835LWJ>
+
+## TOOL RESULT:
+
+ID: toolu_01SLeqn769qhQ1YQYJ835LWJ
+
+<tool.toolu_01SLeqn769qhQ1YQYJ835LWJ>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+          (name_value))
+        (id
+          (id_value))
+        (tool_param
+[31m          (name)
+[0m[32m          (name
+[0m[32m            (name_value))
+[0m          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))))
+
+
+</tool.toolu_01SLeqn769qhQ1YQYJ835LWJ>
+
+## ASSISTANT:
+
+I see there's an issue. The `tool_param` also has a `(name)` node, but that one should not have been changed because it refers to the parameter name, not the tool name. Let me also see that there are multiple `name` nodes in the structure.
+
+The issue is that the sed command affected ALL instances of `(name)` and `(id)`, but some of those are parameter names, not the tool name/id. I need to be more specific.
+
+Let me look at the test that's close to passing and manually fix the issues:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016iAQvQkuVuQi9Xt5njW3Hk
+
+### path
+
+<tool.toolu_016iAQvQkuVuQi9Xt5njW3Hk>
+test/corpus/tool-use-only.txt
+</tool.toolu_016iAQvQkuVuQi9Xt5njW3Hk>
+
+## TOOL RESULT:
+
+ID: toolu_016iAQvQkuVuQi9Xt5njW3Hk
+
+<tool.toolu_016iAQvQkuVuQi9Xt5njW3Hk>
+===============
+Tool use only
+===============
+
+## USER:
+
+Read a file
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_999
+
+### path
+
+<tool.toolu_999>
+test.txt
+</tool.toolu_999>
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+      (name
+      (name_value))
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))))
+</tool.toolu_016iAQvQkuVuQi9Xt5njW3Hk>
+
+## ASSISTANT:
+
+I can see the issue! The `tool_param`'s `name` was also changed to include `(name_value)`, but that should just be `(name)` because it's a parameter name, not a tool name. 
+
+Let me revert all files and do this more carefully:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HETMutkM9sR5t8tLRrh36T
+
+### command
+
+<tool.toolu_01HETMutkM9sR5t8tLRrh36T>
+cd test/corpus && git checkout -- .
+</tool.toolu_01HETMutkM9sR5t8tLRrh36T>
+
+## TOOL RESULT:
+
+ID: toolu_01HETMutkM9sR5t8tLRrh36T
+
+<tool.toolu_01HETMutkM9sR5t8tLRrh36T>
+Command executed successfully:
+(no output)
+</tool.toolu_01HETMutkM9sR5t8tLRrh36T>
+
+## ASSISTANT:
+
+Now let me manually update just the tool-level `name` and `id` nodes, not the parameter-level ones. Let me be very precise:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01P9f9jy1jPwo9PaoYsEUp2g
+
+### file-path
+
+<tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+test/corpus/tool-use-only.txt
+</tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+
+### original-content
+
+<tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+</tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+
+### new-content
+
+<tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+
+### git-commit-message
+
+<tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+Update tool-use-only test to include explicit name_value and id_value nodes
+</tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+
+## TOOL RESULT:
+
+ID: toolu_01P9f9jy1jPwo9PaoYsEUp2g
+
+<tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-only.txt -- Try again!
+</tool.toolu_01P9f9jy1jPwo9PaoYsEUp2g>
+
+## ASSISTANT:
+
+Let me check if the git checkout worked:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CzjENUwoFnFMEthtY8ks4q
+
+### path
+
+<tool.toolu_01CzjENUwoFnFMEthtY8ks4q>
+test/corpus/tool-use-only.txt
+</tool.toolu_01CzjENUwoFnFMEthtY8ks4q>
+
+## TOOL RESULT:
+
+ID: toolu_01CzjENUwoFnFMEthtY8ks4q
+
+<tool.toolu_01CzjENUwoFnFMEthtY8ks4q>
+===============
+Tool use only
+===============
+
+## USER:
+
+Read a file
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_999
+
+### path
+
+<tool.toolu_999>
+test.txt
+</tool.toolu_999>
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))))
+</tool.toolu_01CzjENUwoFnFMEthtY8ks4q>
+
+## ASSISTANT:
+
+I see, the checkout didn't revert my manual changes to this specific file. That's actually good - this file has the correct structure. Let me test this file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RVtd1CWvgYGX1JS1dAyJYP
+
+### command
+
+<tool.toolu_01RVtd1CWvgYGX1JS1dAyJYP>
+tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01RVtd1CWvgYGX1JS1dAyJYP>
+
+## TOOL RESULT:
+
+ID: toolu_01RVtd1CWvgYGX1JS1dAyJYP
+
+<tool.toolu_01RVtd1CWvgYGX1JS1dAyJYP>
+Command executed successfully:
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+
+Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 635 bytes/ms
+
+
+</tool.toolu_01RVtd1CWvgYGX1JS1dAyJYP>
+
+## ASSISTANT:
+
+Perfect! This test passes. Now I need to update the other tests with the same pattern. Let me work systematically:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NUyZjQf75aj5aEyWQF2JVN
+
+### file-path
+
+<tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+test/corpus/tool-use-single-param.txt
+</tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+
+### original-content
+
+<tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id
+      (id_value))
+    (content
+</tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+
+### new-content
+
+<tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+  (tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id
+      (id_value))
+    (content
+</tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+
+### git-commit-message
+
+<tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+Verify tool-use-single-param test structure is correct
+</tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NUyZjQf75aj5aEyWQF2JVN -->
