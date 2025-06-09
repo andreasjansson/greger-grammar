@@ -174,6 +174,37 @@
       (string-to-number value)
     value))
 
+(defun greger-tree-sitter--convert-value (str)
+  "Convert STR to appropriate Elisp value."
+  (let ((trimmed (string-trim str)))
+    (cond
+     ((string= trimmed "true") t)
+     ((string= trimmed "false") nil)
+     ((string-match-p "^-?[0-9]+$" trimmed)
+      (string-to-number trimmed))
+     ((string-match-p "^-?[0-9]*\\.[0-9]+$" trimmed)
+      (string-to-number trimmed))
+     ((and (string-prefix-p "[" trimmed) (string-suffix-p "]" trimmed))
+      (greger-tree-sitter--parse-json-array trimmed))
+     ((and (string-prefix-p "{" trimmed) (string-suffix-p "}" trimmed))
+      (greger-tree-sitter--parse-json-object trimmed))
+     (t str))))
+
+(defun greger-tree-sitter--parse-json-array (str)
+  "Parse JSON array STR."
+  (condition-case nil
+      (json-read-from-string str)
+    (error str)))
+
+(defun greger-tree-sitter--parse-json-object (str)
+  "Parse JSON object STR."
+  (condition-case nil
+      (let ((parsed (json-read-from-string str)))
+        (mapcar (lambda (pair)
+                  (cons (intern (symbol-name (car pair))) (cdr pair)))
+                parsed))
+    (error str)))
+
 (defun greger-tree-sitter--extract-tool-result-entry (node)
   "Extract tool result entry from NODE."
   (let ((id nil)
