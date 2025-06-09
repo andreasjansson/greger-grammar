@@ -206,8 +206,8 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Handle tool content (raw text) - only when tags are not expected (HTML pattern)
-    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+    // Handle tool content (raw text) when in tool content state
+    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
         return scan_tool_content(scanner, lexer);
     }
 

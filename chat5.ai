@@ -10238,4 +10238,151 @@ alias($.tool_element, $.value),
 Update tool_param to use tool_element instead of direct tool_content
 </tool.toolu_018vH2oriKTJf9LTCb6NJjzg>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_018vH2oriKTJf9LTCb6NJjzg -->
+## TOOL RESULT:
+
+ID: toolu_018vH2oriKTJf9LTCb6NJjzg
+
+<tool.toolu_018vH2oriKTJf9LTCb6NJjzg>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update tool_param to use tool_element instead of direct tool_content
+</tool.toolu_018vH2oriKTJf9LTCb6NJjzg>
+
+## ASSISTANT:
+
+Now let's test this implementation:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RK7cASDSLAKyZpUXbZckwY
+
+### command
+
+<tool.toolu_01RK7cASDSLAKyZpUXbZckwY>
+tree-sitter generate
+</tool.toolu_01RK7cASDSLAKyZpUXbZckwY>
+
+## TOOL RESULT:
+
+ID: toolu_01RK7cASDSLAKyZpUXbZckwY
+
+<tool.toolu_01RK7cASDSLAKyZpUXbZckwY>
+Command executed successfully:
+(no output)
+</tool.toolu_01RK7cASDSLAKyZpUXbZckwY>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0189v7VFFDC34MTtD8518GP9
+
+### command
+
+<tool.toolu_0189v7VFFDC34MTtD8518GP9>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_0189v7VFFDC34MTtD8518GP9>
+
+## TOOL RESULT:
+
+ID: toolu_0189v7VFFDC34MTtD8518GP9
+
+<tool.toolu_0189v7VFFDC34MTtD8518GP9>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+[31m        (id))
+[0m[31m      (ERROR
+[0m[31m        (name)
+[0m[31m        (tool_start_tag)
+[0m[31m        (UNEXPECTED 't')))[0m
+[32m        (id)
+[0m[32m        (tool_param
+[0m[32m          (name)
+[0m[32m          (value))))[0m
+
+
+</tool.toolu_0189v7VFFDC34MTtD8518GP9>
+
+## ASSISTANT:
+
+There's still an issue with token recognition. Let me test a simple case first:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011uBhsRm1t8VKCr6bU97dNm
+
+### command
+
+<tool.toolu_011uBhsRm1t8VKCr6bU97dNm>
+echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_011uBhsRm1t8VKCr6bU97dNm>
+
+## TOOL RESULT:
+
+ID: toolu_011uBhsRm1t8VKCr6bU97dNm
+
+<tool.toolu_011uBhsRm1t8VKCr6bU97dNm>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [0, 34]
+    (tool_start_tag [0, 0] - [0, 14])
+    (ERROR [0, 14] - [0, 34])))
+stdin	Parse:    0.04 ms	   942 bytes/ms	(ERROR [0, 0] - [0, 34])
+
+</tool.toolu_011uBhsRm1t8VKCr6bU97dNm>
+
+## ASSISTANT:
+
+I can see that `tool_start_tag` is being recognized correctly, but there's an issue with the content and end tag. The problem might be that the scanner state is not being managed correctly. Looking at the error, the issue seems to be that after recognizing the start tag, the scanner is not properly in the "tool content" state.
+
+Let me debug by checking the state management. The issue might be that when scanning for `TOOL_START_TAG`, I set `scanner->in_tool_content = true`, but then when the grammar tries to scan for `TOOL_CONTENT`, the condition `!valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]` might not be met.
+
+Let me check what tokens are expected in the grammar by running a broader test. Let me also simplify the scanner logic temporarily:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01GmxymmJXRjuumBM3AHrxdt
+
+### file-path
+
+<tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+src/scanner.c
+</tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+
+### original-content
+
+<tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+// Handle tool content (raw text) - only when tags are not expected (HTML pattern)
+    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+        return scan_tool_content(scanner, lexer);
+    }
+</tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+
+### new-content
+
+<tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+// Handle tool content (raw text) when in tool content state
+    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
+        return scan_tool_content(scanner, lexer);
+    }
+</tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+
+### git-commit-message
+
+<tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+Simplify tool content condition to just check scanner state
+</tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GmxymmJXRjuumBM3AHrxdt -->
