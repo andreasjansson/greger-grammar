@@ -97,7 +97,8 @@
   "Extract assistant entry from NODE."
   (let ((content (greger-tree-sitter--extract-text-content node)))
     `((role . "assistant")
-      (content . ,content))))
+      (content . (((type . "text")
+                   (text . ,content)))))))
 
 (defun greger-tree-sitter--extract-tool-use-entry (node)
   "Extract tool use entry from NODE."
