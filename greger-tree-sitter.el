@@ -52,24 +52,24 @@
          ;; For non-assistant messages, flush any accumulated assistant content first
          (t
           (when current-assistant-content
-            (greger-tree-sitter--flush-assistant-content current-assistant-content result)
+            (setq result (greger-tree-sitter--flush-assistant-content current-assistant-content result))
             (setq current-assistant-content '()))
           (push entry result)))))
     ;; Don't forget any remaining assistant content
     (when current-assistant-content
-      (greger-tree-sitter--flush-assistant-content current-assistant-content result))
+      (setq result (greger-tree-sitter--flush-assistant-content current-assistant-content result)))
     (nreverse result)))
 
 (defun greger-tree-sitter--flush-assistant-content (content result)
-  "Flush accumulated assistant CONTENT to RESULT list."
+  "Flush accumulated assistant CONTENT to RESULT list, returning updated result."
   (if (and (= (length content) 1)
            (string= (cdr (assoc 'type (car content))) "text")
            (not (assoc 'citations (car content))))
       ;; Single text block without citations - use plain text format
-      (push `((role . "assistant")
+      (cons `((role . "assistant")
               (content . ,(cdr (assoc 'text (car content))))) result)
     ;; Multiple blocks or special blocks - use content blocks format
-    (push `((role . "assistant")
+    (cons `((role . "assistant")
             (content . ,content)) result)))
 
 (defun greger-tree-sitter--extract-entry-from-node (node)
