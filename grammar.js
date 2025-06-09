@@ -241,5 +241,19 @@ module.exports = grammar({
       )),
       '</safe-shell-commands>',
     ),
+
+    include: $ => seq(
+      '<include>',
+      field('path', /[^<]*/),
+      '</include>',
+    ),
+
+    include_code: $ => seq(
+      '<include',
+      /[ \t]+/,
+      'code>',
+      field('path', /[^<]*/),
+      '</include>',
+    ),
   }
 });
