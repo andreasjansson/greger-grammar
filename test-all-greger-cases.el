@@ -11,9 +11,9 @@
         (with-temp-buffer
           (insert-file-contents file-path)
           (let ((content (buffer-string)))
-            ;; Find the test content between the title and the "---" separator
-            (if (string-match "=\\{10,\\}\n\\([^=\n].*?\n\\)=\\{10,\\}\n\\(\\(?:.\\|\n\\)*?\\)\n---" content)
-                (match-string 2 content)
+            ;; Find the test content between the title header and the "---" separator
+            (if (string-match "=\\{10,\\}\n.*?\n=\\{10,\\}\n\n\\(\\(?:.\\|\n\\)*?\\)\n---" content)
+                (match-string 1 content)
               (error "Could not parse test file format: %s" file-path))))
       (error "Corpus file not found: %s" file-path))))
 
