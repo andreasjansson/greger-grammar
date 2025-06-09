@@ -121,8 +121,8 @@
                   (field subheading)         ; level 3 - detailed structure
                   (content)))
 
-    ;; Indentation - disable for now to prevent segfaults
-    ;; (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+    ;; Indentation - using simple and safe rules
+    (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
 
     ;; Navigation - treat headings as defuns for C-M-a and C-M-e
     (setq-local treesit-defun-type-regexp
