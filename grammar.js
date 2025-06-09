@@ -126,7 +126,7 @@ module.exports = grammar({
       '##',
       'CITATIONS',
       ':',
-      optional($.citations_text),
+      optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),
     ),
 
