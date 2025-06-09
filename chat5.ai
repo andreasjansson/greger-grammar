@@ -16332,4 +16332,405 @@ test/corpus/tool-use-single-param.txt
 Verify tool-use-single-param test structure is correct
 </tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NUyZjQf75aj5aEyWQF2JVN -->
+## TOOL RESULT:
+
+ID: toolu_01NUyZjQf75aj5aEyWQF2JVN
+
+<tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-single-param.txt. Successfully staged 2 file(s) and committed with message: Verify tool-use-single-param test structure is correct
+</tool.toolu_01NUyZjQf75aj5aEyWQF2JVN>
+
+## ASSISTANT:
+
+Actually, let me first create a simple script to update all the files correctly. Let me identify the pattern I need to change. The issue is that I need to update the tool-level `name` and `id` but not the parameter-level ones.
+
+Let me look at the failing test output to understand the exact pattern I need to replace:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01T5tqEAsfdHG87YBSnnHcHi
+
+### command
+
+<tool.toolu_01T5tqEAsfdHG87YBSnnHcHi>
+tree-sitter test --file-name tool-use-multiple-params.txt
+</tool.toolu_01T5tqEAsfdHG87YBSnnHcHi>
+
+## TOOL RESULT:
+
+ID: toolu_01T5tqEAsfdHG87YBSnnHcHi
+
+<tool.toolu_01T5tqEAsfdHG87YBSnnHcHi>
+Command failed with exit code 1:   tool-use-multiple-params:
+     18. ✗ [31mTool use multiple params[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use multiple params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+[31m        (name
+[0m[31m          (name_value))
+[0m[31m        (id
+[0m[31m          (id_value))
+[0m[32m        (name)
+[0m[32m        (id)
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+[31m        (id
+[0m[31m          (id_value))
+[0m[32m        (id)
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+</tool.toolu_01T5tqEAsfdHG87YBSnnHcHi>
+
+## ASSISTANT:
+
+I can see the exact pattern now. The parser expects:
+- `(name (name_value))` and `(id (id_value))` under `(tool_use`
+- `(id (id_value))` under `(tool_result`
+
+But the test expects just `(name)` and `(id)`.
+
+Let me systematically update these tests. I'll create a small script to do the replacements:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Sx27iSoKdzZUYUXCu6Qmbk
+
+### file-path
+
+<tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+/tmp/update_tests.py
+</tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+
+### contents
+
+<tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+#!/usr/bin/env python3
+import os
+import re
+
+test_dir = "test/corpus"
+
+def update_test_file(filepath):
+    with open(filepath, 'r') as f:
+        content = f.read()
+    
+    # Replace (tool_use ... (name) (id) with the nested structure
+    content = re.sub(r'(\(tool_use[^)]*\n[^)]*)\(name\)', r'\1(name\n      (name_value))', content)
+    content = re.sub(r'(\(tool_use[^)]*\n[^)]*\(name[^)]*\)[^)]*)\(id\)', r'\1(id\n      (id_value))', content)
+    
+    # Replace (server_tool_use ... (name) (id) with the nested structure  
+    content = re.sub(r'(\(server_tool_use[^)]*\n[^)]*)\(name\)', r'\1(name\n      (name_value))', content)
+    content = re.sub(r'(\(server_tool_use[^)]*\n[^)]*\(name[^)]*\)[^)]*)\(id\)', r'\1(id\n      (id_value))', content)
+    
+    # Replace (tool_result ... (id) and (server_tool_result ... (id) with nested structure
+    content = re.sub(r'(\(tool_result[^)]*\n[^)]*)\(id\)', r'\1(id\n      (id_value))', content)
+    content = re.sub(r'(\(server_tool_result[^)]*\n[^)]*)\(id\)', r'\1(id\n      (id_value))', content)
+    
+    with open(filepath, 'w') as f:
+        f.write(content)
+
+# Update all test files
+for filename in os.listdir(test_dir):
+    if filename.endswith('.txt'):
+        filepath = os.path.join(test_dir, filename)
+        update_test_file(filepath)
+        print(f"Updated {filename}")
+</tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+
+### git-commit-message
+
+<tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+Create script to update test files with nested name/id structure
+</tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+
+## TOOL RESULT:
+
+ID: toolu_01Sx27iSoKdzZUYUXCu6Qmbk
+
+<tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+Successfully wrote new file /tmp/update_tests.py with 1335 characters. File /tmp/update_tests.py is not in a git repository
+</tool.toolu_01Sx27iSoKdzZUYUXCu6Qmbk>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01UNrps1uD66idbGBKn4GijS
+
+### command
+
+<tool.toolu_01UNrps1uD66idbGBKn4GijS>
+cd /Users/andreas/scratch/greger-grammar && python3 /tmp/update_tests.py
+</tool.toolu_01UNrps1uD66idbGBKn4GijS>
+
+## TOOL RESULT:
+
+ID: toolu_01UNrps1uD66idbGBKn4GijS
+
+<tool.toolu_01UNrps1uD66idbGBKn4GijS>
+Command executed successfully:
+Updated system-and-user.txt
+Updated tool-use-with-tool-use-in-params.txt
+Updated tool-use-only.txt
+Updated html-comments.txt
+Updated code-block-triple-backticks.txt
+Updated multiple-tool-uses.txt
+Updated tool-use-single-param.txt
+Updated server-tool-use-basic.txt
+Updated thinking-section.txt
+Updated citations-after-tool-result.txt
+Updated server-tool-use-string-result.txt
+Updated simple-conversation.txt
+Updated simple-user-message.txt
+Updated inline-code.txt
+Updated complex-workflow.txt
+Updated tool-use-multiple-params.txt
+Updated thinking-only.txt
+Updated tool-use-with-code-in-params.txt
+Updated citations-basic.txt
+Updated citations-multiple.txt
+Updated mixed-code-blocks-and-sections.txt
+Updated nested-code-blocks.txt
+
+</tool.toolu_01UNrps1uD66idbGBKn4GijS>
+
+## ASSISTANT:
+
+Now let me test a few files to see if the updates worked correctly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01YHLYdANbWeAhoygKb7x7gE
+
+### command
+
+<tool.toolu_01YHLYdANbWeAhoygKb7x7gE>
+tree-sitter test --file-name tool-use-multiple-params.txt
+</tool.toolu_01YHLYdANbWeAhoygKb7x7gE>
+
+## TOOL RESULT:
+
+ID: toolu_01YHLYdANbWeAhoygKb7x7gE
+
+<tool.toolu_01YHLYdANbWeAhoygKb7x7gE>
+Command failed with exit code 1:   tool-use-multiple-params:
+     18. ✗ [31mTool use multiple params[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use multiple params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+          (name_value))
+[31m        (id
+[0m[31m          (id_value))
+[0m[32m        (id)
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+          (id_value))
+        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+</tool.toolu_01YHLYdANbWeAhoygKb7x7gE>
+
+## ASSISTANT:
+
+Close! The name part is now correct, but the script missed the `id` replacement in this file. Let me check what happened:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014KPgJN3T9LGcsr33iTP1yX
+
+### path
+
+<tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+test/corpus/tool-use-multiple-params.txt
+</tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+### start-line
+
+<tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+42
+</tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+### end-line
+
+<tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+52
+</tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+### include-line-numbers
+
+<tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+true
+</tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+## TOOL RESULT:
+
+ID: toolu_014KPgJN3T9LGcsr33iTP1yX
+
+<tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+I found 2 matches for 'def main' in Python files.
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+</tool.toolu_014KPgJN3T9LGcsr33iTP1yX>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PtxaLAcYUjLBctdemj6sox
+
+### path
+
+<tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+test/corpus/tool-use-multiple-params.txt
+</tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+
+### start-line
+
+<tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+47
+</tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+
+### end-line
+
+<tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+57
+</tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+
+### include-line-numbers
+
+<tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+true
+</tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+
+## TOOL RESULT:
+
+ID: toolu_01PtxaLAcYUjLBctdemj6sox
+
+<tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name
+      (name_value))
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+</tool.toolu_01PtxaLAcYUjLBctdemj6sox>
+
+## ASSISTANT:
+
+I can see the issue - the script worked for the `name` but missed the `id`. This is because my regex wasn't perfect. Let me manually fix this specific case and then test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011Nq2S9WeVSteyPemAXCAPm
+
+### file-path
+
+<tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+test/corpus/tool-use-multiple-params.txt
+</tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+
+### original-content
+
+<tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+    (name
+      (name_value))
+    (id)
+    (tool_param
+</tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+
+### new-content
+
+<tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+
+### git-commit-message
+
+<tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+Manually fix id structure in tool-use-multiple-params test
+</tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011Nq2S9WeVSteyPemAXCAPm -->
