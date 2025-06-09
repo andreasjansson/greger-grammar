@@ -28,5 +28,5 @@
 ;; Test simple conversation
 ;(debug-parse "simple-conversation")
 
-;; Test complex workflow
-(debug-parse "complex-workflow")
+;; Test code blocks
+(debug-parse "code-block-triple-backticks")
