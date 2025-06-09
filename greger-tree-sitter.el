@@ -184,7 +184,7 @@
          ((string= child-type "id")
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
-          (setq content (treesit-node-text child t))))))
+          (setq content (greger-tree-sitter--extract-tool-content child))))))
     `((role . "user")
       (content . (((type . "tool_result")
                    (tool_use_id . ,id)
@@ -221,7 +221,7 @@
          ((string= child-type "id")
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
-          (setq content (treesit-node-text child t))))))
+          (setq content (greger-tree-sitter--extract-tool-content child))))))
     ;; Check if this is a web search result and parse accordingly
     (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
       `((role . "assistant")
