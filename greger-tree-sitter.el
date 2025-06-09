@@ -309,3 +309,35 @@
   (if (string-match "^\\s-*<[^>]+>\\s-*\\(\\(?:.\\|\n\\)*?\\)\\s-*</[^>]+>\\s-*$" text)
       (string-trim (match-string 1 text))
     (string-trim text)))
+
+(defun greger-tree-sitter--parse-json-or-plain-content (content)
+  "Parse CONTENT as JSON if it looks like JSON, otherwise return as plain text."
+  (if (and (string-match-p "^\\s-*\\[\\|^\\s-*{" content)
+           (condition-case nil
+               (json-parse-string content :object-type 'alist :array-type 'list)
+             (json-parse-error nil)))
+      (json-parse-string content :object-type 'alist :array-type 'list)
+    content))
+
+(defun greger-tree-sitter--extract-citation-entry (node)
+  "Extract a citation entry from NODE."
+  (let ((url nil)
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "url")
+          (setq url (string-trim (treesit-node-text child t))))
+         ((string= child-type "title")
+          (setq title (string-trim (treesit-node-text child t))))
+         ((string= child-type "cited_text")
+          (setq cited-text (string-trim (treesit-node-text child t))))
+         ((string= child-type "encrypted_index")
+          (setq encrypted-index (string-trim (treesit-node-text child t)))))))
+    `((type . "web_search_result_location")
+      (url . ,url)
+      (title . ,title)
+      (cited_text . ,cited-text)
+      (encrypted_index . ,encrypted-index))))
