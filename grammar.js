@@ -41,10 +41,10 @@ module.exports = grammar({
       $.citations,
     ),
 
-    assistant_with_citations: $ => seq(
+    assistant_with_citations: $ => prec(1, seq(
       $.assistant,
       $.citations,
-    ),
+    )),
 
     user: $ => seq(
       '##',
