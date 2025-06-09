@@ -206,19 +206,31 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Skip whitespace but preserve newlines
+    // Handle tool content (raw text) - only when tags are not expected (HTML pattern)
+    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
     while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
         skip(lexer);
     }
 
-    // Only scan for tool content when it's expected
-    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
-        return scan_tool_content(scanner, lexer);
-    }
+    if (lexer->lookahead == '<') {
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
 
-    // Only scan for HTML comments when expected
-    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
-        return scan_html_comment(lexer);
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+
+        // Handle HTML comments
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
     }
 
     return false;

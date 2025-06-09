@@ -10012,4 +10012,95 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 Implement separate functions for tool start tag, end tag, and content scanning
 </tool.toolu_01JdqcMyXLVRjFt8FDFgdLrM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JdqcMyXLVRjFt8FDFgdLrM -->
+## TOOL RESULT:
+
+ID: toolu_01JdqcMyXLVRjFt8FDFgdLrM
+
+<tool.toolu_01JdqcMyXLVRjFt8FDFgdLrM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement separate functions for tool start tag, end tag, and content scanning
+</tool.toolu_01JdqcMyXLVRjFt8FDFgdLrM>
+
+## ASSISTANT:
+
+Now I need to update the main scanning function to handle all three tokens with the proper precedence logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XfGcXywEcHEeRMquV6QDfF
+
+### file-path
+
+<tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+src/scanner.c
+</tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+
+### original-content
+
+<tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace but preserve newlines
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+
+### new-content
+
+<tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Handle tool content (raw text) - only when tags are not expected (HTML pattern)
+    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    if (lexer->lookahead == '<') {
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
+
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+
+        // Handle HTML comments
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+    }
+
+    return false;
+}
+</tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+
+### git-commit-message
+
+<tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+Update main scanner function to handle separate tool tokens with HTML-style precedence
+</tool.toolu_01XfGcXywEcHEeRMquV6QDfF>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01XfGcXywEcHEeRMquV6QDfF -->
