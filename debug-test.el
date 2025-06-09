@@ -28,17 +28,6 @@
   (message "Actual: %S" actual)
   (message "Equal? %S" (equal expected actual)))
 
-;; Also debug the tree structure
-(unless (treesit-ready-p 'greger)
-  (error "Tree-sitter greger parser not available"))
-
-(with-temp-buffer
-  (insert "## USER:\n\nHello, how are you?\n")
-  (let* ((parser (treesit-parser-create 'greger))
-         (root-node (treesit-parser-root-node parser)))
-    (message "=== Tree structure ===")
-    (debug-print-node root-node 0)))
-
 (defun debug-print-node (node level)
   "Print node structure recursively."
   (let ((indent (make-string (* level 2) ?\s))
