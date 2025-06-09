@@ -1,3 +1,5 @@
+;;; greger-tree-sitter.el --- Tree-sitter parser for greger dialog format -*- lexical-binding: t -*-
+
 (require 'treesit)
 
 (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
@@ -15,444 +17,280 @@
 
 (defun greger-tree-sitter--extract-dialog-from-node (root-node)
   "Extract dialog structure from parsed greger conversation."
-  (let* ((sections (treesit-node-children root-node))
-         (dialog '())
-         (pending-assistant-content '()))
+  (let ((sections (treesit-node-children root-node))
+        (dialog '())
+        (pending-assistant-parts '()))
 
     (dolist (section sections)
       (let ((section-type (treesit-node-type section)))
         (cond
-         ((string= section-type "user_section")
-          ;; Flush any pending assistant content before processing user section
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              ;; Simplify content if it's just a single text block
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
+         ;; User sections - flush pending assistant content first
+         ((string= section-type "user")
+          (when pending-assistant-parts
+            (push (greger-tree-sitter--create-assistant-message pending-assistant-parts) dialog)
+            (setq pending-assistant-parts '()))
           (push (greger-tree-sitter--extract-user-section section) dialog))
 
-         ((string= section-type "assistant_section")
-          ;; Add assistant text to pending content (don't flush yet)
-          (let ((assistant-text (greger-tree-sitter--extract-section-text section)))
-            (when (> (length (string-trim assistant-text)) 0)
-              (push `((type . "text")
-                      (text . ,assistant-text))
-                    pending-assistant-content))))
-
-         ((string= section-type "system_section")
-          ;; Flush any pending assistant content before processing system section
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              ;; Simplify content if it's just a single text block
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
+         ;; System sections - flush pending assistant content first
+         ((string= section-type "system")
+          (when pending-assistant-parts
+            (push (greger-tree-sitter--create-assistant-message pending-assistant-parts) dialog)
+            (setq pending-assistant-parts '()))
           (push (greger-tree-sitter--extract-system-section section) dialog))
 
-         ((string= section-type "thinking_section")
-          ;; Add thinking to pending assistant content
-          (let ((thinking-content (greger-tree-sitter--extract-section-text section)))
-            (push `((type . "thinking")
-                    (thinking . ,thinking-content))
-                  pending-assistant-content)))
+         ;; Assistant sections - add as text to pending parts
+         ((string= section-type "assistant")
+          (let ((text (greger-tree-sitter--extract-text-content section)))
+            (when (> (length (string-trim text)) 0)
+              (push `((type . "text") (text . ,text)) pending-assistant-parts))))
 
-         ((string= section-type "tool_use_section")
-          ;; Add tool use to pending assistant content
+         ;; Thinking sections - add to pending assistant parts
+         ((string= section-type "thinking")
+          (let ((thinking-text (greger-tree-sitter--extract-text-content section)))
+            (push `((type . "thinking") (thinking . ,thinking-text)) pending-assistant-parts)))
+
+         ;; Tool use sections - add to pending assistant parts
+         ((string= section-type "tool_use")
           (let ((tool-use-data (greger-tree-sitter--extract-tool-use section)))
-            (push tool-use-data pending-assistant-content)))
+            (push tool-use-data pending-assistant-parts)))
 
-         ((string= section-type "tool_result_section")
-          ;; Flush any pending assistant content and add tool result as user content
-          (when pending-assistant-content
-            (let ((content (nreverse pending-assistant-content)))
-              ;; Simplify content if it's just a single text block
-              (if (and (= (length content) 1)
-                       (equal (alist-get 'type (car content)) "text"))
-                  (push `((role . "assistant")
-                          (content . ,(alist-get 'text (car content))))
-                        dialog)
-                (push `((role . "assistant")
-                        (content . ,content))
-                      dialog)))
-            (setq pending-assistant-content '()))
-          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
-            (push `((role . "user")
-                    (content . (,tool-result-data)))
-                  dialog)))
-
-         ((string= section-type "server_tool_use_section")
-          ;; Add server tool use to pending assistant content
+         ;; Server tool use sections - add to pending assistant parts
+         ((string= section-type "server_tool_use")
           (let ((server-tool-use-data (greger-tree-sitter--extract-server-tool-use section)))
-            (push server-tool-use-data pending-assistant-content)))
+            (push server-tool-use-data pending-assistant-parts)))
 
-         ((string= section-type "server_tool_result_section")
-          ;; Add server tool result to pending assistant content
+         ;; Tool result sections - flush assistant, then add as user message
+         ((string= section-type "tool_result")
+          (when pending-assistant-parts
+            (push (greger-tree-sitter--create-assistant-message pending-assistant-parts) dialog)
+            (setq pending-assistant-parts '()))
+          (let ((tool-result-data (greger-tree-sitter--extract-tool-result section)))
+            (push `((role . "user") (content . (,tool-result-data))) dialog)))
+
+         ;; Server tool result sections - add to pending assistant parts (they stay with assistant)
+         ((string= section-type "server_tool_result")
           (let ((server-tool-result-data (greger-tree-sitter--extract-server-tool-result section)))
-            (push server-tool-result-data pending-assistant-content)))
+            (push server-tool-result-data pending-assistant-parts)))
 
-         ((string= section-type "citations_section")
-          ;; Extract citations and add as text with citations attached to pending assistant content
-          (let ((citations-data (greger-tree-sitter--extract-citations-section section)))
-            (dolist (item citations-data)
-              (push item pending-assistant-content)))))))
+         ;; Citations sections - add to pending assistant parts
+         ((string= section-type "citations")
+          (let ((citations-parts (greger-tree-sitter--extract-citations-section section)))
+            (dolist (part citations-parts)
+              (push part pending-assistant-parts)))))))
 
     ;; Flush any remaining pending assistant content
-    (when pending-assistant-content
-      (let ((content (nreverse pending-assistant-content)))
-        ;; Simplify content if it's just a single text block
-        (if (and (= (length content) 1)
-                 (equal (alist-get 'type (car content)) "text"))
-            (push `((role . "assistant")
-                    (content . ,(alist-get 'text (car content))))
-                  dialog)
-          (push `((role . "assistant")
-                  (content . ,content))
-                dialog))))
+    (when pending-assistant-parts
+      (push (greger-tree-sitter--create-assistant-message pending-assistant-parts) dialog))
 
     (nreverse dialog)))
 
+(defun greger-tree-sitter--create-assistant-message (parts)
+  "Create an assistant message from a list of content parts."
+  (let ((reversed-parts (nreverse parts)))
+    (if (and (= (length reversed-parts) 1)
+             (equal (alist-get 'type (car reversed-parts)) "text"))
+        ;; Single text part - use simple string content
+        `((role . "assistant") (content . ,(alist-get 'text (car reversed-parts))))
+      ;; Multiple parts or non-text - use structured content
+      `((role . "assistant") (content . ,reversed-parts)))))
+
 (defun greger-tree-sitter--extract-user-section (section-node)
   "Extract user section content."
-  (let ((content (greger-tree-sitter--extract-section-text section-node)))
-    `((role . "user")
-      (content . ,content))))
-
-(defun greger-tree-sitter--extract-assistant-section (section-node)
-  "Extract assistant section content."
-  (let ((content (greger-tree-sitter--extract-section-text section-node)))
-    `((role . "assistant")
-      (content . ,content))))
+  (let ((content (greger-tree-sitter--extract-text-content section-node)))
+    `((role . "user") (content . ,content))))
 
 (defun greger-tree-sitter--extract-system-section (section-node)
   "Extract system section content."
-  (let ((content (greger-tree-sitter--extract-section-text section-node)))
-    `((role . "system")
-      (content . ,content))))
+  (let ((content (greger-tree-sitter--extract-text-content section-node)))
+    `((role . "system") (content . ,content))))
 
-(defun greger-tree-sitter--extract-text-without-comments (node)
-  "Extract text from a node, filtering out HTML comments."
-  (let ((full-text (treesit-node-text node)))
-    ;; Get all HTML comment child nodes and their ranges
-    (let ((comment-nodes (greger-tree-sitter--collect-comment-nodes node)))
-      ;; Sort comments by start position (reverse order for easier removal)
-      (setq comment-nodes (sort comment-nodes
-                                (lambda (a b) (> (treesit-node-start a)
-                                                 (treesit-node-start b)))))
-      ;; Remove comment text from back to front
-      (let ((result full-text)
-            (base-start (treesit-node-start node)))
-        (dolist (comment comment-nodes)
-          (let* ((comment-start (- (treesit-node-start comment) base-start))
-                 (comment-end (- (treesit-node-end comment) base-start)))
-            (when (and (>= comment-start 0)
-                       (<= comment-end (length result)))
-              (setq result (concat (substring result 0 comment-start)
-                                   (substring result comment-end))))))
-        result))))
-
-(defun greger-tree-sitter--collect-comment-nodes (node)
-  "Recursively collect all HTML comment nodes in a tree."
-  (let ((comments '()))
-    (when (string= (treesit-node-type node) "html_comment")
-      (push node comments))
-    (dolist (child (treesit-node-children node))
-      (setq comments (append comments (greger-tree-sitter--collect-comment-nodes child))))
-    comments))
-
-(defun greger-tree-sitter--extract-section-text (section-node)
-  "Extract text content from a section node."
+(defun greger-tree-sitter--extract-text-content (section-node)
+  "Extract text content from a section node, handling all child types."
   (let ((children (treesit-node-children section-node)))
-    (let ((text (string-trim
-                 (mapconcat (lambda (child)
-                              (let ((node-type (treesit-node-type child)))
-                                (cond
-                                 ((string= node-type "text_block")
-                                  (greger-tree-sitter--extract-text-without-comments child))
-                                 ((string= node-type "code_block")
-                                  (treesit-node-text child))
-                                 ((string= node-type "cite_tag")
-                                  (treesit-node-text child))
-                                 ;; Could add other content types here
-                                 (t ""))))
-                            children ""))))
-      ;; Unescape quotes in the text
-      (replace-regexp-in-string "\\\\\"" "\"" text))))
+    (string-trim
+     (mapconcat (lambda (child)
+                  (treesit-node-text child))
+                children ""))))
 
-(defun greger-tree-sitter--extract-tool-use (tool-use-section)
+(defun greger-tree-sitter--extract-tool-use (tool-use-node)
   "Extract tool use data from a tool use section."
-
-  (let ((children (treesit-node-children tool-use-section))
+  (let ((children (treesit-node-children tool-use-node))
         (name nil)
         (id nil)
         (input '()))
 
-    ;; Extract metadata and parameters
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
         (cond
-         ((string= node-type "text_block")
-          ;; Parse Name: and ID: lines from text_block
-          (let ((text (treesit-node-text child)))
-            (dolist (line (split-string text "\n"))
-              (setq line (string-trim line))
-              (cond
-               ((string-prefix-p "Name:" line)
-                (setq name (string-trim (substring line 5))))
-               ((string-prefix-p "ID:" line)
-                (setq id (string-trim (substring line 3))))))))
-
+         ((string= node-type "name")
+          (setq name (string-trim (treesit-node-text child))))
+         ((string= node-type "id")
+          (setq id (string-trim (treesit-node-text child))))
          ((string= node-type "tool_param")
-          ;; Extract parameter from tool_param node
-          (let* ((param-text (treesit-node-text child))
-                 (lines (split-string param-text "\n"))
-                 (header-line (string-trim (car lines)))
-                 (param-name (if (string-prefix-p "###" header-line)
-                                 (string-trim (substring header-line 3))
-                               header-line))
-                 (param-children (treesit-node-children child)))
-            ;; Look for tool_content in the children
-            (dolist (param-child param-children)
-              (when (string= (treesit-node-type param-child) "tool_content")
-                (let ((content-text (treesit-node-text param-child)))
-                  ;; Remove the <tool.ID> wrapper using string operations
-                  (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
-                    (setq content-text (match-string 1 content-text)))
-                  (setq content-text (string-trim content-text))
-                  ;; Unescape quotes in tool content
-                  (setq content-text (replace-regexp-in-string "\\\\\"" "\"" content-text))
-                  ;; Try to convert string to number if it looks like a number
-                  (let ((param-value (if (string-match "^[0-9]+$" content-text)
-                                         (string-to-number content-text)
-                                       content-text)))
-                    (push (cons (intern param-name) param-value) input))))))))))
+          (let ((param-data (greger-tree-sitter--extract-tool-param child)))
+            (when param-data
+              (push param-data input)))))))
 
-    (let ((result (list (cons 'type "tool_use")
-                        (cons 'id id)
-                        (cons 'name name)
-                        (cons 'input (nreverse input)))))
+    `((type . "tool_use")
+      (id . ,id)
+      (name . ,name)
+      (input . ,(nreverse input)))))
 
-      result)))
+(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-node)
+  "Extract server tool use data from a server tool use section."
+  (let ((tool-use-data (greger-tree-sitter--extract-tool-use server-tool-use-node)))
+    (setf (alist-get 'type tool-use-data) "server_tool_use")
+    tool-use-data))
 
-(defun greger-tree-sitter--extract-tool-result (tool-result-section)
+(defun greger-tree-sitter--extract-tool-param (param-node)
+  "Extract parameter name and value from a tool_param node."
+  (let ((children (treesit-node-children param-node))
+        (param-name nil)
+        (param-value nil))
+
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "name")
+          (setq param-name (string-trim (treesit-node-text child))))
+         ((string= node-type "value")
+          (setq param-value (string-trim (treesit-node-text child)))
+          ;; Try to convert to number if it looks like one
+          (when (string-match "^[0-9]+$" param-value)
+            (setq param-value (string-to-number param-value)))))))
+
+    (when (and param-name param-value)
+      (cons (intern param-name) param-value))))
+
+(defun greger-tree-sitter--extract-tool-result (tool-result-node)
   "Extract tool result data from a tool result section."
-
-  (let ((children (treesit-node-children tool-result-section))
+  (let ((children (treesit-node-children tool-result-node))
         (tool-use-id nil)
         (content nil))
 
-    ;; Extract ID and content
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
         (cond
-         ((string= node-type "text_block")
-          ;; Parse ID: line from text_block
-          (let ((text (treesit-node-text child)))
-            (dolist (line (split-string text "\n"))
-              (setq line (string-trim line))
-              (when (string-prefix-p "ID:" line)
-                (setq tool-use-id (string-trim (substring line 3)))))))
+         ((string= node-type "id")
+          (setq tool-use-id (string-trim (treesit-node-text child))))
+         ((string= node-type "content")
+          (setq content (string-trim (treesit-node-text child)))))))
 
-         ((string= node-type "tool_content")
-          ;; Extract content from tool_content node
-          (let ((content-text (treesit-node-text child)))
-            ;; Remove the <tool.ID> wrapper - note that the closing > might be missing
-            ;; Use string operations instead of regex to handle multiline content
-            (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" content-text)
-              (setq content-text (match-string 1 content-text)))
-            (setq content-text (string-trim content-text))
-            ;; Unescape quotes in tool result content
-            (setq content (replace-regexp-in-string "\\\\\"" "\"" content-text)))))))
+    `((type . "tool_result")
+      (tool_use_id . ,tool-use-id)
+      (content . ,content))))
 
-    (let ((result (list (cons 'type "tool_result")
-                        (cons 'tool_use_id tool-use-id)
-                        (cons 'content content))))
-
-      result)))
-
-(defun greger-tree-sitter--extract-server-tool-use (server-tool-use-section)
-  "Extract server tool use data from a server tool use section."
-  ;; Similar to tool use but with server_tool_use type
-
-  (let ((result (greger-tree-sitter--extract-tool-use server-tool-use-section)))
-    (setf (alist-get 'type result) "server_tool_use")
-
-    result))
-
-(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-section)
+(defun greger-tree-sitter--extract-server-tool-result (server-tool-result-node)
   "Extract server tool result data from a server tool result section."
-  ;; Similar to tool result but with different type
+  (let ((children (treesit-node-children server-tool-result-node))
+        (tool-use-id nil)
+        (content nil))
 
-  (let ((result (greger-tree-sitter--extract-tool-result server-tool-result-section)))
-    ;; Check if this specific section or following sections have citations
-    ;; by looking at the section tree structure
-    (let ((content (alist-get 'content result))
-          (has-citations nil))
-
-      ;; Check if there are any citation sections in the current parse tree
-      ;; by walking up to the parent and checking siblings
-      (let ((parent-node (treesit-node-parent server-tool-result-section)))
-        (when parent-node
-          (dolist (sibling (treesit-node-children parent-node))
-            (when (string= (treesit-node-type sibling) "citations_section")
-
-              (setq has-citations t)))))
-
-      (if has-citations
-          ;; Has citations - use web_search_tool_result
-          (setf (alist-get 'type result) "web_search_tool_result")
-        ;; No citations - use server_tool_result and parse JSON if applicable
-        (progn
-          (setf (alist-get 'type result) "server_tool_result")
-          ;; Try to parse JSON content for server_tool_result
-          (when (and (stringp content)
-                     (string-match-p "^\\s-*\\[\\s-*{" content))
-            (condition-case nil
-                (let ((parsed-json (json-parse-string content :object-type 'alist :array-type 'list)))
-                  ;; If it's a single-element array, extract the first element and wrap it in an extra list
-                  (when (and (listp parsed-json) (= (length parsed-json) 1))
-                    (setf (alist-get 'content result) (list (car parsed-json)))))
-              (error nil))))))
-    result))
-
-
-
-(defun greger-tree-sitter--extract-citations-section (citations-section)
-  "Extract citations section and return list of text blocks with citations attached."
-
-  (let ((children (treesit-node-children citations-section))
-        (cited-text nil)
-        (citations '())
-        (result '())
-        (i 0))
-
-    ;; Process children sequentially
-    (while (< i (length children))
-      (let* ((child (nth i children))
-             (node-type (treesit-node-type child)))
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
         (cond
-         ((string= node-type "text_block")
-          ;; Check if this is before a citation_entry (cited text) or after (metadata)
-          (let ((next-child (when (< (1+ i) (length children)) (nth (1+ i) children)))
-                (prev-child (when (> i 0) (nth (1- i) children))))
-            (if (and next-child
-                     (string= (treesit-node-type next-child) "citation_entry")
-                     (not (and prev-child (string= (treesit-node-type prev-child) "citation_entry"))))
-                ;; This text_block comes before citation_entry AND not after another citation_entry, so it's cited text
-                (let ((text (string-trim (treesit-node-text child))))
-                  (when (> (length text) 0)
-                    (setq cited-text (if cited-text
-                                         (concat cited-text " " text)
-                                       text))))
-              ;; This text_block comes after citation_entry, so it's metadata
-              (when (and citations (> (length citations) 0))
-                ;; Parse metadata and update the last citation
-                (let* ((metadata-text (treesit-node-text child))
-                       (lines (split-string metadata-text "\n"))
-                       (last-citation (car citations))
-                       (title nil)
-                       (cited-text-meta nil)
-                       (encrypted-index nil))
+         ((string= node-type "id")
+          (setq tool-use-id (string-trim (treesit-node-text child))))
+         ((string= node-type "content")
+          (setq content (string-trim (treesit-node-text child)))))))
 
-                  ;; Parse metadata lines
-                  (dolist (line lines)
-                    (setq line (string-trim line))
-                    (when (> (length line) 0)
-                      (cond
-                       ((string-prefix-p "Title:" line)
-                        (setq title (string-trim (substring line 6))))
-                       ((string-prefix-p "Cited text:" line)
-                        (setq cited-text-meta (string-trim (substring line 11))))
-                       ((string-prefix-p "Encrypted index:" line)
-                        (setq encrypted-index (string-trim (substring line 16)))))))
+    ;; Determine if this should be web_search_tool_result or server_tool_result
+    ;; by checking if there are citations in the parent conversation
+    (let ((result-type (if (greger-tree-sitter--has-citations-in-context server-tool-result-node)
+                           "web_search_tool_result"
+                         "server_tool_result")))
 
-                  ;; Update the citation with metadata
+      `((type . ,result-type)
+        (tool_use_id . ,tool-use-id)
+        (content . ,content)))))
 
-                  (setf (alist-get 'title last-citation) title)
-                  (setf (alist-get 'cited_text last-citation) cited-text-meta)
-                  (setf (alist-get 'encrypted_index last-citation) encrypted-index))))))
+(defun greger-tree-sitter--has-citations-in-context (node)
+  "Check if there are any citations sections in the same conversation context."
+  (let ((root-node (treesit-node-parent node)))
+    ;; Walk up to find the root
+    (while (treesit-node-parent root-node)
+      (setq root-node (treesit-node-parent root-node)))
+
+    ;; Check if any child of root is a citations section
+    (let ((has-citations nil))
+      (dolist (child (treesit-node-children root-node))
+        (when (string= (treesit-node-type child) "citations")
+          (setq has-citations t)))
+      has-citations)))
+
+(defun greger-tree-sitter--extract-citations-section (citations-node)
+  "Extract citations section and return list of text parts with citations."
+  (let ((children (treesit-node-children citations-node))
+        (text-parts '())
+        (current-citations '())
+        (current-text nil))
+
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "text")
+          ;; Accumulate text
+          (let ((text-content (string-trim (treesit-node-text child))))
+            (when (> (length text-content) 0)
+              (setq current-text (if current-text
+                                     (concat current-text " " text-content)
+                                   text-content)))))
 
          ((string= node-type "citation_entry")
-          ;; Extract URL from citation entry
-          (let* ((entry-text (treesit-node-text child))
-                 (lines (split-string entry-text "\n"))
-                 (url-line (and lines (string-trim (car lines))))
-                 (url (when (string-prefix-p "###" url-line)
-                        (string-trim (substring url-line 3)))))
-            (when url
+          ;; Extract citation data
+          (let ((citation-data (greger-tree-sitter--extract-citation-entry child)))
+            (when citation-data
+              (push citation-data current-citations)))))))
 
-              (push (list (cons 'type "web_search_result_location")
-                        (cons 'url url)
-                        (cons 'title nil)
-                        (cons 'cited_text nil)
-                        (cons 'encrypted_index nil))
-                    citations)))))
-        (setq i (1+ i))))
-
-    ;; Create result with cited text and citations
+    ;; Create text parts based on what we found
     (cond
-     ;; Case 1: Both cited text and citations
-     ((and cited-text citations)
+     ;; Both text and citations
+     ((and current-text current-citations)
       (push `((type . "text")
-              (text . ,cited-text)
-              (citations . ,(nreverse citations)))
-            result))
-     ;; Case 2: Only cited text, no citations
-     (cited-text
+              (text . ,current-text)
+              (citations . ,(nreverse current-citations)))
+            text-parts))
+
+     ;; Only text, no citations
+     (current-text
       (push `((type . "text")
-              (text . ,cited-text))
-            result))
-     ;; Case 3: Only citations, no cited text
-     (citations
+              (text . ,current-text))
+            text-parts))
+
+     ;; Only citations, no text
+     (current-citations
       (push `((type . "text")
-              (citations . ,(nreverse citations)))
-            result)))
+              (citations . ,(nreverse current-citations)))
+            text-parts)))
 
-    (nreverse result)))
+    (nreverse text-parts)))
 
-(defun greger-tree-sitter--parse-citation-entry (citation-entry-node)
-  "Parse a citation entry node and return citation data."
-  (let ((text (treesit-node-text citation-entry-node)))
-    ;; Parse lines: first line has ###, then URL, then key-value pairs
-    (let* ((lines (split-string text "\n"))
-           (url-line (and lines (string-trim (car lines))))
-           (url (when (string-prefix-p "###" url-line)
-                  (string-trim (substring url-line 3))))
-           (title nil)
-           (cited-text nil)
-           (encrypted-index nil))
+(defun greger-tree-sitter--extract-citation-entry (citation-entry-node)
+  "Extract citation entry data from a citation entry node."
+  (let ((children (treesit-node-children citation-entry-node))
+        (url nil)
+        (title nil)
+        (cited-text nil)
+        (encrypted-index nil))
 
-      ;; Parse subsequent lines for metadata
-      (dolist (line (cdr lines))
-        (setq line (string-trim line))
-        (when (> (length line) 0)
-          (cond
-           ((string-prefix-p "Title:" line)
-            (setq title (string-trim (substring line 6))))
-           ((string-prefix-p "Cited text:" line)
-            (setq cited-text (string-trim (substring line 11))))
-           ((string-prefix-p "Encrypted index:" line)
-            (setq encrypted-index (string-trim (substring line 16)))))))
+    (dolist (child children)
+      (let ((node-type (treesit-node-type child)))
+        (cond
+         ((string= node-type "url")
+          (setq url (string-trim (treesit-node-text child))))
+         ((string= node-type "title")
+          (setq title (string-trim (treesit-node-text child))))
+         ((string= node-type "cited_text")
+          (setq cited-text (string-trim (treesit-node-text child))))
+         ((string= node-type "encrypted_index")
+          (setq encrypted-index (string-trim (treesit-node-text child)))))))
 
-      ;; Return citation object if we have a URL
-      (when url
-        `((type . "web_search_result_location")
-          (url . ,url)
-          (title . ,title)
-          (cited_text . ,cited-text)
-          (encrypted_index . ,encrypted-index))))))
+    (when url
+      `((type . "web_search_result_location")
+        (url . ,url)
+        (title . ,title)
+        (cited_text . ,cited-text)
+        (encrypted_index . ,encrypted-index)))))
 
 (provide 'greger-tree-sitter)
 
