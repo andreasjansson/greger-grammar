@@ -256,7 +256,13 @@
     ;; Check if this is a web search result and parse accordingly
     (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
       `((role . "assistant")
-        (content . (((type . ,(if (listp parsed-content) "web_search_tool_result" "server_tool_result"))
+        (content . (((type . ,(if (and (listp parsed-content)
+                                       (vectorp parsed-content)
+                                       (> (length parsed-content) 0)
+                                       (assoc 'type (aref parsed-content 0))
+                                       (string= (cdr (assoc 'type (aref parsed-content 0))) "web_search_result"))
+                                  "web_search_tool_result"
+                                  "server_tool_result"))
                      (tool_use_id . ,id)
                      (content . ,parsed-content))))))))
 
