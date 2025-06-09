@@ -42,5 +42,5 @@
 ;; Test simple conversation
 ;(debug-parse "simple-conversation")
 
-;; Test HTML comments
-(debug-parse "html-comments")
+;; Test tool use single param
+(debug-parse "tool-use-single-param")
