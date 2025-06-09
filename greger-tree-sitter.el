@@ -130,9 +130,9 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "name")
-          (setq name (greger-tree-sitter--extract-key child)))
+          (setq name (greger-tree-sitter--extract-value child)))
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-key child)))
+          (setq id (greger-tree-sitter--extract-value child)))
          ((string= child-type "tool_param")
           (push (greger-tree-sitter--extract-tool-param child) params)))))
     (setq params (nreverse params))
@@ -142,7 +142,7 @@
                    (name . ,name)
                    (input . ,params)))))))
 
-(defun greger-tree-sitter--extract-key (node)
+(defun greger-tree-sitter--extract-value (node)
   (let ((child (treesit-node-child-by-field-name node "value")))
     (when child
       (string-trim (treesit-node-text child t)))))
@@ -214,7 +214,8 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-key child)))
+          (setq id (greger-tree-sitter--extract-value child
+                    )))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-tool-content child))))))
     `((role . "user")
@@ -231,9 +232,11 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "name")
-          (setq name (greger-tree-sitter--extract-key child)))
+          (setq name (greger-tree-sitter--extract-value child
+                      )))
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-key child)))
+          (setq id (greger-tree-sitter--extract-value child
+                    )))
          ((string= child-type "tool_param")
           (push (greger-tree-sitter--extract-tool-param child) params)))))
     (setq params (nreverse params))
@@ -251,7 +254,8 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-key child)))
+          (setq id (greger-tree-sitter--extract-value child
+                    )))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-tool-content child))))))
     ;; Check if this should be a web search tool result based on content
@@ -340,11 +344,11 @@
          ((string= child-type "url")
           (setq url (string-trim (treesit-node-text child t))))
          ((string= child-type "title")
-          (setq title (string-trim (replace-regexp-in-string "^Title:\\s-*" "" (treesit-node-text child t)))))
+          (setq title (greger-tree-sitter--extract-value child)))
          ((string= child-type "cited_text")
-          (setq cited-text (string-trim (replace-regexp-in-string "^Cited text:\\s-*" "" (treesit-node-text child t)))))
+          (setq cited-text (greger-tree-sitter--extract-value child)))
          ((string= child-type "encrypted_index")
-          (setq encrypted-index (string-trim (replace-regexp-in-string "^Encrypted index:\\s-*" "" (treesit-node-text child t))))))))
+          (setq encrypted-index (greger-tree-sitter--extract-value child))))))
     `((type . "web_search_result_location")
       (url . ,url)
       (title . ,title)
