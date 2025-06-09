@@ -257,9 +257,9 @@
     (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
       `((role . "assistant")
         (content . (((type . ,(if (and (listp parsed-content)
-                                       (vectorp parsed-content)
                                        (> (length parsed-content) 0)
-                                       (assoc 'type (aref parsed-content 0))
+                                       (listp (car parsed-content))
+                                       (assoc 'type (car parsed-content))
                                        (string= (cdr (assoc 'type (aref parsed-content 0))) "web_search_result"))
                                   "server_tool_result"
                                   "server_tool_result"))
