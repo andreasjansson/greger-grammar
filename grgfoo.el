@@ -96,11 +96,9 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Safe indentation rules that won't cause segfaults
+     ;; Very simple and safe indentation rules
      ((parent-is "source_file") column-0 0)
-     ((node-is "text") parent-bol 0)
-     ((node-is "value") parent-bol ,grgfoo-ts-indent-offset)
-     (catch-all parent-bol 0)))
+     (no-node parent-bol 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
 
 ;;;###autoload
