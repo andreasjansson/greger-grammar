@@ -5281,4 +5281,53 @@ $._tool_tag,
 Revert tool_param to use simple _tool_tag
 </tool.toolu_01AbZT2MUgDYCRNEJzz8Xfoc>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01AbZT2MUgDYCRNEJzz8Xfoc -->
+## TOOL RESULT:
+
+ID: toolu_01AbZT2MUgDYCRNEJzz8Xfoc
+
+<tool.toolu_01AbZT2MUgDYCRNEJzz8Xfoc>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert tool_param to use simple _tool_tag
+</tool.toolu_01AbZT2MUgDYCRNEJzz8Xfoc>
+
+## ASSISTANT:
+
+Now I need to make the _tool_tag rule return only the content. The issue is that I need to properly alias the entire sequence to just appear as the content. Let me try this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011o4KFGVhW1HmfYZB7x4UJb
+
+### file-path
+
+<tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+grammar.js
+</tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+
+### original-content
+
+<tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+_tool_tag: $ => seq(
+      $.tool_start_tag,
+      $.tool_content,
+      $.tool_end_tag,
+    ),
+</tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+
+### new-content
+
+<tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+_tool_tag: $ => seq(
+      $.tool_start_tag,
+      alias($.tool_content, 'value'),
+      $.tool_end_tag,
+    ),
+</tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+
+### git-commit-message
+
+<tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+Alias tool_content as 'value' in _tool_tag rule
+</tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_011o4KFGVhW1HmfYZB7x4UJb -->
