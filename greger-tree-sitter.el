@@ -150,8 +150,15 @@
 
 (defun greger-tree-sitter--extract-tool-result-entry (node)
   "Extract tool result entry from NODE."
-  (let ((id (greger-tree-sitter--extract-tool-result-id node))
-        (content (greger-tree-sitter--extract-tool-result-content node)))
+  (let ((id nil)
+        (content nil))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "id")
+          (setq id (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+         ((string= child-type "content")
+          (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
     `((role . "user")
       (content . (((type . "tool_result")
                    (tool_use_id . ,id)
