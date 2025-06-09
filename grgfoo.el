@@ -96,8 +96,8 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Test with a different node type
-     ((parent-is "user") column-0 0)
+     ;; Test with node-is instead of parent-is
+     ((node-is "user") column-0 0)
      (no-node column-0 0)
      (catch-all column-0 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
