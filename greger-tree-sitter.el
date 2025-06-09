@@ -252,12 +252,12 @@
   "Extract tool result content from tool_result NODE."
   (let ((content-node (treesit-node-child-by-field-name node "content")))
     (if content-node
-        (treesit-node-text content-node t)
+        (greger-tree-sitter--extract-xml-content (treesit-node-text content-node t))
       (let ((children (treesit-node-children node))
             (result nil))
         (while (and children (not result))
           (let ((child (car children)))
             (when (string= (treesit-node-type child) "content")
-              (setq result (treesit-node-text child t)))
+              (setq result (greger-tree-sitter--extract-xml-content (treesit-node-text child t))))
             (setq children (cdr children))))
         result))))
