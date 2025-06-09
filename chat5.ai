@@ -5330,4 +5330,414 @@ _tool_tag: $ => seq(
 Alias tool_content as 'value' in _tool_tag rule
 </tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011o4KFGVhW1HmfYZB7x4UJb -->
+## TOOL RESULT:
+
+ID: toolu_011o4KFGVhW1HmfYZB7x4UJb
+
+<tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Alias tool_content as 'value' in _tool_tag rule
+</tool.toolu_011o4KFGVhW1HmfYZB7x4UJb>
+
+## ASSISTANT:
+
+Let me test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0179B229ApqsnKjJuSVCXJkC
+
+### command
+
+<tool.toolu_0179B229ApqsnKjJuSVCXJkC>
+tree-sitter generate && timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_0179B229ApqsnKjJuSVCXJkC>
+
+## TOOL RESULT:
+
+ID: toolu_0179B229ApqsnKjJuSVCXJkC
+
+<tool.toolu_0179B229ApqsnKjJuSVCXJkC>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (tool_start_tag)
+[0m[31m          (tool_end_tag))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_0179B229ApqsnKjJuSVCXJkC>
+
+## ASSISTANT:
+
+It seems like the tool_content is not being recognized. There might be an issue with the scanner logic. Let me debug this by testing a simple tool content parsing:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SnGbXM8y2CT39rd15X51ou
+
+### command
+
+<tool.toolu_01SnGbXM8y2CT39rd15X51ou>
+echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_01SnGbXM8y2CT39rd15X51ou>
+
+## TOOL RESULT:
+
+ID: toolu_01SnGbXM8y2CT39rd15X51ou
+
+<tool.toolu_01SnGbXM8y2CT39rd15X51ou>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (ERROR [0, 19] - [0, 21])))
+stdin	Parse:    0.02 ms	  1541 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_01SnGbXM8y2CT39rd15X51ou>
+
+## ASSISTANT:
+
+I can see that the tool_start_tag is being recognized correctly, but there's an issue with the content and end tag. The problem might be in my scanner logic. Let me check the state management in the scanner more carefully.
+
+Looking at the HTML scanner approach, I think the issue might be that I need to be more careful about when to scan for different tokens. Let me debug this step by step.
+
+Let me try a simpler approach first - let me test if my current scanner is working by checking if it can find the basic structure:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Rsvb7nrRDc4uvF9MBdmoFN
+
+### command
+
+<tool.toolu_01Rsvb7nrRDc4uvF9MBdmoFN>
+echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.toolu_999>\nhello.txt\n</tool.toolu_999>" | tree-sitter parse
+</tool.toolu_01Rsvb7nrRDc4uvF9MBdmoFN>
+
+## TOOL RESULT:
+
+ID: toolu_01Rsvb7nrRDc4uvF9MBdmoFN
+
+<tool.toolu_01Rsvb7nrRDc4uvF9MBdmoFN>
+Command failed with exit code 1: 
+(source_file [0, 0] - [10, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [9, 17]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [5, 0])
+    (tool_param [5, 0] - [9, 17]
+      (name [5, 4] - [5, 8])
+      (tool_start_tag [7, 0] - [7, 16])
+      (tool_end_tag [9, 0] - [9, 17]))))
+stdin	Parse:    0.04 ms	  2462 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01Rsvb7nrRDc4uvF9MBdmoFN>
+
+## ASSISTANT:
+
+Good! I can see that the `tool_start_tag` and `tool_end_tag` are being recognized. The issue is that the `tool_content` between them is not being captured. This suggests there's a problem with my scanner logic for the content.
+
+Looking at my scanner more carefully, I think the issue is that I'm not setting up the state machine correctly. The `in_tool_content` flag needs to be managed properly, and the content needs to be scanned when we're in the right state.
+
+Let me look at the HTML scanner approach again and fix the logic:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018dcavJaNm8J9nu6i7hj5bm
+
+### file-path
+
+<tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+src/scanner.c
+</tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+
+### original-content
+
+<tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // If we reached here, we have content but no closing tag
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+
+### new-content
+
+<tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool found_content = false;
+    
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+                found_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // If we reached here and found content, return it
+    if (found_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+
+### git-commit-message
+
+<tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+Fix tool content scanning to properly track content and handle partial matches
+</tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+
+## TOOL RESULT:
+
+ID: toolu_018dcavJaNm8J9nu6i7hj5bm
+
+<tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
+
+## ASSISTANT:
+
+Let me check the current state of that function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012AUQj7dg3ajTBgN6QVvwmo
+
+### path
+
+<tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+src/scanner.c
+</tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+
+### start-line
+
+<tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+170
+</tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+
+### end-line
+
+<tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+205
+</tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+
+### include-line-numbers
+
+<tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+true
+</tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+
+## TOOL RESULT:
+
+ID: toolu_012AUQj7dg3ajTBgN6QVvwmo
+
+<tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // If we reached here, we have content but no closing tag
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_012AUQj7dg3ajTBgN6QVvwmo>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01G6kJF9H8bnqfo9HFbXx7XT
+
+### file-path
+
+<tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+src/scanner.c
+</tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+
+### original-content
+
+<tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // If we reached here, we have content but no closing tag
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+</tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+
+### new-content
+
+<tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool found_content = false;
+    
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+                found_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // If we reached here and found content, return it
+    if (found_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+</tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+
+### git-commit-message
+
+<tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+Fix tool content scanning to properly track content and handle partial matches
+</tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01G6kJF9H8bnqfo9HFbXx7XT -->
