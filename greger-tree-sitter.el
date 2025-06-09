@@ -327,8 +327,7 @@
   (let ((url nil)
         (title nil)
         (cited-text nil)
-        (encrypted-index nil)
-        (page-age nil))
+        (encrypted-index nil))
     (dolist (child (treesit-node-children node))
       (let ((child-type (treesit-node-type child)))
         (cond
