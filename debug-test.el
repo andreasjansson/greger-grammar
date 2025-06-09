@@ -27,3 +27,26 @@
   (message "Expected: %S" expected)
   (message "Actual: %S" actual)
   (message "Equal? %S" (equal expected actual)))
+
+;; Also debug the tree structure
+(unless (treesit-ready-p 'greger)
+  (error "Tree-sitter greger parser not available"))
+
+(with-temp-buffer
+  (insert "## USER:\n\nHello, how are you?\n")
+  (let* ((parser (treesit-parser-create 'greger))
+         (root-node (treesit-parser-root-node parser)))
+    (message "=== Tree structure ===")
+    (debug-print-node root-node 0)))
+
+(defun debug-print-node (node level)
+  "Print node structure recursively."
+  (let ((indent (make-string (* level 2) ?\s))
+        (node-type (treesit-node-type node))
+        (node-text (treesit-node-text node)))
+    (message "%s%s: %S" indent node-type
+             (if (< (length node-text) 50)
+                 node-text
+               (concat (substring node-text 0 47) "...")))
+    (dolist (child (treesit-node-children node))
+      (debug-print-node child (1+ level)))))
