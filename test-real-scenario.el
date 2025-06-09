@@ -27,7 +27,7 @@
         (message "✓ Text typed: '## USER:'")
 
         ;; Hit return (this was causing the segfault)
-        (newline)
+        (newline nil t)
         (message "✓ Return key pressed successfully")
 
         ;; Type more content
@@ -35,7 +35,7 @@
         (message "✓ More text typed")
 
         ;; Try another newline
-        (newline)
+        (newline nil t)
         (message "✓ Second newline successful")
 
         ;; Show the buffer content

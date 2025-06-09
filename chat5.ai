@@ -1103,34 +1103,34 @@ ID: toolu_018WUUKsY5zvwnyKbE6XH6BE
   Press  S  or  /  to search in the book
   Press  ?  to show this help
   Press  Esc  to hide this help
- 
- 
- 
-    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js        
- 
-    
+
+
+
+    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js
+
+
             Auto
   Light
   Rust
   Coal
   Navy
   Ayu
- 
-    
-  Tree-sitter
-              
- 
-       
-  
 
- 
+
+  Tree-sitter
+
+
+
+
+
+
    Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM     The Grammar DSL
   The following is a complete list of built-in functions you can use in your  grammar.js  to define rules. Use-cases for some
 of these functions will be explained in more detail in later sections.
    Symbols (the  $  object)  — Every grammar rule is written as a JavaScript function that takes a parameter conventionally
-called  $ . The syntax  $.identifier  is how you refer to another grammar symbol within a rule. Names starting with  $.MISSING 
+called  $ . The syntax  $.identifier  is how you refer to another grammar symbol within a rule. Names starting with  $.MISSING
 or  $.UNEXPECTED  should be avoided as they have special meaning for the  tree-sitter test  command.
- 
+
    String and Regex literals  — The terminal symbols in a grammar are described using JavaScript strings and regular
 expressions. Of course during parsing, Tree-sitter does not actually use JavaScript's regex engine to evaluate these regexes;
 it generates its own regex-matching logic based on the Rust regex syntax as part of each parser. Regex literals are just
@@ -1142,8 +1142,8 @@ DSL through the  RustRegex  class. Simply pass your regex pattern as a string:
 accepts a single pattern string. While it doesn't support separate flags, you can use inline flags within the pattern itself.
 For more details about Rust's regex syntax and capabilities, check out the  Rust regex documentation .
      Note
- 
-   
+
+
    Only a subset of the Regex engine is actually supported. This is due to certain features like lookahead and lookaround
 assertions not feasible to use in an LR(1) grammar, as well as certain flags being unnecessary for tree-sitter. However,
 plenty of features are supported by default:
@@ -1155,25 +1155,25 @@ plenty of features are supported by default:
   Grouping
   Unicode character escapes
   Unicode property escapes
- 
 
- 
- 
+
+
+
    Sequences :  seq(rule1, rule2, ...)  — This function creates a rule that matches any number of other rules, one after
 another. It is analogous to simply writing multiple symbols next to each other in  EBNF notation .
- 
+
    Alternatives :  choice(rule1, rule2, ...)  — This function creates a rule that matches  one  of a set of possible
 rules. The order of the arguments does not matter. This is analogous to the  |  (pipe) operator in EBNF notation.
- 
+
    Repetitions :  repeat(rule)  — This function creates a rule that matches  zero-or-more  occurrences of a given rule.
 It is analogous to the  {x}  (curly brace) syntax in EBNF notation.
- 
+
    Repetitions :  repeat1(rule)  — This function creates a rule that matches  one-or-more  occurrences of a given rule.
 The previous  repeat  rule is implemented in  repeat1  but is included because it is very commonly used.
- 
+
    Options :  optional(rule)  — This function creates a rule that matches  zero or one  occurrence of a given rule.
 It is analogous to the  [x]  (square bracket) syntax in EBNF notation.
- 
+
    Precedence :  prec(number, rule)  — This function marks the given rule with a numerical precedence, which will be used
 to resolve  LR(1) Conflicts  at parser-generation time. When two rules overlap in a way that represents either
 a true ambiguity or a  local  ambiguity given one token of lookahead, Tree-sitter will try to resolve the conflict by matching
@@ -1182,23 +1182,23 @@ the rule with the higher precedence. The default precedence of all rules is zero
   This function can also be used to assign lexical precedence to a given
 token, but it must be wrapped in a  token  call, such as  token(prec(1, 'foo')) . This reads as "the token  foo  has a
 lexical precedence of 1". The purpose of lexical precedence is to solve the issue where multiple tokens can match the same
-set of characters, but one token should be preferred over the other. See  Lexical Precedence vs Parse Precedence 
+set of characters, but one token should be preferred over the other. See  Lexical Precedence vs Parse Precedence
 for a more detailed explanation.
- 
+
    Left Associativity :  prec.left([number], rule)  — This function marks the given rule as left-associative (and optionally
 applies a numerical precedence). When an LR(1) conflict arises in which all the rules have the same numerical precedence,
 Tree-sitter will consult the rules' associativity. If there is a left-associative rule, Tree-sitter will prefer matching
 a rule that ends  earlier . This works similarly to  associativity directives  in Yacc grammars.
- 
+
    Right Associativity :  prec.right([number], rule)  — This function is like  prec.left , but it instructs Tree-sitter
 to prefer matching a rule that ends  later .
- 
+
    Dynamic Precedence :  prec.dynamic(number, rule)  — This function is similar to  prec , but the given numerical precedence
 is applied at  runtime  instead of at parser generation time. This is only necessary when handling a conflict dynamically
 using the  conflicts  field in the grammar, and when there is a genuine  ambiguity : multiple rules correctly match a given
 piece of code. In that event, Tree-sitter compares the total dynamic precedence associated with each rule, and selects the
 one with the highest total. This is similar to  dynamic precedence directives  in Bison grammars.
- 
+
    Tokens :  token(rule)  — This function marks the given rule as producing only
 a single token. Tree-sitter's default is to treat each String or RegExp literal
 in the grammar as a separate token. Each token is matched separately by the lexer
@@ -1208,68 +1208,68 @@ regular expression) but still have Tree-sitter treat it as a single token.
 The token function will only accept terminal rules, so  token($.foo)  will not work.
 You can think of it as a shortcut for squashing complex rules of strings or regexes
 down to a single token.
- 
+
    Immediate Tokens :  token.immediate(rule)  — Usually, whitespace (and any other extras, such as comments) is optional
 before each token. This function means that the token will only match if there is no whitespace.
- 
+
    Aliases :  alias(rule, name)  — This function causes the given rule to  appear  with an alternative name in the syntax
-tree. If  name  is a  symbol , as in  alias($.foo, $.bar) , then the aliased rule will  appear  as a  named node 
+tree. If  name  is a  symbol , as in  alias($.foo, $.bar) , then the aliased rule will  appear  as a  named node
 called  bar . And if  name  is a  string literal , as in  alias($.foo, 'bar') , then the aliased rule will appear as an
  anonymous node , as if the rule had been written as the simple string.
- 
+
    Field Names :  field(name, rule)  — This function assigns a  field name  to the child node(s) matched by the given
 rule. In the resulting syntax tree, you can then use that field name to access specific children.
- 
+
    Reserved Keywords :  reserved(wordset, rule)   — This function will override the global reserved word set with the
 one passed into the  wordset  parameter. This is useful for contextual keywords, such as  if  in JavaScript, which cannot
 be used as a variable name in most contexts, but can be used as a property name.
- 
- 
+
+
  In addition to the  name  and  rules  fields, grammars have a few other optional public fields that influence the behavior
 of the parser. Each of these fields is a function that accepts the grammar object ( $ ) as its only parameter, like the
 grammar rules themselves. These fields are:
    extras  — an array of tokens that may appear  anywhere  in the language. This is often used for whitespace and
 comments. The default value of  extras  is to accept whitespace. To control whitespace explicitly, specify
  extras: $ => []  in your grammar.
- 
+
    inline  — an array of rule names that should be automatically  removed  from the grammar by replacing all of their
-usages with a copy of their definition. This is useful for rules that are used in multiple places but for which you  don't 
+usages with a copy of their definition. This is useful for rules that are used in multiple places but for which you  don't
 want to create syntax tree nodes at runtime.
- 
+
    conflicts  — an array of arrays of rule names. Each inner array represents a set of rules that's involved in an
  LR(1) conflict  that is  intended to exist  in the grammar. When these conflicts occur at runtime, Tree-sitter will use
 the GLR algorithm to explore all the possible interpretations. If  multiple  parses end up succeeding, Tree-sitter will pick
 the subtree whose corresponding rule has the highest total  dynamic precedence .
- 
+
    externals  — an array of token names which can be returned by an
  external scanner . External scanners allow you to write custom C code which runs during the lexing
 process to handle lexical rules (e.g. Python's indentation tokens) that cannot be described by regular expressions.
- 
+
    precedences  — an array of arrays of strings, where each array of strings defines named precedence levels in descending
 order. These names can be used in the  prec  functions to define precedence relative only to other names in the array, rather
 than globally. Can only be used with parse precedence, not lexical precedence.
- 
+
    word  — the name of a token that will match keywords to the
  keyword extraction  optimization.
- 
+
    supertypes  — an array of hidden rule names which should be considered to be 'supertypes' in the generated
  node types  file .
- 
+
    reserved  — similar in structure to the main  rules  property, an object of reserved word sets associated with an
 array of reserved rules. The reserved rule in the array must be a terminal token meaning it must be a string, regex, or token,
 or a terminal rule. The  first  reserved word set in the object is the global word set, meaning it applies to every rule
 in every parse state. However, certain keywords are contextual, depending on the rule. For example, in JavaScript, keywords
-are typically not allowed as ordinary variables, however, they  can  be used as a property name. In this situation, the  reserved 
-function would be used, and the word set to pass in would be the name of the word set that is declared in the  reserved 
+are typically not allowed as ordinary variables, however, they  can  be used as a property name. In this situation, the  reserved
+function would be used, and the word set to pass in would be the name of the word set that is declared in the  reserved
 object that corresponds to an empty array, signifying  no  keywords are reserved.
- 
- 
-  Mobile navigation buttons          
- 
- 
-         
-          Custom JS scripts  
- 
+
+
+  Mobile navigation buttons
+
+
+
+          Custom JS scripts
+
 </tool.toolu_018WUUKsY5zvwnyKbE6XH6BE>
 
 ## TOOL USE:
@@ -1293,27 +1293,27 @@ ID: toolu_017FnVt7SY3BadFwniKZHbVz
   Press  S  or  /  to search in the book
   Press  ?  to show this help
   Press  Esc  to hide this help
- 
- 
- 
-    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js        
- 
-    
+
+
+
+    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js
+
+
             Auto
   Light
   Rust
   Coal
   Navy
   Ayu
- 
-    
-  Tree-sitter
-              
- 
-       
-  
 
- 
+
+  Tree-sitter
+
+
+
+
+
+
    Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM     Writing the Grammar
   Writing a grammar requires creativity. There are an infinite number of CFGs (context-free grammars) that can be used to describe
 any given language. To produce a good Tree-sitter parser, you need to create a grammar with two important properties:
@@ -1322,14 +1322,14 @@ directly to a  terminal or non-terminal symbol  in the grammar. So to produce an
 should be a direct correspondence between the symbols in your grammar and the recognizable constructs in the language.
 This might seem obvious, but it is very different from the way that context-free grammars are often written in contexts
 like  language specifications  or  Yacc / Bison  parsers.
- 
+
    A close adherence to LR(1)  — Tree-sitter is based on the  GLR parsing  algorithm. This means that while
 it can handle any context-free grammar, it works most efficiently with a class of context-free grammars called  LR(1) Grammars .
 In this respect, Tree-sitter's grammars are similar to (but less restrictive than)  Yacc  and  Bison  grammars,
-but  different  from  ANTLR grammars ,  Parsing Expression Grammars , or the  ambiguous grammars 
+but  different  from  ANTLR grammars ,  Parsing Expression Grammars , or the  ambiguous grammars
 commonly used in language specifications.
- 
- 
+
+
  It's unlikely that you'll be able to satisfy these two properties just by translating an existing context-free grammar directly
 into Tree-sitter's grammar format. There are a few kinds of adjustments that are often required.
 The following sections will explain these adjustments in more depth.
@@ -1435,7 +1435,7 @@ complex types:
   )
 }
 
-  After developing the  type  sublanguage a bit further, you might decide to switch to working on  statements  or  expressions 
+  After developing the  type  sublanguage a bit further, you might decide to switch to working on  statements  or  expressions
 instead. It's often useful to check your progress by trying to parse some real code using  tree-sitter parse .
   And remember to add tests for each rule in your  test/corpus  folder!
   Structuring Rules Well
@@ -1481,11 +1481,11 @@ used by many other established grammars in the ecosystem. Some of these well-est
 more specific sub-expression/sub-statement rules.
   block : Used as the parent node for block scopes, with its children representing the block's contents.
   type : Represents the types of a language such as  int ,  char , and  void .
-  identifier : Used for constructs like variable names, function arguments, and object fields; this rule is commonly used as the  word 
+  identifier : Used for constructs like variable names, function arguments, and object fields; this rule is commonly used as the  word
 token in grammars.
   string : Used to represent  "string literals" .
   comment : Used to represent comments, this rule is commonly used as an  extra .
- 
+
  Using Precedence
   To produce a readable syntax tree, we'd like to model JavaScript expressions using a much flatter structure like this:
   {
@@ -1529,17 +1529,17 @@ Possible resolutions:
   4:  Add a conflict for these rules: `binary_expression` `unary_expression`
 
      Hint
- 
-   
+
+
    The • character in the error message indicates where exactly during
 parsing the conflict occurs, or in other words, where the parser is encountering
 ambiguity.
- 
- 
+
+
   For an expression like  -a * b , it's not clear whether the  -  operator applies to the  a * b  or just to the  a . This
 is where the  prec  function  described in the previous page  comes into play. By wrapping a rule with  prec ,
 we can indicate that certain sequence of symbols should  bind to each other more tightly  than others. For example, the
- '-', $._expression  sequence in  unary_expression  should bind more tightly than the  $._expression, '+', $._expression 
+ '-', $._expression  sequence in  unary_expression  should bind more tightly than the  $._expression, '+', $._expression
 sequence in  binary_expression :
   {
   // ...
@@ -1634,13 +1634,13 @@ pattern (like in  let [x, y] = arr ).
 }
 
      Note
- 
-   
+
+
    The example is a bit contrived for the purpose of illustrating the usage of conflicts. The actual JavaScript grammar isn't
 structured like that, but this conflict is actually present in the
  Tree-sitter JavaScript grammar .
- 
- 
+
+
   Hiding Rules
   You may have noticed in the above examples that some grammar rule name like  _expression  and  _type  began with an underscore.
 Starting a rule's name with an underscore causes the rule to be  hidden  in the syntax tree. This is useful for rules like
@@ -1669,22 +1669,22 @@ know about how Tree-sitter's lexing works.
 ( "if"  and  /[a-z]+/ ). Tree-sitter differentiates between these conflicting tokens in a few ways.
    Context-aware Lexing  — Tree-sitter performs lexing on-demand, during the parsing process. At any given position
 in a source document, the lexer only tries to recognize tokens that are  valid  at that position in the document.
- 
-   Lexical Precedence  — When the precedence functions described  in the previous page  are used  within 
+
+   Lexical Precedence  — When the precedence functions described  in the previous page  are used  within
 the  token  function, the given explicit precedence values serve as instructions to the lexer. If there are two valid tokens
 that match the characters at a given position in the document, Tree-sitter will select the one with the higher precedence.
- 
+
    Match Length  — If multiple valid tokens with the same precedence match the characters at a given position in a document,
 Tree-sitter will select the token that matches the  longest sequence of characters .
- 
+
    Match Specificity  — If there are two valid tokens with the same precedence, and they both match the same number
 of characters, Tree-sitter will prefer a token that is specified in the grammar as a  String  over a token specified as
 a  RegExp .
- 
+
    Rule Order  — If none of the above criteria can be used to select one token over another, Tree-sitter will prefer
 the token that appears earlier in the grammar.
- 
- 
+
+
  If there is an external scanner it may have  an additional impact  over regular tokens
 defined in the grammar.
   Lexical Precedence vs. Parse Precedence
@@ -1706,7 +1706,7 @@ used as a binary operator, like this:
 
   A keyword like  instanceof  cannot be followed immediately by another letter, because then it would be tokenized as an  identifier ,
  even though an identifier is not valid at that position . Because Tree-sitter uses context-aware lexing, as described
- above , it would not normally impose this restriction. By default, Tree-sitter would recognize  instanceofSomething 
+ above , it would not normally impose this restriction. By default, Tree-sitter would recognize  instanceofSomething
 as two separate tokens: the  instanceof  keyword followed by an  identifier .
   Keyword Extraction
   Fortunately, Tree-sitter has a feature that allows you to fix this, so that you can match the behavior of other standard
@@ -1750,19 +1750,19 @@ It would then correctly recognize the code as invalid.
   Aside from improving error detection, keyword extraction also has performance benefits. It allows Tree-sitter to generate
 a smaller, simpler lexing function, which means that  the parser will compile much more quickly .
      Note
- 
-   
+
+
    The word token must be a unique token that is not reused by another rule. If you want to have a word token used in a
 rule that's called something else, you should just alias the word token instead, like how the Rust grammar does it
  here
- 
- 
-   Mobile navigation buttons          
- 
- 
-         
-          Custom JS scripts  
- 
+
+
+   Mobile navigation buttons
+
+
+
+          Custom JS scripts
+
 </tool.toolu_017FnVt7SY3BadFwniKZHbVz>
 
 ## ASSISTANT:
@@ -2568,7 +2568,7 @@ Command executed successfully:
 
 ## ASSISTANT:
 
-Perfect! The parser is correctly treating the content as a single `user` block with text that includes the markdown headings `## This is not a Greger heading` and `# Another heading that should be part of text`. 
+Perfect! The parser is correctly treating the content as a single `user` block with text that includes the markdown headings `## This is not a Greger heading` and `# Another heading that should be part of text`.
 
 Let me also test a case where we have multiple sections to make sure the grammar still works correctly:
 
@@ -2672,4 +2672,47 @@ ID: toolu_01PWE2ss5EW2WhoNqpSiizQP
 Clean up test files
 </tool.toolu_01PWE2ss5EW2WhoNqpSiizQP>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PWE2ss5EW2WhoNqpSiizQP -->
+## TOOL RESULT:
+
+ID: toolu_01PWE2ss5EW2WhoNqpSiizQP
+
+<tool.toolu_01PWE2ss5EW2WhoNqpSiizQP>
+Successfully deleted 2 file(s): /Users/andreas/projects/greger.el/greger-grammar/test_content.txt, /Users/andreas/projects/greger.el/greger-grammar/test_multiple_sections.txt. Git status: Successfully staged 3 file(s) and committed with message: Clean up test files
+</tool.toolu_01PWE2ss5EW2WhoNqpSiizQP>
+
+## ASSISTANT:
+
+## Summary
+
+I successfully fixed the issue with the Greger grammar that was preventing text from containing markdown headings. The problem was that the original grammar was too strict in how it handled the `##` token at the beginning of sections.
+
+### The Issue
+The grammar was trying to parse any `##` sequence as the start of a known section (USER, ASSISTANT, etc.), but when it encountered `## This is not a Greger heading`, it would fail because "This" is not one of the recognized keywords.
+
+### The Solution
+I made two key changes:
+
+1. **Made header tokens more specific**: Instead of using separate `##` and keyword tokens, I combined them into single, more specific tokens using the `token()` function. For example:
+   ```javascript
+   // Before:
+   user: $ => seq('##', 'USER', ':', $.content_blocks),
+
+   // After:
+   user: $ => seq(token(seq('##', /[ \t]*/, 'USER')), ':', $.content_blocks),
+   ```
+
+2. **Simplified text content matching**: I changed the `_text_content` rule from excluding `#` characters to allowing them:
+   ```javascript
+   // Before:
+   _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
+
+   // After:
+   _text_content: $ => token(prec(-1, /[^<`\n]+/)),
+   ```
+
+### Result
+Now the parser correctly handles text that contains markdown headings like `## This is not a Greger heading` and `# Another heading` as regular text content, while still properly recognizing actual Greger section headers like `## USER:` and `## ASSISTANT:`.
+
+All 23 tests are now passing successfully!
+
+## USER:
