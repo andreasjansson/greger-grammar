@@ -62,50 +62,7 @@
     ;; No need to fix types anymore since everything is web_search_tool_result
     (nreverse result)))
 
-(defun greger-tree-sitter--unused-function-1 (entries)
-  "Check if any entry contains citations."
-  (cl-some (lambda (entry)
-             (let ((content (cdr (assoc 'content entry))))
-               (or
-                ;; Check if content itself has citations (for text blocks)
-                (when (listp content)
-                  (cl-some (lambda (block)
-                             (when (listp block)
-                               (assoc 'citations block)))
-                           content))
-                ;; Check if this is a citations entry
-                (when (listp content)
-                  (cl-some (lambda (block)
-                             (when (listp block)
-                               (string= (cdr (assoc 'type block)) "text")))
-                           content)))))
-           entries))
 
-(defun greger-tree-sitter--fix-server-tool-result-types-in-dialog (result has-citations)
-  "Fix server tool result types in the entire dialog based on whether citations are present."
-  (mapcar (lambda (entry)
-            (let ((content (cdr (assoc 'content entry))))
-              (if (listp content)
-                  ;; Fix content blocks
-                  (cons (cons 'role (cdr (assoc 'role entry)))
-                        (list (cons 'content
-                                    (greger-tree-sitter--fix-server-tool-result-types content has-citations))))
-                ;; Keep non-list content as is
-                entry)))
-          result))
-
-(defun greger-tree-sitter--fix-server-tool-result-types (content has-citations)
-  "Fix server tool result types based on whether citations are present."
-  (mapcar (lambda (block)
-            (if (and (listp block)
-                     (assoc 'type block)
-                     (string= (cdr (assoc 'type block)) "web_search_tool_result")
-                     has-citations)
-                ;; Change to web_search_tool_result if citations are present
-                (cons (cons 'type "web_search_tool_result")
-                      (cl-remove-if (lambda (pair) (eq (car pair) 'type)) block))
-              block))
-          content))
 
 (defun greger-tree-sitter--flush-assistant-content (content result)
   "Flush accumulated assistant CONTENT to RESULT list, returning updated result."
@@ -318,7 +275,7 @@
                          (content . ,content)))))
         ;; Regular server tool result - use parsed content
         `((role . "assistant")
-          (content . (((type . "server_tool_result")
+          (content . (((type . "web_search_tool_result")
                        (tool_use_id . ,id)
                        (content . ,parsed-content)))))))))
 
