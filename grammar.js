@@ -156,7 +156,7 @@ module.exports = grammar({
       alias($.param_name, $.name),
       /\n/,
       optional(/\n/),
-      alias($._tool_tag, $.value),
+      field('value', alias($.tool_content, $.value_content)),
     ),
 
     param_name: $ => /[^\n]+/,

@@ -5199,4 +5199,45 @@ content: $ => alias($._tool_tag, 'content'),
 Update content rule to use hidden _tool_tag rule
 </tool.toolu_011a73qBWXF9T5Q8yx5HXFEE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011a73qBWXF9T5Q8yx5HXFEE -->
+## TOOL RESULT:
+
+ID: toolu_011a73qBWXF9T5Q8yx5HXFEE
+
+<tool.toolu_011a73qBWXF9T5Q8yx5HXFEE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update content rule to use hidden _tool_tag rule
+</tool.toolu_011a73qBWXF9T5Q8yx5HXFEE>
+
+## ASSISTANT:
+
+Actually, let me rethink this. The test expects just `(value)` but we need to alias the tool_content directly to get the behavior we want. Let me try a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Y9sQMXVCXKtbCpZBMap33C
+
+### file-path
+
+<tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+grammar.js
+</tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+
+### original-content
+
+<tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+alias($._tool_tag, $.value),
+</tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+
+### new-content
+
+<tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+field('value', alias($.tool_content, $.value_content)),
+</tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+
+### git-commit-message
+
+<tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+Use field on tool_content directly in tool_param
+</tool.toolu_01Y9sQMXVCXKtbCpZBMap33C>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Y9sQMXVCXKtbCpZBMap33C -->
