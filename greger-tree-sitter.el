@@ -312,9 +312,14 @@
 
 (defun greger-tree-sitter--extract-xml-content (text)
   "Extract content from XML wrapper tags in TEXT."
-  (if (string-match "^\\s-*<[^>]+>\\s-*\\(\\(?:.\\|\n\\)*?\\)\\s-*</[^>]+>\\s-*$" text)
-      (string-trim (match-string 1 text))
-    (string-trim text)))
+  (let ((content (if (string-match "^\\s-*<[^>]+>\\s-*\\(\\(?:.\\|\n\\)*?\\)\\s-*</[^>]+>\\s-*$" text)
+                     (string-trim (match-string 1 text))
+                   (string-trim text))))
+    ;; Unescape JSON quotes if this looks like JSON
+    (if (and (string-match-p "^\\s-*[{\\[]" content)
+             (string-match-p "[}\\]]\\s-*$" content))
+        (replace-regexp-in-string "\\\\\"" "\"" content)
+      content)))
 
 (defun greger-tree-sitter--parse-json-or-plain-content (content)
   "Parse CONTENT as JSON if it looks like JSON, otherwise return as plain text."
