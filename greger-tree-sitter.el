@@ -96,21 +96,23 @@
 
 (defun greger-tree-sitter--extract-user-section (section-node)
   "Extract user section content."
-  (let ((content (greger-tree-sitter--extract-text-content section-node)))
+  (let ((content (greger-tree-sitter--extract-content-blocks section-node)))
     `((role . "user") (content . ,content))))
 
 (defun greger-tree-sitter--extract-system-section (section-node)
   "Extract system section content."
-  (let ((content (greger-tree-sitter--extract-text-content section-node)))
+  (let ((content (greger-tree-sitter--extract-content-blocks section-node)))
     `((role . "system") (content . ,content))))
 
-(defun greger-tree-sitter--extract-text-content (section-node)
-  "Extract text content from a section node, handling all child types."
-  (let ((children (treesit-node-children section-node)))
-    (string-trim
-     (mapconcat (lambda (child)
-                  (treesit-node-text child))
-                children ""))))
+(defun greger-tree-sitter--extract-content-blocks (section-node)
+  "Extract content from a section node by finding content_blocks child."
+  (let ((children (treesit-node-children section-node))
+        (content-text ""))
+    ;; Look for content_blocks node
+    (dolist (child children)
+      (when (string= (treesit-node-type child) "content_blocks")
+        (setq content-text (treesit-node-text child))))
+    (string-trim content-text)))
 
 (defun greger-tree-sitter--extract-tool-use (tool-use-node)
   "Extract tool use data from a tool use section."
