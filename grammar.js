@@ -193,13 +193,10 @@ module.exports = grammar({
       $.cite_tag,
       $.safe_shell_commands,
       $._text_content,
-      $._hash_content,
       /\n/,
     ))),
 
-    _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
-
-    _hash_content: $ => token(prec(-2, /#[^#\n]*/)),
+    _text_content: $ => token(prec(-1, /[^<`\n]+/)),
 
     _tool_element: $ => seq(
       $.tool_start_tag,

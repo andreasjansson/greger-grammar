@@ -2252,4 +2252,58 @@ grammar.js
 Make header tokens more specific to avoid conflicts with text
 </tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01S9V6kewT9dgnq8hbCF1tC1 -->
+## TOOL RESULT:
+
+ID: toolu_01S9V6kewT9dgnq8hbCF1tC1
+
+<tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make header tokens more specific to avoid conflicts with text
+</tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01EBdHjzQDMsdk5NQhh8rYJR
+
+### file-path
+
+<tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+grammar.js
+</tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+
+### original-content
+
+<tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+text: $ => prec.right(repeat1(choice(
+      $.cite_tag,
+      $.safe_shell_commands,
+      $._text_content,
+      $._hash_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
+
+    _hash_content: $ => token(prec(-2, /#[^#\n]*/)),
+</tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+
+### new-content
+
+<tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+text: $ => prec.right(repeat1(choice(
+      $.cite_tag,
+      $.safe_shell_commands,
+      $._text_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^<`\n]+/)),
+</tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+
+### git-commit-message
+
+<tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+Simplify text content to allow # characters
+</tool.toolu_01EBdHjzQDMsdk5NQhh8rYJR>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01EBdHjzQDMsdk5NQhh8rYJR -->
