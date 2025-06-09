@@ -161,7 +161,7 @@
 (defun greger-tree-sitter--extract-tool-content (node)
   (let* ((value-node (treesit-node-child-by-field-name node "value"))
          (value (treesit-node-text value-node)))
-    (greger-tree-sitter--convert-param-value
+    (greger-tree-sitter--convert-value
      (greger-tree-sitter--strip-single-newlines value))))
 
 (defun greger-tree-sitter--strip-single-newlines (str)
