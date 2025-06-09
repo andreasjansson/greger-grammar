@@ -62,7 +62,7 @@
     ;; No need to fix types anymore since everything is web_search_tool_result
     (nreverse result)))
 
-(defun greger-tree-sitter--has-citations-p (entries)
+(defun greger-tree-sitter--unused-function-1 (entries)
   "Check if any entry contains citations."
   (cl-some (lambda (entry)
              (let ((content (cdr (assoc 'content entry))))
