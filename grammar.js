@@ -208,13 +208,7 @@ module.exports = grammar({
 
     _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
 
-    _tool_tag: $ => seq(
-      $.tool_start_tag,
-      optional(alias($.tool_content, 'value')),
-      $.tool_end_tag,
-    ),
-
-    content: $ => alias($._tool_tag, 'content'),
+    content: $ => field('value', alias($.tool_content, 'content')),
 
     code_block: $ => seq(
       '```',
