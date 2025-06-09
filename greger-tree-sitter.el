@@ -124,10 +124,10 @@
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
         (cond
-         ((string= node-type "name")
-          (setq name (string-trim (treesit-node-text child))))
-         ((string= node-type "id")
-          (setq id (string-trim (treesit-node-text child))))
+         ((string= node-type "tool_name")
+          (setq name (greger-tree-sitter--extract-tool-name-value child)))
+         ((string= node-type "tool_id")
+          (setq id (greger-tree-sitter--extract-tool-id-value child)))
          ((string= node-type "tool_param")
           (let ((param-data (greger-tree-sitter--extract-tool-param child)))
             (when param-data
