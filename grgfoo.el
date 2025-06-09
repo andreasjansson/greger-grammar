@@ -53,50 +53,41 @@
    :language 'greger
    :feature 'heading
    :override t
-   '(;; Heading markers (##)
-     (user "##" @font-lock-keyword-face)
-     (assistant "##" @font-lock-keyword-face)
-     (system "##" @font-lock-keyword-face)
-     (thinking "##" @font-lock-keyword-face)
-     (tool_use "##" @font-lock-keyword-face)
-     (tool_result "##" @font-lock-keyword-face)
-     (server_tool_use "##" @font-lock-keyword-face)
-     (web_search_tool_result "##" @font-lock-keyword-face)
-     (citations "##" @font-lock-keyword-face)
-
-     ;; Heading types
-     (user "USER" @font-lock-function-name-face)
-     (assistant "ASSISTANT" @font-lock-function-name-face)
-     (system "SYSTEM" @font-lock-function-name-face)
-     (thinking "THINKING" @font-lock-function-name-face)
-     (tool_use ["TOOL" "USE"] @font-lock-function-name-face)
-     (tool_result ["TOOL" "RESULT"] @font-lock-function-name-face)
-     (server_tool_use ["SERVER" "TOOL" "USE"] @font-lock-function-name-face)
-     (web_search_tool_result ["WEB" "SEARCH" "TOOL" "RESULT"] @font-lock-function-name-face)
-     (citations "CITATIONS" @font-lock-function-name-face)
-
-     ;; Colons
-     [":" @font-lock-builtin-face])
+   '(;; Major section headings
+     (user) @font-lock-function-name-face
+     (assistant) @font-lock-function-name-face
+     (system) @font-lock-function-name-face
+     (thinking) @font-lock-function-name-face
+     (tool_use) @font-lock-function-name-face
+     (tool_result) @font-lock-function-name-face
+     (server_tool_use) @font-lock-function-name-face
+     (web_search_tool_result) @font-lock-function-name-face
+     (citations) @font-lock-function-name-face)
 
    :language 'greger
    :feature 'subheading
    :override t
-   '(;; Sub-headings (###)
-     (tool_param "###" @font-lock-keyword-face)
-     (citation_entry "###" @font-lock-keyword-face))
+   '(;; Sub-headings
+     (tool_param) @font-lock-keyword-face
+     (citation_entry) @font-lock-keyword-face)
 
    :language 'greger
    :feature 'field
    :override t
-   '(;; Field names - these appear as string literals in the grammar
-     ["Name:" "ID:" "Title:" "Cited text:" "Encrypted index:"] @font-lock-builtin-face)
+   '(;; Field sections
+     (name) @font-lock-builtin-face
+     (id) @font-lock-builtin-face
+     (citation_title) @font-lock-builtin-face
+     (citation_text) @font-lock-builtin-face
+     (citation_encrypted_index) @font-lock-builtin-face)
 
    :language 'greger
    :feature 'value
    :override t
    '(;; Values
      (value) @font-lock-string-face
-     (citation_url) @font-lock-constant-face)
+     (citation_url) @font-lock-constant-face
+     (param_name) @font-lock-variable-name-face)
 
    :language 'greger
    :feature 'code
@@ -124,7 +115,7 @@
    :language 'greger
    :feature 'error
    :override t
-   '(;; Parse errors - highlighted with red background
+   '(;; Parse errors
      (ERROR) @grgfoo-error-face))
   "Tree-sitter font-lock settings for `grgfoo-mode'.")
 
