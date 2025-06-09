@@ -130,7 +130,7 @@
                         "web_search_tool_result" "citations")))
 
     ;; Set up defun name function to show heading type
-    ;; (setq-local treesit-defun-name-function #'grgfoo--defun-name) ; Disabled to debug segfault
+    (setq-local treesit-defun-name-function #'grgfoo--defun-name)
 
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)))
