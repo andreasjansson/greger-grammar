@@ -28,5 +28,5 @@
 ;; Test simple conversation
 ;(debug-parse "simple-conversation")
 
-;; Test tool use
-(debug-parse "tool-use-single-param")
+;; Test thinking section
+(debug-parse "thinking-section")
