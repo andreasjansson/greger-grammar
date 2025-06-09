@@ -1,214 +1,173 @@
-;;; greger-tree-sitter.el --- Parse greger format using manual parsing -*- lexical-binding: t -*-
+(require 'treesit)
 
-;; Author: Assistant
-;; Version: 1.0
-;; Package-Requires: ((emacs "29.1"))
+(add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
 
-;;; Commentary:
+(defun greger-tree-sitter-parse (text)
+  "Parse greger conversation TEXT using tree-sitter and return structured dialog."
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter greger parser not available"))
 
-;; This package provides functionality to parse greger format files
-;; and convert them to the expected dialog format.
-;; Currently uses manual parsing, but can be upgraded to tree-sitter later.
+  (with-temp-buffer
+    (insert text)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      (greger-tree-sitter--extract-dialog-from-node root-node))))
 
-;;; Code:
+(defun greger-tree-sitter--extract-dialog-from-node (node)
+  "Extract dialog entries from a tree-sitter NODE."
+  (let ((dialog '()))
+    (dolist (child (treesit-node-children node))
+      (let ((entry (greger-tree-sitter--extract-entry-from-node child)))
+        (when entry
+          (push entry dialog))))
+    (nreverse dialog)))
 
-(require 'cl-lib)
+(defun greger-tree-sitter--extract-entry-from-node (node)
+  "Extract a single dialog entry from NODE."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "user")
+      (greger-tree-sitter--extract-user-entry node))
+     ((string= node-type "assistant")
+      (greger-tree-sitter--extract-assistant-entry node))
+     ((string= node-type "system")
+      (greger-tree-sitter--extract-system-entry node))
+     ((string= node-type "thinking")
+      (greger-tree-sitter--extract-thinking-entry node))
+     ((string= node-type "tool_use")
+      (greger-tree-sitter--extract-tool-use-entry node))
+     ((string= node-type "tool_result")
+      (greger-tree-sitter--extract-tool-result-entry node))
+     (t nil))))
 
-(defun greger-tree-sitter-parse (content)
-  "Parse CONTENT and convert to dialog format."
-  (let ((sections (greger-tree-sitter-split-sections content)))
-    (greger-tree-sitter-convert-sections sections)))
+(defun greger-tree-sitter--extract-user-entry (node)
+  "Extract user entry from NODE."
+  (let ((content (greger-tree-sitter--extract-text-content node)))
+    `((role . "user")
+      (content . ,content))))
 
-(defun greger-tree-sitter-split-sections (content)
-  "Split CONTENT into sections based on ## headers."
-  (let ((sections nil)
-        (lines (split-string content "\n"))
-        (current-section nil)
-        (current-type nil)
-        (current-content nil))
+(defun greger-tree-sitter--extract-system-entry (node)
+  "Extract system entry from NODE."
+  (let ((content (greger-tree-sitter--extract-text-content node)))
+    `((role . "system")
+      (content . ,content))))
 
-    (dolist (line lines)
-      (cond
-       ;; Check for section headers
-       ((string-match "^## \\(USER\\|ASSISTANT\\|SYSTEM\\|THINKING\\|TOOL USE\\|TOOL RESULT\\):" line)
-        ;; Save previous section if exists
-        (when current-type
-          (push (list current-type (string-trim (mapconcat 'identity (nreverse current-content) "\n"))) sections))
-        ;; Start new section
-        (setq current-type (match-string 1 line))
-        (setq current-content nil))
-       ;; Add content to current section
-       (current-type
-        (push line current-content))
-       ;; Content before any section header (shouldn't happen in valid greger)
-       (t
-        (unless (string-empty-p (string-trim line))
-          (message "Warning: Content outside of section: %s" line)))))
+(defun greger-tree-sitter--extract-thinking-entry (node)
+  "Extract thinking entry from NODE."
+  (let ((content (greger-tree-sitter--extract-text-content node)))
+    `((role . "assistant")
+      (content . (((type . "thinking")
+                   (thinking . ,content)))))))
 
-    ;; Don't forget the last section
-    (when current-type
-      (push (list current-type (string-trim (mapconcat 'identity (nreverse current-content) "\n"))) sections))
+(defun greger-tree-sitter--extract-assistant-entry (node)
+  "Extract assistant entry from NODE."
+  (let ((content (greger-tree-sitter--extract-text-content node)))
+    `((role . "assistant")
+      (content . ,content))))
 
-    (nreverse sections)))
+(defun greger-tree-sitter--extract-tool-use-entry (node)
+  "Extract tool use entry from NODE."
+  (let ((name (greger-tree-sitter--extract-tool-name node))
+        (id (greger-tree-sitter--extract-tool-id node))
+        (params (greger-tree-sitter--extract-tool-params node)))
+    `((role . "assistant")
+      (content . (((type . "tool_use")
+                   (id . ,id)
+                   (name . ,name)
+                   (input . ,params)))))))
 
-(defun greger-tree-sitter-convert-sections (sections)
-  "Convert SECTIONS to dialog format."
-  (let ((result nil)
-        (pending-thinking nil)
-        (pending-tool-use nil)
-        (pending-tool-results nil))
+(defun greger-tree-sitter--extract-tool-result-entry (node)
+  "Extract tool result entry from NODE."
+  (let ((id (greger-tree-sitter--extract-tool-result-id node))
+        (content (greger-tree-sitter--extract-tool-result-content node)))
+    `((role . "user")
+      (content . (((type . "tool_result")
+                   (tool_use_id . ,id)
+                   (content . ,content)))))))
 
-    (dolist (section sections)
-      (let ((type (car section))
-            (content (cadr section)))
-        (cond
-         ((string= type "USER")
-          ;; Flush any pending content before user message
-          (when pending-thinking
-            (push (greger-tree-sitter-make-assistant-with-thinking pending-thinking nil) result)
-            (setq pending-thinking nil))
-          (push `((role . "user") (content . ,content)) result))
+(defun greger-tree-sitter--extract-text-content (node)
+  "Extract text content from NODE, handling nested structures."
+  (let ((children (treesit-node-children node)))
+    (if children
+        (let ((text-nodes (cl-remove nil (mapcar (lambda (child)
+                                                   (when (string= (treesit-node-type child) "text")
+                                                     child))
+                                                 children))))
+          (if text-nodes
+              (mapconcat (lambda (text-node)
+                           (treesit-node-text text-node t))
+                         text-nodes "")
+            ""))
+      "")))
 
-         ((string= type "SYSTEM")
-          (push `((role . "system") (content . ,content)) result))
+(defun greger-tree-sitter--extract-tool-name (node)
+  "Extract tool name from tool use NODE."
+  (let ((name-node (treesit-node-child-by-field-name node "name")))
+    (if name-node
+        (treesit-node-text name-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "name")
+            (return (treesit-node-text child t))))))))
 
-         ((string= type "THINKING")
-          (setq pending-thinking content))
+(defun greger-tree-sitter--extract-tool-id (node)
+  "Extract tool ID from tool use NODE."
+  (let ((id-node (treesit-node-child-by-field-name node "id")))
+    (if id-node
+        (treesit-node-text id-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "id")
+            (return (treesit-node-text child t))))))))
 
-         ((string= type "TOOL USE")
-          (setq pending-tool-use (greger-tree-sitter-parse-tool-use content)))
+(defun greger-tree-sitter--extract-tool-params (node)
+  "Extract tool parameters from tool use NODE."
+  (let ((params '())
+        (children (treesit-node-children node)))
+    (dolist (child children)
+      (when (string= (treesit-node-type child) "tool_param")
+        (let ((param-name (greger-tree-sitter--extract-tool-param-name child))
+              (param-value (greger-tree-sitter--extract-tool-param-value child)))
+          (when (and param-name param-value)
+            (push (cons (intern param-name) param-value) params)))))
+    (nreverse params)))
 
-         ((string= type "TOOL RESULT")
-          (push (greger-tree-sitter-parse-tool-result content) pending-tool-results))
+(defun greger-tree-sitter--extract-tool-param-name (node)
+  "Extract parameter name from tool_param NODE."
+  (let ((name-node (treesit-node-child-by-field-name node "name")))
+    (if name-node
+        (treesit-node-text name-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "name")
+            (return (treesit-node-text child t))))))))
 
-         ((string= type "ASSISTANT")
-          ;; Create assistant message with any pending content
-          (let ((assistant-content nil))
+(defun greger-tree-sitter--extract-tool-param-value (node)
+  "Extract parameter value from tool_param NODE."
+  (let ((value-node (treesit-node-child-by-field-name node "value")))
+    (if value-node
+        (treesit-node-text value-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "value")
+            (return (treesit-node-text child t))))))))
 
-            ;; Add thinking if present
-            (when pending-thinking
-              (push `((type . "thinking") (thinking . ,pending-thinking)) assistant-content)
-              (setq pending-thinking nil))
+(defun greger-tree-sitter--extract-tool-result-id (node)
+  "Extract tool result ID from tool_result NODE."
+  (let ((id-node (treesit-node-child-by-field-name node "id")))
+    (if id-node
+        (treesit-node-text id-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "id")
+            (return (treesit-node-text child t))))))))
 
-            ;; Add tool use if present
-            (when pending-tool-use
-              (push pending-tool-use assistant-content)
-              (setq pending-tool-use nil))
-
-            ;; Add text content if present
-            (when (and content (not (string-empty-p content)))
-              (push `((type . "text") (text . ,content)) assistant-content))
-
-            ;; Create the assistant message
-            (if assistant-content
-                (push `((role . "assistant") (content . ,(nreverse assistant-content))) result)
-              (push `((role . "assistant") (content . ,content)) result)))
-
-         (t
-          (message "Warning: Unknown section type: %s" type)))))
-
-    ;; Handle any pending tool results
-    (dolist (tool-result (nreverse pending-tool-results))
-      (push `((role . "user") (content . (,tool-result))) result))
-
-    (nreverse result)))
-
-(defun greger-tree-sitter-parse-tool-use (content)
-  "Parse TOOL USE section CONTENT."
-  (let ((lines (split-string content "\n"))
-        (name nil)
-        (id nil)
-        (input nil)
-        (current-param nil)
-        (current-param-content nil)
-        (in-tool-block nil))
-
-    (dolist (line lines)
-      (cond
-       ;; Parse Name
-       ((string-match "^Name: \\(.+\\)" line)
-        (setq name (match-string 1 line)))
-
-       ;; Parse ID
-       ((string-match "^ID: \\(.+\\)" line)
-        (setq id (match-string 1 line)))
-
-       ;; Parse parameter name
-       ((string-match "^### \\(.+\\)" line)
-        ;; Save previous parameter if exists
-        (when current-param
-          (push (cons (intern current-param)
-                     (string-trim (mapconcat 'identity (nreverse current-param-content) "\n")))
-                input))
-        (setq current-param (match-string 1 line))
-        (setq current-param-content nil)
-        (setq in-tool-block nil))
-
-       ;; Tool block start
-       ((string-match "^<tool\\." line)
-        (setq in-tool-block t))
-
-       ;; Tool block end
-       ((string-match "^</tool\\." line)
-        (setq in-tool-block nil))
-
-       ;; Content inside tool block
-       (in-tool-block
-        (push line current-param-content))
-
-       ;; Other content (ignore for now)
-       (t nil)))
-
-    ;; Don't forget the last parameter
-    (when current-param
-      (push (cons (intern current-param)
-                 (string-trim (mapconcat 'identity (nreverse current-param-content) "\n")))
-            input))
-
-    `((type . "tool_use")
-      (id . ,id)
-      (name . ,name)
-      (input . ,(nreverse input)))))
-
-(defun greger-tree-sitter-parse-tool-result (content)
-  "Parse TOOL RESULT section CONTENT."
-  (let ((lines (split-string content "\n"))
-        (id nil)
-        (result-content nil)
-        (in-tool-block nil))
-
-    (dolist (line lines)
-      (cond
-       ;; Parse ID
-       ((string-match "^ID: \\(.+\\)" line)
-        (setq id (match-string 1 line)))
-
-       ;; Tool block start
-       ((string-match "^<tool\\." line)
-        (setq in-tool-block t))
-
-       ;; Tool block end
-       ((string-match "^</tool\\." line)
-        (setq in-tool-block nil))
-
-       ;; Content inside tool block
-       (in-tool-block
-        (push line result-content))
-
-       ;; Other content (ignore for now)
-       (t nil)))
-
-    `((type . "tool_result")
-      (tool_use_id . ,id)
-      (content . ,(string-trim (mapconcat 'identity (nreverse result-content) "\n"))))))
-
-(defun greger-tree-sitter-make-assistant-with-thinking (thinking text)
-  "Create assistant message with THINKING and optional TEXT."
-  (let ((content (list `((type . "thinking") (thinking . ,thinking)))))
-    (when (and text (not (string-empty-p text)))
-      (push `((type . "text") (text . ,text)) content))
-    `((role . "assistant") (content . ,(nreverse content)))))
-
-(provide 'greger-tree-sitter)
-
-;;; greger-tree-sitter.el ends here
+(defun greger-tree-sitter--extract-tool-result-content (node)
+  "Extract tool result content from tool_result NODE."
+  (let ((content-node (treesit-node-child-by-field-name node "content")))
+    (if content-node
+        (treesit-node-text content-node t)
+      (let ((children (treesit-node-children node)))
+        (dolist (child children)
+          (when (string= (treesit-node-type child) "content")
+            (return (treesit-node-text child t))))))))
