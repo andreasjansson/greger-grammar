@@ -178,9 +178,7 @@
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)))
 
-;; Fallback when tree-sitter is not available
-(unless (treesit-ready-p 'greger)
-  (message "Tree-sitter not ready for 'greger language. Using basic mode."))
+
 
 (defun grgfoo--defun-name (node)
   "Return the name of the defun NODE."
