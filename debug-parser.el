@@ -28,5 +28,5 @@
 ;; Test simple conversation
 ;(debug-parse "simple-conversation")
 
-;; Test thinking section
-(debug-parse "thinking-section")
+;; Test complex workflow
+(debug-parse "complex-workflow")
