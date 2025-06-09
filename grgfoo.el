@@ -96,7 +96,8 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Most basic indentation rule possible - everything at column 0
+     ;; Gradually add rules to identify the problematic one
+     (no-node column-0 0)
      (catch-all column-0 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
 
