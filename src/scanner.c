@@ -229,6 +229,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     if (lexer->lookahead == '<') {
+        // Handle HTML comments first
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
         // Handle tool start tag
         if (valid_symbols[TOOL_START_TAG]) {
             return scan_tool_start_tag(scanner, lexer);
@@ -237,11 +242,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         // Handle tool end tag
         if (valid_symbols[TOOL_END_TAG]) {
             return scan_tool_end_tag(scanner, lexer);
-        }
-
-        // Handle HTML comments
-        if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
         }
     }
 
