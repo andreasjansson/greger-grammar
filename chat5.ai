@@ -2535,4 +2535,80 @@ test
 Create test file for verification
 </tool.toolu_01PoPee2uq8NUviSrAdNLQyB>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PoPee2uq8NUviSrAdNLQyB -->
+## TOOL RESULT:
+
+ID: toolu_01PoPee2uq8NUviSrAdNLQyB
+
+<tool.toolu_01PoPee2uq8NUviSrAdNLQyB>
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test_content.txt with 115 characters. Successfully staged 2 file(s) and committed with message: Create test file for verification
+</tool.toolu_01PoPee2uq8NUviSrAdNLQyB>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01L4fQCNy2pm2FqiPUhARo2q
+
+### command
+
+<tool.toolu_01L4fQCNy2pm2FqiPUhARo2q>
+tree-sitter parse test_content.txt
+</tool.toolu_01L4fQCNy2pm2FqiPUhARo2q>
+
+## TOOL RESULT:
+
+ID: toolu_01L4fQCNy2pm2FqiPUhARo2q
+
+<tool.toolu_01L4fQCNy2pm2FqiPUhARo2q>
+Command executed successfully:
+(source_file [0, 0] - [9, 0]
+  (user [0, 0] - [9, 0]
+    (text [0, 8] - [9, 0])))
+
+</tool.toolu_01L4fQCNy2pm2FqiPUhARo2q>
+
+## ASSISTANT:
+
+Perfect! The parser is correctly treating the content as a single `user` block with text that includes the markdown headings `## This is not a Greger heading` and `# Another heading that should be part of text`. 
+
+Let me also test a case where we have multiple sections to make sure the grammar still works correctly:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_015fVTBv6bZJiNXDVYxChtFp
+
+### file-path
+
+<tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+test_multiple_sections.txt
+</tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+
+### contents
+
+<tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+## USER:
+
+Hello, how are you?
+
+## This is not a Greger heading
+
+test
+
+# Another heading that should be part of text
+
+## ASSISTANT:
+
+I'm doing well, thank you!
+
+## This should also be part of assistant text
+
+More content here.
+</tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+
+### git-commit-message
+
+<tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+Create test with multiple sections
+</tool.toolu_015fVTBv6bZJiNXDVYxChtFp>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_015fVTBv6bZJiNXDVYxChtFp -->
