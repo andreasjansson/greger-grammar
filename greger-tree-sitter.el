@@ -61,6 +61,30 @@
       (setq result (greger-tree-sitter--flush-assistant-content current-assistant-content result)))
     (nreverse result)))
 
+(defun greger-tree-sitter--has-citations-p (entries)
+  "Check if any entry contains citations."
+  (cl-some (lambda (entry)
+             (let ((content (cdr (assoc 'content entry))))
+               (when (listp content)
+                 (cl-some (lambda (block)
+                            (when (listp block)
+                              (assoc 'citations block)))
+                          content))))
+           entries))
+
+(defun greger-tree-sitter--fix-server-tool-result-types (content has-citations)
+  "Fix server tool result types based on whether citations are present."
+  (mapcar (lambda (block)
+            (if (and (listp block)
+                     (assoc 'type block)
+                     (string= (cdr (assoc 'type block)) "web_search_tool_result")
+                     (not has-citations))
+                ;; Change to server_tool_result if no citations
+                (cons (cons 'type "server_tool_result")
+                      (cl-remove-if (lambda (pair) (eq (car pair) 'type)) block))
+              block))
+          content))
+
 (defun greger-tree-sitter--flush-assistant-content (content result)
   "Flush accumulated assistant CONTENT to RESULT list, returning updated result."
   (if (and (= (length content) 1)
