@@ -40,13 +40,13 @@
 
          ;; Assistant sections - add as text to pending parts
          ((string= section-type "assistant")
-          (let ((text (greger-tree-sitter--extract-text-content section)))
+          (let ((text (greger-tree-sitter--extract-content-blocks section)))
             (when (> (length (string-trim text)) 0)
               (push `((type . "text") (text . ,text)) pending-assistant-parts))))
 
          ;; Thinking sections - add to pending assistant parts
          ((string= section-type "thinking")
-          (let ((thinking-text (greger-tree-sitter--extract-text-content section)))
+          (let ((thinking-text (greger-tree-sitter--extract-content-blocks section)))
             (push `((type . "thinking") (thinking . ,thinking-text)) pending-assistant-parts)))
 
          ;; Tool use sections - add to pending assistant parts
