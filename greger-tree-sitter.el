@@ -106,19 +106,31 @@
 
 (defun greger-tree-sitter--extract-content-blocks (section-node)
   "Extract content from a section node by finding content nodes."
-  (let ((children (treesit-node-children section-node))
-        (content-text ""))
-    ;; Go through all children and extract text from non-header nodes
-    (dolist (child children)
-      (let ((node-type (treesit-node-type child)))
-        (unless (or (string= node-type "##")
-                    (string= node-type "USER")
-                    (string= node-type "ASSISTANT")
-                    (string= node-type "SYSTEM")
-                    (string= node-type "THINKING")
-                    (string= node-type ":"))
-          ;; This is content, extract its text
-          (setq content-text (concat content-text (treesit-node-text child))))))
+  (let ((content-text ""))
+    ;; Handle nested structure - if there's a child with the same type, use that
+    (let ((children (treesit-node-children section-node)))
+      (if (and (= (length children) 1)
+               (string= (treesit-node-type (car children))
+                        (treesit-node-type section-node)))
+          ;; Nested structure - recurse into the child
+          (setq children (treesit-node-children (car children))))
+
+      ;; Go through children and extract text from non-header nodes
+      (dolist (child children)
+        (let ((node-type (treesit-node-type child)))
+          (unless (or (string= node-type "##")
+                      (string= node-type "USER")
+                      (string= node-type "ASSISTANT")
+                      (string= node-type "SYSTEM")
+                      (string= node-type "THINKING")
+                      (string= node-type "TOOL")
+                      (string= node-type "USE")
+                      (string= node-type "RESULT")
+                      (string= node-type "SERVER")
+                      (string= node-type "CITATIONS")
+                      (string= node-type ":"))
+            ;; This is content, extract its text
+            (setq content-text (concat content-text (treesit-node-text child)))))))
     (string-trim content-text)))
 
 (defun greger-tree-sitter--extract-tool-use (tool-use-node)
