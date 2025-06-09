@@ -261,6 +261,9 @@
      ((string= node-type "code_block")
       ;; For code blocks, include the entire text content
       (concat result (treesit-node-text node t)))
+     ((string= node-type "html_comment")
+      ;; Skip HTML comments outside of code blocks
+      result)
      (t
       (let ((text-result result))
         (dolist (child (treesit-node-children node))
