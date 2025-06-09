@@ -18,16 +18,6 @@
               (error "Could not parse test file format: %s" file-path))))
       (error "Corpus file not found: %s" file-path))))
 
-;; Debug simple user message
-(let* ((markdown (greger-read-corpus-file "simple-user-message"))
-       (expected '(((role . "user")
-                    (content . "Hello, how are you?"))))
-       (actual (greger-tree-sitter-parse markdown)))
-  (message "Markdown input: %S" markdown)
-  (message "Expected: %S" expected)
-  (message "Actual: %S" actual)
-  (message "Equal? %S" (equal expected actual)))
-
 (defun debug-print-node (node level)
   "Print node structure recursively."
   (let ((indent (make-string (* level 2) ?\s))
@@ -39,3 +29,24 @@
                (concat (substring node-text 0 47) "...")))
     (dolist (child (treesit-node-children node))
       (debug-print-node child (1+ level)))))
+
+;; Debug simple user message
+(let* ((markdown (greger-read-corpus-file "simple-user-message"))
+       (expected '(((role . "user")
+                    (content . "Hello, how are you?"))))
+       (actual (greger-tree-sitter-parse markdown)))
+  (message "Markdown input: %S" markdown)
+  (message "Expected: %S" expected)
+  (message "Actual: %S" actual)
+  (message "Equal? %S" (equal expected actual)))
+
+;; Also debug the tree structure
+(unless (treesit-ready-p 'greger)
+  (error "Tree-sitter greger parser not available"))
+
+(with-temp-buffer
+  (insert "## USER:\n\nHello, how are you?\n")
+  (let* ((parser (treesit-parser-create 'greger))
+         (root-node (treesit-parser-root-node parser)))
+    (message "=== Tree structure ===")
+    (debug-print-node root-node 0)))
