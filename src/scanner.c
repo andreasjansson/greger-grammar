@@ -162,7 +162,8 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     }
 
                                     if (matches && lexer->lookahead == '>') {
-                                        // Found the exact closing tag, mark end before it
+                                        // Found the exact closing tag, consume it too
+                                        advance(lexer);
                                         lexer->result_symbol = TOOL_CONTENT;
                                         return true;
                                     }
