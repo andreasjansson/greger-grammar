@@ -173,10 +173,10 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     lexer->mark_end(lexer);
 
-    // Build the expected closing tag start
-    char expected_closing_start[512];
-    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
-    int expected_len = strlen(expected_closing_start);
+    // Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
 
     int match_index = 0;
     bool has_content = false;

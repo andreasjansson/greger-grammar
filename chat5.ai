@@ -10698,4 +10698,578 @@ tool_element: $ => seq(
 Remove field from tool_content in tool_element rule to match HTML pattern
 </tool.toolu_01NhBUxmEhFEczKC284cxyci>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NhBUxmEhFEczKC284cxyci -->
+## TOOL RESULT:
+
+ID: toolu_01NhBUxmEhFEczKC284cxyci
+
+<tool.toolu_01NhBUxmEhFEczKC284cxyci>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove field from tool_content in tool_element rule to match HTML pattern
+</tool.toolu_01NhBUxmEhFEczKC284cxyci>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01X9YD1xXackE9qDTUga9tRU
+
+### command
+
+<tool.toolu_01X9YD1xXackE9qDTUga9tRU>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_01X9YD1xXackE9qDTUga9tRU>
+
+## TOOL RESULT:
+
+ID: toolu_01X9YD1xXackE9qDTUga9tRU
+
+<tool.toolu_01X9YD1xXackE9qDTUga9tRU>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (tool_content [0, 14] - [0, 19])
+    (ERROR [0, 19] - [0, 21])
+    (tool_content [0, 21] - [1, 0])))
+stdin	Parse:    0.21 ms	   164 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_01X9YD1xXackE9qDTUga9tRU>
+
+## ASSISTANT:
+
+Still the same issue. The problem is more fundamental. Looking at the error, the parser can recognize the `tool_start_tag` and `tool_content`, but when it encounters `</`, it fails to recognize it as the start of a `tool_end_tag`.
+
+Let me check if the issue is in my `scan_tool_end_tag` function. The error `[0, 19] - [0, 21]` corresponds to `</`, which suggests that the scanner is not properly recognizing `</tool.test123>` as a tool end tag.
+
+Let me test the end tag function by creating a simpler test case. But first, let me add some debug information by checking what tokens are actually expected at each point.
+
+Actually, let me first fix a potential issue in my scanner. The problem might be that when I'm in tool content state and encounter `<`, I need to check if it's the start of an end tag, and if so, I should not consume it as content.
+
+Looking at the HTML scanner again, I see that the `scan_raw_text` function properly handles this by checking for the delimiter and stopping before it:
+
+```c
+while (lexer->lookahead) {
+    if (towupper(lexer->lookahead) == end_delimiter[delimiter_index]) {
+        delimiter_index++;
+        if (delimiter_index == strlen(end_delimiter)) {
+            break;  // <-- key: it breaks without consuming
+        }
+        advance(lexer);
+    } else {
+        delimiter_index = 0;
+        advance(lexer);
+        lexer->mark_end(lexer);
+    }
+}
+```
+
+But in my case, I have a bug in the logic. When I partially match and then reset, I need to be more careful about what I do with those characters. Let me rewrite the tool content scanner to follow the HTML pattern more closely:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018bNNMV8dNNBXJ2gB97aXy7
+
+### file-path
+
+<tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+src/scanner.c
+</tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+
+### original-content
+
+<tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+
+### new-content
+
+<tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+
+    // Scan until we find the closing tag (HTML pattern)
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, break without consuming
+                break;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+
+### git-commit-message
+
+<tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+Rewrite tool content scanner to follow HTML pattern exactly
+</tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+
+## TOOL RESULT:
+
+ID: toolu_018bNNMV8dNNBXJ2gB97aXy7
+
+<tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
+
+## ASSISTANT:
+
+Let me check the current state of the function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_019ipZQN3Pjz3gN7LmAQAxtm
+
+### path
+
+<tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+src/scanner.c
+</tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+
+### start-line
+
+<tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+150
+</tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+
+### end-line
+
+<tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+190
+</tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+
+### include-line-numbers
+
+<tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+true
+</tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+
+## TOOL RESULT:
+
+ID: toolu_019ipZQN3Pjz3gN7LmAQAxtm
+
+<tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Check if ID matches the stored one
+    int tool_id_len = strlen(scanner->tool_id);
+    for (int i = 0; i < tool_id_len; i++) {
+        if (lexer->lookahead != scanner->tool_id[i]) {
+            return false;
+        }
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+</tool.toolu_019ipZQN3Pjz3gN7LmAQAxtm>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011CWvVKmnVUrAcPAMWsjbBB
+
+### path
+
+<tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+src/scanner.c
+</tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+### start-line
+
+<tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+180
+</tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+### end-line
+
+<tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+220
+</tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+### include-line-numbers
+
+<tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+true
+</tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+## TOOL RESULT:
+
+ID: toolu_011CWvVKmnVUrAcPAMWsjbBB
+
+<tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+
+    return false;
+}
+</tool.toolu_011CWvVKmnVUrAcPAMWsjbBB>
+
+## ASSISTANT:
+
+I can see the issue! The variable name is `expected_closing_start` but the logic still expects a full tag. Let me fix this properly by finding the full function and replacing it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013V8Eh6TgzGrenvx8FEVmMR
+
+### file-path
+
+<tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+src/scanner.c
+</tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+
+### original-content
+
+<tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+
+### new-content
+
+<tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+
+    // Scan until we find the closing tag (following HTML pattern)
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, break without consuming
+                break;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+
+### git-commit-message
+
+<tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+Simplify tool content scanner to follow HTML pattern exactly
+</tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+
+## TOOL RESULT:
+
+ID: toolu_013V8Eh6TgzGrenvx8FEVmMR
+
+<tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
+
+## ASSISTANT:
+
+The content seems to have changed. Let me look at the actual content and copy it exactly:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MVumnLvSYZTc7mZNn5w1W8
+
+### path
+
+<tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+src/scanner.c
+</tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+
+### start-line
+
+<tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+167
+</tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+
+### end-line
+
+<tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+200
+</tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+
+### include-line-numbers
+
+<tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+true
+</tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+
+## TOOL RESULT:
+
+ID: toolu_01MVumnLvSYZTc7mZNn5w1W8
+
+<tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+</tool.toolu_01MVumnLvSYZTc7mZNn5w1W8>
+
+## ASSISTANT:
+
+Let me try to replace just the variable name first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HPmdm6U33k4tbKBqnMb5vW
+
+### file-path
+
+<tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+src/scanner.c
+</tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+
+### original-content
+
+<tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+// Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+</tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+
+### new-content
+
+<tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+// Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+</tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+
+### git-commit-message
+
+<tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+Fix variable name in tool content scanner
+</tool.toolu_01HPmdm6U33k4tbKBqnMb5vW>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01HPmdm6U33k4tbKBqnMb5vW -->
