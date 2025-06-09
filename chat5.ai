@@ -6502,4 +6502,958 @@ enum TokenType {
 Revert scanner to original token types
 </tool.toolu_016LnoQpJVJVdrbdZZtc585Q>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016LnoQpJVJVdrbdZZtc585Q -->
+## TOOL RESULT:
+
+ID: toolu_016LnoQpJVJVdrbdZZtc585Q
+
+<tool.toolu_016LnoQpJVJVdrbdZZtc585Q>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert scanner to original token types
+</tool.toolu_016LnoQpJVJVdrbdZZtc585Q>
+
+## ASSISTANT:
+
+Now let me revert the scanner logic to something closer to the original, but modify it to extract just the content between the tags:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WLtEtCHfqwXqhevKFdVGhL
+
+### file-path
+
+<tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+src/scanner.c
+</tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+
+### original-content
+
+<tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = true;
+    lexer->result_symbol = TOOL_START_TAG;
+    return true;
+}
+
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Check if ID matches the stored one
+    int tool_id_len = strlen(scanner->tool_id);
+    for (int i = 0; i < tool_id_len; i++) {
+        if (lexer->lookahead != scanner->tool_id[i]) {
+            return false;
+        }
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool found_content = false;
+    
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+                found_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // If we reached here and found content, return it
+    if (found_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+
+### new-content
+
+<tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID
+    char tool_id[256];
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now we're at the start of the content, mark this as the beginning
+    lexer->mark_end(lexer);
+
+    // Scan until we find the closing tag, but only return the content between
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Check if this is our closing tag
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                advance(lexer);
+                
+                // Check "tool."
+                if (lexer->lookahead == 't') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'o') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'o') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                advance(lexer);
+                                if (lexer->lookahead == '.') {
+                                    advance(lexer);
+                                    
+                                    // Check if ID matches
+                                    bool matches = true;
+                                    for (int i = 0; i < id_len && matches; i++) {
+                                        if (lexer->lookahead != tool_id[i]) {
+                                            matches = false;
+                                        } else {
+                                            advance(lexer);
+                                        }
+                                    }
+                                    
+                                    if (matches && lexer->lookahead == '>') {
+                                        // Found the closing tag, consume it and return content
+                                        advance(lexer);
+                                        lexer->result_symbol = TOOL_CONTENT;
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Not our closing tag, treat as content and continue
+            // We need to go back and include the '<' as content
+            // This is simplified - in a real implementation we'd need better backtracking
+        } else {
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag
+    return false;
+}
+</tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+
+### git-commit-message
+
+<tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+Revert to simpler single-function tool content scanning
+</tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+
+## TOOL RESULT:
+
+ID: toolu_01WLtEtCHfqwXqhevKFdVGhL
+
+<tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
+
+## ASSISTANT:
+
+Let me check what's actually in the file now:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014oYGHjdYc6Sha6rVY9tZD4
+
+### path
+
+<tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+src/scanner.c
+</tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+
+### start-line
+
+<tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+100
+</tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+
+### end-line
+
+<tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+130
+</tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+
+### include-line-numbers
+
+<tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+true
+</tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+
+## TOOL RESULT:
+
+ID: toolu_014oYGHjdYc6Sha6rVY9tZD4
+
+<tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = true;
+    lexer->result_symbol = TOOL_START_TAG;
+    return true;
+</tool.toolu_014oYGHjdYc6Sha6rVY9tZD4>
+
+## ASSISTANT:
+
+I need to remove all the separate functions and replace them with a single one. Let me find and replace the entire section:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01J8f5bkDvDaDy5kzGGknQHP
+
+### path
+
+<tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+src/scanner.c
+</tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+
+### start-line
+
+<tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+100
+</tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+
+### end-line
+
+<tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+200
+</tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+
+### include-line-numbers
+
+<tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+true
+</tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+
+## TOOL RESULT:
+
+ID: toolu_01J8f5bkDvDaDy5kzGGknQHP
+
+<tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = true;
+    lexer->result_symbol = TOOL_START_TAG;
+    return true;
+}
+
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Check if ID matches the stored one
+    int tool_id_len = strlen(scanner->tool_id);
+    for (int i = 0; i < tool_id_len; i++) {
+        if (lexer->lookahead != scanner->tool_id[i]) {
+            return false;
+        }
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool found_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+</tool.toolu_01J8f5bkDvDaDy5kzGGknQHP>
+
+## ASSISTANT:
+
+Let me replace this entire section with a simple function. First, let me find where it ends:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01YLyz2PdqaBiYRsnKgsAkzZ
+
+### path
+
+<tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+src/scanner.c
+</tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+
+### start-line
+
+<tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+190
+</tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+
+### end-line
+
+<tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+220
+</tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+
+### include-line-numbers
+
+<tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+true
+</tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+
+## TOOL RESULT:
+
+ID: toolu_01YLyz2PdqaBiYRsnKgsAkzZ
+
+<tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+                found_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // If we reached here and found content, return it
+    if (found_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+
+    return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace but preserve newlines for tool content
+    if (!valid_symbols[TOOL_CONTENT]) {
+</tool.toolu_01YLyz2PdqaBiYRsnKgsAkzZ>
+
+## ASSISTANT:
+
+Let me replace the entire set of three functions with one simpler function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PtC3cFHM85gWCr5xr3prQG
+
+### file-path
+
+<tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+src/scanner.c
+</tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+
+### original-content
+
+<tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = true;
+    lexer->result_symbol = TOOL_START_TAG;
+    return true;
+}
+
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    // We expect to be at '<'
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Check if ID matches the stored one
+    int tool_id_len = strlen(scanner->tool_id);
+    for (int i = 0; i < tool_id_len; i++) {
+        if (lexer->lookahead != scanner->tool_id[i]) {
+            return false;
+        }
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool found_content = false;
+    
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return found_content;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            if (match_index > 0) {
+                match_index = 0;
+                // Don't advance here, recheck this character
+            } else {
+                advance(lexer);
+                found_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // If we reached here and found content, return it
+    if (found_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+
+### new-content
+
+<tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID
+    char tool_id[256];
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now we're at the start of the content, mark this as the beginning
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
+    int expected_len = strlen(expected_closing);
+    
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, return the content we collected
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Not matching the closing tag, this is content
+            if (match_index > 0) {
+                // We were in the middle of matching the closing tag but failed
+                // Reset and treat those characters as content too
+                match_index = 0;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag
+    return false;
+}
+</tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+
+### git-commit-message
+
+<tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+Replace three separate functions with single tool content scanner
+</tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+
+## TOOL RESULT:
+
+ID: toolu_01PtC3cFHM85gWCr5xr3prQG
+
+<tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+Error executing tool: Original content not found in file: /Users/andreas/scratch/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
+
+## ASSISTANT:
+
+The content seems to have changed. Let me just rewrite the entire scanner file to be simpler:
+
+## TOOL USE:
+
+Name: replace-file
+ID: toolu_01MT6QkeVUjtNkvG8sreJd7S
+
+### file-path
+
+<tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+src/scanner.c
+</tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+
+### contents
+
+<tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+#include "tree_sitter/parser.h"
+#include <wctype.h>
+#include <string.h>
+#include <stdio.h>
+
+enum TokenType {
+    TOOL_CONTENT,
+    HTML_COMMENT,
+};
+
+typedef struct {
+    char tool_id[256];
+    bool in_tool_content;
+} Scanner;
+
+static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
+
+static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
+
+unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
+    Scanner *scanner = (Scanner *)payload;
+
+    size_t tool_id_len = strlen(scanner->tool_id);
+    if (tool_id_len >= 255) tool_id_len = 255;
+
+    buffer[0] = scanner->in_tool_content ? 1 : 0;
+    buffer[1] = tool_id_len;
+    memcpy(buffer + 2, scanner->tool_id, tool_id_len);
+
+    return 2 + tool_id_len;
+}
+
+void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
+    Scanner *scanner = (Scanner *)payload;
+
+    if (length == 0) {
+        scanner->in_tool_content = false;
+        scanner->tool_id[0] = '\0';
+        return;
+    }
+
+    scanner->in_tool_content = buffer[0] == 1;
+    if (length > 1) {
+        unsigned tool_id_len = buffer[1];
+        if (tool_id_len >= 255) tool_id_len = 255;
+        if (length >= 2 + tool_id_len) {
+            memcpy(scanner->tool_id, buffer + 2, tool_id_len);
+            scanner->tool_id[tool_id_len] = '\0';
+        } else {
+            scanner->tool_id[0] = '\0';
+        }
+    } else {
+        scanner->tool_id[0] = '\0';
+    }
+}
+
+void *tree_sitter_greger_external_scanner_create(void) {
+    Scanner *scanner = malloc(sizeof(Scanner));
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    return scanner;
+}
+
+void tree_sitter_greger_external_scanner_destroy(void *payload) {
+    free(payload);
+}
+
+static bool scan_html_comment(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '!') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Now we're inside the comment, scan until we find -->
+    int dashes = 0;
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '-') {
+            dashes++;
+            advance(lexer);
+        } else if (lexer->lookahead == '>' && dashes >= 2) {
+            advance(lexer);
+            lexer->result_symbol = HTML_COMMENT;
+            return true;
+        } else {
+            dashes = 0;
+            advance(lexer);
+        }
+    }
+
+    return false;
+}
+
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID
+    char tool_id[256];
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    // Now we're at the start of the content
+    // We want to return ONLY the content between the tags, not the tags themselves
+    
+    // Build the expected closing tag
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
+    int expected_len = strlen(expected_closing);
+    
+    int match_index = 0;
+
+    // Scan content until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, consume it and return just the content
+                advance(lexer);
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Not matching the closing tag, reset and continue
+            match_index = 0;
+            advance(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag
+    return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Skip whitespace but preserve newlines
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+
+### git-commit-message
+
+<tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+Completely rewrite scanner to be simpler and extract just tool content
+</tool.toolu_01MT6QkeVUjtNkvG8sreJd7S>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MT6QkeVUjtNkvG8sreJd7S -->

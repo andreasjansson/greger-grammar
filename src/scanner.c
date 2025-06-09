@@ -97,8 +97,7 @@ static bool scan_html_comment(TSLexer *lexer) {
     return false;
 }
 
-static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
-    // We expect to be at '<'
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
     advance(lexer);
 
@@ -114,128 +113,61 @@ static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '.') return false;
     advance(lexer);
 
-    // Get the tool ID and store it
+    // Get the tool ID
+    char tool_id[256];
     int id_len = 0;
     while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
-        scanner->tool_id[id_len++] = lexer->lookahead;
+        tool_id[id_len++] = lexer->lookahead;
         advance(lexer);
     }
-    scanner->tool_id[id_len] = '\0';
+    tool_id[id_len] = '\0';
 
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
-    scanner->in_tool_content = true;
-    lexer->result_symbol = TOOL_START_TAG;
-    return true;
-}
+    // Now we're at the start of the content
+    // We want to return ONLY the content between the tags, not the tags themselves
 
-static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
-    // We expect to be at '<'
-    if (lexer->lookahead != '<') return false;
-    advance(lexer);
-
-    if (lexer->lookahead != '/') return false;
-    advance(lexer);
-
-    // Check for "tool."
-    if (lexer->lookahead != 't') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-    if (lexer->lookahead != '.') return false;
-    advance(lexer);
-
-    // Check if ID matches the stored one
-    int tool_id_len = strlen(scanner->tool_id);
-    for (int i = 0; i < tool_id_len; i++) {
-        if (lexer->lookahead != scanner->tool_id[i]) {
-            return false;
-        }
-        advance(lexer);
-    }
-
-    if (lexer->lookahead != '>') return false;
-    advance(lexer);
-
-    scanner->in_tool_content = false;
-    scanner->tool_id[0] = '\0';
-    lexer->result_symbol = TOOL_END_TAG;
-    return true;
-}
-
-static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
-    if (!scanner->in_tool_content) return false;
-
-    lexer->mark_end(lexer);
-
-    // Build the expected closing tag string
+    // Build the expected closing tag
     char expected_closing[512];
-    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
 
     int match_index = 0;
-    bool found_content = false;
 
-    // Scan until we find the closing tag
+    // Scan content until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
-                // Found complete closing tag, stop here
+                // Found complete closing tag, consume it and return just the content
+                advance(lexer);
                 lexer->result_symbol = TOOL_CONTENT;
-                return found_content;
+                return true;
             }
             advance(lexer);
         } else {
-            // Reset match and continue
-            if (match_index > 0) {
-                match_index = 0;
-                // Don't advance here, recheck this character
-            } else {
-                advance(lexer);
-                found_content = true;
-                lexer->mark_end(lexer);
-            }
+            // Not matching the closing tag, reset and continue
+            match_index = 0;
+            advance(lexer);
         }
     }
 
-    // If we reached here and found content, return it
-    if (found_content) {
-        lexer->result_symbol = TOOL_CONTENT;
-        return true;
-    }
-
+    // Reached end without finding closing tag
     return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
-    // Skip whitespace but preserve newlines for tool content
-    if (!valid_symbols[TOOL_CONTENT]) {
-        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-            skip(lexer);
-        }
+    // Skip whitespace but preserve newlines
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
     }
 
-    // Handle tool content (raw text between tags) - only when tags are not expected
-    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
         return scan_tool_content(scanner, lexer);
-    }
-
-    // Handle tool start tag
-    if (valid_symbols[TOOL_START_TAG] && lexer->lookahead == '<') {
-        return scan_tool_start_tag(scanner, lexer);
-    }
-
-    // Handle tool end tag
-    if (valid_symbols[TOOL_END_TAG] && lexer->lookahead == '<') {
-        return scan_tool_end_tag(scanner, lexer);
     }
 
     // Only scan for HTML comments when expected
