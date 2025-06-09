@@ -18,6 +18,7 @@ module.exports = grammar({
     $.tool_start_tag,
     $.tool_end_tag,
     $.tool_content,
+    $.html_comment,
   ],
 
 
