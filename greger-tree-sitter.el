@@ -90,7 +90,7 @@
       (greger-tree-sitter--extract-tool-result-entry node))
      ((string= node-type "server_tool_use")
       (greger-tree-sitter--extract-server-tool-use-entry node))
-     ((string= node-type "web_search_tool_result")
+     ((string= node-type "server_tool_result")
       (greger-tree-sitter--extract-server-tool-result-entry node))
      ((string= node-type "citations")
       (greger-tree-sitter--extract-citations-entry node))
