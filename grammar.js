@@ -51,7 +51,7 @@ module.exports = grammar({
       'ASSISTANT',
       ':',
       $.content_blocks,
-      optional($.citations),
+      optional(prec(1, $.citations)),
     ),
 
     system: $ => seq(
