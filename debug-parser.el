@@ -26,4 +26,7 @@
           result)))))
 
 ;; Test simple conversation
-(debug-parse "simple-conversation")
+;(debug-parse "simple-conversation")
+
+;; Test tool use
+(debug-parse "tool-use-single-param")
