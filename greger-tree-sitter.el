@@ -144,9 +144,8 @@
 
 (defun greger-tree-sitter--extract-key (node)
   (let ((child (treesit-node-child-by-field-name node "value")))
-    (if child
-        (string-trim (treesit-node-text child t))
-      (string-trim (treesit-node-text node t)))))
+    (when child
+      (string-trim (treesit-node-text child t)))))
 
 (defun greger-tree-sitter--extract-tool-param (node)
   (let ((name nil)
