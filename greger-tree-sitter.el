@@ -2,7 +2,7 @@
 
 ;; Author: Assistant
 ;; Version: 1.0
-;; Package-Requires: ((emacs "29.1") (tsc "0.18.0"))
+;; Package-Requires: ((emacs "29.1"))
 
 ;;; Commentary:
 
@@ -11,7 +11,7 @@
 
 ;;; Code:
 
-(require 'tsc)
+(require 'treesit)
 (require 'cl-lib)
 
 (defvar greger-tree-sitter-language nil
