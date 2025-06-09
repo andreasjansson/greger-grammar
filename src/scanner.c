@@ -193,8 +193,15 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
+    // Debug print
+    if (lexer->lookahead == '<') {
+        fprintf(stderr, "DEBUG: At <, TOOL_CONTENT valid: %d, HTML_COMMENT valid: %d\n",
+                valid_symbols[TOOL_CONTENT], valid_symbols[HTML_COMMENT]);
+    }
+
     // Only scan for tool content when it's expected
     if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        fprintf(stderr, "DEBUG: Trying to scan tool content\n");
         return scan_tool_content(scanner, lexer);
     }
 
