@@ -39,40 +39,28 @@ module.exports = grammar({
       '##',
       'USER',
       ':',
-      repeat1(choice(
-        $.text,
-        $.code_block,
-      )),
+      $.content_blocks,
     ),
 
     assistant: $ => seq(
       '##',
       'ASSISTANT',
       ':',
-      repeat1(choice(
-        $.text,
-        $.code_block,
-      )),
+      $.content_blocks,
     ),
 
     system: $ => seq(
       '##',
       'SYSTEM',
       ':',
-      repeat1(choice(
-        $.text,
-        $.code_block,
-      )),
+      $.content_blocks,
     ),
 
     thinking: $ => seq(
       '##',
       'THINKING',
       ':',
-      repeat1(choice(
-        $.text,
-        $.code_block,
-      )),
+      $.content_blocks,
     ),
 
     tool_use: $ => seq(
