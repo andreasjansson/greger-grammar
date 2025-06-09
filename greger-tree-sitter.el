@@ -52,27 +52,25 @@
          ;; For non-assistant messages, flush any accumulated assistant content first
          (t
           (when current-assistant-content
-            (if (and (= (length current-assistant-content) 1)
-                     (string= (cdr (assoc 'type (car current-assistant-content))) "text"))
-                ;; Single text block - use plain text format
-                (push `((role . "assistant")
-                        (content . ,(cdr (assoc 'text (car current-assistant-content))))) result)
-              ;; Multiple blocks or non-text blocks - use content blocks format
-              (push `((role . "assistant")
-                      (content . ,current-assistant-content)) result))
+            (greger-tree-sitter--flush-assistant-content current-assistant-content result)
             (setq current-assistant-content '()))
           (push entry result)))))
     ;; Don't forget any remaining assistant content
     (when current-assistant-content
-      (if (and (= (length current-assistant-content) 1)
-               (string= (cdr (assoc 'type (car current-assistant-content))) "text"))
-          ;; Single text block - use plain text format
-          (push `((role . "assistant")
-                  (content . ,(cdr (assoc 'text (car current-assistant-content))))) result)
-        ;; Multiple blocks or non-text blocks - use content blocks format
-        (push `((role . "assistant")
-                (content . ,current-assistant-content)) result)))
+      (greger-tree-sitter--flush-assistant-content current-assistant-content result))
     (nreverse result)))
+
+(defun greger-tree-sitter--flush-assistant-content (content result)
+  "Flush accumulated assistant CONTENT to RESULT list."
+  (if (and (= (length content) 1)
+           (string= (cdr (assoc 'type (car content))) "text")
+           (not (assoc 'citations (car content))))
+      ;; Single text block without citations - use plain text format
+      (push `((role . "assistant")
+              (content . ,(cdr (assoc 'text (car content))))) result)
+    ;; Multiple blocks or special blocks - use content blocks format
+    (push `((role . "assistant")
+            (content . ,content)) result)))
 
 (defun greger-tree-sitter--extract-entry-from-node (node)
   "Extract a single dialog entry from NODE."
