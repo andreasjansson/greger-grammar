@@ -138,8 +138,8 @@
       (greger-tree-sitter--extract-tool-result-entry node))
      ((string= node-type "server_tool_use")
       (greger-tree-sitter--extract-server-tool-use-entry node))
-     ((string= node-type "server_tool_result")
-      (greger-tree-sitter--extract-server-tool-result-entry node))
+     ((string= node-type "web_search_tool_result")
+      (greger-tree-sitter--extract-web-search-tool-result-entry node))
      ((string= node-type "citations")
       (greger-tree-sitter--extract-citations-entry node))
      (t nil))))
@@ -302,8 +302,7 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-value child
-                    )))
+          (setq id (greger-tree-sitter--extract-value child)))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-tool-content child))))))
     ;; Check if this should be a web search tool result based on content
