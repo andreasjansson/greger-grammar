@@ -210,9 +210,9 @@ module.exports = grammar({
 
     _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
 
-    tool_tag: $ => seq(
+    _tool_tag: $ => seq(
       $.tool_start_tag,
-      field('value', $.tool_content),
+      $.tool_content,
       $.tool_end_tag,
     ),
 

@@ -5010,4 +5010,119 @@ tool_tag: $ => seq(
 Add tool_tag rule that extracts content using field
 </tool.toolu_01TxpZAzMbmoQdSK8NtrSj4p>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TxpZAzMbmoQdSK8NtrSj4p -->
+## TOOL RESULT:
+
+ID: toolu_01TxpZAzMbmoQdSK8NtrSj4p
+
+<tool.toolu_01TxpZAzMbmoQdSK8NtrSj4p>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add tool_tag rule that extracts content using field
+</tool.toolu_01TxpZAzMbmoQdSK8NtrSj4p>
+
+## ASSISTANT:
+
+Now let's test this implementation:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WHWurzBK3hSRRCxAT7sEhr
+
+### command
+
+<tool.toolu_01WHWurzBK3hSRRCxAT7sEhr>
+tree-sitter generate
+</tool.toolu_01WHWurzBK3hSRRCxAT7sEhr>
+
+## TOOL RESULT:
+
+ID: toolu_01WHWurzBK3hSRRCxAT7sEhr
+
+<tool.toolu_01WHWurzBK3hSRRCxAT7sEhr>
+Command executed successfully:
+(no output)
+</tool.toolu_01WHWurzBK3hSRRCxAT7sEhr>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HKq4RsbvnS6BYu4gskLhKE
+
+### command
+
+<tool.toolu_01HKq4RsbvnS6BYu4gskLhKE>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01HKq4RsbvnS6BYu4gskLhKE>
+
+## TOOL RESULT:
+
+ID: toolu_01HKq4RsbvnS6BYu4gskLhKE
+
+<tool.toolu_01HKq4RsbvnS6BYu4gskLhKE>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_01HKq4RsbvnS6BYu4gskLhKE>
+
+## ASSISTANT:
+
+The test is failing because the expected output shows just `(value)` but we're getting the nested structure with the tag components. I need to make the tool_tag rule hidden so it doesn't appear in the tree structure. Let me look at how to properly structure this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01V577c2xmG2AHGXX6ZGTJyA
+
+### file-path
+
+<tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+grammar.js
+</tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+
+### original-content
+
+<tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+tool_tag: $ => seq(
+      $.tool_start_tag,
+      field('value', $.tool_content),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+
+### new-content
+
+<tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+_tool_tag: $ => seq(
+      $.tool_start_tag,
+      $.tool_content,
+      $.tool_end_tag,
+    ),
+</tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+
+### git-commit-message
+
+<tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+Make tool_tag hidden and remove field from content
+</tool.toolu_01V577c2xmG2AHGXX6ZGTJyA>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01V577c2xmG2AHGXX6ZGTJyA -->
