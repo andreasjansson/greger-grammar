@@ -108,10 +108,14 @@
   (let ((name-node (treesit-node-child-by-field-name node "name")))
     (if name-node
         (treesit-node-text name-node t)
-      (let ((children (treesit-node-children node)))
-        (dolist (child children)
-          (when (string= (treesit-node-type child) "name")
-            (return (treesit-node-text child t))))))))
+      (let ((children (treesit-node-children node))
+            (result nil))
+        (while (and children (not result))
+          (let ((child (car children)))
+            (when (string= (treesit-node-type child) "name")
+              (setq result (treesit-node-text child t)))
+            (setq children (cdr children))))
+        result))))
 
 (defun greger-tree-sitter--extract-tool-id (node)
   "Extract tool ID from tool use NODE."
