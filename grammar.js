@@ -127,7 +127,7 @@ module.exports = grammar({
       'CITATIONS',
       ':',
       choice(
-        repeat1($.citation_entry),
+        prec(1, repeat1($.citation_entry)),
         seq($.text, repeat($.citation_entry)),
       ),
     ),
