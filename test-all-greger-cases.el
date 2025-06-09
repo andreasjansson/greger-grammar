@@ -336,89 +336,23 @@ bar
 
     ))
 
-(defvar greger-tree-sitter-test-results '())
-(defvar greger-tree-sitter-tests-passed 0)
-(defvar greger-tree-sitter-tests-failed 0)
+;; Helper function to find test case by name
+(defun greger-find-test-case (name)
+  "Find a test case by name."
+  (cl-find name greger-tree-sitter-test-cases
+           :key (lambda (test) (plist-get test :name))
+           :test #'string=))
 
-(defun greger-tree-sitter-test-equal (expected actual)
-  "Compare two dialog structures for equality."
-  (equal expected actual))
-
-(defun greger-tree-sitter-run-single-test (test-case)
-  "Run a single test case and return result."
-  (let* ((name (plist-get test-case :name))
-         (markdown (plist-get test-case :markdown))
-         (expected (plist-get test-case :dialog))
-         (start-time (current-time)))
-
-    (message "\n=== Testing: %s ===" name)
-
-    (condition-case err
-        (let* ((actual (greger-tree-sitter-parse markdown))
-               (elapsed (float-time (time-subtract (current-time) start-time))))
-
-          ;; Check if results match
-          (if (greger-tree-sitter-test-equal expected actual)
-              (progn
-                (message "✅ PASSED (%.3fs)" elapsed)
-                (setq greger-tree-sitter-tests-passed (1+ greger-tree-sitter-tests-passed))
-                (push `(:name ,name :status passed :time ,elapsed) greger-tree-sitter-test-results))
-            (progn
-              (message "❌ FAILED (%.3fs)" elapsed)
-              (message "\nExpected:")
-              (pp expected)
-              (message "\nActual:")
-              (pp actual)
-              (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
-              (push `(:name ,name :status failed :time ,elapsed :expected ,expected :actual ,actual)
-                    greger-tree-sitter-test-results))))
-
-      (error
-       (message "❌ ERROR: %s" (error-message-string err))
-       (setq greger-tree-sitter-tests-failed (1+ greger-tree-sitter-tests-failed))
-       (push `(:name ,name :status error :error ,(error-message-string err))
-             greger-tree-sitter-test-results)))))
-
-(defun greger-tree-sitter-run-all-tests ()
-  "Run all test cases and report results."
-  (interactive)
-  (message "\n🧪 Running greger-tree-sitter comprehensive tests...")
-
-  ;; Reset counters
-  (setq greger-tree-sitter-test-results '())
-  (setq greger-tree-sitter-tests-passed 0)
-  (setq greger-tree-sitter-tests-failed 0)
-
-  ;; Check if tree-sitter is available
-  (unless (treesit-ready-p 'greger)
-    (error "Tree-sitter greger parser not available"))
-
-  ;; Run all tests
-  (dolist (test-case greger-tree-sitter-test-cases)
-    (greger-tree-sitter-run-single-test test-case))
-
-  ;; Report summary
-  (message "\n📊 TEST SUMMARY:")
-  (message "Total tests: %d" (+ greger-tree-sitter-tests-passed greger-tree-sitter-tests-failed))
-  (message "Passed: %d" greger-tree-sitter-tests-passed)
-  (message "Failed: %d" greger-tree-sitter-tests-failed)
-
-  (if (> greger-tree-sitter-tests-failed 0)
-      (progn
-        (message "\n❌ FAILED TESTS:")
-        (dolist (result (reverse greger-tree-sitter-test-results))
-          (when (eq (plist-get result :status) 'failed)
-            (message "  - %s" (plist-get result :name)))))
-    (message "\n🎉 ALL TESTS PASSED!"))
-
-  ;; Return results for programmatic use
-  (list :passed greger-tree-sitter-tests-passed
-        :failed greger-tree-sitter-tests-failed
-        :results (reverse greger-tree-sitter-test-results)))
-
-;; Run tests automatically when loaded
-(if (treesit-ready-p 'greger)
-    (greger-tree-sitter-run-all-tests)
-  (message "❌ Tree-sitter greger parser not available"))
+;; Generate ERT tests for each test case
+(dolist (test greger-tree-sitter-test-cases)
+  (let ((test-name (plist-get test :name))
+        (expected-dialog (plist-get test :dialog)))
+    (eval `(ert-deftest ,(intern (format "greger-test-%s" test-name)) ()
+             ,(format "Test greger-tree-sitter parsing for %s" test-name)
+             (let* ((test-case (greger-find-test-case ,test-name))
+                    (markdown (plist-get test-case :markdown))
+                    (expected (plist-get test-case :dialog))
+                    (actual (greger-tree-sitter-parse markdown)))
+               (should (equal expected actual)))))))
 
 (provide 'test-all-greger-cases)
