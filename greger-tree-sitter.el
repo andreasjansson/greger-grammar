@@ -234,11 +234,17 @@
          ((string= child-type "citation_entry")
           (push (greger-tree-sitter--extract-citation-entry child) citation-entries)))))
     (setq citation-entries (nreverse citation-entries))
-    ;; Citations are merged into assistant content as text with citations
-    `((role . "assistant")
-      (content . (((type . "text")
-                   (text . ,text-content)
-                   (citations . ,citation-entries)))))))
+    ;; Return a result that can be merged with other content
+    (if text-content
+        ;; Text with citations
+        `((role . "assistant")
+          (content . (((type . "text")
+                       (text . ,text-content)
+                       (citations . ,citation-entries)))))
+      ;; Just citations (for cases where citations are at the end)
+      `((role . "assistant")
+        (content . (((type . "text")
+                     (citations . ,citation-entries))))))))
 
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
