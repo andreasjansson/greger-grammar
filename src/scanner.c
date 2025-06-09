@@ -186,17 +186,14 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
-    // When we see <, try HTML comments first (more general), then tool content (more specific)
-    if (lexer->lookahead == '<') {
-        // Try HTML comment first if it's valid
-        if (valid_symbols[HTML_COMMENT] && scan_html_comment(lexer)) {
-            return true;
-        }
+    // Only scan for tool content when it's expected
+    if (valid_symbols[TOOL_CONTENT] && lexer->lookahead == '<') {
+        return scan_tool_content(scanner, lexer);
+    }
 
-        // Try tool content if it's valid
-        if (valid_symbols[TOOL_CONTENT] && scan_tool_content(scanner, lexer)) {
-            return true;
-        }
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
     }
 
     return false;
