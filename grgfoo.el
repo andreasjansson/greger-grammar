@@ -46,74 +46,20 @@
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'greger
-   :feature 'comment
+   :feature 'basic
    :override t
-   '((html_comment) @font-lock-comment-face)
-
-   :language 'greger
-   :feature 'heading
-   :override t
-   '(;; Heading markers
-     ("##") @font-lock-keyword-face
-     ("###") @font-lock-keyword-face
-
-     ;; Heading types
-     ("USER" "ASSISTANT" "SYSTEM" "THINKING" "CITATIONS") @font-lock-function-name-face
-     ("TOOL" "USE" "RESULT" "SERVER" "WEB" "SEARCH") @font-lock-function-name-face
-
-     ;; Colons in headings
-     (user ":" @font-lock-builtin-face)
-     (assistant ":" @font-lock-builtin-face)
-     (system ":" @font-lock-builtin-face)
-     (thinking ":" @font-lock-builtin-face)
-     (tool_use ":" @font-lock-builtin-face)
-     (tool_result ":" @font-lock-builtin-face)
-     (server_tool_use ":" @font-lock-builtin-face)
-     (web_search_tool_result ":" @font-lock-builtin-face)
-     (citations ":" @font-lock-builtin-face))
-
-   :language 'greger
-   :feature 'field
-   :override t
-   '(;; Field labels
-     ("Name:" "ID:" "Title:") @font-lock-builtin-face)
-
-   :language 'greger
-   :feature 'value
-   :override t
-   '(;; Values
+   '(;; Very basic highlighting - start minimal to avoid segfaults
+     (user) @font-lock-function-name-face
+     (assistant) @font-lock-function-name-face
+     (system) @font-lock-function-name-face
+     (thinking) @font-lock-function-name-face
+     (tool_use) @font-lock-function-name-face
+     (tool_result) @font-lock-function-name-face
+     (server_tool_use) @font-lock-function-name-face
+     (web_search_tool_result) @font-lock-function-name-face
+     (citations) @font-lock-function-name-face
      (value) @font-lock-string-face
-     (url) @font-lock-constant-face
-     (param_name) @font-lock-variable-name-face)
-
-   :language 'greger
-   :feature 'code
-   :override t
-   '(;; Code blocks and inline code
-     (code_block) @font-lock-string-face
-     (inline_code) @font-lock-string-face)
-
-   :language 'greger
-   :feature 'markup
-   :override t
-   '(;; HTML-like tags
-     (cite_tag) @font-lock-builtin-face
-     (safe_shell_commands) @font-lock-builtin-face
-     (tool_start_tag) @font-lock-builtin-face
-     (tool_end_tag) @font-lock-builtin-face)
-
-   :language 'greger
-   :feature 'content
-   :override t
-   '(;; Content
-     (tool_content) @font-lock-doc-face
-     (text) @default)
-
-   :language 'greger
-   :feature 'error
-   :override t
-   '(;; Parse errors
-     (ERROR) @grgfoo-error-face))
+     (text) @default))
   "Tree-sitter font-lock settings for `grgfoo-mode'.")
 
 (defface grgfoo-error-face
