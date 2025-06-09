@@ -1880,4 +1880,207 @@ grammar.js
 Fix name and id rules to use field-based parsing for X: y patterns
 </tool.toolu_01NkE8AXQr6RvKcQRPKFff4p>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NkE8AXQr6RvKcQRPKFff4p -->
+## TOOL RESULT:
+
+ID: toolu_01NkE8AXQr6RvKcQRPKFff4p
+
+<tool.toolu_01NkE8AXQr6RvKcQRPKFff4p>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix name and id rules to use field-based parsing for X: y patterns
+</tool.toolu_01NkE8AXQr6RvKcQRPKFff4p>
+
+## ASSISTANT:
+
+Now I need to fix the citation rules that also follow the `X: y` pattern:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_012FaWQH4BW6JuN5XqDYB3Q9
+
+### path
+
+<tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+grammar.js
+</tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+
+### start-line
+
+<tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+170
+</tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+
+### end-line
+
+<tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+190
+</tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+
+### include-line-numbers
+
+<tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+true
+</tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+
+## TOOL RESULT:
+
+ID: toolu_012FaWQH4BW6JuN5XqDYB3Q9
+
+<tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+      /\n/,
+      optional(/\n/),
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => token(seq(
+      'Title:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_text: $ => token(seq(
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+</tool.toolu_012FaWQH4BW6JuN5XqDYB3Q9>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VBYconraNqGiDxBQt3Xmvw
+
+### path
+
+<tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+grammar.js
+</tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+
+### start-line
+
+<tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+180
+</tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+
+### end-line
+
+<tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+200
+</tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+
+### include-line-numbers
+
+<tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+true
+</tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+
+## TOOL RESULT:
+
+ID: toolu_01VBYconraNqGiDxBQt3Xmvw
+
+<tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+      'Title:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_text: $ => token(seq(
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_encrypted_index: $ => token(seq(
+      'Encrypted index:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    content_blocks: $ => repeat1(choice(
+</tool.toolu_01VBYconraNqGiDxBQt3Xmvw>
+
+## ASSISTANT:
+
+Let me update the citation rules as well to use the field-based approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PToN2hhGdu49a45XoFriwq
+
+### file-path
+
+<tool.toolu_01PToN2hhGdu49a45XoFriwq>
+grammar.js
+</tool.toolu_01PToN2hhGdu49a45XoFriwq>
+
+### original-content
+
+<tool.toolu_01PToN2hhGdu49a45XoFriwq>
+    citation_title: $ => token(seq(
+      'Title:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_text: $ => token(seq(
+      'Cited text:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+
+    citation_encrypted_index: $ => token(seq(
+      'Encrypted index:',
+      /[ ]+/,
+      /[^\n]*/,
+      /\n/,
+    )),
+</tool.toolu_01PToN2hhGdu49a45XoFriwq>
+
+### new-content
+
+<tool.toolu_01PToN2hhGdu49a45XoFriwq>
+    citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', alias(/[^\n]+/, $.title_value)),
+      /\n/,
+    ),
+    
+    title_value: _ => /[^\n]+/,
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', alias(/[^\n]+/, $.cited_text_value)),
+      /\n/,
+    ),
+    
+    cited_text_value: _ => /[^\n]+/,
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', alias(/[^\n]+/, $.encrypted_index_value)),
+      /\n/,
+    ),
+    
+    encrypted_index_value: _ => /[^\n]+/,
+</tool.toolu_01PToN2hhGdu49a45XoFriwq>
+
+### git-commit-message
+
+<tool.toolu_01PToN2hhGdu49a45XoFriwq>
+Update citation rules to use field-based parsing for X: y patterns
+</tool.toolu_01PToN2hhGdu49a45XoFriwq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01PToN2hhGdu49a45XoFriwq -->
