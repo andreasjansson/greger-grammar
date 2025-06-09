@@ -2,6 +2,17 @@
 
 (load-file "./greger-tree-sitter.el")
 
+(defun greger-tree-sitter--debug-node (node depth)
+  "Debug print NODE structure with DEPTH indentation."
+  (let ((indent (make-string (* depth 2) ?\s)))
+    (message "%s%s: %s" indent (treesit-node-type node)
+             (if (treesit-node-children node)
+                 (format "<%d children>" (length (treesit-node-children node)))
+               (format "\"%s\"" (string-trim (treesit-node-text node)))))
+    (when (and (< depth 3) (treesit-node-children node))
+      (dolist (child (treesit-node-children node))
+        (greger-tree-sitter--debug-node child (1+ depth))))))
+
 (defun debug-parse (filename)
   "Debug parse a test file."
   (let* ((file-path (format "./test/corpus/%s.txt" filename))
