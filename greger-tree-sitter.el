@@ -16,12 +16,45 @@
 
 (defun greger-tree-sitter--extract-dialog-from-node (node)
   "Extract dialog entries from a tree-sitter NODE."
-  (let ((dialog '()))
+  (let ((raw-entries '()))
+    ;; First extract all entries
     (dolist (child (treesit-node-children node))
       (let ((entry (greger-tree-sitter--extract-entry-from-node child)))
         (when entry
-          (push entry dialog))))
-    (nreverse dialog)))
+          (push entry raw-entries))))
+    ;; Then merge assistant-related entries
+    (greger-tree-sitter--merge-assistant-entries (nreverse raw-entries))))
+
+(defun greger-tree-sitter--merge-assistant-entries (entries)
+  "Merge consecutive assistant-related entries into single messages."
+  (let ((result '())
+        (current-assistant-content '()))
+    (dolist (entry entries)
+      (let ((role (cdr (assoc 'role entry))))
+        (cond
+         ;; If this is an assistant-type message, accumulate content
+         ((string= role "assistant")
+          (let ((content (cdr (assoc 'content entry))))
+            (if (listp content)
+                ;; Content is a list of content blocks
+                (setq current-assistant-content
+                      (append current-assistant-content content))
+              ;; Content is plain text, convert to text block
+              (setq current-assistant-content
+                    (append current-assistant-content
+                            `(((type . "text") (text . ,content))))))))
+         ;; For non-assistant messages, flush any accumulated assistant content first
+         (t
+          (when current-assistant-content
+            (push `((role . "assistant")
+                    (content . ,current-assistant-content)) result)
+            (setq current-assistant-content '()))
+          (push entry result)))))
+    ;; Don't forget any remaining assistant content
+    (when current-assistant-content
+      (push `((role . "assistant")
+              (content . ,current-assistant-content)) result))
+    (nreverse result)))
 
 (defun greger-tree-sitter--extract-entry-from-node (node)
   "Extract a single dialog entry from NODE."
