@@ -11,7 +11,6 @@ module.exports = grammar({
   name: "greger",
 
   extras: $ => [
-    /<!--[^>]*-->/,
     /[ \t\n]/,
   ],
 
