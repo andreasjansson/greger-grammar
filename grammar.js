@@ -112,10 +112,9 @@ module.exports = grammar({
       ':',
       /\n/,
       optional(/\n/),
-      repeat(choice(
-        $.id,
-        $.content,
-      )),
+      $.id,
+      optional(/\n/),
+      $.content,
     ),
 
     citations: $ => seq(
