@@ -30,7 +30,7 @@ module.exports = grammar({
 
     _block: $ => choice(
       $.user,
-      $.assistant_with_citations,
+      alias($.assistant_with_citations, $.assistant),
       $.assistant,
       $.system,
       $.thinking,
@@ -42,7 +42,10 @@ module.exports = grammar({
     ),
 
     assistant_with_citations: $ => prec(1, seq(
-      $.assistant,
+      '##',
+      'ASSISTANT',
+      ':',
+      $.content_blocks,
       $.citations,
     )),
 
