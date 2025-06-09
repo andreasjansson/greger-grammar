@@ -59,8 +59,7 @@
     ;; Don't forget any remaining assistant content
     (when current-assistant-content
       (setq result (greger-tree-sitter--flush-assistant-content current-assistant-content result)))
-    ;; Fix server tool result types based on whether citations are present
-    (setq result (greger-tree-sitter--fix-server-tool-result-types-in-dialog result has-citations))
+    ;; No need to fix types anymore since everything is web_search_tool_result
     (nreverse result)))
 
 (defun greger-tree-sitter--has-citations-p (entries)
