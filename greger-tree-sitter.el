@@ -105,13 +105,17 @@
     `((role . "system") (content . ,content))))
 
 (defun greger-tree-sitter--extract-content-blocks (section-node)
-  "Extract content from a section node by finding content_blocks child."
+  "Extract content from a section node by finding content nodes."
   (let ((children (treesit-node-children section-node))
         (content-text ""))
-    ;; Look for content_blocks node
+    ;; Look for content nodes (text, code_block, etc.)
     (dolist (child children)
-      (when (string= (treesit-node-type child) "content_blocks")
-        (setq content-text (treesit-node-text child))))
+      (let ((node-type (treesit-node-type child)))
+        (when (or (string= node-type "content_blocks")
+                  (string= node-type "text")
+                  (string= node-type "text_block")
+                  (string= node-type "code_block"))
+          (setq content-text (concat content-text (treesit-node-text child))))))
     (string-trim content-text)))
 
 (defun greger-tree-sitter--extract-tool-use (tool-use-node)
