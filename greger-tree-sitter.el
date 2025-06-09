@@ -260,7 +260,7 @@
                                        (> (length parsed-content) 0)
                                        (listp (car parsed-content))
                                        (assoc 'type (car parsed-content))
-                                       (string= (cdr (assoc 'type (aref parsed-content 0))) "web_search_result"))
+                                       (string= (cdr (assoc 'type (car parsed-content))) "web_search_result"))
                                   "server_tool_result"
                                   "server_tool_result"))
                      (tool_use_id . ,id)
