@@ -197,8 +197,14 @@
         (let ((param-name (greger-tree-sitter--extract-tool-param-name child))
               (param-value (greger-tree-sitter--extract-tool-param-value child)))
           (when (and param-name param-value)
-            (push (cons (intern param-name) param-value) params)))))
+            (push (cons (intern param-name) (greger-tree-sitter--convert-param-value param-value)) params)))))
     (nreverse params)))
+
+(defun greger-tree-sitter--convert-param-value (value)
+  "Convert VALUE to appropriate type (number if it looks like a number, otherwise string)."
+  (if (string-match "^[0-9]+$" value)
+      (string-to-number value)
+    value))
 
 (defun greger-tree-sitter--extract-tool-param-name (node)
   "Extract parameter name from tool_param NODE."
