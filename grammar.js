@@ -136,8 +136,21 @@ module.exports = grammar({
       $._text_content,
     ))),
 
-    name: $ => token(seq('Name:', /[^\n]*/, /\n/)),
-    id: $ => token(seq('ID:', /[^\n]*/, /\n/)),
+    name: $ => seq(
+      'Name:',
+      field('value', alias(/[^\n]+/, $.name_value)),
+      /\n/
+    ),
+
+    name_value: _ => /[^\n]+/,
+
+    id: $ => seq(
+      'ID:',
+      field('value', alias(/[^\n]+/, $.id_value)),
+      /\n/
+    ),
+
+    id_value: _ => /[^\n]+/,
 
     tool_param: $ => seq(
       '###',
