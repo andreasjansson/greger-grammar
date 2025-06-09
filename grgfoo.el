@@ -117,7 +117,10 @@
     ;; Tree-sitter setup
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
-                '((basic)))
+                '((error)                    ; level 1 - always show errors
+                  (heading)                  ; level 2 - basic structure
+                  (field subheading)         ; level 3 - detailed structure
+                  (content)))
 
     ;; Indentation - using safe rules
     (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
