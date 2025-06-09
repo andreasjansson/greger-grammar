@@ -17,7 +17,6 @@ module.exports = grammar({
 
   externals: $ => [
     $.tool_content,
-    $.html_comment,
   ],
 
 
