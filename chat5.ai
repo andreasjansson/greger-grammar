@@ -10541,4 +10541,161 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 Fix tool content scanner to properly handle closing tag detection and content extraction
 </tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MHKpXVNoyqYBBhKnpUujtS -->
+## TOOL RESULT:
+
+ID: toolu_01MHKpXVNoyqYBBhKnpUujtS
+
+<tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix tool content scanner to properly handle closing tag detection and content extraction
+</tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013QeA4BGLodLZ9QZpHjWMjz
+
+### command
+
+<tool.toolu_013QeA4BGLodLZ9QZpHjWMjz>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_013QeA4BGLodLZ9QZpHjWMjz>
+
+## TOOL RESULT:
+
+ID: toolu_013QeA4BGLodLZ9QZpHjWMjz
+
+<tool.toolu_013QeA4BGLodLZ9QZpHjWMjz>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (tool_content [0, 14] - [0, 19])
+    (ERROR [0, 19] - [0, 21])
+    (tool_content [0, 21] - [1, 0])))
+stdin	Parse:    0.07 ms	   477 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_013QeA4BGLodLZ9QZpHjWMjz>
+
+## ASSISTANT:
+
+Still having the same issue. The problem is that the content scanner is being called multiple times. Looking at the ranges:
+
+- `[0, 14] - [0, 19]` is `hello`
+- `[0, 19] - [0, 21]` is `</`
+- `[0, 21] - [1, 0]` is `tool.test123>`
+
+This suggests that my scanner is not properly recognizing the closing tag pattern. Let me simplify and debug this step by step. The issue might be that when the closing tag starts (`</`), the scanner is not properly transitioning to scanning for the end tag.
+
+Let me check what the HTML grammar rule looks like again for comparison:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01XQmVCk87kRife53gzdMkCp
+
+### path
+
+<tool.toolu_01XQmVCk87kRife53gzdMkCp>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
+</tool.toolu_01XQmVCk87kRife53gzdMkCp>
+
+### start-line
+
+<tool.toolu_01XQmVCk87kRife53gzdMkCp>
+50
+</tool.toolu_01XQmVCk87kRife53gzdMkCp>
+
+### end-line
+
+<tool.toolu_01XQmVCk87kRife53gzdMkCp>
+70
+</tool.toolu_01XQmVCk87kRife53gzdMkCp>
+
+### include-line-numbers
+
+<tool.toolu_01XQmVCk87kRife53gzdMkCp>
+true
+</tool.toolu_01XQmVCk87kRife53gzdMkCp>
+
+## TOOL RESULT:
+
+ID: toolu_01XQmVCk87kRife53gzdMkCp
+
+<tool.toolu_01XQmVCk87kRife53gzdMkCp>
+      $.text,
+      $.element,
+      $.script_element,
+      $.style_element,
+      $.erroneous_end_tag,
+    ),
+
+    element: $ => choice(
+      seq(
+        $.start_tag,
+        repeat($._node),
+        choice($.end_tag, $._implicit_end_tag),
+      ),
+      $.self_closing_tag,
+    ),
+
+    script_element: $ => seq(
+      alias($.script_start_tag, $.start_tag),
+      optional($.raw_text),
+      $.end_tag,
+    ),
+</tool.toolu_01XQmVCk87kRife53gzdMkCp>
+
+## ASSISTANT:
+
+I see! The key insight is that for `script_element` (which is similar to our tool element), the rule is:
+
+```javascript
+script_element: $ => seq(
+  alias($.script_start_tag, $.start_tag),
+  optional($.raw_text),
+  $.end_tag,
+),
+```
+
+The content (`$.raw_text`) is **optional**. This means that if there's no content, the parser will skip directly to the end tag. But in my implementation, I'm requiring content.
+
+Also, I notice they use aliases to make `script_start_tag` appear as `start_tag` in the tree. Let me update my grammar to follow this pattern more closely:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NhBUxmEhFEczKC284cxyci
+
+### file-path
+
+<tool.toolu_01NhBUxmEhFEczKC284cxyci>
+grammar.js
+</tool.toolu_01NhBUxmEhFEczKC284cxyci>
+
+### original-content
+
+<tool.toolu_01NhBUxmEhFEczKC284cxyci>
+tool_element: $ => seq(
+      $.tool_start_tag,
+      optional(field('value', $.tool_content)),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01NhBUxmEhFEczKC284cxyci>
+
+### new-content
+
+<tool.toolu_01NhBUxmEhFEczKC284cxyci>
+tool_element: $ => seq(
+      $.tool_start_tag,
+      optional($.tool_content),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01NhBUxmEhFEczKC284cxyci>
+
+### git-commit-message
+
+<tool.toolu_01NhBUxmEhFEczKC284cxyci>
+Remove field from tool_content in tool_element rule to match HTML pattern
+</tool.toolu_01NhBUxmEhFEczKC284cxyci>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01NhBUxmEhFEczKC284cxyci -->
