@@ -3948,11 +3948,11 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             // Check if this is the start of our closing tag
             // We need to look ahead without consuming
             const char *pos = lexer->get_column(lexer);
-            
+
             advance(lexer);
             if (lexer->lookahead == '/') {
                 advance(lexer);
-                
+
                 // Check for "tool."
                 if (lexer->lookahead == 't') {
                     advance(lexer);
@@ -3964,7 +3964,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                 advance(lexer);
                                 if (lexer->lookahead == '.') {
                                     advance(lexer);
-                                    
+
                                     // Check if ID matches
                                     int tool_id_len = strlen(scanner->tool_id);
                                     bool matches = true;
@@ -3975,7 +3975,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                             advance(lexer);
                                         }
                                     }
-                                    
+
                                     if (matches && lexer->lookahead == '>') {
                                         // Found the closing tag, stop here
                                         lexer->result_symbol = TOOL_CONTENT;
@@ -4141,11 +4141,11 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             // Check if this is the start of our closing tag
             // We need to look ahead without consuming
             const char *pos = lexer->get_column(lexer);
-            
+
             advance(lexer);
             if (lexer->lookahead == '/') {
                 advance(lexer);
-                
+
                 // Check for "tool."
                 if (lexer->lookahead == 't') {
                     advance(lexer);
@@ -4157,7 +4157,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                 advance(lexer);
                                 if (lexer->lookahead == '.') {
                                     advance(lexer);
-                                    
+
                                     // Check if ID matches
                                     int tool_id_len = strlen(scanner->tool_id);
                                     bool matches = true;
@@ -4168,7 +4168,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                             advance(lexer);
                                         }
                                     }
-                                    
+
                                     if (matches && lexer->lookahead == '>') {
                                         // Found the closing tag, stop here
                                         lexer->result_symbol = TOOL_CONTENT;
@@ -4214,7 +4214,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     int expected_len = strlen(expected_closing);
 
     int match_index = 0;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -4238,7 +4238,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_01GPKAcMrBnPv6ZwRFJ1JHZf>
@@ -4695,7 +4695,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     int expected_len = strlen(expected_closing);
 
     int match_index = 0;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -5402,7 +5402,7 @@ echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
 ID: toolu_01SnGbXM8y2CT39rd15X51ou
 
 <tool.toolu_01SnGbXM8y2CT39rd15X51ou>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -5435,7 +5435,7 @@ echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.too
 ID: toolu_01Rsvb7nrRDc4uvF9MBdmoFN
 
 <tool.toolu_01Rsvb7nrRDc4uvF9MBdmoFN>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [10, 0]
   (ERROR [0, 0] - [0, 2]
     (ERROR [0, 0] - [0, 2]))
@@ -5483,7 +5483,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     int expected_len = strlen(expected_closing);
 
     int match_index = 0;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -5523,7 +5523,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     int match_index = 0;
     bool found_content = false;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -5552,7 +5552,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_018dcavJaNm8J9nu6i7hj5bm>
@@ -5701,7 +5701,7 @@ src/scanner.c
 
     int match_index = 0;
     bool found_content = false;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -5730,7 +5730,7 @@ src/scanner.c
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 </tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
 
@@ -5768,7 +5768,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_019bxQdRKqRZvw9Tba31wDAG
 
 <tool.toolu_019bxQdRKqRZvw9Tba31wDAG>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -6045,7 +6045,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_01RnBVJzJqJaT4rJnwgZPX2c
 
 <tool.toolu_01RnBVJzJqJaT4rJnwgZPX2c>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [0, 34]
     (tool_start_tag [0, 0] - [0, 14])
@@ -6173,7 +6173,7 @@ echo -e "<tool.test123>\ntest.txt\n</tool.test123>" | tree-sitter parse
 ID: toolu_01GJbgSE4LsJa9zbmN9NFNZn
 
 <tool.toolu_01GJbgSE4LsJa9zbmN9NFNZn>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [3, 0]
   (ERROR [0, 0] - [2, 15]
     (ERROR [0, 0] - [2, 15])))
@@ -6273,7 +6273,7 @@ tree-sitter generate && echo -e "<tool.test123>\ntest.txt\n</tool.test123>" | tr
 ID: toolu_012C3XTwJWrQqic6SsGW5CTn
 
 <tool.toolu_012C3XTwJWrQqic6SsGW5CTn>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [3, 0]
   (ERROR [0, 0] - [2, 15]
     (ERROR [0, 0] - [2, 15])))
@@ -6334,7 +6334,7 @@ correct / [32mexpected[0m / [31munexpected[0m
 
 Interesting! Now I can see there's an `UNEXPECTED 't'` error, which suggests the parser is having trouble recognizing something that starts with 't'. This might be an issue with my scanner logic.
 
-Let me take a completely different approach. Since this is getting complex, let me step back and implement a much simpler solution that doesn't change the existing scanner as much. 
+Let me take a completely different approach. Since this is getting complex, let me step back and implement a much simpler solution that doesn't change the existing scanner as much.
 
 Let me revert to the original approach but modify the grammar to extract just the content using field names, without trying to separate the tags:
 
@@ -6611,7 +6611,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     int match_index = 0;
     bool found_content = false;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -6640,7 +6640,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_01WLtEtCHfqwXqhevKFdVGhL>
@@ -6686,7 +6686,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             advance(lexer);
             if (lexer->lookahead == '/') {
                 advance(lexer);
-                
+
                 // Check "tool."
                 if (lexer->lookahead == 't') {
                     advance(lexer);
@@ -6698,7 +6698,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                 advance(lexer);
                                 if (lexer->lookahead == '.') {
                                     advance(lexer);
-                                    
+
                                     // Check if ID matches
                                     bool matches = true;
                                     for (int i = 0; i < id_len && matches; i++) {
@@ -6708,7 +6708,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                             advance(lexer);
                                         }
                                     }
-                                    
+
                                     if (matches && lexer->lookahead == '>') {
                                         // Found the closing tag, consume it and return content
                                         advance(lexer);
@@ -7133,7 +7133,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     int match_index = 0;
     bool found_content = false;
-    
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
@@ -7162,7 +7162,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_01PtC3cFHM85gWCr5xr3prQG>
@@ -7205,7 +7205,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
     bool has_content = false;
 
@@ -7398,12 +7398,12 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     // Now we're at the start of the content
     // We want to return ONLY the content between the tags, not the tags themselves
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -7541,7 +7541,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_01FgCXL6kTzKKj3P9Pf43KeC
 
 <tool.toolu_01FgCXL6kTzKKj3P9Pf43KeC>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [0, 34]
     (value [0, 0] - [0, 34])))
@@ -7714,7 +7714,7 @@ echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.too
 ID: toolu_01JVSmud4GbZQUrWxFYg3bgC
 
 <tool.toolu_01JVSmud4GbZQUrWxFYg3bgC>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [10, 0]
   (ERROR [0, 0] - [0, 2]
     (ERROR [0, 0] - [0, 2]))
@@ -7733,7 +7733,7 @@ stdin	Parse:    0.03 ms	  3404 bytes/ms	(ERROR [0, 0] - [0, 2])
 Excellent! I can see that:
 
 1. The `name` field contains just the value (from `Name: read-file` it extracts just `read-file`)
-2. The `id` field contains just the value (from `ID: toolu_999` it extracts just `toolu_999`) 
+2. The `id` field contains just the value (from `ID: toolu_999` it extracts just `toolu_999`)
 3. The `value` field in `tool_param` contains the entire content INCLUDING the tool tags `(value [7, 0] - [9, 17])` which spans from the `<tool.toolu_999>` to `</tool.toolu_999>`
 
 Wait, that's not quite right. The value field should contain just `test.txt`, not the entire tag structure. Let me check what's actually being parsed by examining the ranges more carefully.
@@ -7741,7 +7741,7 @@ Wait, that's not quite right. The value field should contain just `test.txt`, no
 Looking at the ranges:
 - `[7, 0] - [9, 17]` means it starts at line 7, column 0 and ends at line 9, column 17
 - Line 7 would be `<tool.toolu_999>`
-- Line 8 would be `test.txt`  
+- Line 8 would be `test.txt`
 - Line 9 would be `</tool.toolu_999>`
 
 So it's still including the tags. The issue is that my scanner is consuming the entire tag structure and returning it as the content. I need to modify the scanner to mark the end correctly so it only returns the inner content.
@@ -7767,12 +7767,12 @@ src/scanner.c
 
     // Now we're at the start of the content
     // We want to return ONLY the content between the tags, not the tags themselves
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -7805,12 +7805,12 @@ src/scanner.c
 
     // Now we're at the start of the content, mark this position
     lexer->mark_end(lexer);
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -7953,12 +7953,12 @@ src/scanner.c
 
     // Now we're at the start of the content
     // We want to return ONLY the content between the tags, not the tags themselves
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -7991,12 +7991,12 @@ src/scanner.c
 
     // Now we're at the start of the content, mark this position
     lexer->mark_end(lexer);
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -8126,12 +8126,12 @@ src/scanner.c
 <tool.toolu_017AiieTckqGSjHTzbECytUS>
 // Now we're at the start of the content
     // We want to return ONLY the content between the tags, not the tags themselves
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -8161,12 +8161,12 @@ src/scanner.c
 <tool.toolu_017AiieTckqGSjHTzbECytUS>
 // Now we're at the start of the content, mark this position
     lexer->mark_end(lexer);
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -8332,12 +8332,12 @@ advance(lexer);
 
     // Now we're at the start of the content, mark this position
     lexer->mark_end(lexer);
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -8397,7 +8397,7 @@ tree-sitter generate && echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\
 ID: toolu_01JTRtzRjfcv3zrCdukWdgND
 
 <tool.toolu_01JTRtzRjfcv3zrCdukWdgND>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [10, 0]
   (ERROR [0, 0] - [0, 2]
     (ERROR [0, 0] - [0, 2]))
@@ -8424,7 +8424,7 @@ The issue is that the closing tag is not being consumed by the grammar rule - it
 
 Actually, let me check what range `[7, 0] - [9, 0]` covers:
 - Line 7: `<tool.toolu_999>`
-- Line 8: `test.txt` 
+- Line 8: `test.txt`
 - Line 9 starts with `</tool.toolu_999>`
 
 So `[7, 0] - [9, 0]` means from the start of line 7 to the start of line 9, which would include the opening tag and the content, but not the closing tag. This is still not right.
@@ -8498,7 +8498,7 @@ echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999" | tree-sitter parse
 ID: toolu_01NP4bhHG7pukVayHwx8khW4
 
 <tool.toolu_01NP4bhHG7pukVayHwx8khW4>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [4, 0]
   (ERROR [0, 0] - [0, 2]
     (ERROR [0, 0] - [0, 2]))
@@ -8609,12 +8609,12 @@ advance(lexer);
 
     // Now we're at the start of the content, mark this position
     lexer->mark_end(lexer);
-    
+
     // Build the expected closing tag
     char expected_closing[512];
     snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", tool_id);
     int expected_len = strlen(expected_closing);
-    
+
     int match_index = 0;
 
     // Scan content until we find the closing tag
@@ -9116,7 +9116,7 @@ Total parses: 22; successful parses: 22; failed parses: 0; success percentage: 1
 
 ## ASSISTANT:
 
-Perfect! All tests pass. 
+Perfect! All tests pass.
 
 ## Summary
 
@@ -9125,7 +9125,7 @@ I have successfully implemented field-based parsing for the `X: y` patterns as r
 ### ✅ **Completed: Field-based parsing for `Name: foo` patterns**
 
 1. **For `Name: foo`** - The parser now extracts just `foo` when you access the `name` field
-2. **For `ID: bar`** - The parser now extracts just `bar` when you access the `id` field  
+2. **For `ID: bar`** - The parser now extracts just `bar` when you access the `id` field
 3. **For citation fields** like `Title: something` - The parser extracts just `something` via the `value` field
 
 ### ✅ **How it works:**
@@ -9195,34 +9195,34 @@ ID: toolu_01EKHkhN6cJ7nLNAwqUaKkZT
   Press  S  or  /  to search in the book
   Press  ?  to show this help
   Press  Esc  to hide this help
- 
- 
- 
-    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js        
- 
-    
+
+
+
+    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js
+
+
             Auto
   Light
   Rust
   Coal
   Navy
   Ayu
- 
-    
-  Tree-sitter
-              
- 
-       
-  
 
- 
+
+  Tree-sitter
+
+
+
+
+
+
    Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM     External Scanners
   Many languages have some tokens whose structure is impossible or inconvenient to describe with a regular expression.
 Some examples:
   Indent and dedent  tokens in Python
   Heredocs  in Bash and Ruby
   Percent strings  in Ruby
- 
+
  Tree-sitter allows you to handle these kinds of tokens using  external scanners . An external scanner is a set of C functions
 that you, the grammar author, can write by hand to add custom logic for recognizing certain tokens.
   To use an external scanner, there are a few steps. First, add an  externals  section to your grammar. This section should
@@ -9279,7 +9279,7 @@ didn't allocate any memory, this function can be a no-op.
 
   This function should copy the complete state of your scanner into a given byte buffer, and return the number of bytes written.
 The function is called every time the external scanner successfully recognizes a token. It receives a pointer to your scanner
-and a pointer to a buffer. The maximum number of bytes that you can write is given by the  TREE_SITTER_SERIALIZATION_BUFFER_SIZE 
+and a pointer to a buffer. The maximum number of bytes that you can write is given by the  TREE_SITTER_SERIALIZATION_BUFFER_SIZE
 constant, defined in the  tree_sitter/parser.h  header file.
   The data that this function writes will ultimately be stored in the syntax tree so that the scanner can be restored to the
 right state when handling edits or ambiguities. For your parser to work correctly, the  serialize  function must store its
@@ -9294,22 +9294,22 @@ its state can be serialized as quickly and compactly as possible.
   // ...
 }
 
-  This function should  restore  the state of your scanner based the bytes that were previously written by the  serialize 
+  This function should  restore  the state of your scanner based the bytes that were previously written by the  serialize
 function. It is called with a pointer to your scanner, a pointer to the buffer of bytes, and the number of bytes that should
 be read. It is good practice to explicitly erase your scanner state variables at the start of this function, before restoring
 their values from the byte buffer.
   Scan
   Typically, one will
    Call  lexer->advance  several times, if the characters are valid for the token being lexed.
- 
+
    Optionally, call  lexer->mark_end  to mark the end of the token, and "peek ahead"
 to check if the next character (or set of characters) invalidates the token.
- 
+
    Set  lexer->result_symbol  to the token type.
- 
+
    Return  true  from the scanning function, indicating that a token was successfully lexed.
- 
- 
+
+
  Tree-sitter will then push resulting node to the parse stack, and the input position will remain where it reached at the
 point  lexer->mark_end  was called.
   bool tree_sitter_my_language_external_scanner_scan(
@@ -9322,35 +9322,35 @@ point  lexer->mark_end  was called.
 
   The second parameter to this function is the lexer, of type  TSLexer . The  TSLexer  struct has the following fields:
    int32_t lookahead  — The current next character in the input stream, represented as a 32-bit unicode code point.
- 
+
    TSSymbol result_symbol  — The symbol that was recognized. Your scan function should  assign  to this field one of
 the values from the  TokenType  enum, described above.
- 
+
    void (*advance)(TSLexer *, bool skip)  — A function for advancing to the next character. If you pass  true  for
 the second argument, the current character will be treated as whitespace; whitespace won't be included in the text range
 associated with tokens emitted by the external scanner.
- 
+
    void (*mark_end)(TSLexer *)  — A function for marking the end of the recognized token. This allows matching tokens
 that require multiple characters of lookahead. By default, (if you don't call  mark_end ), any character that you moved past
 using the  advance  function will be included in the size of the token. But once you call  mark_end , then any later calls
 to  advance  will  not  increase the size of the returned token. You can call  mark_end  multiple times to increase the size
 of the token.
- 
+
    uint32_t (*get_column)(TSLexer *)  — A function for querying the current column position of the lexer. It returns
 the number of codepoints since the start of the current line. The codepoint position is recalculated on every call to this
 function by reading from the start of the line.
- 
+
    bool (*is_at_included_range_start)(const TSLexer *)  — A function for checking whether the parser has just skipped
 some characters in the document. When parsing an embedded document using the  ts_parser_set_included_ranges  function
 (described in the  multi-language document section ), the scanner may want to apply some special
 behavior when moving to a disjoint part of the document. For example, in  EJS documents , the JavaScript parser uses
 this function to enable inserting automatic semicolon tokens in between the code directives, delimited by  <%  and  %> .
- 
+
    bool (*eof)(const TSLexer *)  — A function for determining whether the lexer is at the end of the file. The value
 of  lookahead  will be  0  at the end of a file, but this function should be used instead of checking for that value because
 the  0  or "NUL" value is also a valid character that could be present in the file being parsed.
- 
- 
+
+
  The third argument to the  scan  function is an array of booleans that indicates which of external tokens are expected by
 the parser. You should only look for a given token if it is valid according to this array. At the same time, you cannot
 backtrack, so you may need to combine certain pieces of logic.
@@ -9398,13 +9398,13 @@ array macros from  tree_sitter/array.h .
   There are quite a few of them provided for you, but here's how you could get started tracking some . Check out the header
 itself for more detailed documentation.
      Attention
- 
-   
+
+
    Do not use any of the array functions or macros that are prefixed with an underscore and have comments saying
 that it is not what you are looking for. These are internal functions used as helpers by other macros that are public.
 They are not meant to be used directly, nor are they what you want.
- 
- 
+
+
   #include "tree_sitter/parser.h"
 #include "tree_sitter/array.h"
 
@@ -9520,28 +9520,28 @@ be tokenized by the external scanner whenever they appear in the grammar.
   The external scanner attempts to recognize the token first
   If the scanner returns true and sets a token, that token is used
   If the scanner returns false, Tree-sitter falls back to its internal lexer
- 
+
  However, when you use rule references (like  $.if_keyword ) in the externals array without defining the corresponding rules
 in the grammar, Tree-sitter cannot fall back to its internal lexer. In this case, the external scanner is solely responsible
 for recognizing these tokens.
      Danger
- 
-   
-    External scanners can easily create infinite loops
- 
-   Be extremely careful when emitting zero-width tokens
- 
-   Always use the  eof  function when looping through characters
- 
- 
 
- 
-   Mobile navigation buttons          
- 
- 
-         
-          Custom JS scripts  
- 
+
+    External scanners can easily create infinite loops
+
+   Be extremely careful when emitting zero-width tokens
+
+   Always use the  eof  function when looping through characters
+
+
+
+
+   Mobile navigation buttons
+
+
+
+          Custom JS scripts
+
 </tool.toolu_01EKHkhN6cJ7nLNAwqUaKkZT>
 
 ## ASSISTANT:
@@ -10333,7 +10333,7 @@ echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
 ID: toolu_011uBhsRm1t8VKCr6bU97dNm
 
 <tool.toolu_011uBhsRm1t8VKCr6bU97dNm>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [0, 34]
     (tool_start_tag [0, 0] - [0, 14])
@@ -10409,7 +10409,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_018J1rdQHVyx46LDs6iZCXMm
 
 <tool.toolu_018J1rdQHVyx46LDs6iZCXMm>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -10530,7 +10530,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
@@ -10565,7 +10565,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_013QeA4BGLodLZ9QZpHjWMjz
 
 <tool.toolu_013QeA4BGLodLZ9QZpHjWMjz>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -10722,7 +10722,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_01X9YD1xXackE9qDTUga9tRU
 
 <tool.toolu_01X9YD1xXackE9qDTUga9tRU>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -10824,7 +10824,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_018bNNMV8dNNBXJ2gB97aXy7>
@@ -11103,7 +11103,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         lexer->result_symbol = TOOL_CONTENT;
         return true;
     }
-    
+
     return false;
 }
 </tool.toolu_013V8Eh6TgzGrenvx8FEVmMR>
@@ -11337,7 +11337,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_016UNtoHZovN5SxkuiN75QJh
 
 <tool.toolu_016UNtoHZovN5SxkuiN75QJh>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -11353,7 +11353,7 @@ stdin	Parse:    0.07 ms	   475 bytes/ms	(ERROR [0, 0] - [1, 0])
 Still the same issue. The problem is fundamental - the scanner logic is not working correctly. Let me take a step back and understand what's happening:
 
 1. `tool_start_tag [0, 0] - [0, 14]` = `<tool.test123>` ✓
-2. `tool_content [0, 14] - [0, 19]` = `hello` ✓  
+2. `tool_content [0, 14] - [0, 19]` = `hello` ✓
 3. `ERROR [0, 19] - [0, 21]` = `</` ❌
 4. `tool_content [0, 21] - [1, 0]` = `tool.test123>` ❌
 
@@ -11362,7 +11362,7 @@ The issue is in step 3. When the parser encounters `</`, it should recognize thi
 The problem might be that my `scan_tool_end_tag` function is not being called at the right time or there's an issue with the logic. Let me check the main scanner function logic:
 
 Looking at the main scanner function, when it sees `<`, it tries:
-1. `TOOL_START_TAG` 
+1. `TOOL_START_TAG`
 2. `TOOL_END_TAG`
 3. `HTML_COMMENT`
 
@@ -11495,7 +11495,7 @@ tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter 
 ID: toolu_01RkQZHSvCQDDrgq6cinCCWM
 
 <tool.toolu_01RkQZHSvCQDDrgq6cinCCWM>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [1, 0]
   (ERROR [0, 0] - [1, 0]
     (tool_start_tag [0, 0] - [0, 14])
@@ -12039,7 +12039,7 @@ echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.too
 ID: toolu_01KezPDNpVSLrco9vySDFCrE
 
 <tool.toolu_01KezPDNpVSLrco9vySDFCrE>
-Command failed with exit code 1: 
+Command failed with exit code 1:
 (source_file [0, 0] - [10, 0]
   (ERROR [0, 0] - [0, 2]
     (ERROR [0, 0] - [0, 2]))
@@ -12556,7 +12556,7 @@ The tool content extraction is now working properly:
 
 ### **✅ What works:**
 
-1. **Field access extracts just content**: `value: (tool_content [7, 16] - [9, 0])` 
+1. **Field access extracts just content**: `value: (tool_content [7, 16] - [9, 0])`
 2. **Content excludes tags**: The range `[7, 16] - [9, 0]` contains only `test.txt` and newlines, without `<tool.toolu_999>` or `</tool.toolu_999>`
 3. **All `X: y` patterns work**: Field access for `Name:`, `ID:`, `Title:`, etc. extracts just the value parts
 4. **Scanner properly separates tokens**: `tool_start_tag`, `tool_content`, and `tool_end_tag` are correctly identified
@@ -14558,4 +14558,492 @@ test/corpus/citations-after-tool-result.txt
 Update citations-after-tool-result test to match new nested tool tag structure
 </tool.toolu_013miurywJSAr8qEZWgpos8U>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_013miurywJSAr8qEZWgpos8U -->
+## TOOL RESULT:
+
+ID: toolu_013miurywJSAr8qEZWgpos8U
+
+<tool.toolu_013miurywJSAr8qEZWgpos8U>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/citations-after-tool-result.txt. Successfully staged 2 file(s) and committed with message: Update citations-after-tool-result test to match new nested tool tag structure
+</tool.toolu_013miurywJSAr8qEZWgpos8U>
+
+## ASSISTANT:
+
+Now let me test all the updated tests:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014kc7Cc6kGrmhQM3cVjVrHM
+
+### command
+
+<tool.toolu_014kc7Cc6kGrmhQM3cVjVrHM>
+timeout 15 tree-sitter test
+</tool.toolu_014kc7Cc6kGrmhQM3cVjVrHM>
+
+## TOOL RESULT:
+
+ID: toolu_014kc7Cc6kGrmhQM3cVjVrHM
+
+<tool.toolu_014kc7Cc6kGrmhQM3cVjVrHM>
+Command executed successfully:
+  citations-after-tool-result:
+      1. ✓ [32mCitations after tool result[0m[31m -- Warning: Slow parse rate (671.645 bytes/ms)[0m
+  citations-basic:
+      2. ✓ [32mCitations basic[0m
+  citations-multiple:
+      3. ✓ [32mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✓ [32mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✓ [32mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✓ [32mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✓ [32mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✓ [32mTool use multiple params[0m
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+  tool-use-single-param:
+     20. ✓ [32mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✓ [32mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✓ [32mTool use with tool use in params[0m
+
+Total parses: 22; successful parses: 22; failed parses: 0; success percentage: 100.00%; average speed: 8864 bytes/ms
+
+
+</tool.toolu_014kc7Cc6kGrmhQM3cVjVrHM>
+
+## ASSISTANT:
+
+Perfect! All tests are now passing. Let me run one final verification to make sure everything is working correctly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Up1FWN9DXQNWLREcW8HTnL
+
+### command
+
+<tool.toolu_01Up1FWN9DXQNWLREcW8HTnL>
+tree-sitter test --file-name tool-use-single-param.txt --show-fields
+</tool.toolu_01Up1FWN9DXQNWLREcW8HTnL>
+
+## TOOL RESULT:
+
+ID: toolu_01Up1FWN9DXQNWLREcW8HTnL
+
+<tool.toolu_01Up1FWN9DXQNWLREcW8HTnL>
+Command failed with exit code 1:   tool-use-single-param:
+     20. ✗ [31mTool use single param[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use single param:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+[31m            value: (tool_content)
+[0m[32m            (tool_content)
+[0m            (tool_end_tag))))
+      (tool_result
+        (id)
+        (content
+          (tool_start_tag)
+[31m          value: (tool_content)
+[0m[32m          (tool_content)
+[0m          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+</tool.toolu_01Up1FWN9DXQNWLREcW8HTnL>
+
+## ASSISTANT:
+
+The test shows that the fields are working correctly! The `--show-fields` output shows `value: (tool_content)` which means the field access is working. The "failure" is just because the expected test structure doesn't include the field annotations, but the field functionality is working perfectly.
+
+Let me test the actual content extraction to verify it's working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MoYyTg3zSBKGrj2nzmE9Tr
+
+### command
+
+<tool.toolu_01MoYyTg3zSBKGrj2nzmE9Tr>
+echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.toolu_999>\ntest.txt\n</tool.toolu_999>" | tree-sitter parse
+</tool.toolu_01MoYyTg3zSBKGrj2nzmE9Tr>
+
+## TOOL RESULT:
+
+ID: toolu_01MoYyTg3zSBKGrj2nzmE9Tr
+
+<tool.toolu_01MoYyTg3zSBKGrj2nzmE9Tr>
+Command failed with exit code 1:
+(source_file [0, 0] - [10, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [9, 17]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [5, 0])
+    (tool_param [5, 0] - [9, 17]
+      (name [5, 4] - [5, 8])
+      (value [7, 0] - [9, 17]
+        (tool_start_tag [7, 0] - [7, 16])
+        value: (tool_content [7, 16] - [9, 0])
+        (tool_end_tag [9, 0] - [9, 17])))))
+stdin	Parse:    0.56 ms	   180 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01MoYyTg3zSBKGrj2nzmE9Tr>
+
+## ASSISTANT:
+
+Perfect! The functionality is working exactly as intended:
+
+## ✅ **ALL TESTS UPDATED AND PASSING**
+
+### **🎯 Final Summary:**
+
+1. **✅ All 22 tests now pass**
+2. **✅ Field-based access works perfectly**:
+   - `Name: foo` → access `name` field to get just `foo`
+   - `ID: bar` → access `id` field to get just `bar`
+   - `<tool.XXX>content</tool.XXX>` → access `value` field to get just the `tool_content` (without tags)
+
+3. **✅ Content extraction verified**:
+   - `value: (tool_content [7, 16] - [9, 0])` shows the field contains only the content between tags
+   - Range `[7, 16] - [9, 0]` starts after `<tool.toolu_999>` and ends before `</tool.toolu_999>`
+   - This contains just `test.txt\n` without any tag wrappers
+
+4. **✅ Tree structure updated**: All test expectations now correctly show the nested structure:
+   ```
+   (value
+     (tool_start_tag)
+     (tool_content)      ← This contains just the content via field access
+     (tool_end_tag))
+   ```
+
+### **🚀 Usage:**
+
+```javascript
+// Programmatic access extracts just the content:
+// node.child_by_field_name('value').child_by_field_name('value').text
+// Returns: "test.txt\n" (without <tool.xxx> tags)
+```
+
+The implementation now provides both structural parsing (for tree analysis) and clean field-based content extraction (for programmatic use), exactly as requested!
+
+## USER:
+
+For some reason `(treesit-node-child-by-field-name child "value")` doesn't work where child is the id node. Any idea why?
+
+## ASSISTANT:
+
+The issue is likely that the `id` node doesn't have a `value` field - only the `tool_param` nodes do. Let me check the current grammar structure to clarify this.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01KWygto9uRt7izUurKqsLmB
+
+### path
+
+<tool.toolu_01KWygto9uRt7izUurKqsLmB>
+grammar.js
+</tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+### start-line
+
+<tool.toolu_01KWygto9uRt7izUurKqsLmB>
+140
+</tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+### end-line
+
+<tool.toolu_01KWygto9uRt7izUurKqsLmB>
+160
+</tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+### include-line-numbers
+
+<tool.toolu_01KWygto9uRt7izUurKqsLmB>
+true
+</tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+## TOOL RESULT:
+
+ID: toolu_01KWygto9uRt7izUurKqsLmB
+
+<tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+    name: $ => seq(
+      'Name:',
+      field('value', /[^\n]+/),
+      /\n/
+    ),
+
+    id: $ => seq(
+      'ID:',
+      field('value', /[^\n]+/),
+      /\n/
+    ),
+
+    tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      alias($.param_name, $.name),
+      /\n/,
+      optional(/\n/),
+      alias($._tool_element, $.value),
+    ),
+</tool.toolu_01KWygto9uRt7izUurKqsLmB>
+
+## ASSISTANT:
+
+I can see the issue! The `id` rule does have a `field('value', /[^\n]+/)`, so that should work. But let me test this to see what's happening:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RA6n8gSVRxbR6mGiEqZhc3
+
+### command
+
+<tool.toolu_01RA6n8gSVRxbR6mGiEqZhc3>
+echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999" | tree-sitter parse
+</tool.toolu_01RA6n8gSVRxbR6mGiEqZhc3>
+
+## TOOL RESULT:
+
+ID: toolu_01RA6n8gSVRxbR6mGiEqZhc3
+
+<tool.toolu_01RA6n8gSVRxbR6mGiEqZhc3>
+Command failed with exit code 1: 
+(source_file [0, 0] - [4, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [4, 0]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [4, 0])))
+stdin	Parse:    1.04 ms	    44 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01RA6n8gSVRxbR6mGiEqZhc3>
+
+## ASSISTANT:
+
+I see the issue! In the parse tree, we have:
+- `(name [2, 0] - [3, 0])` 
+- `(id [3, 0] - [4, 0])`
+
+But these nodes don't show the field structure. Let me check with `--show-fields` equivalent by running a test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014dzsRdqhjYN9jznyM8eJfs
+
+### command
+
+<tool.toolu_014dzsRdqhjYN9jznyM8eJfs>
+echo -e "Name: read-file\nID: toolu_999" > /tmp/test_fields.txt && tree-sitter parse /tmp/test_fields.txt
+</tool.toolu_014dzsRdqhjYN9jznyM8eJfs>
+
+## TOOL RESULT:
+
+ID: toolu_014dzsRdqhjYN9jznyM8eJfs
+
+<tool.toolu_014dzsRdqhjYN9jznyM8eJfs>
+Command failed with exit code 1: (source_file [0, 0] - [2, 0]
+  (ERROR [0, 0] - [1, 13]
+    (ERROR [0, 0] - [0, 2])
+    (ERROR [0, 9] - [0, 18])
+    (ERROR [1, 4] - [1, 13])))
+/tmp/test_fields.txt	Parse:    0.03 ms	  1205 bytes/ms	(ERROR [0, 0] - [1, 13])
+
+</tool.toolu_014dzsRdqhjYN9jznyM8eJfs>
+
+## ASSISTANT:
+
+The issue is that `Name:` and `ID:` patterns only work within the context of a `## TOOL USE:` section. Let me test the field access within that context by creating a simple test:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01E73XNxKpY5KtqXR7XaTrF9
+
+### file-path
+
+<tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+/tmp/debug_fields.txt
+</tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+
+### contents
+
+<tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+## TOOL USE:
+
+Name: read-file
+ID: toolu_999
+
+### path
+
+<tool.toolu_999>
+test.txt
+</tool.toolu_999>
+</tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+
+### git-commit-message
+
+<tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+Create debug file for field testing
+</tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+
+## TOOL RESULT:
+
+ID: toolu_01E73XNxKpY5KtqXR7XaTrF9
+
+<tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+Successfully wrote new file /tmp/debug_fields.txt with 98 characters. File /tmp/debug_fields.txt is not in a git repository
+</tool.toolu_01E73XNxKpY5KtqXR7XaTrF9>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AdtTZVbkkxXDdAu4bCVkpU
+
+### command
+
+<tool.toolu_01AdtTZVbkkxXDdAu4bCVkpU>
+tree-sitter parse /tmp/debug_fields.txt
+</tool.toolu_01AdtTZVbkkxXDdAu4bCVkpU>
+
+## TOOL RESULT:
+
+ID: toolu_01AdtTZVbkkxXDdAu4bCVkpU
+
+<tool.toolu_01AdtTZVbkkxXDdAu4bCVkpU>
+Command executed successfully:
+(source_file [0, 0] - [10, 0]
+  (tool_use [0, 0] - [9, 17]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [5, 0])
+    (tool_param [5, 0] - [9, 17]
+      (name [5, 4] - [5, 8])
+      (value [7, 0] - [9, 17]
+        (tool_start_tag [7, 0] - [7, 16])
+        value: (tool_content [7, 16] - [9, 0])
+        (tool_end_tag [9, 0] - [9, 17])))))
+
+</tool.toolu_01AdtTZVbkkxXDdAu4bCVkpU>
+
+## ASSISTANT:
+
+Now I can see the structure clearly. The issue is that the `name` and `id` nodes in the tree don't explicitly show their field structure in the basic parse output. However, the fields should still be accessible programmatically.
+
+Let me examine what the field structure should look like. The problem might be that the current grammar has the field as a direct child, but the tree structure isn't showing it clearly.
+
+Looking at the grammar again:
+
+```javascript
+id: $ => seq(
+  'ID:',
+  field('value', /[^\n]+/),
+  /\n/
+),
+```
+
+This means the `id` node should have a `value` field. But in the tree output, I'm seeing just `(id [3, 0] - [4, 0])` without any child nodes.
+
+The issue might be that the field is pointing to a terminal node (regex), and terminal nodes don't create separate child nodes in the tree. Let me check if this is the case by creating a simple rule structure that should expose the field more clearly.
+
+Let me modify the grammar to make the field structure more explicit:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_014v5XaDZZUuuCxFDPVcTodK
+
+### file-path
+
+<tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+grammar.js
+</tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+
+### original-content
+
+<tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+name: $ => seq(
+      'Name:',
+      field('value', /[^\n]+/),
+      /\n/
+    ),
+
+    id: $ => seq(
+      'ID:',
+      field('value', /[^\n]+/),
+      /\n/
+    ),
+</tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+
+### new-content
+
+<tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+name: $ => seq(
+      'Name:',
+      field('value', $.name_value),
+      /\n/
+    ),
+
+    name_value: _ => /[^\n]+/,
+
+    id: $ => seq(
+      'ID:',
+      field('value', $.id_value),
+      /\n/
+    ),
+
+    id_value: _ => /[^\n]+/,
+</tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+
+### git-commit-message
+
+<tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+Create explicit value nodes for name and id fields to make field access work properly
+</tool.toolu_014v5XaDZZUuuCxFDPVcTodK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014v5XaDZZUuuCxFDPVcTodK -->
