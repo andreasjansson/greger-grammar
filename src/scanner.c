@@ -225,8 +225,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
-    // Handle tool content (raw text between tags)
-    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
+    // Handle tool content (raw text between tags) - only when tags are not expected
+    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
         return scan_tool_content(scanner, lexer);
     }
 

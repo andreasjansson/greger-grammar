@@ -5740,4 +5740,285 @@ src/scanner.c
 Fix tool content scanning to properly track content and handle partial matches
 </tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01G6kJF9H8bnqfo9HFbXx7XT -->
+## TOOL RESULT:
+
+ID: toolu_01G6kJF9H8bnqfo9HFbXx7XT
+
+<tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix tool content scanning to properly track content and handle partial matches
+</tool.toolu_01G6kJF9H8bnqfo9HFbXx7XT>
+
+## ASSISTANT:
+
+Now let me test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_019bxQdRKqRZvw9Tba31wDAG
+
+### command
+
+<tool.toolu_019bxQdRKqRZvw9Tba31wDAG>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_019bxQdRKqRZvw9Tba31wDAG>
+
+## TOOL RESULT:
+
+ID: toolu_019bxQdRKqRZvw9Tba31wDAG
+
+<tool.toolu_019bxQdRKqRZvw9Tba31wDAG>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (ERROR [0, 19] - [0, 21])))
+stdin	Parse:    0.28 ms	   125 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_019bxQdRKqRZvw9Tba31wDAG>
+
+## ASSISTANT:
+
+Still having issues. Let me check if the problem is with the order of token scanning. Looking at the output, I can see `tool_start_tag` is being recognized, but there's an error at position 19-21, which corresponds to `ol` in `</tool`. This suggests the scanner is not transitioning properly between the different states.
+
+Let me debug this by adding some debug logging and also reviewing the main scanning function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01BijmAno4TAbt4AunVi6sXd
+
+### path
+
+<tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+src/scanner.c
+</tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+
+### start-line
+
+<tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+240
+</tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+
+### end-line
+
+<tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+270
+</tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+
+### include-line-numbers
+
+<tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+true
+</tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+
+## TOOL RESULT:
+
+ID: toolu_01BijmAno4TAbt4AunVi6sXd
+
+<tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+        return scan_tool_end_tag(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_01BijmAno4TAbt4AunVi6sXd>
+
+## ASSISTANT:
+
+Let me look at the entire main scanning function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01DwEdXSdYbBbxjzaui97bK8
+
+### path
+
+<tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+src/scanner.c
+</tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+### start-line
+
+<tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+220
+</tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+### end-line
+
+<tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+250
+</tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+### include-line-numbers
+
+<tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+true
+</tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+## TOOL RESULT:
+
+ID: toolu_01DwEdXSdYbBbxjzaui97bK8
+
+<tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+    // Skip whitespace but preserve newlines for tool content
+    if (!valid_symbols[TOOL_CONTENT]) {
+        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            skip(lexer);
+        }
+    }
+
+    // Handle tool content (raw text between tags)
+    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Handle tool start tag
+    if (valid_symbols[TOOL_START_TAG] && lexer->lookahead == '<') {
+        return scan_tool_start_tag(scanner, lexer);
+    }
+
+    // Handle tool end tag
+    if (valid_symbols[TOOL_END_TAG] && lexer->lookahead == '<') {
+        return scan_tool_end_tag(scanner, lexer);
+    }
+
+    // Only scan for HTML comments when expected
+    if (valid_symbols[HTML_COMMENT] && lexer->lookahead == '<') {
+        return scan_html_comment(lexer);
+    }
+
+    return false;
+}
+</tool.toolu_01DwEdXSdYbBbxjzaui97bK8>
+
+## ASSISTANT:
+
+I think the issue might be that the grammar doesn't know when to expect which tokens. Looking at the HTML grammar again, I notice that the `RAW_TEXT` is only scanned when it's expected and other tokens are not expected. Let me check if there's an issue with how I set up the rule in the grammar.
+
+Looking at the error output again: the scanner recognizes `tool_start_tag`, but then there's an error where the content should be. This suggests that the grammar rule is not set up correctly to expect `tool_content` after `tool_start_tag`.
+
+Let me check the current grammar rule again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Xvw5P24tDR63dYVabqqmhu
+
+### path
+
+<tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+grammar.js
+</tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+### start-line
+
+<tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+210
+</tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+### end-line
+
+<tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+220
+</tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+### include-line-numbers
+
+<tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+true
+</tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+## TOOL RESULT:
+
+ID: toolu_01Xvw5P24tDR63dYVabqqmhu
+
+<tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+    _text_content: $ => token(prec(-1, /[^#<`\n]+/)),
+
+    _tool_tag: $ => seq(
+      $.tool_start_tag,
+      alias($.tool_content, 'value'),
+      $.tool_end_tag,
+    ),
+
+    content: $ => alias($._tool_tag, 'content'),
+
+</tool.toolu_01Xvw5P24tDR63dYVabqqmhu>
+
+## ASSISTANT:
+
+The grammar rule looks correct. The issue might be that the content scanning is competing with other tokens. Looking at the HTML scanner, I see that it has a specific condition for when to scan raw text:
+
+```c
+if (valid_symbols[RAW_TEXT] && !valid_symbols[START_TAG_NAME] && !valid_symbols[END_TAG_NAME]) {
+    return scan_raw_text(scanner, lexer);
+}
+```
+
+This suggests that raw text should only be scanned when tag names are not expected. Let me modify my scanner logic similarly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TNUujTfM472sT3QCWu2Q6m
+
+### file-path
+
+<tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+src/scanner.c
+</tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+
+### original-content
+
+<tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+// Handle tool content (raw text between tags)
+    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Handle tool start tag
+    if (valid_symbols[TOOL_START_TAG] && lexer->lookahead == '<') {
+        return scan_tool_start_tag(scanner, lexer);
+    }
+
+    // Handle tool end tag
+    if (valid_symbols[TOOL_END_TAG] && lexer->lookahead == '<') {
+        return scan_tool_end_tag(scanner, lexer);
+    }
+</tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+
+### new-content
+
+<tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+// Handle tool content (raw text between tags) - only when tags are not expected
+    if (valid_symbols[TOOL_CONTENT] && !valid_symbols[TOOL_START_TAG] && !valid_symbols[TOOL_END_TAG]) {
+        return scan_tool_content(scanner, lexer);
+    }
+
+    // Handle tool start tag
+    if (valid_symbols[TOOL_START_TAG] && lexer->lookahead == '<') {
+        return scan_tool_start_tag(scanner, lexer);
+    }
+
+    // Handle tool end tag
+    if (valid_symbols[TOOL_END_TAG] && lexer->lookahead == '<') {
+        return scan_tool_end_tag(scanner, lexer);
+    }
+</tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+
+### git-commit-message
+
+<tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+Add HTML-style token precedence logic to tool content scanning
+</tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TNUujTfM472sT3QCWu2Q6m -->
