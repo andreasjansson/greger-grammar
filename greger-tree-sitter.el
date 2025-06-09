@@ -130,23 +130,26 @@
          ((string= child-type "id")
           (setq id (string-trim (treesit-node-text child t))))
          ((string= child-type "tool_param")
-          (let ((param-name nil)
-                (param-value nil))
-            (dolist (param-child (treesit-node-children child))
-              (let ((param-child-type (treesit-node-type param-child)))
-                (cond
-                 ((string= param-child-type "name")
-                  (setq param-name (string-trim (treesit-node-text param-child t))))
-                 ((string= param-child-type "value")
-                  (setq param-value (greger-tree-sitter--extract-xml-content (treesit-node-text param-child t)))))))
-            (when (and param-name param-value)
-              (push (cons (intern param-name) (greger-tree-sitter--convert-param-value param-value)) params)))))))
+          (push (greger-tree-sitter--extract-tool-param child) params)))))
     (setq params (nreverse params))
     `((role . "assistant")
       (content . (((type . "tool_use")
                    (id . ,id)
                    (name . ,name)
                    (input . ,params)))))))
+
+(defun greger-tree-sitter--extract-tool-param (node)
+  (let ((name nil)
+        (value nil))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "name")
+          (setq name (string-trim (treesit-node-text child t))))
+         ((string= child-type "value")
+          (setq value (string-trim (treesit-node-text child t)))))))
+    `(,name . ,value)))
+
 
 (defun greger-tree-sitter--extract-tool-result-entry (node)
   "Extract tool result entry from NODE."
@@ -156,7 +159,7 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+          (setq id (string-trim (treesit-node-text child t))))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
     `((role . "user")
@@ -180,40 +183,6 @@
         (dolist (child (treesit-node-children node))
           (setq text-result (greger-tree-sitter--collect-text-blocks child text-result)))
         text-result)))))
-
-(defun greger-tree-sitter--extract-tool-name (node)
-  "Extract tool name from tool use NODE."
-  (let ((name-node (treesit-node-child-by-field-name node "name")))
-    (if name-node
-        (greger-tree-sitter--extract-value-after-colon (treesit-node-text name-node t))
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "name")
-              (setq result (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
-            (setq children (cdr children))))
-        result))))
-
-(defun greger-tree-sitter--extract-value-after-colon (text)
-  "Extract the value after the colon and whitespace in TEXT."
-  (if (string-match "^[^:]*:\\s-*\\(.*\\)\\s-*$" text)
-      (string-trim (match-string 1 text))
-    text))
-
-(defun greger-tree-sitter--extract-tool-id (node)
-  "Extract tool ID from tool use NODE."
-  (let ((id-node (treesit-node-child-by-field-name node "id")))
-    (if id-node
-        (greger-tree-sitter--extract-value-after-colon (treesit-node-text id-node t))
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "id")
-              (setq result (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
-            (setq children (cdr children))))
-        result))))
 
 (defun greger-tree-sitter--extract-tool-params (node)
   "Extract tool parameters from tool use NODE."
