@@ -158,15 +158,21 @@
   "Extract tool name from tool use NODE."
   (let ((name-node (treesit-node-child-by-field-name node "name")))
     (if name-node
-        (treesit-node-text name-node t)
+        (greger-tree-sitter--extract-value-after-colon (treesit-node-text name-node t))
       (let ((children (treesit-node-children node))
             (result nil))
         (while (and children (not result))
           (let ((child (car children)))
             (when (string= (treesit-node-type child) "name")
-              (setq result (treesit-node-text child t)))
+              (setq result (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
             (setq children (cdr children))))
         result))))
+
+(defun greger-tree-sitter--extract-value-after-colon (text)
+  "Extract the value after the colon and whitespace in TEXT."
+  (if (string-match "^[^:]*:\\s-*\\(.*\\)\\s-*$" text)
+      (string-trim (match-string 1 text))
+    text))
 
 (defun greger-tree-sitter--extract-tool-id (node)
   "Extract tool ID from tool use NODE."
