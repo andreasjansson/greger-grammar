@@ -90,6 +90,12 @@
       (greger-tree-sitter--extract-tool-use-entry node))
      ((string= node-type "tool_result")
       (greger-tree-sitter--extract-tool-result-entry node))
+     ((string= node-type "server_tool_use")
+      (greger-tree-sitter--extract-server-tool-use-entry node))
+     ((string= node-type "server_tool_result")
+      (greger-tree-sitter--extract-server-tool-result-entry node))
+     ((string= node-type "citations")
+      (greger-tree-sitter--extract-citations-entry node))
      (t nil))))
 
 (defun greger-tree-sitter--extract-user-entry (node)
@@ -126,9 +132,9 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "name")
-          (setq name (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+          (setq name (greger-tree-sitter--extract-key child)))
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+          (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "tool_param")
           (push (greger-tree-sitter--extract-tool-param child) params)))))
     (setq params (nreverse params))
@@ -137,6 +143,10 @@
                    (id . ,id)
                    (name . ,name)
                    (input . ,params)))))))
+
+(defun greger-tree-sitter--extract-key (node)
+  (let ((child (treesit-node-child-by-field-name node "value")))
+    (string-trim (treesit-node-text child t))))
 
 (defun greger-tree-sitter--extract-tool-param (node)
   (let ((name nil)
@@ -147,9 +157,17 @@
          ((string= child-type "name")
           (setq name (string-trim (treesit-node-text child t))))
          ((string= child-type "value")
-          (setq value (string-trim (treesit-node-text child t)))))))
+          (setq value (greger-tree-sitter--extract-tool-content child))))))
     `(,name . ,value)))
 
+(defun greger-tree-sitter--extract-tool-content (node)
+  (let* ((value-node (treesit-node-child-by-field-name node "value"))
+         (value (treesit-node-text value-node)))
+    (greger-tree-sitter--strip-single-newlines value)))
+
+(defun greger-tree-sitter--strip-single-newlines (str)
+  "Strip a single newline from the front and back of STR."
+  (string-trim str "\\`\n?" "\n?\\'"))
 
 (defun greger-tree-sitter--extract-tool-result-entry (node)
   "Extract tool result entry from NODE."
@@ -235,31 +253,3 @@
   (if (string-match "^\\s-*<[^>]+>\\s-*\\(\\(?:.\\|\n\\)*?\\)\\s-*</[^>]+>\\s-*$" text)
       (string-trim (match-string 1 text))
     (string-trim text)))
-
-(defun greger-tree-sitter--extract-tool-result-id (node)
-  "Extract tool result ID from tool_result NODE."
-  (let ((id-node (treesit-node-child-by-field-name node "id")))
-    (if id-node
-        (greger-tree-sitter--extract-value-after-colon (treesit-node-text id-node t))
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "id")
-              (setq result (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
-            (setq children (cdr children))))
-        result))))
-
-(defun greger-tree-sitter--extract-tool-result-content (node)
-  "Extract tool result content from tool_result NODE."
-  (let ((content-node (treesit-node-child-by-field-name node "content")))
-    (if content-node
-        (greger-tree-sitter--extract-xml-content (treesit-node-text content-node t))
-      (let ((children (treesit-node-children node))
-            (result nil))
-        (while (and children (not result))
-          (let ((child (car children)))
-            (when (string= (treesit-node-type child) "content")
-              (setq result (greger-tree-sitter--extract-xml-content (treesit-node-text child t))))
-            (setq children (cdr children))))
-        result))))
