@@ -67,4 +67,11 @@
                             (dotimes (k (min (length exp-val) (length act-val)))
                               (let ((exp-pair (nth k exp-val))
                                     (act-pair (nth k act-val)))
-                                (message "    Pair %d: exp=%s act=%s equal=%s" k exp-pair act-pair (equal exp-pair act-pair))))))))))))))))))
+                                (message "    Pair %d: exp=%s act=%s equal=%s" k exp-pair act-pair (equal exp-pair act-pair))
+                                (when (and (consp exp-pair) (consp act-pair))
+                                  (message "      Car: exp=%s act=%s equal=%s type-exp=%s type-act=%s"
+                                          (car exp-pair) (car act-pair) (equal (car exp-pair) (car act-pair))
+                                          (type-of (car exp-pair)) (type-of (car act-pair)))
+                                  (message "      Cdr: exp=%s act=%s equal=%s type-exp=%s type-act=%s"
+                                          (cdr exp-pair) (cdr act-pair) (equal (cdr exp-pair) (cdr act-pair))
+                                          (type-of (cdr exp-pair)) (type-of (cdr act-pair))))))))))))))))))))
