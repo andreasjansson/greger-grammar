@@ -178,29 +178,25 @@ module.exports = grammar({
     citation_title: $ => seq(
       'Title:',
       /[ ]+/,
-      field('value', $.citation_title_value),
+      field('value', $.value),
       /\n/,
     ),
-
-    citation_title_value: _ => /[^\n]+/,
 
     citation_text: $ => seq(
       'Cited text:',
       /[ ]+/,
-      field('value', $.citation_text_value),
+      field('value', $.value),
       /\n/,
     ),
-
-    citation_text_value: _ => /[^\n]+/,
 
     citation_encrypted_index: $ => seq(
       'Encrypted index:',
       /[ ]+/,
-      field('value', $.citation_encrypted_index_value),
+      field('value', $.value),
       /\n/,
     ),
 
-    citation_encrypted_index_value: _ => /[^\n]+/,
+    value: _ => /[^\n]+/,
 
     content_blocks: $ => repeat1(choice(
       $.text,

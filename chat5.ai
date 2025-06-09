@@ -4368,4 +4368,87 @@ grammar.js
 Replace specific value types with generic value type
 </tool.toolu_016JBiybKZ6UX7cwRs4qZPp4>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_016JBiybKZ6UX7cwRs4qZPp4 -->
+## TOOL RESULT:
+
+ID: toolu_016JBiybKZ6UX7cwRs4qZPp4
+
+<tool.toolu_016JBiybKZ6UX7cwRs4qZPp4>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Replace specific value types with generic value type
+</tool.toolu_016JBiybKZ6UX7cwRs4qZPp4>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01J9UaTrSMojvZnd8VGagbLz
+
+### file-path
+
+<tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+grammar.js
+</tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+
+### original-content
+
+<tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', $.citation_title_value),
+      /\n/,
+    ),
+
+    citation_title_value: _ => /[^\n]+/,
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', $.citation_text_value),
+      /\n/,
+    ),
+
+    citation_text_value: _ => /[^\n]+/,
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', $.citation_encrypted_index_value),
+      /\n/,
+    ),
+
+    citation_encrypted_index_value: _ => /[^\n]+/,
+</tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+
+### new-content
+
+<tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    value: _ => /[^\n]+/,
+</tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+
+### git-commit-message
+
+<tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+Replace citation-specific value types with generic value type
+</tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01J9UaTrSMojvZnd8VGagbLz -->
