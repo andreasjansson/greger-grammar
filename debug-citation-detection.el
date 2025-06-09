@@ -17,19 +17,19 @@
 
 ;; Test the citation detection on raw entries
 (let* ((markdown (greger-read-corpus-file "citations-after-tool-result"))
-       (parser (treesit-parser-create 'greger))
-       (root-node (progn (with-temp-buffer
-                           (insert markdown)
-                           (treesit-parser-root-node parser))))
        (raw-entries '()))
-  ;; Extract raw entries
-  (dolist (child (treesit-node-children root-node))
-    (let ((entry (greger-tree-sitter--extract-entry-from-node child)))
-      (when entry
-        (push entry raw-entries))))
-  (setq raw-entries (nreverse raw-entries))
+  (with-temp-buffer
+    (insert markdown)
+    (let* ((parser (treesit-parser-create 'greger))
+           (root-node (treesit-parser-root-node parser)))
+      ;; Extract raw entries
+      (dolist (child (treesit-node-children root-node))
+        (let ((entry (greger-tree-sitter--extract-entry-from-node child)))
+          (when entry
+            (push entry raw-entries))))
+      (setq raw-entries (nreverse raw-entries))
 
-  (message "Raw entries:")
-  (dolist (entry raw-entries)
-    (pp entry))
-  (message "Has citations: %s" (greger-tree-sitter--has-citations-p raw-entries)))
+      (message "Number of raw entries: %d" (length raw-entries))
+      (dolist (entry raw-entries)
+        (message "Entry: %S" entry))
+      (message "Has citations: %s" (greger-tree-sitter--has-citations-p raw-entries)))))
