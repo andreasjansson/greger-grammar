@@ -10385,4 +10385,160 @@ src/scanner.c
 Simplify tool content condition to just check scanner state
 </tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01GmxymmJXRjuumBM3AHrxdt -->
+## TOOL RESULT:
+
+ID: toolu_01GmxymmJXRjuumBM3AHrxdt
+
+<tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify tool content condition to just check scanner state
+</tool.toolu_01GmxymmJXRjuumBM3AHrxdt>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_018J1rdQHVyx46LDs6iZCXMm
+
+### command
+
+<tool.toolu_018J1rdQHVyx46LDs6iZCXMm>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_018J1rdQHVyx46LDs6iZCXMm>
+
+## TOOL RESULT:
+
+ID: toolu_018J1rdQHVyx46LDs6iZCXMm
+
+<tool.toolu_018J1rdQHVyx46LDs6iZCXMm>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (tool_content [0, 14] - [0, 19])
+    (ERROR [0, 19] - [0, 21])
+    (tool_content [0, 21] - [1, 0])))
+stdin	Parse:    0.04 ms	   829 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_018J1rdQHVyx46LDs6iZCXMm>
+
+## ASSISTANT:
+
+Progress! Now I can see:
+1. `tool_start_tag [0, 0] - [0, 14]` (the `<tool.test123>` part)
+2. `tool_content [0, 14] - [0, 19]` (the `hello` part)
+3. `ERROR [0, 19] - [0, 21]` (this seems to be part of the closing tag)
+4. `tool_content [0, 21] - [1, 0]` (more content)
+
+The issue is that the tool content scanner is being called multiple times and is not properly stopping at the closing tag. Let me fix the tool content scanner to properly detect the closing tag:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MHKpXVNoyqYBBhKnpUujtS
+
+### file-path
+
+<tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+src/scanner.c
+</tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+
+### original-content
+
+<tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue
+            match_index = 0;
+            advance(lexer);
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag, return whatever content we have
+    lexer->result_symbol = TOOL_CONTENT;
+    return true;
+}
+</tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+
+### new-content
+
+<tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag start
+    char expected_closing_start[512];
+    snprintf(expected_closing_start, sizeof(expected_closing_start), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing_start);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing_start[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+
+### git-commit-message
+
+<tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+Fix tool content scanner to properly handle closing tag detection and content extraction
+</tool.toolu_01MHKpXVNoyqYBBhKnpUujtS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MHKpXVNoyqYBBhKnpUujtS -->

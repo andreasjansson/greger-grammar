@@ -179,6 +179,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     int expected_len = strlen(expected_closing_start);
 
     int match_index = 0;
+    bool has_content = false;
 
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
@@ -186,21 +187,36 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             match_index++;
             if (match_index == expected_len) {
                 // Found complete closing tag, stop here (don't consume it)
-                lexer->result_symbol = TOOL_CONTENT;
-                return true;
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
             }
             advance(lexer);
         } else {
-            // Reset match and continue
-            match_index = 0;
-            advance(lexer);
-            lexer->mark_end(lexer);
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
         }
     }
 
-    // Reached end without finding closing tag, return whatever content we have
-    lexer->result_symbol = TOOL_CONTENT;
-    return true;
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT;
+        return true;
+    }
+
+    return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
