@@ -175,60 +175,26 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     lexer->mark_end(lexer);
 
+    // Build the expected closing tag string
+    char expected_closing[512];
+    snprintf(expected_closing, sizeof(expected_closing), "</tool.%s>", scanner->tool_id);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '<') {
-            // Check if this is the start of our closing tag
-            // We need to look ahead without consuming
-            const char *pos = lexer->get_column(lexer);
-
-            advance(lexer);
-            if (lexer->lookahead == '/') {
-                advance(lexer);
-
-                // Check for "tool."
-                if (lexer->lookahead == 't') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'o') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'o') {
-                            advance(lexer);
-                            if (lexer->lookahead == 'l') {
-                                advance(lexer);
-                                if (lexer->lookahead == '.') {
-                                    advance(lexer);
-
-                                    // Check if ID matches
-                                    int tool_id_len = strlen(scanner->tool_id);
-                                    bool matches = true;
-                                    for (int i = 0; i < tool_id_len && matches; i++) {
-                                        if (lexer->lookahead != scanner->tool_id[i]) {
-                                            matches = false;
-                                        } else {
-                                            advance(lexer);
-                                        }
-                                    }
-
-                                    if (matches && lexer->lookahead == '>') {
-                                        // Found the closing tag, stop here
-                                        lexer->result_symbol = TOOL_CONTENT;
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // Not our closing tag, treat as content and continue
-            // Reset position and consume the '<' as content
-            while (lexer->get_column(lexer) != pos) {
-                // This is a simplified approach - in reality we'd need better position tracking
-                break;
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
             }
             advance(lexer);
-            lexer->mark_end(lexer);
         } else {
+            // Reset match and continue
+            match_index = 0;
             advance(lexer);
             lexer->mark_end(lexer);
         }
