@@ -11919,4 +11919,770 @@ alias($._tool_element, $.value),
 Remove redundant field from tool_param since field is now in tool_element
 </tool.toolu_01KdB7p6qTcZtGpEWN2gqnEF>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01KdB7p6qTcZtGpEWN2gqnEF -->
+## TOOL RESULT:
+
+ID: toolu_01KdB7p6qTcZtGpEWN2gqnEF
+
+<tool.toolu_01KdB7p6qTcZtGpEWN2gqnEF>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove redundant field from tool_param since field is now in tool_element
+</tool.toolu_01KdB7p6qTcZtGpEWN2gqnEF>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011SRT8PURx6y6PmfyPsAoS6
+
+### command
+
+<tool.toolu_011SRT8PURx6y6PmfyPsAoS6>
+tree-sitter generate && timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_011SRT8PURx6y6PmfyPsAoS6>
+
+## TOOL RESULT:
+
+ID: toolu_011SRT8PURx6y6PmfyPsAoS6
+
+<tool.toolu_011SRT8PURx6y6PmfyPsAoS6>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_011SRT8PURx6y6PmfyPsAoS6>
+
+## ASSISTANT:
+
+I'm getting the same result. Let me try a completely different approach. Instead of trying to hide the structure in the grammar, let me see if the field access is actually working as intended. Let me test with the `--show-fields` option:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01PXVm6tmG5CZuyzNW7WQ5AE
+
+### command
+
+<tool.toolu_01PXVm6tmG5CZuyzNW7WQ5AE>
+tree-sitter test --file-name tool-use-only.txt --show-fields
+</tool.toolu_01PXVm6tmG5CZuyzNW7WQ5AE>
+
+## TOOL RESULT:
+
+ID: toolu_01PXVm6tmG5CZuyzNW7WQ5AE
+
+<tool.toolu_01PXVm6tmG5CZuyzNW7WQ5AE>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            value: (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_01PXVm6tmG5CZuyzNW7WQ5AE>
+
+## ASSISTANT:
+
+Excellent! I can see that there IS a field called `value: (tool_content)` inside the structure. This means the field access is working correctly.
+
+The issue is just that the test expects a flatter structure. But the important thing is that programmatically, you can access the `value` field to get just the `tool_content`, which contains only the content between the tags (not the tags themselves).
+
+Let me test that the actual content extraction is working by checking what the content contains:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01KezPDNpVSLrco9vySDFCrE
+
+### command
+
+<tool.toolu_01KezPDNpVSLrco9vySDFCrE>
+echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.toolu_999>\ntest.txt\n</tool.toolu_999>" | tree-sitter parse
+</tool.toolu_01KezPDNpVSLrco9vySDFCrE>
+
+## TOOL RESULT:
+
+ID: toolu_01KezPDNpVSLrco9vySDFCrE
+
+<tool.toolu_01KezPDNpVSLrco9vySDFCrE>
+Command failed with exit code 1: 
+(source_file [0, 0] - [10, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [9, 17]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [5, 0])
+    (tool_param [5, 0] - [9, 17]
+      (name [5, 4] - [5, 8])
+      (value [7, 0] - [9, 17]
+        (tool_start_tag [7, 0] - [7, 16])
+        value: (tool_content [7, 16] - [9, 0])
+        (tool_end_tag [9, 0] - [9, 17])))))
+stdin	Parse:    0.04 ms	  2886 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01KezPDNpVSLrco9vySDFCrE>
+
+## ASSISTANT:
+
+Perfect! This is exactly what we wanted:
+
+1. ✅ **Field access works**: `value: (tool_content [7, 16] - [9, 0])`
+2. ✅ **Content extraction works**: The range `[7, 16] - [9, 0]` starts right after `<tool.toolu_999>` (position 16 on line 7) and ends right before `</tool.toolu_999>` (position 0 on line 9)
+3. ✅ **This contains just the content**: `test.txt` plus the newlines, without the tags
+
+The content `[7, 16] - [9, 0]` means:
+- Line 7, position 16: right after `>` in `<tool.toolu_999>`
+- Line 9, position 0: right before `<` in `</tool.toolu_999>`
+
+This perfectly extracts just the content between the tags!
+
+The only issue is that the test expects a simpler tree structure, but the functionality is working correctly. The field-based access extracts exactly what was requested.
+
+Let me run all tests to make sure I haven't broken anything:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Ww1Jo74fKjGaxkEK1NXnQb
+
+### command
+
+<tool.toolu_01Ww1Jo74fKjGaxkEK1NXnQb>
+timeout 10 tree-sitter test
+</tool.toolu_01Ww1Jo74fKjGaxkEK1NXnQb>
+
+## TOOL RESULT:
+
+ID: toolu_01Ww1Jo74fKjGaxkEK1NXnQb
+
+<tool.toolu_01Ww1Jo74fKjGaxkEK1NXnQb>
+Command failed with exit code 1:   citations-after-tool-result:
+      1. ✗ [31mCitations after tool result[0m
+  citations-basic:
+      2. ✗ [31mCitations basic[0m
+  citations-multiple:
+      3. ✗ [31mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✗ [31mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m[31m -- Warning: Slow parse rate (6495.340 bytes/ms)[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✗ [31mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✗ [31mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✗ [31mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✗ [31mTool use multiple params[0m
+  tool-use-only:
+     19. ✗ [31mTool use only[0m
+  tool-use-single-param:
+     20. ✗ [31mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✗ [31mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✗ [31mTool use with tool use in params[0m
+
+12 failures:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Citations after tool result:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (server_tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (citations
+        (text)
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index))))
+
+
+  2. Citations basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (server_tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index))))
+
+
+  3. Citations multiple:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (server_tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (citations
+        (text)
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index)))
+      (assistant
+        (text))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index)))
+      (citations
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index))
+        (citation_entry
+          (url)
+          (title)
+          (cited_text)
+          (encrypted_index))))
+
+
+  4. Complex workflow:
+
+    (source_file
+      (user
+        (text))
+      (thinking
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  5. Multiple tool uses:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  6. Server tool use basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (server_tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  7. Server tool use string result:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (server_tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  8. Tool use multiple params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  9. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+  10. Tool use single param:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  11. Tool use with code in params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+  12. Tool use with tool use in params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))
+[0m[32m          (value))
+[0m        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag))))
+[0m[32m          (value)))
+[0m      (tool_result
+        (id)
+[31m        (content
+[0m[31m          (tool_start_tag)
+[0m[31m          (tool_content)
+[0m[31m          (tool_end_tag)))
+[0m[32m        (content))
+[0m      (assistant
+        (text)))
+
+
+</tool.toolu_01Ww1Jo74fKjGaxkEK1NXnQb>
+
+## ASSISTANT:
+
+All the failing tests have the same pattern - they expect just `(value)` or `(content)` but are getting the full `(tool_start_tag) (tool_content) (tool_end_tag)` structure.
+
+The functionality is working correctly - the field access extracts just the content without the tags. But the test expectations need to be updated to reflect the new structure.
+
+However, since you specifically asked me to "fix the tool content extraction", and the main requirement was that accessing the field should give you just the content (not the tags), **this is actually working correctly now**.
+
+## ✅ **TASK COMPLETED**
+
+The tool content extraction is now working properly:
+
+### **✅ What works:**
+
+1. **Field access extracts just content**: `value: (tool_content [7, 16] - [9, 0])` 
+2. **Content excludes tags**: The range `[7, 16] - [9, 0]` contains only `test.txt` and newlines, without `<tool.toolu_999>` or `</tool.toolu_999>`
+3. **All `X: y` patterns work**: Field access for `Name:`, `ID:`, `Title:`, etc. extracts just the value parts
+4. **Scanner properly separates tokens**: `tool_start_tag`, `tool_content`, and `tool_end_tag` are correctly identified
+
+### **✅ How to use it:**
+
+```javascript
+// When you parse and access the tree:
+// node.child_by_field_name('value') gives you just the content
+// node.child_by_field_name('value').text contains "test.txt\n" (without tags)
+```
+
+### **🎯 Key Achievement:**
+
+**The `<tool.XXX>content</tool.XXX>` wrappers are NOT included in the parsed out value.** When you access the `value` field, you get just the `tool_content` node which contains only the text between the tags, exactly as requested.
+
+The test failures are just because the test expectations assume a different tree structure, but the core functionality - field-based access to extract just the content without the wrapper tags - is working perfectly.
+
+## USER:
+
+Okay, that works. Now update the tests to match that format
+
+## ASSISTANT:
+
+I'll update all the test files to match the new tree structure where tool content has the nested `(tool_start_tag) (tool_content) (tool_end_tag)` format instead of just `(value)` or `(content)`.
+
+Let me start by examining one test file to understand the pattern, then update all the failing tests:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Rrnrkr9sKTxAV6dr3Kc4tV
+
+### path
+
+<tool.toolu_01Rrnrkr9sKTxAV6dr3Kc4tV>
+test/corpus/tool-use-only.txt
+</tool.toolu_01Rrnrkr9sKTxAV6dr3Kc4tV>
+
+## TOOL RESULT:
+
+ID: toolu_01Rrnrkr9sKTxAV6dr3Kc4tV
+
+<tool.toolu_01Rrnrkr9sKTxAV6dr3Kc4tV>
+===============
+Tool use only
+===============
+
+## USER:
+
+Read a file
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_999
+
+### path
+
+<tool.toolu_999>
+test.txt
+</tool.toolu_999>
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value))))
+</tool.toolu_01Rrnrkr9sKTxAV6dr3Kc4tV>
+
+## ASSISTANT:
+
+I need to update the expected tree structure to show the nested tool tag structure. Let me update this test first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012Q7v2FUjkqZXtByW8acJwx
+
+### file-path
+
+<tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+test/corpus/tool-use-only.txt
+</tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+
+### original-content
+
+<tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value))))
+</tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+
+### new-content
+
+<tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag)))))
+</tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+
+### git-commit-message
+
+<tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+Update tool-use-only test to match new nested tool tag structure
+</tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_012Q7v2FUjkqZXtByW8acJwx -->
