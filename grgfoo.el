@@ -90,8 +90,8 @@
     (setq-local treesit-font-lock-feature-list
                 '((basic)))
 
-    ;; Indentation
-    (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+    ;; Indentation - disable for now to avoid segfault
+    ;; (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
 
     ;; Navigation - treat headings as defuns for C-M-a and C-M-e
     (setq-local treesit-defun-type-regexp
