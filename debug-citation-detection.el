@@ -30,5 +30,6 @@
   (setq raw-entries (nreverse raw-entries))
 
   (message "Raw entries:")
-  (pp raw-entries)
+  (dolist (entry raw-entries)
+    (pp entry))
   (message "Has citations: %s" (greger-tree-sitter--has-citations-p raw-entries)))
