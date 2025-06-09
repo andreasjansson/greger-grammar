@@ -141,18 +141,20 @@
 
 (defun grgfoo--defun-name (node)
   "Return the name of the defun NODE."
-  (when node
-    (pcase (treesit-node-type node)
-      ("user" "USER")
-      ("assistant" "ASSISTANT")
-      ("system" "SYSTEM")
-      ("thinking" "THINKING")
-      ("tool_use" "TOOL USE")
-      ("tool_result" "TOOL RESULT")
-      ("server_tool_use" "SERVER TOOL USE")
-      ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
-      ("citations" "CITATIONS")
-      (_ nil))))
+  (when (and node (treesit-node-p node))
+    (condition-case nil
+        (pcase (treesit-node-type node)
+          ("user" "USER")
+          ("assistant" "ASSISTANT")
+          ("system" "SYSTEM")
+          ("thinking" "THINKING")
+          ("tool_use" "TOOL USE")
+          ("tool_result" "TOOL RESULT")
+          ("server_tool_use" "SERVER TOOL USE")
+          ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
+          ("citations" "CITATIONS")
+          (_ nil))
+      (error nil))))
 
 ;; Ensure the grammar is loaded
 (add-to-list 'treesit-extra-load-path default-directory)
