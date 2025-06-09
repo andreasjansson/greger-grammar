@@ -96,8 +96,22 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Test with node-is instead of parent-is
+     ;; Working indentation rules that avoid parent-is (which causes segfaults)
      ((node-is "user") column-0 0)
+     ((node-is "assistant") column-0 0)
+     ((node-is "system") column-0 0)
+     ((node-is "thinking") column-0 0)
+     ((node-is "tool_use") column-0 0)
+     ((node-is "tool_result") column-0 0)
+     ((node-is "server_tool_use") column-0 0)
+     ((node-is "web_search_tool_result") column-0 0)
+     ((node-is "citations") column-0 0)
+     ;; Indent content within sections
+     ((node-is "text") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "name") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "id") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "value") parent-bol ,grgfoo-ts-indent-offset)
+     ;; Default handling
      (no-node column-0 0)
      (catch-all column-0 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
