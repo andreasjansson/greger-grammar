@@ -29,7 +29,7 @@
   "Merge consecutive assistant-related entries into single messages."
   (let ((result '())
         (current-assistant-content '())
-        (has-citations (greger-tree-sitter--has-citations-p entries)))
+        )
     (dolist (entry entries)
       (let ((role (cdr (assoc 'role entry))))
         (cond
