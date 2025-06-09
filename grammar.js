@@ -38,7 +38,7 @@ module.exports = grammar({
       $.tool_use,
       $.tool_result,
       $.server_tool_use,
-      $.server_tool_result,
+      $.web_search_tool_result,
       $.citations,
     ),
 
@@ -111,9 +111,10 @@ module.exports = grammar({
       )),
     ),
 
-    server_tool_result: $ => seq(
+    web_search_tool_result: $ => seq(
       '##',
-      'SERVER',
+      'WEB',
+      'SEARCH',
       'TOOL',
       'RESULT',
       ':',
@@ -181,23 +182,29 @@ module.exports = grammar({
     citation_title: $ => seq(
       'Title:',
       /[ ]+/,
-      field('value', /[^\n]+/),
+      field('value', $.citation_title_value),
       /\n/,
     ),
+
+    citation_title_value: _ => /[^\n]+/,
 
     citation_text: $ => seq(
       'Cited text:',
       /[ ]+/,
-      field('value', /[^\n]+/),
+      field('value', $.citation_text_value),
       /\n/,
     ),
+
+    citation_text_value: _ => /[^\n]+/,
 
     citation_encrypted_index: $ => seq(
       'Encrypted index:',
       /[ ]+/,
-      field('value', /[^\n]+/),
+      field('value', $.citation_encrypted_index_value),
       /\n/,
     ),
+
+    citation_encrypted_index_value: _ => /[^\n]+/,
 
     content_blocks: $ => repeat1(choice(
       $.text,

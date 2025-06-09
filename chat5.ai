@@ -2529,3 +2529,177 @@ The parser now correctly handles:
 All 22 tests are now passing with 100% success rate.
 
 ## USER:
+
+Update the value fields on citation_title, citation_text, citation_encrypted_index to have `field('value', $._citation_title_value)` like in `id_value`, etc.
+
+## ASSISTANT:
+
+I'll update the citation fields to use separate value rules with field names, similar to how `id_value` and `name_value` are structured.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01AswXsR99dP6LEf8SGg2Xzg
+
+### path
+
+<tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+grammar.js
+</tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+
+### start-line
+
+<tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+175
+</tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+
+### end-line
+
+<tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+200
+</tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+
+## TOOL RESULT:
+
+ID: toolu_01AswXsR99dP6LEf8SGg2Xzg
+
+<tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    ),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+</tool.toolu_01AswXsR99dP6LEf8SGg2Xzg>
+
+## ASSISTANT:
+
+Let me look at how `id_value` and `name_value` are defined to follow the same pattern:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01CvkridtHwDkrN1A67MaPbr
+
+### pattern
+
+<tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+id_value|name_value
+</tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+
+### path
+
+<tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+grammar.js
+</tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+
+## TOOL RESULT:
+
+ID: toolu_01CvkridtHwDkrN1A67MaPbr
+
+<tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+144:      field('value', $.name_value),
+148:    name_value: _ => /[^\n]+/,
+152:      field('value', $.id_value),
+156:    id_value: _ => /[^\n]+/,
+
+</tool.toolu_01CvkridtHwDkrN1A67MaPbr>
+
+## ASSISTANT:
+
+Perfect! Now I'll update the citation fields to follow the same pattern:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UThUpDrFfiQHSUVCDYGM2Z
+
+### file-path
+
+<tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+grammar.js
+</tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+
+### original-content
+
+<tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+    citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', /[^\n]+/),
+      /\n/,
+    ),
+</tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+
+### new-content
+
+<tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+    citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', $.citation_title_value),
+      /\n/,
+    ),
+
+    citation_title_value: _ => /[^\n]+/,
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', $.citation_text_value),
+      /\n/,
+    ),
+
+    citation_text_value: _ => /[^\n]+/,
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', $.citation_encrypted_index_value),
+      /\n/,
+    ),
+
+    citation_encrypted_index_value: _ => /[^\n]+/,
+</tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+
+### git-commit-message
+
+<tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+Update citation fields to use separate value rules with field names
+</tool.toolu_01UThUpDrFfiQHSUVCDYGM2Z>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01UThUpDrFfiQHSUVCDYGM2Z -->
