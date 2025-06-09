@@ -18,26 +18,27 @@ Take a look at some of the examples in ~/src/github/emacs-tree-sitter/tree-sitte
 
 I updated the test/corpus/html-comments.txt file to parse the html comment as a separate item. Can you fix the parser so the html_comment item is parsed correctly?
 
+
 ## ASSISTANT:
 
-I'll help you fix the parser to correctly parse HTML comments. Let me start by examining the current state of your files and understanding what needs to be fixed.
+I'll help you fix the parser to correctly parse HTML comments. Let me start by examining the current test file, grammar, and scanner to understand what needs to be fixed.
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01LTX7XjqGrxto4MfvicHqi3
+ID: toolu_011JYC6YC2neEHU3kPxoxdvo
 
 ### path
 
-<tool.toolu_01LTX7XjqGrxto4MfvicHqi3>
+<tool.toolu_011JYC6YC2neEHU3kPxoxdvo>
 test/corpus/html-comments.txt
-</tool.toolu_01LTX7XjqGrxto4MfvicHqi3>
+</tool.toolu_011JYC6YC2neEHU3kPxoxdvo>
 
 ## TOOL RESULT:
 
-ID: toolu_01LTX7XjqGrxto4MfvicHqi3
+ID: toolu_011JYC6YC2neEHU3kPxoxdvo
 
-<tool.toolu_01LTX7XjqGrxto4MfvicHqi3>
+<tool.toolu_011JYC6YC2neEHU3kPxoxdvo>
 =================
 HTML comments
 =================
@@ -71,28 +72,24 @@ What do you think?
     (text)
     (code_block)
     (text)))
-</tool.toolu_01LTX7XjqGrxto4MfvicHqi3>
-
-## ASSISTANT:
-
-Now let me check the current grammar.js to see how HTML comments are defined:
+</tool.toolu_011JYC6YC2neEHU3kPxoxdvo>
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01PcjR7NEWsjYqYpfKsrknXL
+ID: toolu_015qjnse2us1ZKQxc8kTgbvQ
 
 ### path
 
-<tool.toolu_01PcjR7NEWsjYqYpfKsrknXL>
+<tool.toolu_015qjnse2us1ZKQxc8kTgbvQ>
 grammar.js
-</tool.toolu_01PcjR7NEWsjYqYpfKsrknXL>
+</tool.toolu_015qjnse2us1ZKQxc8kTgbvQ>
 
 ## TOOL RESULT:
 
-ID: toolu_01PcjR7NEWsjYqYpfKsrknXL
+ID: toolu_015qjnse2us1ZKQxc8kTgbvQ
 
-<tool.toolu_01PcjR7NEWsjYqYpfKsrknXL>
+<tool.toolu_015qjnse2us1ZKQxc8kTgbvQ>
 /**
  * @file Greger grammar for tree-sitter
  * @author Andreas Jansson
@@ -106,7 +103,6 @@ module.exports = grammar({
   name: "greger",
 
   extras: $ => [
-    /<!--[^>]*-->/,
     /[ \t\n]/,
   ],
 
@@ -114,6 +110,7 @@ module.exports = grammar({
     $.tool_start_tag,
     $.tool_end_tag,
     $.tool_content,
+    $.html_comment,
   ],
 
 
@@ -298,6 +295,7 @@ module.exports = grammar({
       $.text,
       $.code_block,
       $.inline_code,
+      $.html_comment,
     )),
 
     text: $ => prec.right(repeat1(choice(
@@ -352,28 +350,24 @@ module.exports = grammar({
     ),
   }
 });
-</tool.toolu_01PcjR7NEWsjYqYpfKsrknXL>
-
-## ASSISTANT:
-
-Now let me check the scanner.c file:
+</tool.toolu_015qjnse2us1ZKQxc8kTgbvQ>
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_018yZFizXeurEebdqScaJkjb
+ID: toolu_01VZXswb2UCrP6BxBhx2Smqa
 
 ### path
 
-<tool.toolu_018yZFizXeurEebdqScaJkjb>
+<tool.toolu_01VZXswb2UCrP6BxBhx2Smqa>
 src/scanner.c
-</tool.toolu_018yZFizXeurEebdqScaJkjb>
+</tool.toolu_01VZXswb2UCrP6BxBhx2Smqa>
 
 ## TOOL RESULT:
 
-ID: toolu_018yZFizXeurEebdqScaJkjb
+ID: toolu_01VZXswb2UCrP6BxBhx2Smqa
 
-<tool.toolu_018yZFizXeurEebdqScaJkjb>
+<tool.toolu_01VZXswb2UCrP6BxBhx2Smqa>
 #include "tree_sitter/parser.h"
 #include <wctype.h>
 #include <string.h>
@@ -605,6 +599,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     if (lexer->lookahead == '<') {
+        // Handle HTML comments first
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
         // Handle tool start tag
         if (valid_symbols[TOOL_START_TAG]) {
             return scan_tool_start_tag(scanner, lexer);
@@ -614,81 +613,74 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         if (valid_symbols[TOOL_END_TAG]) {
             return scan_tool_end_tag(scanner, lexer);
         }
-
-        // Handle HTML comments
-        if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
-        }
     }
 
     return false;
 }
-</tool.toolu_018yZFizXeurEebdqScaJkjb>
+</tool.toolu_01VZXswb2UCrP6BxBhx2Smqa>
 
 ## ASSISTANT:
 
-Now, let me run the current tests to see what's happening:
+Now let me run the tests to see what's currently happening:
 
 ## TOOL USE:
 
 Name: shell-command
-ID: toolu_018EtPJ1ic2Tv36KghHZtQkx
+ID: toolu_01XhSH8Y9jkmHih2fteLM4mA
 
 ### command
 
-<tool.toolu_018EtPJ1ic2Tv36KghHZtQkx>
-tree-sitter test
-</tool.toolu_018EtPJ1ic2Tv36KghHZtQkx>
+<tool.toolu_01XhSH8Y9jkmHih2fteLM4mA>
+tree-sitter test --help
+</tool.toolu_01XhSH8Y9jkmHih2fteLM4mA>
 
 ## TOOL RESULT:
 
-ID: toolu_018EtPJ1ic2Tv36KghHZtQkx
+ID: toolu_01XhSH8Y9jkmHih2fteLM4mA
 
-<tool.toolu_018EtPJ1ic2Tv36KghHZtQkx>
-Command failed with exit code 1:   citations-after-tool-result:
-      1. ✓ [32mCitations after tool result[0m[31m -- Warning: Slow parse rate (641.987 bytes/ms)[0m
-  citations-basic:
-      2. ✓ [32mCitations basic[0m
-  citations-multiple:
-      3. ✓ [32mCitations multiple[0m
-  code-block-triple-backticks:
-      4. ✓ [32mCode block triple backticks[0m
-  complex-workflow:
-      5. ✓ [32mComplex workflow[0m
-  html-comments:
+<tool.toolu_01XhSH8Y9jkmHih2fteLM4mA>
+Command executed successfully:
+Run a parser's tests
+
+Usage: tree-sitter test [OPTIONS]
+
+Options:
+  -i, --include <INCLUDE>          Only run corpus test cases whose name matches the given regex
+  -e, --exclude <EXCLUDE>          Only run corpus test cases whose name does not match the given regex
+      --file-name <FILE_NAME>      Only run corpus test cases from from a given filename
+  -u, --update                     Update all syntax trees in corpus files with current parser output
+  -d, --debug                      Show parsing debug log
+  -0, --debug-build                Compile a parser in debug mode
+  -D, --debug-graph                Produce the log.html file with debug graphs
+      --wasm                       Compile parsers to wasm instead of native dynamic libraries
+      --open-log                   Open `log.html` in the default browser, if `--debug-graph` is supplied
+      --config-path <CONFIG_PATH>  The path to an alternative config.json file
+      --show-fields                Force showing fields in test diffs
+      --stat <STAT>                Show parsing statistics [possible values: all, outliers-and-total, total-only]
+  -r, --rebuild                    Force rebuild the parser
+      --overview-only              Show only the pass-fail overview tree
+  -h, --help                       Print help
+
+</tool.toolu_01XhSH8Y9jkmHih2fteLM4mA>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S2ADJcPNsUgwVioeT8LZ4k
+
+### command
+
+<tool.toolu_01S2ADJcPNsUgwVioeT8LZ4k>
+tree-sitter test --file-name html-comments.txt
+</tool.toolu_01S2ADJcPNsUgwVioeT8LZ4k>
+
+## TOOL RESULT:
+
+ID: toolu_01S2ADJcPNsUgwVioeT8LZ4k
+
+<tool.toolu_01S2ADJcPNsUgwVioeT8LZ4k>
+Command failed with exit code 1:   html-comments:
       6. ✗ [31mHTML comments[0m
-  inline-code:
-      7. ✓ [32mInline code[0m
-  mixed-code-blocks-and-sections:
-      8. ✓ [32mMixed code blocks and sections[0m
-  multiple-tool-uses:
-      9. ✓ [32mMultiple tool uses[0m
-  nested-code-blocks:
-     10. ✓ [32mNested code blocks[0m
-  server-tool-use-basic:
-     11. ✓ [32mServer tool use basic[0m
-  server-tool-use-string-result:
-     12. ✓ [32mServer tool use string result[0m
-  simple-conversation:
-     13. ✓ [32mSimple conversation[0m
-  simple-user-message:
-     14. ✓ [32mSimple user message[0m
-  system-and-user:
-     15. ✓ [32mSystem and user[0m
-  thinking-only:
-     16. ✓ [32mThinking only[0m
-  thinking-section:
-     17. ✓ [32mThinking section[0m
-  tool-use-multiple-params:
-     18. ✓ [32mTool use multiple params[0m
-  tool-use-only:
-     19. ✓ [32mTool use only[0m
-  tool-use-single-param:
-     20. ✓ [32mTool use single param[0m
-  tool-use-with-code-in-params:
-     21. ✓ [32mTool use with code in params[0m
-  tool-use-with-tool-use-in-params:
-     22. ✓ [32mTool use with tool use in params[0m
 
 1 failure:
 
@@ -699,600 +691,36 @@ correct / [32mexpected[0m / [31munexpected[0m
     (source_file
       (user
         (text)
-[32m        (html_comment)
-[0m[32m        (text)
+        (html_comment)
+        (text)
+[31m        (html_comment)
+[0m[31m        (text)
 [0m        (code_block)
         (text)))
 
 
-</tool.toolu_018EtPJ1ic2Tv36KghHZtQkx>
+</tool.toolu_01S2ADJcPNsUgwVioeT8LZ4k>
 
 ## ASSISTANT:
 
-I can see the issue. The HTML comment is not being parsed as a separate token. Looking at the grammar.js, I notice that HTML comments are currently being handled in the `extras` section as `/<!--[^>]*-->/`, which means they are being skipped/ignored rather than parsed as tokens.
-
-Let me check the tree-sitter documentation to understand better:
-
-## TOOL USE:
-
-Name: read-webpage
-ID: toolu_01Y2FWZenMLhG9Ap2CdoNZbD
-
-### url
-
-<tool.toolu_01Y2FWZenMLhG9Ap2CdoNZbD>
-https://tree-sitter.github.io/tree-sitter/creating-parsers/2-the-grammar-dsl.html
-</tool.toolu_01Y2FWZenMLhG9Ap2CdoNZbD>
-
-## TOOL RESULT:
-
-ID: toolu_01Y2FWZenMLhG9Ap2CdoNZbD
-
-<tool.toolu_01Y2FWZenMLhG9Ap2CdoNZbD>
-    Keyboard shortcuts
-   Press  ←  or  →  to navigate between chapters
-  Press  S  or  /  to search in the book
-  Press  ?  to show this help
-  Press  Esc  to hide this help
- 
- 
- 
-    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js        
- 
-    
-            Auto
-  Light
-  Rust
-  Coal
-  Navy
-  Ayu
- 
-    
-  Tree-sitter
-              
- 
-       
-  
-
- 
-   Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM     The Grammar DSL
-  The following is a complete list of built-in functions you can use in your  grammar.js  to define rules. Use-cases for some
-of these functions will be explained in more detail in later sections.
-   Symbols (the  $  object)  — Every grammar rule is written as a JavaScript function that takes a parameter conventionally
-called  $ . The syntax  $.identifier  is how you refer to another grammar symbol within a rule. Names starting with  $.MISSING 
-or  $.UNEXPECTED  should be avoided as they have special meaning for the  tree-sitter test  command.
- 
-   String and Regex literals  — The terminal symbols in a grammar are described using JavaScript strings and regular
-expressions. Of course during parsing, Tree-sitter does not actually use JavaScript's regex engine to evaluate these regexes;
-it generates its own regex-matching logic based on the Rust regex syntax as part of each parser. Regex literals are just
-used as a convenient way of writing regular expressions in your grammar. You can use Rust regular expressions in your grammar
-DSL through the  RustRegex  class. Simply pass your regex pattern as a string:
-  new RustRegex('(?i)[a-z_][a-z0-9_]*') // matches a simple identifier
-
-  Unlike JavaScript's builtin  RegExp  class, which takes a pattern and flags as separate arguments,  RustRegex  only
-accepts a single pattern string. While it doesn't support separate flags, you can use inline flags within the pattern itself.
-For more details about Rust's regex syntax and capabilities, check out the  Rust regex documentation .
-     Note
- 
-   
-   Only a subset of the Regex engine is actually supported. This is due to certain features like lookahead and lookaround
-assertions not feasible to use in an LR(1) grammar, as well as certain flags being unnecessary for tree-sitter. However,
-plenty of features are supported by default:
-  Character classes
-  Character ranges
-  Character sets
-  Quantifiers
-  Alternation
-  Grouping
-  Unicode character escapes
-  Unicode property escapes
- 
-
- 
- 
-   Sequences :  seq(rule1, rule2, ...)  — This function creates a rule that matches any number of other rules, one after
-another. It is analogous to simply writing multiple symbols next to each other in  EBNF notation .
- 
-   Alternatives :  choice(rule1, rule2, ...)  — This function creates a rule that matches  one  of a set of possible
-rules. The order of the arguments does not matter. This is analogous to the  |  (pipe) operator in EBNF notation.
- 
-   Repetitions :  repeat(rule)  — This function creates a rule that matches  zero-or-more  occurrences of a given rule.
-It is analogous to the  {x}  (curly brace) syntax in EBNF notation.
- 
-   Repetitions :  repeat1(rule)  — This function creates a rule that matches  one-or-more  occurrences of a given rule.
-The previous  repeat  rule is implemented in  repeat1  but is included because it is very commonly used.
- 
-   Options :  optional(rule)  — This function creates a rule that matches  zero or one  occurrence of a given rule.
-It is analogous to the  [x]  (square bracket) syntax in EBNF notation.
- 
-   Precedence :  prec(number, rule)  — This function marks the given rule with a numerical precedence, which will be used
-to resolve  LR(1) Conflicts  at parser-generation time. When two rules overlap in a way that represents either
-a true ambiguity or a  local  ambiguity given one token of lookahead, Tree-sitter will try to resolve the conflict by matching
-the rule with the higher precedence. The default precedence of all rules is zero. This works similarly to the
- precedence directives  in Yacc grammars.
-  This function can also be used to assign lexical precedence to a given
-token, but it must be wrapped in a  token  call, such as  token(prec(1, 'foo')) . This reads as "the token  foo  has a
-lexical precedence of 1". The purpose of lexical precedence is to solve the issue where multiple tokens can match the same
-set of characters, but one token should be preferred over the other. See  Lexical Precedence vs Parse Precedence 
-for a more detailed explanation.
- 
-   Left Associativity :  prec.left([number], rule)  — This function marks the given rule as left-associative (and optionally
-applies a numerical precedence). When an LR(1) conflict arises in which all the rules have the same numerical precedence,
-Tree-sitter will consult the rules' associativity. If there is a left-associative rule, Tree-sitter will prefer matching
-a rule that ends  earlier . This works similarly to  associativity directives  in Yacc grammars.
- 
-   Right Associativity :  prec.right([number], rule)  — This function is like  prec.left , but it instructs Tree-sitter
-to prefer matching a rule that ends  later .
- 
-   Dynamic Precedence :  prec.dynamic(number, rule)  — This function is similar to  prec , but the given numerical precedence
-is applied at  runtime  instead of at parser generation time. This is only necessary when handling a conflict dynamically
-using the  conflicts  field in the grammar, and when there is a genuine  ambiguity : multiple rules correctly match a given
-piece of code. In that event, Tree-sitter compares the total dynamic precedence associated with each rule, and selects the
-one with the highest total. This is similar to  dynamic precedence directives  in Bison grammars.
- 
-   Tokens :  token(rule)  — This function marks the given rule as producing only
-a single token. Tree-sitter's default is to treat each String or RegExp literal
-in the grammar as a separate token. Each token is matched separately by the lexer
-and returned as its own leaf node in the tree. The  token  function allows you to
-express a complex rule using the functions described above (rather than as a single
-regular expression) but still have Tree-sitter treat it as a single token.
-The token function will only accept terminal rules, so  token($.foo)  will not work.
-You can think of it as a shortcut for squashing complex rules of strings or regexes
-down to a single token.
- 
-   Immediate Tokens :  token.immediate(rule)  — Usually, whitespace (and any other extras, such as comments) is optional
-before each token. This function means that the token will only match if there is no whitespace.
- 
-   Aliases :  alias(rule, name)  — This function causes the given rule to  appear  with an alternative name in the syntax
-tree. If  name  is a  symbol , as in  alias($.foo, $.bar) , then the aliased rule will  appear  as a  named node 
-called  bar . And if  name  is a  string literal , as in  alias($.foo, 'bar') , then the aliased rule will appear as an
- anonymous node , as if the rule had been written as the simple string.
- 
-   Field Names :  field(name, rule)  — This function assigns a  field name  to the child node(s) matched by the given
-rule. In the resulting syntax tree, you can then use that field name to access specific children.
- 
-   Reserved Keywords :  reserved(wordset, rule)   — This function will override the global reserved word set with the
-one passed into the  wordset  parameter. This is useful for contextual keywords, such as  if  in JavaScript, which cannot
-be used as a variable name in most contexts, but can be used as a property name.
- 
- 
- In addition to the  name  and  rules  fields, grammars have a few other optional public fields that influence the behavior
-of the parser. Each of these fields is a function that accepts the grammar object ( $ ) as its only parameter, like the
-grammar rules themselves. These fields are:
-   extras  — an array of tokens that may appear  anywhere  in the language. This is often used for whitespace and
-comments. The default value of  extras  is to accept whitespace. To control whitespace explicitly, specify
- extras: $ => []  in your grammar.
- 
-   inline  — an array of rule names that should be automatically  removed  from the grammar by replacing all of their
-usages with a copy of their definition. This is useful for rules that are used in multiple places but for which you  don't 
-want to create syntax tree nodes at runtime.
- 
-   conflicts  — an array of arrays of rule names. Each inner array represents a set of rules that's involved in an
- LR(1) conflict  that is  intended to exist  in the grammar. When these conflicts occur at runtime, Tree-sitter will use
-the GLR algorithm to explore all the possible interpretations. If  multiple  parses end up succeeding, Tree-sitter will pick
-the subtree whose corresponding rule has the highest total  dynamic precedence .
- 
-   externals  — an array of token names which can be returned by an
- external scanner . External scanners allow you to write custom C code which runs during the lexing
-process to handle lexical rules (e.g. Python's indentation tokens) that cannot be described by regular expressions.
- 
-   precedences  — an array of arrays of strings, where each array of strings defines named precedence levels in descending
-order. These names can be used in the  prec  functions to define precedence relative only to other names in the array, rather
-than globally. Can only be used with parse precedence, not lexical precedence.
- 
-   word  — the name of a token that will match keywords to the
- keyword extraction  optimization.
- 
-   supertypes  — an array of hidden rule names which should be considered to be 'supertypes' in the generated
- node types  file .
- 
-   reserved  — similar in structure to the main  rules  property, an object of reserved word sets associated with an
-array of reserved rules. The reserved rule in the array must be a terminal token meaning it must be a string, regex, or token,
-or a terminal rule. The  first  reserved word set in the object is the global word set, meaning it applies to every rule
-in every parse state. However, certain keywords are contextual, depending on the rule. For example, in JavaScript, keywords
-are typically not allowed as ordinary variables, however, they  can  be used as a property name. In this situation, the  reserved 
-function would be used, and the word set to pass in would be the name of the word set that is declared in the  reserved 
-object that corresponds to an empty array, signifying  no  keywords are reserved.
- 
- 
-  Mobile navigation buttons          
- 
- 
-         
-          Custom JS scripts  
- 
-</tool.toolu_01Y2FWZenMLhG9Ap2CdoNZbD>
-
-## TOOL USE:
-
-Name: read-webpage
-ID: toolu_01RXGZgUWnZiSoc2z7F7s8ap
-
-### url
-
-<tool.toolu_01RXGZgUWnZiSoc2z7F7s8ap>
-https://tree-sitter.github.io/tree-sitter/creating-parsers/4-external-scanners.html
-</tool.toolu_01RXGZgUWnZiSoc2z7F7s8ap>
-
-## TOOL RESULT:
-
-ID: toolu_01RXGZgUWnZiSoc2z7F7s8ap
-
-<tool.toolu_01RXGZgUWnZiSoc2z7F7s8ap>
-    Keyboard shortcuts
-   Press  ←  or  →  to navigate between chapters
-  Press  S  or  /  to search in the book
-  Press  ?  to show this help
-  Press  Esc  to hide this help
- 
- 
- 
-    Work around some values being stored in localStorage wrapped in quotes     Set the theme before any content is loaded, prevents flash     Hide / unhide sidebar before it is displayed    populated by js        
- 
-    
-            Auto
-  Light
-  Rust
-  Coal
-  Navy
-  Ayu
- 
-    
-  Tree-sitter
-              
- 
-       
-  
-
- 
-   Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM     External Scanners
-  Many languages have some tokens whose structure is impossible or inconvenient to describe with a regular expression.
-Some examples:
-  Indent and dedent  tokens in Python
-  Heredocs  in Bash and Ruby
-  Percent strings  in Ruby
- 
- Tree-sitter allows you to handle these kinds of tokens using  external scanners . An external scanner is a set of C functions
-that you, the grammar author, can write by hand to add custom logic for recognizing certain tokens.
-  To use an external scanner, there are a few steps. First, add an  externals  section to your grammar. This section should
-list the names of all of your external tokens. These names can then be used elsewhere in your grammar.
-  grammar({
-  name: "my_language",
-
-  externals: $ => [$.indent, $.dedent, $.newline],
-
-  // ...
-});
-
-  Then, add another C source file to your project. Its path must be src/scanner.c for the CLI to recognize it. Be sure to add
-this file to the sources section of your  binding.gyp  file so that it will be included when your project is compiled by
-Node.js and uncomment the appropriate block in your bindings/rust/build.rs file so that it will be included in your Rust
-crate.
-  In this new source file, define an  enum  type containing the names of all of your external tokens. The ordering
-of this enum must match the order in your grammar's  externals  array; the actual names do not matter.
-  #include "tree_sitter/parser.h"
-#include "tree_sitter/alloc.h"
-#include "tree_sitter/array.h"
-
-enum TokenType {
-  INDENT,
-  DEDENT,
-  NEWLINE
-}
-
-  Finally, you must define five functions with specific names, based on your language's name and five actions:
- create ,  destroy ,  serialize ,  deserialize , and  scan .
-  Create
-  void * tree_sitter_my_language_external_scanner_create() {
-  // ...
-}
-
-  This function should create your scanner object. It will only be called once anytime your language is set on a parser.
-Often, you will want to allocate memory on the heap and return a pointer to it. If your external scanner doesn't need to
-maintain any state, it's ok to return  NULL .
-  Destroy
-  void tree_sitter_my_language_external_scanner_destroy(void *payload) {
-  // ...
-}
-
-  This function should free any memory used by your scanner. It is called once when a parser is deleted or assigned a different
-language. It receives as an argument the same pointer that was returned from the  create  function. If your  create  function
-didn't allocate any memory, this function can be a no-op.
-  Serialize
-  unsigned tree_sitter_my_language_external_scanner_serialize(
-  void *payload,
-  char *buffer
-) {
-  // ...
-}
-
-  This function should copy the complete state of your scanner into a given byte buffer, and return the number of bytes written.
-The function is called every time the external scanner successfully recognizes a token. It receives a pointer to your scanner
-and a pointer to a buffer. The maximum number of bytes that you can write is given by the  TREE_SITTER_SERIALIZATION_BUFFER_SIZE 
-constant, defined in the  tree_sitter/parser.h  header file.
-  The data that this function writes will ultimately be stored in the syntax tree so that the scanner can be restored to the
-right state when handling edits or ambiguities. For your parser to work correctly, the  serialize  function must store its
-entire state, and  deserialize  must restore the entire state. For good performance, you should design your scanner so that
-its state can be serialized as quickly and compactly as possible.
-  Deserialize
-  void tree_sitter_my_language_external_scanner_deserialize(
-  void *payload,
-  const char *buffer,
-  unsigned length
-) {
-  // ...
-}
-
-  This function should  restore  the state of your scanner based the bytes that were previously written by the  serialize 
-function. It is called with a pointer to your scanner, a pointer to the buffer of bytes, and the number of bytes that should
-be read. It is good practice to explicitly erase your scanner state variables at the start of this function, before restoring
-their values from the byte buffer.
-  Scan
-  Typically, one will
-   Call  lexer->advance  several times, if the characters are valid for the token being lexed.
- 
-   Optionally, call  lexer->mark_end  to mark the end of the token, and "peek ahead"
-to check if the next character (or set of characters) invalidates the token.
- 
-   Set  lexer->result_symbol  to the token type.
- 
-   Return  true  from the scanning function, indicating that a token was successfully lexed.
- 
- 
- Tree-sitter will then push resulting node to the parse stack, and the input position will remain where it reached at the
-point  lexer->mark_end  was called.
-  bool tree_sitter_my_language_external_scanner_scan(
-  void *payload,
-  TSLexer *lexer,
-  const bool *valid_symbols
-) {
-  // ...
-}
-
-  The second parameter to this function is the lexer, of type  TSLexer . The  TSLexer  struct has the following fields:
-   int32_t lookahead  — The current next character in the input stream, represented as a 32-bit unicode code point.
- 
-   TSSymbol result_symbol  — The symbol that was recognized. Your scan function should  assign  to this field one of
-the values from the  TokenType  enum, described above.
- 
-   void (*advance)(TSLexer *, bool skip)  — A function for advancing to the next character. If you pass  true  for
-the second argument, the current character will be treated as whitespace; whitespace won't be included in the text range
-associated with tokens emitted by the external scanner.
- 
-   void (*mark_end)(TSLexer *)  — A function for marking the end of the recognized token. This allows matching tokens
-that require multiple characters of lookahead. By default, (if you don't call  mark_end ), any character that you moved past
-using the  advance  function will be included in the size of the token. But once you call  mark_end , then any later calls
-to  advance  will  not  increase the size of the returned token. You can call  mark_end  multiple times to increase the size
-of the token.
- 
-   uint32_t (*get_column)(TSLexer *)  — A function for querying the current column position of the lexer. It returns
-the number of codepoints since the start of the current line. The codepoint position is recalculated on every call to this
-function by reading from the start of the line.
- 
-   bool (*is_at_included_range_start)(const TSLexer *)  — A function for checking whether the parser has just skipped
-some characters in the document. When parsing an embedded document using the  ts_parser_set_included_ranges  function
-(described in the  multi-language document section ), the scanner may want to apply some special
-behavior when moving to a disjoint part of the document. For example, in  EJS documents , the JavaScript parser uses
-this function to enable inserting automatic semicolon tokens in between the code directives, delimited by  <%  and  %> .
- 
-   bool (*eof)(const TSLexer *)  — A function for determining whether the lexer is at the end of the file. The value
-of  lookahead  will be  0  at the end of a file, but this function should be used instead of checking for that value because
-the  0  or "NUL" value is also a valid character that could be present in the file being parsed.
- 
- 
- The third argument to the  scan  function is an array of booleans that indicates which of external tokens are expected by
-the parser. You should only look for a given token if it is valid according to this array. At the same time, you cannot
-backtrack, so you may need to combine certain pieces of logic.
-  if (valid_symbols[INDENT] || valid_symbols[DEDENT]) {
-
-  // ... logic that is common to both `INDENT` and `DEDENT`
-
-  if (valid_symbols[INDENT]) {
-
-    // ... logic that is specific to `INDENT`
-
-    lexer->result_symbol = INDENT;
-    return true;
-  }
-}
-
-  External Scanner Helpers
-  Allocator
-  Instead of using libc's  malloc ,  calloc ,  realloc , and  free , you should use the versions prefixed with  ts_  from  tree_sitter/alloc.h .
-These macros can allow a potential consumer to override the default allocator with their own implementation, but by default
-will use the libc functions.
-  As a consumer of the tree-sitter core library as well as any parser libraries that might use allocations, you can enable
-overriding the default allocator and have it use the same one as the library allocator, of which you can set with  ts_set_allocator .
-To enable this overriding in scanners, you must compile them with the  TREE_SITTER_REUSE_ALLOCATOR  macro defined, and tree-sitter
-the library must be linked into your final app dynamically, since it needs to resolve the internal functions at runtime.
-If you are compiling an executable binary that uses the core library, but want to load parsers dynamically at runtime, then
-you will have to use a special linker flag on Unix. For non-Darwin systems, that would be  --dynamic-list  and for Darwin
-systems, that would be  -exported_symbols_list . The CLI does exactly this, so you can use it as a reference (check out  cli/build.rs ).
-  For example, assuming you wanted to allocate 100 bytes for your scanner, you'd do so like the following example:
-  #include "tree_sitter/parser.h"
-#include "tree_sitter/alloc.h"
-
-// ...
-
-void* tree_sitter_my_language_external_scanner_create() {
-  return ts_calloc(100, 1); // or ts_malloc(100)
-}
-
-// ...
-
-
-  Arrays
-  If you need to use array-like types in your scanner, such as tracking a stack of indentations or tags, you should use the
-array macros from  tree_sitter/array.h .
-  There are quite a few of them provided for you, but here's how you could get started tracking some . Check out the header
-itself for more detailed documentation.
-     Attention
- 
-   
-   Do not use any of the array functions or macros that are prefixed with an underscore and have comments saying
-that it is not what you are looking for. These are internal functions used as helpers by other macros that are public.
-They are not meant to be used directly, nor are they what you want.
- 
- 
-  #include "tree_sitter/parser.h"
-#include "tree_sitter/array.h"
-
-enum TokenType {
-  INDENT,
-  DEDENT,
-  NEWLINE,
-  STRING,
-}
-
-// Create the array in your create function
-
-void* tree_sitter_my_language_external_scanner_create() {
-  return ts_calloc(1, sizeof(Array(int)));
-
-  // or if you want to zero out the memory yourself
-
-  Array(int) *stack = ts_malloc(sizeof(Array(int)));
-  array_init(&stack);
-  return stack;
-}
-
-bool tree_sitter_my_language_external_scanner_scan(
-  void *payload,
-  TSLexer *lexer,
-  const bool *valid_symbols
-) {
-  Array(int) *stack = payload;
-  if (valid_symbols[INDENT]) {
-    array_push(stack, lexer->get_column(lexer));
-    lexer->result_symbol = INDENT;
-    return true;
-  }
-  if (valid_symbols[DEDENT]) {
-    array_pop(stack); // this returns the popped element by value, but we don't need it
-    lexer->result_symbol = DEDENT;
-    return true;
-  }
-
-  // we can also use an array on the stack to keep track of a string
-
-  Array(char) next_string = array_new();
-
-  if (valid_symbols[STRING] && lexer->lookahead == '"') {
-    lexer->advance(lexer, false);
-    while (lexer->lookahead != '"' && lexer->lookahead != '\n' && !lexer->eof(lexer)) {
-      array_push(&next_string, lexer->lookahead);
-      lexer->advance(lexer, false);
-    }
-
-    // assume we have some arbitrary constraint of not having more than 100 characters in a string
-    if (lexer->lookahead == '"' && next_string.size <= 100) {
-      lexer->advance(lexer, false);
-      lexer->result_symbol = STRING;
-      return true;
-    }
-  }
-
-  return false;
-}
-
-
-  Other External Scanner Details
-  External scanners have priority over Tree-sitter's normal lexing process. When a token listed in the externals array is valid
-at a given position, the external scanner is called first. This makes external scanners a powerful way to override Tree-sitter's
-default lexing behavior, especially for cases that can't be handled with regular lexical rules, parsing, or dynamic precedence.
-  During error recovery, Tree-sitter's first step is to call the external scanner's scan function with all tokens marked as
-valid. Your scanner should detect and handle this case appropriately. One simple approach is to add an unused "sentinel"
-token at the end of your externals array:
-  {
-  name: "my_language",
-
-  externals: $ => [$.token1, $.token2, $.error_sentinel]
-
-  // ...
-}
-
-  You can then check if this sentinel token is marked valid to determine if Tree-sitter is in error recovery mode.
-  If you would rather not handle the error recovery case explicitly, the easiest way to "opt-out" and let tree-sitter's internal
-lexer handle it is to return  false  from your scan function when  valid_symbols  contains the error sentinel.
-  bool tree_sitter_my_language_external_scanner_scan(
-  void *payload,
-  TSLexer *lexer,
-  const bool *valid_symbols
-) {
-  if (valid_symbols[ERROR_SENTINEL]) {
-    return false;
-  }
-  // ...
-}
-
-  When you include literal keywords in the externals array, for example:
-  externals: $ => ['if', 'then', 'else']
-
-  those  keywords will
-be tokenized by the external scanner whenever they appear in the grammar.
-  This is equivalent to declaring named tokens and aliasing them:
-  {
-  name: "my_language",
-
-  externals: $ => [$.if_keyword, $.then_keyword, $.else_keyword],
-
-  rules: {
-
-    // then using it in a rule like so:
-    if_statement: $ => seq(alias($.if_keyword, 'if'), ...),
-
-    // ...
-  }
-}
-
-  The tokenization process for external keywords works in two stages:
-  The external scanner attempts to recognize the token first
-  If the scanner returns true and sets a token, that token is used
-  If the scanner returns false, Tree-sitter falls back to its internal lexer
- 
- However, when you use rule references (like  $.if_keyword ) in the externals array without defining the corresponding rules
-in the grammar, Tree-sitter cannot fall back to its internal lexer. In this case, the external scanner is solely responsible
-for recognizing these tokens.
-     Danger
- 
-   
-    External scanners can easily create infinite loops
- 
-   Be extremely careful when emitting zero-width tokens
- 
-   Always use the  eof  function when looping through characters
- 
- 
-
- 
-   Mobile navigation buttons          
- 
- 
-         
-          Custom JS scripts  
- 
-</tool.toolu_01RXGZgUWnZiSoc2z7F7s8ap>
-
-## ASSISTANT:
-
-Now let me look at the HTML tree-sitter grammar to understand how they handle HTML comments:
+I can see the issue. The parser is correctly parsing the first HTML comment but failing on the multiline HTML comment. Let me examine the HTML grammar examples to understand how to handle multiline comments properly:
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01BkWVwXTHUhi13nDy2XPGng
+ID: toolu_01A7YR9KUt3qN47j1Gqeaviv
 
 ### path
 
-<tool.toolu_01BkWVwXTHUhi13nDy2XPGng>
+<tool.toolu_01A7YR9KUt3qN47j1Gqeaviv>
 ~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/grammar.js
-</tool.toolu_01BkWVwXTHUhi13nDy2XPGng>
+</tool.toolu_01A7YR9KUt3qN47j1Gqeaviv>
 
 ## TOOL RESULT:
 
-ID: toolu_01BkWVwXTHUhi13nDy2XPGng
+ID: toolu_01A7YR9KUt3qN47j1Gqeaviv
 
-<tool.toolu_01BkWVwXTHUhi13nDy2XPGng>
+<tool.toolu_01A7YR9KUt3qN47j1Gqeaviv>
 /**
  * @file HTML grammar for tree-sitter
  * @author Max Brunsfeld <maxbrunsfeld@gmail.com>
@@ -1438,24 +866,24 @@ module.exports = grammar({
     text: _ => /[^<>&\s]([^<>&]*[^<>&\s])?/,
   },
 });
-</tool.toolu_01BkWVwXTHUhi13nDy2XPGng>
+</tool.toolu_01A7YR9KUt3qN47j1Gqeaviv>
 
 ## TOOL USE:
 
 Name: read-file
-ID: toolu_01HKeckk3XpjaP34t2ydwBa4
+ID: toolu_01SSkc78BWXKyQW6nXb2tKe6
 
 ### path
 
-<tool.toolu_01HKeckk3XpjaP34t2ydwBa4>
+<tool.toolu_01SSkc78BWXKyQW6nXb2tKe6>
 ~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/html/src/scanner.c
-</tool.toolu_01HKeckk3XpjaP34t2ydwBa4>
+</tool.toolu_01SSkc78BWXKyQW6nXb2tKe6>
 
 ## TOOL RESULT:
 
-ID: toolu_01HKeckk3XpjaP34t2ydwBa4
+ID: toolu_01SSkc78BWXKyQW6nXb2tKe6
 
-<tool.toolu_01HKeckk3XpjaP34t2ydwBa4>
+<tool.toolu_01SSkc78BWXKyQW6nXb2tKe6>
 #include "tag.h"
 #include "tree_sitter/parser.h"
 
@@ -1818,431 +1246,105 @@ void tree_sitter_html_external_scanner_destroy(void *payload) {
     array_delete(&scanner->tags);
     ts_free(scanner);
 }
-</tool.toolu_01HKeckk3XpjaP34t2ydwBa4>
+</tool.toolu_01SSkc78BWXKyQW6nXb2tKe6>
 
 ## ASSISTANT:
 
-Now I understand the issue! In the HTML grammar, HTML comments are handled as externals and are both in the `extras` array AND in the `externals` array. In your grammar, HTML comments are only in the `extras` array, which means they get ignored rather than parsed as tokens.
+Now I can see the issue. Looking at the HTML scanner, I can see that the `scan_comment` function properly handles multiline comments by continuing to scan until it finds the closing `-->` sequence. Let me check the current failing test more closely and fix the `scan_html_comment` function in our scanner.
 
-Looking at your test, you want `html_comment` to be a proper node in the syntax tree. Let me fix this:
-
-1. Remove HTML comments from `extras`
-2. Add `$.html_comment` to `externals`
-3. Add a rule for `html_comment` in the grammar
-4. Make sure the scanner properly handles HTML comments
-5. Include `html_comment` in the places where it can appear
+The issue is in the logic for detecting the end of HTML comments. Looking at the HTML scanner, I can see the correct pattern. Let me fix the scanner:
 
 ## TOOL USE:
 
 Name: str-replace
-ID: toolu_01V5teFjZZQ5eQ5ALx1vA7mP
+ID: toolu_0173XPoBZfzPgU4C6TbH6nMe
 
 ### file-path
 
-<tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-grammar.js
-</tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-
-### original-content
-
-<tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-  extras: $ => [
-    /<!--[^>]*-->/,
-    /[ \t\n]/,
-  ],
-</tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-
-### new-content
-
-<tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-  extras: $ => [
-    /[ \t\n]/,
-  ],
-</tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-
-### git-commit-message
-
-<tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-Remove HTML comments from extras so they can be parsed as proper tokens
-</tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-
-## TOOL RESULT:
-
-ID: toolu_01V5teFjZZQ5eQ5ALx1vA7mP
-
-<tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove HTML comments from extras so they can be parsed as proper tokens
-</tool.toolu_01V5teFjZZQ5eQ5ALx1vA7mP>
-
-## TOOL USE:
-
-Name: str-replace
-ID: toolu_01PYRic692T1aRB59Yw8b41W
-
-### file-path
-
-<tool.toolu_01PYRic692T1aRB59Yw8b41W>
-grammar.js
-</tool.toolu_01PYRic692T1aRB59Yw8b41W>
-
-### original-content
-
-<tool.toolu_01PYRic692T1aRB59Yw8b41W>
-externals: $ => [
-    $.tool_start_tag,
-    $.tool_end_tag,
-    $.tool_content,
-  ],
-</tool.toolu_01PYRic692T1aRB59Yw8b41W>
-
-### new-content
-
-<tool.toolu_01PYRic692T1aRB59Yw8b41W>
-externals: $ => [
-    $.tool_start_tag,
-    $.tool_end_tag,
-    $.tool_content,
-    $.html_comment,
-  ],
-</tool.toolu_01PYRic692T1aRB59Yw8b41W>
-
-### git-commit-message
-
-<tool.toolu_01PYRic692T1aRB59Yw8b41W>
-Add html_comment to externals array
-</tool.toolu_01PYRic692T1aRB59Yw8b41W>
-
-## TOOL RESULT:
-
-ID: toolu_01PYRic692T1aRB59Yw8b41W
-
-<tool.toolu_01PYRic692T1aRB59Yw8b41W>
-Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add html_comment to externals array
-</tool.toolu_01PYRic692T1aRB59Yw8b41W>
-
-## ASSISTANT:
-
-Now I need to add `html_comment` as a choice in the places where it can appear. Looking at the test, it should be available in the `text` rule and potentially other content areas:
-
-## TOOL USE:
-
-Name: str-replace
-ID: toolu_0123ABpS31uqXAQf6m6Zv1PS
-
-### file-path
-
-<tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-grammar.js
-</tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-
-### original-content
-
-<tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-content_blocks: $ => repeat1(choice(
-      $.text,
-      $.code_block,
-      $.inline_code,
-    )),
-</tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-
-### new-content
-
-<tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-content_blocks: $ => repeat1(choice(
-      $.text,
-      $.code_block,
-      $.inline_code,
-      $.html_comment,
-    )),
-</tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-
-### git-commit-message
-
-<tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-Add html_comment to content_blocks choices
-</tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-
-## TOOL RESULT:
-
-ID: toolu_0123ABpS31uqXAQf6m6Zv1PS
-
-<tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add html_comment to content_blocks choices
-</tool.toolu_0123ABpS31uqXAQf6m6Zv1PS>
-
-## ASSISTANT:
-
-Now let me run the test to see if this fixes the issue:
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01J3YJKGc5zD4QE2VNR2TWnA
-
-### command
-
-<tool.toolu_01J3YJKGc5zD4QE2VNR2TWnA>
-tree-sitter test --filter="html-comments"
-</tool.toolu_01J3YJKGc5zD4QE2VNR2TWnA>
-
-## TOOL RESULT:
-
-ID: toolu_01J3YJKGc5zD4QE2VNR2TWnA
-
-<tool.toolu_01J3YJKGc5zD4QE2VNR2TWnA>
-Command failed with exit code 2: error: unexpected argument '--filter' found
-
-  tip: a similar argument exists: '--file-name'
-
-Usage: tree-sitter test <--include <INCLUDE>|--exclude <EXCLUDE>|--file-name <FILE_NAME>|--update|--debug|--debug-build|--debug-graph|--wasm|--open-log|--config-path <CONFIG_PATH>|--show-fields|--stat <STAT>|--rebuild|--overview-only>
-
-For more information, try '--help'.
-
-</tool.toolu_01J3YJKGc5zD4QE2VNR2TWnA>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01GMX9eKvDVNXhSBrA6CHVmQ
-
-### command
-
-<tool.toolu_01GMX9eKvDVNXhSBrA6CHVmQ>
-tree-sitter test --file-name="html-comments"
-</tool.toolu_01GMX9eKvDVNXhSBrA6CHVmQ>
-
-## TOOL RESULT:
-
-ID: toolu_01GMX9eKvDVNXhSBrA6CHVmQ
-
-<tool.toolu_01GMX9eKvDVNXhSBrA6CHVmQ>
-Command failed with exit code 2: error: unexpected argument 'html-comments' found
-
-Usage: tree-sitter test [OPTIONS]
-
-For more information, try '--help'.
-
-</tool.toolu_01GMX9eKvDVNXhSBrA6CHVmQ>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_014tiV299fsdTru7Ayng5gqk
-
-### command
-
-<tool.toolu_014tiV299fsdTru7Ayng5gqk>
-tree-sitter test --help
-</tool.toolu_014tiV299fsdTru7Ayng5gqk>
-
-## TOOL RESULT:
-
-ID: toolu_014tiV299fsdTru7Ayng5gqk
-
-<tool.toolu_014tiV299fsdTru7Ayng5gqk>
-Command executed successfully:
-Run a parser's tests
-
-Usage: tree-sitter test [OPTIONS]
-
-Options:
-  -i, --include <INCLUDE>          Only run corpus test cases whose name matches the given regex
-  -e, --exclude <EXCLUDE>          Only run corpus test cases whose name does not match the given regex
-      --file-name <FILE_NAME>      Only run corpus test cases from from a given filename
-  -u, --update                     Update all syntax trees in corpus files with current parser output
-  -d, --debug                      Show parsing debug log
-  -0, --debug-build                Compile a parser in debug mode
-  -D, --debug-graph                Produce the log.html file with debug graphs
-      --wasm                       Compile parsers to wasm instead of native dynamic libraries
-      --open-log                   Open `log.html` in the default browser, if `--debug-graph` is supplied
-      --config-path <CONFIG_PATH>  The path to an alternative config.json file
-      --show-fields                Force showing fields in test diffs
-      --stat <STAT>                Show parsing statistics [possible values: all, outliers-and-total, total-only]
-  -r, --rebuild                    Force rebuild the parser
-      --overview-only              Show only the pass-fail overview tree
-  -h, --help                       Print help
-
-</tool.toolu_014tiV299fsdTru7Ayng5gqk>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_017FbMvkrqgME2gBzrvmYhq3
-
-### command
-
-<tool.toolu_017FbMvkrqgME2gBzrvmYhq3>
-tree-sitter test --file-name="html-comments.txt"
-</tool.toolu_017FbMvkrqgME2gBzrvmYhq3>
-
-## TOOL RESULT:
-
-ID: toolu_017FbMvkrqgME2gBzrvmYhq3
-
-<tool.toolu_017FbMvkrqgME2gBzrvmYhq3>
-Command failed with exit code 2: error: unexpected argument 'html-comments.txt' found
-
-Usage: tree-sitter test [OPTIONS]
-
-For more information, try '--help'.
-
-</tool.toolu_017FbMvkrqgME2gBzrvmYhq3>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01NGGFf3k7sbUCYFtZUbydYZ
-
-### command
-
-<tool.toolu_01NGGFf3k7sbUCYFtZUbydYZ>
-tree-sitter test --include="HTML comments"
-</tool.toolu_01NGGFf3k7sbUCYFtZUbydYZ>
-
-## TOOL RESULT:
-
-ID: toolu_01NGGFf3k7sbUCYFtZUbydYZ
-
-<tool.toolu_01NGGFf3k7sbUCYFtZUbydYZ>
-Command failed with exit code 2: error: unexpected argument 'HTML comments' found
-
-Usage: tree-sitter test [OPTIONS]
-
-For more information, try '--help'.
-
-</tool.toolu_01NGGFf3k7sbUCYFtZUbydYZ>
-
-## TOOL USE:
-
-Name: shell-command
-ID: toolu_01GVf7namYgBJfkbGC4QEufd
-
-### command
-
-<tool.toolu_01GVf7namYgBJfkbGC4QEufd>
-tree-sitter test --include "HTML comments"
-</tool.toolu_01GVf7namYgBJfkbGC4QEufd>
-
-## TOOL RESULT:
-
-ID: toolu_01GVf7namYgBJfkbGC4QEufd
-
-<tool.toolu_01GVf7namYgBJfkbGC4QEufd>
-Command failed with exit code 1:   html-comments:
-      6. ✗ [31mHTML comments[0m
-
-1 failure:
-
-correct / [32mexpected[0m / [31munexpected[0m
-
-  1. HTML comments:
-
-    (source_file
-      (user
-        (text)
-[32m        (html_comment)
-[0m[32m        (text)
-[0m        (code_block)
-        (text)))
-
-
-</tool.toolu_01GVf7namYgBJfkbGC4QEufd>
-
-## ASSISTANT:
-
-Good, I can see it's running the specific test now. The external scanner is not properly recognizing the HTML comment yet. Let me check the current scanner to ensure it handles the HTML_COMMENT token correctly. Looking at the scanner, I can see that the `scan_html_comment` function exists, but it might not be properly called because the external scanner's `scan` function doesn't handle HTML_COMMENT correctly.
-
-Let me fix the scanner:
-
-## TOOL USE:
-
-Name: str-replace
-ID: toolu_01YR38ssT4LfcFNvzKhi4J6Y
-
-### file-path
-
-<tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
+<tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
 src/scanner.c
-</tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
+</tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
 
 ### original-content
 
-<tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
-bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
-    Scanner *scanner = (Scanner *)payload;
+<tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
+static bool scan_html_comment(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
 
-    // Handle tool content (raw text) when in tool content state
-    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
-        return scan_tool_content(scanner, lexer);
-    }
+    if (lexer->lookahead != '!') return false;
+    advance(lexer);
 
-    // Skip whitespace but preserve newlines for other tokens
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-        skip(lexer);
-    }
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
 
-    if (lexer->lookahead == '<') {
-        // Handle tool start tag
-        if (valid_symbols[TOOL_START_TAG]) {
-            return scan_tool_start_tag(scanner, lexer);
-        }
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
 
-        // Handle tool end tag
-        if (valid_symbols[TOOL_END_TAG]) {
-            return scan_tool_end_tag(scanner, lexer);
-        }
-
-        // Handle HTML comments
-        if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
+    // Now we're inside the comment, scan until we find -->
+    int dashes = 0;
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '-') {
+            dashes++;
+            advance(lexer);
+        } else if (lexer->lookahead == '>' && dashes >= 2) {
+            advance(lexer);
+            lexer->result_symbol = HTML_COMMENT;
+            return true;
+        } else {
+            dashes = 0;
+            advance(lexer);
         }
     }
 
     return false;
 }
-</tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
+</tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
 
 ### new-content
 
-<tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
-bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
-    Scanner *scanner = (Scanner *)payload;
+<tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
+static bool scan_html_comment(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
 
-    // Handle tool content (raw text) when in tool content state
-    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
-        return scan_tool_content(scanner, lexer);
-    }
+    if (lexer->lookahead != '!') return false;
+    advance(lexer);
 
-    // Skip whitespace but preserve newlines for other tokens
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-        skip(lexer);
-    }
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
 
-    if (lexer->lookahead == '<') {
-        // Handle HTML comments first
-        if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Now we're inside the comment, scan until we find -->
+    unsigned dashes = 0;
+    while (lexer->lookahead) {
+        switch (lexer->lookahead) {
+            case '-':
+                ++dashes;
+                break;
+            case '>':
+                if (dashes >= 2) {
+                    lexer->result_symbol = HTML_COMMENT;
+                    advance(lexer);
+                    return true;
+                }
+                // fallthrough
+            default:
+                dashes = 0;
         }
-
-        // Handle tool start tag
-        if (valid_symbols[TOOL_START_TAG]) {
-            return scan_tool_start_tag(scanner, lexer);
-        }
-
-        // Handle tool end tag
-        if (valid_symbols[TOOL_END_TAG]) {
-            return scan_tool_end_tag(scanner, lexer);
-        }
+        advance(lexer);
     }
 
     return false;
 }
-</tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
+</tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
 
 ### git-commit-message
 
-<tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
-Reorder token scanning to handle HTML comments first and fix scanner logic
-</tool.toolu_01YR38ssT4LfcFNvzKhi4J6Y>
+<tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
+Fix HTML comment parsing to handle multiline comments correctly
+</tool.toolu_0173XPoBZfzPgU4C6TbH6nMe>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01YR38ssT4LfcFNvzKhi4J6Y -->
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_0173XPoBZfzPgU4C6TbH6nMe -->

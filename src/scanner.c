@@ -81,19 +81,23 @@ static bool scan_html_comment(TSLexer *lexer) {
     advance(lexer);
 
     // Now we're inside the comment, scan until we find -->
-    int dashes = 0;
-    while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '-') {
-            dashes++;
-            advance(lexer);
-        } else if (lexer->lookahead == '>' && dashes >= 2) {
-            advance(lexer);
-            lexer->result_symbol = HTML_COMMENT;
-            return true;
-        } else {
-            dashes = 0;
-            advance(lexer);
+    unsigned dashes = 0;
+    while (lexer->lookahead) {
+        switch (lexer->lookahead) {
+            case '-':
+                ++dashes;
+                break;
+            case '>':
+                if (dashes >= 2) {
+                    lexer->result_symbol = HTML_COMMENT;
+                    advance(lexer);
+                    return true;
+                }
+                // fallthrough
+            default:
+                dashes = 0;
         }
+        advance(lexer);
     }
 
     return false;
