@@ -125,8 +125,8 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
-    // Now we're at the start of the content
-    // We want to return ONLY the content between the tags, not the tags themselves
+    // Now we're at the start of the content, mark this position
+    lexer->mark_end(lexer);
 
     // Build the expected closing tag
     char expected_closing[512];
@@ -147,9 +147,13 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             }
             advance(lexer);
         } else {
-            // Not matching the closing tag, reset and continue
-            match_index = 0;
+            // Not matching the closing tag, this is content
+            if (match_index > 0) {
+                // We were partially matching the closing tag, reset
+                match_index = 0;
+            }
             advance(lexer);
+            lexer->mark_end(lexer);  // Mark end after each content character
         }
     }
 
