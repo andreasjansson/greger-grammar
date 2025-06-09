@@ -11471,4 +11471,151 @@ static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
 Simplify tool end tag scanner to accept any tool ID for now
 </tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DA6o4JFq6D89rfVNFjRLrK -->
+## TOOL RESULT:
+
+ID: toolu_01DA6o4JFq6D89rfVNFjRLrK
+
+<tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify tool end tag scanner to accept any tool ID for now
+</tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RkQZHSvCQDDrgq6cinCCWM
+
+### command
+
+<tool.toolu_01RkQZHSvCQDDrgq6cinCCWM>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_01RkQZHSvCQDDrgq6cinCCWM>
+
+## TOOL RESULT:
+
+ID: toolu_01RkQZHSvCQDDrgq6cinCCWM
+
+<tool.toolu_01RkQZHSvCQDDrgq6cinCCWM>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (tool_content [0, 14] - [0, 19])
+    (ERROR [0, 19] - [0, 21])
+    (tool_content [0, 21] - [1, 0])))
+stdin	Parse:    0.33 ms	   105 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_01RkQZHSvCQDDrgq6cinCCWM>
+
+## ASSISTANT:
+
+Still the same issue. This suggests that the problem is not in the ID matching, but something more fundamental. Let me check if the `scan_tool_end_tag` function is even being called.
+
+The issue might be in the condition logic. Looking at the main scanner:
+
+```c
+if (lexer->lookahead == '<') {
+    // Handle tool start tag
+    if (valid_symbols[TOOL_START_TAG]) {
+        return scan_tool_start_tag(scanner, lexer);
+    }
+
+    // Handle tool end tag
+    if (valid_symbols[TOOL_END_TAG]) {
+        return scan_tool_end_tag(scanner, lexer);
+    }
+    // ...
+}
+```
+
+The issue might be that when we encounter `</`, the grammar doesn't expect `TOOL_END_TAG` at that point - it might be expecting something else.
+
+Let me test the current tests to see if the basic functionality is working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014qkMSkGFCr5TaEnVT6pFNj
+
+### command
+
+<tool.toolu_014qkMSkGFCr5TaEnVT6pFNj>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_014qkMSkGFCr5TaEnVT6pFNj>
+
+## TOOL RESULT:
+
+ID: toolu_014qkMSkGFCr5TaEnVT6pFNj
+
+<tool.toolu_014qkMSkGFCr5TaEnVT6pFNj>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_014qkMSkGFCr5TaEnVT6pFNj>
+
+## ASSISTANT:
+
+Interesting! The test shows that the structure IS working - it's parsing `tool_start_tag`, `tool_content`, and `tool_end_tag` correctly. The issue is just that the test expects just `(value)` but we're getting the full structure.
+
+This means my scanner is actually working! The issue is just that I need to properly configure the grammar rules to make the content accessible as a field and hide the tag structure.
+
+Let me add the field back to extract just the content:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SR4orPWmqCwLcgMcvjEDjS
+
+### file-path
+
+<tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+grammar.js
+</tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+
+### original-content
+
+<tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+tool_element: $ => seq(
+      $.tool_start_tag,
+      optional($.tool_content),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+
+### new-content
+
+<tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+tool_element: $ => seq(
+      $.tool_start_tag,
+      optional(field('value', $.tool_content)),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+
+### git-commit-message
+
+<tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+Add field back to tool_content to extract just the content value
+</tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SR4orPWmqCwLcgMcvjEDjS -->

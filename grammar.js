@@ -212,7 +212,7 @@ module.exports = grammar({
 
     tool_element: $ => seq(
       $.tool_start_tag,
-      optional($.tool_content),
+      optional(field('value', $.tool_content)),
       $.tool_end_tag,
     ),
 
