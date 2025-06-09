@@ -4,6 +4,8 @@
 #include <stdio.h>
 
 enum TokenType {
+    TOOL_START_TAG,
+    TOOL_END_TAG,
     TOOL_CONTENT,
     HTML_COMMENT,
 };
