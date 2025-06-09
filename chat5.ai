@@ -16953,4 +16953,130 @@ test/corpus/server-tool-use-basic.txt
 Fix id structure in server-tool-use-basic test
 </tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Fs22tVVgUA1AT3tjv4QCks -->
+## TOOL RESULT:
+
+ID: toolu_01Fs22tVVgUA1AT3tjv4QCks
+
+<tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/server-tool-use-basic.txt. Successfully staged 2 file(s) and committed with message: Fix id structure in server-tool-use-basic test
+</tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+
+## ASSISTANT:
+
+Let me fix all the remaining files with a batch approach. I'll use a more targeted sed command:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Ky1Ro3gMB4QiPWRexDQXMo
+
+### command
+
+<tool.toolu_01Ky1Ro3gMB4QiPWRexDQXMo>
+cd test/corpus && for file in citations-after-tool-result.txt citations-basic.txt citations-multiple.txt complex-workflow.txt multiple-tool-uses.txt server-tool-use-string-result.txt tool-use-with-code-in-params.txt tool-use-with-tool-use-in-params.txt; do
+  sed -i 's/    (id)$/    (id\n      (id_value))/g' "$file"
+  echo "Fixed $file"
+done
+</tool.toolu_01Ky1Ro3gMB4QiPWRexDQXMo>
+
+## TOOL RESULT:
+
+ID: toolu_01Ky1Ro3gMB4QiPWRexDQXMo
+
+<tool.toolu_01Ky1Ro3gMB4QiPWRexDQXMo>
+Command executed successfully:
+sed: 1: "citations-after-tool-re ...": command c expects \ followed by text
+Fixed citations-after-tool-result.txt
+sed: 1: "citations-basic.txt": command c expects \ followed by text
+Fixed citations-basic.txt
+sed: 1: "citations-multiple.txt": command c expects \ followed by text
+Fixed citations-multiple.txt
+sed: 1: "complex-workflow.txt": command c expects \ followed by text
+Fixed complex-workflow.txt
+sed: 1: "multiple-tool-uses.txt": invalid command code m
+Fixed multiple-tool-uses.txt
+sed: 1: "server-tool-use-string- ...": bad flag in substitute command: '-'
+Fixed server-tool-use-string-result.txt
+sed: 1: "tool-use-with-code-in-p ...": undefined label 'ool-use-with-code-in-params.txt'
+Fixed tool-use-with-code-in-params.txt
+sed: 1: "tool-use-with-tool-use- ...": undefined label 'ool-use-with-tool-use-in-params.txt'
+Fixed tool-use-with-tool-use-in-params.txt
+
+</tool.toolu_01Ky1Ro3gMB4QiPWRexDQXMo>
+
+## ASSISTANT:
+
+The sed command had some errors, but let me check if it worked by testing one of the files:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016tkM3PBkiid3viHFwDY9Nk
+
+### command
+
+<tool.toolu_016tkM3PBkiid3viHFwDY9Nk>
+tree-sitter test --file-name citations-basic.txt | head -15
+</tool.toolu_016tkM3PBkiid3viHFwDY9Nk>
+
+## TOOL RESULT:
+
+ID: toolu_016tkM3PBkiid3viHFwDY9Nk
+
+<tool.toolu_016tkM3PBkiid3viHFwDY9Nk>
+Command executed successfully:
+  citations-basic:
+      2. ✗ [31mCitations basic[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Citations basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+          (name_value))
+
+</tool.toolu_016tkM3PBkiid3viHFwDY9Nk>
+
+## ASSISTANT:
+
+The sed didn't work properly. Let me fix them manually with a simpler approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013ZNXhQPPyB9HuEJdaYKu69
+
+### file-path
+
+<tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+test/corpus/citations-basic.txt
+</tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+
+### original-content
+
+<tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+    (id)
+    (tool_param
+</tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+
+### new-content
+
+<tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+
+### git-commit-message
+
+<tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+Fix id structure in citations-basic test
+</tool.toolu_013ZNXhQPPyB9HuEJdaYKu69>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_013ZNXhQPPyB9HuEJdaYKu69 -->
