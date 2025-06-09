@@ -96,7 +96,8 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Gradually add rules to identify the problematic one
+     ;; Test if parent-is with source_file causes issues
+     ((parent-is "source_file") column-0 0)
      (no-node column-0 0)
      (catch-all column-0 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
