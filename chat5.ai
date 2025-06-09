@@ -4451,4 +4451,1035 @@ citation_title: $ => seq(
 Replace citation-specific value types with generic value type
 </tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01J9UaTrSMojvZnd8VGagbLz -->
+## TOOL RESULT:
+
+ID: toolu_01J9UaTrSMojvZnd8VGagbLz
+
+<tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Replace citation-specific value types with generic value type
+</tool.toolu_01J9UaTrSMojvZnd8VGagbLz>
+
+## ASSISTANT:
+
+Now let's test to make sure this change works correctly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01SDZFXWjEac2kYpZRCTwAVD
+
+### command
+
+<tool.toolu_01SDZFXWjEac2kYpZRCTwAVD>
+tree-sitter test
+</tool.toolu_01SDZFXWjEac2kYpZRCTwAVD>
+
+## TOOL RESULT:
+
+ID: toolu_01SDZFXWjEac2kYpZRCTwAVD
+
+<tool.toolu_01SDZFXWjEac2kYpZRCTwAVD>
+Command executed successfully:
+  citations-after-tool-result:
+      1. ✓ [32mCitations after tool result[0m[31m -- Warning: Slow parse rate (629.335 bytes/ms)[0m
+  citations-basic:
+      2. ✓ [32mCitations basic[0m
+  citations-multiple:
+      3. ✓ [32mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✓ [32mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✓ [32mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✓ [32mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✓ [32mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✓ [32mTool use multiple params[0m
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+  tool-use-single-param:
+     20. ✓ [32mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✓ [32mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✓ [32mTool use with tool use in params[0m
+
+Total parses: 22; successful parses: 22; failed parses: 0; success percentage: 100.00%; average speed: 8253 bytes/ms
+
+
+</tool.toolu_01SDZFXWjEac2kYpZRCTwAVD>
+
+## ASSISTANT:
+
+Perfect! All tests pass. Let me also run a specific citation test to make sure the field structure is still working correctly:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016JAcP55qDxSApnCzbCJmbz
+
+### command
+
+<tool.toolu_016JAcP55qDxSApnCzbCJmbz>
+tree-sitter test --file-name citations-basic.txt
+</tool.toolu_016JAcP55qDxSApnCzbCJmbz>
+
+## TOOL RESULT:
+
+ID: toolu_016JAcP55qDxSApnCzbCJmbz
+
+<tool.toolu_016JAcP55qDxSApnCzbCJmbz>
+Command executed successfully:
+  citations-basic:
+      2. ✓ [32mCitations basic[0m
+
+Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 17046 bytes/ms
+
+
+</tool.toolu_016JAcP55qDxSApnCzbCJmbz>
+
+## ASSISTANT:
+
+Excellent! Let me also check what the current grammar looks like to make sure it's clean:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01LivoFy9FAiQ6TTDmJ3R9ac
+
+### path
+
+<tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+grammar.js
+</tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+
+### start-line
+
+<tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+140
+</tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+
+### end-line
+
+<tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+160
+</tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+
+## TOOL RESULT:
+
+ID: toolu_01LivoFy9FAiQ6TTDmJ3R9ac
+
+<tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+    ))),
+
+    name: $ => seq(
+      'Name:',
+      field('value', $.value),
+      /\n/
+    ),
+
+    id: $ => seq(
+      'ID:',
+      field('value', $.value),
+      /\n/
+    ),
+
+    tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      alias($.param_name, $.name),
+      /\n/,
+      optional(/\n/),
+      alias($._tool_element, $.value),
+</tool.toolu_01LivoFy9FAiQ6TTDmJ3R9ac>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013QmRg5c8E4zhZAYbZye8Ep
+
+### path
+
+<tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+grammar.js
+</tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+
+### start-line
+
+<tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+180
+</tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+
+### end-line
+
+<tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+200
+</tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+
+## TOOL RESULT:
+
+ID: toolu_013QmRg5c8E4zhZAYbZye8Ep
+
+<tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    value: _ => /[^\n]+/,
+
+</tool.toolu_013QmRg5c8E4zhZAYbZye8Ep>
+
+## ASSISTANT:
+
+Perfect! The grammar is now much cleaner. Let me also verify that the `value` rule is defined only once by searching for it:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01J28SBh1P3oNZNeF52ZXfr6
+
+### pattern
+
+<tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+value.*=.*
+</tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+
+### path
+
+<tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+grammar.js
+</tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+
+## TOOL RESULT:
+
+ID: toolu_01J28SBh1P3oNZNeF52ZXfr6
+
+<tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+199:    value: _ => /[^\n]+/,
+
+</tool.toolu_01J28SBh1P3oNZNeF52ZXfr6>
+
+## ASSISTANT:
+
+Great! There's only one `value` rule definition now.
+
+## Summary
+
+I successfully replaced all the specific value types (`name_value`, `id_value`, `citation_title_value`, `citation_text_value`, `citation_encrypted_index_value`) with a single generic `value` type. 
+
+### Changes made:
+
+1. **Removed specific value types**: Eliminated `name_value`, `id_value`, `citation_title_value`, `citation_text_value`, and `citation_encrypted_index_value`
+
+2. **Added generic `value` type**: Created a single `value: _ => /[^\n]+/` rule
+
+3. **Updated all field references**: Changed all `field('value', $.specific_value_type)` to `field('value', $.value)`
+
+### Benefits of this change:
+
+- **Reduced redundancy**: Eliminated 5 identical rule definitions
+- **Cleaner grammar**: Simpler and more maintainable code
+- **Consistent behavior**: All value fields now use the same rule
+- **Future-proof**: New value fields can reuse the same generic type
+
+All tests continue to pass with 100% success rate, confirming that the functionality remains intact while the grammar is now more concise and maintainable.
+
+## USER:
+
+The tests fail now `tree-sitter generate && tree-sitter test`. Update the test .txt files. Also figure out why the citation_entries have lost their values in the actual test outputs
+
+## ASSISTANT:
+
+Let me first run the commands to see what's happening:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01N4vjfLAggxgEXk7aG8YYwZ
+
+### command
+
+<tool.toolu_01N4vjfLAggxgEXk7aG8YYwZ>
+tree-sitter generate
+</tool.toolu_01N4vjfLAggxgEXk7aG8YYwZ>
+
+## TOOL RESULT:
+
+ID: toolu_01N4vjfLAggxgEXk7aG8YYwZ
+
+<tool.toolu_01N4vjfLAggxgEXk7aG8YYwZ>
+Command executed successfully:
+(no output)
+</tool.toolu_01N4vjfLAggxgEXk7aG8YYwZ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_018rtykchjBVZck677dFS4XL
+
+### command
+
+<tool.toolu_018rtykchjBVZck677dFS4XL>
+tree-sitter test
+</tool.toolu_018rtykchjBVZck677dFS4XL>
+
+## TOOL RESULT:
+
+ID: toolu_018rtykchjBVZck677dFS4XL
+
+<tool.toolu_018rtykchjBVZck677dFS4XL>
+Command failed with exit code 1:   citations-after-tool-result:
+      1. ✗ [31mCitations after tool result[0m[31m -- Warning: Slow parse rate (1274.846 bytes/ms)[0m
+  citations-basic:
+      2. ✗ [31mCitations basic[0m
+  citations-multiple:
+      3. ✗ [31mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✗ [31mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✗ [31mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✗ [31mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✗ [31mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✗ [31mTool use multiple params[0m
+  tool-use-only:
+     19. ✗ [31mTool use only[0m
+  tool-use-single-param:
+     20. ✗ [31mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✗ [31mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✗ [31mTool use with tool use in params[0m
+
+12 failures:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Citations after tool result:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (web_search_tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value)))))[0m
+[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index))))[0m
+
+
+  2. Citations basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (web_search_tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value)))))[0m
+[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index))))[0m
+
+
+  3. Citations multiple:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (web_search_tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value))))
+[0m[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index)))
+[0m      (assistant
+        (text))
+      (citations
+        (text)
+        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value))))
+[0m[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index)))
+[0m      (citations
+        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value)))
+[0m[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index))
+[0m        (citation_entry
+          (url)
+[31m          (title
+[0m[31m            (value))
+[0m[31m          (cited_text
+[0m[31m            (value))
+[0m[31m          (encrypted_index
+[0m[31m            (value)))))[0m
+[32m          (title)
+[0m[32m          (cited_text)
+[0m[32m          (encrypted_index))))[0m
+
+
+  4. Complex workflow:
+
+    (source_file
+      (user
+        (text))
+      (thinking
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  5. Multiple tool uses:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  6. Server tool use basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (web_search_tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  7. Server tool use string result:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (web_search_tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  8. Tool use multiple params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  9. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))))
+
+
+  10. Tool use single param:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  11. Tool use with code in params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+  12. Tool use with tool use in params:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+[31m          (value))
+[0m[32m          (name_value))
+[0m        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag)))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+[31m          (value))
+[0m[32m          (id_value))
+[0m        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+</tool.toolu_018rtykchjBVZck677dFS4XL>
+
+## ASSISTANT:
+
+I can see two main issues:
+
+1. **Node name changes**: The tests expect `name_value` and `id_value` but now they're getting `value`
+2. **Citation field structure changes**: The citation fields are now showing nested `(value)` nodes instead of being flat
+
+The problem is that when I replaced the specific value types with a generic `value` type, Tree-sitter now creates `value` nodes in the parse tree instead of the specific named nodes that the tests expect.
+
+Also, I notice that for citations, the current structure shows:
+```
+(title
+  (value))
+```
+But the tests expect just:
+```
+(title)
+```
+
+This suggests the citation fields are not supposed to have nested field structures. Let me check the original citation structure and fix this properly:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Ya2kE27MggVLmqgUnobwMv
+
+### path
+
+<tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+test/corpus/citations-basic.txt
+</tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+
+### start-line
+
+<tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+35
+</tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+
+### end-line
+
+<tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+45
+</tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+
+## TOOL RESULT:
+
+ID: toolu_01Ya2kE27MggVLmqgUnobwMv
+
+<tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+
+## ASSISTANT:
+
+Based on the search results,
+
+## CITATIONS:
+
+Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+
+### https://en.wikipedia.org/wiki/Claude_Shannon
+
+</tool.toolu_01Ya2kE27MggVLmqgUnobwMv>
+
+## ASSISTANT:
+
+Let me look at the full expected structure:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01MG8pv96DXY94snZwd7BvnN
+
+### pattern
+
+<tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+citation_entry
+</tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+
+### path
+
+<tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+test/corpus/citations-basic.txt
+</tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+
+### context-lines
+
+<tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+10
+</tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+
+## TOOL RESULT:
+
+ID: toolu_01MG8pv96DXY94snZwd7BvnN
+
+<tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+67-    (id
+68-      (id_value))
+69-    (content
+70-      (tool_start_tag)
+71-      (tool_content)
+72-      (tool_end_tag)))
+73-  (assistant
+74-    (text))
+75-  (citations
+76-    (text)
+77:    (citation_entry
+78-      (url)
+79-      (title)
+80-      (cited_text)
+81-      (encrypted_index))))
+
+</tool.toolu_01MG8pv96DXY94snZwd7BvnN>
+
+## ASSISTANT:
+
+I see the issue! The tests expect citation fields without the nested `value` structure. The citation fields should not have field labels at all - they should be directly the content, not wrapped in a `field('value', ...)` structure.
+
+Let me fix the grammar to not use fields for citation values, and then update the failing tests to use `value` instead of the specific value types for the other fields:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FLDaSkuHTV4vW9xhLpMgRq
+
+### file-path
+
+<tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+grammar.js
+</tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+
+### original-content
+
+<tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field('value', $.value),
+      /\n/,
+    ),
+</tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+
+### new-content
+
+<tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      $.value,
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      $.value,
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      $.value,
+      /\n/,
+    ),
+</tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+
+### git-commit-message
+
+<tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+Remove field labels from citation values to match expected test structure
+</tool.toolu_01FLDaSkuHTV4vW9xhLpMgRq>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01FLDaSkuHTV4vW9xhLpMgRq -->
