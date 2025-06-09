@@ -100,10 +100,10 @@
   (mapcar (lambda (block)
             (if (and (listp block)
                      (assoc 'type block)
-                     (string= (cdr (assoc 'type block)) "web_search_tool_result")
-                     (not has-citations))
-                ;; Change to server_tool_result if no citations
-                (cons (cons 'type "server_tool_result")
+                     (string= (cdr (assoc 'type block)) "server_tool_result")
+                     has-citations)
+                ;; Change to web_search_tool_result if citations are present
+                (cons (cons 'type "web_search_tool_result")
                       (cl-remove-if (lambda (pair) (eq (car pair) 'type)) block))
               block))
           content))
