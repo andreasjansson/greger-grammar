@@ -1,6 +1,7 @@
 ;;; test-all-greger-cases.el --- Comprehensive test of greger-tree-sitter against all test cases -*- lexical-binding: t -*-
 
 (require 'ert)
+(require 'cl-lib)
 (load-file "./greger-tree-sitter.el")
 
 ;; Helper function to read markdown content from corpus .txt files
