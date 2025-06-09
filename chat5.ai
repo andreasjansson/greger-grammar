@@ -11618,4 +11618,97 @@ tool_element: $ => seq(
 Add field back to tool_content to extract just the content value
 </tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01SR4orPWmqCwLcgMcvjEDjS -->
+## TOOL RESULT:
+
+ID: toolu_01SR4orPWmqCwLcgMcvjEDjS
+
+<tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add field back to tool_content to extract just the content value
+</tool.toolu_01SR4orPWmqCwLcgMcvjEDjS>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013hymuXhJnuCR2w1cK7h2bS
+
+### command
+
+<tool.toolu_013hymuXhJnuCR2w1cK7h2bS>
+tree-sitter generate && timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_013hymuXhJnuCR2w1cK7h2bS>
+
+## TOOL RESULT:
+
+ID: toolu_013hymuXhJnuCR2w1cK7h2bS
+
+<tool.toolu_013hymuXhJnuCR2w1cK7h2bS>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_013hymuXhJnuCR2w1cK7h2bS>
+
+## ASSISTANT:
+
+I still see the nested structure. The issue is that I have `alias($.tool_element, $.value)` in the tool_param rule, which is creating a `value` node that contains the tool_element structure.
+
+I need to make the tool_element rule itself appear as just the content. Let me try using alias differently:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019nKZH4vzPWCeu5hhwrtsj5
+
+### file-path
+
+<tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+grammar.js
+</tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+
+### original-content
+
+<tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+tool_element: $ => seq(
+      $.tool_start_tag,
+      optional(field('value', $.tool_content)),
+      $.tool_end_tag,
+    ),
+</tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+
+### new-content
+
+<tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+_tool_element: $ => seq(
+      $.tool_start_tag,
+      $.tool_content,
+      $.tool_end_tag,
+    ),
+</tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+
+### git-commit-message
+
+<tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+Make tool_element hidden and remove optional/field to simplify
+</tool.toolu_019nKZH4vzPWCeu5hhwrtsj5>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_019nKZH4vzPWCeu5hhwrtsj5 -->
