@@ -74,6 +74,19 @@
                           content))))
            entries))
 
+(defun greger-tree-sitter--fix-server-tool-result-types-in-dialog (result has-citations)
+  "Fix server tool result types in the entire dialog based on whether citations are present."
+  (mapcar (lambda (entry)
+            (let ((content (cdr (assoc 'content entry))))
+              (if (listp content)
+                  ;; Fix content blocks
+                  (cons (cons 'role (cdr (assoc 'role entry)))
+                        (list (cons 'content
+                                    (greger-tree-sitter--fix-server-tool-result-types content has-citations))))
+                ;; Keep non-list content as is
+                entry)))
+          result))
+
 (defun greger-tree-sitter--fix-server-tool-result-types (content has-citations)
   "Fix server tool result types based on whether citations are present."
   (mapcar (lambda (block)
