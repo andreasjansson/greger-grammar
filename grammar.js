@@ -216,7 +216,7 @@ module.exports = grammar({
       $.tool_end_tag,
     ),
 
-    content: $ => alias($.tool_tag, 'content'),
+    content: $ => alias($._tool_tag, 'content'),
 
     code_block: $ => seq(
       '```',
