@@ -192,6 +192,8 @@ module.exports = grammar({
     text: $ => prec.right(repeat1(choice(
       $.cite_tag,
       $.safe_shell_commands,
+      $.include,
+      $.include_code,
       $._text_content,
       /\n/,
     ))),
