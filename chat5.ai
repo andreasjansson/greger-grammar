@@ -13391,4 +13391,148 @@ test/corpus/complex-workflow.txt
 Update complex-workflow test to match new nested tool tag structure
 </tool.toolu_01Ads8MV93sHJ4517VeoM9CR>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Ads8MV93sHJ4517VeoM9CR -->
+## TOOL RESULT:
+
+ID: toolu_01Ads8MV93sHJ4517VeoM9CR
+
+<tool.toolu_01Ads8MV93sHJ4517VeoM9CR>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/complex-workflow.txt. Successfully staged 2 file(s) and committed with message: Update complex-workflow test to match new nested tool tag structure
+</tool.toolu_01Ads8MV93sHJ4517VeoM9CR>
+
+## ASSISTANT:
+
+Now let me update the server tool use tests:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017noa9kCew2EJE2C1rpFujX
+
+### path
+
+<tool.toolu_017noa9kCew2EJE2C1rpFujX>
+test/corpus/server-tool-use-basic.txt
+</tool.toolu_017noa9kCew2EJE2C1rpFujX>
+
+## TOOL RESULT:
+
+ID: toolu_017noa9kCew2EJE2C1rpFujX
+
+<tool.toolu_017noa9kCew2EJE2C1rpFujX>
+=======================
+Server tool use basic
+=======================
+
+## USER:
+
+Search for current weather in San Francisco
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_123
+
+### query
+
+<tool.srvtoolu_123>
+current weather San Francisco
+</tool.srvtoolu_123>
+
+## SERVER TOOL RESULT:
+
+ID: srvtoolu_123
+
+<tool.srvtoolu_123>
+[
+  {
+    \"title\": \"Weather in San Francisco\",
+    \"url\": \"https://weather.com/sf\",
+    \"content\": \"Sunny, 72°F\"
+  }
+]
+</tool.srvtoolu_123>
+
+## ASSISTANT:
+
+The current weather in San Francisco is sunny and 72°F.
+
+---
+
+(source_file
+  (user
+    (text))
+  (server_tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (server_tool_result
+    (id)
+    (content))
+  (assistant
+    (text)))
+</tool.toolu_017noa9kCew2EJE2C1rpFujX>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MF8gavxTGdMZVsvgRUG6m3
+
+### file-path
+
+<tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+test/corpus/server-tool-use-basic.txt
+</tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+
+### original-content
+
+<tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+(source_file
+  (user
+    (text))
+  (server_tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (server_tool_result
+    (id)
+    (content))
+  (assistant
+    (text)))
+</tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+
+### new-content
+
+<tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+(source_file
+  (user
+    (text))
+  (server_tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (server_tool_result
+    (id)
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (assistant
+    (text)))
+</tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+
+### git-commit-message
+
+<tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+Update server-tool-use-basic test to match new nested tool tag structure
+</tool.toolu_01MF8gavxTGdMZVsvgRUG6m3>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01MF8gavxTGdMZVsvgRUG6m3 -->
