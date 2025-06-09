@@ -6249,4 +6249,128 @@ _tool_tag: $ => seq(
 Make tool_content optional in _tool_tag rule
 </tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Uzpmfno3hZLaEYnxgYSacv -->
+## TOOL RESULT:
+
+ID: toolu_01Uzpmfno3hZLaEYnxgYSacv
+
+<tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make tool_content optional in _tool_tag rule
+</tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012C3XTwJWrQqic6SsGW5CTn
+
+### command
+
+<tool.toolu_012C3XTwJWrQqic6SsGW5CTn>
+tree-sitter generate && echo -e "<tool.test123>\ntest.txt\n</tool.test123>" | tree-sitter parse
+</tool.toolu_012C3XTwJWrQqic6SsGW5CTn>
+
+## TOOL RESULT:
+
+ID: toolu_012C3XTwJWrQqic6SsGW5CTn
+
+<tool.toolu_012C3XTwJWrQqic6SsGW5CTn>
+Command failed with exit code 1: 
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 15]
+    (ERROR [0, 0] - [2, 15])))
+stdin	Parse:    0.15 ms	   291 bytes/ms	(ERROR [0, 0] - [2, 15])
+
+</tool.toolu_012C3XTwJWrQqic6SsGW5CTn>
+
+## ASSISTANT:
+
+There's still a fundamental issue. Let me go back to basics and see if my scanner functions are even being called correctly. Let me add some debug output to see what's happening:
+
+Actually, let me first check if there are any compilation errors by trying to run the tests:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BcuN3R16fhMocErduaTvDi
+
+### command
+
+<tool.toolu_01BcuN3R16fhMocErduaTvDi>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01BcuN3R16fhMocErduaTvDi>
+
+## TOOL RESULT:
+
+ID: toolu_01BcuN3R16fhMocErduaTvDi
+
+<tool.toolu_01BcuN3R16fhMocErduaTvDi>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+[31m        (id))
+[0m[31m      (ERROR
+[0m[31m        (name)
+[0m[31m        (tool_start_tag)
+[0m[31m        (UNEXPECTED 't')))[0m
+[32m        (id)
+[0m[32m        (tool_param
+[0m[32m          (name)
+[0m[32m          (value))))[0m
+
+
+</tool.toolu_01BcuN3R16fhMocErduaTvDi>
+
+## ASSISTANT:
+
+Interesting! Now I can see there's an `UNEXPECTED 't'` error, which suggests the parser is having trouble recognizing something that starts with 't'. This might be an issue with my scanner logic.
+
+Let me take a completely different approach. Since this is getting complex, let me step back and implement a much simpler solution that doesn't change the existing scanner as much. 
+
+Let me revert to the original approach but modify the grammar to extract just the content using field names, without trying to separate the tags:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_014CvyzutYarPSvmaLLyznP7
+
+### file-path
+
+<tool.toolu_014CvyzutYarPSvmaLLyznP7>
+grammar.js
+</tool.toolu_014CvyzutYarPSvmaLLyznP7>
+
+### original-content
+
+<tool.toolu_014CvyzutYarPSvmaLLyznP7>
+externals: $ => [
+    $.tool_start_tag,
+    $.tool_end_tag,
+    $.tool_content,
+  ],
+</tool.toolu_014CvyzutYarPSvmaLLyznP7>
+
+### new-content
+
+<tool.toolu_014CvyzutYarPSvmaLLyznP7>
+externals: $ => [
+    $.tool_content,
+  ],
+</tool.toolu_014CvyzutYarPSvmaLLyznP7>
+
+### git-commit-message
+
+<tool.toolu_014CvyzutYarPSvmaLLyznP7>
+Revert externals to original tool_content only
+</tool.toolu_014CvyzutYarPSvmaLLyznP7>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_014CvyzutYarPSvmaLLyznP7 -->
