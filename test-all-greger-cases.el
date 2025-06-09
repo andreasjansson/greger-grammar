@@ -1,16 +1,42 @@
 ;;; test-all-greger-cases.el --- Comprehensive test of greger-tree-sitter against all test cases -*- lexical-binding: t -*-
 
+(require 'ert)
 (load-file "./greger-tree-sitter.el")
 
-;; Helper function to read markdown from corpus files
-(defun greger-read-corpus-file (name)
-  "Read markdown content from a corpus file."
-  (let ((file-path (format "./test/corpus/%s.greger" name)))
-    (if (file-exists-p file-path)
-        (with-temp-buffer
-          (insert-file-contents file-path)
-          (buffer-string))
-      (error "Corpus file not found: %s" file-path))))
+;; Helper function to parse tree-sitter test files
+(defun greger-parse-test-file (file-path)
+  "Parse a tree-sitter test file and return test cases."
+  (with-temp-buffer
+    (insert-file-contents file-path)
+    (let ((content (buffer-string))
+          test-cases)
+      ;; Split content by test case separators (lines of ===)
+      (let ((cases (split-string content "\n=\\{10,\\}\n" t)))
+        (dolist (case cases)
+          (when (string-match "\\`\\([^\n]+\\)\n=\\{10,\\}\n\\(\\(?:.\\|\n\\)*?\\)\n---\n\\(\\(?:.\\|\n\\)*\\)\\'" case)
+            (let ((name (match-string 1 case))
+                  (input (match-string 2 case))
+                  (expected-tree (match-string 3 case)))
+              (push (list :name name
+                         :input input
+                         :expected-tree expected-tree)
+                    test-cases))))
+        (nreverse test-cases)))))
+
+;; Helper function to read all test files from corpus directory
+(defun greger-read-all-test-files ()
+  "Read all .txt test files from test/corpus directory."
+  (let ((corpus-dir "./test/corpus/")
+        all-test-cases)
+    (when (file-directory-p corpus-dir)
+      (dolist (file (directory-files corpus-dir nil "\\.txt\\'"))
+        (let ((file-path (concat corpus-dir file)))
+          (condition-case err
+              (let ((test-cases (greger-parse-test-file file-path)))
+                (setq all-test-cases (append all-test-cases test-cases)))
+            (error
+             (message "Warning: Failed to parse test file %s: %s" file (error-message-string err)))))))
+    all-test-cases))
 
 ;; All test cases from greger-parser-test-cases
 (defconst greger-tree-sitter-test-cases
