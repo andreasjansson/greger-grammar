@@ -173,8 +173,12 @@ module.exports = grammar({
       /\n/,
     )),
 
-    text: $ => prec.right(repeat1(choice(
+    content_blocks: $ => repeat1(choice(
+      $.text,
       $.code_block,
+    )),
+
+    text: $ => prec.right(repeat1(choice(
       $.cite_tag,
       $.safe_shell_commands,
       $._text_content,
