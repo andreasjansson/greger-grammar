@@ -212,7 +212,7 @@ module.exports = grammar({
 
     _tool_tag: $ => seq(
       $.tool_start_tag,
-      alias($.tool_content, 'value'),
+      optional(alias($.tool_content, 'value')),
       $.tool_end_tag,
     ),
 

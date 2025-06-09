@@ -6021,4 +6021,232 @@ src/scanner.c
 Add HTML-style token precedence logic to tool content scanning
 </tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01TNUujTfM472sT3QCWu2Q6m -->
+## TOOL RESULT:
+
+ID: toolu_01TNUujTfM472sT3QCWu2Q6m
+
+<tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add HTML-style token precedence logic to tool content scanning
+</tool.toolu_01TNUujTfM472sT3QCWu2Q6m>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RnBVJzJqJaT4rJnwgZPX2c
+
+### command
+
+<tool.toolu_01RnBVJzJqJaT4rJnwgZPX2c>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_01RnBVJzJqJaT4rJnwgZPX2c>
+
+## TOOL RESULT:
+
+ID: toolu_01RnBVJzJqJaT4rJnwgZPX2c
+
+<tool.toolu_01RnBVJzJqJaT4rJnwgZPX2c>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [0, 34]
+    (tool_start_tag [0, 0] - [0, 14])
+    (ERROR [0, 14] - [0, 34])))
+stdin	Parse:    0.35 ms	    98 bytes/ms	(ERROR [0, 0] - [0, 34])
+
+</tool.toolu_01RnBVJzJqJaT4rJnwgZPX2c>
+
+## ASSISTANT:
+
+Still having issues. Let me take a step back and run the test to see if there are any clues:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Mu3UnxVwJihaWwDwWziNmk
+
+### command
+
+<tool.toolu_01Mu3UnxVwJihaWwDwWziNmk>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01Mu3UnxVwJihaWwDwWziNmk>
+
+## TOOL RESULT:
+
+ID: toolu_01Mu3UnxVwJihaWwDwWziNmk
+
+<tool.toolu_01Mu3UnxVwJihaWwDwWziNmk>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (tool_start_tag)
+[0m[31m          (tool_end_tag))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_01Mu3UnxVwJihaWwDwWziNmk>
+
+## ASSISTANT:
+
+I can see that both `tool_start_tag` and `tool_end_tag` are being recognized, but there's no `tool_content` between them. This suggests that the content scanning is not being triggered.
+
+Let me look at the specific test case again to see exactly what content should be captured:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_013Ber8LajYXhZ2bLnGsYRKT
+
+### path
+
+<tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+test/corpus/tool-use-only.txt
+</tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+### start-line
+
+<tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+10
+</tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+### end-line
+
+<tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+20
+</tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+### include-line-numbers
+
+<tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+true
+</tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+## TOOL RESULT:
+
+ID: toolu_013Ber8LajYXhZ2bLnGsYRKT
+
+<tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+Name: read-file
+ID: toolu_999
+
+### path
+
+<tool.toolu_999>
+test.txt
+</tool.toolu_999>
+
+---
+</tool.toolu_013Ber8LajYXhZ2bLnGsYRKT>
+
+## ASSISTANT:
+
+So the content should be `test.txt` (plus the newlines). The problem might be that my tool content scanner is looking for the closing tag too eagerly and not capturing the newlines properly.
+
+Let me try a simpler test first to debug the scanner:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GJbgSE4LsJa9zbmN9NFNZn
+
+### command
+
+<tool.toolu_01GJbgSE4LsJa9zbmN9NFNZn>
+echo -e "<tool.test123>\ntest.txt\n</tool.test123>" | tree-sitter parse
+</tool.toolu_01GJbgSE4LsJa9zbmN9NFNZn>
+
+## TOOL RESULT:
+
+ID: toolu_01GJbgSE4LsJa9zbmN9NFNZn
+
+<tool.toolu_01GJbgSE4LsJa9zbmN9NFNZn>
+Command failed with exit code 1: 
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 15]
+    (ERROR [0, 0] - [2, 15])))
+stdin	Parse:    0.54 ms	    80 bytes/ms	(ERROR [0, 0] - [2, 15])
+
+</tool.toolu_01GJbgSE4LsJa9zbmN9NFNZn>
+
+## ASSISTANT:
+
+Even the simple case doesn't work. The problem seems to be more fundamental. Let me go back and check the HTML parser approach more carefully.
+
+Looking at the HTML code again, I notice that the element rule is:
+
+```javascript
+element: $ => choice(
+  seq(
+    $.start_tag,
+    repeat($._node),
+    choice($.end_tag, $._implicit_end_tag),
+  ),
+  $.self_closing_tag,
+),
+```
+
+But for script and style elements which have raw text, they have:
+
+```javascript
+script_element: $ => seq(
+  alias($.script_start_tag, $.start_tag),
+  optional($.raw_text),
+  $.end_tag,
+),
+```
+
+The key difference is that `script_element` has `optional($.raw_text)` while normal elements have `repeat($._node)`. This suggests I should make the tool_content optional and that the scanner logic needs to be set up to only return content when there actually is content.
+
+Let me modify my grammar and scanner based on this insight:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Uzpmfno3hZLaEYnxgYSacv
+
+### file-path
+
+<tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+grammar.js
+</tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+
+### original-content
+
+<tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+_tool_tag: $ => seq(
+      $.tool_start_tag,
+      alias($.tool_content, 'value'),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+
+### new-content
+
+<tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+_tool_tag: $ => seq(
+      $.tool_start_tag,
+      optional(alias($.tool_content, 'value')),
+      $.tool_end_tag,
+    ),
+</tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+
+### git-commit-message
+
+<tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+Make tool_content optional in _tool_tag rule
+</tool.toolu_01Uzpmfno3hZLaEYnxgYSacv>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Uzpmfno3hZLaEYnxgYSacv -->
