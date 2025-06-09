@@ -146,6 +146,9 @@
   :syntax-table grgfoo-mode-syntax-table
 
   (when (treesit-ready-p 'greger)
+    ;; Create the tree-sitter parser for this buffer
+    (treesit-parser-create 'greger)
+
     ;; Tree-sitter setup
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
