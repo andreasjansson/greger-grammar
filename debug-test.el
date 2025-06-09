@@ -49,4 +49,12 @@
   (let* ((parser (treesit-parser-create 'greger))
          (root-node (treesit-parser-root-node parser)))
     (message "=== Tree structure ===")
-    (debug-print-node root-node 0)))
+    (debug-print-node root-node 0)
+
+    ;; Debug content extraction specifically
+    (let ((user-node (car (treesit-node-children root-node))))
+      (message "=== Debugging content extraction ===")
+      (message "User node type: %s" (treesit-node-type user-node))
+      (message "User node text: %S" (treesit-node-text user-node))
+      (let ((content (greger-tree-sitter--extract-content-blocks user-node)))
+        (message "Extracted content: %S" content)))))
