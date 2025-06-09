@@ -126,9 +126,9 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "name")
-          (setq name (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+          (setq name (string-trim (treesit-node-text child t))))
          ((string= child-type "id")
-          (setq id (greger-tree-sitter--extract-value-after-colon (treesit-node-text child t))))
+          (setq id (string-trim (treesit-node-text child t))))
          ((string= child-type "tool_param")
           (let ((param-name nil)
                 (param-value nil))
@@ -136,7 +136,7 @@
               (let ((param-child-type (treesit-node-type param-child)))
                 (cond
                  ((string= param-child-type "name")
-                  (setq param-name (treesit-node-text param-child t)))
+                  (setq param-name (string-trim (treesit-node-text param-child t))))
                  ((string= param-child-type "value")
                   (setq param-value (greger-tree-sitter--extract-xml-content (treesit-node-text param-child t)))))))
             (when (and param-name param-value)
