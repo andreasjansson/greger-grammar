@@ -1,4 +1,5 @@
 (require 'treesit)
+(require 'cl-lib)
 
 (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
 
@@ -87,15 +88,14 @@
 
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
-  (let ((result ""))
-    (greger-tree-sitter--collect-text-blocks node result)
+  (let ((result (greger-tree-sitter--collect-text-blocks node "")))
     (string-trim result)))
 
 (defun greger-tree-sitter--collect-text-blocks (node result)
-  "Recursively collect text from text_block nodes in NODE and append to RESULT."
+  "Recursively collect text from text nodes in NODE and append to RESULT."
   (let ((node-type (treesit-node-type node)))
     (cond
-     ((string= node-type "text_block")
+     ((string= node-type "text")
       (concat result (treesit-node-text node t)))
      (t
       (let ((text-result result))
