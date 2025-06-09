@@ -162,10 +162,14 @@
   (let ((value-node (treesit-node-child-by-field-name node "value")))
     (if value-node
         (treesit-node-text value-node t)
-      (let ((children (treesit-node-children node)))
-        (dolist (child children)
-          (when (string= (treesit-node-type child) "value")
-            (return (treesit-node-text child t))))))))
+      (let ((children (treesit-node-children node))
+            (result nil))
+        (while (and children (not result))
+          (let ((child (car children)))
+            (when (string= (treesit-node-type child) "value")
+              (setq result (treesit-node-text child t)))
+            (setq children (cdr children))))
+        result))))
 
 (defun greger-tree-sitter--extract-tool-result-id (node)
   "Extract tool result ID from tool_result NODE."
