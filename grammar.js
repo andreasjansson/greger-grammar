@@ -141,19 +141,15 @@ module.exports = grammar({
 
     name: $ => seq(
       'Name:',
-      field('value', $.name_value),
+      field('value', $.value),
       /\n/
     ),
-
-    name_value: _ => /[^\n]+/,
 
     id: $ => seq(
       'ID:',
-      field('value', $.id_value),
+      field('value', $.value),
       /\n/
     ),
-
-    id_value: _ => /[^\n]+/,
 
     tool_param: $ => seq(
       '###',
