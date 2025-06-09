@@ -42,5 +42,5 @@
 ;; Test simple conversation
 ;(debug-parse "simple-conversation")
 
-;; Test code blocks
-(debug-parse "code-block-triple-backticks")
+;; Test HTML comments
+(debug-parse "html-comments")
