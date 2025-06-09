@@ -53,40 +53,37 @@
    :language 'greger
    :feature 'heading
    :override t
-   '(;; Major section headings
-     (user) @font-lock-function-name-face
-     (assistant) @font-lock-function-name-face
-     (system) @font-lock-function-name-face
-     (thinking) @font-lock-function-name-face
-     (tool_use) @font-lock-function-name-face
-     (tool_result) @font-lock-function-name-face
-     (server_tool_use) @font-lock-function-name-face
-     (web_search_tool_result) @font-lock-function-name-face
-     (citations) @font-lock-function-name-face)
+   '(;; Heading markers
+     ("##") @font-lock-keyword-face
+     ("###") @font-lock-keyword-face
 
-   :language 'greger
-   :feature 'subheading
-   :override t
-   '(;; Sub-headings
-     (tool_param) @font-lock-keyword-face
-     (citation_entry) @font-lock-keyword-face)
+     ;; Heading types
+     ("USER" "ASSISTANT" "SYSTEM" "THINKING" "CITATIONS") @font-lock-function-name-face
+     ("TOOL" "USE" "RESULT" "SERVER" "WEB" "SEARCH") @font-lock-function-name-face
+
+     ;; Colons in headings
+     (user ":" @font-lock-builtin-face)
+     (assistant ":" @font-lock-builtin-face)
+     (system ":" @font-lock-builtin-face)
+     (thinking ":" @font-lock-builtin-face)
+     (tool_use ":" @font-lock-builtin-face)
+     (tool_result ":" @font-lock-builtin-face)
+     (server_tool_use ":" @font-lock-builtin-face)
+     (web_search_tool_result ":" @font-lock-builtin-face)
+     (citations ":" @font-lock-builtin-face))
 
    :language 'greger
    :feature 'field
    :override t
-   '(;; Field sections
-     (name) @font-lock-builtin-face
-     (id) @font-lock-builtin-face
-     (citation_title) @font-lock-builtin-face
-     (citation_text) @font-lock-builtin-face
-     (citation_encrypted_index) @font-lock-builtin-face)
+   '(;; Field labels
+     ("Name:" "ID:" "Title:") @font-lock-builtin-face)
 
    :language 'greger
    :feature 'value
    :override t
    '(;; Values
      (value) @font-lock-string-face
-     (citation_url) @font-lock-constant-face
+     (url) @font-lock-constant-face
      (param_name) @font-lock-variable-name-face)
 
    :language 'greger
