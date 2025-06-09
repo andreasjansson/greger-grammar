@@ -180,7 +180,7 @@ module.exports = grammar({
     content_blocks: $ => repeat1(choice(
       $.text,
       $.code_block,
-      alias($.inline_code, 'inline-code'),
+      $.inline_code,
     )),
 
     text: $ => prec.right(repeat1(choice(
