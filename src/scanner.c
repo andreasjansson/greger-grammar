@@ -150,12 +150,8 @@ static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '.') return false;
     advance(lexer);
 
-    // Check if ID matches the stored one
-    int tool_id_len = strlen(scanner->tool_id);
-    for (int i = 0; i < tool_id_len; i++) {
-        if (lexer->lookahead != scanner->tool_id[i]) {
-            return false;
-        }
+    // Scan any tool ID until >
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
         advance(lexer);
     }
 

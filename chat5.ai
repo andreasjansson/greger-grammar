@@ -11309,4 +11309,166 @@ if (lexer->lookahead == expected_closing[match_index]) {
 Fix variable reference in tool content scanner
 </tool.toolu_0134Ybx3PxAMcWLnn5cgCuqx>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0134Ybx3PxAMcWLnn5cgCuqx -->
+## TOOL RESULT:
+
+ID: toolu_0134Ybx3PxAMcWLnn5cgCuqx
+
+<tool.toolu_0134Ybx3PxAMcWLnn5cgCuqx>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix variable reference in tool content scanner
+</tool.toolu_0134Ybx3PxAMcWLnn5cgCuqx>
+
+## ASSISTANT:
+
+Now let me test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016UNtoHZovN5SxkuiN75QJh
+
+### command
+
+<tool.toolu_016UNtoHZovN5SxkuiN75QJh>
+tree-sitter generate && echo "<tool.test123>hello</tool.test123>" | tree-sitter parse
+</tool.toolu_016UNtoHZovN5SxkuiN75QJh>
+
+## TOOL RESULT:
+
+ID: toolu_016UNtoHZovN5SxkuiN75QJh
+
+<tool.toolu_016UNtoHZovN5SxkuiN75QJh>
+Command failed with exit code 1: 
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]
+    (tool_start_tag [0, 0] - [0, 14])
+    (tool_content [0, 14] - [0, 19])
+    (ERROR [0, 19] - [0, 21])
+    (tool_content [0, 21] - [1, 0])))
+stdin	Parse:    0.07 ms	   475 bytes/ms	(ERROR [0, 0] - [1, 0])
+
+</tool.toolu_016UNtoHZovN5SxkuiN75QJh>
+
+## ASSISTANT:
+
+Still the same issue. The problem is fundamental - the scanner logic is not working correctly. Let me take a step back and understand what's happening:
+
+1. `tool_start_tag [0, 0] - [0, 14]` = `<tool.test123>` ✓
+2. `tool_content [0, 14] - [0, 19]` = `hello` ✓  
+3. `ERROR [0, 19] - [0, 21]` = `</` ❌
+4. `tool_content [0, 21] - [1, 0]` = `tool.test123>` ❌
+
+The issue is in step 3. When the parser encounters `</`, it should recognize this as the start of a `tool_end_tag`, but instead it's being treated as an error.
+
+The problem might be that my `scan_tool_end_tag` function is not being called at the right time or there's an issue with the logic. Let me check the main scanner function logic:
+
+Looking at the main scanner function, when it sees `<`, it tries:
+1. `TOOL_START_TAG` 
+2. `TOOL_END_TAG`
+3. `HTML_COMMENT`
+
+But the `scan_tool_end_tag` function expects the sequence `</tool.xxx>`, and if any part doesn't match, it returns false.
+
+The issue might be that when we're at `</` and the scanner calls `scan_tool_end_tag`, but the ID doesn't match what's stored in the scanner state, so it returns false.
+
+Let me debug this by checking what's actually stored in `scanner->tool_id`. The issue might be that when I scan the start tag `<tool.test123>`, I store `test123` in `scanner->tool_id`, but then when I scan the end tag `</tool.test123>`, something goes wrong.
+
+Actually, let me check if the issue is that the scanner state is being lost between calls. The problem might be in the serialize/deserialize functions.
+
+But first, let me try a different approach. Let me temporarily remove the state management and see if I can get a basic version working. The simplest approach would be to make the tool content scanner not depend on the stored state for now:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DA6o4JFq6D89rfVNFjRLrK
+
+### file-path
+
+<tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+src/scanner.c
+</tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+
+### original-content
+
+<tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Check if ID matches the stored one
+    int tool_id_len = strlen(scanner->tool_id);
+    for (int i = 0; i < tool_id_len; i++) {
+        if (lexer->lookahead != scanner->tool_id[i]) {
+            return false;
+        }
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+</tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+
+### new-content
+
+<tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan any tool ID until >
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+</tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+
+### git-commit-message
+
+<tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+Simplify tool end tag scanner to accept any tool ID for now
+</tool.toolu_01DA6o4JFq6D89rfVNFjRLrK>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01DA6o4JFq6D89rfVNFjRLrK -->
