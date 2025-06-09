@@ -26,6 +26,6 @@
     (dolist (child (treesit-node-children node))
       (debug-print-node child (1+ level)))))
 
-;; Test with simple conversation
-(let ((test-text "## USER:\n\nHello\n\n## ASSISTANT:\n\nHi there! How can I help you today?"))
+;; Test with tool use
+(let ((test-text "## USER:\n\nRead the file hello.txt\n\n## TOOL USE:\n\nName: read-file\nID: toolu_123\n\n### path\n\n<tool.toolu_123>\nhello.txt\n</tool.toolu_123>"))
   (debug-tree-sitter-structure test-text))
