@@ -35,25 +35,43 @@
          ;; If this is an assistant-type message, accumulate content
          ((string= role "assistant")
           (let ((content (cdr (assoc 'content entry))))
-            (if (listp content)
-                ;; Content is a list of content blocks
-                (setq current-assistant-content
-                      (append current-assistant-content content))
-              ;; Content is plain text, convert to text block
+            (cond
+             ;; Content is already a list of content blocks
+             ((and (listp content) (listp (car content)) (assoc 'type (car content)))
+              (setq current-assistant-content
+                    (append current-assistant-content content)))
+             ;; Content is plain text, convert to text block
+             ((stringp content)
               (setq current-assistant-content
                     (append current-assistant-content
-                            `(((type . "text") (text . ,content))))))))
+                            `(((type . "text") (text . ,content))))))
+             ;; Content is some other list format
+             (t
+              (setq current-assistant-content
+                    (append current-assistant-content content))))))
          ;; For non-assistant messages, flush any accumulated assistant content first
          (t
           (when current-assistant-content
-            (push `((role . "assistant")
-                    (content . ,current-assistant-content)) result)
+            (if (and (= (length current-assistant-content) 1)
+                     (string= (cdr (assoc 'type (car current-assistant-content))) "text"))
+                ;; Single text block - use plain text format
+                (push `((role . "assistant")
+                        (content . ,(cdr (assoc 'text (car current-assistant-content))))) result)
+              ;; Multiple blocks or non-text blocks - use content blocks format
+              (push `((role . "assistant")
+                      (content . ,current-assistant-content)) result))
             (setq current-assistant-content '()))
           (push entry result)))))
     ;; Don't forget any remaining assistant content
     (when current-assistant-content
-      (push `((role . "assistant")
-              (content . ,current-assistant-content)) result))
+      (if (and (= (length current-assistant-content) 1)
+               (string= (cdr (assoc 'type (car current-assistant-content))) "text"))
+          ;; Single text block - use plain text format
+          (push `((role . "assistant")
+                  (content . ,(cdr (assoc 'text (car current-assistant-content))))) result)
+        ;; Multiple blocks or non-text blocks - use content blocks format
+        (push `((role . "assistant")
+                (content . ,current-assistant-content)) result)))
     (nreverse result)))
 
 (defun greger-tree-sitter--extract-entry-from-node (node)
