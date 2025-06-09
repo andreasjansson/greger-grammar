@@ -254,18 +254,23 @@
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-tool-content child))))))
-    ;; Check if this is a web search result and parse accordingly
+    ;; Check if this should be a web search tool result based on content
     (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
-      `((role . "assistant")
-        (content . (((type . ,(if (and (listp parsed-content)
-                                       (> (length parsed-content) 0)
-                                       (listp (car parsed-content))
-                                       (assoc 'type (car parsed-content))
-                                       (string= (cdr (assoc 'type (car parsed-content))) "web_search_result"))
-                                  "server_tool_result"
-                                  "server_tool_result"))
-                     (tool_use_id . ,id)
-                     (content . ,parsed-content))))))))
+      (if (and (listp parsed-content)
+               (> (length parsed-content) 0)
+               (listp (car parsed-content))
+               (assoc 'type (car parsed-content))
+               (string= (cdr (assoc 'type (car parsed-content))) "web_search_result"))
+          ;; Web search result - keep raw content
+          `((role . "assistant")
+            (content . (((type . "web_search_tool_result")
+                         (tool_use_id . ,id)
+                         (content . ,content)))))
+        ;; Regular server tool result - use parsed content
+        `((role . "assistant")
+          (content . (((type . "server_tool_result")
+                       (tool_use_id . ,id)
+                       (content . ,parsed-content)))))))))
 
 (defun greger-tree-sitter--extract-citations-entry (node)
   "Extract citations entry from NODE."
