@@ -86,7 +86,7 @@ module.exports = grammar({
       optional(/\n/),
       repeat(choice(
         $.id,
-        $.content,
+        $.tool_content,
       )),
     ),
 
