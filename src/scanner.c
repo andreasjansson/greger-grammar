@@ -183,7 +183,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
 
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == expected_closing_start[match_index]) {
+        if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
                 // Found complete closing tag, stop here (don't consume it)
