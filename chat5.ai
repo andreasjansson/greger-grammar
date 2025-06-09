@@ -17363,4 +17363,232 @@ test/corpus/tool-use-with-tool-use-in-params.txt
 Fix id structure in tool-use-with-tool-use-in-params test
 </tool.toolu_01JW8y5ep379eVyfbiee4NhK>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_01JW8y5ep379eVyfbiee4NhK -->
+## TOOL RESULT:
+
+ID: toolu_01JW8y5ep379eVyfbiee4NhK
+
+<tool.toolu_01JW8y5ep379eVyfbiee4NhK>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-with-tool-use-in-params.txt. Successfully staged 2 file(s) and committed with message: Fix id structure in tool-use-with-tool-use-in-params test
+</tool.toolu_01JW8y5ep379eVyfbiee4NhK>
+
+## ASSISTANT:
+
+Now let me run all tests to see if they pass:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01L3ndMQLNsg3fE2dkDJoZ4p
+
+### command
+
+<tool.toolu_01L3ndMQLNsg3fE2dkDJoZ4p>
+timeout 15 tree-sitter test
+</tool.toolu_01L3ndMQLNsg3fE2dkDJoZ4p>
+
+## TOOL RESULT:
+
+ID: toolu_01L3ndMQLNsg3fE2dkDJoZ4p
+
+<tool.toolu_01L3ndMQLNsg3fE2dkDJoZ4p>
+Command failed with exit code 1:   citations-after-tool-result:
+      1. ✓ [32mCitations after tool result[0m[31m -- Warning: Slow parse rate (2588.681 bytes/ms)[0m
+  citations-basic:
+      2. ✓ [32mCitations basic[0m
+  citations-multiple:
+      3. ✓ [32mCitations multiple[0m
+  code-block-triple-backticks:
+      4. ✓ [32mCode block triple backticks[0m
+  complex-workflow:
+      5. ✓ [32mComplex workflow[0m
+  html-comments:
+      6. ✓ [32mHTML comments[0m
+  inline-code:
+      7. ✓ [32mInline code[0m
+  mixed-code-blocks-and-sections:
+      8. ✓ [32mMixed code blocks and sections[0m
+  multiple-tool-uses:
+      9. ✗ [31mMultiple tool uses[0m
+  nested-code-blocks:
+     10. ✓ [32mNested code blocks[0m
+  server-tool-use-basic:
+     11. ✓ [32mServer tool use basic[0m
+  server-tool-use-string-result:
+     12. ✓ [32mServer tool use string result[0m
+  simple-conversation:
+     13. ✓ [32mSimple conversation[0m
+  simple-user-message:
+     14. ✓ [32mSimple user message[0m
+  system-and-user:
+     15. ✓ [32mSystem and user[0m
+  thinking-only:
+     16. ✓ [32mThinking only[0m
+  thinking-section:
+     17. ✓ [32mThinking section[0m
+  tool-use-multiple-params:
+     18. ✓ [32mTool use multiple params[0m
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+  tool-use-single-param:
+     20. ✓ [32mTool use single param[0m
+  tool-use-with-code-in-params:
+     21. ✓ [32mTool use with code in params[0m
+  tool-use-with-tool-use-in-params:
+     22. ✓ [32mTool use with tool use in params[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Multiple tool uses:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name
+          (name_value))
+        (id
+          (id_value))
+        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+          (id_value))
+        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (tool_use
+        (name
+          (name_value))
+[31m        (id
+[0m[31m          (id_value))
+[0m[32m        (id)
+[0m        (tool_param
+          (name)
+          (value
+            (tool_start_tag)
+            (tool_content)
+            (tool_end_tag))))
+      (tool_result
+        (id
+          (id_value))
+        (content
+          (tool_start_tag)
+          (tool_content)
+          (tool_end_tag)))
+      (assistant
+        (text)))
+
+
+</tool.toolu_01L3ndMQLNsg3fE2dkDJoZ4p>
+
+## ASSISTANT:
+
+Excellent! Only 1 test still failing. I can see that the `multiple-tool-uses` test has two `tool_use` sections, and I only fixed the first one. Let me fix the second one:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_014gN6ArNBzqhu3EQD2XRuje
+
+### path
+
+<tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+test/corpus/multiple-tool-uses.txt
+</tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+
+### start-line
+
+<tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+65
+</tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+
+### end-line
+
+<tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+85
+</tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+
+### include-line-numbers
+
+<tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+true
+</tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+
+## TOOL RESULT:
+
+ID: toolu_014gN6ArNBzqhu3EQD2XRuje
+
+<tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id
+      (id_value))
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (tool_use
+    (name
+      (name_value))
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+</tool.toolu_014gN6ArNBzqhu3EQD2XRuje>
+
+## ASSISTANT:
+
+I can see the issue - there's a second `tool_use` section with `(id)` that needs to be `(id (id_value))`. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WKwE9yLmDx7MWdpGVxXuT4
+
+### file-path
+
+<tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+test/corpus/multiple-tool-uses.txt
+</tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+
+### original-content
+
+<tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+(tool_use
+    (name
+      (name_value))
+    (id)
+    (tool_param
+</tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+
+### new-content
+
+<tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+(tool_use
+    (name
+      (name_value))
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+
+### git-commit-message
+
+<tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+Fix second tool_use id structure in multiple-tool-uses test
+</tool.toolu_01WKwE9yLmDx7MWdpGVxXuT4>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01WKwE9yLmDx7MWdpGVxXuT4 -->
