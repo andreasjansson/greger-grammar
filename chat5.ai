@@ -16733,4 +16733,224 @@ test/corpus/tool-use-multiple-params.txt
 Manually fix id structure in tool-use-multiple-params test
 </tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_011Nq2S9WeVSteyPemAXCAPm -->
+## TOOL RESULT:
+
+ID: toolu_011Nq2S9WeVSteyPemAXCAPm
+
+<tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-multiple-params.txt. Successfully staged 2 file(s) and committed with message: Manually fix id structure in tool-use-multiple-params test
+</tool.toolu_011Nq2S9WeVSteyPemAXCAPm>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013vU7WMAaSmRyuQpGeLzVEm
+
+### command
+
+<tool.toolu_013vU7WMAaSmRyuQpGeLzVEm>
+tree-sitter test --file-name tool-use-multiple-params.txt
+</tool.toolu_013vU7WMAaSmRyuQpGeLzVEm>
+
+## TOOL RESULT:
+
+ID: toolu_013vU7WMAaSmRyuQpGeLzVEm
+
+<tool.toolu_013vU7WMAaSmRyuQpGeLzVEm>
+Command executed successfully:
+  tool-use-multiple-params:
+     18. ✓ [32mTool use multiple params[0m
+
+Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 12888 bytes/ms
+
+
+</tool.toolu_013vU7WMAaSmRyuQpGeLzVEm>
+
+## ASSISTANT:
+
+Great! Now let me check if the script worked well for the other tests and fix any remaining issues:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RtLmT1ZKPKembDFqpP8yVm
+
+### command
+
+<tool.toolu_01RtLmT1ZKPKembDFqpP8yVm>
+timeout 15 tree-sitter test | grep "✗\|failures"
+</tool.toolu_01RtLmT1ZKPKembDFqpP8yVm>
+
+## TOOL RESULT:
+
+ID: toolu_01RtLmT1ZKPKembDFqpP8yVm
+
+<tool.toolu_01RtLmT1ZKPKembDFqpP8yVm>
+Command executed successfully:
+      1. ✗ [31mCitations after tool result[0m
+      2. ✗ [31mCitations basic[0m
+      3. ✗ [31mCitations multiple[0m
+      5. ✗ [31mComplex workflow[0m
+      9. ✗ [31mMultiple tool uses[0m
+     11. ✗ [31mServer tool use basic[0m
+     12. ✗ [31mServer tool use string result[0m
+     21. ✗ [31mTool use with code in params[0m
+     22. ✗ [31mTool use with tool use in params[0m
+9 failures:
+
+</tool.toolu_01RtLmT1ZKPKembDFqpP8yVm>
+
+## ASSISTANT:
+
+Let me check one of the failing tests to see what pattern I need to fix:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012PSN61RF4UDYa3h5rnYPuw
+
+### command
+
+<tool.toolu_012PSN61RF4UDYa3h5rnYPuw>
+tree-sitter test --file-name server-tool-use-basic.txt | head -20
+</tool.toolu_012PSN61RF4UDYa3h5rnYPuw>
+
+## TOOL RESULT:
+
+ID: toolu_012PSN61RF4UDYa3h5rnYPuw
+
+<tool.toolu_012PSN61RF4UDYa3h5rnYPuw>
+Command executed successfully:
+  server-tool-use-basic:
+     11. ✗ [31mServer tool use basic[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Server tool use basic:
+
+    (source_file
+      (user
+        (text))
+      (server_tool_use
+        (name
+          (name_value))
+[31m        (id
+[0m[31m          (id_value))
+[0m[32m        (id)
+[0m        (tool_param
+          (name)
+
+</tool.toolu_012PSN61RF4UDYa3h5rnYPuw>
+
+## ASSISTANT:
+
+Same issue - the `id` replacement didn't work properly in some files. Let me manually fix these remaining cases. Let me create a more targeted approach:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01ViMbVFYTFJcdZMvjRU2bH2
+
+### command
+
+<tool.toolu_01ViMbVFYTFJcdZMvjRU2bH2>
+grep -l "(id)$" test/corpus/*.txt
+</tool.toolu_01ViMbVFYTFJcdZMvjRU2bH2>
+
+## TOOL RESULT:
+
+ID: toolu_01ViMbVFYTFJcdZMvjRU2bH2
+
+<tool.toolu_01ViMbVFYTFJcdZMvjRU2bH2>
+Command failed with exit code 2: grep: test/corpus/*.txt: No such file or directory
+
+</tool.toolu_01ViMbVFYTFJcdZMvjRU2bH2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NX8D5DDq1tCGSfxULaDY1E
+
+### command
+
+<tool.toolu_01NX8D5DDq1tCGSfxULaDY1E>
+grep -l "(id)$" test/corpus/*
+</tool.toolu_01NX8D5DDq1tCGSfxULaDY1E>
+
+## TOOL RESULT:
+
+ID: toolu_01NX8D5DDq1tCGSfxULaDY1E
+
+<tool.toolu_01NX8D5DDq1tCGSfxULaDY1E>
+Command failed with exit code 2: grep: test/corpus/*: No such file or directory
+
+</tool.toolu_01NX8D5DDq1tCGSfxULaDY1E>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GjAekgwcN4hFPZk552rdF9
+
+### command
+
+<tool.toolu_01GjAekgwcN4hFPZk552rdF9>
+cd test/corpus && grep -l "    (id)$" *.txt
+</tool.toolu_01GjAekgwcN4hFPZk552rdF9>
+
+## TOOL RESULT:
+
+ID: toolu_01GjAekgwcN4hFPZk552rdF9
+
+<tool.toolu_01GjAekgwcN4hFPZk552rdF9>
+Command executed successfully:
+citations-after-tool-result.txt
+citations-basic.txt
+citations-multiple.txt
+complex-workflow.txt
+multiple-tool-uses.txt
+server-tool-use-basic.txt
+server-tool-use-string-result.txt
+tool-use-with-code-in-params.txt
+tool-use-with-tool-use-in-params.txt
+
+</tool.toolu_01GjAekgwcN4hFPZk552rdF9>
+
+## ASSISTANT:
+
+Perfect! These are exactly the failing tests. Let me fix them one by one:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Fs22tVVgUA1AT3tjv4QCks
+
+### file-path
+
+<tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+test/corpus/server-tool-use-basic.txt
+</tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+
+### original-content
+
+<tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+    (id)
+    (tool_param
+</tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+
+### new-content
+
+<tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+    (id
+      (id_value))
+    (tool_param
+</tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+
+### git-commit-message
+
+<tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+Fix id structure in server-tool-use-basic test
+</tool.toolu_01Fs22tVVgUA1AT3tjv4QCks>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01Fs22tVVgUA1AT3tjv4QCks -->
