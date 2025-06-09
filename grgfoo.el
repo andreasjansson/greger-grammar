@@ -123,7 +123,7 @@
                   (content)))
 
     ;; Indentation - using safe rules
-    (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+    ;; (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules) ; Disabled to debug segfault
 
     ;; Navigation - treat headings as defuns for C-M-a and C-M-e
     (setq-local treesit-defun-type-regexp
