@@ -126,15 +126,8 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ((node-is "}") parent-bol 0)
-     ((node-is ")") parent-bol 0)
-     ((node-is "]") parent-bol 0)
+     ;; Basic indentation - keep everything at column 0 for now
      ((parent-is "source_file") parent-bol 0)
-     ((parent-is "tool_use") parent-bol ,grgfoo-ts-indent-offset)
-     ((parent-is "tool_result") parent-bol ,grgfoo-ts-indent-offset)
-     ((parent-is "server_tool_use") parent-bol ,grgfoo-ts-indent-offset)
-     ((parent-is "web_search_tool_result") parent-bol ,grgfoo-ts-indent-offset)
-     ((parent-is "citations") parent-bol ,grgfoo-ts-indent-offset)
      (catch-all parent-bol 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
 
