@@ -99,9 +99,6 @@ static bool scan_html_comment(TSLexer *lexer) {
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
-
-    // Save the starting position to potentially backtrack
-    lexer->mark_end(lexer);
     advance(lexer);
 
     // Check for "tool."
@@ -128,13 +125,10 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
-    // Mark end after opening tag, then scan content
-    lexer->mark_end(lexer);
-
-    // Consume everything until we find the exact closing tag
+    // Now scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Check if this could be our closing tag
+            // Save position in case this isn't the closing tag
             advance(lexer);
 
             if (lexer->lookahead == '/') {
@@ -163,7 +157,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     }
 
                                     if (matches && lexer->lookahead == '>') {
-                                        // Found the exact closing tag, consume it too
+                                        // Found the exact closing tag, consume it
                                         advance(lexer);
                                         lexer->result_symbol = TOOL_CONTENT;
                                         return true;
@@ -174,16 +168,14 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                     }
                 }
             }
-            // Continue if not the right closing tag
+            // Continue if not the right closing tag - note we already advanced past '<'
         } else {
             advance(lexer);
-            lexer->mark_end(lexer);
         }
     }
 
-    // Reached end without finding closing tag, still return the content
-    lexer->result_symbol = TOOL_CONTENT;
-    return true;
+    // Reached end without finding closing tag
+    return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
