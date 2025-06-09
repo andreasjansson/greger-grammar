@@ -12685,4 +12685,171 @@ test/corpus/tool-use-only.txt
 Update tool-use-only test to match new nested tool tag structure
 </tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_012Q7v2FUjkqZXtByW8acJwx -->
+## TOOL RESULT:
+
+ID: toolu_012Q7v2FUjkqZXtByW8acJwx
+
+<tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/test/corpus/tool-use-only.txt. Successfully staged 2 file(s) and committed with message: Update tool-use-only test to match new nested tool tag structure
+</tool.toolu_012Q7v2FUjkqZXtByW8acJwx>
+
+## ASSISTANT:
+
+Now let me test this specific file:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01RG524BZcKZKCNFpugJXE79
+
+### command
+
+<tool.toolu_01RG524BZcKZKCNFpugJXE79>
+tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01RG524BZcKZKCNFpugJXE79>
+
+## TOOL RESULT:
+
+ID: toolu_01RG524BZcKZKCNFpugJXE79
+
+<tool.toolu_01RG524BZcKZKCNFpugJXE79>
+Command executed successfully:
+  tool-use-only:
+     19. ✓ [32mTool use only[0m
+
+Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 109 bytes/ms
+
+
+</tool.toolu_01RG524BZcKZKCNFpugJXE79>
+
+## ASSISTANT:
+
+Great! Now let me update the other tool-related test files. Let me check what other tests are failing:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TvAxXXsKchAeEmsT3AwgRz
+
+### path
+
+<tool.toolu_01TvAxXXsKchAeEmsT3AwgRz>
+test/corpus/tool-use-single-param.txt
+</tool.toolu_01TvAxXXsKchAeEmsT3AwgRz>
+
+## TOOL RESULT:
+
+ID: toolu_01TvAxXXsKchAeEmsT3AwgRz
+
+<tool.toolu_01TvAxXXsKchAeEmsT3AwgRz>
+========================
+Tool use single param
+========================
+
+## USER:
+
+Read the file hello.txt
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_123
+
+### path
+
+<tool.toolu_123>
+hello.txt
+</tool.toolu_123>
+
+## TOOL RESULT:
+
+ID: toolu_123
+
+<tool.toolu_123>
+Hello, world!
+</tool.toolu_123>
+
+## ASSISTANT:
+
+The file contains: Hello, world!
+
+---
+
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (tool_result
+    (id)
+    (content))
+  (assistant
+    (text)))
+</tool.toolu_01TvAxXXsKchAeEmsT3AwgRz>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017MwVDt2jqjSU5rXdPJt2eV
+
+### file-path
+
+<tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+test/corpus/tool-use-single-param.txt
+</tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+
+### original-content
+
+<tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value)))
+  (tool_result
+    (id)
+    (content))
+  (assistant
+    (text)))
+</tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+
+### new-content
+
+<tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+(source_file
+  (user
+    (text))
+  (tool_use
+    (name)
+    (id)
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (tool_result
+    (id)
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (assistant
+    (text)))
+</tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+
+### git-commit-message
+
+<tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+Update tool-use-single-param test to match new nested tool tag structure
+</tool.toolu_017MwVDt2jqjSU5rXdPJt2eV>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017MwVDt2jqjSU5rXdPJt2eV -->
