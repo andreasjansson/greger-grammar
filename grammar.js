@@ -194,12 +194,7 @@ module.exports = grammar({
 
     content: $ => alias($.tool_content, 'content'),
 
-    code_block: $ => choice(
-      $.triple_backtick_block,
-      $.single_backtick_inline,
-    ),
-
-    triple_backtick_block: $ => seq(
+    code_block: $ => seq(
       '```',
       optional(/[^\n]*/),
       /\n/,
@@ -212,7 +207,7 @@ module.exports = grammar({
       '```',
     ),
 
-    single_backtick_inline: $ => seq(
+    inline_code: $ => seq(
       '`',
       /[^`\n]+/,
       '`',
