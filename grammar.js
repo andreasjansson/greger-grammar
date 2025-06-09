@@ -11,7 +11,7 @@ module.exports = grammar({
   name: "greger",
 
   extras: $ => [
-    $.html_comment,
+    /<!--[^>]*-->/,
     /[ \t\n]/,
   ],
 
