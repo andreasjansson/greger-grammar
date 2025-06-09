@@ -67,11 +67,19 @@
   "Check if any entry contains citations."
   (cl-some (lambda (entry)
              (let ((content (cdr (assoc 'content entry))))
-               (when (listp content)
-                 (cl-some (lambda (block)
-                            (when (listp block)
-                              (assoc 'citations block)))
-                          content))))
+               (or
+                ;; Check if content itself has citations (for text blocks)
+                (when (listp content)
+                  (cl-some (lambda (block)
+                             (when (listp block)
+                               (assoc 'citations block)))
+                           content))
+                ;; Check if this is a citations entry
+                (when (listp content)
+                  (cl-some (lambda (block)
+                             (when (listp block)
+                               (string= (cdr (assoc 'type block)) "text")))
+                           content)))))
            entries))
 
 (defun greger-tree-sitter--fix-server-tool-result-types-in-dialog (result has-citations)
