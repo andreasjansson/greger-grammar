@@ -177,13 +177,69 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "id")
-          (setq id (string-trim (treesit-node-text child t))))
+          (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
           (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
     `((role . "user")
       (content . (((type . "tool_result")
                    (tool_use_id . ,id)
                    (content . ,content)))))))
+
+(defun greger-tree-sitter--extract-server-tool-use-entry (node)
+  "Extract server tool use entry from NODE."
+  (let ((name nil)
+        (id nil)
+        (params '()))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "name")
+          (setq name (greger-tree-sitter--extract-key child)))
+         ((string= child-type "id")
+          (setq id (greger-tree-sitter--extract-key child)))
+         ((string= child-type "tool_param")
+          (push (greger-tree-sitter--extract-tool-param child) params)))))
+    (setq params (nreverse params))
+    `((role . "assistant")
+      (content . (((type . "server_tool_use")
+                   (id . ,id)
+                   (name . ,name)
+                   (input . ,params)))))))
+
+(defun greger-tree-sitter--extract-server-tool-result-entry (node)
+  "Extract server tool result entry from NODE."
+  (let ((id nil)
+        (content nil))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "id")
+          (setq id (greger-tree-sitter--extract-key child)))
+         ((string= child-type "content")
+          (setq content (greger-tree-sitter--parse-json-or-plain-content
+                        (greger-tree-sitter--extract-xml-content (treesit-node-text child t))))))))
+    `((role . "assistant")
+      (content . (((type . "server_tool_result")
+                   (tool_use_id . ,id)
+                   (content . ,content)))))))
+
+(defun greger-tree-sitter--extract-citations-entry (node)
+  "Extract citations entry from NODE."
+  (let ((text-content nil)
+        (citation-entries '()))
+    (dolist (child (treesit-node-children node))
+      (let ((child-type (treesit-node-type child)))
+        (cond
+         ((string= child-type "text")
+          (setq text-content (greger-tree-sitter--extract-text-content child)))
+         ((string= child-type "citation_entry")
+          (push (greger-tree-sitter--extract-citation-entry child) citation-entries)))))
+    (setq citation-entries (nreverse citation-entries))
+    ;; Citations are merged into assistant content as text with citations
+    `((role . "assistant")
+      (content . (((type . "text")
+                   (text . ,text-content)
+                   (citations . ,citation-entries)))))))
 
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
