@@ -85,7 +85,7 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       repeat($.id),
-      optional($.tool_content),
+      $.tool_content,
     ),
 
     server_tool_use: $ => seq(
