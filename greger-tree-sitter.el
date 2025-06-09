@@ -144,6 +144,18 @@
     (setf (alist-get 'type tool-use-data) "server_tool_use")
     tool-use-data))
 
+(defun greger-tree-sitter--extract-tool-name-value (name-node)
+  "Extract tool name from tool_name node (format: 'Name: value')."
+  (let ((text (treesit-node-text name-node)))
+    (when (string-prefix-p "Name:" text)
+      (string-trim (substring text 5)))))
+
+(defun greger-tree-sitter--extract-tool-id-value (id-node)
+  "Extract tool ID from tool_id node (format: 'ID: value')."
+  (let ((text (treesit-node-text id-node)))
+    (when (string-prefix-p "ID:" text)
+      (string-trim (substring text 3)))))
+
 (defun greger-tree-sitter--extract-tool-param (param-node)
   "Extract parameter name and value from a tool_param node."
   (let ((children (treesit-node-children param-node))
@@ -153,16 +165,25 @@
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
         (cond
-         ((string= node-type "name")
+         ((string= node-type "param_name")
           (setq param-name (string-trim (treesit-node-text child))))
-         ((string= node-type "value")
-          (setq param-value (string-trim (treesit-node-text child)))
-          ;; Try to convert to number if it looks like one
-          (when (string-match "^[0-9]+$" param-value)
-            (setq param-value (string-to-number param-value)))))))
+         ((string= node-type "tool_content")
+          (setq param-value (greger-tree-sitter--extract-tool-content-value child))))))
 
     (when (and param-name param-value)
       (cons (intern param-name) param-value))))
+
+(defun greger-tree-sitter--extract-tool-content-value (content-node)
+  "Extract value from tool_content node, removing wrapper tags."
+  (let ((text (treesit-node-text content-node)))
+    ;; Remove the <tool.ID> wrapper tags
+    (when (string-match "^<tool\\.[^>]+>\\(\\(?:.\\|\n\\)*?\\)</tool\\.[^>]+$" text)
+      (setq text (match-string 1 text)))
+    (setq text (string-trim text))
+    ;; Try to convert to number if it looks like one
+    (if (string-match "^[0-9]+$" text)
+        (string-to-number text)
+      text)))
 
 (defun greger-tree-sitter--extract-tool-result (tool-result-node)
   "Extract tool result data from a tool result section."
