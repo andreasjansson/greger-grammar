@@ -53,32 +53,30 @@
    :language 'greger
    :feature 'heading
    :override t
-   '(;; Main headings (##)
-     (user "##" @font-lock-keyword-face
-           "USER" @font-lock-function-name-face)
-     (assistant "##" @font-lock-keyword-face
-                "ASSISTANT" @font-lock-function-name-face)
-     (system "##" @font-lock-keyword-face
-             "SYSTEM" @font-lock-function-name-face)
-     (thinking "##" @font-lock-keyword-face
-               "THINKING" @font-lock-function-name-face)
-     (tool_use "##" @font-lock-keyword-face
-               "TOOL" @font-lock-function-name-face
-               "USE" @font-lock-function-name-face)
-     (tool_result "##" @font-lock-keyword-face
-                  "TOOL" @font-lock-function-name-face
-                  "RESULT" @font-lock-function-name-face)
-     (server_tool_use "##" @font-lock-keyword-face
-                      "SERVER" @font-lock-function-name-face
-                      "TOOL" @font-lock-function-name-face
-                      "USE" @font-lock-function-name-face)
-     (web_search_tool_result "##" @font-lock-keyword-face
-                             "WEB" @font-lock-function-name-face
-                             "SEARCH" @font-lock-function-name-face
-                             "TOOL" @font-lock-function-name-face
-                             "RESULT" @font-lock-function-name-face)
-     (citations "##" @font-lock-keyword-face
-                "CITATIONS" @font-lock-function-name-face))
+   '(;; Heading markers (##)
+     (user "##" @font-lock-keyword-face)
+     (assistant "##" @font-lock-keyword-face)
+     (system "##" @font-lock-keyword-face)
+     (thinking "##" @font-lock-keyword-face)
+     (tool_use "##" @font-lock-keyword-face)
+     (tool_result "##" @font-lock-keyword-face)
+     (server_tool_use "##" @font-lock-keyword-face)
+     (web_search_tool_result "##" @font-lock-keyword-face)
+     (citations "##" @font-lock-keyword-face)
+
+     ;; Heading types
+     (user "USER" @font-lock-function-name-face)
+     (assistant "ASSISTANT" @font-lock-function-name-face)
+     (system "SYSTEM" @font-lock-function-name-face)
+     (thinking "THINKING" @font-lock-function-name-face)
+     (tool_use ["TOOL" "USE"] @font-lock-function-name-face)
+     (tool_result ["TOOL" "RESULT"] @font-lock-function-name-face)
+     (server_tool_use ["SERVER" "TOOL" "USE"] @font-lock-function-name-face)
+     (web_search_tool_result ["WEB" "SEARCH" "TOOL" "RESULT"] @font-lock-function-name-face)
+     (citations "CITATIONS" @font-lock-function-name-face)
+
+     ;; Colons
+     [":" @font-lock-builtin-face])
 
    :language 'greger
    :feature 'subheading
@@ -90,12 +88,8 @@
    :language 'greger
    :feature 'field
    :override t
-   '(;; Field names
-     (name "Name:" @font-lock-builtin-face)
-     (id "ID:" @font-lock-builtin-face)
-     (citation_title "Title:" @font-lock-builtin-face)
-     (citation_text "Cited text:" @font-lock-builtin-face)
-     (citation_encrypted_index "Encrypted index:" @font-lock-builtin-face))
+   '(;; Field names - these appear as string literals in the grammar
+     ["Name:" "ID:" "Title:" "Cited text:" "Encrypted index:"] @font-lock-builtin-face)
 
    :language 'greger
    :feature 'value
@@ -115,10 +109,8 @@
    :feature 'markup
    :override t
    '(;; HTML-like tags
-     (cite_tag "<cite>" @font-lock-builtin-face
-               "</cite>" @font-lock-builtin-face)
-     (safe_shell_commands "<safe-shell-commands>" @font-lock-builtin-face
-                          "</safe-shell-commands>" @font-lock-builtin-face)
+     (cite_tag) @font-lock-builtin-face
+     (safe_shell_commands) @font-lock-builtin-face
      (tool_start_tag) @font-lock-builtin-face
      (tool_end_tag) @font-lock-builtin-face)
 
@@ -126,7 +118,8 @@
    :feature 'content
    :override t
    '(;; Content
-     (tool_content) @font-lock-doc-face)
+     (tool_content) @font-lock-doc-face
+     (text) @default)
 
    :language 'greger
    :feature 'error
@@ -204,9 +197,7 @@
 (add-to-list 'treesit-extra-load-path default-directory)
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.grg\\'" . grgfoo-mode))
-;;;###autoload
-(add-to-list 'auto-mode-alist '("\\.greger\\'" . grgfoo-mode))
+(add-to-list 'auto-mode-alist '("\\.grgfoo\\'" . grgfoo-mode))
 
 (provide 'grgfoo)
 
