@@ -46,9 +46,9 @@
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'greger
-   :feature 'basic
+   :feature 'heading
    :override t
-   '(;; Very basic highlighting - start minimal to avoid segfaults
+   '(;; Major section headings
      (user) @font-lock-function-name-face
      (assistant) @font-lock-function-name-face
      (system) @font-lock-function-name-face
@@ -57,9 +57,36 @@
      (tool_result) @font-lock-function-name-face
      (server_tool_use) @font-lock-function-name-face
      (web_search_tool_result) @font-lock-function-name-face
-     (citations) @font-lock-function-name-face
+     (citations) @font-lock-function-name-face)
+
+   :language 'greger
+   :feature 'field
+   :override t
+   '(;; Field names and values
+     (name) @font-lock-builtin-face
+     (id) @font-lock-builtin-face
      (value) @font-lock-string-face
-     (text) @default))
+     (url) @font-lock-constant-face)
+
+   :language 'greger
+   :feature 'subheading
+   :override t
+   '(;; Sub-sections
+     (tool_param) @font-lock-keyword-face
+     (citation_entry) @font-lock-keyword-face)
+
+   :language 'greger
+   :feature 'content
+   :override t
+   '(;; Content and text
+     (text) @default
+     (html_comment) @font-lock-comment-face)
+
+   :language 'greger
+   :feature 'error
+   :override t
+   '(;; Parse errors
+     (ERROR) @grgfoo-error-face))
   "Tree-sitter font-lock settings for `grgfoo-mode'.")
 
 (defface grgfoo-error-face
