@@ -1,5 +1,4 @@
 (require 'treesit)
-(require 'cl-lib)
 
 (add-to-list 'treesit-extra-load-path "/Users/andreas/scratch/greger-grammar")
 
