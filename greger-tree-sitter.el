@@ -108,13 +108,16 @@
   "Extract content from a section node by finding content nodes."
   (let ((children (treesit-node-children section-node))
         (content-text ""))
-    ;; Look for content nodes (text, code_block, etc.)
+    ;; Go through all children and extract text from non-header nodes
     (dolist (child children)
       (let ((node-type (treesit-node-type child)))
-        (when (or (string= node-type "content_blocks")
-                  (string= node-type "text")
-                  (string= node-type "text_block")
-                  (string= node-type "code_block"))
+        (unless (or (string= node-type "##")
+                    (string= node-type "USER")
+                    (string= node-type "ASSISTANT")
+                    (string= node-type "SYSTEM")
+                    (string= node-type "THINKING")
+                    (string= node-type ":"))
+          ;; This is content, extract its text
           (setq content-text (concat content-text (treesit-node-text child))))))
     (string-trim content-text)))
 
