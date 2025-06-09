@@ -122,10 +122,14 @@
   (let ((id-node (treesit-node-child-by-field-name node "id")))
     (if id-node
         (treesit-node-text id-node t)
-      (let ((children (treesit-node-children node)))
-        (dolist (child children)
-          (when (string= (treesit-node-type child) "id")
-            (return (treesit-node-text child t))))))))
+      (let ((children (treesit-node-children node))
+            (result nil))
+        (while (and children (not result))
+          (let ((child (car children)))
+            (when (string= (treesit-node-type child) "id")
+              (setq result (treesit-node-text child t)))
+            (setq children (cdr children))))
+        result))))
 
 (defun greger-tree-sitter--extract-tool-params (node)
   "Extract tool parameters from tool use NODE."
