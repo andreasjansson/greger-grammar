@@ -203,6 +203,7 @@ module.exports = grammar({
       $.text,
       $.code_block,
       $.inline_code,
+      $.html_comment,
     )),
 
     text: $ => prec.right(repeat1(choice(
