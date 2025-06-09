@@ -138,7 +138,12 @@ module.exports = grammar({
       alias($.param_name, $.name),
       /\n/,
       optional(/\n/),
-      alias($.tool_content, $.value),
+      alias($.tool_param_value, $.value),
+    ),
+
+    tool_param_value: $ => choice(
+      $.tool_content,
+      $.content_blocks,
     ),
 
     param_name: $ => /[^\n]+/,
