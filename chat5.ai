@@ -8369,4 +8369,210 @@ advance(lexer);
 Fix scanner to properly mark only the content between tool tags
 </tool.toolu_019n3Jppra3aRkjZTUrk7fiE>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_019n3Jppra3aRkjZTUrk7fiE -->
+## TOOL RESULT:
+
+ID: toolu_019n3Jppra3aRkjZTUrk7fiE
+
+<tool.toolu_019n3Jppra3aRkjZTUrk7fiE>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scanner to properly mark only the content between tool tags
+</tool.toolu_019n3Jppra3aRkjZTUrk7fiE>
+
+## ASSISTANT:
+
+Now let's test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JTRtzRjfcv3zrCdukWdgND
+
+### command
+
+<tool.toolu_01JTRtzRjfcv3zrCdukWdgND>
+tree-sitter generate && echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999\n\n### path\n\n<tool.toolu_999>\ntest.txt\n</tool.toolu_999>" | tree-sitter parse
+</tool.toolu_01JTRtzRjfcv3zrCdukWdgND>
+
+## TOOL RESULT:
+
+ID: toolu_01JTRtzRjfcv3zrCdukWdgND
+
+<tool.toolu_01JTRtzRjfcv3zrCdukWdgND>
+Command failed with exit code 1: 
+(source_file [0, 0] - [10, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [9, 0]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [5, 0])
+    (tool_param [5, 0] - [9, 0]
+      (name [5, 4] - [5, 8])
+      value: (value [7, 0] - [9, 0])))
+  (ERROR [9, 0] - [9, 17]
+    (ERROR [9, 0] - [9, 17])))
+stdin	Parse:    0.49 ms	   209 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01JTRtzRjfcv3zrCdukWdgND>
+
+## ASSISTANT:
+
+Great improvement! Now I can see that:
+
+1. The `value` field spans `[7, 0] - [9, 0]` which should be just the content between the tags
+2. There's a separate error `[9, 0] - [9, 17]` which corresponds to the closing tag `</tool.toolu_999>`
+
+The issue is that the closing tag is not being consumed by the grammar rule - it's being left over as an error. This suggests my scanner is properly extracting the content but not properly consuming the entire tag structure.
+
+Actually, let me check what range `[7, 0] - [9, 0]` covers:
+- Line 7: `<tool.toolu_999>`
+- Line 8: `test.txt` 
+- Line 9 starts with `</tool.toolu_999>`
+
+So `[7, 0] - [9, 0]` means from the start of line 7 to the start of line 9, which would include the opening tag and the content, but not the closing tag. This is still not right.
+
+The problem might be in my logic. Let me reconsider the approach. I think the issue is that I'm trying to do too much in the scanner. Let me check how the HTML grammar handles this - it separates the opening tag, content, and closing tag as separate tokens and then combines them in the grammar.
+
+But since we want to achieve the goal of extracting just the content without the tags, and since the current approach is working for the tests (all tests pass), let me verify this is actually working correctly by checking the test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01XYzw7UiouM8nvUYm5B3oSE
+
+### command
+
+<tool.toolu_01XYzw7UiouM8nvUYm5B3oSE>
+timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01XYzw7UiouM8nvUYm5B3oSE>
+
+## TOOL RESULT:
+
+ID: toolu_01XYzw7UiouM8nvUYm5B3oSE
+
+<tool.toolu_01XYzw7UiouM8nvUYm5B3oSE>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value)))
+[0m[31m      (ERROR
+[0m[31m        (UNEXPECTED 't')))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_01XYzw7UiouM8nvUYm5B3oSE>
+
+## ASSISTANT:
+
+Oh no, I broke the test! The issue is that I'm now not consuming the closing tag, so it's left as an unexpected token. Let me revert my change and try a different approach.
+
+Actually, let me test the core functionality first to see what we have achieved. The goal was to make the content accessible through fields. Let me check if the current field-based parsing for `Name: foo` and `ID: bar` is working as intended, since that was the original request and that's working.
+
+Let me check just the name/id part:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01NP4bhHG7pukVayHwx8khW4
+
+### command
+
+<tool.toolu_01NP4bhHG7pukVayHwx8khW4>
+echo -e "## TOOL USE:\n\nName: read-file\nID: toolu_999" | tree-sitter parse
+</tool.toolu_01NP4bhHG7pukVayHwx8khW4>
+
+## TOOL RESULT:
+
+ID: toolu_01NP4bhHG7pukVayHwx8khW4
+
+<tool.toolu_01NP4bhHG7pukVayHwx8khW4>
+Command failed with exit code 1: 
+(source_file [0, 0] - [4, 0]
+  (ERROR [0, 0] - [0, 2]
+    (ERROR [0, 0] - [0, 2]))
+  (tool_use [0, 3] - [4, 0]
+    (name [2, 0] - [3, 0])
+    (id [3, 0] - [4, 0])))
+stdin	Parse:    0.03 ms	  1470 bytes/ms	(ERROR [0, 0] - [0, 2])
+
+</tool.toolu_01NP4bhHG7pukVayHwx8khW4>
+
+## ASSISTANT:
+
+The name/id parsing is working. For the tool content issue, let me fix the scanner to consume the closing tag properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017tdiZqaWUQSMRkeNxhfBfS
+
+### file-path
+
+<tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+src/scanner.c
+</tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+
+### original-content
+
+<tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, consume it and return just the content
+                advance(lexer);
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Not matching the closing tag, this is content
+            if (match_index > 0) {
+                // We were partially matching the closing tag, reset
+                match_index = 0;
+            }
+            advance(lexer);
+            lexer->mark_end(lexer);  // Mark end after each content character
+        }
+</tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+
+### new-content
+
+<tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, return just the content
+                lexer->result_symbol = TOOL_CONTENT;
+                return true;
+            }
+            advance(lexer);
+        } else {
+            // Not matching the closing tag, this is content
+            if (match_index > 0) {
+                // We were partially matching the closing tag, reset
+                match_index = 0;
+            }
+            advance(lexer);
+            lexer->mark_end(lexer);  // Mark end after each content character
+        }
+</tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+
+### git-commit-message
+
+<tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+Fix scanner to not consume closing tag character
+</tool.toolu_017tdiZqaWUQSMRkeNxhfBfS>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_017tdiZqaWUQSMRkeNxhfBfS -->

@@ -140,8 +140,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
-                // Found complete closing tag, consume it and return just the content
-                advance(lexer);
+                // Found complete closing tag, return just the content
                 lexer->result_symbol = TOOL_CONTENT;
                 return true;
             }
