@@ -43,37 +43,31 @@ module.exports = grammar({
     ),
 
     user: $ => seq(
-      '##',
-      'USER',
+      token(seq('##', /[ \t]*/, 'USER')),
       ':',
       $.content_blocks,
     ),
 
     assistant: $ => seq(
-      '##',
-      'ASSISTANT',
+      token(seq('##', /[ \t]*/, 'ASSISTANT')),
       ':',
       $.content_blocks,
     ),
 
     system: $ => seq(
-      '##',
-      'SYSTEM',
+      token(seq('##', /[ \t]*/, 'SYSTEM')),
       ':',
       $.content_blocks,
     ),
 
     thinking: $ => seq(
-      '##',
-      'THINKING',
+      token(seq('##', /[ \t]*/, 'THINKING')),
       ':',
       $.content_blocks,
     ),
 
     tool_use: $ => seq(
-      '##',
-      'TOOL',
-      'USE',
+      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE')),
       ':',
       /\n/,
       optional(/\n/),
@@ -85,9 +79,7 @@ module.exports = grammar({
     ),
 
     tool_result: $ => seq(
-      '##',
-      'TOOL',
-      'RESULT',
+      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT')),
       ':',
       /\n/,
       optional(/\n/),
@@ -97,10 +89,7 @@ module.exports = grammar({
     ),
 
     server_tool_use: $ => seq(
-      '##',
-      'SERVER',
-      'TOOL',
-      'USE',
+      token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE')),
       ':',
       /\n/,
       optional(/\n/),
@@ -112,11 +101,7 @@ module.exports = grammar({
     ),
 
     web_search_tool_result: $ => seq(
-      '##',
-      'WEB',
-      'SEARCH',
-      'TOOL',
-      'RESULT',
+      token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT')),
       ':',
       /\n/,
       optional(/\n/),
@@ -126,8 +111,7 @@ module.exports = grammar({
     ),
 
     citations: $ => seq(
-      '##',
-      'CITATIONS',
+      token(seq('##', /[ \t]*/, 'CITATIONS')),
       ':',
       optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),

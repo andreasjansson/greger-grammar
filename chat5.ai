@@ -1986,4 +1986,270 @@ grammar.js
 Add hash content rule to allow # in text
 </tool.toolu_014qEn957QBp2dgTSx3G18hX>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_014qEn957QBp2dgTSx3G18hX -->
+## TOOL RESULT:
+
+ID: toolu_014qEn957QBp2dgTSx3G18hX
+
+<tool.toolu_014qEn957QBp2dgTSx3G18hX>
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add hash content rule to allow # in text
+</tool.toolu_014qEn957QBp2dgTSx3G18hX>
+
+## ASSISTANT:
+
+Now let's test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QXXhH8Dohdv6rJKKC32Egs
+
+### command
+
+<tool.toolu_01QXXhH8Dohdv6rJKKC32Egs>
+tree-sitter generate
+</tool.toolu_01QXXhH8Dohdv6rJKKC32Egs>
+
+## TOOL RESULT:
+
+ID: toolu_01QXXhH8Dohdv6rJKKC32Egs
+
+<tool.toolu_01QXXhH8Dohdv6rJKKC32Egs>
+Command executed successfully:
+(no output)
+</tool.toolu_01QXXhH8Dohdv6rJKKC32Egs>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012WDpVZ1s8LYEZiz8YB6Fat
+
+### command
+
+<tool.toolu_012WDpVZ1s8LYEZiz8YB6Fat>
+tree-sitter test --file-name text-with-markdown-headings.txt
+</tool.toolu_012WDpVZ1s8LYEZiz8YB6Fat>
+
+## TOOL RESULT:
+
+ID: toolu_012WDpVZ1s8LYEZiz8YB6Fat
+
+<tool.toolu_012WDpVZ1s8LYEZiz8YB6Fat>
+Command failed with exit code 1:   text-with-markdown-headings:
+     16. ✗ [31mText with markdown headings[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Text with markdown headings:
+
+    (source_file
+      (user
+[31m        (text))
+[0m[31m      (ERROR
+[0m[31m        (UNEXPECTED 'h')))[0m
+[32m        (text)))[0m
+
+
+</tool.toolu_012WDpVZ1s8LYEZiz8YB6Fat>
+
+## ASSISTANT:
+
+That didn't work. The issue is more fundamental. Let me think about this differently. The problem is that `##` at the beginning of a line has special meaning in our grammar, but we want to allow it in text when it's not followed by our known keywords.
+
+Looking at the debug output again, I can see that when the parser encounters `## This`, it recognizes the `##` token and expects it to be followed by one of the keywords (USER, ASSISTANT, etc.), but when it sees "This", it fails.
+
+I need to make the grammar more specific about when `##` should be treated as a header vs when it should be treated as text. Let me modify the approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01S9V6kewT9dgnq8hbCF1tC1
+
+### file-path
+
+<tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+grammar.js
+</tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+
+### original-content
+
+<tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+    user: $ => seq(
+      '##',
+      'USER',
+      ':',
+      $.content_blocks,
+    ),
+
+    assistant: $ => seq(
+      '##',
+      'ASSISTANT',
+      ':',
+      $.content_blocks,
+    ),
+
+    system: $ => seq(
+      '##',
+      'SYSTEM',
+      ':',
+      $.content_blocks,
+    ),
+
+    thinking: $ => seq(
+      '##',
+      'THINKING',
+      ':',
+      $.content_blocks,
+    ),
+
+    tool_use: $ => seq(
+      '##',
+      'TOOL',
+      'USE',
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    tool_result: $ => seq(
+      '##',
+      'TOOL',
+      'RESULT',
+      ':',
+      /\n/,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    server_tool_use: $ => seq(
+      '##',
+      'SERVER',
+      'TOOL',
+      'USE',
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    web_search_tool_result: $ => seq(
+      '##',
+      'WEB',
+      'SEARCH',
+      'TOOL',
+      'RESULT',
+      ':',
+      /\n/,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    citations: $ => seq(
+      '##',
+      'CITATIONS',
+      ':',
+      optional(alias($.citations_text, $.text)),
+      repeat($.citation_entry),
+    ),
+</tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+
+### new-content
+
+<tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+    user: $ => seq(
+      token(seq('##', /[ \t]*/, 'USER')),
+      ':',
+      $.content_blocks,
+    ),
+
+    assistant: $ => seq(
+      token(seq('##', /[ \t]*/, 'ASSISTANT')),
+      ':',
+      $.content_blocks,
+    ),
+
+    system: $ => seq(
+      token(seq('##', /[ \t]*/, 'SYSTEM')),
+      ':',
+      $.content_blocks,
+    ),
+
+    thinking: $ => seq(
+      token(seq('##', /[ \t]*/, 'THINKING')),
+      ':',
+      $.content_blocks,
+    ),
+
+    tool_use: $ => seq(
+      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE')),
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    tool_result: $ => seq(
+      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT')),
+      ':',
+      /\n/,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    server_tool_use: $ => seq(
+      token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE')),
+      ':',
+      /\n/,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    web_search_tool_result: $ => seq(
+      token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT')),
+      ':',
+      /\n/,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    citations: $ => seq(
+      token(seq('##', /[ \t]*/, 'CITATIONS')),
+      ':',
+      optional(alias($.citations_text, $.text)),
+      repeat($.citation_entry),
+    ),
+</tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+
+### git-commit-message
+
+<tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+Make header tokens more specific to avoid conflicts with text
+</tool.toolu_01S9V6kewT9dgnq8hbCF1tC1>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01S9V6kewT9dgnq8hbCF1tC1 -->
