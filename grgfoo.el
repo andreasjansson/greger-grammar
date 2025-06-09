@@ -96,10 +96,8 @@
 
 (defvar grgfoo--treesit-indent-rules
   `((greger
-     ;; Basic indentation rules - keep it simple to avoid segfaults
-     ((parent-is "source_file") column-0 0)  ; Top-level elements at column 0
-     (no-node parent-bol 0)                  ; Empty lines follow parent
-     (catch-all parent-bol 0)))              ; Default: no indentation
+     ;; Most basic indentation rule possible - everything at column 0
+     (catch-all column-0 0)))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
 
 ;;;###autoload
