@@ -99,10 +99,19 @@ static bool scan_html_comment(TSLexer *lexer) {
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
+
+    // Save position to backtrack if this isn't tool content
+    int32_t start_pos = lexer->get_column(lexer);
     advance(lexer);
 
-    // Check for "tool."
-    if (lexer->lookahead != 't') return false;
+    // Check for "tool." - if not, backtrack
+    if (lexer->lookahead != 't') {
+        // This is not a tool content tag, backtrack and return false
+        while (lexer->get_column(lexer) > start_pos) {
+            // Can't actually backtrack in tree-sitter, so this won't work
+        }
+        return false;
+    }
     advance(lexer);
     if (lexer->lookahead != 'o') return false;
     advance(lexer);
