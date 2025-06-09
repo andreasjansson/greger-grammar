@@ -85,6 +85,7 @@ module.exports = grammar({
       /\n/,
       optional(/\n/),
       $.id,
+      optional(/\n/),
       $.tool_content,
     ),
 
