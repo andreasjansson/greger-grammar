@@ -36,7 +36,7 @@
   (with-temp-buffer
     (insert "## USER:\nHello world\n")
     (let ((parser (treesit-parser-create 'greger)))
-      (treesit-parser-add-notifier parser (lambda (&rest _) nil))
+
       (let ((root (treesit-parser-root-node parser)))
         (message "Root node type: %s" (treesit-node-type root))
         (message "Root node text: %s" (treesit-node-text root))
