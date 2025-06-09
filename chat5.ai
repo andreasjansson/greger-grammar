@@ -11785,4 +11785,101 @@ content: $ => alias($._tool_element, 'content'),
 Update content rule to use hidden tool_element
 </tool.toolu_0117DFms3RTcQfgXZZwWAhPM>
 
-<!-- TOOL_RESULT_PLACEHOLDER_toolu_0117DFms3RTcQfgXZZwWAhPM -->
+## TOOL RESULT:
+
+ID: toolu_0117DFms3RTcQfgXZZwWAhPM
+
+<tool.toolu_0117DFms3RTcQfgXZZwWAhPM>
+Successfully replaced content in /Users/andreas/scratch/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update content rule to use hidden tool_element
+</tool.toolu_0117DFms3RTcQfgXZZwWAhPM>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01BnwisgQaUXD9WL2i876zDc
+
+### command
+
+<tool.toolu_01BnwisgQaUXD9WL2i876zDc>
+tree-sitter generate && timeout 2 tree-sitter test --file-name tool-use-only.txt
+</tool.toolu_01BnwisgQaUXD9WL2i876zDc>
+
+## TOOL RESULT:
+
+ID: toolu_01BnwisgQaUXD9WL2i876zDc
+
+<tool.toolu_01BnwisgQaUXD9WL2i876zDc>
+Command failed with exit code 1:   tool-use-only:
+     19. ✗ [31mTool use only[0m
+
+1 failure:
+
+correct / [32mexpected[0m / [31munexpected[0m
+
+  1. Tool use only:
+
+    (source_file
+      (user
+        (text))
+      (tool_use
+        (name)
+        (id)
+        (tool_param
+          (name)
+[31m          (value
+[0m[31m            (tool_start_tag)
+[0m[31m            (tool_content)
+[0m[31m            (tool_end_tag)))))[0m
+[32m          (value))))[0m
+
+
+</tool.toolu_01BnwisgQaUXD9WL2i876zDc>
+
+## ASSISTANT:
+
+The same issue persists. I think the problem is conceptual. Let me look at this differently. The goal is to extract just the content, but I'm still getting the full structure.
+
+What I really want is for the value field to contain just the `tool_content`, not the entire tool element. Let me try a different approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ABuZKgGu7JsN9oSFUUQD9Z
+
+### file-path
+
+<tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+grammar.js
+</tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+
+### original-content
+
+<tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+_tool_element: $ => seq(
+      $.tool_start_tag,
+      $.tool_content,
+      $.tool_end_tag,
+    ),
+
+    content: $ => alias($._tool_element, 'content'),
+</tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+
+### new-content
+
+<tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+_tool_element: $ => seq(
+      $.tool_start_tag,
+      field('value', $.tool_content),
+      $.tool_end_tag,
+    ),
+
+    content: $ => alias($._tool_element, 'content'),
+</tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+
+### git-commit-message
+
+<tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+Add field to tool_content within tool_element
+</tool.toolu_01ABuZKgGu7JsN9oSFUUQD9Z>
+
+<!-- TOOL_RESULT_PLACEHOLDER_toolu_01ABuZKgGu7JsN9oSFUUQD9Z -->
