@@ -16,7 +16,7 @@
               (error "Could not parse test file format: %s" file-path))))
       (error "Corpus file not found: %s" file-path))))
 
-(let* ((markdown (greger-read-corpus-file "multiple-tool-uses"))
+(let* ((markdown (greger-read-corpus-file "complex-workflow"))
        (expected '(((role . "user")
                     (content . "List files and read the first one"))
                    ((role . "assistant")
