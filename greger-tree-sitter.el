@@ -214,12 +214,13 @@
          ((string= child-type "id")
           (setq id (greger-tree-sitter--extract-key child)))
          ((string= child-type "content")
-          (setq content (greger-tree-sitter--parse-json-or-plain-content
-                        (greger-tree-sitter--extract-xml-content (treesit-node-text child t))))))))
-    `((role . "assistant")
-      (content . (((type . "server_tool_result")
-                   (tool_use_id . ,id)
-                   (content . ,content)))))))
+          (setq content (greger-tree-sitter--extract-xml-content (treesit-node-text child t)))))))
+    ;; Check if this is a web search result and parse accordingly
+    (let ((parsed-content (greger-tree-sitter--parse-json-or-plain-content content)))
+      `((role . "assistant")
+        (content . (((type . ,(if (listp parsed-content) "web_search_tool_result" "server_tool_result"))
+                     (tool_use_id . ,id)
+                     (content . ,parsed-content))))))))
 
 (defun greger-tree-sitter--extract-citations-entry (node)
   "Extract citations entry from NODE."
