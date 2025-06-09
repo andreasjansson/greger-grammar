@@ -250,7 +250,7 @@
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
   (let ((result (greger-tree-sitter--collect-text-blocks node "")))
-    (string-trim result)))
+    (string-trim (greger-tree-sitter--strip-html-comments result))))
 
 (defun greger-tree-sitter--collect-text-blocks (node result)
   "Recursively collect text from text nodes in NODE and append to RESULT."
