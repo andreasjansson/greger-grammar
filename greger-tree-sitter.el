@@ -87,18 +87,21 @@
 
 (defun greger-tree-sitter--extract-text-content (node)
   "Extract text content from NODE, handling nested structures."
-  (let ((children (treesit-node-children node)))
-    (if children
-        (let ((text-nodes (cl-remove nil (mapcar (lambda (child)
-                                                   (when (string= (treesit-node-type child) "text")
-                                                     child))
-                                                 children))))
-          (if text-nodes
-              (mapconcat (lambda (text-node)
-                           (treesit-node-text text-node t))
-                         text-nodes "")
-            ""))
-      "")))
+  (let ((result ""))
+    (greger-tree-sitter--collect-text-blocks node result)
+    (string-trim result)))
+
+(defun greger-tree-sitter--collect-text-blocks (node result)
+  "Recursively collect text from text_block nodes in NODE and append to RESULT."
+  (let ((node-type (treesit-node-type node)))
+    (cond
+     ((string= node-type "text_block")
+      (concat result (treesit-node-text node t)))
+     (t
+      (let ((text-result result))
+        (dolist (child (treesit-node-children node))
+          (setq text-result (greger-tree-sitter--collect-text-blocks child text-result)))
+        text-result)))))
 
 (defun greger-tree-sitter--extract-tool-name (node)
   "Extract tool name from tool use NODE."
