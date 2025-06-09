@@ -294,7 +294,7 @@
                    (name . ,name)
                    (input . ,params)))))))
 
-(defun greger-tree-sitter--extract-server-tool-result-entry (node)
+(defun greger-tree-sitter--extract-web-search-tool-result-entry (node)
   "Extract server tool result entry from NODE."
   (let ((id nil)
         (content nil))
