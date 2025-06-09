@@ -98,6 +98,9 @@ static bool scan_html_comment(TSLexer *lexer) {
 
 static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
+
+    // Save the starting position to potentially backtrack
+    lexer->mark_end(lexer);
     advance(lexer);
 
     // Check for "tool."
@@ -124,28 +127,27 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
+    // Mark end after opening tag, then scan content
+    lexer->mark_end(lexer);
+
     // Consume everything until we find the exact closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
             // Check if this could be our closing tag
-            int start_pos = lexer->get_column(lexer);
             advance(lexer);
 
             if (lexer->lookahead == '/') {
                 advance(lexer);
 
+                // Check "tool."
                 if (lexer->lookahead == 't') {
                     advance(lexer);
-
                     if (lexer->lookahead == 'o') {
                         advance(lexer);
-
                         if (lexer->lookahead == 'o') {
                             advance(lexer);
-
                             if (lexer->lookahead == 'l') {
                                 advance(lexer);
-
                                 if (lexer->lookahead == '.') {
                                     advance(lexer);
 
@@ -160,8 +162,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
                                     }
 
                                     if (matches && lexer->lookahead == '>') {
-                                        // Found the exact closing tag
-                                        advance(lexer);
+                                        // Found the exact closing tag, mark end before it
                                         lexer->result_symbol = TOOL_CONTENT;
                                         return true;
                                     }
@@ -174,6 +175,7 @@ static bool scan_tool_content(Scanner *scanner, TSLexer *lexer) {
             // Continue if not the right closing tag
         } else {
             advance(lexer);
+            lexer->mark_end(lexer);
         }
     }
 
