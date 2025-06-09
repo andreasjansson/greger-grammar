@@ -153,7 +153,7 @@
       (let ((child-type (treesit-node-type child)))
         (cond
          ((string= child-type "name")
-          (setq name (string-trim (treesit-node-text child t))))
+          (setq name (intern (string-trim (treesit-node-text child t)))))
          ((string= child-type "value")
           (setq value (greger-tree-sitter--extract-tool-content child))))))
     `(,name . ,value)))
