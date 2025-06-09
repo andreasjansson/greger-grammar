@@ -16,9 +16,9 @@
               (error "Could not parse test file format: %s" file-path))))
       (error "Corpus file not found: %s" file-path))))
 
-(let* ((markdown (greger-read-corpus-file "code-block-triple-backticks"))
+(let* ((markdown (greger-read-corpus-file "html-comments"))
        (expected '(((role . "user")
-                    (content . "Here's some code:\n\n```\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
+                    (content . "Here's some code:\n\n\n\n\n```\n<!-- comment should be included -->\n## ASSISTANT:\nThis should not be parsed as a section header\n## TOOL USE:\nNeither should this\n```\n\nWhat do you think?"))))
        (actual (greger-tree-sitter-parse markdown)))
   (message "Expected length: %d" (length expected))
   (message "Actual length: %d" (length actual))
