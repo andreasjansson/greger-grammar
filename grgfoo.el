@@ -196,8 +196,8 @@ START and END are the region bounds."
    :language 'greger
    :feature 'folding
    :override t
-   '(;; Assistant block processing for text flow
-     (assistant) @grgfoo--assistant-folding-function
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
      ;; Citations section folding
      (citations) @grgfoo--citations-section-folding-function)
 

@@ -14197,5 +14197,161 @@ Create new assistant folding function to merge text blocks
 ID: toolu_01LtARRz4ezes1Gv4iwFQApS
 
 <tool.toolu_01LtARRz4ezes1Gv4iwFQApS>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Create new assistant folding function to merge text blocks
 </tool.toolu_01LtARRz4ezes1Gv4iwFQApS>
+
+## ASSISTANT:
+
+Let me test this new approach:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01TGbWWUz716pirneM26jxf4
+
+### command
+
+<tool.toolu_01TGbWWUz716pirneM26jxf4>
+emacs --batch -l test-citation-folding-exact.el 2>&1 | tail -30
+</tool.toolu_01TGbWWUz716pirneM26jxf4>
+
+## TOOL RESULT:
+
+ID: toolu_01TGbWWUz716pirneM26jxf4
+
+<tool.toolu_01TGbWWUz716pirneM26jxf4>
+Command executed successfully:
+      :value nil :explanation
+      (arrays-of-different-length 147 165 "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]\n"
+				  #("## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+				    (fontified nil face grgfoo-assistant-header-face)
+				    14 60
+				    (fontified nil)
+				    60 61
+				    (fontified nil)
+				    61 75
+				    (face grgfoo-assistant-header-face fontified nil)
+				    75 120
+				    (fontified nil)
+				    120 121
+				    (fontified nil)
+				    121 134
+				    (fontified nil face grgfoo-citations-header-face)
+				    134 135
+				    (after-string
+				     #("\n[+2 citations, TAB to expand]" 0 30 ...)
+				     face grgfoo-citations-header-face fontified nil)
+				    135 165
+				    (face font-lock-comment-face))
+				  first-mismatch-at 58)))
+   FAILED  1/1  test-citations-folding (0.001119 sec) at test-citation-folding-exact.el:16
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 19:37:08+0200, 0.082069 sec)
+
+1 unexpected results:
+   FAILED  test-citations-folding
+
+
+</tool.toolu_01TGbWWUz716pirneM26jxf4>
+
+## ASSISTANT:
+
+blocks together manually. Let me take a step back and create a much simpler solution - instead of trying to merge text using tree-sitter, let me create a post-processing function that scans the buffer and manually creates the merged view:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01984e2d7SCt7Qcr4Kad4d62
+
+### file-path
+
+<tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+grgfoo.el
+</tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+
+### original-content
+
+<tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Assistant block processing for text flow
+     (assistant) @grgfoo--assistant-folding-function
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+
+### new-content
+
+<tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+
+### git-commit-message
+
+<tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+Revert to individual citation folding approach
+</tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+
+## TOOL RESULT:
+
+ID: toolu_01984e2d7SCt7Qcr4Kad4d62
+
+<tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance 0, new has balance 1. They must be equal. Try again!
+</tool.toolu_01984e2d7SCt7Qcr4Kad4d62>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Lc1QXkoJL4kV3nynWhTNvc
+
+### file-path
+
+<tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+grgfoo.el
+</tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+
+### original-content
+
+<tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Assistant block processing for text flow
+     (assistant) @grgfoo--assistant-folding-function
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+
+### new-content
+
+<tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+
+### git-commit-message
+
+<tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+Revert to individual citation folding approach
+</tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+
+## TOOL RESULT:
+
+ID: toolu_01Lc1QXkoJL4kV3nynWhTNvc
+
+<tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+Loading...
+</tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
