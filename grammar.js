@@ -256,14 +256,22 @@ module.exports = grammar({
       '```',
       optional(/[^\n]*/),
       /\n/,
-      repeat(seq(
+      optional(seq(
+        repeat(seq(
+          choice(
+            /[^`\n]+/,
+            /`[^`]/,
+            /``[^`]/,
+          ),
+          /\n/,
+        )),
         choice(
           /[^`\n]+/,
           /`[^`]/,
           /``[^`]/,
         ),
-        optional(/\n/),
       )),
+      /\n?/,
       '```',
     ),
 
