@@ -139,24 +139,24 @@ START and END are the region bounds."
   (when grgfoo-citation-folding-enabled
     (let* ((node-start (treesit-node-start node))
            (node-end (treesit-node-end node))
-           (fold-marker-pos node-start)
-           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+           (should-fold (not (get-text-property node-start 'grgfoo-citations-expanded))))
       (when should-fold
-        ;; Find the end of the citations header line
-        (save-excursion
-          (goto-char node-start)
-          (end-of-line)
-          (let ((header-end (point)))
-            ;; Make everything after the header invisible
-            (when (< header-end node-end)
-              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
-              ;; Add summary text with citation count
-              (let ((citation-count (grgfoo--count-citations-in-section node)))
-                (put-text-property header-end (1+ header-end) 'after-string
-                                 (propertize (format "\n[+%d citation%s, TAB to expand]"
-                                                   citation-count
-                                                   (if (= citation-count 1) "" "s"))
-                                           'face 'font-lock-comment-face))))))))))
+        ;; Find the header line by looking for the first newline
+        (let* ((text (buffer-substring-no-properties node-start node-end))
+               (first-newline (string-search "\n" text))
+               (header-end (if first-newline
+                             (+ node-start first-newline)
+                             node-end)))
+          ;; Make everything after the header invisible
+          (when (< header-end node-end)
+            (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+            ;; Add summary text with citation count
+            (let ((citation-count (grgfoo--count-citations-in-section node)))
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                 citation-count
+                                                 (if (= citation-count 1) "" "s"))
+                                         'face 'font-lock-comment-face)))))))))
 
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
