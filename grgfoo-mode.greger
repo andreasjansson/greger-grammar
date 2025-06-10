@@ -4878,5 +4878,331 @@ Add utility functions for testing text visibility
 ID: toolu_01C7cbhxKcjZT6HYXnrWV9Ws
 
 <tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el with 1966 characters. Successfully staged 2 file(s) and committed with message: Add utility functions for testing text visibility
 </tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01WVWJZgT7jmBgMybAuYMbuq
+
+### command
+
+<tool.toolu_01WVWJZgT7jmBgMybAuYMbuq>
+emacs --batch -l test-visibility-utils.el
+</tool.toolu_01WVWJZgT7jmBgMybAuYMbuq>
+
+## TOOL RESULT:
+
+ID: toolu_01WVWJZgT7jmBgMybAuYMbuq
+
+<tool.toolu_01WVWJZgT7jmBgMybAuYMbuq>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+#
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+
+</tool.toolu_01WVWJZgT7jmBgMybAuYMbuq>
+
+## ASSISTANT:
+
+I can see the issue! The citation folding is incorrectly adding a `#` character. Let me examine the font-lock functions more carefully and fix the segfault issue. The problem seems to be in how we're applying text properties and handling the tree-sitter queries.
+
+Let me look at what's happening in the citation folding function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01FPZv37hMbRJzo8HEo5mUen
+
+### path
+
+<tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+grgfoo.el
+</tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+
+### start-line
+
+<tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+110
+</tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+
+### end-line
+
+<tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+140
+</tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+
+## TOOL RESULT:
+
+ID: toolu_01FPZv37hMbRJzo8HEo5mUen
+
+<tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+    table)
+  "Syntax table for `grgfoo-mode'.")
+
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Make the citation content invisible
+        (put-text-property (1+ node-start) node-end 'invisible 'grgfoo-citation)
+        ;; Mark the citation text with underline
+        (let ((citation-text-start node-start)
+              (citation-text-end (save-excursion
+                                   (goto-char node-start)
+                                   (if (re-search-forward "\n" node-end t)
+                                       (1- (point))
+                                     node-end))))
+          (put-text-property citation-text-start citation-text-end
+                           'face grgfoo-citation-summary-face))))))
+
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+</tool.toolu_01FPZv37hMbRJzo8HEo5mUen>
+
+## ASSISTANT:
+
+I see several issues:
+
+1. The font-lock function is applying text properties during font-lock, which can cause problems
+2. The `save-excursion` in font-lock functions might be causing segfaults
+3. The citation text detection is not working correctly
+
+Let me rewrite the citation folding approach to be safer and more correct:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01VjPKLqFCjoKusGhYhocRqE
+
+### file-path
+
+<tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+grgfoo.el
+</tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+
+### original-content
+
+<tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Make the citation content invisible
+        (put-text-property (1+ node-start) node-end 'invisible 'grgfoo-citation)
+        ;; Mark the citation text with underline
+        (let ((citation-text-start node-start)
+              (citation-text-end (save-excursion
+                                   (goto-char node-start)
+                                   (if (re-search-forward "\n" node-end t)
+                                       (1- (point))
+                                     node-end))))
+          (put-text-property citation-text-start citation-text-end
+                           'face grgfoo-citation-summary-face))))))
+
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the end of the citations header line
+        (save-excursion
+          (goto-char node-start)
+          (end-of-line)
+          (let ((header-end (point)))
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text with citation count
+              (let ((citation-count (grgfoo--count-citations-in-section node)))
+                (put-text-property header-end (1+ header-end) 'after-string
+                                 (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                   citation-count
+                                                   (if (= citation-count 1) "" "s"))
+                                           'face 'font-lock-comment-face)))))))))
+</tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+
+### new-content
+
+<tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+;; Citation folding functions - simplified approach without save-excursion
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Find the text before the first newline (the citation reference text)
+        (let* ((text (buffer-substring-no-properties node-start node-end))
+               (first-newline (string-search "\n" text))
+               (citation-text-end (if first-newline
+                                    (+ node-start first-newline)
+                                    node-end)))
+          ;; Make everything after the citation text invisible
+          (when (< citation-text-end node-end)
+            (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+          ;; Mark the citation text with underline
+          (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
+
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (should-fold (not (get-text-property node-start 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the header line by looking for the first newline
+        (let* ((text (buffer-substring-no-properties node-start node-end))
+               (first-newline (string-search "\n" text))
+               (header-end (if first-newline
+                             (+ node-start first-newline)
+                             node-end)))
+          ;; Make everything after the header invisible
+          (when (< header-end node-end)
+            (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+            ;; Add summary text with citation count
+            (let ((citation-count (grgfoo--count-citations-in-section node)))
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                 citation-count
+                                                 (if (= citation-count 1) "" "s"))
+                                         'face 'font-lock-comment-face)))))))))
+</tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+
+### git-commit-message
+
+<tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+Simplify citation folding functions to avoid save-excursion in font-lock
+</tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+
+## TOOL RESULT:
+
+ID: toolu_01VjPKLqFCjoKusGhYhocRqE
+
+<tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance 1, new has balance 0. They must be equal. Try again!
+</tool.toolu_01VjPKLqFCjoKusGhYhocRqE>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TH5WYc5ZG4Y111nXKbWdfq
+
+### file-path
+
+<tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+grgfoo.el
+</tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+
+### original-content
+
+<tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Make the citation content invisible
+        (put-text-property (1+ node-start) node-end 'invisible 'grgfoo-citation)
+        ;; Mark the citation text with underline
+        (let ((citation-text-start node-start)
+              (citation-text-end (save-excursion
+                                   (goto-char node-start)
+                                   (if (re-search-forward "\n" node-end t)
+                                       (1- (point))
+                                     node-end))))
+          (put-text-property citation-text-start citation-text-end
+                           'face grgfoo-citation-summary-face))))))
+</tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+
+### new-content
+
+<tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+;; Citation folding functions - simplified approach without save-excursion
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Find the text before the first newline (the citation reference text)
+        (let* ((text (buffer-substring-no-properties node-start node-end))
+               (first-newline (string-search "\n" text))
+               (citation-text-end (if first-newline
+                                    (+ node-start first-newline)
+                                    node-end)))
+          ;; Make everything after the citation text invisible
+          (when (< citation-text-end node-end)
+            (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+          ;; Mark the citation text with underline
+          (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
+</tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+
+### git-commit-message
+
+<tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+Simplify citation folding function to avoid save-excursion in font-lock
+</tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+
+## TOOL RESULT:
+
+ID: toolu_01TH5WYc5ZG4Y111nXKbWdfq
+
+<tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>
+Loading...
+</tool.toolu_01TH5WYc5ZG4Y111nXKbWdfq>

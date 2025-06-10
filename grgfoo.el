@@ -110,7 +110,7 @@
     table)
   "Syntax table for `grgfoo-mode'.")
 
-;; Citation folding functions
+;; Citation folding functions - simplified approach without save-excursion
 (defun grgfoo--citation-folding-function (node override start end)
   "Font-lock function to handle citation folding.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
@@ -118,20 +118,19 @@ START and END are the region bounds."
   (when grgfoo-citation-folding-enabled
     (let* ((node-start (treesit-node-start node))
            (node-end (treesit-node-end node))
-           (fold-marker-pos node-start)
-           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citation-expanded))))
+           (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
       (when should-fold
-        ;; Make the citation content invisible
-        (put-text-property (1+ node-start) node-end 'invisible 'grgfoo-citation)
-        ;; Mark the citation text with underline
-        (let ((citation-text-start node-start)
-              (citation-text-end (save-excursion
-                                   (goto-char node-start)
-                                   (if (re-search-forward "\n" node-end t)
-                                       (1- (point))
-                                     node-end))))
-          (put-text-property citation-text-start citation-text-end
-                           'face grgfoo-citation-summary-face))))))
+        ;; Find the text before the first newline (the citation reference text)
+        (let* ((text (buffer-substring-no-properties node-start node-end))
+               (first-newline (string-search "\n" text))
+               (citation-text-end (if first-newline
+                                    (+ node-start first-newline)
+                                    node-end)))
+          ;; Make everything after the citation text invisible
+          (when (< citation-text-end node-end)
+            (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+          ;; Mark the citation text with underline
+          (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
 
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.
