@@ -363,7 +363,7 @@ START and END are the region bounds."
   (interactive)
   (condition-case err
       (progn
-        (message "DEBUG TAB: pressed at position %d" (point))
+
         (if grgfoo-citation-folding-enabled
             (progn
               (message "DEBUG TAB: citation folding enabled, looking for node...")
