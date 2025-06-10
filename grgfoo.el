@@ -321,46 +321,15 @@ START and END are the region bounds."
 (defun grgfoo-toggle-citation-fold ()
   "Toggle folding of citation at point."
   (interactive)
-  (if-let ((citation-node (grgfoo--find-citation-at-point)))
-      (let* ((node-start (treesit-node-start citation-node))
-             (node-type (treesit-node-type citation-node))
-             (is-citations-section (string= node-type "citations")))
-        (let ((node-end (treesit-node-end citation-node)))
-          (if is-citations-section
-              ;; Handle citations section
-              (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
-                (if is-expanded
-                    ;; Collapse citations section
-                    (progn
-                      (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
-                      ;; Clear any existing invisible/display properties
-                      (remove-text-properties node-start node-end '(invisible after-string))
-                      (message "Citations section collapsed"))
-                  ;; Expand citations section
-                  (progn
-                    (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
-                    ;; Clear any existing invisible/display properties
-                    (remove-text-properties node-start node-end '(invisible after-string))
-                    (message "Citations section expanded"))))
-            ;; Handle individual citation
-            (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
-              (if is-expanded
-                  ;; Collapse citation
-                  (progn
-                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
-                    ;; Clear any existing invisible/face properties
-                    (remove-text-properties node-start node-end '(invisible face))
-                    (message "Citation collapsed"))
-                ;; Expand citation
-                (progn
-                  (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
-                  ;; Clear any existing invisible/face properties
-                  (remove-text-properties node-start node-end '(invisible face))
-                  (message "Citation expanded")))))
-          ;; Trigger font-lock refresh
-          (font-lock-flush node-start node-end)))
-    ;; Fallback to normal TAB behavior if not on a citation
-    (indent-for-tab-command)))
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
 
 ;; Ensure the grammar is loaded
 (add-to-list 'treesit-extra-load-path default-directory)

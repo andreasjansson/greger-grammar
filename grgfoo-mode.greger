@@ -5463,5 +5463,378 @@ Temporarily disable citation folding to isolate segfault
 ID: toolu_01SnApEk2XVHkFpiXRkDC6Hf
 
 <tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Temporarily disable citation folding to isolate segfault
 </tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0187m7xxTM447k4xgW92MXR6
+
+### command
+
+<tool.toolu_0187m7xxTM447k4xgW92MXR6>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_0187m7xxTM447k4xgW92MXR6>
+
+## TOOL RESULT:
+
+ID: toolu_0187m7xxTM447k4xgW92MXR6
+
+<tool.toolu_0187m7xxTM447k4xgW92MXR6>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_0187m7xxTM447k4xgW92MXR6>
+
+## ASSISTANT:
+
+The segfault is still happening even with folding disabled. This means the issue is in the `grgfoo--find-citation-at-point` function or the tree-sitter node traversal. Let me simplify the TAB function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UAUDPYuMqZntwKpPj2wPsK
+
+### file-path
+
+<tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+grgfoo.el
+</tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+
+### original-content
+
+<tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+      (let* ((node-start (treesit-node-start citation-node))
+             (node-type (treesit-node-type citation-node))
+             (is-citations-section (string= node-type "citations")))
+        (let ((node-end (treesit-node-end citation-node)))
+          (if is-citations-section
+              ;; Handle citations section
+              (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                (if is-expanded
+                    ;; Collapse citations section
+                    (progn
+                      (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                      ;; Clear any existing invisible/display properties
+                      (remove-text-properties node-start node-end '(invisible after-string))
+                      (message "Citations section collapsed"))
+                  ;; Expand citations section
+                  (progn
+                    (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                    ;; Clear any existing invisible/display properties
+                    (remove-text-properties node-start node-end '(invisible after-string))
+                    (message "Citations section expanded"))))
+            ;; Handle individual citation
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+              (if is-expanded
+                  ;; Collapse citation
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                    ;; Clear any existing invisible/face properties
+                    (remove-text-properties node-start node-end '(invisible face))
+                    (message "Citation collapsed"))
+                ;; Expand citation
+                (progn
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                  ;; Clear any existing invisible/face properties
+                  (remove-text-properties node-start node-end '(invisible face))
+                  (message "Citation expanded")))))
+          ;; Trigger font-lock refresh
+          (font-lock-flush node-start node-end))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+</tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+
+### new-content
+
+<tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error 
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+</tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+
+### git-commit-message
+
+<tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+Simplify TAB function to debug segfault issue
+</tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+
+## TOOL RESULT:
+
+ID: toolu_01UAUDPYuMqZntwKpPj2wPsK
+
+<tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance 1, new has balance 0. They must be equal. Try again!
+</tool.toolu_01UAUDPYuMqZntwKpPj2wPsK>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FmeKouXuayR5QGyXPdqctV
+
+### file-path
+
+<tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+grgfoo.el
+</tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+
+### original-content
+
+<tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+          ;; Trigger font-lock refresh
+          (font-lock-flush node-start node-end))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+</tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+
+### new-content
+
+<tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+        ;; Found citation, do minimal processing for now
+        (message "Found citation node of type: %s" (treesit-node-type citation-node)))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+</tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+
+### git-commit-message
+
+<tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+Replace complex TAB logic with minimal processing to debug segfault
+</tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+
+## TOOL RESULT:
+
+ID: toolu_01FmeKouXuayR5QGyXPdqctV
+
+<tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01FmeKouXuayR5QGyXPdqctV>
+
+## ASSISTANT:
+
+Let me find the current TAB function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_017qHj1SRoUaSHnnBTpLWCgZ
+
+### pattern
+
+<tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+defun grgfoo-toggle-citation-fold
+</tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+
+### path
+
+<tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+grgfoo.el
+</tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+
+### context-lines
+
+<tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+3
+</tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+
+## TOOL RESULT:
+
+ID: toolu_017qHj1SRoUaSHnnBTpLWCgZ
+
+<tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+318-    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
+319-    (error 0)))
+320-
+321:(defun grgfoo-toggle-citation-fold ()
+322-  "Toggle folding of citation at point."
+323-  (interactive)
+324-  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+
+</tool.toolu_017qHj1SRoUaSHnnBTpLWCgZ>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QmdfxGZsntu7EYxhKAtMoG
+
+### path
+
+<tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+grgfoo.el
+</tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+
+### start-line
+
+<tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+321
+</tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+
+### end-line
+
+<tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+370
+</tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+
+## TOOL RESULT:
+
+ID: toolu_01QmdfxGZsntu7EYxhKAtMoG
+
+<tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+      (let* ((node-start (treesit-node-start citation-node))
+             (node-type (treesit-node-type citation-node))
+             (is-citations-section (string= node-type "citations")))
+        (let ((node-end (treesit-node-end citation-node)))
+          (if is-citations-section
+              ;; Handle citations section
+              (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                (if is-expanded
+                    ;; Collapse citations section
+                    (progn
+                      (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                      ;; Clear any existing invisible/display properties
+                      (remove-text-properties node-start node-end '(invisible after-string))
+                      (message "Citations section collapsed"))
+                  ;; Expand citations section
+                  (progn
+                    (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                    ;; Clear any existing invisible/display properties
+                    (remove-text-properties node-start node-end '(invisible after-string))
+                    (message "Citations section expanded"))))
+            ;; Handle individual citation
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+              (if is-expanded
+                  ;; Collapse citation
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                    ;; Clear any existing invisible/face properties
+                    (remove-text-properties node-start node-end '(invisible face))
+                    (message "Citation collapsed"))
+                ;; Expand citation
+                (progn
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                  ;; Clear any existing invisible/face properties
+                  (remove-text-properties node-start node-end '(invisible face))
+                  (message "Citation expanded")))))
+          ;; Trigger font-lock refresh
+          (font-lock-flush node-start node-end)))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+
+;; Ensure the grammar is loaded
+(add-to-list 'treesit-extra-load-path default-directory)
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.grgfoo\\'" . grgfoo-mode))
+
+</tool.toolu_01QmdfxGZsntu7EYxhKAtMoG>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_015bRFtMKoBBaGV4sxXyfvyH
+
+### file-path
+
+<tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+grgfoo.el
+</tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+
+### original-content
+
+<tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+      (let* ((node-start (treesit-node-start citation-node))
+             (node-type (treesit-node-type citation-node))
+             (is-citations-section (string= node-type "citations")))
+        (let ((node-end (treesit-node-end citation-node)))
+          (if is-citations-section
+              ;; Handle citations section
+              (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                (if is-expanded
+                    ;; Collapse citations section
+                    (progn
+                      (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                      ;; Clear any existing invisible/display properties
+                      (remove-text-properties node-start node-end '(invisible after-string))
+                      (message "Citations section collapsed"))
+                  ;; Expand citations section
+                  (progn
+                    (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                    ;; Clear any existing invisible/display properties
+                    (remove-text-properties node-start node-end '(invisible after-string))
+                    (message "Citations section expanded"))))
+            ;; Handle individual citation
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+              (if is-expanded
+                  ;; Collapse citation
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                    ;; Clear any existing invisible/face properties
+                    (remove-text-properties node-start node-end '(invisible face))
+                    (message "Citation collapsed"))
+                ;; Expand citation
+                (progn
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                  ;; Clear any existing invisible/face properties
+                  (remove-text-properties node-start node-end '(invisible face))
+                  (message "Citation expanded")))))
+          ;; Trigger font-lock refresh
+          (font-lock-flush node-start node-end)))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+</tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+
+### new-content
+
+<tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error 
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+</tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+
+### git-commit-message
+
+<tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+Replace complex TAB logic with minimal processing to debug segfault
+</tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+
+## TOOL RESULT:
+
+ID: toolu_015bRFtMKoBBaGV4sxXyfvyH
+
+<tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+Loading...
+</tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
