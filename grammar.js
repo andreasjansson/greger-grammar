@@ -57,21 +57,25 @@ module.exports = grammar({
 
     user: $ => seq(
       $.user_header,
+      optional(/\n/),
       $.content_blocks,
     ),
 
     assistant: $ => seq(
       $.assistant_header,
+      optional(/\n/),
       $.assistant_content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
+      optional(/\n/),
       $.system_content_blocks,
     ),
 
     thinking: $ => seq(
       $.thinking_header,
+      optional(/\n/),
       $.content_blocks,
     ),
 
@@ -218,10 +222,13 @@ module.exports = grammar({
       $.html_comment,
     )),
 
-    text: $ => prec.right(repeat1(choice(
+    text: $ => prec.right(seq(
       $._text_content,
-      /\n/,
-    ))),
+      repeat(choice(
+        $._text_content,
+        /\n/,
+      ))
+    )),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
 
