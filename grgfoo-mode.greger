@@ -2604,5 +2604,178 @@ Fix display property range to avoid overlapping properties
 ID: toolu_01MvGNddGvYW8GPT4sazt322
 
 <tool.toolu_01MvGNddGvYW8GPT4sazt322>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Fix display property range to avoid overlapping properties
 </tool.toolu_01MvGNddGvYW8GPT4sazt322>
+
+## ASSISTANT:
+
+Now let's test the fix:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LiMwgWtkY1yp8os8AR6A19
+
+### command
+
+<tool.toolu_01LiMwgWtkY1yp8os8AR6A19>
+emacs -Q --batch -l debug-visibility.el
+</tool.toolu_01LiMwgWtkY1yp8os8AR6A19>
+
+## TOOL RESULT:
+
+ID: toolu_01LiMwgWtkY1yp8os8AR6A19
+
+<tool.toolu_01LiMwgWtkY1yp8os8AR6A19>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: Applied invisible property from 61 to 237
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+DEBUG: Applied invisible property from 297 to 441
+=== BUFFER CONTENT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+" 0 14 (face grgfoo-assistant-header-face fontified nil) 14 15 (fontified nil) 15 60 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 60 236 (invisible grgfoo-citation fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 236 237 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 237 251 (face grgfoo-assistant-header-face fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 251 296 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 296 440 (invisible grgfoo-citation fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 440 441 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 441 454 (face grgfoo-citations-header-face fontified nil) 454 455 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 455 777 (fontified nil invisible grgfoo-citations))
+
+=== TEXT PROPERTIES DEBUG ===
+Position 1-778: (face grgfoo-assistant-header-face fontified nil)
+
+=== VISIBLE TEXT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 279 292 (fontified nil face grgfoo-citations-header-face) 292 293 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 293 323 (face font-lock-comment-face))
+
+</tool.toolu_01LiMwgWtkY1yp8os8AR6A19>
+
+## ASSISTANT:
+
+Still the same issue. The problem is that I'm clearing display properties at the beginning, but then the font-lock process is running **after** my function, and each citation that gets the invisible property **also gets the same display property**. 
+
+Let me look at the font-lock sequence to understand when things are happening:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TvGBpTabx2XisefDWRqnTu
+
+### file-path
+
+<tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+grgfoo.el
+</tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+
+### original-content
+
+<tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'font-lock-mode-hook #'grgfoo--apply-citation-folding nil t)
+      (grgfoo--apply-citation-folding))
+</tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+
+### new-content
+
+<tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'after-change-functions #'grgfoo--after-change-citation-folding nil t)
+      (run-with-idle-timer 0.1 nil #'grgfoo--apply-citation-folding))
+</tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+
+### git-commit-message
+
+<tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+Change citation folding to run after font-lock completes
+</tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+
+## TOOL RESULT:
+
+ID: toolu_01TvGBpTabx2XisefDWRqnTu
+
+<tool.toolu_01TvGBpTabx2XisefDWRqnTu>
+Loading...
+</tool.toolu_01TvGBpTabx2XisefDWRqnTu>

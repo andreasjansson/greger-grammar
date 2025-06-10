@@ -375,8 +375,8 @@ START and END are the region bounds."
 
     ;; Apply citation folding after font-lock
     (when grgfoo-citation-folding-enabled
-      (add-hook 'font-lock-mode-hook #'grgfoo--apply-citation-folding nil t)
-      (grgfoo--apply-citation-folding))
+      (add-hook 'after-change-functions #'grgfoo--after-change-citation-folding nil t)
+      (run-with-idle-timer 0.1 nil #'grgfoo--apply-citation-folding))
 
     ))
 
