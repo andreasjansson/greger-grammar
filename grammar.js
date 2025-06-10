@@ -86,6 +86,8 @@ module.exports = grammar({
 
     server_tool_use: $ => seq(
       $.server_tool_use_header,
+      ':',
+      /\n/,
       optional(/\n/),
       repeat(choice(
         $.name,
