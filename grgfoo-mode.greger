@@ -10040,5 +10040,102 @@ Simplify citation finding to avoid tree-sitter segfaults
 ID: toolu_013QiGuzwBMFxHnVo9Q9kdmT
 
 <tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Simplify citation finding to avoid tree-sitter segfaults
 </tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QgQ1M3LqUyK5JbzX3ZgpBU
+
+### command
+
+<tool.toolu_01QgQ1M3LqUyK5JbzX3ZgpBU>
+timeout 5s emacs --batch -l test-tab-minimal.el 2>&1
+</tool.toolu_01QgQ1M3LqUyK5JbzX3ZgpBU>
+
+## TOOL RESULT:
+
+ID: toolu_01QgQ1M3LqUyK5JbzX3ZgpBU
+
+<tool.toolu_01QgQ1M3LqUyK5JbzX3ZgpBU>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Testing TAB at position 1...
+DEBUG TAB: pressed at position 1
+DEBUG TAB: citation folding enabled, looking for node...
+DEBUG find-citation: checking treesit-ready-p...
+DEBUG find-citation: treesit ready, getting node at point 1...
+DEBUG find-citation: found initial node type=assistant_header
+DEBUG find-citation: neither node nor parent is citation type
+DEBUG TAB: no citation node found, falling back
+TAB test completed
+
+</tool.toolu_01QgQ1M3LqUyK5JbzX3ZgpBU>
+
+## ASSISTANT:
+
+Excellent! The segfault is fixed. Now let me test the actual citation folding by clicking on a citation:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01V6ojMQMu2zXCQVA3qh5kgB
+
+### file-path
+
+<tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+test-citation-click.el
+</tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+
+### contents
+
+<tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+#!/usr/bin/env emacs --batch
+
+(setq debug-on-error t)
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+
+(with-temp-buffer
+  (insert-file-contents "test-folding.greger")
+  (grgfoo-mode)
+  (font-lock-ensure)
+  
+  (message "Testing TAB on citation text...")
+  ;; Go to the underlined citation text
+  (goto-char 61)  ; Start of first citation
+  (message "Position %d, character: '%s'" (point) (char-after))
+  (condition-case err
+      (grgfoo-toggle-citation-fold)
+    (error (message "ERROR: %s" err)))
+  
+  (message "TAB on citation test completed"))
+</tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+
+### git-commit-message
+
+<tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+Add test for TAB on actual citation text
+</tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+
+## TOOL RESULT:
+
+ID: toolu_01V6ojMQMu2zXCQVA3qh5kgB
+
+<tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+Loading...
+</tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
