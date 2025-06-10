@@ -4766,5 +4766,117 @@ Add segfault test for citation folding
 ID: toolu_01F5Q7ASqDJXyWsSPYQce4UG
 
 <tool.toolu_01F5Q7ASqDJXyWsSPYQce4UG>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-segfaults.el with 2479 characters. Successfully staged 2 file(s) and committed with message: Add segfault test for citation folding
 </tool.toolu_01F5Q7ASqDJXyWsSPYQce4UG>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Nx7TBvzJEsSwUT3t52NoUH
+
+### command
+
+<tool.toolu_01Nx7TBvzJEsSwUT3t52NoUH>
+emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_01Nx7TBvzJEsSwUT3t52NoUH>
+
+## TOOL RESULT:
+
+ID: toolu_01Nx7TBvzJEsSwUT3t52NoUH
+
+<tool.toolu_01Nx7TBvzJEsSwUT3t52NoUH>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_01Nx7TBvzJEsSwUT3t52NoUH>
+
+## ASSISTANT:
+
+Great, I can reproduce the segfault! It happens when calling `grgfoo-toggle-citation-fold` on the first ASSISTANT header. Let me analyze the issue and create a function to get visible buffer text first:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01C7cbhxKcjZT6HYXnrWV9Ws
+
+### file-path
+
+<tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+test-visibility-utils.el
+</tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+
+### contents
+
+<tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+#!/usr/bin/env emacs --batch
+
+;; Utility functions for testing text visibility
+
+(defun buffer-visible-text (&optional buffer)
+  "Return the visible text from BUFFER (or current buffer).
+This includes text made visible by overlays and excludes invisible text."
+  (with-current-buffer (or buffer (current-buffer))
+    (let ((result "")
+          (pos (point-min)))
+      (while (< pos (point-max))
+        (let* ((next-change (next-single-property-change pos 'invisible nil (point-max)))
+               (invisible (get-text-property pos 'invisible))
+               (visible (not (and invisible (invisible-p invisible)))))
+          ;; Add visible text
+          (when visible
+            (setq result (concat result (buffer-substring pos next-change))))
+          
+          ;; Check for after-string property that adds visible text
+          (let ((after-string (get-text-property pos 'after-string)))
+            (when after-string
+              (setq result (concat result after-string))))
+          
+          (setq pos next-change)))
+      result)))
+
+(defun debug-text-properties (start end)
+  "Debug text properties in region from START to END."
+  (let ((pos start))
+    (while (< pos end)
+      (let* ((next-change (next-single-property-change pos nil nil end))
+             (props (text-properties-at pos)))
+        (when props
+          (message "Position %d-%d: %s" pos next-change props))
+        (setq pos next-change)))))
+
+;; Test the visibility function
+(add-to-list 'treesit-extra-load-path default-directory)
+(load-file "grgfoo.el")
+
+(with-temp-buffer
+  (insert "## ASSISTANT:\n\nTest text\n\n### https://example.com\n\nTitle: Test\nCited text: Example citation\n")
+  (grgfoo-mode)
+  (font-lock-ensure)
+  
+  (message "Original buffer content:")
+  (message "%s" (buffer-string))
+  
+  (message "\nVisible buffer content:")
+  (message "%s" (buffer-visible-text))
+  
+  (message "\nText properties debug:")
+  (debug-text-properties (point-min) (point-max)))
+</tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+
+### git-commit-message
+
+<tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+Add utility functions for testing text visibility
+</tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+
+## TOOL RESULT:
+
+ID: toolu_01C7cbhxKcjZT6HYXnrWV9Ws
+
+<tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
+Loading...
+</tool.toolu_01C7cbhxKcjZT6HYXnrWV9Ws>
