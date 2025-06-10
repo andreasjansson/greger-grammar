@@ -66,6 +66,7 @@ module.exports = grammar({
       $.user_header,
       optional(/\n/),
       $.content_blocks,
+      repeat(/\n/),
     ),
 
     assistant: $ => seq(
