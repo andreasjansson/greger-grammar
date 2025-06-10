@@ -238,10 +238,11 @@ module.exports = grammar({
 
     text: $ => prec.right(seq(
       $._text_content,
-      repeat(seq(
-        /\n/,
+      repeat(choice(
         $._text_content,
-      ))
+        /\n/,
+      )),
+      $._text_content,
     )),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
