@@ -316,7 +316,7 @@ START and END are the region bounds."
       (error nil))))
 
 (defun grgfoo--find-citation-at-point ()
-  "Find citation node at point, if any."
+  "Find citation node at point, if any - using safer approach."
   (condition-case err
     (progn
       (message "DEBUG find-citation: checking treesit-ready-p...")
@@ -327,19 +327,20 @@ START and END are the region bounds."
               (if node
                   (progn
                     (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
-                    (cl-loop for current = node then (let ((parent (treesit-node-parent current)))
-                                                               (message "DEBUG find-citation: getting parent of %s -> %s"
-                                                                       (treesit-node-type current)
-                                                                       (if parent (treesit-node-type parent) "nil"))
-                                                               parent)
-                             for counter from 0 below 10  ; Prevent infinite loops
-                             while current
-                             do (message "DEBUG find-citation: iteration %d checking node type=%s" counter (treesit-node-type current))
-                             when (member (treesit-node-type current) '("citation_entry" "citations"))
-                             do (progn
-                                  (message "DEBUG find-citation: found matching node type=%s" (treesit-node-type current))
-                                  (cl-return current))
-                             finally (message "DEBUG find-citation: no matching node found after %d iterations" counter)))
+                    ;; Check if we're already on a citation_entry or citations node
+                    (if (member (treesit-node-type node) '("citation_entry" "citations"))
+                        (progn
+                          (message "DEBUG find-citation: node itself is citation type")
+                          node)
+                      ;; Check immediate parent only to avoid segfaults
+                      (let ((parent (treesit-node-parent node)))
+                        (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
+                            (progn
+                              (message "DEBUG find-citation: parent is citation type: %s" (treesit-node-type parent))
+                              parent)
+                          (progn
+                            (message "DEBUG find-citation: neither node nor parent is citation type")
+                            nil)))))
                 (progn
                   (message "DEBUG find-citation: no node at point")
                   nil))))

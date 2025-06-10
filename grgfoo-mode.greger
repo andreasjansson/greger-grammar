@@ -9904,5 +9904,141 @@ Add test without font-lock to isolate the issue
 ID: toolu_01Kxtj9J1VqkGXaabWhko8D6
 
 <tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-treesit-no-fontlock.el with 1322 characters. Successfully staged 2 file(s) and committed with message: Add test without font-lock to isolate the issue
 </tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01H9e8y8m3gFAXMvuvTHS39Q
+
+### command
+
+<tool.toolu_01H9e8y8m3gFAXMvuvTHS39Q>
+timeout 5s emacs --batch -l test-treesit-no-fontlock.el 2>&1
+</tool.toolu_01H9e8y8m3gFAXMvuvTHS39Q>
+
+## TOOL RESULT:
+
+ID: toolu_01H9e8y8m3gFAXMvuvTHS39Q
+
+<tool.toolu_01H9e8y8m3gFAXMvuvTHS39Q>
+Command failed with exit code 134: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Getting node at position 1...
+Node type: assistant_header
+Getting parent...
+Parent type: assistant
+Getting grandparent...
+/bin/sh: line 1: 73943 Abort trap: 6           timeout 5s emacs --batch -l test-treesit-no-fontlock.el 2>&1
+
+</tool.toolu_01H9e8y8m3gFAXMvuvTHS39Q>
+
+## ASSISTANT:
+
+font-lock! This is a tree-sitter bug. The issue happens when getting the parent of an "assistant" node. This suggests there might be a problem with the tree structure or the tree-sitter library itself.
+
+Let me test this with a different approach - avoiding the grandparent call entirely:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013QiGuzwBMFxHnVo9Q9kdmT
+
+### file-path
+
+<tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+grgfoo.el
+</tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+
+### original-content
+
+<tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case err
+    (progn
+      (message "DEBUG find-citation: checking treesit-ready-p...")
+      (if (treesit-ready-p 'greger)
+          (progn
+            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
+            (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
+                    (cl-loop for current = node then (let ((parent (treesit-node-parent current)))
+                                                               (message "DEBUG find-citation: getting parent of %s -> %s"
+                                                                       (treesit-node-type current)
+                                                                       (if parent (treesit-node-type parent) "nil"))
+                                                               parent)
+                             for counter from 0 below 10  ; Prevent infinite loops
+                             while current
+                             do (message "DEBUG find-citation: iteration %d checking node type=%s" counter (treesit-node-type current))
+                             when (member (treesit-node-type current) '("citation_entry" "citations"))
+                             do (progn
+                                  (message "DEBUG find-citation: found matching node type=%s" (treesit-node-type current))
+                                  (cl-return current))
+                             finally (message "DEBUG find-citation: no matching node found after %d iterations" counter)))
+                (progn
+                  (message "DEBUG find-citation: no node at point")
+                  nil))))
+        (progn
+          (message "DEBUG find-citation: treesit not ready")
+          nil)))
+    (error
+     (message "ERROR in find-citation: %s" err)
+     nil)))
+</tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+
+### new-content
+
+<tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any - using safer approach."
+  (condition-case err
+    (progn
+      (message "DEBUG find-citation: checking treesit-ready-p...")
+      (if (treesit-ready-p 'greger)
+          (progn
+            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
+            (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
+                    ;; Check if we're already on a citation_entry or citations node
+                    (if (member (treesit-node-type node) '("citation_entry" "citations"))
+                        (progn
+                          (message "DEBUG find-citation: node itself is citation type")
+                          node)
+                      ;; Check immediate parent only to avoid segfaults
+                      (let ((parent (treesit-node-parent node)))
+                        (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
+                            (progn
+                              (message "DEBUG find-citation: parent is citation type: %s" (treesit-node-type parent))
+                              parent)
+                          (progn
+                            (message "DEBUG find-citation: neither node nor parent is citation type")
+                            nil)))))
+                (progn
+                  (message "DEBUG find-citation: no node at point")
+                  nil))))
+        (progn
+          (message "DEBUG find-citation: treesit not ready")
+          nil)))
+    (error
+     (message "ERROR in find-citation: %s" err)
+     nil)))
+</tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+
+### git-commit-message
+
+<tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+Simplify citation finding to avoid tree-sitter segfaults
+</tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+
+## TOOL RESULT:
+
+ID: toolu_013QiGuzwBMFxHnVo9Q9kdmT
+
+<tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
+Loading...
+</tool.toolu_013QiGuzwBMFxHnVo9Q9kdmT>
