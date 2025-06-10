@@ -9684,5 +9684,112 @@ Add counter to prevent infinite loops in node traversal
 ID: toolu_01AbZnbRkCafMYEpQyQT8qMu
 
 <tool.toolu_01AbZnbRkCafMYEpQyQT8qMu>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add counter to prevent infinite loops in node traversal
 </tool.toolu_01AbZnbRkCafMYEpQyQT8qMu>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_014T6yVe3peZQeuWzKepdxHZ
+
+### command
+
+<tool.toolu_014T6yVe3peZQeuWzKepdxHZ>
+timeout 5s emacs --batch -l test-tab-minimal.el 2>&1
+</tool.toolu_014T6yVe3peZQeuWzKepdxHZ>
+
+## TOOL RESULT:
+
+ID: toolu_014T6yVe3peZQeuWzKepdxHZ
+
+<tool.toolu_014T6yVe3peZQeuWzKepdxHZ>
+Command failed with exit code 134: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Testing TAB at position 1...
+DEBUG TAB: pressed at position 1
+DEBUG TAB: citation folding enabled, looking for node...
+DEBUG find-citation: checking treesit-ready-p...
+DEBUG find-citation: treesit ready, getting node at point 1...
+DEBUG find-citation: found initial node type=assistant_header
+DEBUG find-citation: iteration 0 checking node type=assistant_header
+DEBUG find-citation: getting parent of assistant_header -> assistant
+DEBUG find-citation: iteration 1 checking node type=assistant
+/bin/sh: line 1: 73716 Abort trap: 6           timeout 5s emacs --batch -l test-tab-minimal.el 2>&1
+
+</tool.toolu_014T6yVe3peZQeuWzKepdxHZ>
+
+## ASSISTANT:
+
+. Let me isolate this even further and test just the treesit-node-parent call:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01B7eRMtgowrKnE7EEnhKc7V
+
+### file-path
+
+<tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+test-treesit-parent.el
+</tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+
+### contents
+
+<tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+#!/usr/bin/env emacs --batch
+
+(setq debug-on-error t)
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+
+(with-temp-buffer
+  (insert-file-contents "test-folding.greger")
+  (grgfoo-mode)
+  (font-lock-ensure)
+  
+  (message "Getting node at position 1...")
+  (goto-char 1)
+  (let ((node (treesit-node-at (point))))
+    (message "Node type: %s" (treesit-node-type node))
+    
+    (message "Getting parent...")
+    (let ((parent (treesit-node-parent node)))
+      (if parent
+          (message "Parent type: %s" (treesit-node-type parent))
+        (message "No parent"))
+      
+      (when parent
+        (message "Getting grandparent...")
+        (let ((grandparent (treesit-node-parent parent)))
+          (if grandparent
+              (message "Grandparent type: %s" (treesit-node-type grandparent))
+            (message "No grandparent"))))))
+  
+  (message "Test completed"))
+</tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+
+### git-commit-message
+
+<tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+Add minimal test for treesit-node-parent calls
+</tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+
+## TOOL RESULT:
+
+ID: toolu_01B7eRMtgowrKnE7EEnhKc7V
+
+<tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+Loading...
+</tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
