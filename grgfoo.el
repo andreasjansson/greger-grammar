@@ -111,8 +111,8 @@
   "Syntax table for `grgfoo-mode'.")
 
 ;; Citation folding functions
-(defun grgfoo--citation-folding-function (node override start end)
-  "Font-lock function to handle citation folding.
+(defun grgfoo--citation-entry-folding-function (node override start end)
+  "Font-lock function to hide citation entries within assistant blocks.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (condition-case err
@@ -122,10 +122,10 @@ START and END are the region bounds."
                  (node-end (treesit-node-end node))
                  (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
             (when should-fold
-              ;; Hide the entire citation block
+              ;; Hide the entire citation entry
               (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
     (error
-     (message "ERROR in citation-folding-function: %s" err))))
+     (message "ERROR in citation-entry-folding: %s" err))))
 
 (defvar grgfoo--assistant-text-cache nil
   "Cache for assistant text parts to enable merging across multiple assistant blocks.")

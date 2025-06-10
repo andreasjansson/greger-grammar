@@ -4235,5 +4235,1541 @@ Remove post-processing function and initialize cache
 ID: toolu_01M7XtkxyuS4qnKCMMPdMvwH
 
 <tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove post-processing function and initialize cache
+
+- Remove calls to grgfoo--apply-citation-folding 
+- Initialize assistant text cache as buffer-local variable
+- Let tree-sitter font-lock handle all the folding
 </tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+
+## ASSISTANT:
+
+Let's test this new implementation:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Kj5Ahnn3uoenp7pzS5jTcQ
+
+### command
+
+<tool.toolu_01Kj5Ahnn3uoenp7pzS5jTcQ>
+cd . && emacs --batch -l test-citation-folding-exact.el
+</tool.toolu_01Kj5Ahnn3uoenp7pzS5jTcQ>
+
+## TOOL RESULT:
+
+ID: toolu_01Kj5Ahnn3uoenp7pzS5jTcQ
+
+<tool.toolu_01Kj5Ahnn3uoenp7pzS5jTcQ>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 21:05:12+0200, selector ‘t’)
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 279 292 (fontified nil face grgfoo-citations-header-face) 292 293 (after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face)) face grgfoo-citations-header-face fontified nil) 293 323 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 323, EXPECTED LENGTH: 146 ===
+
+=== CHARACTER BY CHARACTER ===
+Position 103: actual=69 expected=35
+Position 104: actual=105 expected=35
+Position 105: actual=110 expected=32
+Position 106: actual=115 expected=67
+Position 107: actual=116 expected=73
+Position 108: actual=101 expected=84
+Position 109: actual=105 expected=65
+Position 110: actual=110 expected=84
+Position 111: actual=32 expected=73
+Position 112: actual=100 expected=79
+Position 113: actual=101 expected=78
+Position 114: actual=118 expected=83
+Position 115: actual=101 expected=58
+Position 116: actual=108 expected=10
+Position 117: actual=111 expected=91
+Position 118: actual=112 expected=43
+Position 119: actual=101 expected=50
+Position 120: actual=100 expected=32
+Position 121: actual=32 expected=99
+Position 122: actual=116 expected=105
+Position 123: actual=104 expected=116
+Position 124: actual=101 expected=97
+Position 125: actual=32 expected=116
+Position 126: actual=116 expected=105
+Position 127: actual=104 expected=111
+Position 128: actual=101 expected=110
+Position 129: actual=111 expected=115
+Position 130: actual=114 expected=44
+Position 131: actual=121 expected=32
+Position 132: actual=32 expected=84
+Position 133: actual=111 expected=65
+Position 134: actual=102 expected=66
+Position 136: actual=114 expected=116
+Position 137: actual=101 expected=111
+Position 138: actual=108 expected=32
+Position 139: actual=97 expected=101
+Position 140: actual=116 expected=120
+Position 141: actual=105 expected=112
+Position 142: actual=118 expected=97
+Position 143: actual=105 expected=110
+Position 144: actual=116 expected=100
+Position 145: actual=121 expected=93
+Position 146: actual=32 expected=END
+Position 147: actual=119 expected=END
+Position 148: actual=104 expected=END
+Position 149: actual=105 expected=END
+Position 150: actual=108 expected=END
+Position 151: actual=101 expected=END
+Position 152: actual=32 expected=END
+Position 153: actual=78 expected=END
+Position 154: actual=101 expected=END
+Position 155: actual=119 expected=END
+Position 156: actual=116 expected=END
+Position 157: actual=111 expected=END
+Position 158: actual=110 expected=END
+Position 159: actual=32 expected=END
+Position 160: actual=102 expected=END
+Position 161: actual=111 expected=END
+Position 162: actual=114 expected=END
+Position 163: actual=109 expected=END
+Position 164: actual=117 expected=END
+Position 165: actual=108 expected=END
+Position 166: actual=97 expected=END
+Position 167: actual=116 expected=END
+Position 168: actual=101 expected=END
+Position 169: actual=100 expected=END
+Position 170: actual=32 expected=END
+Position 171: actual=116 expected=END
+Position 172: actual=104 expected=END
+Position 173: actual=101 expected=END
+Position 174: actual=32 expected=END
+Position 175: actual=108 expected=END
+Position 176: actual=97 expected=END
+Position 177: actual=119 expected=END
+Position 178: actual=115 expected=END
+Position 179: actual=32 expected=END
+Position 180: actual=111 expected=END
+Position 181: actual=102 expected=END
+Position 182: actual=32 expected=END
+Position 183: actual=109 expected=END
+Position 184: actual=111 expected=END
+Position 185: actual=116 expected=END
+Position 186: actual=105 expected=END
+Position 187: actual=111 expected=END
+Position 188: actual=110 expected=END
+Position 189: actual=10 expected=END
+Position 190: actual=10 expected=END
+Position 191: actual=69 expected=END
+Position 192: actual=105 expected=END
+Position 193: actual=110 expected=END
+Position 194: actual=115 expected=END
+Position 195: actual=116 expected=END
+Position 196: actual=101 expected=END
+Position 197: actual=105 expected=END
+Position 198: actual=110 expected=END
+Position 199: actual=32 expected=END
+Position 200: actual=100 expected=END
+Position 201: actual=101 expected=END
+Position 202: actual=118 expected=END
+Position 203: actual=101 expected=END
+Position 204: actual=108 expected=END
+Position 205: actual=111 expected=END
+Position 206: actual=112 expected=END
+Position 207: actual=101 expected=END
+Position 208: actual=100 expected=END
+Position 209: actual=32 expected=END
+Position 210: actual=116 expected=END
+Position 211: actual=104 expected=END
+Position 212: actual=101 expected=END
+Position 213: actual=32 expected=END
+Position 214: actual=116 expected=END
+Position 215: actual=104 expected=END
+Position 216: actual=101 expected=END
+Position 217: actual=111 expected=END
+Position 218: actual=114 expected=END
+Position 219: actual=121 expected=END
+Position 220: actual=32 expected=END
+Position 221: actual=111 expected=END
+Position 222: actual=102 expected=END
+Position 223: actual=32 expected=END
+Position 224: actual=114 expected=END
+Position 225: actual=101 expected=END
+Position 226: actual=108 expected=END
+Position 227: actual=97 expected=END
+Position 228: actual=116 expected=END
+Position 229: actual=105 expected=END
+Position 230: actual=118 expected=END
+Position 231: actual=105 expected=END
+Position 232: actual=116 expected=END
+Position 233: actual=121 expected=END
+Position 234: actual=32 expected=END
+Position 235: actual=119 expected=END
+Position 236: actual=104 expected=END
+Position 237: actual=105 expected=END
+Position 238: actual=108 expected=END
+Position 239: actual=101 expected=END
+Position 240: actual=32 expected=END
+Position 241: actual=78 expected=END
+Position 242: actual=101 expected=END
+Position 243: actual=119 expected=END
+Position 244: actual=116 expected=END
+Position 245: actual=111 expected=END
+Position 246: actual=110 expected=END
+Position 247: actual=32 expected=END
+Position 248: actual=102 expected=END
+Position 249: actual=111 expected=END
+Position 250: actual=114 expected=END
+Position 251: actual=109 expected=END
+Position 252: actual=117 expected=END
+Position 253: actual=108 expected=END
+Position 254: actual=97 expected=END
+Position 255: actual=116 expected=END
+Position 256: actual=101 expected=END
+Position 257: actual=100 expected=END
+Position 258: actual=32 expected=END
+Position 259: actual=116 expected=END
+Position 260: actual=104 expected=END
+Position 261: actual=101 expected=END
+Position 262: actual=32 expected=END
+Position 263: actual=108 expected=END
+Position 264: actual=97 expected=END
+Position 265: actual=119 expected=END
+Position 266: actual=115 expected=END
+Position 267: actual=32 expected=END
+Position 268: actual=111 expected=END
+Position 269: actual=102 expected=END
+Position 270: actual=32 expected=END
+Position 271: actual=109 expected=END
+Position 272: actual=111 expected=END
+Position 273: actual=116 expected=END
+Position 274: actual=105 expected=END
+Position 275: actual=111 expected=END
+Position 276: actual=110 expected=END
+Position 277: actual=10 expected=END
+Position 278: actual=10 expected=END
+Position 279: actual=35 expected=END
+Position 280: actual=35 expected=END
+Position 281: actual=32 expected=END
+Position 282: actual=67 expected=END
+Position 283: actual=73 expected=END
+Position 284: actual=84 expected=END
+Position 285: actual=65 expected=END
+Position 286: actual=84 expected=END
+Position 287: actual=73 expected=END
+Position 288: actual=79 expected=END
+Position 289: actual=78 expected=END
+Position 290: actual=83 expected=END
+Position 291: actual=58 expected=END
+Position 292: actual=10 expected=END
+Position 293: actual=10 expected=END
+Position 294: actual=91 expected=END
+Position 295: actual=43 expected=END
+Position 296: actual=50 expected=END
+Position 297: actual=32 expected=END
+Position 298: actual=99 expected=END
+Position 299: actual=105 expected=END
+Position 300: actual=116 expected=END
+Position 301: actual=97 expected=END
+Position 302: actual=116 expected=END
+Position 303: actual=105 expected=END
+Position 304: actual=111 expected=END
+Position 305: actual=110 expected=END
+Position 306: actual=115 expected=END
+Position 307: actual=44 expected=END
+Position 308: actual=32 expected=END
+Position 309: actual=84 expected=END
+Position 310: actual=65 expected=END
+Position 311: actual=66 expected=END
+Position 312: actual=32 expected=END
+Position 313: actual=116 expected=END
+Position 314: actual=111 expected=END
+Position 315: actual=32 expected=END
+Position 316: actual=101 expected=END
+Position 317: actual=120 expected=END
+Position 318: actual=112 expected=END
+Position 319: actual=97 expected=END
+Position 320: actual=110 expected=END
+Position 321: actual=100 expected=END
+Position 322: actual=93 expected=END
+Test test-citations-folding backtrace:
+  signal(ert-test-failed (((should (string= expected actual)) :form (s
+  ert-fail(((should (string= expected actual)) :form (string= "## ASSI
+  (if (unwind-protect (setq value-2 (apply fn-0 args-1)) (setq form-de
+  (let (form-description-4) (if (unwind-protect (setq value-2 (apply f
+  (let ((value-2 'ert-form-evaluation-aborted-3)) (let (form-descripti
+  (let* ((fn-0 #'string=) (args-1 (condition-case err (let ((signal-ho
+  (let ((actual (get-visible-buffer (current-buffer))) (expected "## A
+  (progn (insert "## ASSISTANT:\n\nEinstein developed the theory of re
+  (unwind-protect (progn (insert "## ASSISTANT:\n\nEinstein developed 
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-citations-folding :documentation
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests [...] :test-m
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-exact.el"))
+  command-line()
+  normal-top-level()
+Test test-citations-folding condition:
+    (ert-test-failed
+     ((should
+       (string= expected actual))
+      :form
+      (string= "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+	       #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+		 (fontified nil face grgfoo-assistant-header-face)
+		 14 15
+		 (fontified nil)
+		 279 292
+		 (fontified nil face grgfoo-citations-header-face)
+		 292 293
+		 (after-string
+		  #("\n[+2 citations, TAB to expand]" 0 30 ...)
+		  face grgfoo-citations-header-face fontified nil)
+		 293 323
+		 (face font-lock-comment-face)))
+      :value nil :explanation
+      (arrays-of-different-length 146 323 "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+				  #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+				    (fontified nil face grgfoo-assistant-header-face)
+				    14 15
+				    (fontified nil)
+				    279 292
+				    (fontified nil face grgfoo-citations-header-face)
+				    292 293
+				    (after-string
+				     #("\n[+2 citations, TAB to expand]" 0 30 ...)
+				     face grgfoo-citations-header-face fontified nil)
+				    293 323
+				    (face font-lock-comment-face))
+				  first-mismatch-at 103)))
+   FAILED  1/1  test-citations-folding (0.224429 sec) at test-citation-folding-exact.el:16
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 21:05:12+0200, 0.500356 sec)
+
+1 unexpected results:
+   FAILED  test-citations-folding
+
+
+</tool.toolu_01Kj5Ahnn3uoenp7pzS5jTcQ>
+
+## USER:
+
+Note: At the bottom of ~/projects/greger.el/greger-grammar/test/corpus/citations-multiple.txt is the parse tree for the greger markdown above.
+
+I'm sure you could get away with a grgfoo--citations-section-folding-function that runs just on citations_entry (not assistant or citations), navigating to sibling nodes to hide them. It could be a lot simpler than it is now.
+
+Then you could use a text property on the first character of the hidden block to determine if it should be hidden or not.
+
+Download the raw source of https://www.gnu.org/software/emacs/manual/html_node/elisp/Parsing-Program-Source.html and visit the links to learn more about navigating
+
+## ASSISTANT:
+
+You're absolutely right! Let me look at the parse tree first to understand the structure better, then simplify the approach using tree-sitter navigation.
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01B8VV29LnjbCuFVri1gjBb3
+
+### path
+
+<tool.toolu_01B8VV29LnjbCuFVri1gjBb3>
+test/corpus/citations-multiple.txt
+</tool.toolu_01B8VV29LnjbCuFVri1gjBb3>
+
+## TOOL RESULT:
+
+ID: toolu_01B8VV29LnjbCuFVri1gjBb3
+
+<tool.toolu_01B8VV29LnjbCuFVri1gjBb3>
+====================
+Citations multiple
+====================
+
+## USER:
+
+Tell me about Einstein and Newton
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_789
+
+### query
+
+<tool.srvtoolu_789>
+Einstein Newton physics
+</tool.srvtoolu_789>
+
+## WEB SEARCH TOOL RESULT:
+
+ID: srvtoolu_789
+
+<tool.srvtoolu_789>
+Physics search results
+</tool.srvtoolu_789>
+
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while
+
+## ASSISTANT:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text))
+  (server_tool_use
+    (server_tool_use_header)
+    (name
+      (value))
+    (id
+      (value))
+    (tool_param
+      (name)
+      (value
+        (tool_start_tag)
+        (tool_content)
+        (tool_end_tag))))
+  (web_search_tool_result
+    (web_search_tool_result_header)
+    (id
+      (value))
+    (content
+      (tool_start_tag)
+      (tool_content)
+      (tool_end_tag)))
+  (assistant
+    (assistant_header)
+    (text)
+    (citation_entry
+      (url)
+      (title
+        (value))
+      (cited_text
+        (value))
+      (encrypted_index
+        (value))))
+  (assistant
+    (assistant_header)
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (citation_entry
+      (url)
+      (title
+        (value))
+      (cited_text
+        (value))
+      (encrypted_index
+        (value))))
+  (citations
+    (citations_header)
+    (citation_entry
+      (url)
+      (title
+        (value))
+      (cited_text
+        (value))
+      (encrypted_index
+        (value)))
+    (citation_entry
+      (url)
+      (title
+        (value))
+      (cited_text
+        (value))
+      (encrypted_index
+        (value)))))
+</tool.toolu_01B8VV29LnjbCuFVri1gjBb3>
+
+## ASSISTANT:
+
+Perfect! Now I can see the structure clearly. Let me also download the tree-sitter navigation documentation:
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_016TkbYfLgJMqggTQHrYb6yZ
+
+### url
+
+<tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Parsing-Program-Source.html
+</tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+
+### extract-text
+
+<tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+:json-false
+</tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+
+## TOOL RESULT:
+
+ID: toolu_016TkbYfLgJMqggTQHrYb6yZ
+
+<tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Parsing Program Source (GNU Emacs Lisp Reference Manual)</title>
+
+<meta name="description" content="Parsing Program Source (GNU Emacs Lisp Reference Manual)">
+<meta name="keywords" content="Parsing Program Source (GNU Emacs Lisp Reference Manual)">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link rev="made" href="mailto:bug-gnu-emacs@gnu.org">
+<link rel="icon" type="image/png" href="/graphics/gnu-head-mini.png">
+<meta name="ICBM" content="42.256233,-71.006581">
+<meta name="DC.title" content="gnu.org">
+<style type="text/css">
+@import url('/software/emacs/manual.css');
+</style>
+</head>
+
+<body lang="en">
+<div class="chapter" id="Parsing-Program-Source">
+<div class="header" style="background-color:#DDDDFF">
+<p>
+Next: <a href="Abbrevs.html" accesskey="n" rel="next">Abbrevs and Abbrev Expansion</a>, Previous: <a href="Parsing-Expression-Grammars.html" accesskey="p" rel="prev">Parsing Expression Grammars</a>, Up: <a href="index.html" accesskey="u" rel="up">Emacs Lisp</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html" title="Index" rel="index">Index</a>]</p>
+</div>
+
+<span id="Parsing-Program-Source-1"></span><h2 class="chapter">38 Parsing Program Source</h2>
+<span id="index-parsing-program-source"></span>
+
+<span id="index-syntax-tree_002c-from-parsing-program-source"></span>
+<p>Emacs provides various ways to parse program source text and produce a
+<em>syntax tree</em>.  In a syntax tree, text is no longer considered a
+one-dimensional stream of characters, but a structured tree of nodes,
+where each node represents a piece of text.  Thus, a syntax tree can
+enable interesting features like precise fontification, indentation,
+navigation, structured editing, etc.
+</p>
+<p>Emacs has a simple facility for parsing balanced expressions
+(see <a href="Parsing-Expressions.html">Parsing Expressions</a>).  There is also the SMIE library for
+generic navigation and indentation (see <a href="SMIE.html">Simple Minded Indentation Engine</a>).
+</p>
+<p>In addition to those, Emacs also provides integration with
+<a href="https://tree-sitter.github.io/tree-sitter">the tree-sitter
+library</a> if support for it was compiled in.  The tree-sitter library
+implements an incremental parser and has support for a wide range of
+programming languages.
+</p>
+<dl class="def">
+<dt id="index-treesit_002davailable_002dp"><span class="category">Function: </span><span><strong>treesit-available-p</strong><a href='#index-treesit_002davailable_002dp' class='copiable-anchor'> &para;</a></span></dt>
+<dd><p>This function returns non-<code>nil</code> if tree-sitter features are
+available for the current Emacs session.
+</p></dd></dl>
+
+<p>To be able to parse the program source using the tree-sitter library
+and access the syntax tree of the program, a Lisp program needs to
+load a language grammar library, and create a parser for that
+language and the current buffer.  After that, the Lisp program can
+query the parser about specific nodes of the syntax tree.  Then, it
+can access various kinds of information about each node, and search
+for nodes using a powerful pattern-matching syntax.  This chapter
+explains how to do all this, and also how a Lisp program can work with
+source files that mix multiple programming languages.
+</p>
+
+<ul class="section-toc">
+<li><a href="Language-Grammar.html" accesskey="1">Tree-sitter Language Grammar</a></li>
+<li><a href="Using-Parser.html" accesskey="2">Using Tree-sitter Parser</a></li>
+<li><a href="Retrieving-Nodes.html" accesskey="3">Retrieving Nodes</a></li>
+<li><a href="Accessing-Node-Information.html" accesskey="4">Accessing Node Information</a></li>
+<li><a href="Pattern-Matching.html" accesskey="5">Pattern Matching Tree-sitter Nodes</a></li>
+<li><a href="User_002ddefined-Things.html" accesskey="6">User-defined &ldquo;Things&rdquo; and Navigation</a></li>
+<li><a href="Multiple-Languages.html" accesskey="7">Parsing Text in Multiple Languages</a></li>
+<li><a href="Tree_002dsitter-Major-Modes.html" accesskey="8">Developing major modes with tree-sitter</a></li>
+<li><a href="Tree_002dsitter-C-API.html" accesskey="9">Tree-sitter C API Correspondence</a></li>
+</ul>
+</div>
+
+<div class="header" style="background-color:#DDDDFF">
+<p>
+Next: <a href="Abbrevs.html">Abbrevs and Abbrev Expansion</a>, Previous: <a href="Parsing-Expression-Grammars.html">Parsing Expression Grammars</a>, Up: <a href="index.html">Emacs Lisp</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html" title="Index" rel="index">Index</a>]</p>
+</div>
+
+
+
+</body>
+</html>
+
+</tool.toolu_016TkbYfLgJMqggTQHrYb6yZ>
+
+## ASSISTANT:
+
+Let me get the specific sections on node navigation and accessing information:
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_01PcFmC9mhRFMR3SZsLAhDMD
+
+### url
+
+<tool.toolu_01PcFmC9mhRFMR3SZsLAhDMD>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Retrieving-Nodes.html
+</tool.toolu_01PcFmC9mhRFMR3SZsLAhDMD>
+
+## TOOL RESULT:
+
+ID: toolu_01PcFmC9mhRFMR3SZsLAhDMD
+
+<tool.toolu_01PcFmC9mhRFMR3SZsLAhDMD>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Next:  Accessing Node Information , Previous:  Using Tree-sitter Parser , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+   38.3 Retrieving Nodes
+          Here are some terms and conventions we use when documenting
+tree-sitter functions.
+
+  A node in a syntax tree spans some portion of the program text in the
+buffer.  We say that a node is “smaller” or “larger” than another
+if it spans, respectively, a smaller or larger portion of buffer text
+than the other node.  Since nodes that are deeper (“lower”) in the
+tree are children of the nodes that are “higher” in the tree, it
+follows that a lower node will always be smaller than a node that is
+higher in the node hierarchy.  A node that is higher up in the syntax
+tree contains one or more smaller nodes as its children, and therefore
+spans a larger portion of buffer text.
+
+  When a function cannot find a node, it returns  nil .  For
+convenience, all functions that take a node as argument and return
+a node, also accept the node argument of  nil  and in that case
+just return  nil .
+
+    Nodes are not automatically updated when the associated buffer is
+modified, and there is no way to update a node once it is retrieved.
+Using an outdated node signals the  treesit-node-outdated  error.
+
+   Retrieving nodes from syntax tree
+          Function:  treesit-node-at  pos &optional parser-or-lang named  ¶  This function returns a  leaf  node at buffer position  pos .
+A leaf node is a node that doesn’t have any child nodes.
+
+  This function tries to return a node whose span covers  pos : the
+node’s beginning position is less than or equal to  pos , and the
+node’s end position is greater than or equal to  pos .
+
+  If no leaf node’s span covers  pos  (e.g.,  pos  is in the
+whitespace between two leaf nodes), this function returns the first
+leaf node after  pos .
+
+  Finally, if there is no leaf node after  pos , return the first
+leaf node before  pos .
+
+  If  parser-or-lang  is a parser object, this function uses that
+parser; if  parser-or-lang  is a language, this function uses the
+first parser for that language in the current buffer, or creates one
+if none exists; if  parser-or-lang  is  nil , this function
+tries to guess the language at  pos  by calling
+ treesit-language-at  (see  Parsing Text in Multiple Languages ).
+
+  If this function cannot find a suitable node to return, it returns
+ nil .
+
+  If  named  is non- nil , this function looks only for named
+nodes (see  named node ).
+
+  Example:
+
+   ;; Find the node at point in a C parser's syntax tree.
+(treesit-node-at (point) 'c)
+  ⇒ #<treesit-node (primitive_type) in 23-27>
+
+
+  Function:  treesit-node-on  beg end &optional parser-or-lang named  ¶  This function returns the  smallest  node that covers the region
+of buffer text between  beg  and  end .  In other words, the
+start of the node is before or at  beg , and the end of the node
+is at or after  end .
+
+  Beware:  calling this function on an empty line that is not
+inside any top-level construct (function definition, etc.) most
+probably will give you the root node, because the root node is the
+smallest node that covers that empty line.  Most of the time, you want
+to use  treesit-node-at  instead.
+
+  If  parser-or-lang  is a parser object, this function uses that
+parser; if  parser-or-lang  is a language, this function uses the
+first parser for that language in the current buffer, or creates one
+if none exists; if  parser-or-lang  is  nil , this function
+tries to guess the language at  beg  by calling
+ treesit-language-at .
+
+  If  named  is non- nil , this function looks for a named node
+only (see  named node ).
+
+ Function:  treesit-parser-root-node  parser  ¶  This function returns the root node of the syntax tree generated by
+ parser .
+
+ Function:  treesit-buffer-root-node  &optional language  ¶  This function finds the first parser for  language  in the current
+buffer, or creates one if none exists, and returns the root node
+generated by that parser.  If  language  is omitted, it uses the
+first parser in the parser list.  If it cannot find an appropriate
+parser, it returns  nil .
+
+ Given a node, a Lisp program can retrieve other nodes starting from
+it, or query for information about this node.
+
+   Retrieving nodes from other nodes
+     By kinship
+        Function:  treesit-node-parent  node  ¶  This function returns the immediate parent of  node .
+
+  If  node  is more than 1000 levels deep in a parse tree, the
+return value is undefined.  Currently it returns  nil , but that
+could change in the future.
+
+ Function:  treesit-node-child  node n &optional named  ¶  This function returns the  n ’th child of  node .  If
+ named  is non- nil , it counts only named nodes
+(see  named node ).
+
+  For example, in a node that represents a string  "text" , there
+are three children nodes: the opening quote  " , the string text
+ text , and the closing quote  " .  Among these nodes, the
+first child is the opening quote  " , and the first named child
+is the string text.
+
+  This function returns  nil  if there is no  n ’th child.
+ n  could be negative, e.g., -1 represents the last child.
+
+ Function:  treesit-node-children  node &optional named  ¶  This function returns all of  node ’s children as a list.  If
+ named  is non- nil , it retrieves only named nodes.
+
+ Function:  treesit-node-next-sibling  node &optional named  ¶  This function finds the next sibling of  node .  If  named  is
+non- nil , it finds the next named sibling.
+
+ Function:  treesit-node-prev-sibling  node &optional named  ¶  This function finds the previous sibling of  node .  If
+ named  is non- nil , it finds the previous named sibling.
+
+  By field name
+      To make the syntax tree easier to analyze, many language grammars
+assign  field names  to child nodes (see  field name ).  For example, a  function_definition  node
+could have a  declarator  child and a  body  child.
+
+  Function:  treesit-node-child-by-field-name  node field-name  ¶  This function finds the child of  node  whose field name is
+ field-name , a string.
+
+   ;; Get the child that has "body" as its field name.
+(treesit-node-child-by-field-name node "body")
+  ⇒ #<treesit-node (compound_statement) in 45-89>
+
+
+   By position
+      Function:  treesit-node-first-child-for-pos  node pos &optional named  ¶  This function finds the first child of  node  that extends beyond
+buffer position  pos .  “Extends beyond” means the end of the
+child node is greater or equal to  pos .  This function only looks
+for immediate children of  node , and doesn’t look in its
+grandchildren.  If  named  is non- nil , it looks for the
+first named child (see  named node ).
+
+ Function:  treesit-node-descendant-for-range  node beg end &optional named  ¶  This function finds the  smallest  descendant node of  node 
+that spans the region of text between positions  beg  and
+ end .  It is similar to  treesit-node-at .  If  named 
+is non- nil , it looks for the smallest named child.
+
+  Searching for node
+  Function:  treesit-search-subtree  node predicate &optional backward all depth  ¶  This function traverses the subtree of  node  (including  node 
+itself), looking for a node for which  predicate  returns
+non- nil .   predicate  is a regexp that is matched against
+each node’s type, or a predicate function that takes a node and returns
+non- nil  if the node matches.   predicate  can also be a thing
+symbol or thing definition (see  User-defined “Things” and Navigation ).  Using an
+undefined thing doesn’t raise an error, the function simply returns
+ nil .
+
+  This function returns the first node that matches, or  nil  if none
+matches  predicate .
+
+  By default, this function only traverses named nodes, but if  all 
+is non- nil , it traverses all the nodes.  If  backward  is
+non- nil , it traverses backwards (i.e., it visits the last child
+first when traversing down the tree).  If  depth  is
+non- nil , it must be a number that limits the tree traversal to
+that many levels down the tree.  If  depth  is  nil , it
+defaults to 1000.
+
+ Function:  treesit-search-forward  start predicate &optional backward all  ¶  Like  treesit-search-subtree , this function also traverses the
+parse tree and matches each node with  predicate  (except for
+ start ), where  predicate  can be a regexp or a predicate
+function.   predicate  can also be a thing symbol or thing
+definition (see  User-defined “Things” and Navigation ).  Using an undefined thing
+doesn’t raise an error, the function simply returns  nil .
+
+  For a tree like the one below where  start  is marked ‘ S ’, this
+function traverses as numbered from 1 to 12:
+
+                 12
+              |
+     S--------3----------11
+     |        |          |
+o--o-+--o  1--+--2    6--+-----10
+|  |                  |        |
+o  o                +-+-+   +--+--+
+                    |   |   |  |  |
+                    4   5   7  8  9
+
+
+  Note that this function doesn’t traverse the subtree of  start ,
+and it always traverses leaf nodes first, before moving upwards.
+
+  Like  treesit-search-subtree , this function only searches for
+named nodes by default, but if  all  is non- nil , it
+searches for all nodes.  If  backward  is non- nil , it
+searches backwards.
+
+  While  treesit-search-subtree  traverses the subtree of a node,
+this function starts with node  start  and traverses every node
+that comes after it in the buffer position order, i.e., nodes with
+start positions greater than the end position of  start .
+
+  In the tree shown above,  treesit-search-subtree  traverses node
+‘ S ’ ( start ) and nodes marked with  o , whereas this
+function traverses the nodes marked with numbers.  This function is
+useful for answering questions like “what is the first node after
+ start  in the buffer that satisfies some condition?”
+
+ Function:  treesit-search-forward-goto  node predicate &optional start backward all  ¶  This function moves point to the start or end of the next node after
+ node  in the buffer that matches  predicate .  If  start 
+is non- nil , stop at the beginning rather than the end of a node.
+
+  This function guarantees that the matched node it returns makes
+progress in terms of buffer position: the start/end position of the
+returned node is always greater than that of  node .
+
+  Arguments  predicate ,  backward , and  all  are the same
+as in  treesit-search-forward .
+
+ Function:  treesit-induce-sparse-tree  root predicate &optional process-fn depth  ¶  This function creates a sparse tree from  root ’s subtree.
+
+  It takes the subtree under  root , and combs it so only the nodes
+that match  predicate  are left.  Like previous functions, the
+ predicate  can be a regexp string that matches against each node’s
+type, or a function that takes a node and returns non- nil  if it
+matches.   predicate  can also be a thing symbol or thing definition
+(see  User-defined “Things” and Navigation ).  Using an undefined thing doesn’t raise
+an error, the function simply returns  nil .
+
+  For example, given the subtree on the left that consists of both
+numbers and letters, if  predicate  is “letter only”, the
+returned tree is the one on the right.
+
+       a                 a              a
+    |                 |              |
++---+---+         +---+---+      +---+---+
+|   |   |         |   |   |      |   |   |
+b   1   2         b   |   |      b   c   d
+    |   |     =>      |   |  =>      |
+    c   +--+          c   +          e
+    |   |  |          |   |
+ +--+   d  4       +--+   d
+ |  |              |
+ e  5              e
+
+
+  If  process-fn  is non- nil , instead of returning the
+matched nodes, this function passes each node to  process-fn  and
+uses the returned value instead.  If non- nil ,  depth 
+limits the number of levels to go down from  root .  If
+ depth  is  nil , it defaults to 1000.
+
+  Each node in the returned tree looks like
+ ( tree-sitter-node  . ( child  …))  /@w  .  The
+ tree-sitter-node  of the root of this tree will be  nil  if
+ root  doesn’t match  predicate .  If no node matches
+ predicate , the function returns  nil .
+
+  More convenience functions
+  Function:  treesit-node-get  node instructions  ¶  This is a convenience function that chains together multiple node
+accessor functions together.  For example, to get  node ’s
+parent’s next sibling’s second child’s text:
+
+   (treesit-node-get node
+   '((parent 1)
+    (sibling 1 nil)
+    (child 1 nil)
+    (text nil)))
+
+
+  instruction  is a list of INSTRUCTIONs of the form
+ ( fn   arg ...)  /@w  .  The following  fn ’s are
+supported:
+
+  (child  idx  named )  Get the  idx ’th child.
+
+   (parent  n )  Go to parent  n  times.
+
+   (field-name)  Get the field name of the current node.
+
+   (type)  Get the type of the current node.
+
+   (text  no-property )  Get the text of the current node.
+
+   (children  named )  Get a list of children.
+
+   (sibling  step  named )  Get the nth prev/next sibling, negative  step  means prev sibling,
+positive means next sibling.
+
+  Note that arguments like  named  and  no-property  can’t be
+omitted, unlike in their original functions.
+
+ Function:  treesit-filter-child  node predicate &optional named  ¶  This function finds immediate children of  node  that satisfy
+ predicate .
+
+  The  predicate  function takes a node as argument and should
+return non- nil  to indicate that the node should be kept.  If
+ named  is non- nil , this function only examines named
+nodes.
+
+ Function:  treesit-parent-until  node predicate &optional include-node  ¶  This function repeatedly finds the parents of  node , and returns
+the parent that satisfies  predicate .   predicate  can be
+either a function that takes a node as argument and returns  t 
+or  nil , or a regexp matching node type names, or other valid
+predicates described in  treesit-thing-settings .  If no parent
+satisfies  predicates , this function returns  nil .
+
+  Normally this function only looks at the parents of  node  but not
+ node  itself.  But if  include-node  is non- nil , this
+function returns  node  if  node  satisfies  predicate .
+
+ Function:  treesit-parent-while  node predicate  ¶  This function goes up the tree starting from  node , and keeps
+doing so as long as the nodes satisfy  predicate , a function that
+takes a node as argument.  That is, this function returns the highest
+parent of  node  that still satisfies  predicate .  Note that if
+ node  satisfies  predicate  but its immediate parent doesn’t,
+ node  itself is returned.
+
+ Function:  treesit-node-top-level  node &optional predicate include-node  ¶  This function returns the highest parent of  node  that has the
+same type as  node .  If no such parent exists, it returns
+ nil .  Therefore this function is also useful for testing
+whether  node  is top-level.
+
+  If  predicate  is  nil , this function uses  node ’s type
+to find the parent.  If  predicate  is non- nil , this
+function searches the parent that satisfies  predicate .  If
+ include-node  is non- nil , this function returns  node 
+if  node  satisfies  predicate .
+
+
+   
+Next:  Accessing Node Information , Previous:  Using Tree-sitter Parser , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_01PcFmC9mhRFMR3SZsLAhDMD>
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_01ECr1m4nD7fBXgfYKDhA5vv
+
+### url
+
+<tool.toolu_01ECr1m4nD7fBXgfYKDhA5vv>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Accessing-Node-Information.html
+</tool.toolu_01ECr1m4nD7fBXgfYKDhA5vv>
+
+## TOOL RESULT:
+
+ID: toolu_01ECr1m4nD7fBXgfYKDhA5vv
+
+<tool.toolu_01ECr1m4nD7fBXgfYKDhA5vv>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Next:  Pattern Matching Tree-sitter Nodes , Previous:  Retrieving Nodes , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+   38.4 Accessing Node Information
+       Basic information of Node
+  Every node is associated with a parser, and that parser is associated
+with a buffer.  The following functions retrieve them.
+
+  Function:  treesit-node-parser  node  ¶  This function returns  node ’s associated parser.
+
+ Function:  treesit-node-buffer  node  ¶  This function returns  node ’s parser’s associated buffer.
+
+ Function:  treesit-node-language  node  ¶  This function returns  node ’s parser’s associated language.
+
+ Each node represents a portion of text in the buffer.  Functions below
+find relevant information about that text.
+
+  Function:  treesit-node-start  node  ¶  Return the start position of  node .
+
+ Function:  treesit-node-end  node  ¶  Return the end position of  node .
+
+ Function:  treesit-node-text  node &optional object  ¶  Return the buffer text that  node  represents, as a string.  (If
+ node  is retrieved from parsing a string, it will be the text
+from that string.)
+
+   Here are some predicates on tree-sitter nodes:
+
+  Function:  treesit-node-p  object  ¶  Checks if  object  is a tree-sitter syntax node.
+
+     Function:  treesit-node-eq  node1 node2  ¶  Checks if  node1  and  node2  refer to the same node in a
+tree-sitter syntax tree.  This function uses the same equivalence
+metric as  equal .  You can also compare nodes using  equal 
+(see  Equality Predicates ).
+
+  Property information
+  In general, nodes in a concrete syntax tree fall into two categories:
+ named nodes  and  anonymous nodes .  Whether a node is named
+or anonymous is determined by the language grammar
+(see  named node ).
+
+      Apart from being named or anonymous, a node can have other properties.
+A node can be “missing”: such nodes are inserted by the parser in
+order to recover from certain kinds of syntax errors, i.e., something
+should probably be there according to the grammar, but is not there.
+This can happen during editing of the program source, when the source
+is not yet in its final form.
+
+      A node can be “extra”: such nodes represent things like comments,
+which can appear anywhere in the text.
+
+      A node can be “outdated”, if its parser has reparsed at least once
+after the node was created.
+
+      A node “has error” if the text it spans contains a syntax error.  It
+can be that the node itself has an error, or one of its descendants
+has an error.
+
+      A node is considered  live  if its parser is not deleted, and the
+buffer to which it belongs is a live buffer (see  Killing Buffers ).
+
+  Function:  treesit-node-check  node property  ¶  This function returns non- nil  if  node  has the specified
+ property .   property  can be  named ,  missing ,
+ extra ,  outdated ,  has-error , or  live .
+
+ Function:  treesit-node-type  node  ¶  Named nodes have “types” (see  node type ).
+For example, a named node can be a  string_literal  node, where
+ string_literal  is its type.  The type of an anonymous node is
+just the text that the node represents; e.g., the type of a ‘ , ’
+node is just ‘ , ’.
+
+  This function returns  node ’s type as a string.
+
+  Information as a child or parent
+  Function:  treesit-node-index  node &optional named  ¶  This function returns the index of  node  as a child node of its
+parent.  If  named  is non- nil , it only counts named nodes
+(see  named node ).
+
+ Function:  treesit-node-field-name  node  ¶  A child of a parent node could have a field name (see  field name ).  This function returns the field name
+of  node  as a child of its parent.
+
+ Function:  treesit-node-field-name-for-child  node n  ¶  This function returns the field name of the  n ’th child of
+ node .  It returns  nil  if there is no  n ’th child, or
+the  n ’th child doesn’t have a field name.
+
+  Note that  n  counts both named and anonymous children, and
+ n  can be negative, e.g., -1 represents the last child.
+
+ Function:  treesit-node-child-count  node &optional named  ¶  This function returns the number of children of  node .  If
+ named  is non- nil , it only counts named children
+(see  named node ).
+
+  Convenience functions
+  Function:  treesit-node-enclosed-p  smaller larger &optional strict  ¶  This function returns non- nil  if  smaller  is enclosed in
+ larger .   smaller  and  larger  can be either a cons
+ ( beg  .  end )  or a node.
+
+  Return non- nil  if  larger ’s start <=  smaller ’s start
+and  larger ’s end <=  smaller ’s end.
+
+  If  strict  is  t , compare with < rather than <=.
+
+  If  strict  is  partial , consider  larger  encloses
+ smaller  when at least one side is strictly enclosing.
+
+
+   
+Next:  Pattern Matching Tree-sitter Nodes , Previous:  Retrieving Nodes , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_01ECr1m4nD7fBXgfYKDhA5vv>
+
+## ASSISTANT:
+
+Now I understand! Based on the parse tree and the documentation, I can see that:
+
+1. Each `assistant` node contains `text` nodes and `citation_entry` nodes
+2. The `citations` node contains multiple `citation_entry` nodes  
+3. I can use tree-sitter navigation to find sibling nodes and hide them efficiently
+
+Let me rewrite this with a much simpler approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01U2j8K2mAzaHYHMJ9azWy8o
+
+### file-path
+
+<tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+grgfoo.el
+</tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+
+### original-content
+
+<tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+
+(defvar grgfoo--assistant-text-cache nil
+  "Cache for assistant text parts to enable merging across multiple assistant blocks.")
+
+(defun grgfoo--assistant-text-merger (node override start end)
+  "Font-lock function to collect text from assistant blocks for merging.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          ;; Extract text content from this assistant block
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (content-start (save-excursion
+                                  (goto-char node-start)
+                                  (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                                  (point)))
+                 (text-content (grgfoo--extract-text-from-assistant-block content-start node-end)))
+            
+            ;; Store this text for later merging
+            (unless (string-empty-p text-content)
+              (push (list node-start node-end content-start text-content) grgfoo--assistant-text-cache))
+            
+            ;; Check if this is the last assistant block by looking ahead
+            (save-excursion
+              (goto-char node-end)
+              (let ((next-assistant (re-search-forward "^## ASSISTANT:$" nil t)))
+                (unless next-assistant
+                  ;; This is the last assistant block - time to merge
+                  (grgfoo--apply-assistant-text-merging)))))))
+    (error
+     (message "ERROR in assistant-text-merger: %s" err))))
+
+(defun grgfoo--apply-assistant-text-merging ()
+  "Apply text merging using cached assistant text parts."
+  (when (and grgfoo--assistant-text-cache 
+             (> (length grgfoo--assistant-text-cache) 1))
+    (let* ((sorted-cache (sort grgfoo--assistant-text-cache 
+                              (lambda (a b) (< (car a) (car b)))))
+           (first-entry (car sorted-cache))
+           (first-content-start (nth 2 first-entry))
+           (last-entry (car (last sorted-cache)))
+           (last-node-end (nth 1 last-entry))
+           (merged-text (string-join (mapcar (lambda (entry) (nth 3 entry)) sorted-cache) " ")))
+      
+      ;; Replace the entire range from first content to last assistant end
+      (put-text-property first-content-start last-node-end 'display 
+                        (concat merged-text "\n\n"))))
+  
+  ;; Clear the cache
+  (setq grgfoo--assistant-text-cache nil))
+</tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+
+### new-content
+
+<tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+;; Citation folding functions
+(defun grgfoo--citation-entry-folding-function (node override start end)
+  "Font-lock function to hide citation entries within assistant blocks.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation entry
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-entry-folding: %s" err))))
+
+(defun grgfoo--assistant-merger-function (node override start end)
+  "Font-lock function to merge text across multiple assistant blocks.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          ;; Check if there are multiple assistant blocks by looking for siblings
+          (let ((first-assistant nil)
+                (last-assistant nil)
+                (assistant-texts '())
+                (current-node node))
+            
+            ;; Find the first assistant block
+            (while (treesit-node-prev-sibling current-node)
+              (let ((prev (treesit-node-prev-sibling current-node)))
+                (if (string= (treesit-node-type prev) "assistant")
+                    (setq current-node prev)
+                  (setq first-assistant current-node)
+                  (setq current-node nil))))
+            (unless first-assistant (setq first-assistant current-node))
+            
+            ;; Find the last assistant block and collect text
+            (setq current-node first-assistant)
+            (while current-node
+              (when (string= (treesit-node-type current-node) "assistant")
+                (let ((text-content (grgfoo--extract-text-from-assistant-node current-node)))
+                  (unless (string-empty-p text-content)
+                    (push text-content assistant-texts)))
+                (setq last-assistant current-node))
+              (let ((next (treesit-node-next-sibling current-node)))
+                (if (and next (string= (treesit-node-type next) "assistant"))
+                    (setq current-node next)
+                  (setq current-node nil))))
+            
+            ;; If we have multiple assistant blocks with text, merge them
+            (when (> (length assistant-texts) 1)
+              (let* ((first-content-start (save-excursion
+                                            (goto-char (treesit-node-start first-assistant))
+                                            (forward-line 2)
+                                            (point)))
+                     (last-content-end (treesit-node-end last-assistant))
+                     (merged-text (string-join (reverse assistant-texts) " ")))
+                ;; Replace entire range with merged text
+                (put-text-property first-content-start last-content-end 'display 
+                                 (concat merged-text "\n\n")))))))
+    (error
+     (message "ERROR in assistant-merger: %s" err))))
+
+(defun grgfoo--extract-text-from-assistant-node (assistant-node)
+  "Extract text content from ASSISTANT-NODE, excluding citations."
+  (let ((text-parts '())
+        (children (treesit-node-children assistant-node)))
+    (dolist (child children)
+      (when (string= (treesit-node-type child) "text")
+        (let ((text-content (string-trim (treesit-node-text child))))
+          (unless (string-empty-p text-content)
+            (push text-content text-parts)))))
+    (string-join (reverse text-parts) " ")))
+</tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+
+### git-commit-message
+
+<tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+Simplify citation folding with tree-sitter node navigation
+
+- Replace complex caching system with direct tree-sitter node navigation
+- Use treesit-node-prev-sibling and treesit-node-next-sibling to find related assistant blocks
+- Extract text using treesit-node-children to get text nodes directly
+- Apply single display property to replace entire assistant section
+- Much simpler and more efficient approach
+</tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+
+## TOOL RESULT:
+
+ID: toolu_01U2j8K2mAzaHYHMJ9azWy8o
+
+<tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01U2j8K2mAzaHYHMJ9azWy8o>
+
+## ASSISTANT:
+
+Let me check what the current content looks like:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01WhPJYhmxNk3jUkGtEc8rH9
+
+### path
+
+<tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+grgfoo.el
+</tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+
+### start-line
+
+<tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+100
+</tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+
+### end-line
+
+<tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+200
+</tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+
+## TOOL RESULT:
+
+ID: toolu_01WhPJYhmxNk3jUkGtEc8rH9
+
+<tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+    ;; Brackets
+    (modify-syntax-entry ?\( "()" table)
+    (modify-syntax-entry ?\) ")(" table)
+    (modify-syntax-entry ?\[ "(]" table)
+    (modify-syntax-entry ?\] ")[" table)
+    (modify-syntax-entry ?\{ "(}" table)
+    (modify-syntax-entry ?\} "){" table)
+    ;; Angle brackets for HTML tags
+    (modify-syntax-entry ?\< "(>" table)
+    (modify-syntax-entry ?\> ")<" table)
+    table)
+  "Syntax table for `grgfoo-mode'.")
+
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+
+(defvar grgfoo--assistant-text-cache nil
+  "Cache for assistant text parts to enable merging across multiple assistant blocks.")
+
+(defun grgfoo--assistant-text-merger (node override start end)
+  "Font-lock function to collect text from assistant blocks for merging.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          ;; Extract text content from this assistant block
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (content-start (save-excursion
+                                  (goto-char node-start)
+                                  (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                                  (point)))
+                 (text-content (grgfoo--extract-text-from-assistant-block content-start node-end)))
+
+            ;; Store this text for later merging
+            (unless (string-empty-p text-content)
+              (push (list node-start node-end content-start text-content) grgfoo--assistant-text-cache))
+
+            ;; Check if this is the last assistant block by looking ahead
+            (save-excursion
+              (goto-char node-end)
+              (let ((next-assistant (re-search-forward "^## ASSISTANT:$" nil t)))
+                (unless next-assistant
+                  ;; This is the last assistant block - time to merge
+                  (grgfoo--apply-assistant-text-merging)))))))
+    (error
+     (message "ERROR in assistant-text-merger: %s" err))))
+
+(defun grgfoo--apply-assistant-text-merging ()
+  "Apply text merging using cached assistant text parts."
+  (when (and grgfoo--assistant-text-cache
+             (> (length grgfoo--assistant-text-cache) 1))
+    (let* ((sorted-cache (sort grgfoo--assistant-text-cache
+                              (lambda (a b) (< (car a) (car b)))))
+           (first-entry (car sorted-cache))
+           (first-content-start (nth 2 first-entry))
+           (last-entry (car (last sorted-cache)))
+           (last-node-end (nth 1 last-entry))
+           (merged-text (string-join (mapcar (lambda (entry) (nth 3 entry)) sorted-cache) " ")))
+
+      ;; Replace the entire range from first content to last assistant end
+      (put-text-property first-content-start last-node-end 'display
+                        (concat merged-text "\n\n"))))
+
+  ;; Clear the cache
+  (setq grgfoo--assistant-text-cache nil))
+
+(defun grgfoo--apply-citation-folding ()
+  "Apply comprehensive citation folding to merge assistant text blocks."
+  (when grgfoo-citation-folding-enabled
+    (save-excursion
+      (let ((inhibit-read-only t)
+            (modified (buffer-modified-p)))
+        (condition-case err
+            (progn
+              ;; Clear any existing display properties first to avoid duplication
+              (remove-text-properties (point-min) (point-max) '(display after-string))
+
+              ;; Find all assistant blocks and collect their text content
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (assistant-blocks '()))
+
+                ;; Collect all assistant blocks and their text
+</tool.toolu_01WhPJYhmxNk3jUkGtEc8rH9>
+
+## ASSISTANT:
+
+I can see the current functions. Let me replace them with the simpler approach:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NiLbd7UXMaZNAKidRS7DMp
+
+### file-path
+
+<tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+grgfoo.el
+</tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+
+### original-content
+
+<tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+
+### new-content
+
+<tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+;; Citation folding functions  
+(defun grgfoo--citation-entry-folding-function (node override start end)
+  "Font-lock function to hide citation entries within assistant blocks.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation entry
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-entry-folding: %s" err))))
+</tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+
+### git-commit-message
+
+<tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+Rename citation folding function for clarity
+
+- Rename to grgfoo--citation-entry-folding-function to be more specific
+- This function handles individual citation entries within assistant blocks
+</tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+
+## TOOL RESULT:
+
+ID: toolu_01NiLbd7UXMaZNAKidRS7DMp
+
+<tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
+Loading...
+</tool.toolu_01NiLbd7UXMaZNAKidRS7DMp>
