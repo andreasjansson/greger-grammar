@@ -67,23 +67,22 @@
 
 (ert-deftest test-tab-handler-no-segfault ()
   "Test that TAB handler doesn't segfault."
-  (let ((test-buffer (create-test-buffer-with-citations)))
-    (with-current-buffer test-buffer
-      (grgfoo-mode)
-      (font-lock-ensure)
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
 
-      ;; Test TAB at various positions
-      (goto-char (point-min))
-      (should-not-error (grgfoo-toggle-citation-fold))
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should-not-error (grgfoo-toggle-citation-fold))
 
-      (search-forward "Einstein" nil t)
-      (should-not-error (grgfoo-toggle-citation-fold))
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
 
-      (search-forward "while" nil t)
-      (should-not-error (grgfoo-toggle-citation-fold))
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
 
-      (search-forward "CITATIONS" nil t)
-      (should-not-error (grgfoo-toggle-citation-fold)))))
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))))
 
 ;; Run the tests
 (ert-run-tests-batch-and-exit)

@@ -6662,5 +6662,249 @@ Fix citation folding test to use proper buffer macro
 ID: toolu_012TfxCixLMLiQRwdLDKM3Pw
 
 <tool.toolu_012TfxCixLMLiQRwdLDKM3Pw>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Fix citation folding test to use proper buffer macro
 </tool.toolu_012TfxCixLMLiQRwdLDKM3Pw>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NabK7776fzkDtx7o4EqjMf
+
+### file-path
+
+<tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+test-citation-folding-ert.el
+</tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+
+### original-content
+
+<tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (let ((test-buffer (create-test-buffer-with-citations)))
+    (with-current-buffer test-buffer
+      (grgfoo-mode)
+      (font-lock-ensure)
+      
+      ;; Test TAB at various positions
+      (goto-char (point-min))
+      (should-not-error (grgfoo-toggle-citation-fold))
+      
+      (search-forward "Einstein" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+      
+      (search-forward "while" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+      
+      (search-forward "CITATIONS" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold)))))
+</tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+
+### new-content
+
+<tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))))
+</tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+
+### git-commit-message
+
+<tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+Fix TAB handler test to use proper buffer macro
+</tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+
+## TOOL RESULT:
+
+ID: toolu_01NabK7776fzkDtx7o4EqjMf
+
+<tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el -- Try again!
+</tool.toolu_01NabK7776fzkDtx7o4EqjMf>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_016dK7PTfS2JURt4xiWPWLvz
+
+### path
+
+<tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+test-citation-folding-ert.el
+</tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+
+### start-line
+
+<tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+55
+</tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+
+### end-line
+
+<tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+75
+</tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+
+## TOOL RESULT:
+
+ID: toolu_016dK7PTfS2JURt4xiWPWLvz
+
+<tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (should (not grgfoo-citation-folding-enabled))))
+
+(ert-deftest test-buffer-visible-text-utility ()
+  "Test that buffer-visible-text works correctly."
+  (with-temp-buffer
+    (insert "visible text")
+    (put-text-property 5 10 'invisible t)
+    (add-to-invisibility-spec t)
+    (let ((visible (buffer-visible-text)))
+      (should (string= visible "visiext")))))
+
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (let ((test-buffer (create-test-buffer-with-citations)))
+    (with-current-buffer test-buffer
+      (grgfoo-mode)
+      (font-lock-ensure)
+
+      ;; Test TAB at various positions
+</tool.toolu_016dK7PTfS2JURt4xiWPWLvz>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01MXhZtn28tes21WaStS5ks4
+
+### path
+
+<tool.toolu_01MXhZtn28tes21WaStS5ks4>
+test-citation-folding-ert.el
+</tool.toolu_01MXhZtn28tes21WaStS5ks4>
+
+### start-line
+
+<tool.toolu_01MXhZtn28tes21WaStS5ks4>
+67
+</tool.toolu_01MXhZtn28tes21WaStS5ks4>
+
+### end-line
+
+<tool.toolu_01MXhZtn28tes21WaStS5ks4>
+85
+</tool.toolu_01MXhZtn28tes21WaStS5ks4>
+
+## TOOL RESULT:
+
+ID: toolu_01MXhZtn28tes21WaStS5ks4
+
+<tool.toolu_01MXhZtn28tes21WaStS5ks4>
+
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (let ((test-buffer (create-test-buffer-with-citations)))
+    (with-current-buffer test-buffer
+      (grgfoo-mode)
+      (font-lock-ensure)
+
+      ;; Test TAB at various positions
+      (goto-char (point-min))
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "Einstein" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "while" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "CITATIONS" nil t)
+</tool.toolu_01MXhZtn28tes21WaStS5ks4>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Hit3S5h3QTSC3VsPrKEt9i
+
+### file-path
+
+<tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+test-citation-folding-ert.el
+</tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+
+### original-content
+
+<tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (let ((test-buffer (create-test-buffer-with-citations)))
+    (with-current-buffer test-buffer
+      (grgfoo-mode)
+      (font-lock-ensure)
+
+      ;; Test TAB at various positions
+      (goto-char (point-min))
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "Einstein" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "while" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold))
+
+      (search-forward "CITATIONS" nil t)
+      (should-not-error (grgfoo-toggle-citation-fold)))))
+</tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+
+### new-content
+
+<tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))))
+</tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+
+### git-commit-message
+
+<tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+Fix TAB handler test to use proper buffer macro
+</tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+
+## TOOL RESULT:
+
+ID: toolu_01Hit3S5h3QTSC3VsPrKEt9i
+
+<tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+Loading...
+</tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
