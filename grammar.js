@@ -29,13 +29,6 @@ module.exports = grammar({
 
 
 
-  conflicts: $ => [
-    [$.user],
-    [$.assistant],
-    [$.system],
-    [$.thinking],
-  ],
-
   rules: {
 
     source_file: $ => seq(
@@ -64,30 +57,22 @@ module.exports = grammar({
 
     user: $ => seq(
       $.user_header,
-      optional(/\n/),
-      optional($.content_blocks),
-      repeat(/\n/),
+      $.content_blocks,
     ),
 
     assistant: $ => seq(
       $.assistant_header,
-      optional(/\n/),
-      optional($.assistant_content_blocks),
-      repeat(/\n/),
+      $.assistant_content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
-      optional(/\n/),
-      optional($.system_content_blocks),
-      repeat(/\n/),
+      $.system_content_blocks,
     ),
 
     thinking: $ => seq(
       $.thinking_header,
-      optional(/\n/),
-      optional($.content_blocks),
-      repeat(/\n/),
+      $.content_blocks,
     ),
 
     tool_use: $ => seq(
@@ -210,36 +195,33 @@ module.exports = grammar({
 
     value: _ => /[^\n]+/,
 
-    assistant_content_blocks: $ => prec.right(repeat1(choice(
+    assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
-    ))),
+    )),
 
-    system_content_blocks: $ => prec.right(repeat1(choice(
+    system_content_blocks: $ => repeat1(choice(
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
-    ))),
+    )),
 
-    content_blocks: $ => prec.right(repeat1(choice(
+    content_blocks: $ => repeat1(choice(
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
-    ))),
-
-    text: $ => prec.right(seq(
-      $._text_content,
-      repeat(choice(
-        seq(/\n/, $._text_content),
-        /\n/
-      ))
     )),
+
+    text: $ => prec.right(repeat1(choice(
+      $._text_content,
+      /\n/,
+    ))),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
 
@@ -257,22 +239,12 @@ module.exports = grammar({
       '```',
       optional(/[^\n]*/),
       /\n/,
-      optional(seq(
-        repeat(seq(
-          choice(
-            /[^`\n]+/,
-            /`[^`]/,
-            /``[^`]/,
-          ),
-          /\n/,
-        )),
-        choice(
-          /[^`\n]+/,
-          /`[^`]/,
-          /``[^`]/,
-        ),
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
       )),
-      optional(/\n/),
       '```',
     ),
 

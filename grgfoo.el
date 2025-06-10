@@ -99,94 +99,59 @@
     table)
   "Syntax table for `grgfoo-mode'.")
 
+
+(defun grgfoo--node-end-no-whitespace (node)
+  (let* ((start (treesit-node-start node))
+         (text (treesit-node-text node))
+         (first-whitespace (string-search "\\s" text)
+                       (header-end (if first-newline
+                                       (+ node-start first-newline)
+                                     node-end))))))
+
+
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
   "Font-lock function to hide citation entries within assistant blocks.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  (message (format "node: %s" node))
-
-  (message (format "(treesit-node-parent node): %s" (treesit-node-parent node)))
-
   (when node
     (let* ((node-start (treesit-node-start node))
            (node-end (treesit-node-end node))
-           (parent-node (treesit-node-parent node))
-           (text-node (treesit-search-subtree parent-node "^text$" t nil 1))
-           (text-node-start (treesit-node-start text-node))
-           (text-node-end (treesit-node-end text-node))
-           (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
-      (when should-fold
-        ;; Hide the entire citation entry
-        ;; TODO: remove debug
-        ;; TODO: remove debug
-        (message (format "text-node-start: %s" text-node-start))
-        (message (format "text-node-end: %s" text-node-end))
-        (put-text-property text-node-start (1- text-node-end) 'face 'underline)
-        (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+           (parent (treesit-node-parent node))
+           (text (treesit-search-subtree parent "^text$" t nil 1))
+           (text-start (treesit-node-start text))
+           (text-end (grgfoo--node-end-no-whitespace text))
+           (uncle (treesit-node-prev-sibling parent))
+           (aunt (treesit-node-next-sibling parent))
+           (should-fold (not (get-text-property text-start 'grgfoo-citation-expanded))))
 
-(defun grgfoo--assistant-merger-function (node override start end)
-  "Font-lock function to merge text across multiple assistant blocks.
-Only processes the last assistant node to avoid duplicate processing.
-NODE is the matched tree-sitter node, OVERRIDE is the override setting,
-START and END are the region bounds."
-  (when node
-    ;; Only process if this is the last assistant node (no assistant siblings after)
-    (let ((next-sibling (treesit-node-next-sibling node)))
-      (when (or (not next-sibling)
-                (not (string= (treesit-node-type next-sibling) "assistant")))
-        ;; This is the last assistant - collect all previous assistant texts
-        (let ((assistant-texts '())
-              (current-node node))
+      (message (format "text-start: %s" text-start))
+      (message (format "text-end: %s" text-end))
+      (put-text-property text-start (1- text-end) 'face 'underline)
+      (put-text-property text-start (1- text-end) 'mouse-face 'highlight)
+      (put-text-property text-start (1- text-end) 'grgfoo-expandable-citation-entry t)
+      (put-text-property text-start (1- text-end) 'entry-start node-start)
+      (put-text-property text-start (1- text-end) 'entry-end node-end)
+                                        ;(put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+      (put-text-property node-start (1- node-end) 'invisible should-fold)
+                                        ;(put-text-property node-start (1- node-end) 'face 'underline)
 
-          ;; Walk backwards to collect all assistant texts
-          (while current-node
-            (when (string= (treesit-node-type current-node) "assistant")
-              (let ((text-content (grgfoo--extract-text-from-assistant-node current-node)))
-                (unless (string-empty-p text-content)
-                  (push text-content assistant-texts))))
-            ;; Move to previous sibling if it's an assistant
-            (let ((prev (treesit-node-prev-sibling current-node)))
-              (if (and prev (string= (treesit-node-type prev) "assistant"))
-                  (setq current-node prev)
-                (setq current-node nil))))
+      (when (and uncle (equal (treesit-node-type uncle) "assistant"))
+        (let* ((uncle-last-citation-entry (treesit-search-subtree uncle "^citation_entry$" t nil 1)))
 
-          ;; If we have multiple assistant blocks with text, merge them
-          (when (> (length assistant-texts) 1)
-            (let* ((first-assistant (save-excursion
-                                      ;; Find the first assistant by walking backwards
-                                      (let ((temp-node node)
-                                            (first-node node))
-                                        (while temp-node
-                                          (when (string= (treesit-node-type temp-node) "assistant")
-                                            (setq first-node temp-node))
-                                          (let ((prev (treesit-node-prev-sibling temp-node)))
-                                            (if (and prev (string= (treesit-node-type prev) "assistant"))
-                                                (setq temp-node prev)
-                                              (setq temp-node nil))))
-                                        first-node)))
-                   (first-content-start (save-excursion
-                                          (goto-char (treesit-node-start first-assistant))
-                                          (forward-line 2)
-                                          (point)))
-                   (last-content-end (treesit-node-end node))
-                   (merged-text (string-join assistant-texts " ")))
-              ;; Replace entire range with merged text
-              (put-text-property first-content-start last-content-end 'display
-                                 (concat merged-text "\n\n")))))))))
+          (if uncle-last-citation-entry
+              (put-text-property (treesit-node-end uncle-last-citation-entry) (1- node-start) 'invisible 'grgfoo-citation))
 
-(defun grgfoo--extract-text-from-assistant-node (assistant-node)
-  "Extract text content from ASSISTANT-NODE, excluding citations."
-  (let ((text-parts '())
-        (children (treesit-node-children assistant-node)))
-    (dolist (child children)
-      (when (string= (treesit-node-type child) "text")
-        (let ((text-content (string-trim (treesit-node-text child))))
-          (unless (string-empty-p text-content)
-            (push text-content text-parts)))))
-    (string-join (reverse text-parts) " ")))
+          (let* ((uncle-last-child (treesit-node-child uncle -1))
+                 (uncle-last-child-end (treesit-node-end uncle-last-child)))
+            ;; uncle always invisible
+            (put-text-property uncle-last-child-end (1- text-start) 'invisible t))))
 
-
+      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
+        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
+               (aunt-first-child-start (treesit-node-start aunt-first-child)))
+          (put-text-property node-end (1- aunt-first-child-start) 'invisible should-fold))
+        ))))
 
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.
@@ -195,23 +160,22 @@ START and END are the region bounds."
   (let* ((node-start (treesit-node-start node))
          (node-end (treesit-node-end node))
          (should-fold (not (get-text-property node-start 'grgfoo-citations-expanded))))
-    (when should-fold
-      ;; Find the header line by looking for the first newline
-      (let* ((text (buffer-substring-no-properties node-start node-end))
-             (first-newline (string-search "\n" text))
-             (header-end (if first-newline
-                             (+ node-start first-newline)
-                           node-end)))
-        ;; Make everything after the header invisible
-        (when (< header-end node-end)
-          (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
-          ;; Add summary text with citation count
-          (let ((citation-count (grgfoo--count-citations-in-section node)))
-            (put-text-property header-end (1+ header-end) 'after-string
-                               (propertize (format "\n[+%d citation%s, TAB to expand]"
-                                                   citation-count
-                                                   (if (= citation-count 1) "" "s"))
-                                           'face 'font-lock-comment-face))))))))
+
+    (let* ((text (buffer-substring-no-properties node-start node-end))
+           (first-newline (string-search "\n" text))
+           (header-end (if first-newline
+                           (+ node-start first-newline)
+                         node-end)))
+      ;; Make everything after the header invisible
+      (when (< header-end node-end)
+        (put-text-property (1+ header-end) node-end 'invisible should-fold)
+        ;; Add summary text with citation count
+        (let ((citation-count (grgfoo--count-citations-in-section node)))
+          (put-text-property header-end (1+ header-end) 'after-string
+                             (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                 citation-count
+                                                 (if (= citation-count 1) "" "s"))
+                                         'face 'font-lock-comment-face)))))))
 
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
@@ -235,7 +199,7 @@ START and END are the region bounds."
    '(;; Citation folding - hide individual citations within assistant blocks
      (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
      ;; Assistant text merging - merge text across multiple assistant blocks
-     (assistant) @grgfoo--assistant-merger-function
+     ;(assistant) @grgfoo--assistant-merger-function
      ;; Citations section folding
      (citations) @grgfoo--citations-section-folding-function)
 
@@ -325,19 +289,11 @@ START and END are the region bounds."
     ;; Set up defun name function to show heading type
     (setq-local treesit-defun-name-function #'grgfoo--defun-name)
 
-    ;; Setup citation folding invisibility
-    (add-to-invisibility-spec 'grgfoo-citation)
-    (add-to-invisibility-spec 'grgfoo-citations)
-
     ;; Setup key bindings
-    (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
+    (local-set-key (kbd "TAB") #'grgfoo-toggle-fold)
 
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)
-
-    ;; Setup citation folding invisibility
-    (add-to-invisibility-spec 'grgfoo-citation)
-    (add-to-invisibility-spec 'grgfoo-citations)
 
     ))
 
@@ -360,93 +316,26 @@ START and END are the region bounds."
           (_ nil))
       (error nil))))
 
-(defun grgfoo--find-citation-at-point ()
-  "Find citation node at point, if any - using safer approach."
-  (condition-case err
-    (progn
-
-      (if (treesit-ready-p 'greger)
-          (let ((node (treesit-node-at (point))))
-              (if node
-                  (progn
-                    ;; Check if we're already on a citation_entry or citations node
-                    (if (member (treesit-node-type node) '("citation_entry" "citations"))
-                        node
-                      ;; Check immediate parent only to avoid segfaults
-                      (let ((parent (treesit-node-parent node)))
-                        (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
-                            parent
-                          nil))))
-                nil))
-        nil))
-    (error
-     (message "ERROR in find-citation: %s" err)
-     nil)))
-
 (defun grgfoo--count-citations-in-section (citations-node)
   "Count the number of citation entries in CITATIONS-NODE."
   (condition-case nil
     (length (treesit-query-capture citations-node '((citation_entry) @citation)))
     (error 0)))
 
-(defun grgfoo-toggle-citation-fold ()
+(defun grgfoo-toggle-fold ()
   "Toggle folding of citation at point."
   (interactive)
-  (condition-case err
-      (progn
 
-        (progn
+  (if (get-text-property (point) 'grgfoo-expandable-citation-entry)
+      (let* ((node (treesit-node-at (point)))
+             (node-start (treesit-node-start node))
+             (entry-start (get-text-property node-start 'grgfoo-entry-start))
+             (entry-end (get-text-property node-start 'grgfoo-entry-end))
+             (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+        (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
+        (font-lock-flush entry-start entry-end))
+    (indent-for-tab-command)))
 
-          (let ((citation-node (grgfoo--find-citation-at-point)))
-            (if citation-node
-                (progn
-                  (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
-                           (treesit-node-type citation-node)
-                           (treesit-node-start citation-node)
-                           (treesit-node-end citation-node))
-                  (let* ((node-start (treesit-node-start citation-node))
-                         (node-end (treesit-node-end citation-node))
-                         (node-type (treesit-node-type citation-node))
-                         (is-citations-section (string= node-type "citations")))
-                    (if is-citations-section
-                        ;; Handle citations section
-                        (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
-                          (if is-expanded
-                              ;; Collapse citations section
-                              (progn
-                                (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
-                                (message "Citations section collapsed"))
-                            ;; Expand citations section
-                            (progn
-                              (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
-                              ;; Clear existing invisible properties
-                              (remove-text-properties node-start node-end '(invisible after-string))
-                              (message "Citations section expanded"))))
-                      ;; Handle individual citation
-                      (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
-                        (if is-expanded
-                            ;; Collapse citation
-                            (progn
-                              (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
-                              ;; Clear all text properties to ensure fresh font-lock
-                              (remove-text-properties node-start node-end '(invisible face))
-                              (message "Citation collapsed"))
-                          ;; Expand citation
-                          (progn
-                            (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
-                            ;; Clear existing invisible properties
-                            (remove-text-properties node-start node-end '(invisible face))
-                            (message "Citation expanded")))))
-                    ;; Trigger font-lock refresh
-                    (font-lock-flush node-start node-end)))
-              (message "DEBUG TAB: no citation node found, falling back"))
-            (indent-for-tab-command)))
-        (progn
-          (message "DEBUG TAB: citation folding disabled, falling back")
-          (indent-for-tab-command)))
-    (error
-     (message "Error in citation folding: %s" err)
-     (indent-for-tab-command))))
 
 ;; Ensure the grammar is loaded
 (add-to-list 'treesit-extra-load-path default-directory)
