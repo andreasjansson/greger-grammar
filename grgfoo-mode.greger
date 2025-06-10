@@ -2907,5 +2907,165 @@ Prevent citation folding when display property exists
 ID: toolu_0137xvNudSb77x3GY8LUUq4j
 
 <tool.toolu_0137xvNudSb77x3GY8LUUq4j>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Prevent citation folding when display property exists
 </tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+
+## ASSISTANT:
+
+Let me test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01E82YuYKnESrxVzSFBUJCNU
+
+### command
+
+<tool.toolu_01E82YuYKnESrxVzSFBUJCNU>
+emacs -Q --batch -l debug-visibility.el
+</tool.toolu_01E82YuYKnESrxVzSFBUJCNU>
+
+## TOOL RESULT:
+
+ID: toolu_01E82YuYKnESrxVzSFBUJCNU
+
+<tool.toolu_01E82YuYKnESrxVzSFBUJCNU>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: Applied invisible property from 61 to 237
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+DEBUG: Applied invisible property from 297 to 441
+=== BUFFER CONTENT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+" 0 14 (face grgfoo-assistant-header-face fontified nil) 14 60 (fontified nil) 60 236 (invisible grgfoo-citation fontified nil) 236 237 (fontified nil) 237 251 (face grgfoo-assistant-header-face fontified nil) 251 296 (fontified nil) 296 440 (invisible grgfoo-citation fontified nil) 440 441 (fontified nil) 441 454 (face grgfoo-citations-header-face fontified nil) 454 455 (after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face)) face grgfoo-citations-header-face fontified nil) 455 777 (invisible grgfoo-citations fontified nil))
+
+=== TEXT PROPERTIES DEBUG ===
+Position 1-778: (face grgfoo-assistant-header-face fontified nil)
+
+=== VISIBLE TEXT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 60 (fontified nil) 60 61 (fontified nil) 61 75 (face grgfoo-assistant-header-face fontified nil) 75 120 (fontified nil) 120 121 (fontified nil) 121 134 (fontified nil face grgfoo-citations-header-face) 134 135 (after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face)) face grgfoo-citations-header-face fontified nil) 135 165 (face font-lock-comment-face))
+
+</tool.toolu_01E82YuYKnESrxVzSFBUJCNU>
+
+## ASSISTANT:
+
+Good! The overlapping display properties are gone. Now I can see the text is being properly hidden with invisible properties. But I still need to merge the text. The issue is that the text merging function is not running. Let me fix that by running it after font-lock properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01A1cJSY2wibpVHsSE3o3LRj
+
+### file-path
+
+<tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+grgfoo.el
+</tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+
+### original-content
+
+<tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'after-change-functions #'grgfoo--after-change-citation-folding nil t)
+      (run-with-idle-timer 0.1 nil #'grgfoo--apply-citation-folding))
+</tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+
+### new-content
+
+<tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'after-change-functions #'grgfoo--after-change-citation-folding nil t)
+      (add-hook 'font-lock-after-fontify-buffer-hook #'grgfoo--apply-citation-folding nil t)
+      (grgfoo--apply-citation-folding))
+</tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+
+### git-commit-message
+
+<tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+Run citation folding after font-lock buffer fontification
+</tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+
+## TOOL RESULT:
+
+ID: toolu_01A1cJSY2wibpVHsSE3o3LRj
+
+<tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
+Loading...
+</tool.toolu_01A1cJSY2wibpVHsSE3o3LRj>
