@@ -9791,5 +9791,118 @@ Add minimal test for treesit-node-parent calls
 ID: toolu_01B7eRMtgowrKnE7EEnhKc7V
 
 <tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-treesit-parent.el with 906 characters. Successfully staged 2 file(s) and committed with message: Add minimal test for treesit-node-parent calls
 </tool.toolu_01B7eRMtgowrKnE7EEnhKc7V>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JdY7tuMWgmAaozr8aM8At5
+
+### command
+
+<tool.toolu_01JdY7tuMWgmAaozr8aM8At5>
+timeout 5s emacs --batch -l test-treesit-parent.el 2>&1
+</tool.toolu_01JdY7tuMWgmAaozr8aM8At5>
+
+## TOOL RESULT:
+
+ID: toolu_01JdY7tuMWgmAaozr8aM8At5
+
+<tool.toolu_01JdY7tuMWgmAaozr8aM8At5>
+Command failed with exit code 134: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Getting node at position 1...
+Node type: assistant_header
+Getting parent...
+Parent type: assistant
+Getting grandparent...
+/bin/sh: line 1: 73825 Abort trap: 6           timeout 5s emacs --batch -l test-treesit-parent.el 2>&1
+
+</tool.toolu_01JdY7tuMWgmAaozr8aM8At5>
+
+## ASSISTANT:
+
+. The issue happens when getting the grandparent. This suggests there might be an issue with the tree structure after font-lock has modified it. Let me test this theory by disabling font-lock:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Kxtj9J1VqkGXaabWhko8D6
+
+### file-path
+
+<tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+test-treesit-no-fontlock.el
+</tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+
+### contents
+
+<tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+#!/usr/bin/env emacs --batch
+
+(setq debug-on-error t)
+(add-to-list 'treesit-extra-load-path default-directory)
+
+;; Temporarily disable citation folding
+(setq grgfoo-citation-folding-enabled nil)
+
+(load-file "grgfoo.el")
+
+(with-temp-buffer
+  (insert-file-contents "test-folding.greger")
+  (grgfoo-mode)
+  ;; Don't run font-lock-ensure
+  
+  (message "Getting node at position 1...")
+  (goto-char 1)
+  (let ((node (treesit-node-at (point))))
+    (message "Node type: %s" (treesit-node-type node))
+    
+    (message "Getting parent...")
+    (let ((parent (treesit-node-parent node)))
+      (if parent
+          (message "Parent type: %s" (treesit-node-type parent))
+        (message "No parent"))
+      
+      (when parent
+        (message "Getting grandparent...")
+        (let ((grandparent (treesit-node-parent parent)))
+          (if grandparent
+              (message "Grandparent type: %s" (treesit-node-type grandparent))
+            (message "No grandparent"))
+          
+          (when grandparent
+            (message "Getting great-grandparent...")
+            (let ((ggparent (treesit-node-parent grandparent)))
+              (if ggparent
+                  (message "Great-grandparent type: %s" (treesit-node-type ggparent))
+                (message "No great-grandparent"))))))))
+  
+  (message "Test completed"))
+</tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+
+### git-commit-message
+
+<tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+Add test without font-lock to isolate the issue
+</tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+
+## TOOL RESULT:
+
+ID: toolu_01Kxtj9J1VqkGXaabWhko8D6
+
+<tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
+Loading...
+</tool.toolu_01Kxtj9J1VqkGXaabWhko8D6>
