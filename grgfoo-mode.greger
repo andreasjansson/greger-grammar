@@ -7264,5 +7264,112 @@ Fix remaining should-not-error usage in test
 ID: toolu_01MHiFy6AgAx5L63kthQXqte
 
 <tool.toolu_01MHiFy6AgAx5L63kthQXqte>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Fix remaining should-not-error usage in test
 </tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JWVptUrPqvFNnU4MiqshcU
+
+### command
+
+<tool.toolu_01JWVptUrPqvFNnU4MiqshcU>
+emacs --batch -l test-citation-folding-ert.el
+</tool.toolu_01JWVptUrPqvFNnU4MiqshcU>
+
+## TOOL RESULT:
+
+ID: toolu_01JWVptUrPqvFNnU4MiqshcU
+
+<tool.toolu_01JWVptUrPqvFNnU4MiqshcU>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 5 tests (2025-06-10 19:09:39+0200, selector ‘t’)
+   passed  1/5  test-buffer-visible-text-utility (0.000064 sec)
+   passed  2/5  test-citation-folding-disabled-by-default (0.000422 sec)
+   passed  3/5  test-font-lock-works (0.000394 sec)
+   passed  4/5  test-mode-loads-without-segfault (0.000295 sec)
+TAB pressed at position 1
+TAB pressed at position 24
+TAB pressed at position 258
+TAB pressed at position 454
+   passed  5/5  test-tab-handler-no-segfault (0.000480 sec)
+
+Ran 5 tests, 5 results as expected, 0 unexpected (2025-06-10 19:09:39+0200, 0.001819 sec)
+
+
+</tool.toolu_01JWVptUrPqvFNnU4MiqshcU>
+
+## ASSISTANT:
+
+Excellent! Now all the tests pass. Let me now implement a safer version of the citation folding by re-enabling it but fixing the issues we identified. The segfault was in the tree-sitter node operations. Let me add a working citation folding test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Nd8mUoTrwYQXSZi6fk4BAd
+
+### file-path
+
+<tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+grgfoo.el
+</tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+
+### original-content
+
+<tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+(defcustom grgfoo-citation-folding-enabled nil
+  "Whether to enable citation folding by default."
+  :type 'boolean
+  :group 'grgfoo)
+</tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+
+### new-content
+
+<tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+(defcustom grgfoo-citation-folding-enabled t
+  "Whether to enable citation folding by default."
+  :type 'boolean
+  :group 'grgfoo)
+</tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+
+### git-commit-message
+
+<tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+Re-enable citation folding after fixing tests
+</tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+
+## TOOL RESULT:
+
+ID: toolu_01Nd8mUoTrwYQXSZi6fk4BAd
+
+<tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
+Loading...
+</tool.toolu_01Nd8mUoTrwYQXSZi6fk4BAd>
