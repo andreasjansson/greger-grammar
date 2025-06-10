@@ -2826,5 +2826,86 @@ Add after-change function for citation folding
 ID: toolu_01ULpWKpekPFadLJgtKJ4dJV
 
 <tool.toolu_01ULpWKpekPFadLJgtKJ4dJV>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add after-change function for citation folding
 </tool.toolu_01ULpWKpekPFadLJgtKJ4dJV>
+
+## ASSISTANT:
+
+Actually, let me try a different approach. The core issue is that font-lock is applying display properties to individual citations **after** I set the main display property. Let me change the approach to use overlays instead of text properties, or handle this purely in the font-lock function.
+
+Let me try a simpler approach - modify the font-lock function to not apply overlapping properties:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_0137xvNudSb77x3GY8LUUq4j
+
+### file-path
+
+<tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+grgfoo.el
+</tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+
+### original-content
+
+<tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
+                     (treesit-node-type node) node-start node-end should-fold)
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+
+### new-content
+
+<tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
+                     (treesit-node-type node) node-start node-end should-fold)
+            (when should-fold
+              ;; Only hide if there's no existing display property
+              (unless (get-text-property node-start 'display)
+                ;; Hide the entire citation block
+                (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+                (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end)))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+
+### git-commit-message
+
+<tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+Prevent citation folding when display property exists
+</tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+
+## TOOL RESULT:
+
+ID: toolu_0137xvNudSb77x3GY8LUUq4j
+
+<tool.toolu_0137xvNudSb77x3GY8LUUq4j>
+Loading...
+</tool.toolu_0137xvNudSb77x3GY8LUUq4j>
