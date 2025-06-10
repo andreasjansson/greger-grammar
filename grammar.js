@@ -63,7 +63,7 @@ module.exports = grammar({
     ),
 
     thinking: $ => seq(
-      token(seq('##', /[ \t]*/, 'THINKING')),
+      $.thinking_header,
       ':',
       $.content_blocks,
     ),
