@@ -123,17 +123,8 @@ START and END are the region bounds."
                  (node-end (treesit-node-end node))
                  (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
             (when should-fold
-              ;; Find the text before the first newline (the citation reference text)
-              (let* ((text (buffer-substring-no-properties node-start node-end))
-                     (first-newline (string-search "\n" text))
-                     (citation-text-end (if first-newline
-                                          (+ node-start first-newline)
-                                          node-end)))
-                ;; Make everything after the citation text invisible, but preserve the final newline
-                (when (< citation-text-end node-end)
-                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
-                ;; Mark the citation text with underline
-                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
+              ;; Hide the entire citation block (URL + content)
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
     (error
      (message "ERROR in citation-folding-function: %s" err))))
 
