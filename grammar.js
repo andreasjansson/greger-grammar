@@ -113,7 +113,7 @@ module.exports = grammar({
     ),
 
     citations: $ => seq(
-      token(seq('##', /[ \t]*/, 'CITATIONS')),
+      $.citations_header,
       ':',
       optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),
