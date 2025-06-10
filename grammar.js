@@ -71,7 +71,7 @@ module.exports = grammar({
     assistant: $ => seq(
       $.assistant_header,
       optional(/\n/),
-      $.assistant_content_blocks,
+      optional($.assistant_content_blocks),
     ),
 
     system: $ => seq(
