@@ -65,25 +65,25 @@ module.exports = grammar({
     user: $ => seq(
       $.user_header,
       optional(/\n/),
-      optional($.content_blocks),
+      $.content_blocks,
     ),
 
     assistant: $ => seq(
       $.assistant_header,
       optional(/\n/),
-      optional($.assistant_content_blocks),
+      $.assistant_content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
       optional(/\n/),
-      optional($.system_content_blocks),
+      $.system_content_blocks,
     ),
 
     thinking: $ => seq(
       $.thinking_header,
       optional(/\n/),
-      optional($.content_blocks),
+      $.content_blocks,
     ),
 
     tool_use: $ => seq(
