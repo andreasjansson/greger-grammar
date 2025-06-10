@@ -1602,24 +1602,215 @@ ID: toolu_015sETTvKMA8D3YrRkvVXXqe
 
 </tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
 
+## USER:
+
+"A capture name can also be a function name" is interesting in https://www.gnu.org/software/emacs/manual/html_node/elisp/Parser_002dbased-Font-Lock.html
+
+Can you use that to make the bits that are intented to be invisible, invisible during fontification?
+
+And if user hits tab, could we add a magic text property to the first character in the block that says it should be visible? In the fontification we check the text properties on that first character to determine if it should be invisible or not?
+
+Is that possible?
+
 ## ASSISTANT:
 
-Perfect! Now I understand the structure. I can see that citations appear both inline within ASSISTANT blocks and in the CITATIONS section. Now I need to implement code folding functionality. Let me create the enhanced version of grgfoo.el with code folding support:
+Yes, that's absolutely possible and a clever approach! Let me read the Parser-based Font Lock documentation first to understand the capture name function feature.
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_01D3AFE7Js32Ab6XcbNqA5Bu
+
+### url
+
+<tool.toolu_01D3AFE7Js32Ab6XcbNqA5Bu>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Parser_002dbased-Font-Lock.html
+</tool.toolu_01D3AFE7Js32Ab6XcbNqA5Bu>
+
+## TOOL RESULT:
+
+ID: toolu_01D3AFE7Js32Ab6XcbNqA5Bu
+
+<tool.toolu_01D3AFE7Js32Ab6XcbNqA5Bu>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Previous:  Multiline Font Lock Constructs , Up:  Font Lock Mode    [ Contents ][ Index ]
+ 
+   24.7.10 Parser-based Font Lock
+    Besides simple syntactic font lock and regexp-based font lock, Emacs
+also provides complete syntactic font lock with the help of a parser.
+Currently, Emacs uses the tree-sitter library (see  Parsing Program Source ) for this purpose.
+
+  Parser-based font lock and other font lock mechanisms are not mutually
+exclusive.  By default, if enabled, parser-based font lock runs first,
+replacing syntactic font lock, followed by regexp-based font lock.
+
+  Although parser-based font lock doesn’t share the same customization
+variables with regexp-based font lock, it uses similar customization
+schemes.  The tree-sitter counterpart of  font-lock-keywords  is
+ treesit-font-lock-settings .
+
+      In general, tree-sitter fontification works as follows:
+
+   A Lisp program (usually, part of a major mode) provides a  query 
+consisting of  patterns , each pattern associated with a
+ capture name .
+
+
+  The tree-sitter library finds the nodes in the parse tree
+that match these patterns, tags the nodes with the corresponding
+capture names, and returns them to the Lisp program.
+
+
+  The Lisp program uses the returned nodes to highlight the portions of
+buffer text corresponding to each node as appropriate, using the
+tagged capture names of the nodes to determine the correct
+fontification.  For example, a node tagged  font-lock-keyword 
+would be highlighted in  font-lock-keyword  face.
+
+
+ For more information about queries, patterns, and capture names, see
+ Pattern Matching Tree-sitter Nodes .
+
+  To set up tree-sitter fontification, a major mode should first set
+ treesit-font-lock-settings  with the output of
+ treesit-font-lock-rules , then call
+ treesit-major-mode-setup .
+
+  Function:  treesit-font-lock-rules  &rest query-specs  ¶  This function is used to set  treesit-font-lock-settings .  It
+takes care of compiling queries and other post-processing, and outputs
+a value that  treesit-font-lock-settings  accepts.  Here’s an
+example:
+
+   (treesit-font-lock-rules
+ :language 'javascript
+ :feature 'constant
+ :override t
+ '((true) @font-lock-constant-face
+   (false) @font-lock-constant-face)
+ :language 'html
+ :feature 'script
+ "(script_element) @font-lock-builtin-face")
+
+
+  This function takes a series of  query-spec s, where each
+ query-spec  is a  query  preceded by one or more
+ keyword / value  pairs.  Each  query  is a tree-sitter
+query in either the string, s-expression, or compiled form.
+
+  For each  query , the  keyword / value  pairs that precede
+it add meta information to it.  The  :language  keyword declares
+ query ’s language.  The  :feature  keyword sets the feature
+name of  query .  Users can control which features are enabled
+with  treesit-font-lock-level  and
+ treesit-font-lock-feature-list  (described below).  These two
+keywords are mandatory (with exceptions).
+
+  Other keywords are optional:
+
+  Keyword Value Description :override nil If the region already has a face, discard the new face  t Always apply the new face  append Append the new face to existing ones  prepend Prepend the new face to existing ones  keep Fill-in regions without an existing face :default-language language Every  query  after this keyword will use  language 
+by default. Lisp programs mark patterns in  query  with capture names (names
+that start with  @ ), and tree-sitter will return matched nodes
+tagged with those same capture names.  For the purpose of
+fontification, capture names in  query  should be face names like
+ font-lock-keyword-face .  The captured node will be fontified
+with that face.
+
+    A capture name can also be a function name, in which case the function
+is called with 4 arguments:  node  and  override ,  start 
+and  end , where  node  is the node itself,  override  is
+the  :override  property of the rule which captured this node,
+and  start  and  end  limit the region which this function
+should fontify.  (If this function wants to respect the  override 
+argument, it can use  treesit-fontify-with-override .)
+
+  Beyond the 4 arguments presented, this function should accept more
+arguments as optional arguments for future extensibility.
+
+  If a capture name is both a face and a function, the face takes
+priority.  If a capture name is neither a face nor a function, it is
+ignored.
+
+ Variable:  treesit-font-lock-feature-list  ¶  This is a list of lists of feature symbols.  Each element of the list
+is a list that represents a decoration level.
+ treesit-font-lock-level  controls which levels are
+activated.
+
+  Each element of the list is a list of the form  ( feature  …)  /@w  , where each  feature  corresponds to the
+ :feature  value of a query defined in
+ treesit-font-lock-rules .  Removing a feature symbol from this
+list disables the corresponding query during font-lock.
+
+  Common feature names, for many programming languages, include
+ definition ,  type ,  assignment ,  builtin ,
+ constant ,  keyword ,  string-interpolation ,
+ comment ,  doc ,  string ,  operator ,
+ preprocessor ,  escape-sequence , and  key .  Major
+modes are free to subdivide or extend these common features.
+
+  Some of these features warrant some explanation:  definition 
+highlights whatever is being defined, e.g., the function name in a
+function definition, the struct name in a struct definition, the
+variable name in a variable definition;  assignment  highlights
+whatever is being assigned to, e.g., the variable or field in an
+assignment statement;  key  highlights keys in key-value pairs,
+e.g., keys in a JSON object or Python dictionary;  doc 
+highlights docstrings or doc-comments.
+
+  For example, the value of this variable could be:
+
+  ((comment string doc) ; level 1
+ (function-name keyword type builtin constant) ; level 2
+ (variable-name string-interpolation key)) ; level 3
+
+
+  Major modes should set this variable before calling
+ treesit-major-mode-setup .
+
+    For this variable to take effect, a Lisp program should call
+ treesit-font-lock-recompute-features  (which resets
+ treesit-font-lock-settings  accordingly), or
+ treesit-major-mode-setup  (which calls
+ treesit-font-lock-recompute-features ).
+
+ Variable:  treesit-font-lock-settings  ¶  A list of settings for tree-sitter based font lock.  The exact format
+of each setting is considered internal.  One should always use
+ treesit-font-lock-rules  to set this variable.
+
+  Multi-language major modes should provide range functions in
+ treesit-range-functions , and Emacs will set the ranges
+accordingly before fontifing a region (see  Parsing Text in Multiple Languages ).
+
+ 
+   
+Previous:  Multiline Font Lock Constructs , Up:  Font Lock Mode    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_01D3AFE7Js32Ab6XcbNqA5Bu>
+
+## ASSISTANT:
+
+Perfect! This approach will work beautifully. The key insight is using a function as a capture name that can:
+
+1. Check for a text property on the first character to determine visibility state
+2. Apply the `invisible` property conditionally based on that state
+3. Handle TAB key presses to toggle the visibility state
+
+Let me implement this code folding system:
 
 ## TOOL USE:
 
 Name: str-replace
-ID: toolu_01RWRijJZgM3L9t2qdEfMV9u
+ID: toolu_013sx3hF7eNVrbEtLL2k9TT9
 
 ### file-path
 
-<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+<tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
 grgfoo.el
-</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+</tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
 
 ### original-content
 
-<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+<tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
 ;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024
@@ -1637,11 +1828,77 @@ grgfoo.el
 ;;; Code:
 
 (require 'treesit)
-</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+</tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
 
 ### new-content
 
-<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+<tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2024
+
+;; Author: Generated
+;; Keywords: languages, tree-sitter
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "29.1"))
+
+;;; Commentary:
+
+;; This package provides a major mode for Greger files with syntax highlighting,
+;; navigation, and other features powered by tree-sitter.
+
+;;; Code:
+
+(require 'treesit)
+(require 'cl-lib)
+</tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+
+### git-commit-message
+
+<tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+Add cl-lib requirement for code folding utilities
+</tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+
+## TOOL RESULT:
+
+ID: toolu_013sx3hF7eNVrbEtLL2k9TT9
+
+<tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_013sx3hF7eNVrbEtLL2k9TT9>
+
+## ASSISTANT:
+
+Let me check the exact content at the beginning of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01TCoL3HgZuRJPQDVoVCqrJo
+
+### path
+
+<tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+grgfoo.el
+</tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+
+### start-line
+
+<tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+1
+</tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+
+### end-line
+
+<tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+20
+</tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+
+## TOOL RESULT:
+
+ID: toolu_01TCoL3HgZuRJPQDVoVCqrJo
+
+<tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
 ;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024
@@ -1659,19 +1916,45 @@ grgfoo.el
 ;;; Code:
 
 (require 'treesit)
-(require 'thingatpt)
-</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+
+(defgroup grgfoo nil
+  "Major mode for Greger files."
+</tool.toolu_01TCoL3HgZuRJPQDVoVCqrJo>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018JJTedouAcsCFugkg2x4dK
+
+### file-path
+
+<tool.toolu_018JJTedouAcsCFugkg2x4dK>
+grgfoo.el
+</tool.toolu_018JJTedouAcsCFugkg2x4dK>
+
+### original-content
+
+<tool.toolu_018JJTedouAcsCFugkg2x4dK>
+(require 'treesit)
+</tool.toolu_018JJTedouAcsCFugkg2x4dK>
+
+### new-content
+
+<tool.toolu_018JJTedouAcsCFugkg2x4dK>
+(require 'treesit)
+(require 'cl-lib)
+</tool.toolu_018JJTedouAcsCFugkg2x4dK>
 
 ### git-commit-message
 
-<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
-Add thingatpt requirement for code folding functionality
-</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+<tool.toolu_018JJTedouAcsCFugkg2x4dK>
+Add cl-lib requirement for code folding utilities
+</tool.toolu_018JJTedouAcsCFugkg2x4dK>
 
 ## TOOL RESULT:
 
-ID: toolu_01RWRijJZgM3L9t2qdEfMV9u
+ID: toolu_018JJTedouAcsCFugkg2x4dK
 
-<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+<tool.toolu_018JJTedouAcsCFugkg2x4dK>
 Loading...
-</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+</tool.toolu_018JJTedouAcsCFugkg2x4dK>

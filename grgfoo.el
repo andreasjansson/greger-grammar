@@ -15,7 +15,7 @@
 ;;; Code:
 
 (require 'treesit)
-(require 'thingatpt)
+(require 'cl-lib)
 
 (defgroup grgfoo nil
   "Major mode for Greger files."
