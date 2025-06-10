@@ -5836,5 +5836,227 @@ Replace complex TAB logic with minimal processing to debug segfault
 ID: toolu_015bRFtMKoBBaGV4sxXyfvyH
 
 <tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Replace complex TAB logic with minimal processing to debug segfault
 </tool.toolu_015bRFtMKoBBaGV4sxXyfvyH>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0128oQ5dwChJFn9Dv7C7Jvp8
+
+### command
+
+<tool.toolu_0128oQ5dwChJFn9Dv7C7Jvp8>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_0128oQ5dwChJFn9Dv7C7Jvp8>
+
+## TOOL RESULT:
+
+ID: toolu_0128oQ5dwChJFn9Dv7C7Jvp8
+
+<tool.toolu_0128oQ5dwChJFn9Dv7C7Jvp8>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_0128oQ5dwChJFn9Dv7C7Jvp8>
+
+## ASSISTANT:
+
+Even with minimal processing, the segfault still happens. This suggests the issue is in the `grgfoo--find-citation-at-point` function. Let me make it even simpler:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LYa9NHLFjKXe2J69KNrNoV
+
+### file-path
+
+<tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+grgfoo.el
+</tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+
+### original-content
+
+<tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error 
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+</tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+
+### new-content
+
+<tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (progn
+        (message "TAB pressed at position %d" (point))
+        ;; Just fall back to normal indentation for now
+        (indent-for-tab-command))
+    (error 
+     (message "Error in TAB handler: %s" err)
+     (indent-for-tab-command))))
+</tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+
+### git-commit-message
+
+<tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+Simplify TAB handler to just show position and indent
+</tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+
+## TOOL RESULT:
+
+ID: toolu_01LYa9NHLFjKXe2J69KNrNoV
+
+<tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01LYa9NHLFjKXe2J69KNrNoV>
+
+## ASSISTANT:
+
+Let me check the current content:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PC6N48ixwHky19i2LPSSPe
+
+### path
+
+<tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+grgfoo.el
+</tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+
+### start-line
+
+<tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+320
+</tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+
+### end-line
+
+<tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+330
+</tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+
+## TOOL RESULT:
+
+ID: toolu_01PC6N48ixwHky19i2LPSSPe
+
+<tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error
+</tool.toolu_01PC6N48ixwHky19i2LPSSPe>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015X2daChiNQjwvnjyKovKRV
+
+### path
+
+<tool.toolu_015X2daChiNQjwvnjyKovKRV>
+grgfoo.el
+</tool.toolu_015X2daChiNQjwvnjyKovKRV>
+
+### start-line
+
+<tool.toolu_015X2daChiNQjwvnjyKovKRV>
+320
+</tool.toolu_015X2daChiNQjwvnjyKovKRV>
+
+### end-line
+
+<tool.toolu_015X2daChiNQjwvnjyKovKRV>
+335
+</tool.toolu_015X2daChiNQjwvnjyKovKRV>
+
+## TOOL RESULT:
+
+ID: toolu_015X2daChiNQjwvnjyKovKRV
+
+<tool.toolu_015X2daChiNQjwvnjyKovKRV>
+
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+    (error
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+
+;; Ensure the grammar is loaded
+(add-to-list 'treesit-extra-load-path default-directory)
+</tool.toolu_015X2daChiNQjwvnjyKovKRV>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01NZPbe25tUrDEfdiyJmtsdw
+
+### file-path
+
+<tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+grgfoo.el
+</tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+
+### original-content
+
+<tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+      (if-let ((citation-node (grgfoo--find-citation-at-point)))
+          ;; Found citation, do minimal processing for now
+          (message "Found citation node of type: %s" (treesit-node-type citation-node))
+        ;; Fallback to normal TAB behavior if not on a citation
+        (indent-for-tab-command))
+</tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+
+### new-content
+
+<tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+      (progn
+        (message "TAB pressed at position %d" (point))
+        ;; Just fall back to normal indentation for now
+        (indent-for-tab-command))
+</tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+
+### git-commit-message
+
+<tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+Simplify TAB handler to avoid any tree-sitter calls
+</tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+
+## TOOL RESULT:
+
+ID: toolu_01NZPbe25tUrDEfdiyJmtsdw
+
+<tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>
+Loading...
+</tool.toolu_01NZPbe25tUrDEfdiyJmtsdw>

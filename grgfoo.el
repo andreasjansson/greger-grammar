@@ -322,10 +322,9 @@ START and END are the region bounds."
   "Toggle folding of citation at point."
   (interactive)
   (condition-case err
-      (if-let ((citation-node (grgfoo--find-citation-at-point)))
-          ;; Found citation, do minimal processing for now
-          (message "Found citation node of type: %s" (treesit-node-type citation-node))
-        ;; Fallback to normal TAB behavior if not on a citation
+      (progn
+        (message "TAB pressed at position %d" (point))
+        ;; Just fall back to normal indentation for now
         (indent-for-tab-command))
     (error
      (message "Error in citation folding: %s" err)
