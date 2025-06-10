@@ -110,27 +110,42 @@
     table)
   "Syntax table for `grgfoo-mode'.")
 
-;; Citation folding functions - simplified approach without save-excursion
+;; Citation folding functions with extensive debugging
 (defun grgfoo--citation-folding-function (node override start end)
   "Font-lock function to handle citation folding.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  (when grgfoo-citation-folding-enabled
-    (let* ((node-start (treesit-node-start node))
-           (node-end (treesit-node-end node))
-           (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
-      (when should-fold
-        ;; Find the text before the first newline (the citation reference text)
-        (let* ((text (buffer-substring-no-properties node-start node-end))
-               (first-newline (string-search "\n" text))
-               (citation-text-end (if first-newline
-                                    (+ node-start first-newline)
-                                    node-end)))
-          ;; Make everything after the citation text invisible
-          (when (< citation-text-end node-end)
-            (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
-          ;; Mark the citation text with underline
-          (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s"
+                 (if node "node" "nil") override start end)
+        (when node
+          (message "DEBUG: node type=%s start=%s end=%s"
+                   (treesit-node-type node)
+                   (treesit-node-start node)
+                   (treesit-node-end node))
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: should-fold=%s" should-fold)
+            (when should-fold
+              ;; Find the text before the first newline (the citation reference text)
+              (let* ((text (buffer-substring-no-properties node-start node-end))
+                     (first-newline (string-search "\n" text))
+                     (citation-text-end (if first-newline
+                                          (+ node-start first-newline)
+                                          node-end)))
+                (message "DEBUG: text length=%d first-newline=%s citation-text-end=%s"
+                         (length text) first-newline citation-text-end)
+                ;; Make everything after the citation text invisible
+                (when (< citation-text-end node-end)
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end node-end)
+                  (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+                ;; Mark the citation text with underline
+                (message "DEBUG: Adding underline from %s to %s" node-start citation-text-end)
+                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
 
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.
