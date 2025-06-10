@@ -28,7 +28,7 @@
   :safe 'integerp
   :group 'grgfoo)
 
-(defcustom grgfoo-citation-folding-enabled t
+(defcustom grgfoo-citation-folding-enabled nil
   "Whether to enable citation folding by default."
   :type 'boolean
   :group 'grgfoo)

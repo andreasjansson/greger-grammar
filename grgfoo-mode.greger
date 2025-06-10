@@ -5387,5 +5387,81 @@ Add error protection to citation counting function
 ID: toolu_01ARj5vW2JUUr6ef8knmVt8z
 
 <tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add error protection to citation counting function
 </tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+
+## ASSISTANT:
+
+Now let me test the segfault situation again:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01S2zWc76scV6wa7bV5qsaxC
+
+### command
+
+<tool.toolu_01S2zWc76scV6wa7bV5qsaxC>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_01S2zWc76scV6wa7bV5qsaxC>
+
+## TOOL RESULT:
+
+ID: toolu_01S2zWc76scV6wa7bV5qsaxC
+
+<tool.toolu_01S2zWc76scV6wa7bV5qsaxC>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_01S2zWc76scV6wa7bV5qsaxC>
+
+## ASSISTANT:
+
+The segfault is still happening. Let me debug this more carefully. The issue might be in the tree-sitter queries or the way we're calling the node functions. Let me create a more minimal approach that disables the folding functionality first:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SnApEk2XVHkFpiXRkDC6Hf
+
+### file-path
+
+<tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+grgfoo.el
+</tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+
+### original-content
+
+<tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+(defcustom grgfoo-citation-folding-enabled t
+  "Whether to enable citation folding by default."
+  :type 'boolean
+  :group 'grgfoo)
+</tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+
+### new-content
+
+<tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+(defcustom grgfoo-citation-folding-enabled nil
+  "Whether to enable citation folding by default."
+  :type 'boolean
+  :group 'grgfoo)
+</tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+
+### git-commit-message
+
+<tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+Temporarily disable citation folding to isolate segfault
+</tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+
+## TOOL RESULT:
+
+ID: toolu_01SnApEk2XVHkFpiXRkDC6Hf
+
+<tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
+Loading...
+</tool.toolu_01SnApEk2XVHkFpiXRkDC6Hf>
