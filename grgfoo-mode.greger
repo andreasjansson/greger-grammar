@@ -8953,5 +8953,93 @@ Add simple debug test for font-lock
 ID: toolu_015Sjb617jSyPqAiyxYxkaLz
 
 <tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-debug-folding.el with 482 characters. Successfully staged 2 file(s) and committed with message: Add simple debug test for font-lock
 </tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LUScsuPSdFaeuHtHVJUsu6
+
+### command
+
+<tool.toolu_01LUScsuPSdFaeuHtHVJUsu6>
+emacs --batch -l test-debug-folding.el 2>&1 | head -30
+</tool.toolu_01LUScsuPSdFaeuHtHVJUsu6>
+
+## TOOL RESULT:
+
+ID: toolu_01LUScsuPSdFaeuHtHVJUsu6
+
+<tool.toolu_01LUScsuPSdFaeuHtHVJUsu6>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Mode activated, buffer size: 776
+Running font-lock...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Font-lock completed
+Buffer content after font-lock:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20t
+
+</tool.toolu_01LUScsuPSdFaeuHtHVJUsu6>
+
+## ASSISTANT:
+
+Excellent! The font-lock is working correctly. Now let me test with the TAB functionality. The issue must be in the TAB handler itself. Let me re-enable it but with debugging:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MAUXVAiwA5YygYWhKXvhjF
+
+### file-path
+
+<tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+grgfoo.el
+</tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+
+### original-content
+
+<tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+    ;; Setup key bindings - disabled for now due to segfaults
+    ;; (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
+</tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+
+### new-content
+
+<tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+    ;; Setup key bindings
+    (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
+</tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+
+### git-commit-message
+
+<tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+Re-enable TAB key binding for debugging
+</tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+
+## TOOL RESULT:
+
+ID: toolu_01MAUXVAiwA5YygYWhKXvhjF
+
+<tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+Loading...
+</tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
