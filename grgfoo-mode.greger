@@ -2015,5 +2015,200 @@ Add citation folding customization variables
 ID: toolu_01GZbo8xTXqQhcQJ23B7dqSz
 
 <tool.toolu_01GZbo8xTXqQhcQJ23B7dqSz>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add citation folding customization variables
 </tool.toolu_01GZbo8xTXqQhcQJ23B7dqSz>
+
+## ASSISTANT:
+
+Now let me add the citation folding functions and update the font-lock settings:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01SXKuxGCu878HXopHemQikq
+
+### file-path
+
+<tool.toolu_01SXKuxGCu878HXopHemQikq>
+grgfoo.el
+</tool.toolu_01SXKuxGCu878HXopHemQikq>
+
+### original-content
+
+<tool.toolu_01SXKuxGCu878HXopHemQikq>
+(defvar grgfoo--treesit-font-lock-settings
+  (treesit-font-lock-rules
+   :language 'greger
+   :feature 'headers
+   :override t
+   '(;; Major section headers - use custom faces for each type
+     (user_header) @grgfoo-user-header-face
+     (assistant_header) @grgfoo-assistant-header-face
+     (system_header) @grgfoo-system-header-face
+     (thinking_header) @grgfoo-thinking-header-face
+     (tool_use_header) @grgfoo-tool-header-face
+     (tool_result_header) @grgfoo-tool-header-face
+     (server_tool_use_header) @grgfoo-tool-header-face
+     (web_search_tool_result_header) @grgfoo-tool-header-face
+     (citations_header) @grgfoo-citations-header-face)
+
+   :language 'greger
+   :feature 'subheadings
+   :override t
+   '(;; Sub-sections and parameter headers
+     (citation_entry) @grgfoo-subheading-face)
+
+   :language 'greger
+   :feature 'fields
+   :override t
+   '(;; Field names only - no highlighting for values or content
+     (name "Name:") @grgfoo-field-name-face
+     (id "ID:") @grgfoo-field-name-face
+     (citation_title "Title:") @grgfoo-field-name-face
+     (citation_text "Cited text:") @grgfoo-field-name-face
+     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
+
+   :language 'greger
+   :feature 'tool-tags
+   :override t
+   '(;; Tool start and end tags - smaller and less visible
+     (tool_start_tag) @grgfoo-tool-tag-face
+     (tool_end_tag) @grgfoo-tool-tag-face)
+
+   :language 'greger
+   :feature 'comments
+   :override t
+   '(;; HTML comments only
+     (html_comment) @font-lock-comment-face)
+
+   :language 'greger
+   :feature 'error
+   :override t
+   '(;; Parse errors
+     (ERROR) @grgfoo-error-face))
+  "Tree-sitter font-lock settings for `grgfoo-mode'.")
+</tool.toolu_01SXKuxGCu878HXopHemQikq>
+
+### new-content
+
+<tool.toolu_01SXKuxGCu878HXopHemQikq>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citation-expanded))))
+      (when should-fold
+        ;; Make the citation content invisible
+        (put-text-property (1+ node-start) node-end 'invisible 'grgfoo-citation)
+        ;; Mark the citation text with underline
+        (let ((citation-text-start node-start)
+              (citation-text-end (save-excursion
+                                   (goto-char node-start)
+                                   (if (re-search-forward "\n" node-end t)
+                                       (1- (point))
+                                     node-end))))
+          (put-text-property citation-text-start citation-text-end 
+                           'face grgfoo-citation-summary-face))))))
+
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the end of the citations header line
+        (save-excursion
+          (goto-char node-start)
+          (end-of-line)
+          (let ((header-end (point)))
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize "\n[+citations, TAB to expand]" 
+                                         'face 'font-lock-comment-face)))))))))
+
+(defvar grgfoo--treesit-font-lock-settings
+  (treesit-font-lock-rules
+   :language 'greger
+   :feature 'headers
+   :override t
+   '(;; Major section headers - use custom faces for each type
+     (user_header) @grgfoo-user-header-face
+     (assistant_header) @grgfoo-assistant-header-face
+     (system_header) @grgfoo-system-header-face
+     (thinking_header) @grgfoo-thinking-header-face
+     (tool_use_header) @grgfoo-tool-header-face
+     (tool_result_header) @grgfoo-tool-header-face
+     (server_tool_use_header) @grgfoo-tool-header-face
+     (web_search_tool_result_header) @grgfoo-tool-header-face
+     (citations_header) @grgfoo-citations-header-face)
+
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+
+   :language 'greger
+   :feature 'subheadings
+   :override t
+   '(;; Sub-sections and parameter headers
+     (citation_entry) @grgfoo-subheading-face)
+
+   :language 'greger
+   :feature 'fields
+   :override t
+   '(;; Field names only - no highlighting for values or content
+     (name "Name:") @grgfoo-field-name-face
+     (id "ID:") @grgfoo-field-name-face
+     (citation_title "Title:") @grgfoo-field-name-face
+     (citation_text "Cited text:") @grgfoo-field-name-face
+     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
+
+   :language 'greger
+   :feature 'tool-tags
+   :override t
+   '(;; Tool start and end tags - smaller and less visible
+     (tool_start_tag) @grgfoo-tool-tag-face
+     (tool_end_tag) @grgfoo-tool-tag-face)
+
+   :language 'greger
+   :feature 'comments
+   :override t
+   '(;; HTML comments only
+     (html_comment) @font-lock-comment-face)
+
+   :language 'greger
+   :feature 'error
+   :override t
+   '(;; Parse errors
+     (ERROR) @grgfoo-error-face))
+  "Tree-sitter font-lock settings for `grgfoo-mode'.")
+</tool.toolu_01SXKuxGCu878HXopHemQikq>
+
+### git-commit-message
+
+<tool.toolu_01SXKuxGCu878HXopHemQikq>
+Add citation folding functions and font-lock rules
+</tool.toolu_01SXKuxGCu878HXopHemQikq>
+
+## TOOL RESULT:
+
+ID: toolu_01SXKuxGCu878HXopHemQikq
+
+<tool.toolu_01SXKuxGCu878HXopHemQikq>
+Loading...
+</tool.toolu_01SXKuxGCu878HXopHemQikq>
