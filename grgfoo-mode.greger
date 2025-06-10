@@ -6458,5 +6458,59 @@ Remove old post-processing functions
 ID: toolu_016uSM66UV29ydR8fdgP8GFD
 
 <tool.toolu_016uSM66UV29ydR8fdgP8GFD>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove old post-processing functions
+
+- Remove grgfoo--apply-citation-folding and grgfoo--extract-text-from-assistant-block
+- These are no longer needed with the tree-sitter navigation approach
+- All folding is now handled efficiently by font-lock functions
 </tool.toolu_016uSM66UV29ydR8fdgP8GFD>
+
+## ASSISTANT:
+
+Now I need to update the mode setup to remove references to the old cache variable:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017sa91WQ75wpVAj39NjqtVH
+
+### file-path
+
+<tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+grgfoo.el
+</tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+
+### original-content
+
+<tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+    ;; Initialize assistant text cache
+    (when grgfoo-citation-folding-enabled
+      (setq-local grgfoo--assistant-text-cache nil))
+</tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+
+### new-content
+
+<tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+    ;; Setup citation folding invisibility
+    (when grgfoo-citation-folding-enabled
+      (add-to-invisibility-spec 'grgfoo-citation)
+      (add-to-invisibility-spec 'grgfoo-citations))
+</tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+
+### git-commit-message
+
+<tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+Remove cache initialization and restore invisibility setup
+
+- Remove grgfoo--assistant-text-cache initialization since cache is no longer used
+- Restore invisibility spec setup for citation folding
+- This was accidentally removed during earlier refactoring
+</tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+
+## TOOL RESULT:
+
+ID: toolu_017sa91WQ75wpVAj39NjqtVH
+
+<tool.toolu_017sa91WQ75wpVAj39NjqtVH>
+Loading...
+</tool.toolu_017sa91WQ75wpVAj39NjqtVH>

@@ -343,9 +343,10 @@ START and END are the region bounds."
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)
 
-    ;; Initialize assistant text cache
+    ;; Setup citation folding invisibility
     (when grgfoo-citation-folding-enabled
-      (setq-local grgfoo--assistant-text-cache nil))
+      (add-to-invisibility-spec 'grgfoo-citation)
+      (add-to-invisibility-spec 'grgfoo-citations))
 
     ))
 
