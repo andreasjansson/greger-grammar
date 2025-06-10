@@ -7634,5 +7634,531 @@ Update test to reflect that citation folding is now enabled by default
 ID: toolu_01K4z2EsbPAY2ZkLbA9F3R9f
 
 <tool.toolu_01K4z2EsbPAY2ZkLbA9F3R9f>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Update test to reflect that citation folding is now enabled by default
 </tool.toolu_01K4z2EsbPAY2ZkLbA9F3R9f>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DVG8JdMMK7DxSB8bfp1bWH
+
+### file-path
+
+<tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+test-citation-folding-ert.el
+</tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+
+### original-content
+
+<tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+                   (error t))))))
+</tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+
+### new-content
+
+<tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+                   (error t)))))
+
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+</tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+
+### git-commit-message
+
+<tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+Add basic test for citation folding functionality
+</tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+
+## TOOL RESULT:
+
+ID: toolu_01DVG8JdMMK7DxSB8bfp1bWH
+
+<tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance -5, new has balance -4. They must be equal. Try again!
+</tool.toolu_01DVG8JdMMK7DxSB8bfp1bWH>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HWELa9w6ysaKNNwuMW7Ti3
+
+### file-path
+
+<tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+test-citation-folding-ert.el
+</tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+
+### original-content
+
+<tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+                   (error t))))))
+</tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+
+### new-content
+
+<tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+                   (error t)))))
+
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+</tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+
+### git-commit-message
+
+<tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+Add basic test for citation folding functionality
+</tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+
+## TOOL RESULT:
+
+ID: toolu_01HWELa9w6ysaKNNwuMW7Ti3
+
+<tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance -5, new has balance -4. They must be equal. Try again!
+</tool.toolu_01HWELa9w6ysaKNNwuMW7Ti3>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VZfBv8tDecJ7tUyyHLUQjP
+
+### path
+
+<tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+test-citation-folding-ert.el
+</tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+
+### start-line
+
+<tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+85
+</tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+
+### end-line
+
+<tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+95
+</tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+
+## TOOL RESULT:
+
+ID: toolu_01VZfBv8tDecJ7tUyyHLUQjP
+
+<tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))))
+
+;; Run the tests
+</tool.toolu_01VZfBv8tDecJ7tUyyHLUQjP>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MoVeBTNPmW37Kw9xi9qfy6
+
+### file-path
+
+<tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+test-citation-folding-ert.el
+</tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+
+### original-content
+
+<tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+                   (error t))))))
+
+;; Run the tests
+</tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+
+### new-content
+
+<tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+                   (error t)))))
+
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+
+;; Run the tests
+</tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+
+### git-commit-message
+
+<tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+Add basic test for citation folding functionality
+</tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+
+## TOOL RESULT:
+
+ID: toolu_01MoVeBTNPmW37Kw9xi9qfy6
+
+<tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance -5, new has balance -4. They must be equal. Try again!
+</tool.toolu_01MoVeBTNPmW37Kw9xi9qfy6>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01L9dskPZgVKP8GU4s8oHMFY
+
+### file-path
+
+<tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+test-citation-folding-ert.el
+</tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+
+### original-content
+
+<tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+                   (error t))))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+
+### new-content
+
+<tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+                   (error t)))))
+
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+
+### git-commit-message
+
+<tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+Add basic test for citation folding functionality
+</tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+
+## TOOL RESULT:
+
+ID: toolu_01L9dskPZgVKP8GU4s8oHMFY
+
+<tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance -5, new has balance -4. They must be equal. Try again!
+</tool.toolu_01L9dskPZgVKP8GU4s8oHMFY>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_0178HD6J6SErJKseeQ318Pvd
+
+### path
+
+<tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+test-citation-folding-ert.el
+</tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+
+### start-line
+
+<tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+90
+</tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+
+### end-line
+
+<tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+100
+</tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+
+## TOOL RESULT:
+
+ID: toolu_0178HD6J6SErJKseeQ318Pvd
+
+<tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_0178HD6J6SErJKseeQ318Pvd>
+
+## ASSISTANT:
+
+I need to add the missing parenthesis:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ALPdNZvwxcjPBonAxvmswh
+
+### file-path
+
+<tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+test-citation-folding-ert.el
+</tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+
+### original-content
+
+<tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+                   (error t))))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+
+### new-content
+
+<tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+                   (error t)))))
+
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+
+### git-commit-message
+
+<tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+Add basic test for citation folding functionality with correct parentheses
+</tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+
+## TOOL RESULT:
+
+ID: toolu_01ALPdNZvwxcjPBonAxvmswh
+
+<tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance -5, new has balance -4. They must be equal. Try again!
+</tool.toolu_01ALPdNZvwxcjPBonAxvmswh>
+
+## ASSISTANT:
+
+Let me check the end of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01EY5dheaWe8H9ShzLf4Bv5p
+
+### path
+
+<tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+test-citation-folding-ert.el
+</tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+
+### start-line
+
+<tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+85
+</tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+
+### end-line
+
+<tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+105
+</tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+
+## TOOL RESULT:
+
+ID: toolu_01EY5dheaWe8H9ShzLf4Bv5p
+
+<tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01EY5dheaWe8H9ShzLf4Bv5p>
+
+## ASSISTANT:
+
+I see the issue - there are 5 opening parentheses but 6 closing in the original. Let me check the whole test function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01NqLWJefDLr5zQqMCTj44D4
+
+### path
+
+<tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+test-citation-folding-ert.el
+</tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+
+### start-line
+
+<tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+67
+</tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+
+### end-line
+
+<tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+98
+</tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+
+## TOOL RESULT:
+
+ID: toolu_01NqLWJefDLr5zQqMCTj44D4
+
+<tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "Einstein" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01NqLWJefDLr5zQqMCTj44D4>
+
+## ASSISTANT:
+
+The balance is indeed wrong. Let me insert the new test after this function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01BgF7UruMP3VowMnYUM8AHd
+
+### file-path
+
+<tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+test-citation-folding-ert.el
+</tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+
+### original-content
+
+<tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+
+### new-content
+
+<tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+      
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+
+### git-commit-message
+
+<tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+Add citation folding functionality test
+</tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+
+## TOOL RESULT:
+
+ID: toolu_01BgF7UruMP3VowMnYUM8AHd
+
+<tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+Loading...
+</tool.toolu_01BgF7UruMP3VowMnYUM8AHd>

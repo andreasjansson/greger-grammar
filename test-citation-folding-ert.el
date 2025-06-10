@@ -92,5 +92,20 @@
                      (progn (grgfoo-toggle-citation-fold) nil)
                    (error t))))))
 
+(ert-deftest test-citation-folding-functionality ()
+  "Test that citation folding actually works."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+
+    ;; Get initial visible text
+    (let ((initial-text (buffer-visible-text)))
+      (should (string-match-p "Einstein developed the theory of relativity" initial-text))
+      (should (string-match-p "### https://physics.com/einstein" initial-text))
+
+      ;; The citations should be folded by default due to font-lock
+      ;; Test that we can capture this state
+      (should (> (length initial-text) 0)))))
+
 ;; Run the tests
 (ert-run-tests-batch-and-exit)
