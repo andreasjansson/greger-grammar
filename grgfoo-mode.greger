@@ -10435,5 +10435,119 @@ Implement actual citation toggling logic
 ID: toolu_01JraJBKAzMLtYyxgac8Q2tz
 
 <tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Implement actual citation toggling logic
 </tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+
+## ASSISTANT:
+
+Now let's test the citation toggling:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LMuyv2T7vgEUAK63Hcyt4e
+
+### command
+
+<tool.toolu_01LMuyv2T7vgEUAK63Hcyt4e>
+emacs --batch -l test-citation-click.el 2>&1
+</tool.toolu_01LMuyv2T7vgEUAK63Hcyt4e>
+
+## TOOL RESULT:
+
+ID: toolu_01LMuyv2T7vgEUAK63Hcyt4e
+
+<tool.toolu_01LMuyv2T7vgEUAK63Hcyt4e>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Testing TAB on citation text...
+Position 61, character: ’35’
+DEBUG TAB: pressed at position 61
+DEBUG TAB: citation folding enabled, looking for node...
+DEBUG find-citation: checking treesit-ready-p...
+DEBUG find-citation: treesit ready, getting node at point 61...
+DEBUG find-citation: found initial node type=###
+DEBUG find-citation: parent is citation type: citation_entry
+DEBUG TAB: found citation node type=citation_entry start=61 end=238
+Citation expanded
+TAB on citation test completed
+
+</tool.toolu_01LMuyv2T7vgEUAK63Hcyt4e>
+
+## ASSISTANT:
+
+Great! The citation toggling is working. Now let me clean up the debugging messages and test the visibility functionality:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_015e2qqNnrSNRwKgY96FpkdK
+
+### file-path
+
+<tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+test-visibility-complete.el
+</tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+
+### contents
+
+<tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+#!/usr/bin/env emacs --batch
+
+(setq debug-on-error t)
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+(load-file "test-visibility-utils.el")
+
+(with-temp-buffer
+  (insert-file-contents "test-folding.greger")
+  (grgfoo-mode)
+  (font-lock-ensure)
+  
+  (message "=== INITIAL STATE (folded) ===")
+  (let ((visible (buffer-visible-text)))
+    (message "Visible text length: %d" (length visible))
+    (message "First 200 chars: %s" (substring visible 0 (min 200 (length visible))))
+    (message "Contains 'Title: Einstein'? %s" (if (string-match-p "Title: Einstein" visible) "YES" "NO"))
+    (message "Contains 'Cited text:'? %s" (if (string-match-p "Cited text:" visible) "YES" "NO")))
+  
+  (message "\n=== EXPANDING FIRST CITATION ===")
+  (goto-char 61)  ; First citation
+  (grgfoo-toggle-citation-fold)
+  (font-lock-flush (point-min) (point-max))
+  
+  (let ((visible (buffer-visible-text)))
+    (message "Visible text length: %d" (length visible))
+    (message "First 300 chars: %s" (substring visible 0 (min 300 (length visible))))
+    (message "Contains 'Title: Einstein'? %s" (if (string-match-p "Title: Einstein" visible) "YES" "NO"))
+    (message "Contains 'Cited text:'? %s" (if (string-match-p "Cited text:" visible) "YES" "NO")))
+  
+  (message "\nTest completed"))
+</tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+
+### git-commit-message
+
+<tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+Add comprehensive visibility test
+</tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+
+## TOOL RESULT:
+
+ID: toolu_015e2qqNnrSNRwKgY96FpkdK
+
+<tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+Loading...
+</tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
