@@ -64,8 +64,6 @@ module.exports = grammar({
 
     tool_use: $ => seq(
       $.tool_use_header,
-      ':',
-      /\n/,
       optional(/\n/),
       repeat(choice(
         $.name,
@@ -76,8 +74,6 @@ module.exports = grammar({
 
     tool_result: $ => seq(
       $.tool_result_header,
-      ':',
-      /\n/,
       optional(/\n/),
       $.id,
       optional(/\n/),
@@ -86,8 +82,6 @@ module.exports = grammar({
 
     server_tool_use: $ => seq(
       $.server_tool_use_header,
-      ':',
-      /\n/,
       optional(/\n/),
       repeat(choice(
         $.name,
@@ -127,7 +121,7 @@ module.exports = grammar({
 
     web_search_tool_result_header: _ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
 
-    citations_header: _ => token(seq('##', /[ \t]*/, 'CITATIONS')),
+    citations_header: _ => token(seq('##', /[ \t]*/, 'CITATIONS:\n')),
 
     citations_text: $ => prec.right(repeat1(choice(
       $.cite_tag,
