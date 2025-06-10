@@ -365,6 +365,9 @@ START and END are the region bounds."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.grgfoo\\'" . grgfoo-mode))
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.greger\\'" . grgfoo-mode))
+
 (provide 'grgfoo)
 
 ;;; grgfoo.el ends here
