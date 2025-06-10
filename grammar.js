@@ -21,10 +21,10 @@ module.exports = grammar({
     $.html_comment,
   ],
 
-
-
   inline: $ => [
     $.content_blocks,
+    $.assistant_content_blocks,
+    $.system_content_blocks,
   ],
 
   rules: {
@@ -49,12 +49,12 @@ module.exports = grammar({
 
     assistant: $ => seq(
       $.assistant_header,
-      $.content_blocks,
+      $.assistant_content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
-      $.content_blocks,
+      $.system_content_blocks,
     ),
 
     thinking: $ => seq(
@@ -151,7 +151,7 @@ module.exports = grammar({
 
     param_name: $ => /[^\n]+/,
 
-    citation_entry: $ => seq(
+    citation_entry: $ => prec.left(-2, seq(
       '###',
       /[ ]*/,
       alias($.citation_url, $.url),
@@ -160,7 +160,7 @@ module.exports = grammar({
       optional(alias($.citation_title, $.title)),
       optional(alias($.citation_text, $.cited_text)),
       optional(alias($.citation_encrypted_index, $.encrypted_index)),
-    ),
+    )),
 
     citation_url: $ => /[^\n]*/,
 
@@ -187,6 +187,26 @@ module.exports = grammar({
 
     value: _ => /[^\n]+/,
 
+    assistant_content_blocks: $ => repeat1(choice(
+      $.text,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+      $.include,
+      $.include_code,
+      $.citation_entry,
+    )),
+
+    system_content_blocks: $ => repeat1(choice(
+      $.text,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+      $.include,
+      $.include_code,
+      $.safe_shell_commands,
+    )),
+
     content_blocks: $ => repeat1(choice(
       $.text,
       $.code_block,
@@ -198,7 +218,6 @@ module.exports = grammar({
 
     text: $ => prec.right(repeat1(choice(
       $.cite_tag,
-      $.safe_shell_commands,
       $._text_content,
       /\n/,
     ))),
