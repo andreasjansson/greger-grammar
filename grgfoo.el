@@ -317,14 +317,33 @@ START and END are the region bounds."
 
 (defun grgfoo--find-citation-at-point ()
   "Find citation node at point, if any."
-  (condition-case nil
-    (when (treesit-ready-p 'greger)
-      (when-let ((node (treesit-node-at (point))))
-        (cl-loop for current = node then (treesit-node-parent current)
-                 while current
-                 when (member (treesit-node-type current) '("citation_entry" "citations"))
-                 return current)))
-    (error nil)))
+  (condition-case err
+    (progn
+      (message "DEBUG find-citation: checking treesit-ready-p...")
+      (if (treesit-ready-p 'greger)
+          (progn
+            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
+            (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
+                    (cl-loop for current = node then (treesit-node-parent current)
+                             while current
+                             do (message "DEBUG find-citation: checking node type=%s" (treesit-node-type current))
+                             when (member (treesit-node-type current) '("citation_entry" "citations"))
+                             do (progn
+                                  (message "DEBUG find-citation: found matching node type=%s" (treesit-node-type current))
+                                  (cl-return current))
+                             finally (message "DEBUG find-citation: no matching node found")))
+                (progn
+                  (message "DEBUG find-citation: no node at point")
+                  nil))))
+        (progn
+          (message "DEBUG find-citation: treesit not ready")
+          nil)))
+    (error
+     (message "ERROR in find-citation: %s" err)
+     nil)))
 
 (defun grgfoo--count-citations-in-section (citations-node)
   "Count the number of citation entries in CITATIONS-NODE."

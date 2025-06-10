@@ -9098,5 +9098,126 @@ Add extensive debugging to TAB handler
 ID: toolu_01JX7bFHpxspp4gh2tETWBfn
 
 <tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add extensive debugging to TAB handler
 </tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+
+## ASSISTANT:
+
+Now let's test the TAB function:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01JB7erxnpPYE6PpL6erZ2Ud
+
+### command
+
+<tool.toolu_01JB7erxnpPYE6PpL6erZ2Ud>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el 2>&1 | head -20
+</tool.toolu_01JB7erxnpPYE6PpL6erZ2Ud>
+
+## TOOL RESULT:
+
+ID: toolu_01JB7erxnpPYE6PpL6erZ2Ud
+
+<tool.toolu_01JB7erxnpPYE6PpL6erZ2Ud>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+DEBUG TAB: pressed at position 1
+DEBUG TAB: citation folding enabled, looking for node...
+
+</tool.toolu_01JB7erxnpPYE6PpL6erZ2Ud>
+
+## ASSISTANT:
+
+The segfault is happening when calling `grgfoo--find-citation-at-point`. Let me debug that function more carefully:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01T3JwE4jtTssKtSCKi4WvyN
+
+### file-path
+
+<tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+grgfoo.el
+</tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+
+### original-content
+
+<tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case nil
+    (when (treesit-ready-p 'greger)
+      (when-let ((node (treesit-node-at (point))))
+        (cl-loop for current = node then (treesit-node-parent current)
+                 while current
+                 when (member (treesit-node-type current) '("citation_entry" "citations"))
+                 return current)))
+    (error nil)))
+</tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+
+### new-content
+
+<tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case err
+    (progn
+      (message "DEBUG find-citation: checking treesit-ready-p...")
+      (if (treesit-ready-p 'greger)
+          (progn
+            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
+            (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
+                    (cl-loop for current = node then (treesit-node-parent current)
+                             while current
+                             do (message "DEBUG find-citation: checking node type=%s" (treesit-node-type current))
+                             when (member (treesit-node-type current) '("citation_entry" "citations"))
+                             do (progn
+                                  (message "DEBUG find-citation: found matching node type=%s" (treesit-node-type current))
+                                  (cl-return current))
+                             finally (message "DEBUG find-citation: no matching node found")))
+                (progn
+                  (message "DEBUG find-citation: no node at point")
+                  nil))))
+        (progn
+          (message "DEBUG find-citation: treesit not ready")
+          nil)))
+    (error 
+     (message "ERROR in find-citation: %s" err)
+     nil)))
+</tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+
+### git-commit-message
+
+<tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+Add extensive debugging to find-citation-at-point function
+</tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+
+## TOOL RESULT:
+
+ID: toolu_01T3JwE4jtTssKtSCKi4WvyN
+
+<tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
+Loading...
+</tool.toolu_01T3JwE4jtTssKtSCKi4WvyN>
