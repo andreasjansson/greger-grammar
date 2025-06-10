@@ -100,7 +100,6 @@ module.exports = grammar({
 
     citations: $ => seq(
       $.citations_header,
-      optional(/\n/),
       optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),
     ),
