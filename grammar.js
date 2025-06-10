@@ -86,7 +86,7 @@ module.exports = grammar({
     thinking: $ => seq(
       $.thinking_header,
       optional(/\n/),
-      $.content_blocks,
+      optional($.content_blocks),
       repeat(/\n/),
     ),
 
