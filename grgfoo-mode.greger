@@ -3791,5 +3791,102 @@ Add navigation test for merged assistant text
 ID: toolu_01JaEMmEBxeYENQe5CcZzsf2
 
 <tool.toolu_01JaEMmEBxeYENQe5CcZzsf2>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-navigation.el with 2127 characters. Successfully staged 2 file(s) and committed with message: Add navigation test for merged assistant text
+
+- Test that character navigation (C-f) works correctly on merged text lines
+- Verifies that display properties don't break cursor movement
+- Ensures merged text is navigable rather than skipped
 </tool.toolu_01JaEMmEBxeYENQe5CcZzsf2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0181atcnG29sVED7pUVV6dYy
+
+### command
+
+<tool.toolu_0181atcnG29sVED7pUVV6dYy>
+cd . && emacs --batch -l test-navigation.el
+</tool.toolu_0181atcnG29sVED7pUVV6dYy>
+
+## TOOL RESULT:
+
+ID: toolu_0181atcnG29sVED7pUVV6dYy
+
+<tool.toolu_0181atcnG29sVED7pUVV6dYy>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Running 1 tests (2025-06-10 21:02:11+0200, selector ‘t’)
+Successfully navigated 426 characters
+   passed  1/1  test-navigation-on-merged-line (0.002077 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 21:02:11+0200, 0.002155 sec)
+
+
+</tool.toolu_0181atcnG29sVED7pUVV6dYy>
+
+## ASSISTANT:
+
+Great! Navigation is working correctly. Now let's also add support for the TAB functionality. From the problem description, we need to be able to press TAB to expand the citations section. Let me test this:
+
+## USER:
+
+No, I want to use the previous treesitter-based implementation for efficiency reasons. I don't want to have to run grgfoo--apply-citation-folding every 0.5 seconds
+
+## ASSISTANT:
+
+You're absolutely right! The tree-sitter based approach is much more efficient. Let me restore the tree-sitter font-lock implementation and fix the issues properly. The problem was that we had overlapping/conflicting text properties. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HvgCsQh41MTB3rAKfWjqsR
+
+### file-path
+
+<tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+grgfoo.el
+</tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+
+### original-content
+
+<tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+   ;; Disable tree-sitter-based folding to prevent conflicts
+   ;; :language 'greger
+   ;; :feature 'folding
+   ;; :override t
+   ;; '(;; Citation folding - hide individual citations
+   ;;   (assistant (citation_entry) @grgfoo--citation-folding-function)
+   ;;   ;; Citations section folding
+   ;;   (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+
+### new-content
+
+<tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+
+### git-commit-message
+
+<tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+Restore tree-sitter based citation folding for efficiency
+
+- Re-enable tree-sitter font-lock folding feature
+- This is more efficient than post-processing approach
+- Will fix the text merging logic in the font-lock functions
+</tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+
+## TOOL RESULT:
+
+ID: toolu_01HvgCsQh41MTB3rAKfWjqsR
+
+<tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
+Loading...
+</tool.toolu_01HvgCsQh41MTB3rAKfWjqsR>
