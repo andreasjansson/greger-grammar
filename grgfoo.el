@@ -167,6 +167,81 @@ START and END are the region bounds."
     (error
      (message "ERROR in assistant-block-processor: %s" err))))
 
+(defun grgfoo--apply-citation-folding ()
+  "Apply comprehensive citation folding to merge assistant text blocks."
+  (when grgfoo-citation-folding-enabled
+    (save-excursion
+      (let ((inhibit-read-only t)
+            (modified (buffer-modified-p)))
+        (condition-case err
+            (progn
+              ;; Find all assistant blocks and collect their text
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (assistant-start nil)
+                    (assistant-end nil))
+                (while (re-search-forward "^## ASSISTANT:$" nil t)
+                  (let ((block-start (line-beginning-position))
+                        (block-end (save-excursion
+                                     (if (re-search-forward "^## " nil t)
+                                         (line-beginning-position)
+                                       (point-max)))))
+                    (unless assistant-start
+                      (setq assistant-start block-start))
+                    (setq assistant-end block-end)
+
+                    ;; Extract text from this block (skip citations)
+                    (goto-char block-start)
+                    (forward-line 2) ; Skip header and blank line
+                    (while (< (point) block-end)
+                      (let ((line-start (line-beginning-position))
+                            (line-end (line-end-position)))
+                        (when (< line-start line-end)
+                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
+                            (unless (or (string-match-p "^###" line-text)
+                                       (string-match-p "^Title:" line-text)
+                                       (string-match-p "^Cited text:" line-text)
+                                       (string-match-p "^Encrypted index:" line-text)
+                                       (string-match-p "^## " line-text)
+                                       (string= "" (string-trim line-text)))
+                              (push (string-trim line-text) assistant-texts))))
+                        (forward-line 1)))))
+
+                ;; If we have multiple text parts, create merged view
+                (when (and (> (length assistant-texts) 1) assistant-start assistant-end)
+                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                    ;; Replace all assistant blocks with single merged block
+                    (goto-char assistant-start)
+                    (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                    (let ((content-start (point)))
+                      (put-text-property content-start assistant-end 'display
+                                       (concat merged-text "\n\n"))))))
+
+              ;; Now handle citations section
+              (goto-char (point-min))
+              (when (re-search-forward "^## CITATIONS:$" nil t)
+                (let ((citations-start (line-beginning-position)))
+                  (forward-line 1)
+                  (let ((citations-content-start (point))
+                        (citations-end (point-max)))
+                    (when (< citations-content-start citations-end)
+                      (put-text-property citations-content-start citations-end 'invisible 'grgfoo-citations)
+                      ;; Count citations for summary
+                      (let ((citation-count 0))
+                        (goto-char citations-content-start)
+                        (while (re-search-forward "^### " citations-end t)
+                          (setq citation-count (1+ citation-count)))
+                        (goto-char citations-start)
+                        (end-of-line)
+                        (put-text-property (point) (1+ (point)) 'after-string
+                                         (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                           citation-count
+                                                           (if (= citation-count 1) "" "s"))
+                                                   'face 'font-lock-comment-face))))))))
+          (error
+           (message "ERROR in apply-citation-folding: %s" err)))
+        (set-buffer-modified-p modified)))))
+
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
