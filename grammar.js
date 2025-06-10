@@ -35,10 +35,12 @@ module.exports = grammar({
       repeat($._block),
     ),
 
-    untagged_text: $ => seq(
-      $._untagged_text_content,
-      "\n",
-    ),
+    untagged_text: $ => prec(-1, seq(
+      repeat1(seq(
+        $._untagged_text_content,
+        "\n"
+      ))
+    )),
 
     _block: $ => choice(
       $.user,
