@@ -44,43 +44,21 @@ module.exports = grammar({
 
     user: $ => seq(
       $.user_header,
-      ':',
       $.content_blocks,
     ),
 
-    user_header: _ => token(seq('##', /[ \t]*/, 'USER')),
-
-    assistant_header: _ => token(seq('##', /[ \t]*/, 'ASSISTANT')),
-
-    system_header: _ => token(seq('##', /[ \t]*/, 'SYSTEM')),
-
-    thinking_header: _ => token(seq('##', /[ \t]*/, 'THINKING')),
-
-    tool_use_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE')),
-
-    tool_result_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT')),
-
-    server_tool_use_header: _ => token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE')),
-
-    web_search_tool_result_header: _ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT')),
-
-    citations_header: _ => token(seq('##', /[ \t]*/, 'CITATIONS')),
-
     assistant: $ => seq(
       $.assistant_header,
-      ':',
       $.content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
-      ':',
       $.content_blocks,
     ),
 
     thinking: $ => seq(
       $.thinking_header,
-      ':',
       $.content_blocks,
     ),
 
@@ -97,9 +75,6 @@ module.exports = grammar({
     ),
 
     tool_result: $ => seq(
-      $.tool_result_header,
-      ':',
-      /\n/,
       optional(/\n/),
       $.id,
       optional(/\n/),
@@ -108,8 +83,6 @@ module.exports = grammar({
 
     server_tool_use: $ => seq(
       $.server_tool_use_header,
-      ':',
-      /\n/,
       optional(/\n/),
       repeat(choice(
         $.name,
@@ -120,8 +93,6 @@ module.exports = grammar({
 
     web_search_tool_result: $ => seq(
       $.web_search_tool_result_header,
-      ':',
-      /\n/,
       optional(/\n/),
       $.id,
       optional(/\n/),
@@ -130,10 +101,28 @@ module.exports = grammar({
 
     citations: $ => seq(
       $.citations_header,
-      ':',
+      optional(/\n/),
       optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),
     ),
+
+    user_header: _ => token(seq('##', /[ \t]*/, 'USER:\n')),
+
+    assistant_header: _ => token(seq('##', /[ \t]*/, 'ASSISTANT:\n')),
+
+    system_header: _ => token(seq('##', /[ \t]*/, 'SYSTEM:\n')),
+
+    thinking_header: _ => token(seq('##', /[ \t]*/, 'THINKING:\n')),
+
+    tool_use_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    tool_result_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    server_tool_use_header: _ => token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    web_search_tool_result_header: _ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    citations_header: _ => token(seq('##', /[ \t]*/, 'CITATIONS')),
 
     citations_text: $ => prec.right(repeat1(choice(
       $.cite_tag,
