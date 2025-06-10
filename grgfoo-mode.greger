@@ -10886,5 +10886,206 @@ Add final comprehensive citation folding test
 ID: toolu_01BzTVaHnGp5TeZszgbbpCB8
 
 <tool.toolu_01BzTVaHnGp5TeZszgbbpCB8>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-final-citation-folding.el with 1141 characters. Successfully staged 2 file(s) and committed with message: Add final comprehensive citation folding test
 </tool.toolu_01BzTVaHnGp5TeZszgbbpCB8>
+
+## ASSISTANT:
+
+Now let me clean up the debugging messages for a clean final test:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PCFAY8CmWTYVrGKwZJQiBB
+
+### file-path
+
+<tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+grgfoo.el
+</tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+
+### original-content
+
+<tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s" 
+                 (if node "node" "nil") override start end)
+        (when node
+          (message "DEBUG: node type=%s start=%s end=%s" 
+                   (treesit-node-type node) 
+                   (treesit-node-start node) 
+                   (treesit-node-end node))
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: should-fold=%s" should-fold)
+            (when should-fold
+              ;; Find the text before the first newline (the citation reference text)
+              (let* ((text (buffer-substring-no-properties node-start node-end))
+                     (first-newline (string-search "\n" text))
+                     (citation-text-end (if first-newline
+                                          (+ node-start first-newline)
+                                          node-end)))
+                (message "DEBUG: text length=%d first-newline=%s citation-text-end=%s" 
+                         (length text) first-newline citation-text-end)
+                ;; Make everything after the citation text invisible, but preserve the final newline
+                (when (< citation-text-end node-end)
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end (1- node-end))
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
+                ;; Mark the citation text with underline
+                (message "DEBUG: Adding underline from %s to %s" node-start citation-text-end)
+                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face)))))
+</tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+
+### new-content
+
+<tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Find the text before the first newline (the citation reference text)
+              (let* ((text (buffer-substring-no-properties node-start node-end))
+                     (first-newline (string-search "\n" text))
+                     (citation-text-end (if first-newline
+                                          (+ node-start first-newline)
+                                          node-end)))
+                ;; Make everything after the citation text invisible, but preserve the final newline
+                (when (< citation-text-end node-end)
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
+                ;; Mark the citation text with underline
+                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face)))))
+</tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+
+### git-commit-message
+
+<tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+Remove debug messages from citation folding function
+</tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+
+## TOOL RESULT:
+
+ID: toolu_01PCFAY8CmWTYVrGKwZJQiBB
+
+<tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01PCFAY8CmWTYVrGKwZJQiBB>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LDUQrQj8KkyxVszP97aEiw
+
+### file-path
+
+<tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+grgfoo.el
+</tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+
+### original-content
+
+<tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s" 
+                 (if node "node" "nil") override start end)
+</tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+
+### new-content
+
+<tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+</tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+
+### git-commit-message
+
+<tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+Remove debug messages from citation folding function (1)
+</tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+
+## TOOL RESULT:
+
+ID: toolu_01LDUQrQj8KkyxVszP97aEiw
+
+<tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01LDUQrQj8KkyxVszP97aEiw>
+
+## ASSISTANT:
+
+Let me search for the debug messages:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01XsFjX1kA9Jnh5y5kXDnheP
+
+### pattern
+
+<tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+DEBUG.*citation-folding-function
+</tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+
+### path
+
+<tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+grgfoo.el
+</tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+
+### context-lines
+
+<tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+2
+</tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+
+## TOOL RESULT:
+
+ID: toolu_01XsFjX1kA9Jnh5y5kXDnheP
+
+<tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+118-  (condition-case err
+119-      (when grgfoo-citation-folding-enabled
+120:        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s"
+121-                 (if node "node" "nil") override start end)
+122-        (when node
+
+</tool.toolu_01XsFjX1kA9Jnh5y5kXDnheP>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YXYVJrMnpUQHr5dV3MimAj
+
+### file-path
+
+<tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+grgfoo.el
+</tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+
+### original-content
+
+<tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s"
+                 (if node "node" "nil") override start end)
+</tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+
+### new-content
+
+<tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+
+</tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+
+### git-commit-message
+
+<tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+Remove debug message from citation folding function
+</tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+
+## TOOL RESULT:
+
+ID: toolu_01YXYVJrMnpUQHr5dV3MimAj
+
+<tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>
+Loading...
+</tool.toolu_01YXYVJrMnpUQHr5dV3MimAj>

@@ -117,8 +117,7 @@ NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (condition-case err
       (when grgfoo-citation-folding-enabled
-        (message "DEBUG: citation-folding-function called with node=%s override=%s start=%s end=%s"
-                 (if node "node" "nil") override start end)
+
         (when node
           (message "DEBUG: node type=%s start=%s end=%s"
                    (treesit-node-type node)
