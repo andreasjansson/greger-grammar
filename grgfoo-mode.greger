@@ -1,0 +1,1677 @@
+## SYSTEM:
+
+I have a tree-sitter grammar in grammar.js and a major mode for that grammar in grgfoo.el
+
+Useful docs to download and read:
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Tree_002dsitter-Major-Modes.html
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Parser_002dbased-Font-Lock.html
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Multiple-Languages.html
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Font-Lock-Basics.html
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Other-Font-Lock-Variables.html
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Special-Properties.html (font-lock special properties, including 'invisible)
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Text-Properties.html (download raw html and extract links from this)
+* https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html (download raw html and extract links from this)
+
+## USER:
+
+I want grgfoo to do "code folding" for citations. For example, given this markdown
+
+```
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while
+
+## ASSISTANT:
+
+Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+```
+
+I want it to display like this by default:
+
+```
+## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]
+```
+
+`Einstein developed the theory of relativity` should be underlined and when hitting TAB on top of that text it should expand into
+
+```
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]
+```
+
+Same with the `Newton formulated the laws of motion` text.
+
+If you TAB again on the expanded content it contracts.
+
+If you tab on the `## CITATIONS` it expands and contracts those citations too.
+
+
+## ASSISTANT:
+
+I need to examine your current grammar and major mode files to understand the structure and implement code folding for citations. Let me start by looking at the existing files.
+
+## TOOL USE:
+
+Name: list-directory
+ID: toolu_0188Dcrnf5fcRe6FhnBRZpUV
+
+### path
+
+<tool.toolu_0188Dcrnf5fcRe6FhnBRZpUV>
+.
+</tool.toolu_0188Dcrnf5fcRe6FhnBRZpUV>
+
+## TOOL RESULT:
+
+ID: toolu_0188Dcrnf5fcRe6FhnBRZpUV
+
+<tool.toolu_0188Dcrnf5fcRe6FhnBRZpUV>
+./:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       541  .editorconfig
+drwxr-xr-x  (dir)  .git
+-rw-r--r--       941  .gitattributes
+-rw-r--r--       431  .gitignore
+-rw-r--r--      2820  CMakeLists.txt
+-rw-r--r--       725  Cargo.toml
+-rw-r--r--      3451  Makefile
+-rw-r--r--      1090  Package.swift
+-rw-r--r--      3578  SEGFAULT_FIX_SUMMARY.md
+-rw-r--r--       765  binding.gyp
+drwxr-xr-x  (dir)  bindings
+-rwxr-xr-x        97  build.sh
+-rw-r--r--    422778  chat.ai
+-rw-r--r--        21  chat2.ai
+-rw-r--r--     31609  chat3.greger
+-rw-r--r--    115978  chat4.greger
+-rw-r--r--     82366  chat5.ai
+-rw-r--r--    409436  chat6.greger
+-rw-r--r--     95169  chat7.greger
+-rw-r--r--     57288  chat8.greger
+-rw-r--r--     87402  chat9.greger
+-rw-r--r--       113  go.mod
+-rw-r--r--      5107  grammar.js
+-rw-r--r--         0  greger-tree-sitter.el
+-rw-r--r--      2739  grgfoo-mode.greger
+-rw-r--r--      7489  grgfoo.el
+-rw-r--r--       879  inspect-tree.el
+-rwxr-xr-x     84712  libtree-sitter-greger.dylib
+-rw-r--r--      1041  package.json
+-rw-r--r--       771  pyproject.toml
+-rw-r--r--     95169  segfaults.greger
+-rw-r--r--      2066  setup.py
+drwxr-xr-x  (dir)  src
+-rw-r--r--     55486  stacktrace
+drwxr-xr-x  (dir)  test
+-rw-r--r--     23760  test-all-greger-cases.el
+-rw-r--r--      1510  test-final.el
+-rw-r--r--      1802  test-full-session.el
+-rw-r--r--      1011  test-interactive-gui.el
+-rw-r--r--      2508  test-interactive-segfault.el
+-rw-r--r--       621  test-interactive.el
+-rw-r--r--      1874  test-major-mode-segfaults.el
+-rw-r--r--      1264  test-minimal-segfault.el
+-rw-r--r--      1547  test-node-types.el
+-rw-r--r--       966  test-parser.el
+-rw-r--r--      1743  test-query-validation.el
+-rwxr-xr-x      1693  test-segfault-batch.el
+-rw-r--r--       436  test-segfault.el
+-rw-r--r--       939  test-typing.el
+-rw-r--r--       782  test-validate-nodes.el
+-rw-r--r--       265  test.greger
+-rw-r--r--       874  tree-sitter.json
+</tool.toolu_0188Dcrnf5fcRe6FhnBRZpUV>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01LJ9wTf1q9qQQYaRTFty1L1
+
+### path
+
+<tool.toolu_01LJ9wTf1q9qQQYaRTFty1L1>
+grammar.js
+</tool.toolu_01LJ9wTf1q9qQQYaRTFty1L1>
+
+## TOOL RESULT:
+
+ID: toolu_01LJ9wTf1q9qQQYaRTFty1L1
+
+<tool.toolu_01LJ9wTf1q9qQQYaRTFty1L1>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t\n]/,
+  ],
+
+  externals: $ => [
+    $.tool_start_tag,
+    $.tool_end_tag,
+    $.tool_content,
+    $.html_comment,
+  ],
+
+  inline: $ => [
+    $.content_blocks,
+    $.assistant_content_blocks,
+    $.system_content_blocks,
+  ],
+
+  rules: {
+
+    source_file: $ => seq(
+      optional($.untagged_text),
+      optional($.system),
+      repeat($._block),
+    ),
+
+    untagged_text: $ => prec(-1,
+      repeat1(seq(
+        $._untagged_text_content,
+        "\n"
+      ))
+    ),
+
+    _block: $ => choice(
+      $.user,
+      $.assistant,
+      $.thinking,
+      $.tool_use,
+      $.tool_result,
+      $.server_tool_use,
+      $.web_search_tool_result,
+      $.citations,
+    ),
+
+    user: $ => seq(
+      $.user_header,
+      $.content_blocks,
+    ),
+
+    assistant: $ => seq(
+      $.assistant_header,
+      $.assistant_content_blocks,
+    ),
+
+    system: $ => seq(
+      $.system_header,
+      $.system_content_blocks,
+    ),
+
+    thinking: $ => seq(
+      $.thinking_header,
+      $.content_blocks,
+    ),
+
+    tool_use: $ => seq(
+      $.tool_use_header,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    tool_result: $ => seq(
+      $.tool_result_header,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    server_tool_use: $ => seq(
+      $.server_tool_use_header,
+      optional(/\n/),
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    web_search_tool_result: $ => seq(
+      $.web_search_tool_result_header,
+      optional(/\n/),
+      $.id,
+      optional(/\n/),
+      $.content,
+    ),
+
+    citations: $ => seq(
+      $.citations_header,
+      repeat($.citation_entry),
+    ),
+
+    user_header: $ => token(seq('##', /[ \t]*/, 'USER:\n')),
+
+    assistant_header: $ => token(seq('##', /[ \t]*/, 'ASSISTANT:\n')),
+
+    system_header: $ => token(seq('##', /[ \t]*/, 'SYSTEM:\n')),
+
+    thinking_header: $ => token(seq('##', /[ \t]*/, 'THINKING:\n')),
+
+    tool_use_header: $ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    tool_result_header: $ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    server_tool_use_header: $ => token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    web_search_tool_result_header: $ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    citations_header: $ => token(seq('##', /[ \t]*/, 'CITATIONS:\n')),
+
+    name: $ => seq(
+      'Name:',
+      field('value', $.value),
+      /\n/
+    ),
+
+    id: $ => seq(
+      'ID:',
+      field('value', $.value),
+      /\n/
+    ),
+
+    tool_param: $ => seq(
+      '###',
+      /[ ]*/,
+      alias($.param_name, $.name),
+      /\n/,
+      optional(/\n/),
+      alias($._tool_element, $.value),
+    ),
+
+    param_name: $ => /[^\n]+/,
+
+    citation_entry: $ => prec.left(-2, seq(
+      '###',
+      /[ ]*/,
+      alias($.citation_url, $.url),
+      /\n/,
+      optional(/\n/),
+      optional(alias($.citation_title, $.title)),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    )),
+
+    citation_url: $ => /[^\n]*/,
+
+    citation_title: $ => seq(
+      'Title:',
+      /[ ]+/,
+      field("value", $.value),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      'Cited text:',
+      /[ ]+/,
+      field("value", $.value),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      'Encrypted index:',
+      /[ ]+/,
+      field("value", $.value),
+      /\n/,
+    ),
+
+    value: _ => /[^\n]+/,
+
+    assistant_content_blocks: $ => repeat1(choice(
+      $.text,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+      $.citation_entry,
+    )),
+
+    system_content_blocks: $ => repeat1(choice(
+      $.text,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+      $.safe_shell_commands,
+    )),
+
+    content_blocks: $ => repeat1(choice(
+      $.text,
+      $.code_block,
+      $.inline_code,
+      $.html_comment,
+    )),
+
+    text: $ => prec.right(repeat1(choice(
+      $._text_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^<`\n]+/)),
+
+    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+
+    _tool_element: $ => seq(
+      $.tool_start_tag,
+      field('value', $.tool_content),
+      $.tool_end_tag,
+    ),
+
+    content: $ => alias($._tool_element, 'content'),
+
+    code_block: $ => seq(
+      '```',
+      optional(/[^\n]*/),
+      /\n/,
+      repeat(choice(
+        /[^`\n]+/,
+        /\n/,
+        /`[^`]/,
+        /``[^`]/,
+      )),
+      '```',
+    ),
+
+    inline_code: $ => seq(
+      '`',
+      /[^`\n]+/,
+      '`',
+    ),
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      repeat(choice(
+        /[^<\n]+/,
+        /\n/,
+      )),
+      '</safe-shell-commands>',
+    ),
+  }
+});
+</tool.toolu_01LJ9wTf1q9qQQYaRTFty1L1>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01VEBZb3b7wJn1x6N7v93fWe
+
+### path
+
+<tool.toolu_01VEBZb3b7wJn1x6N7v93fWe>
+grgfoo.el
+</tool.toolu_01VEBZb3b7wJn1x6N7v93fWe>
+
+## TOOL RESULT:
+
+ID: toolu_01VEBZb3b7wJn1x6N7v93fWe
+
+<tool.toolu_01VEBZb3b7wJn1x6N7v93fWe>
+;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2024
+
+;; Author: Generated
+;; Keywords: languages, tree-sitter
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "29.1"))
+
+;;; Commentary:
+
+;; This package provides a major mode for Greger files with syntax highlighting,
+;; navigation, and other features powered by tree-sitter.
+
+;;; Code:
+
+(require 'treesit)
+
+(defgroup grgfoo nil
+  "Major mode for Greger files."
+  :group 'languages
+  :prefix "grgfoo-")
+
+(defcustom grgfoo-ts-indent-offset 2
+  "Number of spaces for each indentation step in `grgfoo-mode'."
+  :type 'integer
+  :safe 'integerp
+  :group 'grgfoo)
+
+;; Customizable face colors for headers using standard Emacs color names
+(defface grgfoo-user-header-face
+  '((t (:foreground "cyan" :weight bold)))
+  "Face for USER headers."
+  :group 'grgfoo)
+
+(defface grgfoo-assistant-header-face
+  '((t (:foreground "green" :weight bold)))
+  "Face for ASSISTANT headers."
+  :group 'grgfoo)
+
+(defface grgfoo-system-header-face
+  '((t (:foreground "orange" :weight bold)))
+  "Face for SYSTEM headers."
+  :group 'grgfoo)
+
+(defface grgfoo-thinking-header-face
+  '((t (:foreground "magenta" :weight bold)))
+  "Face for THINKING headers."
+  :group 'grgfoo)
+
+(defface grgfoo-tool-header-face
+  '((t (:foreground "yellow" :weight bold)))
+  "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
+  :group 'grgfoo)
+
+(defface grgfoo-citations-header-face
+  '((t (:foreground "lightblue" :weight bold)))
+  "Face for CITATIONS header."
+  :group 'grgfoo)
+
+(defface grgfoo-subheading-face
+  '((t (:foreground "coral" :weight semi-bold)))
+  "Face for subheadings like tool parameters and citation entries."
+  :group 'grgfoo)
+
+(defface grgfoo-field-name-face
+  '((t (:foreground "lightyellow")))
+  "Face for field names like 'Name:', 'ID:', etc."
+  :group 'grgfoo)
+
+(defface grgfoo-tool-tag-face
+  '((t (:foreground "gray" :height 0.8)))
+  "Face for tool start and end tags."
+  :group 'grgfoo)
+
+(defface grgfoo-error-face
+  '((t (:background "red" :foreground "white")))
+  "Face for parse errors in grgfoo-mode."
+  :group 'grgfoo)
+
+(defvar grgfoo-mode-syntax-table
+  (let ((table (make-syntax-table)))
+    ;; Comments
+    (modify-syntax-entry ?# "<" table)
+    (modify-syntax-entry ?\n ">" table)
+    ;; Strings
+    (modify-syntax-entry ?\" "\"" table)
+    (modify-syntax-entry ?\' "'" table)
+    ;; Brackets
+    (modify-syntax-entry ?\( "()" table)
+    (modify-syntax-entry ?\) ")(" table)
+    (modify-syntax-entry ?\[ "(]" table)
+    (modify-syntax-entry ?\] ")[" table)
+    (modify-syntax-entry ?\{ "(}" table)
+    (modify-syntax-entry ?\} "){" table)
+    ;; Angle brackets for HTML tags
+    (modify-syntax-entry ?\< "(>" table)
+    (modify-syntax-entry ?\> ")<" table)
+    table)
+  "Syntax table for `grgfoo-mode'.")
+
+(defvar grgfoo--treesit-font-lock-settings
+  (treesit-font-lock-rules
+   :language 'greger
+   :feature 'headers
+   :override t
+   '(;; Major section headers - use custom faces for each type
+     (user_header) @grgfoo-user-header-face
+     (assistant_header) @grgfoo-assistant-header-face
+     (system_header) @grgfoo-system-header-face
+     (thinking_header) @grgfoo-thinking-header-face
+     (tool_use_header) @grgfoo-tool-header-face
+     (tool_result_header) @grgfoo-tool-header-face
+     (server_tool_use_header) @grgfoo-tool-header-face
+     (web_search_tool_result_header) @grgfoo-tool-header-face
+     (citations_header) @grgfoo-citations-header-face)
+
+   :language 'greger
+   :feature 'subheadings
+   :override t
+   '(;; Sub-sections and parameter headers
+     (citation_entry) @grgfoo-subheading-face)
+
+   :language 'greger
+   :feature 'fields
+   :override t
+   '(;; Field names only - no highlighting for values or content
+     (name "Name:") @grgfoo-field-name-face
+     (id "ID:") @grgfoo-field-name-face
+     (citation_title "Title:") @grgfoo-field-name-face
+     (citation_text "Cited text:") @grgfoo-field-name-face
+     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
+
+   :language 'greger
+   :feature 'tool-tags
+   :override t
+   '(;; Tool start and end tags - smaller and less visible
+     (tool_start_tag) @grgfoo-tool-tag-face
+     (tool_end_tag) @grgfoo-tool-tag-face)
+
+   :language 'greger
+   :feature 'comments
+   :override t
+   '(;; HTML comments only
+     (html_comment) @font-lock-comment-face)
+
+   :language 'greger
+   :feature 'error
+   :override t
+   '(;; Parse errors
+     (ERROR) @grgfoo-error-face))
+  "Tree-sitter font-lock settings for `grgfoo-mode'.")
+
+(defvar grgfoo--treesit-indent-rules
+  `((greger
+     ;; Working indentation rules that avoid parent-is (which causes segfaults)
+     ((node-is "user") column-0 0)
+     ((node-is "assistant") column-0 0)
+     ((node-is "system") column-0 0)
+     ((node-is "thinking") column-0 0)
+     ((node-is "tool_use") column-0 0)
+     ((node-is "tool_result") column-0 0)
+     ((node-is "server_tool_use") column-0 0)
+     ((node-is "web_search_tool_result") column-0 0)
+     ((node-is "citations") column-0 0)
+     ;; Indent content within sections
+     ((node-is "text") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "name") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "id") parent-bol ,grgfoo-ts-indent-offset)
+     ((node-is "value") parent-bol ,grgfoo-ts-indent-offset)
+     ;; Default handling
+     (no-node column-0 0)
+     (catch-all column-0 0)))
+  "Tree-sitter indentation rules for `grgfoo-mode'.")
+
+;;;###autoload
+(define-derived-mode grgfoo-mode prog-mode "Greger"
+  "Major mode for editing Greger files with tree-sitter support.
+
+\\{grgfoo-mode-map}"
+  :syntax-table grgfoo-mode-syntax-table
+
+  (when (treesit-ready-p 'greger)
+    ;; Create the tree-sitter parser for this buffer
+    (treesit-parser-create 'greger)
+
+    ;; Tree-sitter setup
+    (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
+    (setq-local treesit-font-lock-feature-list
+                '((error)
+                  (headers)
+                  (tool-tags comments)
+                  (subheadings fields)
+                  (tool-tags comments)))
+
+    ;; Indentation - using simple and safe rules
+    (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+
+    ;; Navigation - treat headings as defuns for C-M-a and C-M-e
+    (setq-local treesit-defun-type-regexp
+                (rx (or "user" "assistant" "system" "thinking"
+                        "tool_use" "tool_result" "server_tool_use"
+                        "web_search_tool_result" "citations")))
+
+    ;; Set up defun name function to show heading type
+    (setq-local treesit-defun-name-function #'grgfoo--defun-name)
+
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup)))
+
+
+
+(defun grgfoo--defun-name (node)
+  "Return the name of the defun NODE."
+  (when (and node (treesit-node-p node))
+    (condition-case nil
+        (pcase (treesit-node-type node)
+          ("user" "USER")
+          ("assistant" "ASSISTANT")
+          ("system" "SYSTEM")
+          ("thinking" "THINKING")
+          ("tool_use" "TOOL USE")
+          ("tool_result" "TOOL RESULT")
+          ("server_tool_use" "SERVER TOOL USE")
+          ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
+          ("citations" "CITATIONS")
+          (_ nil))
+      (error nil))))
+
+;; Ensure the grammar is loaded
+(add-to-list 'treesit-extra-load-path default-directory)
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.grgfoo\\'" . grgfoo-mode))
+
+(provide 'grgfoo)
+
+;;; grgfoo.el ends here
+</tool.toolu_01VEBZb3b7wJn1x6N7v93fWe>
+
+## ASSISTANT:
+
+Now let me also download the relevant Emacs documentation to understand how to implement code folding:
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_011Zkwjr8xdJJxH9yEewjE1G
+
+### url
+
+<tool.toolu_011Zkwjr8xdJJxH9yEewjE1G>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Tree_002dsitter-Major-Modes.html
+</tool.toolu_011Zkwjr8xdJJxH9yEewjE1G>
+
+## TOOL RESULT:
+
+ID: toolu_011Zkwjr8xdJJxH9yEewjE1G
+
+<tool.toolu_011Zkwjr8xdJJxH9yEewjE1G>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Next:  Tree-sitter C API Correspondence , Previous:  Parsing Text in Multiple Languages , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+   38.8 Developing major modes with tree-sitter
+    This section covers some general guidelines on developing tree-sitter
+integration for a major mode.
+
+  A major mode supporting tree-sitter features should roughly follow
+this pattern:
+
+   (define-derived-mode woomy-mode prog-mode "Woomy"
+  "A mode for Woomy programming language."
+  (when (treesit-ready-p 'woomy)
+    (setq-local treesit-variables ...)
+    ...
+    (treesit-major-mode-setup)))
+
+
+  treesit-ready-p  automatically emits a warning if conditions for
+enabling tree-sitter aren’t met.
+
+  If a tree-sitter major mode shares setup with its “native”
+counterpart, one can create a “base mode” that contains the common
+setup, like this:
+
+   (define-derived-mode woomy--base-mode prog-mode "Woomy"
+  "An internal mode for Woomy programming language."
+  (common-setup)
+  ...)
+
+ 
+ (define-derived-mode woomy-mode woomy--base-mode "Woomy"
+  "A mode for Woomy programming language."
+  (native-setup)
+  ...)
+
+ 
+ (define-derived-mode woomy-ts-mode woomy--base-mode "Woomy"
+  "A mode for Woomy programming language."
+  (when (treesit-ready-p 'woomy)
+    (setq-local treesit-variables ...)
+    ...
+    (treesit-major-mode-setup)))
+
+
+  Function:  treesit-ready-p  language &optional quiet  ¶  This function checks for conditions for activating tree-sitter.  It
+checks whether Emacs was built with tree-sitter, whether the buffer’s
+size is not too large for tree-sitter to handle, and whether the
+grammar for  language  is available on the system (see  Tree-sitter Language Grammar ).
+
+  This function emits a warning if tree-sitter cannot be activated.  If
+ quiet  is  message , the warning is turned into a message;
+if  quiet  is  t , no warning or message is displayed.
+
+  If all the necessary conditions are met, this function returns
+non- nil ; otherwise it returns  nil .
+
+ Function:  treesit-major-mode-setup  ¶  This function activates some tree-sitter features for a major mode.
+
+  Currently, it sets up the following features:
+
+  If  treesit-font-lock-settings  (see  Parser-based Font Lock )
+is non- nil , it sets up fontification.
+
+
+  If either  treesit-simple-indent-rules  or
+ treesit-indent-function  (see  Parser-based Indentation ) is
+non- nil , it sets up indentation.
+
+
+  If  treesit-defun-type-regexp  is non- nil , it sets up
+navigation functions for  beginning-of-defun  and
+ end-of-defun .
+
+
+  If  treesit-defun-name-function  is non- nil , it sets up
+add-log functions used by  add-log-current-defun .
+
+
+  If  treesit-simple-imenu-settings  (see  Imenu ) is
+non- nil , it sets up Imenu.
+
+
+  If  treesit-outline-predicate  (see  Outline Minor Mode ) is
+non- nil , it sets up Outline minor mode.
+
+
+  If  sexp  and/or  sentence  are defined in
+ treesit-thing-settings  (see  User-defined “Things” and Navigation ), it enables
+navigation commands that move, respectively, by sexps and sentences by
+defining variables such as  forward-sexp-function  and
+ forward-sentence-function .
+
+
+ For more information on these built-in tree-sitter features,
+see  Parser-based Font Lock , see  Parser-based Indentation , and
+see  Moving over Balanced Expressions .
+
+  For supporting mixing of multiple languages in a major mode,
+see  Parsing Text in Multiple Languages .
+
+  Besides  beginning-of-defun  and  end-of-defun , Emacs
+provides some additional functions for working with defuns:
+ treesit-defun-at-point  returns the defun node at point, and
+ treesit-defun-name  returns the name of a defun node.
+
+  Function:  treesit-defun-at-point  ¶  This function returns the defun node at point, or  nil  if none
+is found.  It respects  treesit-defun-tactic : if its value is
+ top-level , this function returns the top-level defun, and if
+its value is  nested , it returns the immediate enclosing defun.
+
+  This function requires  treesit-defun-type-regexp  to work.  If
+it is  nil , this function simply returns  nil .
+
+ Function:  treesit-defun-name  node  ¶  This function returns the defun name of  node .  It returns
+ nil  if there is no defun name for  node , or if  node 
+is not a defun node, or if  node  is  nil .
+
+  Depending on the language and major mode, the defun names are names
+like function name, class name, struct name, etc.
+
+  If  treesit-defun-name-function  is  nil , this function
+always returns  nil .
+
+ Variable:  treesit-defun-name-function  ¶  If non- nil , this variable’s value should be a function that is
+called with a node as its argument, and returns the defun name of the
+node.  The function should have the same semantics as
+ treesit-defun-name : if the node is not a defun node, or the
+node is a defun node but doesn’t have a name, or the node is
+ nil , it should return  nil .
+
+
+   
+Next:  Tree-sitter C API Correspondence , Previous:  Parsing Text in Multiple Languages , Up:  Parsing Program Source    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_011Zkwjr8xdJJxH9yEewjE1G>
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_011mtenbcJvkUqKy67JGzHbT
+
+### url
+
+<tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html
+</tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+
+### extract-text
+
+<tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+:json-false
+</tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+
+## TOOL RESULT:
+
+ID: toolu_011mtenbcJvkUqKy67JGzHbT
+
+<tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/ -->
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<title>Overlays (GNU Emacs Lisp Reference Manual)</title>
+
+<meta name="description" content="Overlays (GNU Emacs Lisp Reference Manual)">
+<meta name="keywords" content="Overlays (GNU Emacs Lisp Reference Manual)">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link rev="made" href="mailto:bug-gnu-emacs@gnu.org">
+<link rel="icon" type="image/png" href="/graphics/gnu-head-mini.png">
+<meta name="ICBM" content="42.256233,-71.006581">
+<meta name="DC.title" content="gnu.org">
+<style type="text/css">
+@import url('/software/emacs/manual.css');
+</style>
+</head>
+
+<body lang="en">
+<div class="section" id="Overlays">
+<div class="header" style="background-color:#DDDDFF">
+<p>
+Next: <a href="Size-of-Displayed-Text.html" accesskey="n" rel="next">Size of Displayed Text</a>, Previous: <a href="Temporary-Displays.html" accesskey="p" rel="prev">Temporary Displays</a>, Up: <a href="Display.html" accesskey="u" rel="up">Emacs Display</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html" title="Index" rel="index">Index</a>]</p>
+</div>
+
+<span id="Overlays-1"></span><h3 class="section">42.9 Overlays</h3>
+<span id="index-overlays"></span>
+
+<p>You can use <em>overlays</em> to alter the appearance of a buffer&rsquo;s text on
+the screen, for the sake of presentation features.  An overlay is an
+object that belongs to a particular buffer, and has a specified
+beginning and end.  It also has properties that you can examine and set;
+these affect the display of the text within the overlaid portion of
+the buffer.
+</p>
+<p>Editing the text of the buffer adjusts the beginning and end of each
+overlay so that it stays with the text.  When you create the overlay,
+you can specify whether text inserted at the beginning should be
+inside the overlay or outside, and likewise for the end of the overlay.
+</p>
+
+<ul class="section-toc">
+<li><a href="Managing-Overlays.html" accesskey="1">Managing Overlays</a></li>
+<li><a href="Overlay-Properties.html" accesskey="2">Overlay Properties</a></li>
+<li><a href="Finding-Overlays.html" accesskey="3">Searching for Overlays</a></li>
+</ul>
+</div>
+
+
+
+</body>
+</html>
+
+</tool.toolu_011mtenbcJvkUqKy67JGzHbT>
+
+## ASSISTANT:
+
+Let me read more about overlay properties specifically:
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_01QMsxGXX1NndXJXQQ2oPwRk
+
+### url
+
+<tool.toolu_01QMsxGXX1NndXJXQQ2oPwRk>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlay-Properties.html
+</tool.toolu_01QMsxGXX1NndXJXQQ2oPwRk>
+
+## TOOL RESULT:
+
+ID: toolu_01QMsxGXX1NndXJXQQ2oPwRk
+
+<tool.toolu_01QMsxGXX1NndXJXQQ2oPwRk>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Next:  Searching for Overlays , Previous:  Managing Overlays , Up:  Overlays    [ Contents ][ Index ]
+ 
+   42.9.2 Overlay Properties
+    Overlay properties are like text properties in that the properties that
+alter how a character is displayed can come from either source.  But in
+most respects they are different.  See  Text Properties , for comparison.
+
+  Text properties are considered a part of the text; overlays and
+their properties are specifically considered not to be part of the
+text.  Thus, copying text between various buffers and strings
+preserves text properties, but does not try to preserve overlays.
+Changing a buffer’s text properties marks the buffer as modified,
+while moving an overlay or changing its properties does not.  Unlike
+text property changes, overlay property changes are not recorded in
+the buffer’s undo list.
+
+  Since more than one overlay can specify a property value for the
+same character, Emacs lets you specify a priority value of each
+overlay.  The priority value is used to decide which of the
+overlapping overlays will “win”.
+
+  These functions read and set the properties of an overlay:
+
+  Function:  overlay-get  overlay prop  ¶  This function returns the value of property  prop  recorded in
+ overlay , if any.  If  overlay  does not record any value for
+that property, but it does have a  category  property which is a
+symbol, that symbol’s  prop  property is used.  Otherwise, the value
+is  nil .
+
+ Function:  overlay-put  overlay prop value  ¶  This function sets the value of property  prop  recorded in
+ overlay  to  value .  It returns  value .
+
+ Function:  overlay-properties  overlay  ¶  This returns a copy of the property list of  overlay .
+
+ See also the function  get-char-property  which checks both
+overlay properties and text properties for a given character.
+See  Examining Text Properties .
+
+  Many overlay properties have special meanings; here is a table
+of them:
+
+     priority  This property’s value determines the priority of the overlay.  If you
+want to specify a priority value, use either  nil  (or zero), or
+a positive integer, or a cons of two values.  Any other value triggers
+undefined behavior.
+
+  The priority matters when two or more overlays cover the same
+character and both specify the same property with different values;
+the one whose  priority  value is higher overrides the other.
+(For the  face  property, the higher priority overlay’s value
+does not completely override the other value; instead, its individual
+face attributes override the corresponding face attributes of the
+ face  property whose priority is lower.)  If two overlays have
+the same priority value, and one is “nested” in the other (i.e.,
+covers fewer buffer or string positions), then the inner one will
+prevail over the outer one.  If neither is nested in the other then
+you should not make assumptions about which overlay will prevail.
+
+  When a Lisp program puts overlays with defined priorities on text that
+might have overlays without priorities, this could cause undesirable
+results, because any overlay with a positive priority value will
+override all the overlays without a priority.  Since most Emacs
+features that use overlays don’t specify priorities for their
+overlays, integer priorities should be used with care.  Instead of
+using integer priorities and risk overriding other overlays, you can
+use priority values of the form  ( primary  .  secondary )  /@w  ,
+where the  primary  value is used as described above, and
+ secondary  is the fallback value used when  primary  and the
+nesting considerations fail to resolve the precedence between
+overlays.  In particular, priority value  (nil .  n )  /@w  ,
+with  n  a positive integer, enables you to have the overlays
+ordered by priority when necessary without completely overriding other
+overlays.
+
+  Currently, all overlays take priority over text properties.
+
+  If you need to put overlays in priority order, use the  sorted 
+argument of  overlays-at .  See  Searching for Overlays .
+
+     window  If the  window  property is non- nil , then the overlay
+applies only on that window.
+
+     category  If an overlay has a  category  property, we call it the
+ category  of the overlay.  It should be a symbol.  The properties
+of the symbol serve as defaults for the properties of the overlay.
+
+     face  This property controls the appearance of the text (see  Faces ).
+The value of the property can be the following:
+
+   A face name (a symbol or string).
+
+
+  An anonymous face: a property list of the form  ( keyword  value  …) , where each  keyword  is a face attribute
+name and  value  is a value for that attribute.
+
+
+  A list of faces.  Each list element should be either a face name or an
+anonymous face.  This specifies a face which is an aggregate of the
+attributes of each of the listed faces.  Faces occurring earlier in
+the list have higher priority.
+
+
+  A cons cell of the form  (foreground-color .  color-name ) 
+or  (background-color .  color-name ) .  This specifies the
+foreground or background color, similar to  (:foreground
+ color-name )  or  (:background  color-name ) .  This
+form is supported for backward compatibility only, and should be
+avoided.
+
+
+    mouse-face  This property is used instead of  face  when the mouse is within
+the range of the overlay.  However, Emacs ignores all face attributes
+from this property that alter the text size (e.g.,  :height ,
+ :weight , and  :slant ); those attributes are always the
+same as in the unhighlighted text.
+
+     display  This property activates various features that change the
+way text is displayed.  For example, it can make text appear taller
+or shorter, higher or lower, wider or narrower, or replaced with an image.
+See  The  display  Property .
+
+     help-echo  If an overlay has a  help-echo  property, then when you move the
+mouse onto the text in the overlay, Emacs displays a help string in
+the echo area, or as a tooltip.  For details see  Text help-echo .
+
+     field  Consecutive characters with the same  field  property constitute a
+ field .  Some motion functions including  forward-word  and
+ beginning-of-line  stop moving at a field boundary.
+See  Defining and Using Fields .
+
+     modification-hooks  This property’s value is a list of functions to be called if any
+character within the overlay is changed or if text is inserted strictly
+within the overlay.
+
+  The hook functions are called both before and after each change.
+If the functions save the information they receive, and compare notes
+between calls, they can determine exactly what change has been made
+in the buffer text.
+
+  When called before a change, each function receives four arguments: the
+overlay,  nil , and the beginning and end of the text range to be
+modified.
+
+  When called after a change, each function receives five arguments: the
+overlay,  t , the beginning and end of the text range just
+modified, and the length of the pre-change text replaced by that range.
+(For an insertion, the pre-change length is zero; for a deletion, that
+length is the number of characters deleted, and the post-change
+beginning and end are equal.)
+
+  When these functions are called,  inhibit-modification-hooks  is
+bound to non- nil .  If the functions modify the buffer, you
+might want to bind  inhibit-modification-hooks  to  nil , so
+as to cause the change hooks to run for these modifications.  However,
+doing this may call your own change hook recursively, so be sure to
+prepare for that.  See  Change Hooks .
+
+  Text properties also support the  modification-hooks  property,
+but the details are somewhat different (see  Properties with Special Meanings ).
+
+     insert-in-front-hooks  This property’s value is a list of functions to be called before and
+after inserting text right at the beginning of the overlay.  The calling
+conventions are the same as for the  modification-hooks  functions.
+
+     insert-behind-hooks  This property’s value is a list of functions to be called before and
+after inserting text right at the end of the overlay.  The calling
+conventions are the same as for the  modification-hooks  functions.
+
+     invisible  The  invisible  property can make the text in the overlay
+invisible, which means that it does not appear on the screen.
+See  Invisible Text , for details.
+
+     intangible  The  intangible  property on an overlay works just like the
+ intangible  text property.  It is obsolete.  See  Properties with Special Meanings , for details.
+
+   isearch-open-invisible  This property tells incremental search (see  Incremental Search  in  The GNU Emacs Manual ) how to make an invisible overlay
+visible, permanently, if the final match overlaps it.  See  Invisible Text .
+
+   isearch-open-invisible-temporary  This property tells incremental search how to make an invisible overlay
+visible, temporarily, during the search.  See  Invisible Text .
+
+     before-string  This property’s value is a string to add to the display at the beginning
+of the overlay.  The string does not appear in the buffer in any
+sense—only on the screen.  Note that if the text at the beginning of
+the overlay is made invisible, the string will not be displayed.
+
+     after-string  This property’s value is a string to add to the display at the end of
+the overlay.  The string does not appear in the buffer in any
+sense—only on the screen.  Note that if the text at the end of the
+overlay is made invisible, the string will not be displayed.
+
+   line-prefix  This property specifies a display spec to prepend to each
+non-continuation line at display-time.  See  Truncation .
+
+   wrap-prefix  This property specifies a display spec to prepend to each continuation
+line at display-time.  See  Truncation .
+
+     evaporate  If this property is non- nil , the overlay is deleted automatically
+if it becomes empty (i.e., if its length becomes zero).  If you give
+an empty overlay (see  empty overlay ) a
+non- nil  evaporate  property, that deletes it immediately.
+Note that, unless an overlay has this property, it will not be deleted
+when the text between its starting and ending positions is deleted
+from the buffer.
+
+     display-line-numbers-disable  This property prevents display of line numbers (see  display-line-numbers  in  The GNU Emacs Manual ) for the text which
+is within an overlay having this property.  One situation where using an
+overlay with this property is useful is an empty overlay at
+end-of-buffer, since otherwise there’s no way of preventing the display
+of the line number there.
+
+       keymap  If this property is non- nil , it specifies a keymap for a
+portion of the text.  This keymap takes precedence over most other
+keymaps (see  Active Keymaps ), and it is used when point is within
+the overlay, where the front-
+and rear-advance properties define whether the boundaries are
+considered as being  within  or not.
+
+     local-map  The  local-map  property is similar to  keymap  but replaces the
+buffer’s local map rather than augmenting existing keymaps.  This also means it
+has lower precedence than minor mode keymaps.
+
+  The  keymap  and  local-map  properties do not affect a
+string displayed by the  before-string ,  after-string , or
+ display  properties.  This is only relevant for mouse clicks and
+other mouse events that fall on the string, since point is never on
+the string.  To bind special mouse events for the string, assign it a
+ keymap  or  local-map  text property.  See  Properties with Special Meanings .
+
+ 
+   
+Next:  Searching for Overlays , Previous:  Managing Overlays , Up:  Overlays    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_01QMsxGXX1NndXJXQQ2oPwRk>
+
+## ASSISTANT:
+
+Now let me look at the invisible text feature:
+
+## TOOL USE:
+
+Name: read-webpage
+ID: toolu_01QWTYfxYaj7qLS4qYQed4Ac
+
+### url
+
+<tool.toolu_01QWTYfxYaj7qLS4qYQed4Ac>
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Invisible-Text.html
+</tool.toolu_01QWTYfxYaj7qLS4qYQed4Ac>
+
+## TOOL RESULT:
+
+ID: toolu_01QWTYfxYaj7qLS4qYQed4Ac
+
+<tool.toolu_01QWTYfxYaj7qLS4qYQed4Ac>
+ Created by GNU Texinfo 6.8, https://www.gnu.org/software/texinfo/      
+Next:  Selective Display , Previous:  Reporting Warnings , Up:  Emacs Display    [ Contents ][ Index ]
+ 
+   42.6 Invisible Text
+    You can make characters  invisible , so that they do not appear on
+the screen, with the  invisible  property.  This can be either a
+text property (see  Text Properties ) or an overlay property
+(see  Overlays ).  Cursor motion also partly ignores these
+characters; if the command loop finds that point is inside a range of
+invisible text after a command, it relocates point to the other side
+of the text.
+
+  In the simplest case, any non- nil  invisible  property makes
+a character invisible.  This is the default case—if you don’t alter
+the default value of  buffer-invisibility-spec , this is how the
+ invisible  property works.  You should normally use  t 
+as the value of the  invisible  property if you don’t plan
+to set  buffer-invisibility-spec  yourself.
+
+  More generally, you can use the variable  buffer-invisibility-spec 
+to control which values of the  invisible  property make text
+invisible.  This permits you to classify the text into different subsets
+in advance, by giving them different  invisible  values, and
+subsequently make various subsets visible or invisible by changing the
+value of  buffer-invisibility-spec .
+
+  Controlling visibility with  buffer-invisibility-spec  is
+especially useful in a program to display the list of entries in a
+database.  It permits the implementation of convenient filtering
+commands to view just a part of the entries in the database.  Setting
+this variable is very fast, much faster than scanning all the text in
+the buffer looking for properties to change.
+
+  Variable:  buffer-invisibility-spec  ¶  This variable specifies which kinds of  invisible  properties
+actually make a character invisible.  Setting this variable makes it
+buffer-local.
+
+  t  A character is invisible if its  invisible  property is
+non- nil .  This is the default.
+
+   a list  Each element of the list specifies a criterion for invisibility; if a
+character’s  invisible  property fits any one of these criteria,
+the character is invisible.  The list can have two kinds of elements:
+
+  atom  A character is invisible if its  invisible  property value is
+ atom  or if it is a list with  atom  as a member; comparison
+is done with  eq .
+
+   ( atom  . t)  A character is invisible if its  invisible  property value is
+ atom  or if it is a list with  atom  as a member; comparison
+is done with  eq .  Moreover, a sequence of such characters
+displays as an ellipsis.
+
+   Two functions are specifically provided for adding elements to
+ buffer-invisibility-spec  and removing elements from it.
+
+  Function:  add-to-invisibility-spec  element  ¶  This function adds the element  element  to
+ buffer-invisibility-spec .  If  buffer-invisibility-spec 
+was  t , it changes to a list,  (t) , so that text whose
+ invisible  property is  t  remains invisible.
+
+ Function:  remove-from-invisibility-spec  element  ¶  This removes the element  element  from
+ buffer-invisibility-spec .  This does nothing if  element 
+is not in the list.
+
+ A convention for use of  buffer-invisibility-spec  is that a
+major mode should use the mode’s own name as an element of
+ buffer-invisibility-spec  and as the value of the
+ invisible  property:
+
+   ;;  If you want to display an ellipsis: 
+(add-to-invisibility-spec '(my-symbol . t))
+;;  If you don’t want ellipsis: 
+(add-to-invisibility-spec 'my-symbol)
+
+(overlay-put (make-overlay beginning end)
+             'invisible 'my-symbol)
+
+;;  When done with the invisibility: 
+(remove-from-invisibility-spec '(my-symbol . t))
+;;  Or respectively: 
+(remove-from-invisibility-spec 'my-symbol)
+
+
+  You can check for invisibility using the following function:
+
+  Function:  invisible-p  pos-or-prop  ¶  If  pos-or-prop  is a marker or number, this function returns a
+non- nil  value if the text at that position is currently
+invisible.
+
+  If  pos-or-prop  is any other kind of Lisp object, that is taken
+to mean a possible value of the  invisible  text or overlay
+property.  In that case, this function returns a non- nil  value
+if that value would cause text to become invisible, based on the
+current value of  buffer-invisibility-spec .
+
+  The return value of this function is  t  if the text would be
+completely hidden on display, or a non- nil , non- t  value
+if the text would be replaced by an ellipsis.
+
+   Ordinarily, functions that operate on text or move point do not care
+whether the text is invisible, they process invisible characters and
+visible characters alike.  The user-level line motion commands,
+such as  next-line ,  previous-line , ignore invisible
+newlines if  line-move-ignore-invisible  is non- nil  (the
+default), i.e., behave like these invisible newlines didn’t exist in
+the buffer, but only because they are explicitly programmed to do so.
+
+  If a command ends with point inside or at the boundary of
+invisible text, the main editing loop relocates point to one of the
+two ends of the invisible text.  Emacs chooses the direction of
+relocation so that it is the same as the overall movement direction of
+the command; if in doubt, it prefers a position where an inserted char
+would not inherit the  invisible  property.  Additionally, if the
+text is not replaced by an ellipsis and the command only moved within
+the invisible text, then point is moved one extra character so as to
+try and reflect the command’s movement by a visible movement of the
+cursor.
+
+  Thus, if the command moved point back to an invisible range (with the usual
+stickiness), Emacs moves point back to the beginning of that range.  If the
+command moved point forward into an invisible range, Emacs moves point forward
+to the first visible character that follows the invisible text and then forward
+one more character.
+
+  These  adjustments  of point that ended up in the middle of
+invisible text can be disabled by setting  disable-point-adjustment 
+to a non- nil  value.  See  Adjusting Point After Commands .
+
+  Incremental search can make invisible overlays visible temporarily
+and/or permanently when a match includes invisible text.  To enable
+this, the overlay should have a non- nil  isearch-open-invisible  property.  The property value should be a
+function to be called with the overlay as an argument.  This function
+should make the overlay visible permanently; it is used when the match
+overlaps the overlay on exit from the search.
+
+  During the search, such overlays are made temporarily visible by
+temporarily modifying their invisible and intangible properties.  If you
+want this to be done differently for a certain overlay, give it an
+ isearch-open-invisible-temporary  property which is a function.
+The function is called with two arguments: the first is the overlay, and
+the second is  nil  to make the overlay visible, or  t  to
+make it invisible again.
+
+ 
+   
+Next:  Selective Display , Previous:  Reporting Warnings , Up:  Emacs Display    [ Contents ][ Index ]
+ 
+ 
+</tool.toolu_01QWTYfxYaj7qLS4qYQed4Ac>
+
+## ASSISTANT:
+
+Now I have a good understanding of how to implement code folding. I need to:
+
+1. Parse the structure to identify citation blocks and their corresponding content
+2. Use overlays with the `invisible` property to hide/show content
+3. Use overlays with the `display` property to show summary text
+4. Add keybindings for TAB to toggle visibility
+5. Track the folding state
+
+Let me examine a sample file to understand the structure better:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01LQswXPcsTKhhVsbxAWsxVh
+
+### path
+
+<tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+chat4.greger
+</tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+
+### start-line
+
+<tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+1
+</tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+
+### end-line
+
+<tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+50
+</tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+
+## TOOL RESULT:
+
+ID: toolu_01LQswXPcsTKhhVsbxAWsxVh
+
+<tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+## SYSTEM
+
+Tree sitter test docs:
+* https://tree-sitter.github.io/tree-sitter/creating-parsers/5-writing-tests.html
+
+## USER:
+
+I have a bunch of .greger test files in test/corpus. I want to turn them into tests in the format tree-sitter expects (download the docs and read them).
+
+For example, for the test/corpus/citations-basic.greger file, I want the output to be
+
+```
+(source_file [...]
+  (user [...]
+    (text [...]))
+  (server_tool_use [...]
+    (name [...])
+    (id [...])
+    (tool_param [...]
+      (name [...])
+      (value [...])))
+  (server_tool_result [...]
+    (id [...])
+    (content [...]))
+  (assistant [...]
+    (text [...]))
+  (citations [...]
+    (text [...])
+    (citation_entry [...]
+      (url [...])
+      (title [...])
+      (cited_text [...])
+      (encrypted_index [...]))))
+```
+
+So create citations-basic.txt with contents:
+
+```
+===============
+Citations basic
+===============
+
+## USER:
+
+When was Claude Shannon born?
+
+## SERVER TOOL USE:
+
+Name: web_search
+ID: srvtoolu_01WYG3ziw53XMcoyKL4XcZmE
+</tool.toolu_01LQswXPcsTKhhVsbxAWsxVh>
+
+## ASSISTANT:
+
+Let me look at more of this file to understand the citation structure:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_015sETTvKMA8D3YrRkvVXXqe
+
+### pattern
+
+<tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+### https://
+</tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+
+### path
+
+<tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+chat4.greger
+</tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+
+### context-lines
+
+<tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+3
+</tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+
+## TOOL RESULT:
+
+ID: toolu_015sETTvKMA8D3YrRkvVXXqe
+
+<tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+79-
+80-Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+81-
+82:### https://en.wikipedia.org/wiki/Claude_Shannon
+83-
+84-Title: Claude Shannon - Wikipedia
+85-Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+--
+912-
+913-Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+914-
+915:### https://en.wikipedia.org/wiki/Claude_Shannon
+916-
+917-Title: Claude Shannon - Wikipedia
+918-Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+--
+1082-
+1083-Claude Shannon was born on April 30, 1916, in Petoskey, Michigan
+1084-
+1085:### https://en.wikipedia.org/wiki/Claude_Shannon
+1086-
+1087-Title: Claude Shannon - Wikipedia
+1088-Cited text: Claude Elwood Shannon (April 30, 1916 – February 24, 2001) was an American mathematician, electrical engineer, computer scientist, cryptographer and i...
+--
+3075-
+3076-It's currently sunny and 75°F
+3077-
+3078:### https://weather.com
+3079-
+3080-Title: Weather.com
+3081-Cited text: Currently sunny with a temperature of 75 degrees Fahrenheit...
+--
+3127-
+3128-It's currently sunny and 75°F
+3129-
+3130:### https://weather.com
+3131-
+3132-Title: Weather.com
+3133-Cited text: Currently sunny with a temperature of 75 degrees Fahrenheit...
+--
+3215-
+3216-Einstein developed the theory of relativity
+3217-
+3218:### https://physics.com/einstein
+3219-
+3220-Title: Einstein Biography
+3221-Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+--
+3229-
+3230-Newton formulated the laws of motion
+3231-
+3232:### https://physics.com/newton
+3233-
+3234-Title: Newton Biography
+3235-Cited text: Isaac Newton formulated the three laws of motion...
+--
+3237-
+3238-## CITATIONS:
+3239-
+3240:### https://physics.com/einstein
+3241-
+3242-Title: Einstein Biography
+3243-Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+3244-Encrypted index: def456
+3245-
+3246:### https://physics.com/newton
+3247-
+3248-Title: Newton Biography
+3249-Cited text: Isaac Newton formulated the three laws of motion...
+--
+3297-
+3298-Einstein developed the theory of relativity
+3299-
+3300:### https://physics.com/einstein
+3301-
+3302-Title: Einstein Biography
+3303-Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+--
+3311-
+3312-Newton formulated the laws of motion
+3313-
+3314:### https://physics.com/newton
+3315-
+3316-Title: Newton Biography
+3317-Cited text: Isaac Newton formulated the three laws of motion...
+--
+3319-
+3320-## CITATIONS:
+3321-
+3322:### https://physics.com/einstein
+3323-
+3324-Title: Einstein Biography
+3325-Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+3326-Encrypted index: def456
+3327-
+3328:### https://physics.com/newton
+3329-
+3330-Title: Newton Biography
+3331-Cited text: Isaac Newton formulated the three laws of motion...
+
+</tool.toolu_015sETTvKMA8D3YrRkvVXXqe>
+
+## ASSISTANT:
+
+Perfect! Now I understand the structure. I can see that citations appear both inline within ASSISTANT blocks and in the CITATIONS section. Now I need to implement code folding functionality. Let me create the enhanced version of grgfoo.el with code folding support:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RWRijJZgM3L9t2qdEfMV9u
+
+### file-path
+
+<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+grgfoo.el
+</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+
+### original-content
+
+<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2024
+
+;; Author: Generated
+;; Keywords: languages, tree-sitter
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "29.1"))
+
+;;; Commentary:
+
+;; This package provides a major mode for Greger files with syntax highlighting,
+;; navigation, and other features powered by tree-sitter.
+
+;;; Code:
+
+(require 'treesit)
+</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+
+### new-content
+
+<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+;;; grgfoo.el --- Major mode for Greger files using tree-sitter -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2024
+
+;; Author: Generated
+;; Keywords: languages, tree-sitter
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "29.1"))
+
+;;; Commentary:
+
+;; This package provides a major mode for Greger files with syntax highlighting,
+;; navigation, citation folding, and other features powered by tree-sitter.
+
+;;; Code:
+
+(require 'treesit)
+(require 'thingatpt)
+</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+
+### git-commit-message
+
+<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+Add thingatpt requirement for code folding functionality
+</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+
+## TOOL RESULT:
+
+ID: toolu_01RWRijJZgM3L9t2qdEfMV9u
+
+<tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>
+Loading...
+</tool.toolu_01RWRijJZgM3L9t2qdEfMV9u>

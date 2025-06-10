@@ -10,11 +10,12 @@
 ;;; Commentary:
 
 ;; This package provides a major mode for Greger files with syntax highlighting,
-;; navigation, and other features powered by tree-sitter.
+;; navigation, citation folding, and other features powered by tree-sitter.
 
 ;;; Code:
 
 (require 'treesit)
+(require 'thingatpt)
 
 (defgroup grgfoo nil
   "Major mode for Greger files."
