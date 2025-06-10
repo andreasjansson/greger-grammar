@@ -14048,5 +14048,58 @@ Simplify citation folding to hide entire citation blocks
 ID: toolu_01BYfnxifRWH26S8xjgYS7dK
 
 <tool.toolu_01BYfnxifRWH26S8xjgYS7dK>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Simplify citation folding to hide entire citation blocks
 </tool.toolu_01BYfnxifRWH26S8xjgYS7dK>
+
+## ASSISTANT:
+
+Now let me approach this differently. The issue is we need to merge the text blocks properly. Let me implement a different strategy by modifying the tree-sitter query to capture the text around citations rather than the citations themselves:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HydL6C9jwAYTFnkTCBRCrp
+
+### file-path
+
+<tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+grgfoo.el
+</tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+
+### original-content
+
+<tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+
+### new-content
+
+<tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Assistant block processing for text flow
+     (assistant) @grgfoo--assistant-folding-function
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+
+### git-commit-message
+
+<tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+Change folding strategy to process entire assistant blocks
+</tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+
+## TOOL RESULT:
+
+ID: toolu_01HydL6C9jwAYTFnkTCBRCrp
+
+<tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
+Loading...
+</tool.toolu_01HydL6C9jwAYTFnkTCBRCrp>
