@@ -91,7 +91,7 @@ module.exports = grammar({
     ),
 
     server_tool_use: $ => seq(
-      token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE')),
+      $.server_tool_use_header,
       ':',
       /\n/,
       optional(/\n/),
