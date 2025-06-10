@@ -366,7 +366,7 @@ START and END are the region bounds."
 
         (if grgfoo-citation-folding-enabled
             (progn
-              (message "DEBUG TAB: citation folding enabled, looking for node...")
+
               (let ((citation-node (grgfoo--find-citation-at-point)))
                 (if citation-node
                     (progn
