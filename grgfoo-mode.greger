@@ -2844,5 +2844,434 @@ Fix assistant block merging to replace entire range with merged text
 ID: toolu_01PK8R1eDs4ovkz9VpeJ1d7J
 
 <tool.toolu_01PK8R1eDs4ovkz9VpeJ1d7J>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Fix assistant block merging to replace entire range with merged text
+
+- Replace from first assistant content to last assistant end with single display property
+- Remove complex individual block hiding logic
+- Use single text replacement for cleaner result
 </tool.toolu_01PK8R1eDs4ovkz9VpeJ1d7J>
+
+## ASSISTANT:
+
+Let's test this:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LqXb6KCwkBPctKAPeQERHt
+
+### command
+
+<tool.toolu_01LqXb6KCwkBPctKAPeQERHt>
+cd . && emacs --batch -l test-citation-folding-exact.el
+</tool.toolu_01LqXb6KCwkBPctKAPeQERHt>
+
+## TOOL RESULT:
+
+ID: toolu_01LqXb6KCwkBPctKAPeQERHt
+
+<tool.toolu_01LqXb6KCwkBPctKAPeQERHt>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+node: #<treesit-node citation_entry in 27-93>
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 21:00:52+0200, selector ‘t’)
+node: #<treesit-node citation_entry in 61-238>
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: Applied invisible property from 61 to 237
+node: #<treesit-node citation_entry in 297-442>
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+DEBUG: Applied invisible property from 297 to 441
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 279 292 (fontified nil face grgfoo-citations-header-face) 292 293 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 293 323 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 323, EXPECTED LENGTH: 146 ===
+
+=== CHARACTER BY CHARACTER ===
+Position 103: actual=69 expected=35
+Position 104: actual=105 expected=35
+Position 105: actual=110 expected=32
+Position 106: actual=115 expected=67
+Position 107: actual=116 expected=73
+Position 108: actual=101 expected=84
+Position 109: actual=105 expected=65
+Position 110: actual=110 expected=84
+Position 111: actual=32 expected=73
+Position 112: actual=100 expected=79
+Position 113: actual=101 expected=78
+Position 114: actual=118 expected=83
+Position 115: actual=101 expected=58
+Position 116: actual=108 expected=10
+Position 117: actual=111 expected=91
+Position 118: actual=112 expected=43
+Position 119: actual=101 expected=50
+Position 120: actual=100 expected=32
+Position 121: actual=32 expected=99
+Position 122: actual=116 expected=105
+Position 123: actual=104 expected=116
+Position 124: actual=101 expected=97
+Position 125: actual=32 expected=116
+Position 126: actual=116 expected=105
+Position 127: actual=104 expected=111
+Position 128: actual=101 expected=110
+Position 129: actual=111 expected=115
+Position 130: actual=114 expected=44
+Position 131: actual=121 expected=32
+Position 132: actual=32 expected=84
+Position 133: actual=111 expected=65
+Position 134: actual=102 expected=66
+Position 136: actual=114 expected=116
+Position 137: actual=101 expected=111
+Position 138: actual=108 expected=32
+Position 139: actual=97 expected=101
+Position 140: actual=116 expected=120
+Position 141: actual=105 expected=112
+Position 142: actual=118 expected=97
+Position 143: actual=105 expected=110
+Position 144: actual=116 expected=100
+Position 145: actual=121 expected=93
+Position 146: actual=32 expected=END
+Position 147: actual=119 expected=END
+Position 148: actual=104 expected=END
+Position 149: actual=105 expected=END
+Position 150: actual=108 expected=END
+Position 151: actual=101 expected=END
+Position 152: actual=32 expected=END
+Position 153: actual=78 expected=END
+Position 154: actual=101 expected=END
+Position 155: actual=119 expected=END
+Position 156: actual=116 expected=END
+Position 157: actual=111 expected=END
+Position 158: actual=110 expected=END
+Position 159: actual=32 expected=END
+Position 160: actual=102 expected=END
+Position 161: actual=111 expected=END
+Position 162: actual=114 expected=END
+Position 163: actual=109 expected=END
+Position 164: actual=117 expected=END
+Position 165: actual=108 expected=END
+Position 166: actual=97 expected=END
+Position 167: actual=116 expected=END
+Position 168: actual=101 expected=END
+Position 169: actual=100 expected=END
+Position 170: actual=32 expected=END
+Position 171: actual=116 expected=END
+Position 172: actual=104 expected=END
+Position 173: actual=101 expected=END
+Position 174: actual=32 expected=END
+Position 175: actual=108 expected=END
+Position 176: actual=97 expected=END
+Position 177: actual=119 expected=END
+Position 178: actual=115 expected=END
+Position 179: actual=32 expected=END
+Position 180: actual=111 expected=END
+Position 181: actual=102 expected=END
+Position 182: actual=32 expected=END
+Position 183: actual=109 expected=END
+Position 184: actual=111 expected=END
+Position 185: actual=116 expected=END
+Position 186: actual=105 expected=END
+Position 187: actual=111 expected=END
+Position 188: actual=110 expected=END
+Position 189: actual=10 expected=END
+Position 190: actual=10 expected=END
+Position 191: actual=69 expected=END
+Position 192: actual=105 expected=END
+Position 193: actual=110 expected=END
+Position 194: actual=115 expected=END
+Position 195: actual=116 expected=END
+Position 196: actual=101 expected=END
+Position 197: actual=105 expected=END
+Position 198: actual=110 expected=END
+Position 199: actual=32 expected=END
+Position 200: actual=100 expected=END
+Position 201: actual=101 expected=END
+Position 202: actual=118 expected=END
+Position 203: actual=101 expected=END
+Position 204: actual=108 expected=END
+Position 205: actual=111 expected=END
+Position 206: actual=112 expected=END
+Position 207: actual=101 expected=END
+Position 208: actual=100 expected=END
+Position 209: actual=32 expected=END
+Position 210: actual=116 expected=END
+Position 211: actual=104 expected=END
+Position 212: actual=101 expected=END
+Position 213: actual=32 expected=END
+Position 214: actual=116 expected=END
+Position 215: actual=104 expected=END
+Position 216: actual=101 expected=END
+Position 217: actual=111 expected=END
+Position 218: actual=114 expected=END
+Position 219: actual=121 expected=END
+Position 220: actual=32 expected=END
+Position 221: actual=111 expected=END
+Position 222: actual=102 expected=END
+Position 223: actual=32 expected=END
+Position 224: actual=114 expected=END
+Position 225: actual=101 expected=END
+Position 226: actual=108 expected=END
+Position 227: actual=97 expected=END
+Position 228: actual=116 expected=END
+Position 229: actual=105 expected=END
+Position 230: actual=118 expected=END
+Position 231: actual=105 expected=END
+Position 232: actual=116 expected=END
+Position 233: actual=121 expected=END
+Position 234: actual=32 expected=END
+Position 235: actual=119 expected=END
+Position 236: actual=104 expected=END
+Position 237: actual=105 expected=END
+Position 238: actual=108 expected=END
+Position 239: actual=101 expected=END
+Position 240: actual=32 expected=END
+Position 241: actual=78 expected=END
+Position 242: actual=101 expected=END
+Position 243: actual=119 expected=END
+Position 244: actual=116 expected=END
+Position 245: actual=111 expected=END
+Position 246: actual=110 expected=END
+Position 247: actual=32 expected=END
+Position 248: actual=102 expected=END
+Position 249: actual=111 expected=END
+Position 250: actual=114 expected=END
+Position 251: actual=109 expected=END
+Position 252: actual=117 expected=END
+Position 253: actual=108 expected=END
+Position 254: actual=97 expected=END
+Position 255: actual=116 expected=END
+Position 256: actual=101 expected=END
+Position 257: actual=100 expected=END
+Position 258: actual=32 expected=END
+Position 259: actual=116 expected=END
+Position 260: actual=104 expected=END
+Position 261: actual=101 expected=END
+Position 262: actual=32 expected=END
+Position 263: actual=108 expected=END
+Position 264: actual=97 expected=END
+Position 265: actual=119 expected=END
+Position 266: actual=115 expected=END
+Position 267: actual=32 expected=END
+Position 268: actual=111 expected=END
+Position 269: actual=102 expected=END
+Position 270: actual=32 expected=END
+Position 271: actual=109 expected=END
+Position 272: actual=111 expected=END
+Position 273: actual=116 expected=END
+Position 274: actual=105 expected=END
+Position 275: actual=111 expected=END
+Position 276: actual=110 expected=END
+Position 277: actual=10 expected=END
+Position 278: actual=10 expected=END
+Position 279: actual=35 expected=END
+Position 280: actual=35 expected=END
+Position 281: actual=32 expected=END
+Position 282: actual=67 expected=END
+Position 283: actual=73 expected=END
+Position 284: actual=84 expected=END
+Position 285: actual=65 expected=END
+Position 286: actual=84 expected=END
+Position 287: actual=73 expected=END
+Position 288: actual=79 expected=END
+Position 289: actual=78 expected=END
+Position 290: actual=83 expected=END
+Position 291: actual=58 expected=END
+Position 292: actual=10 expected=END
+Position 293: actual=10 expected=END
+Position 294: actual=91 expected=END
+Position 295: actual=43 expected=END
+Position 296: actual=50 expected=END
+Position 297: actual=32 expected=END
+Position 298: actual=99 expected=END
+Position 299: actual=105 expected=END
+Position 300: actual=116 expected=END
+Position 301: actual=97 expected=END
+Position 302: actual=116 expected=END
+Position 303: actual=105 expected=END
+Position 304: actual=111 expected=END
+Position 305: actual=110 expected=END
+Position 306: actual=115 expected=END
+Position 307: actual=44 expected=END
+Position 308: actual=32 expected=END
+Position 309: actual=84 expected=END
+Position 310: actual=65 expected=END
+Position 311: actual=66 expected=END
+Position 312: actual=32 expected=END
+Position 313: actual=116 expected=END
+Position 314: actual=111 expected=END
+Position 315: actual=32 expected=END
+Position 316: actual=101 expected=END
+Position 317: actual=120 expected=END
+Position 318: actual=112 expected=END
+Position 319: actual=97 expected=END
+Position 320: actual=110 expected=END
+Position 321: actual=100 expected=END
+Position 322: actual=93 expected=END
+Test test-citations-folding backtrace:
+  signal(ert-test-failed (((should (string= expected actual)) :form (s
+  ert-fail(((should (string= expected actual)) :form (string= "## ASSI
+  (if (unwind-protect (setq value-2 (apply fn-0 args-1)) (setq form-de
+  (let (form-description-4) (if (unwind-protect (setq value-2 (apply f
+  (let ((value-2 'ert-form-evaluation-aborted-3)) (let (form-descripti
+  (let* ((fn-0 #'string=) (args-1 (condition-case err (let ((signal-ho
+  (let ((actual (get-visible-buffer (current-buffer))) (expected "## A
+  (progn (insert "## ASSISTANT:\n\nEinstein developed the theory of re
+  (unwind-protect (progn (insert "## ASSISTANT:\n\nEinstein developed 
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-citations-folding :documentation
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests [...] :test-m
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-exact.el"))
+  command-line()
+  normal-top-level()
+Test test-citations-folding condition:
+    (ert-test-failed
+     ((should
+       (string= expected actual))
+      :form
+      (string= "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+	       #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+		 (fontified nil face grgfoo-assistant-header-face)
+		 14 15
+		 (fontified nil)
+		 279 292
+		 (fontified nil face grgfoo-citations-header-face)
+		 292 293
+		 (face grgfoo-citations-header-face fontified nil after-string
+		       #("\n[+2 citations, TAB to expand]" 0 30 ...))
+		 293 323
+		 (face font-lock-comment-face)))
+      :value nil :explanation
+      (arrays-of-different-length 146 323 "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+				  #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+				    (fontified nil face grgfoo-assistant-header-face)
+				    14 15
+				    (fontified nil)
+				    279 292
+				    (fontified nil face grgfoo-citations-header-face)
+				    292 293
+				    (face grgfoo-citations-header-face fontified nil after-string
+					  #("\n[+2 citations, TAB to expand]" 0 30 ...))
+				    293 323
+				    (face font-lock-comment-face))
+				  first-mismatch-at 103)))
+   FAILED  1/1  test-citations-folding (0.261594 sec) at test-citation-folding-exact.el:16
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 21:00:52+0200, 0.463162 sec)
+
+1 unexpected results:
+   FAILED  test-citations-folding
+
+
+</tool.toolu_01LqXb6KCwkBPctKAPeQERHt>
+
+## ASSISTANT:
+
+We're still getting duplicated text. Let me think about this differently. The issue is that we have multiple systems applying text properties and they're interfering with each other. Let me disable the font-lock citation folding functions and rely entirely on the post-processing function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PxdXRF4ax4RAumXJkbnjXM
+
+### file-path
+
+<tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+grgfoo.el
+</tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+
+### original-content
+
+<tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+
+### new-content
+
+<tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+   ;; Disable tree-sitter-based folding to prevent conflicts
+   ;; :language 'greger
+   ;; :feature 'folding
+   ;; :override t
+   ;; '(;; Citation folding - hide individual citations
+   ;;   (assistant (citation_entry) @grgfoo--citation-folding-function)
+   ;;   ;; Citations section folding
+   ;;   (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+
+### git-commit-message
+
+<tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+Disable tree-sitter font-lock citation folding to prevent conflicts
+
+- Comment out folding feature from tree-sitter font-lock rules
+- This prevents interference with post-processing function that applies display properties
+- Will rely entirely on grgfoo--apply-citation-folding for text merging
+</tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+
+## TOOL RESULT:
+
+ID: toolu_01PxdXRF4ax4RAumXJkbnjXM
+
+<tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+Loading...
+</tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>

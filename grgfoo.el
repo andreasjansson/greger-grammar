@@ -307,13 +307,14 @@ START and END are the region bounds."
      (web_search_tool_result_header) @grgfoo-tool-header-face
      (citations_header) @grgfoo-citations-header-face)
 
-   :language 'greger
-   :feature 'folding
-   :override t
-   '(;; Citation folding - hide individual citations
-     (assistant (citation_entry) @grgfoo--citation-folding-function)
-     ;; Citations section folding
-     (citations) @grgfoo--citations-section-folding-function)
+   ;; Disable tree-sitter-based folding to prevent conflicts
+   ;; :language 'greger
+   ;; :feature 'folding
+   ;; :override t
+   ;; '(;; Citation folding - hide individual citations
+   ;;   (assistant (citation_entry) @grgfoo--citation-folding-function)
+   ;;   ;; Citations section folding
+   ;;   (citations) @grgfoo--citations-section-folding-function)
 
    :language 'greger
    :feature 'subheadings
