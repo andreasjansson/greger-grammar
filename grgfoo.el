@@ -376,6 +376,8 @@ START and END are the region bounds."
                                 ;; Collapse citation
                                 (progn
                                   (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                                  ;; Clear all text properties to ensure fresh font-lock
+                                  (remove-text-properties node-start node-end '(invisible face))
                                   (message "Citation collapsed"))
                               ;; Expand citation
                               (progn
