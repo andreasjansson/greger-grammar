@@ -233,7 +233,6 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
-      /\n/,
     ))),
 
     text: $ => prec.right(seq(
