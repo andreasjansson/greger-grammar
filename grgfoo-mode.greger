@@ -16167,5 +16167,84 @@ Add assistant block processor to font-lock rules
 ID: toolu_01RYaeN9aUiM1XhzkGQm4PFg
 
 <tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add assistant block processor to font-lock rules
 </tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+
+## ASSISTANT:
+
+Now let me add the assistant block processor function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012jau3u3fFeE6VCZdMVuA2g
+
+### file-path
+
+<tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+grgfoo.el
+</tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+
+### original-content
+
+<tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+
+### new-content
+
+<tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+
+(defun grgfoo--assistant-block-processor (node override start end)
+  "Font-lock function to process assistant blocks and merge text across citations.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node)))
+            ;; Collect all text nodes and merge them
+            (let ((text-parts '())
+                  (children (treesit-node-children node)))
+              (dolist (child children)
+                (when (string= (treesit-node-type child) "text")
+                  (let* ((child-start (treesit-node-start child))
+                         (child-end (treesit-node-end child))
+                         (text-content (string-trim (buffer-substring-no-properties child-start child-end))))
+                    (when (> (length text-content) 0)
+                      (push text-content text-parts)))))
+              ;; If we have multiple text parts, merge them
+              (when (> (length text-parts) 1)
+                (let ((merged-text (mapconcat 'identity (reverse text-parts) " "))
+                      (content-start (save-excursion
+                                       (goto-char node-start)
+                                       (forward-line 2) ; Skip header and blank line
+                                       (point)))
+                      (content-end (save-excursion
+                                     (goto-char node-end)
+                                     (forward-line -1)
+                                     (point))))
+                  (message "DEBUG: Merging %d text parts: %s" (length text-parts) merged-text)
+                  (when (< content-start content-end)
+                    (put-text-property content-start content-end 'display merged-text))))))))
+    (error
+     (message "ERROR in assistant-block-processor: %s" err))))
+</tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+
+### git-commit-message
+
+<tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+Add assistant block processor to merge text across citations
+</tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+
+## TOOL RESULT:
+
+ID: toolu_012jau3u3fFeE6VCZdMVuA2g
+
+<tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+Loading...
+</tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
