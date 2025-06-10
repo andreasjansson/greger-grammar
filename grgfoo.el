@@ -137,10 +137,10 @@ START and END are the region bounds."
                                           node-end)))
                 (message "DEBUG: text length=%d first-newline=%s citation-text-end=%s"
                          (length text) first-newline citation-text-end)
-                ;; Make everything after the citation text invisible
+                ;; Make everything after the citation text invisible, but preserve the final newline
                 (when (< citation-text-end node-end)
-                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end node-end)
-                  (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end (1- node-end))
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
                 ;; Mark the citation text with underline
                 (message "DEBUG: Adding underline from %s to %s" node-start citation-text-end)
                 (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))

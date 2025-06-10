@@ -10549,5 +10549,183 @@ Add comprehensive visibility test
 ID: toolu_015e2qqNnrSNRwKgY96FpkdK
 
 <tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-visibility-complete.el with 1302 characters. Successfully staged 2 file(s) and committed with message: Add comprehensive visibility test
 </tool.toolu_015e2qqNnrSNRwKgY96FpkdK>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012WwjjGTD8RHAbWoWMtWMSw
+
+### command
+
+<tool.toolu_012WwjjGTD8RHAbWoWMtWMSw>
+emacs --batch -l test-visibility-complete.el 2>&1 | grep -v "DEBUG"
+</tool.toolu_012WwjjGTD8RHAbWoWMtWMSw>
+
+## TOOL RESULT:
+
+ID: toolu_012WwjjGTD8RHAbWoWMtWMSw
+
+<tool.toolu_012WwjjGTD8RHAbWoWMtWMSw>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+=== INITIAL STATE (folded) ===
+Visible text length: 516
+First 200 chars: ## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton## CITATIONS:
+
+### 
+Contains ’Title: Einstein’? YES
+Contains ’Cited text:’? YES
+
+=== EXPANDING FIRST CITATION ===
+Citation expanded
+Visible text length: 516
+First 300 chars: ## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the th
+Contains ’Title: Einstein’? YES
+Contains ’Cited text:’? YES
+
+Test completed
+
+</tool.toolu_012WwjjGTD8RHAbWoWMtWMSw>
+
+## ASSISTANT:
+
+. The issue is that the extra `#` characters are appearing, and also the visibility isn't working as expected. Looking at the output, I can see:
+
+1. The first 200 chars show `### https://physics.com/einstein## ASSISTANT:` - there's a missing newline
+2. The citation text is still visible even when it should be hidden
+
+Let me fix the font-lock function. The issue is probably that I'm applying the `invisible` property incorrectly:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01BY7aV1nvYF1dajBHctUkk9
+
+### path
+
+<tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+test-folding.greger
+</tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+
+### start-line
+
+<tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+1
+</tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+
+### end-line
+
+<tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+10
+</tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+
+## TOOL RESULT:
+
+ID: toolu_01BY7aV1nvYF1dajBHctUkk9
+
+<tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+</tool.toolu_01BY7aV1nvYF1dajBHctUkk9>
+
+## ASSISTANT:
+
+I see! The issue is that the visible text shows "### https://physics.com/einstein## ASSISTANT:" with missing newlines. This suggests the `invisible` property is being applied to newline characters, which is messing up the display.
+
+Let me fix the font-lock function to preserve the structure better:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01UPCaF2CMexSGfvJKr6L3vv
+
+### file-path
+
+<tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+grgfoo.el
+</tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+
+### original-content
+
+<tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+                ;; Make everything after the citation text invisible
+                (when (< citation-text-end node-end)
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end node-end)
+                  (put-text-property citation-text-end node-end 'invisible 'grgfoo-citation))
+</tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+
+### new-content
+
+<tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+                ;; Make everything after the citation text invisible, but preserve the final newline
+                (when (< citation-text-end node-end)
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end (1- node-end))
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
+</tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+
+### git-commit-message
+
+<tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+Fix invisible text to preserve final newline and structure
+</tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+
+## TOOL RESULT:
+
+ID: toolu_01UPCaF2CMexSGfvJKr6L3vv
+
+<tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
+Loading...
+</tool.toolu_01UPCaF2CMexSGfvJKr6L3vv>
