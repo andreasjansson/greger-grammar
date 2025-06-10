@@ -12284,5 +12284,148 @@ Clear invisible properties when expanding citations section
 ID: toolu_01FbPp1A6qK1D7ujRDRQPVV7
 
 <tool.toolu_01FbPp1A6qK1D7ujRDRQPVV7>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Clear invisible properties when expanding citations section
 </tool.toolu_01FbPp1A6qK1D7ujRDRQPVV7>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_012YKCdfnfXXJRGtYgGphDTe
+
+### command
+
+<tool.toolu_012YKCdfnfXXJRGtYgGphDTe>
+emacs --batch -l test-single-citation.el 2>&1 | tail -15
+</tool.toolu_012YKCdfnfXXJRGtYgGphDTe>
+
+## TOOL RESULT:
+
+ID: toolu_012YKCdfnfXXJRGtYgGphDTe
+
+<tool.toolu_012YKCdfnfXXJRGtYgGphDTe>
+Command executed successfully:
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Length change: 197 -> 341
+   passed  1/1  test-citation-expansion-debug (0.000777 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 19:32:03+0200, 0.000823 sec)
+
+
+</tool.toolu_012YKCdfnfXXJRGtYgGphDTe>
+
+## ASSISTANT:
+
+Excellent! Now the citation expansion is working. Let me test the full ERT suite:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AiodH21uRuzypAWYsdGw5h
+
+### command
+
+<tool.toolu_01AiodH21uRuzypAWYsdGw5h>
+emacs --batch -l test-citation-folding-visibility.el 2>&1 | grep -E "(FAILED|passed|Test.*condition)"
+</tool.toolu_01AiodH21uRuzypAWYsdGw5h>
+
+## TOOL RESULT:
+
+ID: toolu_01AiodH21uRuzypAWYsdGw5h
+
+<tool.toolu_01AiodH21uRuzypAWYsdGw5h>
+Command executed successfully:
+   passed  1/4  test-citation-expansion (0.000807 sec)
+   passed  2/4  test-citations-folding-default-view (0.000524 sec)
+   passed  3/4  test-citations-section-expansion (0.000709 sec)
+   passed  4/4  test-debug-text-properties (0.000551 sec)
+
+</tool.toolu_01AiodH21uRuzypAWYsdGw5h>
+
+## ASSISTANT:
+
+Perfect! All tests are now passing. The citation folding is working correctly. Now let me clean up the final debug messages and create a clean version:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013ZGwwLVT1vVc3XWpFHdd1E
+
+### file-path
+
+<tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+grgfoo.el
+</tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+
+### original-content
+
+<tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+        (when node
+          (message "DEBUG: node type=%s start=%s end=%s"
+                   (treesit-node-type node)
+                   (treesit-node-start node)
+                   (treesit-node-end node))
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: should-fold=%s" should-fold)
+            (when should-fold
+              ;; Find the text before the first newline (the citation reference text)
+              (let* ((text (buffer-substring-no-properties node-start node-end))
+                     (first-newline (string-search "\n" text))
+                     (citation-text-end (if first-newline
+                                          (+ node-start first-newline)
+                                          node-end)))
+                (message "DEBUG: text length=%d first-newline=%s citation-text-end=%s"
+                         (length text) first-newline citation-text-end)
+                ;; Make everything after the citation text invisible, but preserve the final newline
+                (when (< citation-text-end node-end)
+                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end (1- node-end))
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
+                ;; Mark the citation text with underline
+                (message "DEBUG: Adding underline from %s to %s" node-start citation-text-end)
+                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face)))))
+</tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+
+### new-content
+
+<tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Find the text before the first newline (the citation reference text)
+              (let* ((text (buffer-substring-no-properties node-start node-end))
+                     (first-newline (string-search "\n" text))
+                     (citation-text-end (if first-newline
+                                          (+ node-start first-newline)
+                                          node-end)))
+                ;; Make everything after the citation text invisible, but preserve the final newline
+                (when (< citation-text-end node-end)
+                  (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
+                ;; Mark the citation text with underline
+                (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face)))))
+</tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+
+### git-commit-message
+
+<tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+Remove all debug messages from citation folding function
+</tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+
+## TOOL RESULT:
+
+ID: toolu_013ZGwwLVT1vVc3XWpFHdd1E
+
+<tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+Loading...
+</tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>

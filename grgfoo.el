@@ -119,14 +119,9 @@ START and END are the region bounds."
       (when grgfoo-citation-folding-enabled
 
         (when node
-          (message "DEBUG: node type=%s start=%s end=%s"
-                   (treesit-node-type node)
-                   (treesit-node-start node)
-                   (treesit-node-end node))
           (let* ((node-start (treesit-node-start node))
                  (node-end (treesit-node-end node))
                  (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
-            (message "DEBUG: should-fold=%s" should-fold)
             (when should-fold
               ;; Find the text before the first newline (the citation reference text)
               (let* ((text (buffer-substring-no-properties node-start node-end))
@@ -134,14 +129,10 @@ START and END are the region bounds."
                      (citation-text-end (if first-newline
                                           (+ node-start first-newline)
                                           node-end)))
-                (message "DEBUG: text length=%d first-newline=%s citation-text-end=%s"
-                         (length text) first-newline citation-text-end)
                 ;; Make everything after the citation text invisible, but preserve the final newline
                 (when (< citation-text-end node-end)
-                  (message "DEBUG: Making text invisible from %s to %s" citation-text-end (1- node-end))
                   (put-text-property citation-text-end (1- node-end) 'invisible 'grgfoo-citation))
                 ;; Mark the citation text with underline
-                (message "DEBUG: Adding underline from %s to %s" node-start citation-text-end)
                 (put-text-property node-start citation-text-end 'face grgfoo-citation-summary-face))))))
     (error
      (message "ERROR in citation-folding-function: %s" err))))
