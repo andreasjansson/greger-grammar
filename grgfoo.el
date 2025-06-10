@@ -278,10 +278,7 @@ START and END are the region bounds."
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)
 
-    ;; Add post-processing hook for text merging
-    (when grgfoo-citation-folding-enabled
-      (add-hook 'after-change-functions #'grgfoo--post-process-citations nil t)
-      (grgfoo--post-process-citations (point-min) (point-max) 0))))
+    ))
 
 
 
