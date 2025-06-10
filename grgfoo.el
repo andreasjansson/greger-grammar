@@ -320,7 +320,10 @@ START and END are the region bounds."
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)
 
-
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'font-lock-mode-hook #'grgfoo--apply-citation-folding nil t)
+      (grgfoo--apply-citation-folding))
 
     ))
 
