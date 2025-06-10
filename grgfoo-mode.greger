@@ -16246,5 +16246,120 @@ Add assistant block processor to merge text across citations
 ID: toolu_012jau3u3fFeE6VCZdMVuA2g
 
 <tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add assistant block processor to merge text across citations
 </tool.toolu_012jau3u3fFeE6VCZdMVuA2g>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013uA3joX2drjNrxqyYjm1Z8
+
+### command
+
+<tool.toolu_013uA3joX2drjNrxqyYjm1Z8>
+emacs --batch -l test-citation-folding-exact.el 2>&1 | grep -E "(DEBUG.*Merging|=== ACTUAL OUTPUT)" -A 5
+</tool.toolu_013uA3joX2drjNrxqyYjm1Z8>
+
+## TOOL RESULT:
+
+ID: toolu_013uA3joX2drjNrxqyYjm1Z8
+
+<tool.toolu_013uA3joX2drjNrxqyYjm1Z8>
+Command executed successfully:
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+
+</tool.toolu_013uA3joX2drjNrxqyYjm1Z8>
+
+## ASSISTANT:
+
+The text merging isn't working yet. Let me debug this more systematically. The issue might be that we need to apply the display property correctly. Let me create a simpler test first:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01Eu8JCdMo3AFz5dSXBwRpeG
+
+### file-path
+
+<tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+test-debug-text-merging.el
+</tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+
+### contents
+
+<tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+#!/usr/bin/env emacs --batch
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+(load-file "test-visibility-utils.el")
+
+(with-temp-buffer
+  (insert "## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography  
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+")
+
+  (grgfoo-mode)
+  (font-lock-ensure)
+
+  (message "=== DEBUG: Looking for assistant blocks ===")
+  (goto-char (point-min))
+  (let ((root-node (treesit-parser-root-node (treesit-parser-create 'greger))))
+    (let ((assistant-nodes (treesit-query-capture root-node '((assistant) @assistant))))
+      (message "Found %d assistant nodes" (length assistant-nodes))
+      (dolist (capture assistant-nodes)
+        (let ((node (cdr capture)))
+          (message "Assistant node: start=%d end=%d" 
+                   (treesit-node-start node) (treesit-node-end node))
+          (let ((children (treesit-node-children node)))
+            (message "  Children: %d" (length children))
+            (dolist (child children)
+              (message "    Child: type=%s start=%d end=%d text='%s'"
+                       (treesit-node-type child)
+                       (treesit-node-start child)
+                       (treesit-node-end child)
+                       (string-trim (buffer-substring-no-properties 
+                                   (treesit-node-start child) 
+                                   (min (+ (treesit-node-start child) 20) (treesit-node-end child)))))))))))
+
+  (message "\n=== VISIBLE TEXT ===")
+  (message "%s" (buffer-visible-text)))
+</tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+
+### git-commit-message
+
+<tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+Add debug test for text merging analysis
+</tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+
+## TOOL RESULT:
+
+ID: toolu_01Eu8JCdMo3AFz5dSXBwRpeG
+
+<tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+Loading...
+</tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
