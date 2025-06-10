@@ -11915,5 +11915,179 @@ Fix test to click on the actual citation node
 ID: toolu_01Kfxky8zJV2tbc1vkyivot2
 
 <tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-visibility.el. Successfully staged 2 file(s) and committed with message: Fix test to click on the actual citation node
 </tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Jmet16CyAL87jzrst3uHrD
+
+### command
+
+<tool.toolu_01Jmet16CyAL87jzrst3uHrD>
+emacs --batch -l test-citation-folding-visibility.el 2>&1 | grep -A 10 "test-citation-expansion"
+</tool.toolu_01Jmet16CyAL87jzrst3uHrD>
+
+## TOOL RESULT:
+
+ID: toolu_01Jmet16CyAL87jzrst3uHrD
+
+<tool.toolu_01Jmet16CyAL87jzrst3uHrD>
+Command executed successfully:
+Test test-citation-expansion backtrace:
+  signal(ert-test-failed (((should (string-match-p "Title: Einstein Bi
+  ert-fail(((should (string-match-p "Title: Einstein Biography" expand
+  (if (unwind-protect (setq value-32 (apply fn-30 args-31)) (setq form
+  (let (form-description-34) (if (unwind-protect (setq value-32 (apply
+  (let ((value-32 'ert-form-evaluation-aborted-33)) (let (form-descrip
+  (let* ((fn-30 #'string-match-p) (args-31 (condition-case err (let ((
+  (let ((expanded (buffer-visible-text))) (message "AFTER EXPANSION:\n
+  (let ((initial (buffer-visible-text))) (message "INITIAL STATE:\n%s"
+  (progn (insert "## ASSISTANT:\n\n") (insert "Einstein developed the 
+  (unwind-protect (progn (insert "## ASSISTANT:\n\n") (insert "Einstei
+--
+  ert-run-test(#s(ert-test :name test-citation-expansion :documentatio
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests ... :test-map
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-visibility.el"))
+  command-line()
+  normal-top-level()
+Test test-citation-expansion condition:
+    (ert-test-failed
+     ((should
+       (string-match-p "Title: Einstein Biography" expanded))
+      :form
+      (string-match-p "Title: Einstein Biography"
+		      #("## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n### https://physics.com/einstein\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n### https://physics.com/newton\n## CITATIONS:\n" 0 14
+			(fontified nil face grgfoo-assistant-header-face)
+			14 60
+			(fontified nil)
+			60 61
+--
+   FAILED  1/4  test-citation-expansion (0.000793 sec) at test-citation-folding-visibility.el:59
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+--
+   FAILED  test-citation-expansion
+
+
+</tool.toolu_01Jmet16CyAL87jzrst3uHrD>
+
+## ASSISTANT:
+
+Let me run just that one test to see the debug output:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01WF6JqEJHVzuD9nRVJKW6tk
+
+### file-path
+
+<tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+test-single-citation.el
+</tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+
+### contents
+
+<tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+#!/usr/bin/env emacs --batch
+
+(require 'ert)
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+(load-file "test-visibility-utils.el")
+
+(defmacro with-citation-test-buffer (&rest body)
+  "Execute BODY with a test buffer containing citation content."
+  `(with-temp-buffer
+     (insert "## ASSISTANT:\n\n")
+     (insert "Einstein developed the theory of relativity\n\n")
+     (insert "### https://physics.com/einstein\n\n")
+     (insert "Title: Einstein Biography\n")
+     (insert "Cited text: Albert Einstein developed the theory of relativity in the early 20th century...\n")
+     (insert "Encrypted index: def456\n\n")
+     (insert "## ASSISTANT:\n\n")
+     (insert "while Newton formulated the laws of motion\n\n")
+     (insert "### https://physics.com/newton\n\n")
+     (insert "Title: Newton Biography\n")
+     (insert "Cited text: Isaac Newton formulated the three laws of motion...\n")
+     (insert "Encrypted index: ghi789\n\n")
+     (insert "## CITATIONS:\n\n")
+     (insert "### https://physics.com/einstein\n\n")
+     (insert "Title: Einstein Biography\n")
+     (insert "Cited text: Albert Einstein developed the theory of relativity in the early 20th century...\n")
+     (insert "Encrypted index: def456\n\n")
+     (insert "### https://physics.com/newton\n\n")
+     (insert "Title: Newton Biography\n")
+     (insert "Cited text: Isaac Newton formulated the three laws of motion...\n")
+     (insert "Encrypted index: ghi789\n")
+     (grgfoo-mode)
+     (font-lock-ensure)
+     ,@body))
+
+(ert-deftest test-citation-expansion-debug ()
+  "Debug test for citation expansion."
+  (with-citation-test-buffer
+    (let ((initial (buffer-visible-text)))
+      (message "INITIAL STATE:\n%s" initial)
+      
+      ;; Find and click on first citation URL (which should be underlined)
+      (goto-char (point-min))
+      (search-forward "### https://physics.com/einstein" nil t)
+      (beginning-of-line)
+      (message "Clicking TAB at position %d (char: %c)" (point) (char-after))
+      
+      ;; Debug what node we're on
+      (let ((node (treesit-node-at (point))))
+        (when node
+          (message "Current node type: %s" (treesit-node-type node))
+          (let ((parent (treesit-node-parent node)))
+            (when parent
+              (message "Parent node type: %s" (treesit-node-type parent))))))
+      
+      ;; Check text properties at current position
+      (message "Text properties at point: %s" (text-properties-at (point)))
+      
+      ;; Try to expand citation
+      (grgfoo-toggle-citation-fold)
+      (font-lock-flush (point-min) (point-max))
+      
+      (let ((expanded (buffer-visible-text)))
+        (message "AFTER EXPANSION:\n%s" expanded)
+        (message "Length change: %d -> %d" (length initial) (length expanded))))))
+
+;; Run the test
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+
+### git-commit-message
+
+<tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+Add debug test for single citation expansion
+</tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+
+## TOOL RESULT:
+
+ID: toolu_01WF6JqEJHVzuD9nRVJKW6tk
+
+<tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+Loading...
+</tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
