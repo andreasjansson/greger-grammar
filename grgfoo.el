@@ -133,6 +133,12 @@ START and END are the region bounds."
 
 
 
+(defun grgfoo--after-change-citation-folding (beg end len)
+  "After-change function to reapply citation folding.
+BEG, END, and LEN are standard after-change parameters."
+  (when grgfoo-citation-folding-enabled
+    (run-with-idle-timer 0.1 nil #'grgfoo--apply-citation-folding)))
+
 (defun grgfoo--apply-citation-folding ()
   "Apply comprehensive citation folding to merge assistant text blocks."
   (when grgfoo-citation-folding-enabled
