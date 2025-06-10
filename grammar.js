@@ -172,7 +172,7 @@ module.exports = grammar({
       optional(alias($.citation_encrypted_index, $.encrypted_index)),
     ),
 
-    citation_url: $ => /https?:\/\/[^\n]*/,
+    citation_url: $ => token(/https?:\/\/[^\n]*/),
 
     citation_title: $ => seq(
       'Title:',
