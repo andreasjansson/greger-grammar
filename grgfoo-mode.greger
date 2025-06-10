@@ -5925,5 +5925,71 @@ Replace caching system with tree-sitter navigation
 ID: toolu_011mR5SCa47oBA5FHcXRQ4UZ
 
 <tool.toolu_011mR5SCa47oBA5FHcXRQ4UZ>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Replace caching system with tree-sitter navigation
+
+- Remove complex caching system and regex-based detection
+- Use treesit-node-prev-sibling and treesit-node-next-sibling for navigation
+- Extract text directly from tree-sitter nodes using treesit-node-children
+- Much simpler and more efficient approach using tree-sitter's structure
 </tool.toolu_011mR5SCa47oBA5FHcXRQ4UZ>
+
+## ASSISTANT:
+
+Now I need to update the font-lock rules to use the new function names:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017CZM8iwF3ZZ54s6kC56Mws
+
+### file-path
+
+<tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+grgfoo.el
+</tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+
+### original-content
+
+<tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Assistant text merging - collect and merge text across blocks
+     (assistant) @grgfoo--assistant-text-merger
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+
+### new-content
+
+<tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations within assistant blocks
+     (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
+     ;; Assistant text merging - merge text across multiple assistant blocks
+     (assistant) @grgfoo--assistant-merger-function
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+
+### git-commit-message
+
+<tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+Update font-lock rules to use new function names
+
+- Use grgfoo--citation-entry-folding-function for citation entries
+- Use grgfoo--assistant-merger-function for assistant text merging
+- Keep citations section folding as before
+</tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+
+## TOOL RESULT:
+
+ID: toolu_017CZM8iwF3ZZ54s6kC56Mws
+
+<tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>
+Loading...
+</tool.toolu_017CZM8iwF3ZZ54s6kC56Mws>

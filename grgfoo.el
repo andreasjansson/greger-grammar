@@ -329,10 +329,10 @@ START and END are the region bounds."
    :language 'greger
    :feature 'folding
    :override t
-   '(;; Citation folding - hide individual citations
-     (assistant (citation_entry) @grgfoo--citation-folding-function)
-     ;; Assistant text merging - collect and merge text across blocks
-     (assistant) @grgfoo--assistant-text-merger
+   '(;; Citation folding - hide individual citations within assistant blocks
+     (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
+     ;; Assistant text merging - merge text across multiple assistant blocks
+     (assistant) @grgfoo--assistant-merger-function
      ;; Citations section folding
      (citations) @grgfoo--citations-section-folding-function)
 
