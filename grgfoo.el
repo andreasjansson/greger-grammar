@@ -320,7 +320,7 @@ START and END are the region bounds."
   "Find citation node at point, if any - using safer approach."
   (condition-case err
     (progn
-      (message "DEBUG find-citation: checking treesit-ready-p...")
+
       (if (treesit-ready-p 'greger)
           (progn
             (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
