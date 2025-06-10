@@ -28,6 +28,16 @@
   :safe 'integerp
   :group 'grgfoo)
 
+(defcustom grgfoo-citation-folding-enabled t
+  "Whether to enable citation folding by default."
+  :type 'boolean
+  :group 'grgfoo)
+
+(defcustom grgfoo-citation-summary-face 'underline
+  "Face to use for citation text when folded."
+  :type 'face
+  :group 'grgfoo)
+
 ;; Customizable face colors for headers using standard Emacs color names
 (defface grgfoo-user-header-face
   '((t (:foreground "cyan" :weight bold)))
