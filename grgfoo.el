@@ -191,7 +191,7 @@
                 '((error)                    ; level 1 - always show errors
                   (headers)                  ; level 2 - main headers
                   (subheadings fields)       ; level 3 - subheadings and field names
-                  (comments)))               ; level 4 - comments only, no text content
+                  (tool-tags comments)))     ; level 4 - tool tags and comments only, no text content
 
     ;; Indentation - using simple and safe rules
     (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
