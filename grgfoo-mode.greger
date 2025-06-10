@@ -3552,5 +3552,60 @@ Fix citations section newline formatting
 ID: toolu_01F8A6dJYoNtWr1o7b9t2ffL
 
 <tool.toolu_01F8A6dJYoNtWr1o7b9t2ffL>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Fix citations section newline formatting
+
+- Remove extra newline from after-string property
+- Citations section should show as "## CITATIONS:\n[+2 citations...]" not "## CITATIONS:\n\n[+2 citations...]"
 </tool.toolu_01F8A6dJYoNtWr1o7b9t2ffL>
+
+## ASSISTANT:
+
+Actually wait, that was the same content. Let me look at the specific issue - there's an extra newline in the `after-string`. Let me fix that:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_018Yy8GZotDvywq9GHcpSgSj
+
+### file-path
+
+<tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+grgfoo.el
+</tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+
+### original-content
+
+<tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+                        (put-text-property (point) (1+ (point)) 'after-string
+                                         (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                           citation-count
+                                                           (if (= citation-count 1) "" "s"))
+                                                   'face 'font-lock-comment-face))
+</tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+
+### new-content
+
+<tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+                        (put-text-property (point) (1+ (point)) 'after-string
+                                         (propertize (format "[+%d citation%s, TAB to expand]"
+                                                           citation-count
+                                                           (if (= citation-count 1) "" "s"))
+                                                   'face 'font-lock-comment-face))
+</tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+
+### git-commit-message
+
+<tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+Remove extra newline from citations after-string
+
+- Remove leading newline from after-string format
+- This matches the expected output where the summary appears on same line after "## CITATIONS:"
+</tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+
+## TOOL RESULT:
+
+ID: toolu_018Yy8GZotDvywq9GHcpSgSj
+
+<tool.toolu_018Yy8GZotDvywq9GHcpSgSj>
+Loading...
+</tool.toolu_018Yy8GZotDvywq9GHcpSgSj>

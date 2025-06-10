@@ -237,7 +237,7 @@ START and END are the region bounds."
                         (goto-char citations-start)
                         (end-of-line)
                         (put-text-property (point) (1+ (point)) 'after-string
-                                         (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                         (propertize (format "[+%d citation%s, TAB to expand]"
                                                            citation-count
                                                            (if (= citation-count 1) "" "s"))
                                                    'face 'font-lock-comment-face))))))))
