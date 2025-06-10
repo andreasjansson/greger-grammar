@@ -212,6 +212,7 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
+      /\n/,
     ))),
 
     system_content_blocks: $ => prec.right(repeat1(choice(
@@ -220,6 +221,7 @@ module.exports = grammar({
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
+      /\n/,
     ))),
 
     content_blocks: $ => prec.right(repeat1(choice(
@@ -227,6 +229,7 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
+      /\n/,
     ))),
 
     text: $ => prec.right(seq(
