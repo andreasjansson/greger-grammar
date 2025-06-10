@@ -68,10 +68,7 @@
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
-(defface grgfoo-error-face
-  '((t (:background "red" :foreground "white")))
-  "Face for parse errors in grgfoo-mode."
-  :group 'grgfoo)
+
 
 (defvar grgfoo-mode-syntax-table
   (let ((table (make-syntax-table)))
