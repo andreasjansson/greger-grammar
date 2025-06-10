@@ -235,13 +235,14 @@ module.exports = grammar({
     ))),
 
     text: $ => prec.right(seq(
-      choice(
-        $._text_content,
-        seq(/\n/, $._text_content)
-      ),
-      repeat(seq(
-        /\n/,
-        optional($._text_content),
+      repeat(/\n/),
+      $._text_content,
+      repeat(choice(
+        seq(
+          repeat1(/\n/),
+          $._text_content
+        ),
+        repeat1(/\n/)
       ))
     )),
 
