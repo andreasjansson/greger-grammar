@@ -50,11 +50,11 @@
     (font-lock-ensure)
     (should (> (buffer-size) 0))))
 
-(ert-deftest test-citation-folding-disabled-by-default ()
-  "Test that citation folding is disabled by default."
+(ert-deftest test-citation-folding-enabled-by-default ()
+  "Test that citation folding is enabled by default."
   (with-test-buffer-with-citations
     (grgfoo-mode)
-    (should (not grgfoo-citation-folding-enabled))))
+    (should grgfoo-citation-folding-enabled)))
 
 (ert-deftest test-buffer-visible-text-utility ()
   "Test that buffer-visible-text works correctly."
