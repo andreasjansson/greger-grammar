@@ -14444,5 +14444,53 @@ Restore simple citation folding function
 ID: toolu_013eWiJtoeBLvfaMcxnqUa3f
 
 <tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Restore simple citation folding function
 </tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+
+## ASSISTANT:
+
+Now let me create a post-processing hook that runs after font-lock to merge the text properly:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011LtX2VktQyd5n5PaVvq3xj
+
+### file-path
+
+<tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+grgfoo.el
+</tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+
+### original-content
+
+<tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup))
+</tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+
+### new-content
+
+<tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup)
+    
+    ;; Add post-processing hook for text merging
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'after-change-functions #'grgfoo--post-process-citations nil t)
+      (grgfoo--post-process-citations (point-min) (point-max) 0)))
+</tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+
+### git-commit-message
+
+<tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+Add post-processing hook for text merging
+</tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+
+## TOOL RESULT:
+
+ID: toolu_011LtX2VktQyd5n5PaVvq3xj
+
+<tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
+Loading...
+</tool.toolu_011LtX2VktQyd5n5PaVvq3xj>
