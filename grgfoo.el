@@ -97,40 +97,40 @@
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'greger
-   :feature 'heading
+   :feature 'headers
    :override t
-   '(;; Major section headings
-     (user) @font-lock-function-name-face
-     (assistant) @font-lock-function-name-face
-     (system) @font-lock-function-name-face
-     (thinking) @font-lock-function-name-face
-     (tool_use) @font-lock-function-name-face
-     (tool_result) @font-lock-function-name-face
-     (server_tool_use) @font-lock-function-name-face
-     (web_search_tool_result) @font-lock-function-name-face
-     (citations) @font-lock-function-name-face)
+   '(;; Major section headers - use custom faces for each type
+     (user_header) @grgfoo-user-header-face
+     (assistant_header) @grgfoo-assistant-header-face
+     (system_header) @grgfoo-system-header-face
+     (thinking_header) @grgfoo-thinking-header-face
+     (tool_use_header) @grgfoo-tool-header-face
+     (tool_result_header) @grgfoo-tool-header-face
+     (server_tool_use_header) @grgfoo-tool-header-face
+     (web_search_tool_result_header) @grgfoo-tool-header-face
+     (citations_header) @grgfoo-citations-header-face)
 
    :language 'greger
-   :feature 'field
+   :feature 'subheadings
    :override t
-   '(;; Field names and values
-     (name) @font-lock-builtin-face
-     (id) @font-lock-builtin-face
-     (value) @font-lock-string-face
-     (url) @font-lock-constant-face)
+   '(;; Sub-sections and parameter headers
+     (tool_param) @grgfoo-subheading-face
+     (citation_entry) @grgfoo-subheading-face)
 
    :language 'greger
-   :feature 'subheading
+   :feature 'fields
    :override t
-   '(;; Sub-sections
-     (tool_param) @font-lock-keyword-face
-     (citation_entry) @font-lock-keyword-face)
+   '(;; Field names only - no highlighting for values or content
+     (name "Name:") @grgfoo-field-name-face
+     (id "ID:") @grgfoo-field-name-face
+     (citation_title "Title:") @grgfoo-field-name-face
+     (citation_text "Cited text:") @grgfoo-field-name-face
+     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
 
    :language 'greger
-   :feature 'content
+   :feature 'comments
    :override t
-   '(;; Content and text
-     (text) @default
+   '(;; HTML comments only
      (html_comment) @font-lock-comment-face)
 
    :language 'greger
