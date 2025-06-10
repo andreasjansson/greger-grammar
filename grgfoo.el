@@ -179,7 +179,7 @@ START and END are the region bounds."
    :feature 'folding
    :override t
    '(;; Citation folding - inline citations in assistant blocks
-     (assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function))
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
      ;; Citations section folding
      (citations) @grgfoo--citations-section-folding-function)
 

@@ -4132,5 +4132,97 @@ Add debug tool to inspect tree structure
 ID: toolu_016ZjDR7uHkFgcGegGuUGV93
 
 <tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/debug-tree.el with 1917 characters. Successfully staged 2 file(s) and committed with message: Add debug tool to inspect tree structure
 </tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HHQY2NMYR2ms3JsQFaaWeG
+
+### command
+
+<tool.toolu_01HHQY2NMYR2ms3JsQFaaWeG>
+emacs --batch -l debug-tree.el
+</tool.toolu_01HHQY2NMYR2ms3JsQFaaWeG>
+
+## TOOL RESULT:
+
+ID: toolu_01HHQY2NMYR2ms3JsQFaaWeG
+
+<tool.toolu_01HHQY2NMYR2ms3JsQFaaWeG>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Buffer contents length: 776
+Root node type: source_file
+Found 2 assistant nodes
+Assistant node at 1-238
+  Has 3 children
+    Child: assistant_header at 1-15
+    Child: text at 15-61
+    Child: citation_entry at 61-238
+Assistant node at 238-442
+  Has 3 children
+    Child: assistant_header at 238-252
+    Child: text at 252-297
+    Child: citation_entry at 297-442
+Found 4 citation_entry nodes
+Citation node at 61-238, parent: assistant
+Citation node at 297-442, parent: assistant
+Citation node at 457-634, parent: citations
+Citation node at 634-777, parent: citations
+
+</tool.toolu_01HHQY2NMYR2ms3JsQFaaWeG>
+
+## ASSISTANT:
+
+Great! Now I can see the structure. The citation_entry nodes are direct children of assistant nodes, not wrapped in assistant_content_blocks. Let me fix the query:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01XSxRVL7pmfv9UXRura4kn5
+
+### file-path
+
+<tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+grgfoo.el
+</tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+
+### original-content
+
+<tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function))
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+
+### new-content
+
+<tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+
+### git-commit-message
+
+<tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+Fix citation folding query to match actual tree structure
+</tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+
+## TOOL RESULT:
+
+ID: toolu_01XSxRVL7pmfv9UXRura4kn5
+
+<tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
+Loading...
+</tool.toolu_01XSxRVL7pmfv9UXRura4kn5>
