@@ -426,7 +426,7 @@ BEG, END, and LEN are standard after-change parameters."
                                   ;; Collapse citations section
                                   (progn
                                     (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
-                                    (message "Citations section collapsed"))
+)
                                 ;; Expand citations section
                                 (progn
                                   (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
