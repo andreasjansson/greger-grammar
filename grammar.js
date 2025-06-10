@@ -225,15 +225,7 @@ module.exports = grammar({
 
     _text_content: $ => token(prec(-1, /[^<`\n]+/)),
 
-    _untagged_text_content: $ => prec.right(repeat1(choice(
-      token(prec(-1, /[^#<`\n]+/)),
-      seq(
-        token('#'),
-        token(prec(-1, /[^#\n]/)),
-        token(prec(-1, /[^<`\n]*/))
-      ),
-      /\n/,
-    ))),
+    _untagged_text_content: $ => token(prec(-2, /[^#]+/)),
 
     _tool_element: $ => seq(
       $.tool_start_tag,
