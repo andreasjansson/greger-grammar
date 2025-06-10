@@ -3273,5 +3273,59 @@ Disable tree-sitter font-lock citation folding to prevent conflicts
 ID: toolu_01PxdXRF4ax4RAumXJkbnjXM
 
 <tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Disable tree-sitter font-lock citation folding to prevent conflicts
+
+- Comment out folding feature from tree-sitter font-lock rules
+- This prevents interference with post-processing function that applies display properties
+- Will rely entirely on grgfoo--apply-citation-folding for text merging
 </tool.toolu_01PxdXRF4ax4RAumXJkbnjXM>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Dh5mGRn1vZ74iNXfdbtzCL
+
+### file-path
+
+<tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+grgfoo.el
+</tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+
+### original-content
+
+<tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+    (setq-local treesit-font-lock-feature-list
+                '((error)
+                  (headers folding)
+                  (tool-tags comments)
+                  (subheadings fields)
+                  (tool-tags comments)))
+</tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+
+### new-content
+
+<tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+    (setq-local treesit-font-lock-feature-list
+                '((error)
+                  (headers)
+                  (tool-tags comments)
+                  (subheadings fields)
+                  (tool-tags comments)))
+</tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+
+### git-commit-message
+
+<tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+Remove folding from font-lock feature list
+
+- Remove folding from treesit-font-lock-feature-list since it's disabled
+- This ensures the folding rules are not applied via tree-sitter
+</tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+
+## TOOL RESULT:
+
+ID: toolu_01Dh5mGRn1vZ74iNXfdbtzCL
+
+<tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
+Loading...
+</tool.toolu_01Dh5mGRn1vZ74iNXfdbtzCL>
