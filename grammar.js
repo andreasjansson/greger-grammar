@@ -27,6 +27,10 @@ module.exports = grammar({
     $.system_content_blocks,
   ],
 
+  conflicts: $ => [
+    [$.citation_entry, $.text],
+  ],
+
   rules: {
 
     source_file: $ => seq(
