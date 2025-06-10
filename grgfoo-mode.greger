@@ -8850,5 +8850,108 @@ Re-enable folding feature in font-lock
 ID: toolu_01NaqHHFb61qN8ptL5yeo96B
 
 <tool.toolu_01NaqHHFb61qN8ptL5yeo96B>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Re-enable folding feature in font-lock
 </tool.toolu_01NaqHHFb61qN8ptL5yeo96B>
+
+## ASSISTANT:
+
+Now let's test with debugging:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_0183Y8j86oBe3dVe2Qdxaks1
+
+### command
+
+<tool.toolu_0183Y8j86oBe3dVe2Qdxaks1>
+emacs --batch -l test-visibility-utils.el 2>&1 | head -50
+</tool.toolu_0183Y8j86oBe3dVe2Qdxaks1>
+
+## TOOL RESULT:
+
+ID: toolu_0183Y8j86oBe3dVe2Qdxaks1
+
+<tool.toolu_0183Y8j86oBe3dVe2Qdxaks1>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=93
+DEBUG: node type=citation_entry start=27 end=93
+DEBUG: should-fold=t
+DEBUG: text length=66 first-newline=23 citation-text-end=50
+DEBUG: Making text invisible from 50 to 93
+DEBUG: Adding underline from 27 to 50
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+
+</tool.toolu_0183Y8j86oBe3dVe2Qdxaks1>
+
+## ASSISTANT:
+
+Great! The font-lock function is working. Let me test it with our actual test file:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_015Sjb617jSyPqAiyxYxkaLz
+
+### file-path
+
+<tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+test-debug-folding.el
+</tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+
+### contents
+
+<tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+#!/usr/bin/env emacs --batch
+
+(setq debug-on-error t)
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+
+(with-temp-buffer
+  (insert-file-contents "test-folding.greger")
+  (grgfoo-mode)
+  (message "Mode activated, buffer size: %d" (buffer-size))
+  
+  (message "Running font-lock...")
+  (font-lock-ensure)
+  (message "Font-lock completed")
+  
+  (message "Buffer content after font-lock:")
+  (message "%s" (buffer-substring 1 (min 200 (buffer-size)))))
+</tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+
+### git-commit-message
+
+<tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+Add simple debug test for font-lock
+</tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+
+## TOOL RESULT:
+
+ID: toolu_015Sjb617jSyPqAiyxYxkaLz
+
+<tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
+Loading...
+</tool.toolu_015Sjb617jSyPqAiyxYxkaLz>
