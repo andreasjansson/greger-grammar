@@ -196,8 +196,6 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
-      $.include,
-      $.include_code,
       $.citation_entry,
     )),
 
@@ -206,8 +204,6 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
-      $.include,
-      $.include_code,
       $.safe_shell_commands,
     )),
 
@@ -216,8 +212,6 @@ module.exports = grammar({
       $.code_block,
       $.inline_code,
       $.html_comment,
-      $.include,
-      $.include_code,
     )),
 
     text: $ => prec.right(repeat1(choice(
@@ -263,20 +257,6 @@ module.exports = grammar({
         /\n/,
       )),
       '</safe-shell-commands>',
-    ),
-
-    include: $ => seq(
-      '<include>',
-      field('path', /[^<]*/),
-      '</include>',
-    ),
-
-    include_code: $ => seq(
-      '<include',
-      /[ \t]+/,
-      'code>',
-      field('path', /[^<]*/),
-      '</include>',
     ),
   }
 });
