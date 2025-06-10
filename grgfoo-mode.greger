@@ -6906,5 +6906,194 @@ Fix TAB handler test to use proper buffer macro
 ID: toolu_01Hit3S5h3QTSC3VsPrKEt9i
 
 <tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Fix TAB handler test to use proper buffer macro
 </tool.toolu_01Hit3S5h3QTSC3VsPrKEt9i>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01VQfeqE5WLrFiJhHkV2RwMP
+
+### command
+
+<tool.toolu_01VQfeqE5WLrFiJhHkV2RwMP>
+emacs --batch -l test-citation-folding-ert.el
+</tool.toolu_01VQfeqE5WLrFiJhHkV2RwMP>
+
+## TOOL RESULT:
+
+ID: toolu_01VQfeqE5WLrFiJhHkV2RwMP
+
+<tool.toolu_01VQfeqE5WLrFiJhHkV2RwMP>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 5 tests (2025-06-10 19:09:03+0200, selector ‘t’)
+   passed  1/5  test-buffer-visible-text-utility (0.000042 sec)
+   passed  2/5  test-citation-folding-disabled-by-default (0.000304 sec)
+   passed  3/5  test-font-lock-works (0.000360 sec)
+   passed  4/5  test-mode-loads-without-segfault (0.000285 sec)
+Test test-tab-handler-no-segfault backtrace:
+  (should-not-error (grgfoo-toggle-citation-fold))
+  (progn (insert "## ASSISTANT:\n\n") (insert "Einstein developed the 
+  (unwind-protect (progn (insert "## ASSISTANT:\n\n") (insert "Einstei
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-tab-handler-no-segfault :documen
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests [... ... ... 
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-ert.el"))
+  command-line()
+  normal-top-level()
+Test test-tab-handler-no-segfault condition:
+    (void-function should-not-error)
+   FAILED  5/5  test-tab-handler-no-segfault (0.000375 sec) at test-citation-folding-ert.el:68
+
+Ran 5 tests, 4 results as expected, 1 unexpected (2025-06-10 19:09:03+0200, 0.080417 sec)
+
+1 unexpected results:
+   FAILED  test-tab-handler-no-segfault
+
+
+</tool.toolu_01VQfeqE5WLrFiJhHkV2RwMP>
+
+## ASSISTANT:
+
+function. Let me fix that:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01LnAdyeNgJFPzn857Q4pXAA
+
+### file-path
+
+<tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+test-citation-folding-ert.el
+</tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+
+### original-content
+
+<tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+</tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+
+### new-content
+
+<tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+    
+    (search-forward "Einstein" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+    
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+    
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+</tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+
+### git-commit-message
+
+<tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+Fix should-not-error usage in test
+</tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+
+## TOOL RESULT:
+
+ID: toolu_01LnAdyeNgJFPzn857Q4pXAA
+
+<tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el -- Try again!
+</tool.toolu_01LnAdyeNgJFPzn857Q4pXAA>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01BSsMH3e4R3tU6YVe9EbV95
+
+### file-path
+
+<tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+test-citation-folding-ert.el
+</tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+
+### original-content
+
+<tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+    (should-not-error (grgfoo-toggle-citation-fold))
+</tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+
+### new-content
+
+<tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+</tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+
+### git-commit-message
+
+<tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+Fix should-not-error usage in test (1)
+</tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+
+## TOOL RESULT:
+
+ID: toolu_01BSsMH3e4R3tU6YVe9EbV95
+
+<tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+Loading...
+</tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>

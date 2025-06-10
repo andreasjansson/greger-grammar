@@ -73,7 +73,9 @@
 
     ;; Test TAB at various positions
     (goto-char (point-min))
-    (should-not-error (grgfoo-toggle-citation-fold))
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
 
     (search-forward "Einstein" nil t)
     (should-not-error (grgfoo-toggle-citation-fold))
