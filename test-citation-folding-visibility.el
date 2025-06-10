@@ -62,9 +62,10 @@
     (let ((initial (buffer-visible-text)))
       (message "INITIAL STATE:\n%s" initial)
 
-      ;; Find and click on first citation
+      ;; Find and click on first citation URL (which should be underlined)
       (goto-char (point-min))
-      (search-forward "Einstein developed" nil t)
+      (search-forward "### https://physics.com/einstein" nil t)
+      (beginning-of-line)
       (message "Clicking TAB at position %d (char: %c)" (point) (char-after))
 
       ;; Try to expand citation

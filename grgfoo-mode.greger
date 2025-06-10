@@ -11614,5 +11614,306 @@ Add comprehensive ERT tests for citation folding visibility
 ID: toolu_01UKaB2quFZgjzmkk3HMfSU2
 
 <tool.toolu_01UKaB2quFZgjzmkk3HMfSU2>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-visibility.el with 6312 characters. Successfully staged 2 file(s) and committed with message: Add comprehensive ERT tests for citation folding visibility
 </tool.toolu_01UKaB2quFZgjzmkk3HMfSU2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013sbvc1KsGtiPBcZVumF1FS
+
+### command
+
+<tool.toolu_013sbvc1KsGtiPBcZVumF1FS>
+emacs --batch -l test-citation-folding-visibility.el
+</tool.toolu_013sbvc1KsGtiPBcZVumF1FS>
+
+## TOOL RESULT:
+
+ID: toolu_013sbvc1KsGtiPBcZVumF1FS
+
+<tool.toolu_013sbvc1KsGtiPBcZVumF1FS>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: node type=citation_entry start=27 end=93
+DEBUG: should-fold=t
+DEBUG: text length=66 first-newline=23 citation-text-end=50
+DEBUG: Making text invisible from 50 to 92
+DEBUG: Adding underline from 27 to 50
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 4 tests (2025-06-10 19:30:39+0200, selector ‘t’)
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+INITIAL STATE:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Clicking TAB at position 34 (char:  )
+DEBUG find-citation: treesit ready, getting node at point 34...
+DEBUG find-citation: found initial node type=text
+DEBUG find-citation: neither node nor parent is citation type
+DEBUG TAB: no citation node found, falling back
+AFTER EXPANSION:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Test test-citation-expansion backtrace:
+  signal(ert-test-failed (((should (string-match-p "Title: Einstein Bi
+  ert-fail(((should (string-match-p "Title: Einstein Biography" expand
+  (if (unwind-protect (setq value-32 (apply fn-30 args-31)) (setq form
+  (let (form-description-34) (if (unwind-protect (setq value-32 (apply
+  (let ((value-32 'ert-form-evaluation-aborted-33)) (let (form-descrip
+  (let* ((fn-30 #'string-match-p) (args-31 (condition-case err (let ((
+  (let ((expanded (buffer-visible-text))) (message "AFTER EXPANSION:\n
+  (let ((initial (buffer-visible-text))) (message "INITIAL STATE:\n%s"
+  (progn (insert "## ASSISTANT:\n\n") (insert "Einstein developed the 
+  (unwind-protect (progn (insert "## ASSISTANT:\n\n") (insert "Einstei
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-citation-expansion :documentatio
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests ... :test-map
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-visibility.el"))
+  command-line()
+  normal-top-level()
+Test test-citation-expansion condition:
+    (ert-test-failed
+     ((should
+       (string-match-p "Title: Einstein Biography" expanded))
+      :form
+      (string-match-p "Title: Einstein Biography"
+		      #("## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n### https://physics.com/einstein\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n### https://physics.com/newton\n## CITATIONS:\n" 0 14
+			(fontified nil face grgfoo-assistant-header-face)
+			14 60
+			(fontified nil)
+			60 92
+			(fontified nil face underline)
+			92 93
+			(fontified nil)
+			93 107
+			(face grgfoo-assistant-header-face fontified nil)
+			107 152
+			(fontified nil)
+			152 182
+			(face underline fontified nil)
+			182 183
+			(fontified nil)
+			183 196
+			(fontified nil face grgfoo-citations-header-face)
+			196 197
+			(fontified nil face grgfoo-citations-header-face after-string
+				   #("\n[+2 citations, TAB to expand]" 0 30 ...))))
+      :value nil))
+   FAILED  1/4  test-citation-expansion (0.005496 sec) at test-citation-folding-visibility.el:59
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+ACTUAL OUTPUT:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+EXPECTED OUTPUT:
+## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]
+
+ACTUAL LENGTH: 197, EXPECTED LENGTH: 147
+   passed  2/4  test-citations-folding-default-view (0.000583 sec)
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+INITIAL STATE:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Clicking TAB on CITATIONS header at position 442
+DEBUG find-citation: treesit ready, getting node at point 442...
+DEBUG find-citation: found initial node type=citations_header
+DEBUG find-citation: parent is citation type: citations
+DEBUG TAB: found citation node type=citations start=442 end=778
+Citations section expanded
+AFTER CITATIONS EXPANSION:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+   passed  3/4  test-citations-section-expansion (0.102437 sec)
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+=== DEBUGGING TEXT PROPERTIES ===
+Position 34 (Einstein text): (fontified nil)
+Position 93 (first URL): (invisible grgfoo-citation fontified nil)
+Position 110 (Title): (invisible grgfoo-citation fontified nil)
+Position 455 (Citations header): (after-string 
+[+2 citations, TAB to expand] face grgfoo-citations-header-face fontified nil)
+Node at first URL: type=url start=61 end=93
+Parent node: type=citation_entry start=61 end=238
+   passed  4/4  test-debug-text-properties (0.000706 sec)
+
+Ran 4 tests, 3 results as expected, 1 unexpected (2025-06-10 19:30:39+0200, 0.311571 sec)
+
+1 unexpected results:
+   FAILED  test-citation-expansion
+
+
+</tool.toolu_013sbvc1KsGtiPBcZVumF1FS>
+
+## ASSISTANT:
+
+Perfect! This gives us great insight into what's happening. The key issues are:
+
+1. **The citation folding IS working** - we can see invisible text properties are applied
+2. **The citation expansion isn't working** - when we TAB on "Einstein developed", it finds a "text" node, not a citation node
+3. **The citations section expansion says it worked but doesn't show anything** - the after-string is there but the invisible content isn't being revealed
+4. **The structure is wrong** - we're getting separate `## ASSISTANT:` blocks instead of the content flowing together
+
+The main problem is that we're clicking on the wrong part of the text. Let me fix the citation detection and the visibility:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Kfxky8zJV2tbc1vkyivot2
+
+### file-path
+
+<tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+test-citation-folding-visibility.el
+</tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+
+### original-content
+
+<tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+      ;; Find and click on first citation
+      (goto-char (point-min))
+      (search-forward "Einstein developed" nil t)
+      (message "Clicking TAB at position %d (char: %c)" (point) (char-after))
+</tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+
+### new-content
+
+<tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+      ;; Find and click on first citation URL (which should be underlined)
+      (goto-char (point-min))
+      (search-forward "### https://physics.com/einstein" nil t)
+      (beginning-of-line)
+      (message "Clicking TAB at position %d (char: %c)" (point) (char-after))
+</tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+
+### git-commit-message
+
+<tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+Fix test to click on the actual citation node
+</tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+
+## TOOL RESULT:
+
+ID: toolu_01Kfxky8zJV2tbc1vkyivot2
+
+<tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
+Loading...
+</tool.toolu_01Kfxky8zJV2tbc1vkyivot2>
