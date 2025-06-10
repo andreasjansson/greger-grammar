@@ -131,41 +131,7 @@ START and END are the region bounds."
     (error
      (message "ERROR in citation-folding-function: %s" err))))
 
-(defun grgfoo--assistant-block-processor (node override start end)
-  "Font-lock function to process assistant blocks and merge text across citations.
-NODE is the matched tree-sitter node, OVERRIDE is the override setting,
-START and END are the region bounds."
-  (condition-case err
-      (when grgfoo-citation-folding-enabled
-        (when node
-          (let* ((node-start (treesit-node-start node))
-                 (node-end (treesit-node-end node)))
-            ;; Collect all text nodes and merge them
-            (let ((text-parts '())
-                  (children (treesit-node-children node)))
-              (dolist (child children)
-                (when (string= (treesit-node-type child) "text")
-                  (let* ((child-start (treesit-node-start child))
-                         (child-end (treesit-node-end child))
-                         (text-content (string-trim (buffer-substring-no-properties child-start child-end))))
-                    (when (> (length text-content) 0)
-                      (push text-content text-parts)))))
-              ;; If we have multiple text parts, merge them
-              (when (> (length text-parts) 1)
-                (let ((merged-text (mapconcat 'identity (reverse text-parts) " "))
-                      (content-start (save-excursion
-                                       (goto-char node-start)
-                                       (forward-line 2) ; Skip header and blank line
-                                       (point)))
-                      (content-end (save-excursion
-                                     (goto-char node-end)
-                                     (forward-line -1)
-                                     (point))))
-                  (message "DEBUG: Merging %d text parts: %s" (length text-parts) merged-text)
-                  (when (< content-start content-end)
-                    (put-text-property content-start content-end 'display merged-text))))))))
-    (error
-     (message "ERROR in assistant-block-processor: %s" err))))
+
 
 (defun grgfoo--apply-citation-folding ()
   "Apply comprehensive citation folding to merge assistant text blocks."
