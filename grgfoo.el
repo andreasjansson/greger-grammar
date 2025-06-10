@@ -352,9 +352,7 @@ BEG, END, and LEN are standard after-change parameters."
 
     ;; Apply citation folding after font-lock
     (when grgfoo-citation-folding-enabled
-      (add-hook 'after-change-functions #'grgfoo--after-change-citation-folding nil t)
-      (add-hook 'font-lock-after-fontify-buffer-hook #'grgfoo--apply-citation-folding nil t)
-      (grgfoo--apply-citation-folding))
+      (run-with-idle-timer 0.5 nil #'grgfoo--apply-citation-folding-simple))
 
     ))
 
