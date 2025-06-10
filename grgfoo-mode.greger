@@ -4428,5 +4428,83 @@ Add comprehensive documentation for citation folding feature
 ID: toolu_01JEoVcYaoKfALLjv1wSMVK1
 
 <tool.toolu_01JEoVcYaoKfALLjv1wSMVK1>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/CITATION_FOLDING.md with 4186 characters. Successfully staged 2 file(s) and committed with message: Add comprehensive documentation for citation folding feature
 </tool.toolu_01JEoVcYaoKfALLjv1wSMVK1>
+
+## ASSISTANT:
+
+Now let me create a more interactive test that shows the folding in action:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01QknFcvQndDeo6Pt7bEqUGr
+
+### file-path
+
+<tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+test-interactive-folding.el
+</tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+
+### contents
+
+<tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+#!/usr/bin/env emacs
+
+;; Interactive test for citation folding
+;; Run this with: emacs -l test-interactive-folding.el
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+;; Load the grammar and mode
+(load-file (expand-file-name "grgfoo.el"))
+
+;; Open the test file
+(find-file (expand-file-name "test-folding.greger"))
+
+;; Switch to grgfoo-mode
+(grgfoo-mode)
+
+;; Enable font-lock
+(font-lock-mode 1)
+
+;; Position cursor at the first citation
+(goto-char (point-min))
+(search-forward "Einstein developed" nil t)
+(beginning-of-line)
+
+;; Display instructions
+(message "Citation folding test loaded!")
+(with-output-to-temp-buffer "*Citation Folding Instructions*"
+  (princ "CITATION FOLDING TEST
+
+This buffer contains a Greger file with citation folding enabled.
+
+Instructions:
+1. Position your cursor on the underlined text 'Einstein developed the theory of relativity'
+2. Press TAB to expand/collapse that citation
+3. Position your cursor on '## CITATIONS:' header
+4. Press TAB to expand/collapse the entire citations section
+5. Try moving between different citation texts and toggling them
+
+Note: If text doesn't appear underlined, folding might not be working.
+Check that tree-sitter is loaded and the grammar is available.
+
+Current position: Point is positioned at the first citation text.
+Press TAB now to test folding!"))
+</tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+
+### git-commit-message
+
+<tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+Add interactive test for citation folding
+</tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+
+## TOOL RESULT:
+
+ID: toolu_01QknFcvQndDeo6Pt7bEqUGr
+
+<tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
+Loading...
+</tool.toolu_01QknFcvQndDeo6Pt7bEqUGr>
