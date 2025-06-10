@@ -15972,5 +15972,114 @@ Fix expected output to show properly merged text flow
 ID: toolu_01BviZrnPoWwq9HSRr7GpK2e
 
 <tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-exact.el. Successfully staged 2 file(s) and committed with message: Fix expected output to show properly merged text flow
 </tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+
+## ASSISTANT:
+
+Now let me check why the citations aren't being folded. Let me run a debug test to see what's happening:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01AXkeCM71L5A7bzKxGhwvMA
+
+### command
+
+<tool.toolu_01AXkeCM71L5A7bzKxGhwvMA>
+emacs --batch -l test-citation-folding-exact.el 2>&1 | head -20
+</tool.toolu_01AXkeCM71L5A7bzKxGhwvMA>
+
+## TOOL RESULT:
+
+ID: toolu_01AXkeCM71L5A7bzKxGhwvMA
+
+<tool.toolu_01AXkeCM71L5A7bzKxGhwvMA>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+</tool.toolu_01AXkeCM71L5A7bzKxGhwvMA>
+
+## ASSISTANT:
+
+Let me check if the citation folding function is even being called. Let me add some debug output:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011jrAoLQNyWCBm8mAFQVEy2
+
+### file-path
+
+<tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+grgfoo.el
+</tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+
+### original-content
+
+<tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+
+### new-content
+
+<tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s" 
+                     (treesit-node-type node) node-start node-end should-fold)
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+
+### git-commit-message
+
+<tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+Add debug output to citation folding function
+</tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+
+## TOOL RESULT:
+
+ID: toolu_011jrAoLQNyWCBm8mAFQVEy2
+
+<tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+Loading...
+</tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>

@@ -117,13 +117,17 @@ NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (condition-case err
       (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
         (when node
           (let* ((node-start (treesit-node-start node))
                  (node-end (treesit-node-end node))
                  (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
+                     (treesit-node-type node) node-start node-end should-fold)
             (when should-fold
               ;; Hide the entire citation block
-              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
     (error
      (message "ERROR in citation-folding-function: %s" err))))
 
