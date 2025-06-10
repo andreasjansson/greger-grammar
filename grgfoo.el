@@ -441,7 +441,7 @@ BEG, END, and LEN are standard after-change parameters."
                                   (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
                                   ;; Clear all text properties to ensure fresh font-lock
                                   (remove-text-properties node-start node-end '(invisible face))
-                                  (message "Citation collapsed"))
+)
                               ;; Expand citation
                               (progn
                                 (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
