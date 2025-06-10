@@ -450,7 +450,7 @@ BEG, END, and LEN are standard after-change parameters."
 ))))
                         ;; Trigger font-lock refresh
                         (font-lock-flush node-start node-end)))
-                  (message "DEBUG TAB: no citation node found, falling back"))
+)
                 (indent-for-tab-command)))
           (progn
             (message "DEBUG TAB: citation folding disabled, falling back")
