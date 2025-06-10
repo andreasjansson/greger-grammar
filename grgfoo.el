@@ -300,6 +300,53 @@ START and END are the region bounds."
           (_ nil))
       (error nil))))
 
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (when-let ((node (treesit-node-at (point))))
+    (cl-loop for current = node then (treesit-node-parent current)
+             while current
+             when (member (treesit-node-type current) '("citation_entry" "citations"))
+             return current)))
+
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (length (treesit-query-capture citations-node '((citation_entry) @citation))))
+
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+      (let* ((node-start (treesit-node-start citation-node))
+             (node-type (treesit-node-type citation-node))
+             (is-citations-section (string= node-type "citations")))
+        (if is-citations-section
+            ;; Handle citations section
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+              (if is-expanded
+                  ;; Collapse citations section
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                    (message "Citations section collapsed"))
+                ;; Expand citations section
+                (progn
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                  (message "Citations section expanded"))))
+          ;; Handle individual citation
+          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+            (if is-expanded
+                ;; Collapse citation
+                (progn
+                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                  (message "Citation collapsed"))
+              ;; Expand citation
+              (progn
+                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                (message "Citation expanded")))))
+        ;; Trigger font-lock refresh
+        (font-lock-flush (treesit-node-start citation-node) (treesit-node-end citation-node)))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+
 ;; Ensure the grammar is loaded
 (add-to-list 'treesit-extra-load-path default-directory)
 

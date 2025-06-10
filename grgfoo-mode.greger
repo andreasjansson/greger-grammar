@@ -2316,5 +2316,123 @@ Add invisibility spec setup and TAB key binding
 ID: toolu_01DzH41KkZL3s6nRPewirtRE
 
 <tool.toolu_01DzH41KkZL3s6nRPewirtRE>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add invisibility spec setup and TAB key binding
 </tool.toolu_01DzH41KkZL3s6nRPewirtRE>
+
+## ASSISTANT:
+
+Now let me add the TAB toggle function and helper functions:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JcZLK4WUiHy1hbg3zSe2gm
+
+### file-path
+
+<tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+grgfoo.el
+</tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+
+### original-content
+
+<tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+(defun grgfoo--defun-name (node)
+  "Return the name of the defun NODE."
+  (when (and node (treesit-node-p node))
+    (condition-case nil
+        (pcase (treesit-node-type node)
+          ("user" "USER")
+          ("assistant" "ASSISTANT")
+          ("system" "SYSTEM")
+          ("thinking" "THINKING")
+          ("tool_use" "TOOL USE")
+          ("tool_result" "TOOL RESULT")
+          ("server_tool_use" "SERVER TOOL USE")
+          ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
+          ("citations" "CITATIONS")
+          (_ nil))
+      (error nil))))
+</tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+
+### new-content
+
+<tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+(defun grgfoo--defun-name (node)
+  "Return the name of the defun NODE."
+  (when (and node (treesit-node-p node))
+    (condition-case nil
+        (pcase (treesit-node-type node)
+          ("user" "USER")
+          ("assistant" "ASSISTANT")
+          ("system" "SYSTEM")
+          ("thinking" "THINKING")
+          ("tool_use" "TOOL USE")
+          ("tool_result" "TOOL RESULT")
+          ("server_tool_use" "SERVER TOOL USE")
+          ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
+          ("citations" "CITATIONS")
+          (_ nil))
+      (error nil))))
+
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (when-let ((node (treesit-node-at (point))))
+    (cl-loop for current = node then (treesit-node-parent current)
+             while current
+             when (member (treesit-node-type current) '("citation_entry" "citations"))
+             return current)))
+
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (length (treesit-query-capture citations-node '((citation_entry) @citation))))
+
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (if-let ((citation-node (grgfoo--find-citation-at-point)))
+      (let* ((node-start (treesit-node-start citation-node))
+             (node-type (treesit-node-type citation-node))
+             (is-citations-section (string= node-type "citations")))
+        (if is-citations-section
+            ;; Handle citations section
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+              (if is-expanded
+                  ;; Collapse citations section
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                    (message "Citations section collapsed"))
+                ;; Expand citations section  
+                (progn
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                  (message "Citations section expanded"))))
+          ;; Handle individual citation
+          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+            (if is-expanded
+                ;; Collapse citation
+                (progn
+                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                  (message "Citation collapsed"))
+              ;; Expand citation
+              (progn
+                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                (message "Citation expanded")))))
+        ;; Trigger font-lock refresh
+        (font-lock-flush (treesit-node-start citation-node) (treesit-node-end citation-node)))
+    ;; Fallback to normal TAB behavior if not on a citation
+    (indent-for-tab-command)))
+</tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+
+### git-commit-message
+
+<tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+Add citation folding toggle function and helper utilities
+</tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+
+## TOOL RESULT:
+
+ID: toolu_01JcZLK4WUiHy1hbg3zSe2gm
+
+<tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+Loading...
+</tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
