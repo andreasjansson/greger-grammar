@@ -232,7 +232,7 @@ module.exports = grammar({
       /\n/,
     ))),
 
-    text: $ => prec.right(seq(
+    text: $ => prec.right(2, seq(
       $._text_content,
       repeat(seq(
         /\n/,
