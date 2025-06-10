@@ -453,7 +453,7 @@ BEG, END, and LEN are standard after-change parameters."
 )
                 (indent-for-tab-command)))
           (progn
-            (message "DEBUG TAB: citation folding disabled, falling back")
+
             (indent-for-tab-command))))
     (error
      (message "Error in citation folding: %s" err)
