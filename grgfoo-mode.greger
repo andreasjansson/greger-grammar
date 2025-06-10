@@ -12620,5 +12620,233 @@ Add final clean test for complete citation folding workflow
 ID: toolu_013452TpKSG3VRFEdNux1poz
 
 <tool.toolu_013452TpKSG3VRFEdNux1poz>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-final-clean.el with 1860 characters. Successfully staged 2 file(s) and committed with message: Add final clean test for complete citation folding workflow
 </tool.toolu_013452TpKSG3VRFEdNux1poz>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CeKVJJmeVDnyfjqZHhdLgn
+
+### command
+
+<tool.toolu_01CeKVJJmeVDnyfjqZHhdLgn>
+emacs --batch -l test-final-clean.el
+</tool.toolu_01CeKVJJmeVDnyfjqZHhdLgn>
+
+## TOOL RESULT:
+
+ID: toolu_01CeKVJJmeVDnyfjqZHhdLgn
+
+<tool.toolu_01CeKVJJmeVDnyfjqZHhdLgn>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 19:33:12+0200, selector ‘t’)
+Test test-complete-citation-folding-workflow backtrace:
+  signal(ert-test-failed (((should (string-match-p "\\[\\+2 citations,
+  ert-fail(((should (string-match-p "\\[\\+2 citations, TAB to expand\
+  (if (unwind-protect (setq value-17 (apply fn-15 args-16)) (setq form
+  (let (form-description-19) (if (unwind-protect (setq value-17 (apply
+  (let ((value-17 'ert-form-evaluation-aborted-18)) (let (form-descrip
+  (let* ((fn-15 #'string-match-p) (args-16 (condition-case err (let ((
+  (let ((initial (buffer-visible-text))) (let* ((fn-0 #'string-match-p
+  (progn (insert-file-contents "test-folding.greger") (grgfoo-mode) (f
+  (unwind-protect (progn (insert-file-contents "test-folding.greger") 
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-complete-citation-folding-workfl
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests [...] :test-m
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-final-clean.el"))
+  command-line()
+  normal-top-level()
+Test test-complete-citation-folding-workflow condition:
+    (ert-test-failed
+     ((should
+       (string-match-p "\\[\\+2 citations, TAB to expand\\]" initial))
+      :form
+      (string-match-p "\\[\\+2 citations, TAB to expand\\]"
+		      #("## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n### https://physics.com/einstein\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n### https://physics.com/newton\n## CITATIONS:\n" 0 14
+			(fontified nil face grgfoo-assistant-header-face)
+			14 60
+			(fontified nil)
+			60 92
+			(fontified nil face underline)
+			92 93
+			(fontified nil)
+			93 107
+			(face grgfoo-assistant-header-face fontified nil)
+			107 152
+			(fontified nil)
+			152 182
+			(face underline fontified nil)
+			182 183
+			(fontified nil)
+			183 196
+			(fontified nil face grgfoo-citations-header-face)
+			196 197
+			(fontified nil face grgfoo-citations-header-face after-string
+				   #("\n[+2 citations, TAB to expand]" 0 30 ...))))
+      :value nil))
+   FAILED  1/1  test-complete-citation-folding-workflow (0.000537 sec) at test-final-clean.el:11
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 19:33:12+0200, 0.116441 sec)
+
+1 unexpected results:
+   FAILED  test-complete-citation-folding-workflow
+
+
+</tool.toolu_01CeKVJJmeVDnyfjqZHhdLgn>
+
+## ASSISTANT:
+
+The issue is that the citations section folding function isn't working yet. I can see that it has an `after-string` property with the text, but `buffer-visible-text` isn't including it in the output. Let me check that function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Fu4vFUbpxAq7Li4D4HbE8j
+
+### path
+
+<tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+test-visibility-utils.el
+</tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+
+### start-line
+
+<tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+5
+</tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+
+### end-line
+
+<tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+25
+</tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+
+## TOOL RESULT:
+
+ID: toolu_01Fu4vFUbpxAq7Li4D4HbE8j
+
+<tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+(defun buffer-visible-text (&optional buffer)
+  "Return the visible text from BUFFER (or current buffer).
+This includes text made visible by overlays and excludes invisible text."
+  (with-current-buffer (or buffer (current-buffer))
+    (let ((result "")
+          (pos (point-min)))
+      (while (< pos (point-max))
+        (let* ((next-change (next-single-property-change pos 'invisible nil (point-max)))
+               (invisible (get-text-property pos 'invisible))
+               (visible (not (and invisible (invisible-p invisible)))))
+          ;; Add visible text
+          (when visible
+            (setq result (concat result (buffer-substring pos next-change))))
+
+          ;; Check for after-string property that adds visible text
+          (let ((after-string (get-text-property pos 'after-string)))
+            (when after-string
+              (setq result (concat result after-string))))
+
+          (setq pos next-change)))
+      result)))
+</tool.toolu_01Fu4vFUbpxAq7Li4D4HbE8j>
+
+## ASSISTANT:
+
+The issue is that the `after-string` property is only checked at specific positions, but we need to check it at every position where it might exist. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JBWGUtWGK1pHLin7pxQWD2
+
+### file-path
+
+<tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+test-visibility-utils.el
+</tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+
+### original-content
+
+<tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+      (while (< pos (point-max))
+        (let* ((next-change (next-single-property-change pos 'invisible nil (point-max)))
+               (invisible (get-text-property pos 'invisible))
+               (visible (not (and invisible (invisible-p invisible)))))
+          ;; Add visible text
+          (when visible
+            (setq result (concat result (buffer-substring pos next-change))))
+
+          ;; Check for after-string property that adds visible text
+          (let ((after-string (get-text-property pos 'after-string)))
+            (when after-string
+              (setq result (concat result after-string))))
+
+          (setq pos next-change)))
+</tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+
+### new-content
+
+<tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+      (while (< pos (point-max))
+        (let* ((next-invisible (next-single-property-change pos 'invisible nil (point-max)))
+               (next-after-string (next-single-property-change pos 'after-string nil (point-max)))
+               (next-change (min next-invisible next-after-string))
+               (invisible (get-text-property pos 'invisible))
+               (visible (not (and invisible (invisible-p invisible)))))
+          ;; Add visible text
+          (when visible
+            (setq result (concat result (buffer-substring pos next-change))))
+
+          ;; Check for after-string property that adds visible text
+          (let ((after-string (get-text-property pos 'after-string)))
+            (when after-string
+              (setq result (concat result after-string))))
+
+          (setq pos next-change)))
+</tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+
+### git-commit-message
+
+<tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+Fix buffer-visible-text to properly handle after-string properties
+</tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+
+## TOOL RESULT:
+
+ID: toolu_01JBWGUtWGK1pHLin7pxQWD2
+
+<tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>
+Loading...
+</tool.toolu_01JBWGUtWGK1pHLin7pxQWD2>

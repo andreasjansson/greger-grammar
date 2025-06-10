@@ -9,7 +9,9 @@ This includes text made visible by overlays and excludes invisible text."
     (let ((result "")
           (pos (point-min)))
       (while (< pos (point-max))
-        (let* ((next-change (next-single-property-change pos 'invisible nil (point-max)))
+        (let* ((next-invisible (next-single-property-change pos 'invisible nil (point-max)))
+               (next-after-string (next-single-property-change pos 'after-string nil (point-max)))
+               (next-change (min next-invisible next-after-string))
                (invisible (get-text-property pos 'invisible))
                (visible (not (and invisible (invisible-p invisible)))))
           ;; Add visible text
