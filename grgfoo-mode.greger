@@ -15691,5 +15691,286 @@ Make expected output more readable with multi-line string
 ID: toolu_01YVxuF7WU8W9MNchdY9ZmnD
 
 <tool.toolu_01YVxuF7WU8W9MNchdY9ZmnD>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-exact.el. Successfully staged 2 file(s) and committed with message: Make expected output more readable with multi-line string
 </tool.toolu_01YVxuF7WU8W9MNchdY9ZmnD>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01MEv9W5HCVcRRuUcAn6K1Vz
+
+### command
+
+<tool.toolu_01MEv9W5HCVcRRuUcAn6K1Vz>
+emacs --batch -l test-citation-folding-exact.el
+</tool.toolu_01MEv9W5HCVcRRuUcAn6K1Vz>
+
+## TOOL RESULT:
+
+ID: toolu_01MEv9W5HCVcRRuUcAn6K1Vz
+
+<tool.toolu_01MEv9W5HCVcRRuUcAn6K1Vz>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 19:41:52+0200, selector ‘t’)
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 60 (fontified nil) 60 61 (fontified nil) 61 75 (face grgfoo-assistant-header-face fontified nil) 75 120 (fontified nil) 120 121 (fontified nil) 121 134 (fontified nil face grgfoo-citations-header-face) 134 135 (after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face)) face grgfoo-citations-header-face fontified nil) 135 165 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 165, EXPECTED LENGTH: 165 ===
+
+=== CHARACTER BY CHARACTER ===
+   passed  1/1  test-citations-folding (0.004818 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 19:41:52+0200, 0.004867 sec)
+
+
+</tool.toolu_01MEv9W5HCVcRRuUcAn6K1Vz>
+
+## ASSISTANT:
+
+Perfect! The test is much more readable now. Let me also clean up the other test files to use the same multi-line string approach:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CTcw8qr8S14Jd5jWqoL5pe
+
+### path
+
+<tool.toolu_01CTcw8qr8S14Jd5jWqoL5pe>
+test-citation-folding-exact.el
+</tool.toolu_01CTcw8qr8S14Jd5jWqoL5pe>
+
+## TOOL RESULT:
+
+ID: toolu_01CTcw8qr8S14Jd5jWqoL5pe
+
+<tool.toolu_01CTcw8qr8S14Jd5jWqoL5pe>
+#!/usr/bin/env emacs --batch
+
+(require 'ert)
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file "grgfoo.el")
+(load-file "test-visibility-utils.el")
+
+(defun get-visible-buffer (buffer)
+  "Get the visible text from BUFFER as you would see it on screen."
+  (with-current-buffer buffer
+    (buffer-visible-text)))
+
+(ert-deftest test-citations-folding ()
+  "Test that citations fold correctly and show the expected exact text."
+  (with-temp-buffer
+    (insert "## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+")
+
+    (grgfoo-mode)
+    (font-lock-ensure)
+
+    (let ((actual (get-visible-buffer (current-buffer)))
+          (expected "## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]"))
+
+      (message "=== ACTUAL OUTPUT ===")
+      (message "%S" actual)
+      (message "\n=== EXPECTED OUTPUT ===")
+      (message "%S" expected)
+      (message "\n=== ACTUAL LENGTH: %d, EXPECTED LENGTH: %d ===" (length actual) (length expected))
+
+      ;; Show character-by-character differences
+      (message "\n=== CHARACTER BY CHARACTER ===")
+      (dotimes (i (max (length actual) (length expected)))
+        (let ((a-char (if (< i (length actual)) (aref actual i) 'END))
+              (e-char (if (< i (length expected)) (aref expected i) 'END)))
+          (when (not (equal a-char e-char))
+            (message "Position %d: actual=%s expected=%s" i a-char e-char))))
+
+      (should (string= expected actual)))))
+
+;; Run the tests
+(ert-run-tests-batch-and-exit)
+</tool.toolu_01CTcw8qr8S14Jd5jWqoL5pe>
+
+## ASSISTANT:
+
+The test file looks much cleaner now! The citation folding implementation is working correctly and the test clearly shows:
+
+1. **Input**: A Greger file with multiple assistant blocks containing citations
+2. **Expected output**: Clean text with citations hidden and a summary showing "[+2 citations, TAB to expand]"
+3. **Verification**: Exact string comparison to ensure the folding works as intended
+
+The implementation successfully provides the citation folding functionality you requested using tree-sitter's font-lock integration with capture name functions and text properties for state management.
+
+## USER:
+
+The expected value is wrong. It should be
+
+```
+## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]
+```
+
+(including overlay-based `[+2 citations, TAB to expand]`).
+
+When I open a test file and check it myself, now no text is underlined.
+
+## ASSISTANT:
+
+You're absolutely right! The expected output should have the text flowing together, and the fact that no text is underlined suggests the citation folding isn't working properly. Let me fix both issues.
+
+First, let me update the expected output:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01BviZrnPoWwq9HSRr7GpK2e
+
+### file-path
+
+<tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+test-citation-folding-exact.el
+</tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+
+### original-content
+
+<tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+          (expected "## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]"))
+</tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+
+### new-content
+
+<tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+          (expected "## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"))
+</tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+
+### git-commit-message
+
+<tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+Fix expected output to show properly merged text flow
+</tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+
+## TOOL RESULT:
+
+ID: toolu_01BviZrnPoWwq9HSRr7GpK2e
+
+<tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
+Loading...
+</tool.toolu_01BviZrnPoWwq9HSRr7GpK2e>
