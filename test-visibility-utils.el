@@ -11,12 +11,16 @@ This includes text made visible by overlays and excludes invisible text."
       (while (< pos (point-max))
         (let* ((next-invisible (next-single-property-change pos 'invisible nil (point-max)))
                (next-after-string (next-single-property-change pos 'after-string nil (point-max)))
-               (next-change (min next-invisible next-after-string))
+               (next-display (next-single-property-change pos 'display nil (point-max)))
+               (next-change (min next-invisible next-after-string next-display))
                (invisible (get-text-property pos 'invisible))
+               (display (get-text-property pos 'display))
                (visible (not (and invisible (invisible-p invisible)))))
-          ;; Add visible text
+          ;; Add visible text (either display property or actual text)
           (when visible
-            (setq result (concat result (buffer-substring pos next-change))))
+            (if display
+                (setq result (concat result display))
+              (setq result (concat result (buffer-substring pos next-change)))))
 
           ;; Check for after-string property that adds visible text
           (let ((after-string (get-text-property pos 'after-string)))
