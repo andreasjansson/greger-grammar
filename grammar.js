@@ -157,16 +157,20 @@ module.exports = grammar({
 
     param_name: $ => /[^\n]+/,
 
-    citation_entry: $ => prec.left(seq(
+    citation_entry: $ => seq(
       '###',
       /[ ]*/,
       alias($.citation_url, $.url),
       /\n/,
       optional(/\n/),
-      optional(alias($.citation_title, $.title)),
+      choice(
+        alias($.citation_title, $.title),
+        alias($.citation_text, $.cited_text),
+        alias($.citation_encrypted_index, $.encrypted_index),
+      ),
       optional(alias($.citation_text, $.cited_text)),
       optional(alias($.citation_encrypted_index, $.encrypted_index)),
-    )),
+    ),
 
     citation_url: $ => /https?:\/\/[^\n]*/,
 
