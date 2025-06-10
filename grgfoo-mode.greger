@@ -3600,5 +3600,219 @@ Add test script for citation folding functionality
 ID: toolu_01MSFXShg27fgoKKEK7bMCqZ
 
 <tool.toolu_01MSFXShg27fgoKKEK7bMCqZ>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el with 948 characters. Successfully staged 2 file(s) and committed with message: Add test script for citation folding functionality
 </tool.toolu_01MSFXShg27fgoKKEK7bMCqZ>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01Y34Nfe17FW9MzTu1LNeyHD
+
+### command
+
+<tool.toolu_01Y34Nfe17FW9MzTu1LNeyHD>
+chmod +x test-citation-folding.el
+</tool.toolu_01Y34Nfe17FW9MzTu1LNeyHD>
+
+## TOOL RESULT:
+
+ID: toolu_01Y34Nfe17FW9MzTu1LNeyHD
+
+<tool.toolu_01Y34Nfe17FW9MzTu1LNeyHD>
+Command executed successfully:
+(no output)
+</tool.toolu_01Y34Nfe17FW9MzTu1LNeyHD>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_013P8qDRAYveYbf4Ur6y6QaC
+
+### command
+
+<tool.toolu_013P8qDRAYveYbf4Ur6y6QaC>
+emacs --batch -l test-citation-folding.el
+</tool.toolu_013P8qDRAYveYbf4Ur6y6QaC>
+
+## TOOL RESULT:
+
+ID: toolu_013P8qDRAYveYbf4Ur6y6QaC
+
+<tool.toolu_013P8qDRAYveYbf4Ur6y6QaC>
+Command failed with exit code 255: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Mode activated successfully
+
+Error: treesit-query-error ("Node type error at" 2 "(assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function) (citations) @grgfoo--citations-section-folding-function" "Debug the query with `treesit-query-validate'")
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (treesit-query-error "Node type error at" 2 "(assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function) (citations) @grgfoo--citations-section-folding-function" "Debug the query with `treesit-query-validate'"))
+  treesit-query-capture(#<treesit-node source_file in 1-777> #<treesit-compiled-query> 1 777)
+  treesit-font-lock-fontify-region(1 777 nil)
+  font-lock-fontify-syntactically-region(1 777 nil)
+  font-lock-default-fontify-region(1 777 nil)
+  font-lock-fontify-region(1 777)
+  #f(compiled-function (beg end) #<bytecode -0x194e0ec0e0abd387>)(1 777)
+  font-lock-ensure()
+  (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully"))
+  (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer))))
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" "/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  load("/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  command-line-1(("-l" "test-citation-folding.el"))
+  command-line()
+  normal-top-level()
+Query pattern is malformed: "Node type error at", 2, "(assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function) (citations) @grgfoo--citations-section-folding-function", "Debug the query with `treesit-query-validate'"
+
+</tool.toolu_013P8qDRAYveYbf4Ur6y6QaC>
+
+## ASSISTANT:
+
+I have a query error. Let me fix the tree-sitter queries - the issue is that I'm trying to capture citation_entry nodes inside assistant_content_blocks, but they are direct children. Let me check the grammar structure:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01QCL2iw7QCMTmWjAQNfQcH5
+
+### path
+
+<tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+grammar.js
+</tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+
+### start-line
+
+<tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+120
+</tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+
+### end-line
+
+<tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+140
+</tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+
+## TOOL RESULT:
+
+ID: toolu_01QCL2iw7QCMTmWjAQNfQcH5
+
+<tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+
+    system_header: $ => token(seq('##', /[ \t]*/, 'SYSTEM:\n')),
+
+    thinking_header: $ => token(seq('##', /[ \t]*/, 'THINKING:\n')),
+
+    tool_use_header: $ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    tool_result_header: $ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    server_tool_use_header: $ => token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE:\n')),
+
+    web_search_tool_result_header: $ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
+
+    citations_header: $ => token(seq('##', /[ \t]*/, 'CITATIONS:\n')),
+
+    name: $ => seq(
+      'Name:',
+      field('value', $.value),
+      /\n/
+    ),
+
+</tool.toolu_01QCL2iw7QCMTmWjAQNfQcH5>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01Y9GiNrnT1xvrmZX4DX5iRC
+
+### pattern
+
+<tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+assistant_content_blocks.*choice
+</tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+
+### path
+
+<tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+grammar.js
+</tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+
+### context-lines
+
+<tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+5
+</tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+
+## TOOL RESULT:
+
+ID: toolu_01Y9GiNrnT1xvrmZX4DX5iRC
+
+<tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+189-      /\n/,
+190-    ),
+191-
+192-    value: _ => /[^\n]+/,
+193-
+194:    assistant_content_blocks: $ => repeat1(choice(
+195-      $.text,
+196-      $.code_block,
+197-      $.inline_code,
+198-      $.html_comment,
+199-      $.citation_entry,
+
+</tool.toolu_01Y9GiNrnT1xvrmZX4DX5iRC>
+
+## ASSISTANT:
+
+Good, so `citation_entry` is a direct child of `assistant_content_blocks`. My query was correct. Let me check the issue more carefully. The problem might be that I need to query for `citation_entry` nodes that are specifically in `assistant` blocks, not just any `citation_entry`. Let me fix the font-lock queries:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AsLqJa2zCJsj26vXaW7Wac
+
+### file-path
+
+<tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+grgfoo.el
+</tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+
+### original-content
+
+<tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+
+### new-content
+
+<tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function))
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+
+### git-commit-message
+
+<tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+Fix tree-sitter query for citation folding
+</tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+
+## TOOL RESULT:
+
+ID: toolu_01AsLqJa2zCJsj26vXaW7Wac
+
+<tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+Loading...
+</tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
