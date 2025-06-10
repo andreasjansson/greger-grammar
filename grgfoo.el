@@ -68,6 +68,11 @@
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
+(defface grgfoo-tool-tag-face
+  '((t (:foreground "gray" :height 0.8)))
+  "Face for tool start and end tags."
+  :group 'grgfoo)
+
 (defface grgfoo-error-face
   '((t (:background "red" :foreground "white")))
   "Face for parse errors in grgfoo-mode."
