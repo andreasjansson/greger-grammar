@@ -325,9 +325,7 @@ START and END are the region bounds."
                             parent
                           nil))))
                 nil))
-        (progn
-          (message "DEBUG find-citation: treesit not ready")
-          nil)))
+        nil))
     (error
      (message "ERROR in find-citation: %s" err)
      nil)))
