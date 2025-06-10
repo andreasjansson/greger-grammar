@@ -43,7 +43,7 @@ module.exports = grammar({
     ),
 
     user: $ => seq(
-      user_header,
+      $.user_header,
       ':',
       $.content_blocks,
     ),
