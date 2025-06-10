@@ -4116,5 +4116,70 @@ Rewrite tree-sitter citation folding with proper text merging
 ID: toolu_01SCQt5NAm3kRh3QTVYhp8Zt
 
 <tool.toolu_01SCQt5NAm3kRh3QTVYhp8Zt>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Rewrite tree-sitter citation folding with proper text merging
+
+- Remove debug messages and simplify citation folding function
+- Create new assistant text merger that caches text from multiple blocks
+- Apply merging only after processing all assistant blocks
+- Use display property to replace entire range with merged text
+- Clear cache after merging to prevent interference
 </tool.toolu_01SCQt5NAm3kRh3QTVYhp8Zt>
+
+## ASSISTANT:
+
+Now I need to update the tree-sitter font-lock rules to use the new merger function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_017ZGjemVa839L7m3oKjFbD8
+
+### file-path
+
+<tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+grgfoo.el
+</tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+
+### original-content
+
+<tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+
+### new-content
+
+<tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Assistant text merging - collect and merge text across blocks
+     (assistant) @grgfoo--assistant-text-merger
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+
+### git-commit-message
+
+<tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+Add assistant text merger to font-lock rules
+
+- Add (assistant) @grgfoo--assistant-text-merger to capture all assistant blocks
+- This will collect text from each assistant block and merge them when done
+- Keep citation folding and citations section folding as before
+</tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+
+## TOOL RESULT:
+
+ID: toolu_017ZGjemVa839L7m3oKjFbD8
+
+<tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+Loading...
+</tool.toolu_017ZGjemVa839L7m3oKjFbD8>
