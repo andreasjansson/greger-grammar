@@ -400,11 +400,7 @@ BEG, END, and LEN are standard after-change parameters."
      (message "ERROR in find-citation: %s" err)
      nil)))
 
-(defun grgfoo--count-citations-in-section (citations-node)
-  "Count the number of citation entries in CITATIONS-NODE."
-  (condition-case nil
-    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
-    (error 0)))
+
 
 (defun grgfoo-toggle-citation-fold ()
   "Toggle folding of citation at point."

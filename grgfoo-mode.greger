@@ -4023,5 +4023,202 @@ Remove debug script
 ID: toolu_01FawDxGX1xraKY2uVVoU5pg
 
 <tool.toolu_01FawDxGX1xraKY2uVVoU5pg>
-Loading...
+Successfully deleted 1 file(s): /Users/andreas/projects/greger.el/greger-grammar/debug-visibility.el. Git status: Successfully staged 2 file(s) and committed with message: Remove debug script
 </tool.toolu_01FawDxGX1xraKY2uVVoU5pg>
+
+## ASSISTANT:
+
+Let me run the test one more time to confirm everything is working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01CRY9acT2LPJWm5cmjcRtUw
+
+### command
+
+<tool.toolu_01CRY9acT2LPJWm5cmjcRtUw>
+emacs -Q --batch -l test-citation-folding-exact.el
+</tool.toolu_01CRY9acT2LPJWm5cmjcRtUw>
+
+## TOOL RESULT:
+
+ID: toolu_01CRY9acT2LPJWm5cmjcRtUw
+
+<tool.toolu_01CRY9acT2LPJWm5cmjcRtUw>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 20:41:00+0200, selector ‘t’)
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 103 116 (fontified nil face grgfoo-citations-header-face) 116 117 (face grgfoo-citations-header-face fontified nil after-string #("[+2 citations, TAB to expand]" 0 29 (face font-lock-comment-face))) 117 146 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 146, EXPECTED LENGTH: 146 ===
+
+=== CHARACTER BY CHARACTER ===
+   passed  1/1  test-citations-folding (0.000876 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 20:41:00+0200, 0.000952 sec)
+
+
+</tool.toolu_01CRY9acT2LPJWm5cmjcRtUw>
+
+## ASSISTANT:
+
+Perfect! Let me also clean up the unused helper function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01VQLNvmaLHwUU6tjKx6AEYT
+
+### pattern
+
+<tool.toolu_01VQLNvmaLHwUU6tjKx6AEYT>
+grgfoo--count-citations-in-section
+</tool.toolu_01VQLNvmaLHwUU6tjKx6AEYT>
+
+## TOOL RESULT:
+
+ID: toolu_01VQLNvmaLHwUU6tjKx6AEYT
+
+<tool.toolu_01VQLNvmaLHwUU6tjKx6AEYT>
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo.el:403:(defun grgfoo--count-citations-in-section (citations-node)
+/Users/andreas/projects/greger.el/greger-grammar/IMPLEMENTATION_SUMMARY.md:25:- `grgfoo--count-citations-in-section` - Counts citations for summary
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:421:            (let ((citation-count (grgfoo--count-citations-in-section node)))
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:604:(defun grgfoo--count-citations-in-section (citations-node)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:3645:            (let ((citation-count (grgfoo--count-citations-in-section node)))
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:3831:            (let ((citation-count (grgfoo--count-citations-in-section node)))
+
+</tool.toolu_01VQLNvmaLHwUU6tjKx6AEYT>
+
+## ASSISTANT:
+
+The function is still referenced. Let me check if it's actually used:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01F7rjyGiXyBNYNMYs1PVsaR
+
+### path
+
+<tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+grgfoo.el
+</tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+
+### start-line
+
+<tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+400
+</tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+
+### end-line
+
+<tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+410
+</tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+
+### include-line-numbers
+
+<tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+true
+</tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+
+## TOOL RESULT:
+
+ID: toolu_01F7rjyGiXyBNYNMYs1PVsaR
+
+<tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+     (message "ERROR in find-citation: %s" err)
+     nil)))
+
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (condition-case nil
+    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
+    (error 0)))
+
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+</tool.toolu_01F7rjyGiXyBNYNMYs1PVsaR>
+
+## ASSISTANT:
+
+The function is defined but it's not being used anywhere in the current code. Let me remove it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01Cby3k3N86j5KCJMfmswCJg
+
+### file-path
+
+<tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+grgfoo.el
+</tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+
+### original-content
+
+<tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (condition-case nil
+    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
+    (error 0)))
+</tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+
+### new-content
+
+<tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+
+</tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+
+### git-commit-message
+
+<tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+Remove unused count-citations-in-section function
+</tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+
+## TOOL RESULT:
+
+ID: toolu_01Cby3k3N86j5KCJMfmswCJg
+
+<tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
+Loading...
+</tool.toolu_01Cby3k3N86j5KCJMfmswCJg>
