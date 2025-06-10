@@ -28,12 +28,21 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => repeat($._block),
+
+    source_file: $ => seq(
+      optional($.untagged_text),
+      optional($.system),
+      repeat($._block),
+    ),
+
+    untagged_text: $ => seq(
+      $._untagged_text_content,
+      "\n",
+    ),
 
     _block: $ => choice(
       $.user,
       $.assistant,
-      $.system,
       $.thinking,
       $.tool_use,
       $.tool_result,
@@ -100,7 +109,6 @@ module.exports = grammar({
 
     citations: $ => seq(
       $.citations_header,
-      optional(alias($.citations_text, $.text)),
       repeat($.citation_entry),
     ),
 
@@ -121,12 +129,6 @@ module.exports = grammar({
     web_search_tool_result_header: $ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT:\n')),
 
     citations_header: $ => token(seq('##', /[ \t]*/, 'CITATIONS:\n')),
-
-    citations_text: $ => prec.right(repeat1(choice(
-      $.cite_tag,
-      $.safe_shell_commands,
-      $._text_content,
-    ))),
 
     name: $ => seq(
       'Name:',
@@ -217,7 +219,6 @@ module.exports = grammar({
     )),
 
     text: $ => prec.right(repeat1(choice(
-      $.cite_tag,
       $._text_content,
       /\n/,
     ))),
@@ -249,12 +250,6 @@ module.exports = grammar({
       '`',
       /[^`\n]+/,
       '`',
-    ),
-
-    cite_tag: $ => seq(
-      '<cite>',
-      /[^<]*/,
-      '</cite>',
     ),
 
     safe_shell_commands: $ => seq(
