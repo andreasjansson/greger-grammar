@@ -289,8 +289,6 @@ START and END are the region bounds."
    :override t
    '(;; Citation folding - hide individual citations
      (assistant (citation_entry) @grgfoo--citation-folding-function)
-     ;; Assistant block processing for text merging
-     (assistant) @grgfoo--assistant-block-processor
      ;; Citations section folding
      (citations) @grgfoo--citations-section-folding-function)
 
