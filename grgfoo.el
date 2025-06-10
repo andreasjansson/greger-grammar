@@ -16,10 +16,61 @@
 
 (require 'treesit)
 
+(defgroup grgfoo nil
+  "Major mode for Greger files."
+  :group 'languages
+  :prefix "grgfoo-")
+
 (defcustom grgfoo-ts-indent-offset 2
   "Number of spaces for each indentation step in `grgfoo-mode'."
   :type 'integer
   :safe 'integerp
+  :group 'grgfoo)
+
+;; Customizable face colors for headers
+(defface grgfoo-user-header-face
+  '((t (:foreground "#4dd0e1" :weight bold)))  ; cyan/blue from material theme
+  "Face for USER headers."
+  :group 'grgfoo)
+
+(defface grgfoo-assistant-header-face
+  '((t (:foreground "#8bc34a" :weight bold)))  ; green from material theme
+  "Face for ASSISTANT headers."
+  :group 'grgfoo)
+
+(defface grgfoo-system-header-face
+  '((t (:foreground "#ff9800" :weight bold)))  ; orange from material theme
+  "Face for SYSTEM headers."
+  :group 'grgfoo)
+
+(defface grgfoo-thinking-header-face
+  '((t (:foreground "#b39ddb" :weight bold)))  ; purple from material theme
+  "Face for THINKING headers."
+  :group 'grgfoo)
+
+(defface grgfoo-tool-header-face
+  '((t (:foreground "#fff59d" :weight bold)))  ; yellow from material theme
+  "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
+  :group 'grgfoo)
+
+(defface grgfoo-citations-header-face
+  '((t (:foreground "#81d4fa" :weight bold)))  ; light blue from material theme
+  "Face for CITATIONS header."
+  :group 'grgfoo)
+
+(defface grgfoo-subheading-face
+  '((t (:foreground "#ff8A65" :weight semi-bold)))  ; orange/salmon from material theme
+  "Face for subheadings like tool parameters and citation entries."
+  :group 'grgfoo)
+
+(defface grgfoo-field-name-face
+  '((t (:foreground "#ffcc80")))  ; light orange from material theme
+  "Face for field names like 'Name:', 'ID:', etc."
+  :group 'grgfoo)
+
+(defface grgfoo-error-face
+  '((t (:background "red" :foreground "white")))
+  "Face for parse errors in grgfoo-mode."
   :group 'grgfoo)
 
 (defvar grgfoo-mode-syntax-table
