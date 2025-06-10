@@ -37,7 +37,9 @@
 
         ;; Collapse it again
         (grgfoo-toggle-citation-fold)
-        (font-lock-flush (point-min) (point-max))
+        ;; Clear fontified property to force font-lock to reprocess
+        (remove-text-properties (point-min) (point-max) '(fontified))
+        (font-lock-ensure)
 
         (let ((after-collapse (buffer-visible-text)))
           ;; Should be back to original state

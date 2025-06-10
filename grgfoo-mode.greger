@@ -13095,5 +13095,169 @@ Clear all text properties when collapsing citations to ensure refold
 ID: toolu_01CFrt4da6d8NifontMTqkpi
 
 <tool.toolu_01CFrt4da6d8NifontMTqkpi>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Clear all text properties when collapsing citations to ensure refold
 </tool.toolu_01CFrt4da6d8NifontMTqkpi>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01ABjkTEjXwNtvyoHraynzt8
+
+### command
+
+<tool.toolu_01ABjkTEjXwNtvyoHraynzt8>
+emacs --batch -l test-final-clean.el
+</tool.toolu_01ABjkTEjXwNtvyoHraynzt8>
+
+## TOOL RESULT:
+
+ID: toolu_01ABjkTEjXwNtvyoHraynzt8
+
+<tool.toolu_01ABjkTEjXwNtvyoHraynzt8>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 19:34:04+0200, selector ‘t’)
+DEBUG TAB: found citation node type=citation_entry start=61 end=238
+Citation expanded
+DEBUG TAB: found citation node type=citation_entry start=61 end=238
+Citation collapsed
+Test test-complete-citation-folding-workflow backtrace:
+  signal(ert-test-failed (((should-not (string-match-p "Title: Einstei
+  ert-fail(((should-not (string-match-p "Title: Einstein Biography" af
+  (if (not (unwind-protect (setq value-37 (apply fn-35 args-36)) (setq
+  (let (form-description-39) (if (not (unwind-protect (setq value-37 (
+  (let ((value-37 'ert-form-evaluation-aborted-38)) (let (form-descrip
+  (let* ((fn-35 #'string-match-p) (args-36 (condition-case err (let ((
+  (let ((after-collapse (buffer-visible-text))) (let* ((fn-35 #'string
+  (let ((after-expand (buffer-visible-text))) (let* ((fn-20 #'string-m
+  (let ((initial (buffer-visible-text))) (let* ((fn-0 #'string-match-p
+  (progn (insert-file-contents "test-folding.greger") (grgfoo-mode) (f
+  (unwind-protect (progn (insert-file-contents "test-folding.greger") 
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-complete-citation-folding-workfl
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests ... :test-map
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-final-clean.el"))
+  command-line()
+  normal-top-level()
+Test test-complete-citation-folding-workflow condition:
+    (ert-test-failed
+     ((should-not
+       (string-match-p "Title: Einstein Biography" after-collapse))
+      :form
+      (string-match-p "Title: Einstein Biography"
+		      #("## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n### https://physics.com/einstein\n\nTitle: Einstein Biography\nCited text: Albert Einstein developed the theory of relativity in the early 20th century...\nEncrypted index: def456\n\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n### https://physics.com/newton\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+			(face grgfoo-assistant-header-face fontified nil)
+			14 60
+			(fontified nil)
+			60 61
+			(face underline fontified nil)
+			61 92
+			(face underline fontified nil)
+			92 236
+			(fontified nil)
+			236 237
+			(fontified nil)
+			237 251
+			(face grgfoo-assistant-header-face fontified nil)
+			251 296
+			(fontified nil)
+			296 326
+			(face underline fontified nil)
+			326 327
+			(fontified nil)
+			327 340
+			(fontified nil face grgfoo-citations-header-face)
+			340 341
+			(after-string
+			 #("\n[+2 citations, TAB to expand]" 0 30 ...)
+			 face grgfoo-citations-header-face fontified nil)
+			341 371
+			(face font-lock-comment-face)))
+      :value 94))
+   FAILED  1/1  test-complete-citation-folding-workflow (0.000921 sec) at test-final-clean.el:11
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 19:34:04+0200, 0.128879 sec)
+
+1 unexpected results:
+   FAILED  test-complete-citation-folding-workflow
+
+
+</tool.toolu_01ABjkTEjXwNtvyoHraynzt8>
+
+## ASSISTANT:
+
+to manually force the font-lock function to reapply by clearing the fontified property as well:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016o6f3E26MBy6XE8ukpWQ7j
+
+### file-path
+
+<tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+test-final-clean.el
+</tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+
+### original-content
+
+<tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+        ;; Collapse it again
+        (grgfoo-toggle-citation-fold)
+        (font-lock-flush (point-min) (point-max))
+</tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+
+### new-content
+
+<tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+        ;; Collapse it again
+        (grgfoo-toggle-citation-fold)
+        ;; Clear fontified property to force font-lock to reprocess
+        (remove-text-properties (point-min) (point-max) '(fontified))
+        (font-lock-ensure)
+</tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+
+### git-commit-message
+
+<tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+Force font-lock to reprocess when testing collapse
+</tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+
+## TOOL RESULT:
+
+ID: toolu_016o6f3E26MBy6XE8ukpWQ7j
+
+<tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
+Loading...
+</tool.toolu_016o6f3E26MBy6XE8ukpWQ7j>
