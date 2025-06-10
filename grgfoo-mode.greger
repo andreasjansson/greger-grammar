@@ -9041,5 +9041,62 @@ Re-enable TAB key binding for debugging
 ID: toolu_01MAUXVAiwA5YygYWhKXvhjF
 
 <tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Re-enable TAB key binding for debugging
 </tool.toolu_01MAUXVAiwA5YygYWhKXvhjF>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JX7bFHpxspp4gh2tETWBfn
+
+### file-path
+
+<tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+grgfoo.el
+</tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+
+### original-content
+
+<tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+      (progn
+        (message "TAB pressed at position %d" (point))
+        ;; Disabled citation folding logic due to segfaults - fall back to normal TAB
+        (indent-for-tab-command))
+</tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+
+### new-content
+
+<tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+      (progn
+        (message "DEBUG TAB: pressed at position %d" (point))
+        (if grgfoo-citation-folding-enabled
+            (progn
+              (message "DEBUG TAB: citation folding enabled, looking for node...")
+              (let ((citation-node (grgfoo--find-citation-at-point)))
+                (if citation-node
+                    (progn
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s" 
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+                  (message "DEBUG TAB: no citation node found, falling back"))
+                (indent-for-tab-command)))
+          (progn
+            (message "DEBUG TAB: citation folding disabled, falling back")
+            (indent-for-tab-command))))
+</tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+
+### git-commit-message
+
+<tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+Add extensive debugging to TAB handler
+</tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+
+## TOOL RESULT:
+
+ID: toolu_01JX7bFHpxspp4gh2tETWBfn
+
+<tool.toolu_01JX7bFHpxspp4gh2tETWBfn>
+Loading...
+</tool.toolu_01JX7bFHpxspp4gh2tETWBfn>

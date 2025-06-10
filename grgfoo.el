@@ -337,9 +337,23 @@ START and END are the region bounds."
   (interactive)
   (condition-case err
       (progn
-        (message "TAB pressed at position %d" (point))
-        ;; Disabled citation folding logic due to segfaults - fall back to normal TAB
-        (indent-for-tab-command))
+        (message "DEBUG TAB: pressed at position %d" (point))
+        (if grgfoo-citation-folding-enabled
+            (progn
+              (message "DEBUG TAB: citation folding enabled, looking for node...")
+              (let ((citation-node (grgfoo--find-citation-at-point)))
+                (if citation-node
+                    (progn
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+                  (message "DEBUG TAB: no citation node found, falling back"))
+                (indent-for-tab-command)))
+          (progn
+            (message "DEBUG TAB: citation folding disabled, falling back")
+            (indent-for-tab-command))))
     (error
      (message "Error in citation folding: %s" err)
      (indent-for-tab-command))))
