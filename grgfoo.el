@@ -27,44 +27,44 @@
   :safe 'integerp
   :group 'grgfoo)
 
-;; Customizable face colors for headers
+;; Customizable face colors for headers using standard Emacs color names
 (defface grgfoo-user-header-face
-  '((t (:foreground "#4dd0e1" :weight bold)))  ; cyan/blue from material theme
+  '((t (:foreground "cyan" :weight bold)))
   "Face for USER headers."
   :group 'grgfoo)
 
 (defface grgfoo-assistant-header-face
-  '((t (:foreground "#8bc34a" :weight bold)))  ; green from material theme
+  '((t (:foreground "green" :weight bold)))
   "Face for ASSISTANT headers."
   :group 'grgfoo)
 
 (defface grgfoo-system-header-face
-  '((t (:foreground "#ff9800" :weight bold)))  ; orange from material theme
+  '((t (:foreground "orange" :weight bold)))
   "Face for SYSTEM headers."
   :group 'grgfoo)
 
 (defface grgfoo-thinking-header-face
-  '((t (:foreground "#b39ddb" :weight bold)))  ; purple from material theme
+  '((t (:foreground "magenta" :weight bold)))
   "Face for THINKING headers."
   :group 'grgfoo)
 
 (defface grgfoo-tool-header-face
-  '((t (:foreground "#fff59d" :weight bold)))  ; yellow from material theme
+  '((t (:foreground "yellow" :weight bold)))
   "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
   :group 'grgfoo)
 
 (defface grgfoo-citations-header-face
-  '((t (:foreground "#81d4fa" :weight bold)))  ; light blue from material theme
+  '((t (:foreground "lightblue" :weight bold)))
   "Face for CITATIONS header."
   :group 'grgfoo)
 
 (defface grgfoo-subheading-face
-  '((t (:foreground "#ff8A65" :weight semi-bold)))  ; orange/salmon from material theme
+  '((t (:foreground "coral" :weight semi-bold)))
   "Face for subheadings like tool parameters and citation entries."
   :group 'grgfoo)
 
 (defface grgfoo-field-name-face
-  '((t (:foreground "#ffcc80")))  ; light orange from material theme
+  '((t (:foreground "lightyellow")))
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
