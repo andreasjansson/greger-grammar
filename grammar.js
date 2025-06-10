@@ -73,6 +73,7 @@ module.exports = grammar({
       $.assistant_header,
       optional(/\n/),
       $.assistant_content_blocks,
+      repeat(/\n/),
     ),
 
     system: $ => seq(
