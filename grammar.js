@@ -69,7 +69,7 @@ module.exports = grammar({
     ),
 
     tool_use: $ => seq(
-      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE')),
+      $.tool_use_header,
       ':',
       /\n/,
       optional(/\n/),
