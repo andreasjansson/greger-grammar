@@ -373,7 +373,35 @@ START and END are the region bounds."
                                (treesit-node-type citation-node)
                                (treesit-node-start citation-node)
                                (treesit-node-end citation-node))
-                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+                      (let* ((node-start (treesit-node-start citation-node))
+                             (node-end (treesit-node-end citation-node))
+                             (node-type (treesit-node-type citation-node))
+                             (is-citations-section (string= node-type "citations")))
+                        (if is-citations-section
+                            ;; Handle citations section
+                            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                              (if is-expanded
+                                  ;; Collapse citations section
+                                  (progn
+                                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                                    (message "Citations section collapsed"))
+                                ;; Expand citations section
+                                (progn
+                                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                                  (message "Citations section expanded"))))
+                          ;; Handle individual citation
+                          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+                            (if is-expanded
+                                ;; Collapse citation
+                                (progn
+                                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                                  (message "Citation collapsed"))
+                              ;; Expand citation
+                              (progn
+                                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                (message "Citation expanded")))))
+                        ;; Trigger font-lock refresh
+                        (font-lock-flush node-start node-end)))
                   (message "DEBUG TAB: no citation node found, falling back"))
                 (indent-for-tab-command)))
           (progn

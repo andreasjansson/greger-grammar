@@ -10137,5 +10137,303 @@ Add test for TAB on actual citation text
 ID: toolu_01V6ojMQMu2zXCQVA3qh5kgB
 
 <tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-citation-click.el with 581 characters. Successfully staged 2 file(s) and committed with message: Add test for TAB on actual citation text
 </tool.toolu_01V6ojMQMu2zXCQVA3qh5kgB>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01745r1wi2pkqtEanGxjDiFq
+
+### command
+
+<tool.toolu_01745r1wi2pkqtEanGxjDiFq>
+emacs --batch -l test-citation-click.el 2>&1
+</tool.toolu_01745r1wi2pkqtEanGxjDiFq>
+
+## TOOL RESULT:
+
+ID: toolu_01745r1wi2pkqtEanGxjDiFq
+
+<tool.toolu_01745r1wi2pkqtEanGxjDiFq>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 238
+DEBUG: Adding underline from 61 to 93
+DEBUG: citation-folding-function called with node=node override=t start=1 end=777
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 442
+DEBUG: Adding underline from 297 to 327
+Testing TAB on citation text...
+Position 61, character: ’35’
+DEBUG TAB: pressed at position 61
+DEBUG TAB: citation folding enabled, looking for node...
+DEBUG find-citation: checking treesit-ready-p...
+DEBUG find-citation: treesit ready, getting node at point 61...
+DEBUG find-citation: found initial node type=###
+DEBUG find-citation: parent is citation type: citation_entry
+DEBUG TAB: found citation node type=citation_entry start=61 end=238
+DEBUG TAB: citation handling not implemented yet, falling back
+TAB on citation test completed
+
+</tool.toolu_01745r1wi2pkqtEanGxjDiFq>
+
+## ASSISTANT:
+
+Perfect! Now the citation detection is working correctly. Let me implement the actual citation toggling:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013J2bUXxpVdaZsV1cRRQFCU
+
+### file-path
+
+<tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+grgfoo.el
+</tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+
+### original-content
+
+<tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s" 
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+</tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+
+### new-content
+
+<tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s" 
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (let* ((node-start (treesit-node-start citation-node))
+                             (node-end (treesit-node-end citation-node))
+                             (node-type (treesit-node-type citation-node))
+                             (is-citations-section (string= node-type "citations")))
+                        (if is-citations-section
+                            ;; Handle citations section
+                            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                              (if is-expanded
+                                  ;; Collapse citations section
+                                  (progn
+                                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                                    (message "Citations section collapsed"))
+                                ;; Expand citations section
+                                (progn
+                                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                                  (message "Citations section expanded"))))
+                          ;; Handle individual citation
+                          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+                            (if is-expanded
+                                ;; Collapse citation
+                                (progn
+                                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                                  (message "Citation collapsed"))
+                              ;; Expand citation
+                              (progn
+                                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                (message "Citation expanded")))))
+                        ;; Trigger font-lock refresh
+                        (font-lock-flush node-start node-end)))
+</tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+
+### git-commit-message
+
+<tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+Implement actual citation toggling logic
+</tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+
+## TOOL RESULT:
+
+ID: toolu_013J2bUXxpVdaZsV1cRRQFCU
+
+<tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_013J2bUXxpVdaZsV1cRRQFCU>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01Wkod76nvgTz4JcM8Y5KKqn
+
+### path
+
+<tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+grgfoo.el
+</tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+
+### start-line
+
+<tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+380
+</tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+
+### end-line
+
+<tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+400
+</tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+
+## TOOL RESULT:
+
+ID: toolu_01Wkod76nvgTz4JcM8Y5KKqn
+
+<tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+            (message "DEBUG TAB: citation folding disabled, falling back")
+            (indent-for-tab-command))))
+    (error
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+
+;; Ensure the grammar is loaded
+(add-to-list 'treesit-extra-load-path default-directory)
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.grgfoo\\'" . grgfoo-mode))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.greger\\'" . grgfoo-mode))
+
+(provide 'grgfoo)
+
+;;; grgfoo.el ends here
+</tool.toolu_01Wkod76nvgTz4JcM8Y5KKqn>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_011Wr1gtgXgtE9a2QkmnSFbt
+
+### path
+
+<tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+grgfoo.el
+</tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+
+### start-line
+
+<tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+360
+</tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+
+### end-line
+
+<tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+385
+</tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+
+## TOOL RESULT:
+
+ID: toolu_011Wr1gtgXgtE9a2QkmnSFbt
+
+<tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+(defun grgfoo-toggle-citation-fold ()
+  "Toggle folding of citation at point."
+  (interactive)
+  (condition-case err
+      (progn
+        (message "DEBUG TAB: pressed at position %d" (point))
+        (if grgfoo-citation-folding-enabled
+            (progn
+              (message "DEBUG TAB: citation folding enabled, looking for node...")
+              (let ((citation-node (grgfoo--find-citation-at-point)))
+                (if citation-node
+                    (progn
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+                  (message "DEBUG TAB: no citation node found, falling back"))
+                (indent-for-tab-command)))
+          (progn
+            (message "DEBUG TAB: citation folding disabled, falling back")
+            (indent-for-tab-command))))
+    (error
+     (message "Error in citation folding: %s" err)
+     (indent-for-tab-command))))
+
+</tool.toolu_011Wr1gtgXgtE9a2QkmnSFbt>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01JraJBKAzMLtYyxgac8Q2tz
+
+### file-path
+
+<tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+grgfoo.el
+</tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+
+### original-content
+
+<tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (message "DEBUG TAB: citation handling not implemented yet, falling back"))
+</tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+
+### new-content
+
+<tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
+                               (treesit-node-type citation-node)
+                               (treesit-node-start citation-node)
+                               (treesit-node-end citation-node))
+                      (let* ((node-start (treesit-node-start citation-node))
+                             (node-end (treesit-node-end citation-node))
+                             (node-type (treesit-node-type citation-node))
+                             (is-citations-section (string= node-type "citations")))
+                        (if is-citations-section
+                            ;; Handle citations section
+                            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                              (if is-expanded
+                                  ;; Collapse citations section
+                                  (progn
+                                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                                    (message "Citations section collapsed"))
+                                ;; Expand citations section
+                                (progn
+                                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                                  (message "Citations section expanded"))))
+                          ;; Handle individual citation
+                          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+                            (if is-expanded
+                                ;; Collapse citation
+                                (progn
+                                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                                  (message "Citation collapsed"))
+                              ;; Expand citation
+                              (progn
+                                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                (message "Citation expanded")))))
+                        ;; Trigger font-lock refresh
+                        (font-lock-flush node-start node-end)))
+</tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+
+### git-commit-message
+
+<tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+Implement actual citation toggling logic
+</tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+
+## TOOL RESULT:
+
+ID: toolu_01JraJBKAzMLtYyxgac8Q2tz
+
+<tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
+Loading...
+</tool.toolu_01JraJBKAzMLtYyxgac8Q2tz>
