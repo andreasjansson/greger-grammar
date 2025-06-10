@@ -155,7 +155,7 @@ module.exports = grammar({
 
     param_name: $ => /[^\n]+/,
 
-    citation_entry: $ => prec.left(-2, seq(
+    citation_entry: $ => prec(-3, seq(
       '###',
       /[ ]*/,
       alias($.citation_url, $.url),
