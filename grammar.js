@@ -220,7 +220,7 @@ module.exports = grammar({
       $.html_comment,
     )),
 
-    text: $ => prec.right(repeat1(choice(
+    text: $ => prec.right(2, repeat1(choice(
       $._text_content,
       /\n/,
     ))),
