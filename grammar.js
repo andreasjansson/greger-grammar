@@ -57,7 +57,7 @@ module.exports = grammar({
     ),
 
     system: $ => seq(
-      token(seq('##', /[ \t]*/, 'SYSTEM')),
+      $.system_header,
       ':',
       $.content_blocks,
     ),
