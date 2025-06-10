@@ -224,13 +224,18 @@ module.exports = grammar({
       /\n/,
     ))),
 
-    content_blocks: $ => prec.right(repeat1(choice(
-      $.text,
-      $.code_block,
-      $.inline_code,
-      $.html_comment,
-      /\n/,
-    ))),
+    content_blocks: $ => prec.right(seq(
+      repeat(/\n/),
+      repeat(seq(
+        choice(
+          $.text,
+          $.code_block,
+          $.inline_code,
+          $.html_comment,
+        ),
+        repeat(/\n/),
+      )),
+    )),
 
     text: $ => prec.right(seq(
       $._text_content,
