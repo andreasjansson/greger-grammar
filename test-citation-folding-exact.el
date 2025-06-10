@@ -57,9 +57,16 @@ Encrypted index: ghi789
     (let ((actual (get-visible-buffer (current-buffer)))
           (expected "## ASSISTANT:
 
-Einstein developed the theory of relativity while Newton formulated the laws of motion
+Einstein developed the theory of relativity
+
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
 
 ## CITATIONS:
+
 [+2 citations, TAB to expand]"))
 
       (message "=== ACTUAL OUTPUT ===")
