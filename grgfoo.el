@@ -278,8 +278,8 @@ START and END are the region bounds."
       (add-to-invisibility-spec 'grgfoo-citation)
       (add-to-invisibility-spec 'grgfoo-citations))
 
-    ;; Setup key bindings
-    (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
+    ;; Setup key bindings - disabled for now due to segfaults
+    ;; (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
 
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)))
