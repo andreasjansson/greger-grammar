@@ -8354,5 +8354,92 @@ Remove folding from feature list
 ID: toolu_01WToBqbHWGCZf5fnZQy5jZW
 
 <tool.toolu_01WToBqbHWGCZf5fnZQy5jZW>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove folding from feature list
 </tool.toolu_01WToBqbHWGCZf5fnZQy5jZW>
+
+## ASSISTANT:
+
+Now let's test if the segfault still happens:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_016i9LXtiXKzsu5wSwBFuLRF
+
+### command
+
+<tool.toolu_016i9LXtiXKzsu5wSwBFuLRF>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_016i9LXtiXKzsu5wSwBFuLRF>
+
+## TOOL RESULT:
+
+ID: toolu_016i9LXtiXKzsu5wSwBFuLRF
+
+<tool.toolu_016i9LXtiXKzsu5wSwBFuLRF>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_016i9LXtiXKzsu5wSwBFuLRF>
+
+## ASSISTANT:
+
+The segfault is still happening even without the font-lock folding. This means the issue is in the TAB handler itself, specifically in the tree-sitter node operations. Let me simplify the `grgfoo--find-citation-at-point` function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01HuATiRhThAzD28eMkGn8TF
+
+### file-path
+
+<tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+grgfoo.el
+</tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+
+### original-content
+
+<tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case nil
+    (when-let ((node (treesit-node-at (point))))
+      (cl-loop for current = node then (treesit-node-parent current)
+               while current
+               when (member (treesit-node-type current) '("citation_entry" "citations"))
+               return current))
+    (error nil)))
+</tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+
+### new-content
+
+<tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case nil
+    (when (treesit-ready-p 'greger)
+      (when-let ((node (treesit-node-at (point))))
+        (cl-loop for current = node then (treesit-node-parent current)
+                 while current
+                 when (member (treesit-node-type current) '("citation_entry" "citations"))
+                 return current)))
+    (error nil)))
+</tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+
+### git-commit-message
+
+<tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+Add treesit-ready-p check to prevent segfaults
+</tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+
+## TOOL RESULT:
+
+ID: toolu_01HuATiRhThAzD28eMkGn8TF
+
+<tool.toolu_01HuATiRhThAzD28eMkGn8TF>
+Loading...
+</tool.toolu_01HuATiRhThAzD28eMkGn8TF>
