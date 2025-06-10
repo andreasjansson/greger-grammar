@@ -79,7 +79,7 @@ module.exports = grammar({
     system: $ => seq(
       $.system_header,
       optional(/\n/),
-      $.system_content_blocks,
+      optional($.system_content_blocks),
       repeat(/\n/),
     ),
 
