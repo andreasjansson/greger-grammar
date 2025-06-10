@@ -297,7 +297,7 @@ START and END are the region bounds."
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
                 '((error)
-                  (headers folding)
+                  (headers)
                   (tool-tags comments)
                   (subheadings fields)
                   (tool-tags comments)))
