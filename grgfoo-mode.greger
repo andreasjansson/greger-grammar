@@ -2434,5 +2434,411 @@ Add citation folding toggle function and helper utilities
 ID: toolu_01JcZLK4WUiHy1hbg3zSe2gm
 
 <tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add citation folding toggle function and helper utilities
 </tool.toolu_01JcZLK4WUiHy1hbg3zSe2gm>
+
+## ASSISTANT:
+
+Now I need to improve the citation folding functions to count citations and show better summary text:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TH3rPASechuA8Zb9zBVrT9
+
+### file-path
+
+<tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+grgfoo.el
+</tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+
+### original-content
+
+<tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the end of the citations header line
+        (save-excursion
+          (goto-char node-start)
+          (end-of-line)
+          (let ((header-end (point)))
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize "\n[+citations, TAB to expand]" 
+                                         'face 'font-lock-comment-face)))))))))
+</tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+
+### new-content
+
+<tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the end of the citations header line
+        (save-excursion
+          (goto-char node-start)
+          (end-of-line)
+          (let ((header-end (point))
+                (citation-count (grgfoo--count-citations-in-section node)))
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text with count
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize (format "\n[+%d citation%s, TAB to expand]" 
+                                                 citation-count
+                                                 (if (= citation-count 1) "" "s"))
+                                         'face 'font-lock-comment-face)))))))))
+</tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+
+### git-commit-message
+
+<tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+Improve citations section folding to show citation count
+</tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+
+## TOOL RESULT:
+
+ID: toolu_01TH3rPASechuA8Zb9zBVrT9
+
+<tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01TH3rPASechuA8Zb9zBVrT9>
+
+## ASSISTANT:
+
+Let me check the current state of the file:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01AnEimPe5CqHeCycWkw547N
+
+### path
+
+<tool.toolu_01AnEimPe5CqHeCycWkw547N>
+grgfoo.el
+</tool.toolu_01AnEimPe5CqHeCycWkw547N>
+
+### start-line
+
+<tool.toolu_01AnEimPe5CqHeCycWkw547N>
+40
+</tool.toolu_01AnEimPe5CqHeCycWkw547N>
+
+### end-line
+
+<tool.toolu_01AnEimPe5CqHeCycWkw547N>
+80
+</tool.toolu_01AnEimPe5CqHeCycWkw547N>
+
+## TOOL RESULT:
+
+ID: toolu_01AnEimPe5CqHeCycWkw547N
+
+<tool.toolu_01AnEimPe5CqHeCycWkw547N>
+
+;; Customizable face colors for headers using standard Emacs color names
+(defface grgfoo-user-header-face
+  '((t (:foreground "cyan" :weight bold)))
+  "Face for USER headers."
+  :group 'grgfoo)
+
+(defface grgfoo-assistant-header-face
+  '((t (:foreground "green" :weight bold)))
+  "Face for ASSISTANT headers."
+  :group 'grgfoo)
+
+(defface grgfoo-system-header-face
+  '((t (:foreground "orange" :weight bold)))
+  "Face for SYSTEM headers."
+  :group 'grgfoo)
+
+(defface grgfoo-thinking-header-face
+  '((t (:foreground "magenta" :weight bold)))
+  "Face for THINKING headers."
+  :group 'grgfoo)
+
+(defface grgfoo-tool-header-face
+  '((t (:foreground "yellow" :weight bold)))
+  "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
+  :group 'grgfoo)
+
+(defface grgfoo-citations-header-face
+  '((t (:foreground "lightblue" :weight bold)))
+  "Face for CITATIONS header."
+  :group 'grgfoo)
+
+(defface grgfoo-subheading-face
+  '((t (:foreground "coral" :weight semi-bold)))
+  "Face for subheadings like tool parameters and citation entries."
+  :group 'grgfoo)
+
+(defface grgfoo-field-name-face
+  '((t (:foreground "lightyellow")))
+  "Face for field names like 'Name:', 'ID:', etc."
+  :group 'grgfoo)
+</tool.toolu_01AnEimPe5CqHeCycWkw547N>
+
+## ASSISTANT:
+
+Let me find the citations section folding function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_011rJVCMcNBadJtTaUvX7Nxr
+
+### pattern
+
+<tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+grgfoo--citations-section-folding-function
+</tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+
+### path
+
+<tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+grgfoo.el
+</tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+
+### context-lines
+
+<tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+10
+</tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+
+## TOOL RESULT:
+
+ID: toolu_011rJVCMcNBadJtTaUvX7Nxr
+
+<tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+126-        ;; Mark the citation text with underline
+127-        (let ((citation-text-start node-start)
+128-              (citation-text-end (save-excursion
+129-                                   (goto-char node-start)
+130-                                   (if (re-search-forward "\n" node-end t)
+131-                                       (1- (point))
+132-                                     node-end))))
+133-          (put-text-property citation-text-start citation-text-end
+134-                           'face grgfoo-citation-summary-face))))))
+135-
+136:(defun grgfoo--citations-section-folding-function (node override start end)
+137-  "Font-lock function to handle citations section folding.
+138-NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+139-START and END are the region bounds."
+140-  (when grgfoo-citation-folding-enabled
+141-    (let* ((node-start (treesit-node-start node))
+142-           (node-end (treesit-node-end node))
+143-           (fold-marker-pos node-start)
+144-           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+145-      (when should-fold
+146-        ;; Find the end of the citations header line
+--
+171-     (server_tool_use_header) @grgfoo-tool-header-face
+172-     (web_search_tool_result_header) @grgfoo-tool-header-face
+173-     (citations_header) @grgfoo-citations-header-face)
+174-
+175-   :language 'greger
+176-   :feature 'folding
+177-   :override t
+178-   '(;; Citation folding - inline citations in assistant blocks
+179-     (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)
+180-     ;; Citations section folding
+181:     (citations) @grgfoo--citations-section-folding-function)
+182-
+183-   :language 'greger
+184-   :feature 'subheadings
+185-   :override t
+186-   '(;; Sub-sections and parameter headers
+187-     (citation_entry) @grgfoo-subheading-face)
+188-
+189-   :language 'greger
+190-   :feature 'fields
+191-   :override t
+
+</tool.toolu_011rJVCMcNBadJtTaUvX7Nxr>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_017CM41XeEyi1c3TzU3Ro94r
+
+### path
+
+<tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+grgfoo.el
+</tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+
+### start-line
+
+<tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+136
+</tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+
+### end-line
+
+<tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+160
+</tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+
+## TOOL RESULT:
+
+ID: toolu_017CM41XeEyi1c3TzU3Ro94r
+
+<tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+(defun grgfoo--citations-section-folding-function (node override start end)
+  "Font-lock function to handle citations section folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when grgfoo-citation-folding-enabled
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (fold-marker-pos node-start)
+           (should-fold (not (get-text-property fold-marker-pos 'grgfoo-citations-expanded))))
+      (when should-fold
+        ;; Find the end of the citations header line
+        (save-excursion
+          (goto-char node-start)
+          (end-of-line)
+          (let ((header-end (point)))
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize "\n[+citations, TAB to expand]"
+                                         'face 'font-lock-comment-face)))))))))
+
+(defvar grgfoo--treesit-font-lock-settings
+  (treesit-font-lock-rules
+</tool.toolu_017CM41XeEyi1c3TzU3Ro94r>
+
+## ASSISTANT:
+
+Now I can update the function:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_019AJvuexWboK9ArAgvYBVkF
+
+### file-path
+
+<tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+grgfoo.el
+</tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+
+### original-content
+
+<tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize "\n[+citations, TAB to expand]"
+                                         'face 'font-lock-comment-face)))))))))
+</tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+
+### new-content
+
+<tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text with citation count
+              (let ((citation-count (grgfoo--count-citations-in-section node)))
+                (put-text-property header-end (1+ header-end) 'after-string
+                                 (propertize (format "\n[+%d citation%s, TAB to expand]" 
+                                                   citation-count
+                                                   (if (= citation-count 1) "" "s"))
+                                           'face 'font-lock-comment-face)))))))))))
+</tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+
+### git-commit-message
+
+<tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+Improve citations section folding to show citation count
+</tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+
+## TOOL RESULT:
+
+ID: toolu_019AJvuexWboK9ArAgvYBVkF
+
+<tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp file: original has balance -6, new has balance -7. They must be equal
+</tool.toolu_019AJvuexWboK9ArAgvYBVkF>
+
+## ASSISTANT:
+
+Let me fix the parentheses balance:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01YSSzN19rhtJF8HwQEsUhEh
+
+### file-path
+
+<tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+grgfoo.el
+</tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+
+### original-content
+
+<tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize "\n[+citations, TAB to expand]"
+                                         'face 'font-lock-comment-face)))))))))
+</tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+
+### new-content
+
+<tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+            ;; Make everything after the header invisible
+            (when (< header-end node-end)
+              (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+              ;; Add summary text with citation count
+              (let ((citation-count (grgfoo--count-citations-in-section node)))
+                (put-text-property header-end (1+ header-end) 'after-string
+                                 (propertize (format "\n[+%d citation%s, TAB to expand]" 
+                                                   citation-count
+                                                   (if (= citation-count 1) "" "s"))
+                                           'face 'font-lock-comment-face))))))))))
+</tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+
+### git-commit-message
+
+<tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+Improve citations section folding to show citation count
+</tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+
+## TOOL RESULT:
+
+ID: toolu_01YSSzN19rhtJF8HwQEsUhEh
+
+<tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>
+Loading...
+</tool.toolu_01YSSzN19rhtJF8HwQEsUhEh>

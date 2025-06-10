@@ -151,10 +151,13 @@ START and END are the region bounds."
             ;; Make everything after the header invisible
             (when (< header-end node-end)
               (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
-              ;; Add summary text
-              (put-text-property header-end (1+ header-end) 'after-string
-                               (propertize "\n[+citations, TAB to expand]"
-                                         'face 'font-lock-comment-face)))))))))
+              ;; Add summary text with citation count
+              (let ((citation-count (grgfoo--count-citations-in-section node)))
+                (put-text-property header-end (1+ header-end) 'after-string
+                                 (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                   citation-count
+                                                   (if (= citation-count 1) "" "s"))
+                                           'face 'font-lock-comment-face))))))))))
 
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
