@@ -313,29 +313,18 @@ START and END are the region bounds."
     (progn
 
       (if (treesit-ready-p 'greger)
-          (progn
-            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
-            (let ((node (treesit-node-at (point))))
+          (let ((node (treesit-node-at (point))))
               (if node
                   (progn
-                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
                     ;; Check if we're already on a citation_entry or citations node
                     (if (member (treesit-node-type node) '("citation_entry" "citations"))
-                        (progn
-                          (message "DEBUG find-citation: node itself is citation type")
-                          node)
+                        node
                       ;; Check immediate parent only to avoid segfaults
                       (let ((parent (treesit-node-parent node)))
                         (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
-                            (progn
-                              (message "DEBUG find-citation: parent is citation type: %s" (treesit-node-type parent))
-                              parent)
-                          (progn
-                            (message "DEBUG find-citation: neither node nor parent is citation type")
-                            nil)))))
-                (progn
-                  (message "DEBUG find-citation: no node at point")
-                  nil))))
+                            parent
+                          nil))))
+                nil))
         (progn
           (message "DEBUG find-citation: treesit not ready")
           nil)))

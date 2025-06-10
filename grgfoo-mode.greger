@@ -12427,5 +12427,77 @@ Remove all debug messages from citation folding function
 ID: toolu_013ZGwwLVT1vVc3XWpFHdd1E
 
 <tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove all debug messages from citation folding function
 </tool.toolu_013ZGwwLVT1vVc3XWpFHdd1E>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01FPouAzhNJ9NWeS5eAshLrp
+
+### file-path
+
+<tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+grgfoo.el
+</tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+
+### original-content
+
+<tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+      (if (treesit-ready-p 'greger)
+          (progn
+            (message "DEBUG find-citation: treesit ready, getting node at point %d..." (point))
+            (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
+                    ;; Check if we're already on a citation_entry or citations node
+                    (if (member (treesit-node-type node) '("citation_entry" "citations"))
+                        (progn
+                          (message "DEBUG find-citation: node itself is citation type")
+                          node)
+                      ;; Check immediate parent only to avoid segfaults
+                      (let ((parent (treesit-node-parent node)))
+                        (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
+                            (progn
+                              (message "DEBUG find-citation: parent is citation type: %s" (treesit-node-type parent))
+                              parent)
+                          (progn
+                            (message "DEBUG find-citation: neither node nor parent is citation type")
+                            nil)))))
+                (progn
+                  (message "DEBUG find-citation: no node at point")
+                  nil))))
+</tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+
+### new-content
+
+<tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+      (if (treesit-ready-p 'greger)
+          (let ((node (treesit-node-at (point))))
+              (if node
+                  (progn
+                    ;; Check if we're already on a citation_entry or citations node
+                    (if (member (treesit-node-type node) '("citation_entry" "citations"))
+                        node
+                      ;; Check immediate parent only to avoid segfaults
+                      (let ((parent (treesit-node-parent node)))
+                        (if (and parent (member (treesit-node-type parent) '("citation_entry" "citations")))
+                            parent
+                          nil))))
+                nil))
+</tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+
+### git-commit-message
+
+<tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+Remove debug messages from find-citation function
+</tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+
+## TOOL RESULT:
+
+ID: toolu_01FPouAzhNJ9NWeS5eAshLrp
+
+<tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
+Loading...
+</tool.toolu_01FPouAzhNJ9NWeS5eAshLrp>
