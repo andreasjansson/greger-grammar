@@ -16,27 +16,40 @@
 (ert-deftest test-citations-folding ()
   "Test that citations fold correctly and show the expected exact text."
   (with-temp-buffer
-    (insert "## ASSISTANT:\n\n")
-    (insert "Einstein developed the theory of relativity\n\n")
-    (insert "### https://physics.com/einstein\n\n")
-    (insert "Title: Einstein Biography\n")
-    (insert "Cited text: Albert Einstein developed the theory of relativity in the early 20th century...\n")
-    (insert "Encrypted index: def456\n\n")
-    (insert "## ASSISTANT:\n\n")
-    (insert "while Newton formulated the laws of motion\n\n")
-    (insert "### https://physics.com/newton\n\n")
-    (insert "Title: Newton Biography\n")
-    (insert "Cited text: Isaac Newton formulated the three laws of motion...\n")
-    (insert "Encrypted index: ghi789\n\n")
-    (insert "## CITATIONS:\n\n")
-    (insert "### https://physics.com/einstein\n\n")
-    (insert "Title: Einstein Biography\n")
-    (insert "Cited text: Albert Einstein developed the theory of relativity in the early 20th century...\n")
-    (insert "Encrypted index: def456\n\n")
-    (insert "### https://physics.com/newton\n\n")
-    (insert "Title: Newton Biography\n")
-    (insert "Cited text: Isaac Newton formulated the three laws of motion...\n")
-    (insert "Encrypted index: ghi789\n")
+    (insert "## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+")
 
     (grgfoo-mode)
     (font-lock-ensure)
