@@ -225,7 +225,7 @@ module.exports = grammar({
       /\n/,
     ))),
 
-    _text_content: $ => token(prec(-1, /[^`#\n]+|#[^#]|##[^#]|###[ ]*[^h]/)),
+    _text_content: $ => token(prec(-1, /[^`\n]+/)),
 
     _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
 
