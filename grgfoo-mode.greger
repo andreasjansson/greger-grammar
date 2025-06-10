@@ -5289,5 +5289,60 @@ Simplify citations section folding function to avoid save-excursion
 ID: toolu_01WaFV88cEhr1WRGTVHvcq3g
 
 <tool.toolu_01WaFV88cEhr1WRGTVHvcq3g>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Simplify citations section folding function to avoid save-excursion
 </tool.toolu_01WaFV88cEhr1WRGTVHvcq3g>
+
+## ASSISTANT:
+
+Now let me also fix the TAB function to be more defensive against segfaults:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_012q3KFLCKy2uTNLYptiuUnw
+
+### file-path
+
+<tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+grgfoo.el
+</tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+
+### original-content
+
+<tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (when-let ((node (treesit-node-at (point))))
+    (cl-loop for current = node then (treesit-node-parent current)
+             while current
+             when (member (treesit-node-type current) '("citation_entry" "citations"))
+             return current)))
+</tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+
+### new-content
+
+<tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+(defun grgfoo--find-citation-at-point ()
+  "Find citation node at point, if any."
+  (condition-case nil
+    (when-let ((node (treesit-node-at (point))))
+      (cl-loop for current = node then (treesit-node-parent current)
+               while current
+               when (member (treesit-node-type current) '("citation_entry" "citations"))
+               return current))
+    (error nil)))
+</tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+
+### git-commit-message
+
+<tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+Add error protection to citation node finding function
+</tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+
+## TOOL RESULT:
+
+ID: toolu_012q3KFLCKy2uTNLYptiuUnw
+
+<tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+Loading...
+</tool.toolu_012q3KFLCKy2uTNLYptiuUnw>

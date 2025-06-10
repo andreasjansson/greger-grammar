@@ -304,11 +304,13 @@ START and END are the region bounds."
 
 (defun grgfoo--find-citation-at-point ()
   "Find citation node at point, if any."
-  (when-let ((node (treesit-node-at (point))))
-    (cl-loop for current = node then (treesit-node-parent current)
-             while current
-             when (member (treesit-node-type current) '("citation_entry" "citations"))
-             return current)))
+  (condition-case nil
+    (when-let ((node (treesit-node-at (point))))
+      (cl-loop for current = node then (treesit-node-parent current)
+               while current
+               when (member (treesit-node-type current) '("citation_entry" "citations"))
+               return current))
+    (error nil)))
 
 (defun grgfoo--count-citations-in-section (citations-node)
   "Count the number of citation entries in CITATIONS-NODE."
