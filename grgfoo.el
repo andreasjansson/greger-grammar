@@ -414,10 +414,7 @@ BEG, END, and LEN are standard after-change parameters."
               (let ((citation-node (grgfoo--find-citation-at-point)))
                 (if citation-node
                     (progn
-                      (message "DEBUG TAB: found citation node type=%s start=%s end=%s"
-                               (treesit-node-type citation-node)
-                               (treesit-node-start citation-node)
-                               (treesit-node-end citation-node))
+
                       (let* ((node-start (treesit-node-start citation-node))
                              (node-end (treesit-node-end citation-node))
                              (node-type (treesit-node-type citation-node))
