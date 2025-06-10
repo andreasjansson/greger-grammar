@@ -16081,5 +16081,91 @@ Add debug output to citation folding function
 ID: toolu_011jrAoLQNyWCBm8mAFQVEy2
 
 <tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add debug output to citation folding function
 </tool.toolu_011jrAoLQNyWCBm8mAFQVEy2>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01LM1LNtSrVrEFRg3YqMWDPh
+
+### command
+
+<tool.toolu_01LM1LNtSrVrEFRg3YqMWDPh>
+emacs --batch -l test-citation-folding-exact.el 2>&1 | grep "DEBUG" | head -10
+</tool.toolu_01LM1LNtSrVrEFRg3YqMWDPh>
+
+## TOOL RESULT:
+
+ID: toolu_01LM1LNtSrVrEFRg3YqMWDPh
+
+<tool.toolu_01LM1LNtSrVrEFRg3YqMWDPh>
+Command executed successfully:
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: Applied invisible property from 61 to 237
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+DEBUG: Applied invisible property from 297 to 441
+
+</tool.toolu_01LM1LNtSrVrEFRg3YqMWDPh>
+
+## ASSISTANT:
+
+The citation folding function is being called and applying invisible properties, but the issue is that we need to merge the text from different assistant blocks. The current approach hides citations but doesn't merge the text across blocks.
+
+Let me create a more sophisticated approach that processes entire assistant blocks and merges their visible text:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01RYaeN9aUiM1XhzkGQm4PFg
+
+### file-path
+
+<tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+grgfoo.el
+</tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+
+### original-content
+
+<tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+
+### new-content
+
+<tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Assistant block processing for text merging
+     (assistant) @grgfoo--assistant-block-processor
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+
+### git-commit-message
+
+<tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+Add assistant block processor to font-lock rules
+</tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+
+## TOOL RESULT:
+
+ID: toolu_01RYaeN9aUiM1XhzkGQm4PFg
+
+<tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
+Loading...
+</tool.toolu_01RYaeN9aUiM1XhzkGQm4PFg>
