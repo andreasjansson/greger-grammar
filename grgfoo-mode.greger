@@ -3814,5 +3814,323 @@ Fix tree-sitter query for citation folding
 ID: toolu_01AsLqJa2zCJsj26vXaW7Wac
 
 <tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Fix tree-sitter query for citation folding
 </tool.toolu_01AsLqJa2zCJsj26vXaW7Wac>
+
+## ASSISTANT:
+
+Let me test it again:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01V2y3fRBwU4KXsStpM4xCYj
+
+### command
+
+<tool.toolu_01V2y3fRBwU4KXsStpM4xCYj>
+emacs --batch -l test-citation-folding.el
+</tool.toolu_01V2y3fRBwU4KXsStpM4xCYj>
+
+## TOOL RESULT:
+
+ID: toolu_01V2y3fRBwU4KXsStpM4xCYj
+
+<tool.toolu_01V2y3fRBwU4KXsStpM4xCYj>
+Command failed with exit code 255: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Mode activated successfully
+
+Error: treesit-query-error ("Node type error at" 13 "(assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)) (citations) @grgfoo--citations-section-folding-function" "Debug the query with `treesit-query-validate'")
+  mapbacktrace(#f(compiled-function (evald func args flags) #<bytecode -0xce2dc589a512f81>))
+  debug-early-backtrace()
+  debug-early(error (treesit-query-error "Node type error at" 13 "(assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)) (citations) @grgfoo--citations-section-folding-function" "Debug the query with `treesit-query-validate'"))
+  treesit-query-capture(#<treesit-node source_file in 1-777> #<treesit-compiled-query> 1 777)
+  treesit-font-lock-fontify-region(1 777 nil)
+  font-lock-fontify-syntactically-region(1 777 nil)
+  font-lock-default-fontify-region(1 777 nil)
+  font-lock-fontify-region(1 777)
+  #f(compiled-function (beg end) #<bytecode -0x194e0ec0e0abd387>)(1 777)
+  font-lock-ensure()
+  (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully"))
+  (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer))))
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn (insert-file-contents (expand-file-name "test-folding.greger")) (grgfoo-mode) (message "Mode activated successfully") (font-lock-ensure) (message "Font-lock enabled") (goto-char (point-min)) (if (search-forward "Einstein developed" nil t) (progn (message "Found citation text at position %d" (point)))) (goto-char (point-min)) (if (search-forward "## CITATIONS:" nil t) (progn (message "Found citations section at position %d" (point)))) (message "Test completed successfully")) (and (buffer-name temp-buffer) (kill-buffer temp-buffer)))))
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" "/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  load("/Users/andreas/projects/greger.el/greger-grammar/test-citation-folding.el" nil t)
+  command-line-1(("-l" "test-citation-folding.el"))
+  command-line()
+  normal-top-level()
+Query pattern is malformed: "Node type error at", 13, "(assistant (assistant_content_blocks (citation_entry) @grgfoo--citation-folding-function)) (citations) @grgfoo--citations-section-folding-function", "Debug the query with `treesit-query-validate'"
+
+</tool.toolu_01V2y3fRBwU4KXsStpM4xCYj>
+
+## ASSISTANT:
+
+Let me check what the actual structure looks like by creating a simple validation tool:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01H1jiMkr8mNxtP7E91rAjSD
+
+### file-path
+
+<tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+debug-tree.el
+</tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+
+### contents
+
+<tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+#!/usr/bin/env emacs --script
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file (expand-file-name "grgfoo.el"))
+
+(with-temp-buffer
+  (insert-file-contents (expand-file-name "test-folding.greger"))
+  (grgfoo-mode)
+  (message "Buffer contents length: %d" (buffer-size))
+  
+  ;; Get the parse tree
+  (when-let ((parser (treesit-parser-create 'greger)))
+    (let ((root-node (treesit-parser-root-node parser)))
+      (message "Root node type: %s" (treesit-node-type root-node))
+      
+      ;; Look for assistant nodes
+      (let ((assistant-nodes (treesit-query-capture root-node '((assistant) @assistant))))
+        (message "Found %d assistant nodes" (length assistant-nodes))
+        (dolist (capture assistant-nodes)
+          (let ((node (cdr capture)))
+            (message "Assistant node at %d-%d" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node))
+            ;; Look at children
+            (let ((children (treesit-node-children node)))
+              (message "  Has %d children" (length children))
+              (dolist (child children)
+                (message "    Child: %s at %d-%d" 
+                         (treesit-node-type child)
+                         (treesit-node-start child)
+                         (treesit-node-end child)))))))
+      
+      ;; Look for citation nodes
+      (let ((citation-nodes (treesit-query-capture root-node '((citation_entry) @citation))))
+        (message "Found %d citation_entry nodes" (length citation-nodes))
+        (dolist (capture citation-nodes)
+          (let ((node (cdr capture)))
+            (message "Citation node at %d-%d, parent: %s" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node)
+                     (treesit-node-type (treesit-node-parent node))))))))))
+</tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+
+### git-commit-message
+
+<tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+Add debug tool to inspect tree structure
+</tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+
+## TOOL RESULT:
+
+ID: toolu_01H1jiMkr8mNxtP7E91rAjSD
+
+<tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+Error executing tool: Unbalanced parentheses in Emacs Lisp content: contents has balance -1. Must be 0. Try again!
+</tool.toolu_01H1jiMkr8mNxtP7E91rAjSD>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01WMRv4qSk5eAQH46Aku9LLg
+
+### file-path
+
+<tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+debug-tree.el
+</tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+
+### original-content
+
+<tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+            (message "Citation node at %d-%d, parent: %s" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node)
+                     (treesit-node-type (treesit-node-parent node))))))))))
+</tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+
+### new-content
+
+<tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+            (message "Citation node at %d-%d, parent: %s" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node)
+                     (treesit-node-type (treesit-node-parent node)))))))))
+</tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+
+### git-commit-message
+
+<tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+Fix parentheses balance in debug tool
+</tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+
+## TOOL RESULT:
+
+ID: toolu_01WMRv4qSk5eAQH46Aku9LLg
+
+<tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+Error executing tool: File does not exist: /Users/andreas/projects/greger.el/greger-grammar/debug-tree.el
+</tool.toolu_01WMRv4qSk5eAQH46Aku9LLg>
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_01MmqPodgyPCUQoPBVwEHfTE
+
+### file-path
+
+<tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+debug-tree.el
+</tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+
+### contents
+
+<tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+#!/usr/bin/env emacs --script
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file (expand-file-name "grgfoo.el"))
+
+(with-temp-buffer
+  (insert-file-contents (expand-file-name "test-folding.greger"))
+  (grgfoo-mode)
+  (message "Buffer contents length: %d" (buffer-size))
+  
+  ;; Get the parse tree
+  (when-let ((parser (treesit-parser-create 'greger)))
+    (let ((root-node (treesit-parser-root-node parser)))
+      (message "Root node type: %s" (treesit-node-type root-node))
+      
+      ;; Look for assistant nodes
+      (let ((assistant-nodes (treesit-query-capture root-node '((assistant) @assistant))))
+        (message "Found %d assistant nodes" (length assistant-nodes))
+        (dolist (capture assistant-nodes)
+          (let ((node (cdr capture)))
+            (message "Assistant node at %d-%d" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node))
+            ;; Look at children
+            (let ((children (treesit-node-children node)))
+              (message "  Has %d children" (length children))
+              (dolist (child children)
+                (message "    Child: %s at %d-%d" 
+                         (treesit-node-type child)
+                         (treesit-node-start child)
+                         (treesit-node-end child)))))))
+      
+      ;; Look for citation nodes
+      (let ((citation-nodes (treesit-query-capture root-node '((citation_entry) @citation))))
+        (message "Found %d citation_entry nodes" (length citation-nodes))
+        (dolist (capture citation-nodes)
+          (let ((node (cdr capture)))
+            (message "Citation node at %d-%d, parent: %s" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node)
+                     (treesit-node-type (treesit-node-parent node))))))))))
+</tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+
+### git-commit-message
+
+<tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+Add debug tool to inspect tree structure
+</tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+
+## TOOL RESULT:
+
+ID: toolu_01MmqPodgyPCUQoPBVwEHfTE
+
+<tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+Error executing tool: Unbalanced parentheses in Emacs Lisp content: contents has balance -1. Must be 0. Try again!
+</tool.toolu_01MmqPodgyPCUQoPBVwEHfTE>
+
+## ASSISTANT:
+
+Let me fix the parentheses:
+
+## TOOL USE:
+
+Name: write-new-file
+ID: toolu_016ZjDR7uHkFgcGegGuUGV93
+
+### file-path
+
+<tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+debug-tree.el
+</tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+
+### contents
+
+<tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+#!/usr/bin/env emacs --script
+
+(setq default-directory (file-name-directory (or load-file-name buffer-file-name)))
+(add-to-list 'treesit-extra-load-path default-directory)
+
+(load-file (expand-file-name "grgfoo.el"))
+
+(with-temp-buffer
+  (insert-file-contents (expand-file-name "test-folding.greger"))
+  (grgfoo-mode)
+  (message "Buffer contents length: %d" (buffer-size))
+  
+  ;; Get the parse tree
+  (when-let ((parser (treesit-parser-create 'greger)))
+    (let ((root-node (treesit-parser-root-node parser)))
+      (message "Root node type: %s" (treesit-node-type root-node))
+      
+      ;; Look for assistant nodes
+      (let ((assistant-nodes (treesit-query-capture root-node '((assistant) @assistant))))
+        (message "Found %d assistant nodes" (length assistant-nodes))
+        (dolist (capture assistant-nodes)
+          (let ((node (cdr capture)))
+            (message "Assistant node at %d-%d" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node))
+            ;; Look at children
+            (let ((children (treesit-node-children node)))
+              (message "  Has %d children" (length children))
+              (dolist (child children)
+                (message "    Child: %s at %d-%d" 
+                         (treesit-node-type child)
+                         (treesit-node-start child)
+                         (treesit-node-end child)))))))
+      
+      ;; Look for citation nodes
+      (let ((citation-nodes (treesit-query-capture root-node '((citation_entry) @citation))))
+        (message "Found %d citation_entry nodes" (length citation-nodes))
+        (dolist (capture citation-nodes)
+          (let ((node (cdr capture)))
+            (message "Citation node at %d-%d, parent: %s" 
+                     (treesit-node-start node) 
+                     (treesit-node-end node)
+                     (treesit-node-type (treesit-node-parent node)))))))))
+</tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+
+### git-commit-message
+
+<tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+Add debug tool to inspect tree structure
+</tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+
+## TOOL RESULT:
+
+ID: toolu_016ZjDR7uHkFgcGegGuUGV93
+
+<tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
+Loading...
+</tool.toolu_016ZjDR7uHkFgcGegGuUGV93>
