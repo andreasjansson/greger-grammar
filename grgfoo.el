@@ -115,59 +115,69 @@
   "Font-lock function to handle citation folding.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  ;; TODO: remove debug
-  (message (format "node: %s" node))
   (condition-case err
       (when grgfoo-citation-folding-enabled
-        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
         (when node
           (let* ((node-start (treesit-node-start node))
                  (node-end (treesit-node-end node))
                  (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
-            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
-                     (treesit-node-type node) node-start node-end should-fold)
             (when should-fold
               ;; Hide the entire citation block
-              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
-              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
     (error
      (message "ERROR in citation-folding-function: %s" err))))
 
-(defun grgfoo--assistant-block-processor (node override start end)
-  "Font-lock function to process assistant blocks and merge text across citations.
+(defvar grgfoo--assistant-text-cache nil
+  "Cache for assistant text parts to enable merging across multiple assistant blocks.")
+
+(defun grgfoo--assistant-text-merger (node override start end)
+  "Font-lock function to collect text from assistant blocks for merging.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (condition-case err
       (when grgfoo-citation-folding-enabled
         (when node
+          ;; Extract text content from this assistant block
           (let* ((node-start (treesit-node-start node))
-                 (node-end (treesit-node-end node)))
-            ;; Collect all text nodes and merge them
-            (let ((text-parts '())
-                  (children (treesit-node-children node)))
-              (dolist (child children)
-                (when (string= (treesit-node-type child) "text")
-                  (let* ((child-start (treesit-node-start child))
-                         (child-end (treesit-node-end child))
-                         (text-content (string-trim (buffer-substring-no-properties child-start child-end))))
-                    (when (> (length text-content) 0)
-                      (push text-content text-parts)))))
-              ;; If we have multiple text parts, merge them
-              (when (> (length text-parts) 1)
-                (let ((merged-text (mapconcat 'identity (reverse text-parts) " "))
-                      (content-start (save-excursion
-                                       (goto-char node-start)
-                                       (forward-line 2) ; Skip header and blank line
-                                       (point)))
-                      (content-end (save-excursion
-                                     (goto-char node-end)
-                                     (forward-line -1)
-                                     (point))))
-                  (message "DEBUG: Merging %d text parts: %s" (length text-parts) merged-text)
-                  (when (< content-start content-end)
-                    (put-text-property content-start content-end 'display merged-text))))))))
+                 (node-end (treesit-node-end node))
+                 (content-start (save-excursion
+                                  (goto-char node-start)
+                                  (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                                  (point)))
+                 (text-content (grgfoo--extract-text-from-assistant-block content-start node-end)))
+
+            ;; Store this text for later merging
+            (unless (string-empty-p text-content)
+              (push (list node-start node-end content-start text-content) grgfoo--assistant-text-cache))
+
+            ;; Check if this is the last assistant block by looking ahead
+            (save-excursion
+              (goto-char node-end)
+              (let ((next-assistant (re-search-forward "^## ASSISTANT:$" nil t)))
+                (unless next-assistant
+                  ;; This is the last assistant block - time to merge
+                  (grgfoo--apply-assistant-text-merging)))))))
     (error
-     (message "ERROR in assistant-block-processor: %s" err))))
+     (message "ERROR in assistant-text-merger: %s" err))))
+
+(defun grgfoo--apply-assistant-text-merging ()
+  "Apply text merging using cached assistant text parts."
+  (when (and grgfoo--assistant-text-cache
+             (> (length grgfoo--assistant-text-cache) 1))
+    (let* ((sorted-cache (sort grgfoo--assistant-text-cache
+                              (lambda (a b) (< (car a) (car b)))))
+           (first-entry (car sorted-cache))
+           (first-content-start (nth 2 first-entry))
+           (last-entry (car (last sorted-cache)))
+           (last-node-end (nth 1 last-entry))
+           (merged-text (string-join (mapcar (lambda (entry) (nth 3 entry)) sorted-cache) " ")))
+
+      ;; Replace the entire range from first content to last assistant end
+      (put-text-property first-content-start last-node-end 'display
+                        (concat merged-text "\n\n"))))
+
+  ;; Clear the cache
+  (setq grgfoo--assistant-text-cache nil))
 
 (defun grgfoo--apply-citation-folding ()
   "Apply comprehensive citation folding to merge assistant text blocks."
