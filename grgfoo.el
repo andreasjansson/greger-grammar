@@ -110,9 +110,9 @@
     table)
   "Syntax table for `grgfoo-mode'.")
 
-;; Citation folding functions for assistant blocks
-(defun grgfoo--assistant-folding-function (node override start end)
-  "Font-lock function to handle assistant block folding for text flow.
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (condition-case err
@@ -120,36 +120,12 @@ START and END are the region bounds."
         (when node
           (let* ((node-start (treesit-node-start node))
                  (node-end (treesit-node-end node))
-                 (should-fold (not (get-text-property node-start 'grgfoo-assistant-expanded))))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
             (when should-fold
-              ;; Find all text and citation_entry children
-              (let ((children (treesit-node-children node))
-                    (text-parts '())
-                    (last-text-end node-start))
-                (dolist (child children)
-                  (let ((child-type (treesit-node-type child))
-                        (child-start (treesit-node-start child))
-                        (child-end (treesit-node-end child)))
-                    (cond
-                     ((string= child-type "text")
-                      ;; Collect text content
-                      (let ((text-content (string-trim (buffer-substring-no-properties child-start child-end))))
-                        (when (> (length text-content) 0)
-                          (push text-content text-parts)))
-                      (setq last-text-end child-end))
-                     ((string= child-type "citation_entry")
-                      ;; Hide citation but mark that we had one
-                      (put-text-property child-start (1- child-end) 'invisible 'grgfoo-citation)))))
-                ;; If we collected multiple text parts, we need to merge them
-                (when (> (length text-parts) 1)
-                  (let ((combined-text (mapconcat 'identity (reverse text-parts) " ")))
-                    ;; Replace the content after the header with combined text
-                    (goto-char node-start)
-                    (when (search-forward "\n" node-end t)
-                      (let ((content-start (point)))
-                        (put-text-property content-start last-text-end 'display combined-text))))))))))
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
     (error
-     (message "ERROR in assistant-folding-function: %s" err))))
+     (message "ERROR in citation-folding-function: %s" err))))
 
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.

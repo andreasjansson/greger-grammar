@@ -14353,5 +14353,96 @@ Revert to individual citation folding approach
 ID: toolu_01Lc1QXkoJL4kV3nynWhTNvc
 
 <tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Revert to individual citation folding approach
 </tool.toolu_01Lc1QXkoJL4kV3nynWhTNvc>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_013eWiJtoeBLvfaMcxnqUa3f
+
+### file-path
+
+<tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+grgfoo.el
+</tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+
+### original-content
+
+<tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+;; Citation folding functions for assistant blocks
+(defun grgfoo--assistant-folding-function (node override start end)
+  "Font-lock function to handle assistant block folding for text flow.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-assistant-expanded))))
+            (when should-fold
+              ;; Find all text and citation_entry children
+              (let ((children (treesit-node-children node))
+                    (text-parts '())
+                    (last-text-end node-start))
+                (dolist (child children)
+                  (let ((child-type (treesit-node-type child))
+                        (child-start (treesit-node-start child))
+                        (child-end (treesit-node-end child)))
+                    (cond
+                     ((string= child-type "text")
+                      ;; Collect text content
+                      (let ((text-content (string-trim (buffer-substring-no-properties child-start child-end))))
+                        (when (> (length text-content) 0)
+                          (push text-content text-parts)))
+                      (setq last-text-end child-end))
+                     ((string= child-type "citation_entry")
+                      ;; Hide citation but mark that we had one
+                      (put-text-property child-start (1- child-end) 'invisible 'grgfoo-citation)))))
+                ;; If we collected multiple text parts, we need to merge them
+                (when (> (length text-parts) 1)
+                  (let ((combined-text (mapconcat 'identity (reverse text-parts) " ")))
+                    ;; Replace the content after the header with combined text
+                    (goto-char node-start)
+                    (when (search-forward "\n" node-end t)
+                      (let ((content-start (point)))
+                        (put-text-property content-start last-text-end 'display combined-text))))))))))
+    (error
+     (message "ERROR in assistant-folding-function: %s" err))))
+</tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+
+### new-content
+
+<tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+</tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+
+### git-commit-message
+
+<tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+Restore simple citation folding function
+</tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+
+## TOOL RESULT:
+
+ID: toolu_013eWiJtoeBLvfaMcxnqUa3f
+
+<tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
+Loading...
+</tool.toolu_013eWiJtoeBLvfaMcxnqUa3f>
