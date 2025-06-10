@@ -50,6 +50,22 @@ module.exports = grammar({
 
     user_header: _ => token(seq('##', /[ \t]*/, 'USER')),
 
+    assistant_header: _ => token(seq('##', /[ \t]*/, 'ASSISTANT')),
+
+    system_header: _ => token(seq('##', /[ \t]*/, 'SYSTEM')),
+
+    thinking_header: _ => token(seq('##', /[ \t]*/, 'THINKING')),
+
+    tool_use_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'USE')),
+
+    tool_result_header: _ => token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT')),
+
+    server_tool_use_header: _ => token(seq('##', /[ \t]*/, 'SERVER', /[ \t]+/, 'TOOL', /[ \t]+/, 'USE')),
+
+    web_search_tool_result_header: _ => token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT')),
+
+    citations_header: _ => token(seq('##', /[ \t]*/, 'CITATIONS')),
+
     assistant: $ => seq(
       $.assistant_header,
       ':',
