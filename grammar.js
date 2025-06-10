@@ -206,28 +206,31 @@ module.exports = grammar({
 
     value: _ => /[^\n]+/,
 
-    assistant_content_blocks: $ => repeat1(choice(
+    assistant_content_blocks: $ => prec.right(repeat1(choice(
       $.citation_entry,
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
-    )),
+      /\n/,
+    ))),
 
-    system_content_blocks: $ => repeat1(choice(
+    system_content_blocks: $ => prec.right(repeat1(choice(
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
-    )),
+      /\n/,
+    ))),
 
-    content_blocks: $ => repeat1(choice(
+    content_blocks: $ => prec.right(repeat1(choice(
       $.text,
       $.code_block,
       $.inline_code,
       $.html_comment,
-    )),
+      /\n/,
+    ))),
 
     text: $ => prec.right(seq(
       $._text_content,
