@@ -389,6 +389,8 @@ START and END are the region bounds."
                                 ;; Expand citations section
                                 (progn
                                   (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                                  ;; Clear existing invisible properties
+                                  (remove-text-properties node-start node-end '(invisible after-string))
                                   (message "Citations section expanded"))))
                           ;; Handle individual citation
                           (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
