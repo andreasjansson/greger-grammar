@@ -3854,5 +3854,147 @@ Remove old citations section folding function
 ID: toolu_01C12XTPUfXDsemaSd3eY9B4
 
 <tool.toolu_01C12XTPUfXDsemaSd3eY9B4>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove old citations section folding function
 </tool.toolu_01C12XTPUfXDsemaSd3eY9B4>
+
+## ASSISTANT:
+
+Now let's test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01W3mUwwVtdt1xXFf6zxDK3x
+
+### command
+
+<tool.toolu_01W3mUwwVtdt1xXFf6zxDK3x>
+emacs -Q --batch -l test-citation-folding-exact.el
+</tool.toolu_01W3mUwwVtdt1xXFf6zxDK3x>
+
+## TOOL RESULT:
+
+ID: toolu_01W3mUwwVtdt1xXFf6zxDK3x
+
+<tool.toolu_01W3mUwwVtdt1xXFf6zxDK3x>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 20:40:38+0200, selector ‘t’)
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 103 116 (fontified nil face grgfoo-citations-header-face) 116 117 (face grgfoo-citations-header-face fontified nil after-string #("[+2 citations, TAB to expand]" 0 29 (face font-lock-comment-face))) 117 146 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 146, EXPECTED LENGTH: 146 ===
+
+=== CHARACTER BY CHARACTER ===
+   passed  1/1  test-citations-folding (0.023814 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 20:40:38+0200, 0.023892 sec)
+
+
+</tool.toolu_01W3mUwwVtdt1xXFf6zxDK3x>
+
+## ASSISTANT:
+
+Perfect! The test is now passing! 🎉
+
+Let me clean up by removing the debug output and the debug script:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01TKHepfrFf8SAaDw6xyjqeN
+
+### file-path
+
+<tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+grgfoo.el
+</tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+
+### original-content
+
+<tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
+                     (treesit-node-type node) node-start node-end should-fold)
+            (when should-fold
+              ;; Only hide if there's no existing display property
+              (unless (get-text-property node-start 'display)
+                ;; Hide the entire citation block
+                (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+                (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+</tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+
+### new-content
+
+<tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (when should-fold
+              ;; Only hide if there's no existing display property
+              (unless (get-text-property node-start 'display)
+                ;; Hide the entire citation block
+                (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)))))
+</tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+
+### git-commit-message
+
+<tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+Remove debug output from citation folding function
+</tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+
+## TOOL RESULT:
+
+ID: toolu_01TKHepfrFf8SAaDw6xyjqeN
+
+<tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
+Loading...
+</tool.toolu_01TKHepfrFf8SAaDw6xyjqeN>
