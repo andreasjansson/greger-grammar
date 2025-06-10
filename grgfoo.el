@@ -131,100 +131,79 @@ START and END are the region bounds."
 
 
 
-(defun grgfoo--after-change-citation-folding (beg end len)
-  "After-change function to reapply citation folding.
-BEG, END, and LEN are standard after-change parameters."
-  (when grgfoo-citation-folding-enabled
-    (run-with-idle-timer 0.1 nil #'grgfoo--apply-citation-folding)))
-
-(defun grgfoo--apply-citation-folding ()
-  "Apply comprehensive citation folding to merge assistant text blocks."
+(defun grgfoo--apply-citation-folding-simple ()
+  "Apply simple citation folding using overlays."
   (when grgfoo-citation-folding-enabled
     (save-excursion
-      (let ((inhibit-read-only t)
-            (modified (buffer-modified-p)))
-        (condition-case err
-            (progn
-              ;; Clear any existing display properties to avoid duplicates
-              (remove-text-properties (point-min) (point-max) '(display))
+      (condition-case err
+          (progn
+            ;; Remove existing overlays
+            (remove-overlays (point-min) (point-max) 'grgfoo-citation-overlay t)
 
-              ;; Find all assistant blocks and collect their text
-              (goto-char (point-min))
-              (let ((assistant-texts '())
-                    (first-assistant-start nil)
-                    (last-assistant-end nil)
-                    (replacement-start nil))
+            ;; Find and merge assistant blocks
+            (goto-char (point-min))
+            (let ((assistant-texts '())
+                  (first-assistant-pos nil)
+                  (last-assistant-pos nil))
 
-                (while (re-search-forward "^## ASSISTANT:$" nil t)
-                  (let ((block-start (line-beginning-position))
-                        (block-end (save-excursion
-                                     (if (re-search-forward "^## " nil t)
-                                         (line-beginning-position)
-                                       (point-max)))))
-                    ;; Remember the first assistant block position
-                    (unless first-assistant-start
-                      (setq first-assistant-start block-start)
-                      ;; Set replacement start after header
-                      (goto-char block-start)
-                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
-                      (setq replacement-start (point)))
+              ;; Collect all assistant text
+              (while (re-search-forward "^## ASSISTANT:$" nil t)
+                (let ((start (line-end-position))
+                      (end (save-excursion
+                             (if (re-search-forward "^## " nil t)
+                                 (line-beginning-position)
+                               (point-max)))))
+                  (unless first-assistant-pos
+                    (setq first-assistant-pos start))
+                  (setq last-assistant-pos end)
 
-                    (setq last-assistant-end block-end)
+                  ;; Extract text content (skip citations)
+                  (goto-char start)
+                  (while (< (point) end)
+                    (forward-line 1)
+                    (when (< (point) end)
+                      (let ((line (buffer-substring-no-properties
+                                   (line-beginning-position) (line-end-position))))
+                        (when (and (not (string-match-p "^###" line))
+                                   (not (string-match-p "^Title:" line))
+                                   (not (string-match-p "^Cited text:" line))
+                                   (not (string-match-p "^Encrypted index:" line))
+                                   (not (string-match-p "^## " line))
+                                   (not (string= "" (string-trim line))))
+                          (push (string-trim line) assistant-texts)))))))
 
-                    ;; Extract text from this block (skip citations)
-                    (goto-char block-start)
-                    (forward-line 2) ; Skip header and blank line
-                    (while (< (point) block-end)
-                      (let ((line-start (line-beginning-position))
-                            (line-end (line-end-position)))
-                        (when (< line-start line-end)
-                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
-                            (unless (or (string-match-p "^###" line-text)
-                                       (string-match-p "^Title:" line-text)
-                                       (string-match-p "^Cited text:" line-text)
-                                       (string-match-p "^Encrypted index:" line-text)
-                                       (string-match-p "^## " line-text)
-                                       (string= "" (string-trim line-text)))
-                              (push (string-trim line-text) assistant-texts))))
-                        (forward-line 1)))))
+              ;; Create merged text overlay if we have multiple parts
+              (when (and (> (length assistant-texts) 1) first-assistant-pos)
+                (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " "))
+                      (ov (make-overlay first-assistant-pos
+                                        (if (re-search-forward "^## CITATIONS:$" nil t)
+                                            (line-beginning-position)
+                                          (point-max)))))
+                  (overlay-put ov 'display (concat "\n\n" merged-text "\n\n"))
+                  (overlay-put ov 'grgfoo-citation-overlay t))))
 
-                ;; Set replacement end to the start of citations section (or end of buffer)
-                (goto-char (point-min))
-                (let ((replacement-end (if (re-search-forward "^## CITATIONS:$" nil t)
-                                         (line-beginning-position)
-                                       (point-max))))
-
-                  ;; If we have multiple text parts, create merged view
-                  (when (and (> (length assistant-texts) 1) replacement-start replacement-end)
-                    (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
-                      ;; Replace content from first assistant text to citations section with merged text
-                      (put-text-property replacement-start replacement-end 'display
-                                       (concat merged-text "\n\n"))))))
-
-              ;; Now handle citations section
-              (goto-char (point-min))
-              (when (re-search-forward "^## CITATIONS:$" nil t)
-                (let ((citations-start (line-beginning-position)))
-                  (forward-line 1)
-                  (let ((citations-content-start (point))
-                        (citations-end (point-max)))
-                    (when (< citations-content-start citations-end)
-                      (put-text-property citations-content-start citations-end 'invisible 'grgfoo-citations)
-                      ;; Count citations for summary
-                      (let ((citation-count 0))
-                        (goto-char citations-content-start)
-                        (while (re-search-forward "^### " citations-end t)
-                          (setq citation-count (1+ citation-count)))
-                        (goto-char citations-start)
-                        (end-of-line)
-                        (put-text-property (point) (1+ (point)) 'after-string
-                                         (propertize (format "[+%d citation%s, TAB to expand]"
-                                                           citation-count
-                                                           (if (= citation-count 1) "" "s"))
-                                                   'face 'font-lock-comment-face))))))))
-          (error
-           (message "ERROR in apply-citation-folding: %s" err)))
-        (set-buffer-modified-p modified)))))
+            ;; Handle citations section
+            (goto-char (point-min))
+            (when (re-search-forward "^## CITATIONS:$" nil t)
+              (let ((citations-start (line-end-position))
+                    (citations-end (point-max)))
+                (when (< citations-start citations-end)
+                  ;; Count citations
+                  (let ((citation-count 0))
+                    (goto-char citations-start)
+                    (while (re-search-forward "^### " citations-end t)
+                      (setq citation-count (1+ citation-count)))
+                    ;; Create folding overlay
+                    (let ((ov (make-overlay citations-start citations-end)))
+                      (overlay-put ov 'display
+                                   (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                     citation-count
+                                                     (if (= citation-count 1) "" "s"))
+                                             'face 'font-lock-comment-face))
+                      (overlay-put ov 'grgfoo-citation-overlay t)
+                      (overlay-put ov 'grgfoo-citations-section t)))))))
+        (error
+         (message "ERROR in simple citation folding: %s" err))))))
 
 
 (defvar grgfoo--treesit-font-lock-settings
