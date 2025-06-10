@@ -400,6 +400,8 @@ START and END are the region bounds."
                               ;; Expand citation
                               (progn
                                 (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                ;; Clear existing invisible properties
+                                (remove-text-properties node-start node-end '(invisible face))
                                 (message "Citation expanded")))))
                         ;; Trigger font-lock refresh
                         (font-lock-flush node-start node-end)))

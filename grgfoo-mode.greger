@@ -12089,5 +12089,155 @@ Add debug test for single citation expansion
 ID: toolu_01WF6JqEJHVzuD9nRVJKW6tk
 
 <tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-single-citation.el with 2915 characters. Successfully staged 2 file(s) and committed with message: Add debug test for single citation expansion
 </tool.toolu_01WF6JqEJHVzuD9nRVJKW6tk>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_015wpFivzphubeohLzkbpDCq
+
+### command
+
+<tool.toolu_015wpFivzphubeohLzkbpDCq>
+emacs --batch -l test-single-citation.el 2>&1 | grep -v "Loading"
+</tool.toolu_015wpFivzphubeohLzkbpDCq>
+
+## TOOL RESULT:
+
+ID: toolu_015wpFivzphubeohLzkbpDCq
+
+<tool.toolu_015wpFivzphubeohLzkbpDCq>
+Command executed successfully:
+DEBUG: node type=citation_entry start=27 end=93
+DEBUG: should-fold=t
+DEBUG: text length=66 first-newline=23 citation-text-end=50
+DEBUG: Making text invisible from 50 to 92
+DEBUG: Adding underline from 27 to 50
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 19:31:35+0200, selector ‘t’)
+DEBUG: node type=citation_entry start=61 end=238
+DEBUG: should-fold=t
+DEBUG: text length=177 first-newline=32 citation-text-end=93
+DEBUG: Making text invisible from 93 to 237
+DEBUG: Adding underline from 61 to 93
+DEBUG: node type=citation_entry start=297 end=442
+DEBUG: should-fold=t
+DEBUG: text length=145 first-newline=30 citation-text-end=327
+DEBUG: Making text invisible from 327 to 441
+DEBUG: Adding underline from 297 to 327
+INITIAL STATE:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Clicking TAB at position 61 (char: #)
+Current node type: url
+Parent node type: citation_entry
+Text properties at point: (face underline fontified nil)
+DEBUG find-citation: treesit ready, getting node at point 61...
+DEBUG find-citation: found initial node type=url
+DEBUG find-citation: parent is citation type: citation_entry
+DEBUG TAB: found citation node type=citation_entry start=61 end=238
+Citation expanded
+AFTER EXPANSION:
+## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+## CITATIONS:
+
+Length change: 197 -> 197
+   passed  1/1  test-citation-expansion-debug (0.000737 sec)
+
+Ran 1 tests, 1 results as expected, 0 unexpected (2025-06-10 19:31:35+0200, 0.000793 sec)
+
+
+</tool.toolu_015wpFivzphubeohLzkbpDCq>
+
+## ASSISTANT:
+
+Perfect! I can see the issue now. The citation is being "expanded" (the message says "Citation expanded"), but the visible text isn't changing because the font-lock refresh isn't properly clearing the invisible properties.
+
+The problem is that when we set the `grgfoo-citation-expanded` property and refresh font-lock, the font-lock function still sees that property and doesn't re-apply the folding. But we also need to clear the existing invisible properties when expanding.
+
+Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01DCBwHTziAwe46mYLqE1A5r
+
+### file-path
+
+<tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+grgfoo.el
+</tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+
+### original-content
+
+<tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+                              ;; Expand citation
+                              (progn
+                                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                (message "Citation expanded"))
+</tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+
+### new-content
+
+<tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+                              ;; Expand citation
+                              (progn
+                                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                                ;; Clear existing invisible properties
+                                (remove-text-properties node-start node-end '(invisible face))
+                                (message "Citation expanded"))
+</tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+
+### git-commit-message
+
+<tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+Clear invisible properties when expanding citations
+</tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+
+## TOOL RESULT:
+
+ID: toolu_01DCBwHTziAwe46mYLqE1A5r
+
+<tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
+Loading...
+</tool.toolu_01DCBwHTziAwe46mYLqE1A5r>
