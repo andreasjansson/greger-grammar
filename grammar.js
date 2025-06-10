@@ -232,22 +232,12 @@ module.exports = grammar({
       /\n/,
     ))),
 
-    text: $ => prec.right(choice(
-      seq(
+    text: $ => prec.right(seq(
+      $._text_content,
+      repeat(seq(
+        /\n/,
         $._text_content,
-        repeat(seq(
-          /\n/,
-          $._text_content,
-        ))
-      ),
-      seq(
-        repeat1(/\n/),
-        $._text_content,
-        repeat(seq(
-          /\n/,
-          $._text_content,
-        ))
-      )
+      ))
     )),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
