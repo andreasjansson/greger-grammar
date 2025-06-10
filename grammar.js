@@ -260,11 +260,13 @@ module.exports = grammar({
       '```',
       optional(/[^\n]*/),
       /\n/,
-      repeat(choice(
-        /[^`\n]+/,
-        /\n/,
-        /`[^`]/,
-        /``[^`]/,
+      repeat(seq(
+        choice(
+          /[^`\n]+/,
+          /`[^`]/,
+          /``[^`]/,
+        ),
+        optional(/\n/),
       )),
       '```',
     ),
