@@ -4181,5 +4181,59 @@ Add assistant text merger to font-lock rules
 ID: toolu_017ZGjemVa839L7m3oKjFbD8
 
 <tool.toolu_017ZGjemVa839L7m3oKjFbD8>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add assistant text merger to font-lock rules
+
+- Add (assistant) @grgfoo--assistant-text-merger to capture all assistant blocks
+- This will collect text from each assistant block and merge them when done
+- Keep citation folding and citations section folding as before
 </tool.toolu_017ZGjemVa839L7m3oKjFbD8>
+
+## ASSISTANT:
+
+Now I need to remove the old post-processing function from the mode setup and make sure we don't call it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01M7XtkxyuS4qnKCMMPdMvwH
+
+### file-path
+
+<tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+grgfoo.el
+</tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+
+### original-content
+
+<tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+    ;; Apply citation folding after font-lock
+    (when grgfoo-citation-folding-enabled
+      (add-hook 'font-lock-mode-hook #'grgfoo--apply-citation-folding nil t)
+      (grgfoo--apply-citation-folding))
+</tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+
+### new-content
+
+<tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+    ;; Initialize assistant text cache
+    (when grgfoo-citation-folding-enabled
+      (setq-local grgfoo--assistant-text-cache nil))
+</tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+
+### git-commit-message
+
+<tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+Remove post-processing function and initialize cache
+
+- Remove calls to grgfoo--apply-citation-folding 
+- Initialize assistant text cache as buffer-local variable
+- Let tree-sitter font-lock handle all the folding
+</tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+
+## TOOL RESULT:
+
+ID: toolu_01M7XtkxyuS4qnKCMMPdMvwH
+
+<tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
+Loading...
+</tool.toolu_01M7XtkxyuS4qnKCMMPdMvwH>
