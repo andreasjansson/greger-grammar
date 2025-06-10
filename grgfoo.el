@@ -140,11 +140,6 @@
      (ERROR) @grgfoo-error-face))
   "Tree-sitter font-lock settings for `grgfoo-mode'.")
 
-(defface grgfoo-error-face
-  '((t (:background "red" :foreground "white")))
-  "Face for parse errors in grgfoo-mode."
-  :group 'grgfoo)
-
 (defvar grgfoo--treesit-indent-rules
   `((greger
      ;; Working indentation rules that avoid parent-is (which causes segfaults)
