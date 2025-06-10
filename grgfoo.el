@@ -276,9 +276,7 @@ START and END are the region bounds."
    :feature 'folding
    :override t
    '(;; Citation folding - hide individual citations
-     (assistant (citation_entry) @grgfoo--citation-folding-function)
-     ;; Citations section folding
-     (citations) @grgfoo--citations-section-folding-function)
+     (assistant (citation_entry) @grgfoo--citation-folding-function))
 
    :language 'greger
    :feature 'subheadings

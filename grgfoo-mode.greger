@@ -3419,5 +3419,374 @@ Remove extra newline from citations summary
 ID: toolu_01GmqRvY9RfCgKvhRezwxnnC
 
 <tool.toolu_01GmqRvY9RfCgKvhRezwxnnC>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Remove extra newline from citations summary
 </tool.toolu_01GmqRvY9RfCgKvhRezwxnnC>
+
+## ASSISTANT:
+
+Now let's test:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_011FaVWhB5XGVoqQa1wTw7nR
+
+### command
+
+<tool.toolu_011FaVWhB5XGVoqQa1wTw7nR>
+emacs -Q --batch -l test-citation-folding-exact.el
+</tool.toolu_011FaVWhB5XGVoqQa1wTw7nR>
+
+## TOOL RESULT:
+
+ID: toolu_011FaVWhB5XGVoqQa1wTw7nR
+
+<tool.toolu_011FaVWhB5XGVoqQa1wTw7nR>
+Command failed with exit code 1: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 1 tests (2025-06-10 20:39:55+0200, selector ‘t’)
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+=== ACTUAL OUTPUT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 103 116 (fontified nil face grgfoo-citations-header-face) 116 117 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 117 147 (face font-lock-comment-face))
+
+=== EXPECTED OUTPUT ===
+"## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+[+2 citations, TAB to expand]"
+
+=== ACTUAL LENGTH: 147, EXPECTED LENGTH: 146 ===
+
+=== CHARACTER BY CHARACTER ===
+Position 117: actual=10 expected=91
+Position 118: actual=91 expected=43
+Position 119: actual=43 expected=50
+Position 120: actual=50 expected=32
+Position 121: actual=32 expected=99
+Position 122: actual=99 expected=105
+Position 123: actual=105 expected=116
+Position 124: actual=116 expected=97
+Position 125: actual=97 expected=116
+Position 126: actual=116 expected=105
+Position 127: actual=105 expected=111
+Position 128: actual=111 expected=110
+Position 129: actual=110 expected=115
+Position 130: actual=115 expected=44
+Position 131: actual=44 expected=32
+Position 132: actual=32 expected=84
+Position 133: actual=84 expected=65
+Position 134: actual=65 expected=66
+Position 135: actual=66 expected=32
+Position 136: actual=32 expected=116
+Position 137: actual=116 expected=111
+Position 138: actual=111 expected=32
+Position 139: actual=32 expected=101
+Position 140: actual=101 expected=120
+Position 141: actual=120 expected=112
+Position 142: actual=112 expected=97
+Position 143: actual=97 expected=110
+Position 144: actual=110 expected=100
+Position 145: actual=100 expected=93
+Position 146: actual=93 expected=END
+Test test-citations-folding backtrace:
+  signal(ert-test-failed (((should (string= expected actual)) :form (s
+  ert-fail(((should (string= expected actual)) :form (string= "## ASSI
+  (if (unwind-protect (setq value-2 (apply fn-0 args-1)) (setq form-de
+  (let (form-description-4) (if (unwind-protect (setq value-2 (apply f
+  (let ((value-2 'ert-form-evaluation-aborted-3)) (let (form-descripti
+  (let* ((fn-0 #'string=) (args-1 (condition-case err (let ((signal-ho
+  (let ((actual (get-visible-buffer (current-buffer))) (expected "## A
+  (progn (insert "## ASSISTANT:\n\nEinstein developed the theory of re
+  (unwind-protect (progn (insert "## ASSISTANT:\n\nEinstein developed 
+  (save-current-buffer (set-buffer temp-buffer) (unwind-protect (progn
+  (let ((temp-buffer (generate-new-buffer " *temp*" t))) (save-current
+  (lambda nil (let ((temp-buffer (generate-new-buffer " *temp*" t))) (
+  ert--run-test-internal(#s(ert--test-execution-info :test #s(ert-test
+  ert-run-test(#s(ert-test :name test-citations-folding :documentation
+  ert-run-or-rerun-test(#s(ert--stats :selector t :tests [...] :test-m
+  ert-run-tests(t #f(compiled-function (event-type &rest event-args) #
+  ert-run-tests-batch(nil)
+  ert-run-tests-batch-and-exit()
+  eval-buffer(#<buffer  *load*> nil "/Users/andreas/projects/greger.el
+  load-with-code-conversion("/Users/andreas/projects/greger.el/greger-
+  load("/Users/andreas/projects/greger.el/greger-grammar/t..." nil t)
+  command-line-1(("-l" "test-citation-folding-exact.el"))
+  command-line()
+  normal-top-level()
+Test test-citations-folding condition:
+    (ert-test-failed
+     ((should
+       (string= expected actual))
+      :form
+      (string= "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+	       #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+		 (fontified nil face grgfoo-assistant-header-face)
+		 14 15
+		 (fontified nil)
+		 103 116
+		 (fontified nil face grgfoo-citations-header-face)
+		 116 117
+		 (face grgfoo-citations-header-face fontified nil after-string
+		       #("\n[+2 citations, TAB to expand]" 0 30 ...))
+		 117 147
+		 (face font-lock-comment-face)))
+      :value nil :explanation
+      (arrays-of-different-length 146 147 "## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n[+2 citations, TAB to expand]"
+				  #("## ASSISTANT:\n\nEinstein developed the theory of relativity while Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]" 0 14
+				    (fontified nil face grgfoo-assistant-header-face)
+				    14 15
+				    (fontified nil)
+				    103 116
+				    (fontified nil face grgfoo-citations-header-face)
+				    116 117
+				    (face grgfoo-citations-header-face fontified nil after-string
+					  #("\n[+2 citations, TAB to expand]" 0 30 ...))
+				    117 147
+				    (face font-lock-comment-face))
+				  first-mismatch-at 117)))
+   FAILED  1/1  test-citations-folding (0.051083 sec) at test-citation-folding-exact.el:16
+
+Ran 1 tests, 0 results as expected, 1 unexpected (2025-06-10 20:39:56+0200, 0.291902 sec)
+
+1 unexpected results:
+   FAILED  test-citations-folding
+
+
+</tool.toolu_011FaVWhB5XGVoqQa1wTw7nR>
+
+## ASSISTANT:
+
+I can see that it's still showing `\n` (newline) before the citations summary, but the expected output has the summary immediately after `:`. The after-string property still includes a newline. Looking at the debug output:
+
+```
+after-string #("\n[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))
+```
+
+The issue is in the citations section folding function. Let me check how it's applying the after-string property:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_015dKoVKWXwuwSNWVEmT2WH9
+
+### path
+
+<tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+grgfoo.el
+</tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+
+### start-line
+
+<tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+245
+</tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+
+### end-line
+
+<tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+275
+</tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+
+### include-line-numbers
+
+<tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+true
+</tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+
+## TOOL RESULT:
+
+ID: toolu_015dKoVKWXwuwSNWVEmT2WH9
+
+<tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+               (header-end (if first-newline
+                             (+ node-start first-newline)
+                             node-end)))
+          ;; Make everything after the header invisible
+          (when (< header-end node-end)
+            (put-text-property (1+ header-end) node-end 'invisible 'grgfoo-citations)
+            ;; Add summary text with citation count
+            (let ((citation-count (grgfoo--count-citations-in-section node)))
+              (put-text-property header-end (1+ header-end) 'after-string
+                               (propertize (format "\n[+%d citation%s, TAB to expand]"
+                                                 citation-count
+                                                 (if (= citation-count 1) "" "s"))
+                                         'face 'font-lock-comment-face)))))))))
+
+(defvar grgfoo--treesit-font-lock-settings
+  (treesit-font-lock-rules
+   :language 'greger
+   :feature 'headers
+   :override t
+   '(;; Major section headers - use custom faces for each type
+     (user_header) @grgfoo-user-header-face
+     (assistant_header) @grgfoo-assistant-header-face
+     (system_header) @grgfoo-system-header-face
+     (thinking_header) @grgfoo-thinking-header-face
+     (tool_use_header) @grgfoo-tool-header-face
+     (tool_result_header) @grgfoo-tool-header-face
+     (server_tool_use_header) @grgfoo-tool-header-face
+     (web_search_tool_result_header) @grgfoo-tool-header-face
+     (citations_header) @grgfoo-citations-header-face)
+
+   :language 'greger
+</tool.toolu_015dKoVKWXwuwSNWVEmT2WH9>
+
+## ASSISTANT:
+
+I see the issue! I have **two different functions** applying the after-string property - both the old `grgfoo--citations-section-folding-function` and the new code in `grgfoo--apply-citation-folding`. The old function is still there and running first. Let me remove the old function:
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01QmR9sbYjSkdFZtByyqbesR
+
+### pattern
+
+<tool.toolu_01QmR9sbYjSkdFZtByyqbesR>
+grgfoo--citations-section-folding-function
+</tool.toolu_01QmR9sbYjSkdFZtByyqbesR>
+
+## TOOL RESULT:
+
+ID: toolu_01QmR9sbYjSkdFZtByyqbesR
+
+<tool.toolu_01QmR9sbYjSkdFZtByyqbesR>
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo.el:233:(defun grgfoo--citations-section-folding-function (node override start end)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo.el:281:     (citations) @grgfoo--citations-section-folding-function)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:115:  (citations) @grgfoo--citations-section-folding-function)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:402:(defun grgfoo--citations-section-folding-function (node override start end)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:452:     (citations) @grgfoo--citations-section-folding-function)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:1310:     (citations) @grgfoo--citations-section-folding-function)
+/Users/andreas/projects/greger.el/greger-grammar/grgfoo-mode.greger:1322:     (citations) @grgfoo--citations-section-folding-function)
+/Users/andreas/projects/greger.el/greger-grammar/IMPLEMENTATION_SUMMARY.md:20:- `grgfoo--citations-section-folding-function` - Handles citations section folding
+
+</tool.toolu_01QmR9sbYjSkdFZtByyqbesR>
+
+## ASSISTANT:
+
+The old function is still in the font-lock rules. Let me remove it:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CtbjeNbqr9h2pAvEXP9o2R
+
+### file-path
+
+<tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+grgfoo.el
+</tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+
+### original-content
+
+<tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+
+### new-content
+
+<tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+</tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+
+### git-commit-message
+
+<tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+Remove old citations section folding from font-lock rules
+</tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+
+## TOOL RESULT:
+
+ID: toolu_01CtbjeNbqr9h2pAvEXP9o2R
+
+<tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+Error executing tool: Parentheses balance mismatch in Emacs Lisp content: original has balance 0, new has balance 1. They must be equal. Try again!
+</tool.toolu_01CtbjeNbqr9h2pAvEXP9o2R>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_011DUKwXZ3y2QkGg3UQYcfiZ
+
+### file-path
+
+<tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+grgfoo.el
+</tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+
+### original-content
+
+<tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+
+### new-content
+
+<tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+   '(;; Citation folding - hide individual citations
+     (assistant (citation_entry) @grgfoo--citation-folding-function))
+</tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+
+### git-commit-message
+
+<tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+Remove old citations section folding from font-lock rules
+</tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+
+## TOOL RESULT:
+
+ID: toolu_011DUKwXZ3y2QkGg3UQYcfiZ
+
+<tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
+Loading...
+</tool.toolu_011DUKwXZ3y2QkGg3UQYcfiZ>
