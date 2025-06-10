@@ -81,7 +81,7 @@ module.exports = grammar({
     ),
 
     tool_result: $ => seq(
-      token(seq('##', /[ \t]*/, 'TOOL', /[ \t]+/, 'RESULT')),
+      $.tool_result_header,
       ':',
       /\n/,
       optional(/\n/),
