@@ -52,10 +52,9 @@
 
 (ert-deftest test-citation-folding-disabled-by-default ()
   "Test that citation folding is disabled by default."
-  (let ((test-buffer (create-test-buffer-with-citations)))
-    (with-current-buffer test-buffer
-      (grgfoo-mode)
-      (should (not grgfoo-citation-folding-enabled)))))
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (should (not grgfoo-citation-folding-enabled))))
 
 (ert-deftest test-buffer-visible-text-utility ()
   "Test that buffer-visible-text works correctly."
