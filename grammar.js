@@ -29,6 +29,13 @@ module.exports = grammar({
 
 
 
+  conflicts: $ => [
+    [$.user],
+    [$.assistant],
+    [$.system],
+    [$.thinking],
+  ],
+
   rules: {
 
     source_file: $ => seq(
