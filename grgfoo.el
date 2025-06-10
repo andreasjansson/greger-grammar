@@ -327,7 +327,11 @@ START and END are the region bounds."
               (if node
                   (progn
                     (message "DEBUG find-citation: found initial node type=%s" (treesit-node-type node))
-                    (cl-loop for current = node then (treesit-node-parent current)
+                    (cl-loop for current = node then (let ((parent (treesit-node-parent current)))
+                                                               (message "DEBUG find-citation: getting parent of %s -> %s"
+                                                                       (treesit-node-type current)
+                                                                       (if parent (treesit-node-type parent) "nil"))
+                                                               parent)
                              while current
                              do (message "DEBUG find-citation: checking node type=%s" (treesit-node-type current))
                              when (member (treesit-node-type current) '("citation_entry" "citations"))
