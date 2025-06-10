@@ -322,31 +322,40 @@ START and END are the region bounds."
       (let* ((node-start (treesit-node-start citation-node))
              (node-type (treesit-node-type citation-node))
              (is-citations-section (string= node-type "citations")))
-        (if is-citations-section
-            ;; Handle citations section
-            (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
-              (if is-expanded
-                  ;; Collapse citations section
+        (let ((node-end (treesit-node-end citation-node)))
+          (if is-citations-section
+              ;; Handle citations section
+              (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                (if is-expanded
+                    ;; Collapse citations section
+                    (progn
+                      (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                      ;; Clear any existing invisible/display properties
+                      (remove-text-properties node-start node-end '(invisible after-string))
+                      (message "Citations section collapsed"))
+                  ;; Expand citations section
                   (progn
-                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
-                    (message "Citations section collapsed"))
-                ;; Expand citations section
+                    (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                    ;; Clear any existing invisible/display properties
+                    (remove-text-properties node-start node-end '(invisible after-string))
+                    (message "Citations section expanded"))))
+            ;; Handle individual citation
+            (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+              (if is-expanded
+                  ;; Collapse citation
+                  (progn
+                    (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                    ;; Clear any existing invisible/face properties
+                    (remove-text-properties node-start node-end '(invisible face))
+                    (message "Citation collapsed"))
+                ;; Expand citation
                 (progn
-                  (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
-                  (message "Citations section expanded"))))
-          ;; Handle individual citation
-          (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
-            (if is-expanded
-                ;; Collapse citation
-                (progn
-                  (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
-                  (message "Citation collapsed"))
-              ;; Expand citation
-              (progn
-                (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
-                (message "Citation expanded")))))
-        ;; Trigger font-lock refresh
-        (font-lock-flush (treesit-node-start citation-node) (treesit-node-end citation-node)))
+                  (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                  ;; Clear any existing invisible/face properties
+                  (remove-text-properties node-start node-end '(invisible face))
+                  (message "Citation expanded")))))
+          ;; Trigger font-lock refresh
+          (font-lock-flush node-start node-end)))
     ;; Fallback to normal TAB behavior if not on a citation
     (indent-for-tab-command)))
 
