@@ -158,7 +158,7 @@ module.exports = grammar({
     param_name: $ => /[^\n]+/,
 
     citation_entry: $ => seq(
-      token(seq('###', /[ ]*/, /https?:\/\/[^\n\s]+/)),
+      alias(token(seq('###', /[ ]*/, /https?:\/\/[^\n\s]+/)), $.url),
       /\n/,
       optional(/\n/),
       choice(
