@@ -224,7 +224,6 @@ module.exports = grammar({
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
-      /\n/,
     ))),
 
     content_blocks: $ => prec.right(repeat1(choice(
