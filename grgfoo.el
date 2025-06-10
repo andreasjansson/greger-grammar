@@ -270,6 +270,14 @@ START and END are the region bounds."
     ;; Set up defun name function to show heading type
     (setq-local treesit-defun-name-function #'grgfoo--defun-name)
 
+    ;; Setup citation folding invisibility
+    (when grgfoo-citation-folding-enabled
+      (add-to-invisibility-spec 'grgfoo-citation)
+      (add-to-invisibility-spec 'grgfoo-citations))
+
+    ;; Setup key bindings
+    (local-set-key (kbd "TAB") #'grgfoo-toggle-citation-fold)
+
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)))
 
