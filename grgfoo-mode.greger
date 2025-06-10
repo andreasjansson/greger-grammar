@@ -5344,5 +5344,48 @@ Add error protection to citation node finding function
 ID: toolu_012q3KFLCKy2uTNLYptiuUnw
 
 <tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el. Successfully staged 2 file(s) and committed with message: Add error protection to citation node finding function
 </tool.toolu_012q3KFLCKy2uTNLYptiuUnw>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01ARj5vW2JUUr6ef8knmVt8z
+
+### file-path
+
+<tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+grgfoo.el
+</tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+
+### original-content
+
+<tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (length (treesit-query-capture citations-node '((citation_entry) @citation))))
+</tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+
+### new-content
+
+<tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+(defun grgfoo--count-citations-in-section (citations-node)
+  "Count the number of citation entries in CITATIONS-NODE."
+  (condition-case nil
+    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
+    (error 0)))
+</tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+
+### git-commit-message
+
+<tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+Add error protection to citation counting function
+</tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+
+## TOOL RESULT:
+
+ID: toolu_01ARj5vW2JUUr6ef8knmVt8z
+
+<tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
+Loading...
+</tool.toolu_01ARj5vW2JUUr6ef8knmVt8z>
