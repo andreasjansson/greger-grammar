@@ -48,7 +48,7 @@ module.exports = grammar({
       $.content_blocks,
     ),
 
-    user_header: $ => token(seq('##', /[ \t]*/, 'USER')),
+    user_header: _ => token(seq('##', /[ \t]*/, 'USER')),
 
     assistant: $ => seq(
       $.assistant_header,
