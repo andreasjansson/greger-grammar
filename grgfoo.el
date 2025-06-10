@@ -175,20 +175,31 @@ START and END are the region bounds."
             (modified (buffer-modified-p)))
         (condition-case err
             (progn
+              ;; Clear any existing display properties to avoid duplicates
+              (remove-text-properties (point-min) (point-max) '(display))
+
               ;; Find all assistant blocks and collect their text
               (goto-char (point-min))
               (let ((assistant-texts '())
-                    (assistant-start nil)
-                    (assistant-end nil))
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (replacement-start nil))
+
                 (while (re-search-forward "^## ASSISTANT:$" nil t)
                   (let ((block-start (line-beginning-position))
                         (block-end (save-excursion
                                      (if (re-search-forward "^## " nil t)
                                          (line-beginning-position)
                                        (point-max)))))
-                    (unless assistant-start
-                      (setq assistant-start block-start))
-                    (setq assistant-end block-end)
+                    ;; Remember the first assistant block position
+                    (unless first-assistant-start
+                      (setq first-assistant-start block-start)
+                      ;; Set replacement start after header
+                      (goto-char block-start)
+                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                      (setq replacement-start (point)))
+
+                    (setq last-assistant-end block-end)
 
                     ;; Extract text from this block (skip citations)
                     (goto-char block-start)
@@ -208,14 +219,11 @@ START and END are the region bounds."
                         (forward-line 1)))))
 
                 ;; If we have multiple text parts, create merged view
-                (when (and (> (length assistant-texts) 1) assistant-start assistant-end)
+                (when (and (> (length assistant-texts) 1) replacement-start last-assistant-end)
                   (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
-                    ;; Replace all assistant blocks with single merged block
-                    (goto-char assistant-start)
-                    (forward-line 2) ; Skip "## ASSISTANT:" and blank line
-                    (let ((content-start (point)))
-                      (put-text-property content-start assistant-end 'display
-                                       (concat merged-text "\n\n"))))))
+                    ;; Replace content from first assistant text to last assistant end with merged text
+                    (put-text-property replacement-start last-assistant-end 'display
+                                     (concat merged-text "\n\n")))))
 
               ;; Now handle citations section
               (goto-char (point-min))
