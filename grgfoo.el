@@ -182,9 +182,9 @@
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
                 '((error)                    ; level 1 - always show errors
-                  (heading)                  ; level 2 - basic structure
-                  (field subheading)         ; level 3 - detailed structure
-                  (content)))
+                  (headers)                  ; level 2 - main headers
+                  (subheadings fields)       ; level 3 - subheadings and field names
+                  (comments)))               ; level 4 - comments only, no text content
 
     ;; Indentation - using simple and safe rules
     (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
