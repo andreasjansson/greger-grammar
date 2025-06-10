@@ -133,6 +133,13 @@
      (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
 
    :language 'greger
+   :feature 'tool-tags
+   :override t
+   '(;; Tool start and end tags - smaller and less visible
+     (tool_start_tag) @grgfoo-tool-tag-face
+     (tool_end_tag) @grgfoo-tool-tag-face)
+
+   :language 'greger
    :feature 'comments
    :override t
    '(;; HTML comments only
