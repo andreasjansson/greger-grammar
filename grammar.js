@@ -30,10 +30,6 @@ module.exports = grammar({
 
 
   conflicts: $ => [
-    [$.user],
-    [$.assistant],
-    [$.system],
-    [$.thinking],
     [$.user, $.text],
     [$.assistant, $.text],
     [$.system, $.text],
