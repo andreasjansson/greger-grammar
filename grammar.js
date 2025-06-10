@@ -282,7 +282,7 @@ module.exports = grammar({
           /``[^`]/,
         ),
       )),
-      /\n?/,
+      optional(/\n/),
       '```',
     ),
 
