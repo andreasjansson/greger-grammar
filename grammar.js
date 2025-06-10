@@ -75,6 +75,9 @@ module.exports = grammar({
     ),
 
     tool_result: $ => seq(
+      $.tool_result_header,
+      ':',
+      /\n/,
       optional(/\n/),
       $.id,
       optional(/\n/),
