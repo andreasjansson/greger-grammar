@@ -2058,5 +2058,551 @@ Add debug script to examine visibility issues
 ID: toolu_013mNQFpTdSoJXg3BZdmLTwN
 
 <tool.toolu_013mNQFpTdSoJXg3BZdmLTwN>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/debug-visibility.el with 1328 characters. Successfully staged 2 file(s) and committed with message: Add debug script to examine visibility issues
 </tool.toolu_013mNQFpTdSoJXg3BZdmLTwN>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GamCqfJsneKhRhGNaC8eij
+
+### command
+
+<tool.toolu_01GamCqfJsneKhRhGNaC8eij>
+emacs -Q --batch -l debug-visibility.el
+</tool.toolu_01GamCqfJsneKhRhGNaC8eij>
+
+## TOOL RESULT:
+
+ID: toolu_01GamCqfJsneKhRhGNaC8eij
+
+<tool.toolu_01GamCqfJsneKhRhGNaC8eij>
+Command executed successfully:
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=27 end=93 should-fold=t
+DEBUG: Applied invisible property from 27 to 92
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+
+
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=61 end=238 should-fold=t
+DEBUG: Applied invisible property from 61 to 237
+DEBUG: citation-folding-function called, node=present
+DEBUG: node type=citation_entry start=297 end=442 should-fold=t
+DEBUG: Applied invisible property from 297 to 441
+=== BUFFER CONTENT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+## ASSISTANT:
+
+while Newton formulated the laws of motion
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+
+## CITATIONS:
+
+### https://physics.com/einstein
+
+Title: Einstein Biography
+Cited text: Albert Einstein developed the theory of relativity in the early 20th century...
+Encrypted index: def456
+
+### https://physics.com/newton
+
+Title: Newton Biography
+Cited text: Isaac Newton formulated the three laws of motion...
+Encrypted index: ghi789
+" 0 14 (face grgfoo-assistant-header-face fontified nil) 14 15 (fontified nil) 15 60 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 60 236 (invisible grgfoo-citation fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 236 237 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 237 251 (face grgfoo-assistant-header-face fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 251 296 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 296 440 (invisible grgfoo-citation fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 440 441 (fontified nil display "Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+") 441 454 (face grgfoo-citations-header-face fontified nil) 454 455 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 455 777 (fontified nil invisible grgfoo-citations))
+
+=== TEXT PROPERTIES DEBUG ===
+Position 1-778: (face grgfoo-assistant-header-face fontified nil)
+
+=== VISIBLE TEXT ===
+#("## ASSISTANT:
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+Einstein developed the theory of relativity while Newton formulated the laws of motion
+
+## CITATIONS:
+
+[+2 citations, TAB to expand]" 0 14 (fontified nil face grgfoo-assistant-header-face) 14 15 (fontified nil) 279 292 (fontified nil face grgfoo-citations-header-face) 292 293 (face grgfoo-citations-header-face fontified nil after-string #("
+[+2 citations, TAB to expand]" 0 30 (face font-lock-comment-face))) 293 323 (face font-lock-comment-face))
+
+</tool.toolu_01GamCqfJsneKhRhGNaC8eij>
+
+## ASSISTANT:
+
+I can see the issue! The display property is being applied to overlapping ranges, and **each range is getting the full merged text**. This is why the text is repeated three times. The ranges are overlapping:
+
+- Range 1: 15-60 (gets full merged text)
+- Range 2: 60-236 (gets full merged text + invisible)
+- Range 3: 236-237 (gets full merged text)
+- etc.
+
+I need to apply the display property to a **single, non-overlapping range** that covers all the assistant content. Let me fix this:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016eL4py5z1e4aD8nt5yC89h
+
+### file-path
+
+<tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+grgfoo.el
+</tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+
+### original-content
+
+<tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+              ;; Clear any existing display properties to avoid duplicates
+              (remove-text-properties (point-min) (point-max) '(display))
+              
+              ;; Find all assistant blocks and collect their text
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (replacement-start nil))
+                
+                (while (re-search-forward "^## ASSISTANT:$" nil t)
+                  (let ((block-start (line-beginning-position))
+                        (block-end (save-excursion
+                                     (if (re-search-forward "^## " nil t)
+                                         (line-beginning-position)
+                                       (point-max)))))
+                    ;; Remember the first assistant block position
+                    (unless first-assistant-start
+                      (setq first-assistant-start block-start)
+                      ;; Set replacement start after header
+                      (goto-char block-start)
+                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                      (setq replacement-start (point)))
+                    
+                    (setq last-assistant-end block-end)
+
+                    ;; Extract text from this block (skip citations)
+                    (goto-char block-start)
+                    (forward-line 2) ; Skip header and blank line
+                    (while (< (point) block-end)
+                      (let ((line-start (line-beginning-position))
+                            (line-end (line-end-position)))
+                        (when (< line-start line-end)
+                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
+                            (unless (or (string-match-p "^###" line-text)
+                                       (string-match-p "^Title:" line-text)
+                                       (string-match-p "^Cited text:" line-text)
+                                       (string-match-p "^Encrypted index:" line-text)
+                                       (string-match-p "^## " line-text)
+                                       (string= "" (string-trim line-text)))
+                              (push (string-trim line-text) assistant-texts))))
+                        (forward-line 1)))))
+
+                ;; If we have multiple text parts, create merged view
+                (when (and (> (length assistant-texts) 1) replacement-start last-assistant-end)
+                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                    ;; Replace content from first assistant text to last assistant end with merged text
+                    (put-text-property replacement-start last-assistant-end 'display
+                                     (concat merged-text "\n\n")))))
+</tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+
+### new-content
+
+<tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+              ;; Clear any existing display properties to avoid duplicates
+              (remove-text-properties (point-min) (point-max) '(display))
+              
+              ;; Find all assistant blocks and collect their text
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (replacement-start nil)
+                    (replacement-end nil))
+                
+                (while (re-search-forward "^## ASSISTANT:$" nil t)
+                  (let ((block-start (line-beginning-position))
+                        (block-end (save-excursion
+                                     (if (re-search-forward "^## " nil t)
+                                         (line-beginning-position)
+                                       (point-max)))))
+                    ;; Remember the first assistant block position
+                    (unless first-assistant-start
+                      (setq first-assistant-start block-start)
+                      ;; Set replacement start after header
+                      (goto-char block-start)
+                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                      (setq replacement-start (point)))
+                    
+                    (setq last-assistant-end block-end)
+
+                    ;; Extract text from this block (skip citations)
+                    (goto-char block-start)
+                    (forward-line 2) ; Skip header and blank line
+                    (while (< (point) block-end)
+                      (let ((line-start (line-beginning-position))
+                            (line-end (line-end-position)))
+                        (when (< line-start line-end)
+                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
+                            (unless (or (string-match-p "^###" line-text)
+                                       (string-match-p "^Title:" line-text)
+                                       (string-match-p "^Cited text:" line-text)
+                                       (string-match-p "^Encrypted index:" line-text)
+                                       (string-match-p "^## " line-text)
+                                       (string= "" (string-trim line-text)))
+                              (push (string-trim line-text) assistant-texts))))
+                        (forward-line 1)))))
+
+                ;; Set replacement end to the start of citations section (or end of buffer)
+                (goto-char (point-min))
+                (if (re-search-forward "^## CITATIONS:$" nil t)
+                    (setq replacement-end (line-beginning-position))
+                  (setq replacement-end (point-max)))
+
+                ;; If we have multiple text parts, create merged view
+                (when (and (> (length assistant-texts) 1) replacement-start replacement-end)
+                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                    ;; Replace content from first assistant text to citations section with merged text
+                    (put-text-property replacement-start replacement-end 'display
+                                     (concat merged-text "\n\n")))))
+</tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+
+### git-commit-message
+
+<tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+Fix display property range to avoid overlapping properties
+</tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+
+## TOOL RESULT:
+
+ID: toolu_016eL4py5z1e4aD8nt5yC89h
+
+<tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_016eL4py5z1e4aD8nt5yC89h>
+
+## ASSISTANT:
+
+Let me check the current content of the function:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01PNR8qhMZSQv9oXmJz5ujVR
+
+### path
+
+<tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+grgfoo.el
+</tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+
+### start-line
+
+<tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+110
+</tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+
+### end-line
+
+<tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+180
+</tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+
+### include-line-numbers
+
+<tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+true
+</tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+
+## TOOL RESULT:
+
+ID: toolu_01PNR8qhMZSQv9oXmJz5ujVR
+
+<tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+    table)
+  "Syntax table for `grgfoo-mode'.")
+
+;; Citation folding functions
+(defun grgfoo--citation-folding-function (node override start end)
+  "Font-lock function to handle citation folding.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (condition-case err
+      (when grgfoo-citation-folding-enabled
+        (message "DEBUG: citation-folding-function called, node=%s" (if node "present" "nil"))
+        (when node
+          (let* ((node-start (treesit-node-start node))
+                 (node-end (treesit-node-end node))
+                 (should-fold (not (get-text-property node-start 'grgfoo-citation-expanded))))
+            (message "DEBUG: node type=%s start=%d end=%d should-fold=%s"
+                     (treesit-node-type node) node-start node-end should-fold)
+            (when should-fold
+              ;; Hide the entire citation block
+              (put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
+              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+
+
+
+(defun grgfoo--apply-citation-folding ()
+  "Apply comprehensive citation folding to merge assistant text blocks."
+  (when grgfoo-citation-folding-enabled
+    (save-excursion
+      (let ((inhibit-read-only t)
+            (modified (buffer-modified-p)))
+        (condition-case err
+            (progn
+              ;; Clear any existing display properties to avoid duplicates
+              (remove-text-properties (point-min) (point-max) '(display))
+
+              ;; Find all assistant blocks and collect their text
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (replacement-start nil))
+
+                (while (re-search-forward "^## ASSISTANT:$" nil t)
+                  (let ((block-start (line-beginning-position))
+                        (block-end (save-excursion
+                                     (if (re-search-forward "^## " nil t)
+                                         (line-beginning-position)
+                                       (point-max)))))
+                    ;; Remember the first assistant block position
+                    (unless first-assistant-start
+                      (setq first-assistant-start block-start)
+                      ;; Set replacement start after header
+                      (goto-char block-start)
+                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                      (setq replacement-start (point)))
+
+                    (setq last-assistant-end block-end)
+
+                    ;; Extract text from this block (skip citations)
+                    (goto-char block-start)
+                    (forward-line 2) ; Skip header and blank line
+                    (while (< (point) block-end)
+                      (let ((line-start (line-beginning-position))
+                            (line-end (line-end-position)))
+                        (when (< line-start line-end)
+                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
+                            (unless (or (string-match-p "^###" line-text)
+                                       (string-match-p "^Title:" line-text)
+                                       (string-match-p "^Cited text:" line-text)
+</tool.toolu_01PNR8qhMZSQv9oXmJz5ujVR>
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01CsqtzBh9W7otTVun1GtXKF
+
+### path
+
+<tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+grgfoo.el
+</tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+
+### start-line
+
+<tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+130
+</tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+
+### end-line
+
+<tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+200
+</tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+
+### include-line-numbers
+
+<tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+true
+</tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+
+## TOOL RESULT:
+
+ID: toolu_01CsqtzBh9W7otTVun1GtXKF
+
+<tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+              (message "DEBUG: Applied invisible property from %d to %d" node-start (1- node-end))))))
+    (error
+     (message "ERROR in citation-folding-function: %s" err))))
+
+
+
+(defun grgfoo--apply-citation-folding ()
+  "Apply comprehensive citation folding to merge assistant text blocks."
+  (when grgfoo-citation-folding-enabled
+    (save-excursion
+      (let ((inhibit-read-only t)
+            (modified (buffer-modified-p)))
+        (condition-case err
+            (progn
+              ;; Clear any existing display properties to avoid duplicates
+              (remove-text-properties (point-min) (point-max) '(display))
+
+              ;; Find all assistant blocks and collect their text
+              (goto-char (point-min))
+              (let ((assistant-texts '())
+                    (first-assistant-start nil)
+                    (last-assistant-end nil)
+                    (replacement-start nil))
+
+                (while (re-search-forward "^## ASSISTANT:$" nil t)
+                  (let ((block-start (line-beginning-position))
+                        (block-end (save-excursion
+                                     (if (re-search-forward "^## " nil t)
+                                         (line-beginning-position)
+                                       (point-max)))))
+                    ;; Remember the first assistant block position
+                    (unless first-assistant-start
+                      (setq first-assistant-start block-start)
+                      ;; Set replacement start after header
+                      (goto-char block-start)
+                      (forward-line 2) ; Skip "## ASSISTANT:" and blank line
+                      (setq replacement-start (point)))
+
+                    (setq last-assistant-end block-end)
+
+                    ;; Extract text from this block (skip citations)
+                    (goto-char block-start)
+                    (forward-line 2) ; Skip header and blank line
+                    (while (< (point) block-end)
+                      (let ((line-start (line-beginning-position))
+                            (line-end (line-end-position)))
+                        (when (< line-start line-end)
+                          (let ((line-text (buffer-substring-no-properties line-start line-end)))
+                            (unless (or (string-match-p "^###" line-text)
+                                       (string-match-p "^Title:" line-text)
+                                       (string-match-p "^Cited text:" line-text)
+                                       (string-match-p "^Encrypted index:" line-text)
+                                       (string-match-p "^## " line-text)
+                                       (string= "" (string-trim line-text)))
+                              (push (string-trim line-text) assistant-texts))))
+                        (forward-line 1)))))
+
+                ;; If we have multiple text parts, create merged view
+                (when (and (> (length assistant-texts) 1) replacement-start last-assistant-end)
+                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                    ;; Replace content from first assistant text to last assistant end with merged text
+                    (put-text-property replacement-start last-assistant-end 'display
+                                     (concat merged-text "\n\n")))))
+
+              ;; Now handle citations section
+              (goto-char (point-min))
+              (when (re-search-forward "^## CITATIONS:$" nil t)
+                (let ((citations-start (line-beginning-position)))
+                  (forward-line 1)
+                  (let ((citations-content-start (point))
+                        (citations-end (point-max)))
+</tool.toolu_01CsqtzBh9W7otTVun1GtXKF>
+
+## ASSISTANT:
+
+Let me find the exact part I need to replace:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MvGNddGvYW8GPT4sazt322
+
+### file-path
+
+<tool.toolu_01MvGNddGvYW8GPT4sazt322>
+grgfoo.el
+</tool.toolu_01MvGNddGvYW8GPT4sazt322>
+
+### original-content
+
+<tool.toolu_01MvGNddGvYW8GPT4sazt322>
+                ;; If we have multiple text parts, create merged view
+                (when (and (> (length assistant-texts) 1) replacement-start last-assistant-end)
+                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                    ;; Replace content from first assistant text to last assistant end with merged text
+                    (put-text-property replacement-start last-assistant-end 'display
+                                     (concat merged-text "\n\n")))))
+</tool.toolu_01MvGNddGvYW8GPT4sazt322>
+
+### new-content
+
+<tool.toolu_01MvGNddGvYW8GPT4sazt322>
+                ;; Set replacement end to the start of citations section (or end of buffer)
+                (goto-char (point-min))
+                (let ((replacement-end (if (re-search-forward "^## CITATIONS:$" nil t)
+                                         (line-beginning-position)
+                                       (point-max))))
+
+                  ;; If we have multiple text parts, create merged view
+                  (when (and (> (length assistant-texts) 1) replacement-start replacement-end)
+                    (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                      ;; Replace content from first assistant text to citations section with merged text
+                      (put-text-property replacement-start replacement-end 'display
+                                       (concat merged-text "\n\n"))))))
+</tool.toolu_01MvGNddGvYW8GPT4sazt322>
+
+### git-commit-message
+
+<tool.toolu_01MvGNddGvYW8GPT4sazt322>
+Fix display property range to avoid overlapping properties
+</tool.toolu_01MvGNddGvYW8GPT4sazt322>
+
+## TOOL RESULT:
+
+ID: toolu_01MvGNddGvYW8GPT4sazt322
+
+<tool.toolu_01MvGNddGvYW8GPT4sazt322>
+Loading...
+</tool.toolu_01MvGNddGvYW8GPT4sazt322>

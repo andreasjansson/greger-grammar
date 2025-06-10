@@ -184,12 +184,18 @@ START and END are the region bounds."
                               (push (string-trim line-text) assistant-texts))))
                         (forward-line 1)))))
 
-                ;; If we have multiple text parts, create merged view
-                (when (and (> (length assistant-texts) 1) replacement-start last-assistant-end)
-                  (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
-                    ;; Replace content from first assistant text to last assistant end with merged text
-                    (put-text-property replacement-start last-assistant-end 'display
-                                     (concat merged-text "\n\n")))))
+                ;; Set replacement end to the start of citations section (or end of buffer)
+                (goto-char (point-min))
+                (let ((replacement-end (if (re-search-forward "^## CITATIONS:$" nil t)
+                                         (line-beginning-position)
+                                       (point-max))))
+
+                  ;; If we have multiple text parts, create merged view
+                  (when (and (> (length assistant-texts) 1) replacement-start replacement-end)
+                    (let ((merged-text (mapconcat 'identity (reverse assistant-texts) " ")))
+                      ;; Replace content from first assistant text to citations section with merged text
+                      (put-text-property replacement-start replacement-end 'display
+                                       (concat merged-text "\n\n"))))))
 
               ;; Now handle citations section
               (goto-char (point-min))
