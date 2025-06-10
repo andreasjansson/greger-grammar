@@ -322,9 +322,41 @@ START and END are the region bounds."
   "Toggle folding of citation at point."
   (interactive)
   (condition-case err
-      (progn
-        (message "TAB pressed at position %d" (point))
-        ;; Just fall back to normal indentation for now
+      (if grgfoo-citation-folding-enabled
+          (let ((citation-node (grgfoo--find-citation-at-point)))
+            (if citation-node
+                (let* ((node-start (treesit-node-start citation-node))
+                       (node-end (treesit-node-end citation-node))
+                       (node-type (treesit-node-type citation-node))
+                       (is-citations-section (string= node-type "citations")))
+                  (if is-citations-section
+                      ;; Handle citations section
+                      (let ((is-expanded (get-text-property node-start 'grgfoo-citations-expanded)))
+                        (if is-expanded
+                            ;; Collapse citations section
+                            (progn
+                              (remove-text-properties node-start (1+ node-start) '(grgfoo-citations-expanded))
+                              (message "Citations section collapsed"))
+                          ;; Expand citations section
+                          (progn
+                            (put-text-property node-start (1+ node-start) 'grgfoo-citations-expanded t)
+                            (message "Citations section expanded"))))
+                    ;; Handle individual citation
+                    (let ((is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+                      (if is-expanded
+                          ;; Collapse citation
+                          (progn
+                            (remove-text-properties node-start (1+ node-start) '(grgfoo-citation-expanded))
+                            (message "Citation collapsed"))
+                        ;; Expand citation
+                        (progn
+                          (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
+                          (message "Citation expanded")))))
+                  ;; Trigger font-lock refresh
+                  (font-lock-flush node-start node-end))
+              ;; Not on a citation, fall back to normal TAB
+              (indent-for-tab-command)))
+        ;; Citation folding disabled, fall back to normal TAB
         (indent-for-tab-command))
     (error
      (message "Error in citation folding: %s" err)
