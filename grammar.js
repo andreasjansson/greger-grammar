@@ -238,17 +238,14 @@ module.exports = grammar({
       $.html_comment,
     ))),
 
-    text: $ => prec.right(choice(
-      seq(
-        repeat(/\n/),
-        $._text_content,
-        repeat(choice(
-          seq(repeat1(/\n/), $._text_content),
-          repeat1(/\n/)
-        ))
-      ),
-      repeat1(/\n/)
-    )),
+    text: $ => prec.right(token(seq(
+      optional(/\n+/),
+      /[^`\n]+/,
+      repeat(seq(
+        /\n+/,
+        optional(/[^`\n]+/)
+      ))
+    ))),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
 
