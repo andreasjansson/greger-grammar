@@ -7095,5 +7095,174 @@ Fix should-not-error usage in test (1)
 ID: toolu_01BSsMH3e4R3tU6YVe9EbV95
 
 <tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Fix should-not-error usage in test (1)
 </tool.toolu_01BSsMH3e4R3tU6YVe9EbV95>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016YhzDGn71dUVEMoVwXi3ji
+
+### file-path
+
+<tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+test-citation-folding-ert.el
+</tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+
+### original-content
+
+<tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+    
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+</tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+
+### new-content
+
+<tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+    (search-forward "Einstein" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+    
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+    
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+</tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+
+### git-commit-message
+
+<tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+Fix remaining should-not-error usage in test
+</tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+
+## TOOL RESULT:
+
+ID: toolu_016YhzDGn71dUVEMoVwXi3ji
+
+<tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el -- Try again!
+</tool.toolu_016YhzDGn71dUVEMoVwXi3ji>
+
+## ASSISTANT:
+
+Let me look at the file again:
+
+## TOOL USE:
+
+Name: read-file
+ID: toolu_01WxPZCh8a7mZYph7hgEQCxt
+
+### path
+
+<tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+test-citation-folding-ert.el
+</tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+
+### start-line
+
+<tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+65
+</tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+
+### end-line
+
+<tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+85
+</tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+
+## TOOL RESULT:
+
+ID: toolu_01WxPZCh8a7mZYph7hgEQCxt
+
+<tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+    (let ((visible (buffer-visible-text)))
+      (should (string= visible "visiext")))))
+
+(ert-deftest test-tab-handler-no-segfault ()
+  "Test that TAB handler doesn't segfault."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+
+    ;; Test TAB at various positions
+    (goto-char (point-min))
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+
+</tool.toolu_01WxPZCh8a7mZYph7hgEQCxt>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01MHiFy6AgAx5L63kthQXqte
+
+### file-path
+
+<tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+test-citation-folding-ert.el
+</tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+
+### original-content
+
+<tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+    (search-forward "Einstein" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+
+    (search-forward "while" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))
+
+    (search-forward "CITATIONS" nil t)
+    (should-not-error (grgfoo-toggle-citation-fold))))
+</tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+
+### new-content
+
+<tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+    (search-forward "Einstein" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "while" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))
+
+    (search-forward "CITATIONS" nil t)
+    (should (not (condition-case nil
+                     (progn (grgfoo-toggle-citation-fold) nil)
+                   (error t))))))
+</tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+
+### git-commit-message
+
+<tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+Fix remaining should-not-error usage in test
+</tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+
+## TOOL RESULT:
+
+ID: toolu_01MHiFy6AgAx5L63kthQXqte
+
+<tool.toolu_01MHiFy6AgAx5L63kthQXqte>
+Loading...
+</tool.toolu_01MHiFy6AgAx5L63kthQXqte>
