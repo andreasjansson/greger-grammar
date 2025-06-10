@@ -211,17 +211,13 @@ START and END are the region bounds."
                 ;; If we have multiple assistant blocks with text, merge them
                 (when (> (length assistant-texts) 1)
                   (let ((merged-text (string-join (reverse assistant-texts) " ")))
-                    ;; Hide all but the first assistant block content
-                    (dolist (block (cdr assistant-blocks))
-                      (let ((content-start (nth 2 block))
-                            (block-end (nth 1 block)))
-                        (put-text-property content-start block-end 'invisible 'grgfoo-citation)))
-
-                    ;; Replace the first assistant block content with merged text
+                    ;; Find the range from first assistant content to last assistant end
                     (let* ((first-block (car (reverse assistant-blocks)))
+                           (last-block (car assistant-blocks))
                            (first-content-start (nth 2 first-block))
-                           (first-block-end (nth 1 first-block)))
-                      (put-text-property first-content-start first-block-end 'display
+                           (last-block-end (nth 1 last-block)))
+                      ;; Replace entire range with merged content
+                      (put-text-property first-content-start last-block-end 'display
                                        (concat merged-text "\n\n"))))))
 
               ;; Handle citations section
