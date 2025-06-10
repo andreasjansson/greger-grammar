@@ -119,7 +119,6 @@
    :feature 'subheadings
    :override t
    '(;; Sub-sections and parameter headers
-     (tool_param) @grgfoo-subheading-face
      (citation_entry) @grgfoo-subheading-face)
 
    :language 'greger
