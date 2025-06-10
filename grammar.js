@@ -36,6 +36,9 @@ module.exports = grammar({
     [$.thinking],
     [$.text],
     [$.user, $.text],
+    [$.assistant, $.text],
+    [$.system, $.text],
+    [$.thinking, $.text],
   ],
 
   rules: {
