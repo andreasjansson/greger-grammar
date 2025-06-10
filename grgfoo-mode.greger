@@ -16361,5 +16361,166 @@ Add debug test for text merging analysis
 ID: toolu_01Eu8JCdMo3AFz5dSXBwRpeG
 
 <tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
-Loading...
+Successfully wrote new file /Users/andreas/projects/greger.el/greger-grammar/test-debug-text-merging.el with 1956 characters. Successfully staged 2 file(s) and committed with message: Add debug test for text merging analysis
 </tool.toolu_01Eu8JCdMo3AFz5dSXBwRpeG>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01QJ3fQhGUHVPPhizPkVTGRm
+
+### command
+
+<tool.toolu_01QJ3fQhGUHVPPhizPkVTGRm>
+emacs --batch -l test-debug-text-merging.el 2>&1 | grep -E "(Found|Assistant|Children|Child.*text)" | head -15
+</tool.toolu_01QJ3fQhGUHVPPhizPkVTGRm>
+
+## TOOL RESULT:
+
+ID: toolu_01QJ3fQhGUHVPPhizPkVTGRm
+
+<tool.toolu_01QJ3fQhGUHVPPhizPkVTGRm>
+Command executed successfully:
+Found 2 assistant nodes
+Assistant node: start=1 end=238
+  Children: 3
+    Child: type=assistant_header start=1 end=15 text=’## ASSISTANT:’
+    Child: type=text start=15 end=61 text=’Einstein developed’
+    Child: type=citation_entry start=61 end=238 text=’### https://physics.’
+Assistant node: start=238 end=441
+  Children: 3
+    Child: type=assistant_header start=238 end=252 text=’## ASSISTANT:’
+    Child: type=text start=252 end=297 text=’while Newton formul’
+    Child: type=citation_entry start=297 end=441 text=’### https://physics.’
+
+</tool.toolu_01QJ3fQhGUHVPPhizPkVTGRm>
+
+## ASSISTANT:
+
+Perfect! I can see that each assistant block has exactly one text node. The issue is that we need to combine text from multiple assistant blocks, not just within a single block. Let me create a post-processing approach that runs after all font-lock processing:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01PraSUEvYwZgRQavcXYEGaS
+
+### file-path
+
+<tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+grgfoo.el
+</tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+
+### original-content
+
+<tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup))
+</tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+
+### new-content
+
+<tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup)
+    
+    ;; Add post-processing for text merging across assistant blocks
+    (when grgfoo-citation-folding-enabled
+      (run-with-idle-timer 0.1 nil #'grgfoo--merge-assistant-texts (current-buffer))))
+</tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+
+### git-commit-message
+
+<tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+Add post-processing timer for text merging
+</tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+
+## TOOL RESULT:
+
+ID: toolu_01PraSUEvYwZgRQavcXYEGaS
+
+<tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+Error executing tool: Original content not found in file: /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el -- Try again!
+</tool.toolu_01PraSUEvYwZgRQavcXYEGaS>
+
+## TOOL USE:
+
+Name: ripgrep
+ID: toolu_01QdeYRDWXMjDuW7jnariCov
+
+### pattern
+
+<tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+treesit-major-mode-setup"
+</tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+
+### path
+
+<tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+grgfoo.el
+</tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+
+### context-lines
+
+<tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+2
+</tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+
+## TOOL RESULT:
+
+ID: toolu_01QdeYRDWXMjDuW7jnariCov
+
+<tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+319-
+320-    ;; Enable all tree-sitter features
+321:    (treesit-major-mode-setup)
+322-
+323-    ))
+
+</tool.toolu_01QdeYRDWXMjDuW7jnariCov>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01CvBHTewDn2LyZ1ignaspUm
+
+### file-path
+
+<tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+grgfoo.el
+</tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+
+### original-content
+
+<tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup)
+
+    ))
+</tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+
+### new-content
+
+<tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+    ;; Enable all tree-sitter features
+    (treesit-major-mode-setup)
+    
+    ;; Add post-processing for text merging across assistant blocks
+    (when grgfoo-citation-folding-enabled
+      (run-with-idle-timer 0.1 nil #'grgfoo--merge-assistant-texts (current-buffer)))
+
+    ))
+</tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+
+### git-commit-message
+
+<tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+Add post-processing timer for text merging
+</tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+
+## TOOL RESULT:
+
+ID: toolu_01CvBHTewDn2LyZ1ignaspUm
+
+<tool.toolu_01CvBHTewDn2LyZ1ignaspUm>
+Loading...
+</tool.toolu_01CvBHTewDn2LyZ1ignaspUm>

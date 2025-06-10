@@ -320,6 +320,10 @@ START and END are the region bounds."
     ;; Enable all tree-sitter features
     (treesit-major-mode-setup)
 
+    ;; Add post-processing for text merging across assistant blocks
+    (when grgfoo-citation-folding-enabled
+      (run-with-idle-timer 0.1 nil #'grgfoo--merge-assistant-texts (current-buffer)))
+
     ))
 
 
