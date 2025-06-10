@@ -6568,5 +6568,53 @@ Fix test buffer management with proper macro
 ID: toolu_01FrmpUCJbbW5CRPphFKJnPV
 
 <tool.toolu_01FrmpUCJbbW5CRPphFKJnPV>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Fix test buffer management with proper macro
 </tool.toolu_01FrmpUCJbbW5CRPphFKJnPV>
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_01AgZtX5acCqxtunGKt4A4PC
+
+### file-path
+
+<tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+test-citation-folding-ert.el
+</tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+
+### original-content
+
+<tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+(ert-deftest test-font-lock-works ()
+  "Test that font-lock works without segfaulting."
+  (let ((test-buffer (create-test-buffer-with-citations)))
+    (with-current-buffer test-buffer
+      (grgfoo-mode)
+      (font-lock-ensure)
+      (should (> (buffer-size) 0)))))
+</tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+
+### new-content
+
+<tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+(ert-deftest test-font-lock-works ()
+  "Test that font-lock works without segfaulting."
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    (should (> (buffer-size) 0))))
+</tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+
+### git-commit-message
+
+<tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+Fix font-lock test to use proper buffer macro
+</tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+
+## TOOL RESULT:
+
+ID: toolu_01AgZtX5acCqxtunGKt4A4PC
+
+<tool.toolu_01AgZtX5acCqxtunGKt4A4PC>
+Loading...
+</tool.toolu_01AgZtX5acCqxtunGKt4A4PC>

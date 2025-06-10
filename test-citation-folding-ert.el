@@ -45,11 +45,10 @@
 
 (ert-deftest test-font-lock-works ()
   "Test that font-lock works without segfaulting."
-  (let ((test-buffer (create-test-buffer-with-citations)))
-    (with-current-buffer test-buffer
-      (grgfoo-mode)
-      (font-lock-ensure)
-      (should (> (buffer-size) 0)))))
+  (with-test-buffer-with-citations
+    (grgfoo-mode)
+    (font-lock-ensure)
+    (should (> (buffer-size) 0))))
 
 (ert-deftest test-citation-folding-disabled-by-default ()
   "Test that citation folding is disabled by default."
