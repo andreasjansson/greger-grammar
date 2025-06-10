@@ -332,13 +332,14 @@ START and END are the region bounds."
                                                                        (treesit-node-type current)
                                                                        (if parent (treesit-node-type parent) "nil"))
                                                                parent)
+                             for counter from 0 below 10  ; Prevent infinite loops
                              while current
-                             do (message "DEBUG find-citation: checking node type=%s" (treesit-node-type current))
+                             do (message "DEBUG find-citation: iteration %d checking node type=%s" counter (treesit-node-type current))
                              when (member (treesit-node-type current) '("citation_entry" "citations"))
                              do (progn
                                   (message "DEBUG find-citation: found matching node type=%s" (treesit-node-type current))
                                   (cl-return current))
-                             finally (message "DEBUG find-citation: no matching node found")))
+                             finally (message "DEBUG find-citation: no matching node found after %d iterations" counter)))
                 (progn
                   (message "DEBUG find-citation: no node at point")
                   nil))))
