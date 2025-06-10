@@ -80,6 +80,7 @@ module.exports = grammar({
       $.system_header,
       optional(/\n/),
       $.system_content_blocks,
+      repeat(/\n/),
     ),
 
     thinking: $ => seq(
