@@ -447,7 +447,7 @@ BEG, END, and LEN are standard after-change parameters."
                                 (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded t)
                                 ;; Clear existing invisible properties
                                 (remove-text-properties node-start node-end '(invisible face))
-                                (message "Citation expanded")))))
+))))
                         ;; Trigger font-lock refresh
                         (font-lock-flush node-start node-end)))
                   (message "DEBUG TAB: no citation node found, falling back"))
