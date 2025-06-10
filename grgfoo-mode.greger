@@ -8160,5 +8160,152 @@ Add citation folding functionality test
 ID: toolu_01BgF7UruMP3VowMnYUM8AHd
 
 <tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
-Loading...
+Successfully replaced content in /Users/andreas/projects/greger.el/greger-grammar/test-citation-folding-ert.el. Successfully staged 2 file(s) and committed with message: Add citation folding functionality test
 </tool.toolu_01BgF7UruMP3VowMnYUM8AHd>
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01GBe1opsSFHinKv8j9Q1D2L
+
+### command
+
+<tool.toolu_01GBe1opsSFHinKv8j9Q1D2L>
+emacs --batch -l test-citation-folding-ert.el
+</tool.toolu_01GBe1opsSFHinKv8j9Q1D2L>
+
+## TOOL RESULT:
+
+ID: toolu_01GBe1opsSFHinKv8j9Q1D2L
+
+<tool.toolu_01GBe1opsSFHinKv8j9Q1D2L>
+Command failed with exit code 11: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/test-visibility-utils.el (source)...
+Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Original buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Title: Test
+Cited text: Example citation
+
+
+Visible buffer content:
+## ASSISTANT:
+
+Test text
+
+### https://example.com
+
+Text properties debug:
+Position 1-93: (face grgfoo-assistant-header-face fontified nil)
+Running 6 tests (2025-06-10 19:11:29+0200, selector ‘t’)
+   passed  1/6  test-buffer-visible-text-utility (0.000040 sec)
+   passed  2/6  test-citation-folding-enabled-by-default (0.000320 sec)
+   passed  3/6  test-citation-folding-functionality (0.000419 sec)
+   passed  4/6  test-font-lock-works (0.000404 sec)
+   passed  5/6  test-mode-loads-without-segfault (0.000270 sec)
+
+</tool.toolu_01GBe1opsSFHinKv8j9Q1D2L>
+
+## ASSISTANT:
+
+I notice the process was killed with exit code 11 (segfault), but it happened after several tests passed. Let me test the new TAB functionality manually to see if it's working:
+
+## TOOL USE:
+
+Name: shell-command
+ID: toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ
+
+### command
+
+<tool.toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ>
+timeout 10s emacs --batch -l test-citation-folding-segfaults.el
+</tool.toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ>
+
+## TOOL RESULT:
+
+ID: toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ
+
+<tool.toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ>
+Command failed with exit code 6: Loading /Users/andreas/projects/greger.el/greger-grammar/grgfoo.el (source)...
+Testing basic font-lock...
+Font-lock completed
+Testing TAB at different positions...
+Testing TAB on first ASSISTANT header at pos 1
+Fatal error 11: Segmentation fault
+
+</tool.toolu_01HnV7W9D4Hk8mJ2EY9bWrQZ>
+
+## ASSISTANT:
+
+TAB function to avoid the segfault for now and create a working summary for the user.
+
+Let me create a final summary of what we achieved and what the issues are:
+
+## USER:
+
+No, don't write summary to a file. Output it directly and continue to fix the issues.
+
+## ASSISTANT:
+
+You're absolutely right. Let me continue fixing the issues. The main problems are:
+
+1. **Segfault when pressing TAB** - This is happening in the tree-sitter node operations
+2. **Strange extra `#` characters appearing** - This suggests the font-lock functions are modifying the buffer incorrectly
+3. **Citations not properly folding** - The folding logic isn't working as expected
+
+Let me first disable the font-lock folding functions to isolate the segfault:
+
+## TOOL USE:
+
+Name: str-replace
+ID: toolu_016nMqc4DPqUCtcSj5uK1PrW
+
+### file-path
+
+<tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+grgfoo.el
+</tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+
+### original-content
+
+<tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+   :language 'greger
+   :feature 'folding
+   :override t
+   '(;; Citation folding - inline citations in assistant blocks
+     (assistant (citation_entry) @grgfoo--citation-folding-function)
+     ;; Citations section folding
+     (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+
+### new-content
+
+<tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+   ;; Temporarily disable folding feature to debug segfaults
+   ;; :language 'greger
+   ;; :feature 'folding
+   ;; :override t
+   ;; '(;; Citation folding - inline citations in assistant blocks
+   ;;   (assistant (citation_entry) @grgfoo--citation-folding-function)
+   ;;   ;; Citations section folding
+   ;;   (citations) @grgfoo--citations-section-folding-function)
+</tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+
+### git-commit-message
+
+<tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+Temporarily disable font-lock folding to isolate segfault
+</tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+
+## TOOL RESULT:
+
+ID: toolu_016nMqc4DPqUCtcSj5uK1PrW
+
+<tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
+Loading...
+</tool.toolu_016nMqc4DPqUCtcSj5uK1PrW>
