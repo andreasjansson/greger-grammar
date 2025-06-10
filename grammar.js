@@ -103,7 +103,7 @@ module.exports = grammar({
     ),
 
     web_search_tool_result: $ => seq(
-      token(seq('##', /[ \t]*/, 'WEB', /[ \t]+/, 'SEARCH', /[ \t]+/, 'TOOL', /[ \t]+/, 'RESULT')),
+      $.web_search_tool_result_header,
       ':',
       /\n/,
       optional(/\n/),
