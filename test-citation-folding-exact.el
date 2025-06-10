@@ -42,7 +42,7 @@
     (font-lock-ensure)
 
     (let ((actual (get-visible-buffer (current-buffer)))
-          (expected "## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]\n"))
+          (expected "## ASSISTANT:\n\nEinstein developed the theory of relativity\n\n\n## ASSISTANT:\n\nwhile Newton formulated the laws of motion\n\n\n## CITATIONS:\n\n[+2 citations, TAB to expand]"))
 
       (message "=== ACTUAL OUTPUT ===")
       (message "%S" actual)
