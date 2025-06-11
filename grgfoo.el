@@ -385,11 +385,12 @@ START and END are the region bounds."
    ;; Handle tool content folding - TAB in tool_content_head
    ((get-text-property (point) 'grgfoo-foldable-tool-content)
     (let* ((tail-start (get-text-property (point) 'grgfoo-tool-tail-start))
-           (tail-end (get-text-property (point) 'grgfoo-tool-tail-end))
-           (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
-      (put-text-property tail-start (1+ tail-start) 'grgfoo-tool-content-expanded (not is-tail-visible))
-      ;; Also need to flush both head and tail for overlay updates
-      (font-lock-flush (point) tail-end)))
+           (tail-end (get-text-property (point) 'grgfoo-tool-tail-end)))
+      (when (and tail-start tail-end)
+        (let ((is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
+          (put-text-property tail-start (min (1+ tail-start) tail-end) 'grgfoo-tool-content-expanded (not is-tail-visible))
+          ;; Also need to flush both head and tail for overlay updates
+          (font-lock-flush (point) tail-end)))))
    
    ;; Check if we're inside tool_content_tail when it's visible
    ((let ((node (treesit-node-at (point))))
