@@ -146,40 +146,42 @@ START and END are the region bounds."
            (invisible-start text-end)
            (invisible-end node-end))
 
-      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
-        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
-               (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
-          ;; space for displayed " "
-          (setq invisible-end (1- aunt-first-child-start))
-
-          (if should-fold
-              (put-text-property invisible-end (1+ invisible-end) 'display " ")
-            (remove-text-properties invisible-end (1+ invisible-end) '(display nil)))))
-
       (message (format "text-start: %s" text-start))
       (message (format "text-end: %s" text-end))
-      (put-text-property text-start text-end 'face 'underline)
+      (put-text-property text-start text-end 'face '(:underline "#555588"))
       (put-text-property text-start text-end 'mouse-face 'highlight)
       (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
       (put-text-property text-start text-end 'invisible-start invisible-start)
       (put-text-property text-start text-end 'invisible-end invisible-end)
-
-      (put-text-property invisible-start invisible-end 'invisible should-fold)
 
       (when (and uncle (equal (treesit-node-type uncle) "assistant"))
         (let* ((uncle-last-citation-entry (treesit-search-subtree uncle "^citation_entry$" t nil 1)))
 
           (if uncle-last-citation-entry
               ;; uncle always invisible
-              (put-text-property (treesit-node-end uncle-last-citation-entry) (1- node-start) 'invisible t))
+              (put-text-property (treesit-node-end uncle-last-citation-entry) node-start 'invisible t)
 
-          (let* ((uncle-last-child (treesit-node-child uncle -1))
-                 (uncle-last-child-end (grgfoo--node-end-no-whitespace uncle-last-child)))
+            (let* ((uncle-last-child (treesit-node-child uncle -1))
+                   (uncle-last-child-end (grgfoo--node-end-no-whitespace uncle-last-child)))
 
-            (put-text-property (- text-start 1) text-start 'display " ")
+              ;; uncle always invisible
+              (put-text-property uncle-last-child-end text-start 'invisible t)))
 
-            ;; uncle always invisible
-            (put-text-property (1- uncle-last-child-end) (1- text-start) 'invisible t))))
+          ))
+
+      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
+        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
+               (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
+          ;; space for displayed " "
+          (setq invisible-end (+ aunt-first-child-start 2))
+
+          ))
+
+      (put-text-property invisible-start invisible-end 'invisible should-fold)
+
+      
+
+      
 
       )))
 
