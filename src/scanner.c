@@ -194,9 +194,10 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
     int match_index = 0;
     bool has_content = false;
     int line_count = 0;
+    bool current_line_has_content = false;
 
     // Scan first 4 lines or until we find the closing tag
-    while (lexer->lookahead != 0 && line_count < 4) {
+    while (lexer->lookahead != 0) {
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
@@ -210,6 +211,7 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
                 }
             }
             advance(lexer);
+            current_line_has_content = true;
         } else {
             // Reset match and continue as content
             if (match_index > 0) {
@@ -218,7 +220,18 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
                 // Don't advance here, reprocess this character
             } else {
                 if (lexer->lookahead == '\n') {
-                    line_count++;
+                    if (current_line_has_content) {
+                        line_count++;
+                        current_line_has_content = false;
+                        
+                        // If we've completed 4 lines, set expecting_tail and break
+                        if (line_count >= 4) {
+                            scanner->expecting_tail = true;
+                            break;
+                        }
+                    }
+                } else {
+                    current_line_has_content = true;
                 }
                 advance(lexer);
                 has_content = true;
@@ -227,11 +240,8 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
         }
     }
 
-    // If we reached 4 lines and have content, return head and expect tail next
+    // Return head if we have content
     if (has_content) {
-        if (line_count >= 4) {
-            scanner->expecting_tail = true;
-        }
         lexer->result_symbol = TOOL_CONTENT_HEAD;
         return true;
     }
