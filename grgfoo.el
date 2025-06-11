@@ -255,8 +255,9 @@ START and END are the region bounds."
    :language 'greger
    :feature 'tool-folding
    :override t
-   '(;; Make tool_content_tail invisible
-     (tool_content_tail) @grgfoo--tool-content-folding-function)
+   '(;; Make tool_content_tail invisible and tool_content_head foldable
+     (tool_content_tail) @grgfoo--tool-content-tail-folding-function
+     (tool_content_head) @grgfoo--tool-content-head-folding-function)
 
    :language 'greger
    :feature 'comments
