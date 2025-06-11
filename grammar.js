@@ -17,7 +17,8 @@ module.exports = grammar({
   externals: $ => [
     $.tool_start_tag,
     $.tool_end_tag,
-    $.tool_content,
+    $.tool_content_head,
+    $.tool_content_tail,
     $.html_comment,
   ],
 
