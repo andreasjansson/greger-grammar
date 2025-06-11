@@ -102,12 +102,31 @@
 
 (defun grgfoo--node-end-no-whitespace (node)
   (let* ((start (treesit-node-start node))
-         (text (treesit-node-text node))
-         (first-whitespace (string-search "\\s" text)
-                       (header-end (if first-newline
-                                       (+ node-start first-newline)
-                                     node-end))))))
+         (end (treesit-node-end node))
+         (text (buffer-substring-no-properties start end))
+         (last-non-whitespace (1- (when (string-match "\\S-\\s-*\\'" text)
+                                 (match-beginning 0)))))
 
+    ;; TODO: remove debug
+    (message (format "text: %s" text))
+
+    ;; TODO: remove debug
+    (message (format "(- end start): %s" (- end start)))
+    ;; TODO: remove debug
+    (message (format "last-non-whitespace: %s" last-non-whitespace))
+
+    (if last-non-whitespace
+        (+ start last-non-whitespace)
+      end)))
+
+(defun grgfoo--node-start-no-whitespace (node)
+  (let* ((start (treesit-node-start node))
+         (end (treesit-node-end node))
+         (text (buffer-substring-no-properties start end))
+         (first-non-whitespace (string-match "[^ \t\n\r\f]" text)))
+    (if first-non-whitespace
+        (+ start first-non-whitespace)
+      start)))
 
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
@@ -116,42 +135,53 @@ NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (when node
     (let* ((node-start (treesit-node-start node))
-           (node-end (treesit-node-end node))
+           (node-end (grgfoo--node-end-no-whitespace node))
            (parent (treesit-node-parent node))
            (text (treesit-search-subtree parent "^text$" t nil 1))
            (text-start (treesit-node-start text))
            (text-end (grgfoo--node-end-no-whitespace text))
            (uncle (treesit-node-prev-sibling parent))
            (aunt (treesit-node-next-sibling parent))
-           (should-fold (not (get-text-property text-start 'grgfoo-citation-expanded))))
+           (should-fold (not (get-text-property text-start 'grgfoo-citation-expanded)))
+           (invisible-start text-end)
+           (invisible-end node-end))
+
+      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
+        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
+               (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
+          ;; space for displayed " "
+          (setq invisible-end (1- aunt-first-child-start))
+
+          (if should-fold
+              (put-text-property invisible-end (1+ invisible-end) 'display " ")
+            (remove-text-properties invisible-end (1+ invisible-end) '(display nil)))))
 
       (message (format "text-start: %s" text-start))
       (message (format "text-end: %s" text-end))
-      (put-text-property text-start (1- text-end) 'face 'underline)
-      (put-text-property text-start (1- text-end) 'mouse-face 'highlight)
-      (put-text-property text-start (1- text-end) 'grgfoo-expandable-citation-entry t)
-      (put-text-property text-start (1- text-end) 'entry-start node-start)
-      (put-text-property text-start (1- text-end) 'entry-end node-end)
-                                        ;(put-text-property node-start (1- node-end) 'invisible 'grgfoo-citation)
-      (put-text-property node-start (1- node-end) 'invisible should-fold)
-                                        ;(put-text-property node-start (1- node-end) 'face 'underline)
+      (put-text-property text-start text-end 'face 'underline)
+      (put-text-property text-start text-end 'mouse-face 'highlight)
+      (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
+      (put-text-property text-start text-end 'invisible-start invisible-start)
+      (put-text-property text-start text-end 'invisible-end invisible-end)
+
+      (put-text-property invisible-start invisible-end 'invisible should-fold)
 
       (when (and uncle (equal (treesit-node-type uncle) "assistant"))
         (let* ((uncle-last-citation-entry (treesit-search-subtree uncle "^citation_entry$" t nil 1)))
 
           (if uncle-last-citation-entry
-              (put-text-property (treesit-node-end uncle-last-citation-entry) (1- node-start) 'invisible 'grgfoo-citation))
+              ;; uncle always invisible
+              (put-text-property (treesit-node-end uncle-last-citation-entry) (1- node-start) 'invisible t))
 
           (let* ((uncle-last-child (treesit-node-child uncle -1))
-                 (uncle-last-child-end (treesit-node-end uncle-last-child)))
-            ;; uncle always invisible
-            (put-text-property uncle-last-child-end (1- text-start) 'invisible t))))
+                 (uncle-last-child-end (grgfoo--node-end-no-whitespace uncle-last-child)))
 
-      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
-        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
-               (aunt-first-child-start (treesit-node-start aunt-first-child)))
-          (put-text-property node-end (1- aunt-first-child-start) 'invisible should-fold))
-        ))))
+            (put-text-property (- text-start 1) text-start 'display " ")
+
+            ;; uncle always invisible
+            (put-text-property (1- uncle-last-child-end) (1- text-start) 'invisible t))))
+
+      )))
 
 (defun grgfoo--citations-section-folding-function (node override start end)
   "Font-lock function to handle citations section folding.
@@ -329,11 +359,11 @@ START and END are the region bounds."
   (if (get-text-property (point) 'grgfoo-expandable-citation-entry)
       (let* ((node (treesit-node-at (point)))
              (node-start (treesit-node-start node))
-             (entry-start (get-text-property node-start 'grgfoo-entry-start))
-             (entry-end (get-text-property node-start 'grgfoo-entry-end))
+             (invisible-start (get-text-property node-start 'grgfoo-invisible-start))
+             (invisible-end (get-text-property node-start 'grgfoo-invisible-end))
              (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
         (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
-        (font-lock-flush entry-start entry-end))
+        (font-lock-flush invisible-start invisible-end))
     (indent-for-tab-command)))
 
 
