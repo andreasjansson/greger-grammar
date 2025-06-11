@@ -63,6 +63,11 @@
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
+(defface grgfoo-tool-param-name-face
+  '((t (:foreground "lightblue")))
+  "Face for tool parameter names like 'path', 'content', etc."
+  :group 'grgfoo)
+
 (defface grgfoo-tool-tag-face
   '((t (:foreground "gray" :height 0.6)))
   "Face for tool start and end tags."
