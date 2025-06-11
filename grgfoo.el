@@ -268,7 +268,9 @@ START and END are the region bounds."
      (id "ID:") @grgfoo-field-name-face
      (citation_title "Title:") @grgfoo-field-name-face
      (citation_text "Cited text:") @grgfoo-field-name-face
-     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face)
+     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
+     ;; Tool parameter names
+     (tool_param (name) @grgfoo-tool-param-name-face))
 
    :language 'greger
    :feature 'tool-tags
