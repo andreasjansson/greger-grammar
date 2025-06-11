@@ -216,6 +216,12 @@ START and END are the region bounds."
      (tool_end_tag) @grgfoo-tool-tag-face)
 
    :language 'greger
+   :feature 'tool-folding
+   :override t
+   '(;; Make tool_content_tail invisible
+     (tool_content_tail) @grgfoo--make-invisible)
+
+   :language 'greger
    :feature 'comments
    :override t
    '(;; HTML comments only
@@ -260,7 +266,7 @@ START and END are the region bounds."
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
                 '((error)
-                  (headers folding)
+                  (headers folding tool-folding)
                   (tool-tags comments)
                   (subheadings fields)
                   (tool-tags comments)))
