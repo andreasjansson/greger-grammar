@@ -142,6 +142,7 @@ static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
     advance(lexer);
 
     scanner->in_tool_content = true;
+    scanner->expecting_tail = false;
     lexer->result_symbol = TOOL_START_TAG;
     return true;
 }
