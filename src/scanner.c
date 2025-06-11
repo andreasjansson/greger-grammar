@@ -223,19 +223,22 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
                     if (current_line_has_content) {
                         line_count++;
                         current_line_has_content = false;
-                        
-                        // If we've completed 4 lines, set expecting_tail and break
-                        if (line_count >= 4) {
-                            scanner->expecting_tail = true;
-                            break;
-                        }
+                    }
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
+                    
+                    // If we've completed 4 lines, set expecting_tail and break
+                    if (line_count >= 4) {
+                        scanner->expecting_tail = true;
+                        break;
                     }
                 } else {
                     current_line_has_content = true;
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
                 }
-                advance(lexer);
-                has_content = true;
-                lexer->mark_end(lexer);
             }
         }
     }
