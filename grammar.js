@@ -149,8 +149,7 @@ module.exports = grammar({
     ),
 
     tool_param: $ => seq(
-      '###',
-      /[ ]*/,
+      '### ',
       alias($.param_name, $.name),
       /\n/,
       optional(/\n/),
@@ -160,7 +159,7 @@ module.exports = grammar({
     param_name: $ => /[^\n]+/,
 
     citation_entry: $ => seq(
-      alias(token(seq('###', /[ ]*/, /https?:\/\/[^\n\s]+/)), $.url),
+      alias(token(/### https?:\/\/[^\n\s]+/), $.url),
       /\n/,
       optional(/\n/),
       choice(
@@ -175,22 +174,19 @@ module.exports = grammar({
 
 
     citation_title: $ => seq(
-      'Title:',
-      /[ ]+/,
+      'Title: ',
       field("value", $.value),
       /\n/,
     ),
 
     citation_text: $ => seq(
-      'Cited text:',
-      /[ ]+/,
+      'Cited text: ',
       field("value", $.value),
       /\n/,
     ),
 
     citation_encrypted_index: $ => seq(
-      'Encrypted index:',
-      /[ ]+/,
+      'Encrypted index: ',
       field("value", $.value),
       /\n/,
     ),
