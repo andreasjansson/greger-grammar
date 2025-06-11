@@ -347,18 +347,42 @@ START and END are the region bounds."
       (error nil))))
 
 (defun grgfoo-toggle-fold ()
-  "Toggle folding of citation at point."
+  "Toggle folding of citation or tool content at point."
   (interactive)
 
-  (if (get-text-property (point) 'grgfoo-expandable-citation-entry)
-      (let* ((node (treesit-node-at (point)))
-             (node-start (treesit-node-start node))
-             (invisible-start (get-text-property node-start 'grgfoo-invisible-start))
-             (invisible-end (get-text-property node-start 'grgfoo-invisible-end))
-             (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
-        (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
-        (font-lock-flush invisible-start invisible-end))
-    (indent-for-tab-command)))
+  (cond
+   ;; Handle citation folding
+   ((get-text-property (point) 'grgfoo-expandable-citation-entry)
+    (let* ((node (treesit-node-at (point)))
+           (node-start (treesit-node-start node))
+           (invisible-start (get-text-property node-start 'invisible-start))
+           (invisible-end (get-text-property node-start 'invisible-end))
+           (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+      (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
+      (font-lock-flush invisible-start invisible-end)))
+   
+   ;; Handle tool content folding
+   ((get-text-property (point) 'grgfoo-foldable-tool-content)
+    (let* ((content-start (get-text-property (point) 'grgfoo-tool-content-start))
+           (content-end (get-text-property (point) 'grgfoo-tool-content-end))
+           (is-expanded (get-text-property content-start 'grgfoo-tool-content-expanded)))
+      (put-text-property content-start (1+ content-start) 'grgfoo-tool-content-expanded (not is-expanded))
+      (font-lock-flush content-start content-end)))
+   
+   ;; Check if we're inside a folded tool content region
+   ((let ((node (treesit-node-at (point))))
+      (when node
+        (let ((tool-content-node (treesit-search-subtree node "^tool_content_tail$" nil nil 1)))
+          (when tool-content-node
+            (let* ((content-start (treesit-node-start tool-content-node))
+                   (content-end (treesit-node-end tool-content-node))
+                   (is-expanded (get-text-property content-start 'grgfoo-tool-content-expanded)))
+              (put-text-property content-start (1+ content-start) 'grgfoo-tool-content-expanded (not is-expanded))
+              (font-lock-flush content-start content-end)
+              t))))))
+   
+   ;; Default behavior
+   (t (indent-for-tab-command))))
 
 
 ;; Ensure the grammar is loaded
