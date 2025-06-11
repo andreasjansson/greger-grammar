@@ -232,6 +232,11 @@ module.exports = grammar({
       $.tool_end_tag,
     ),
 
+    tool_content: $ => seq(
+      $.tool_content_head,
+      optional($.tool_content_tail),
+    ),
+
     content: $ => alias($._tool_element, 'content'),
 
     code_block: $ => seq(
