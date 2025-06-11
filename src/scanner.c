@@ -28,10 +28,11 @@ unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buff
     if (tool_id_len >= 255) tool_id_len = 255;
 
     buffer[0] = scanner->in_tool_content ? 1 : 0;
-    buffer[1] = tool_id_len;
-    memcpy(buffer + 2, scanner->tool_id, tool_id_len);
+    buffer[1] = scanner->expecting_tail ? 1 : 0;
+    buffer[2] = tool_id_len;
+    memcpy(buffer + 3, scanner->tool_id, tool_id_len);
 
-    return 2 + tool_id_len;
+    return 3 + tool_id_len;
 }
 
 void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
