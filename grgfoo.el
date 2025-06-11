@@ -116,41 +116,63 @@
       start)))
 
 ;; Tool folding functions
-(defun grgfoo--tool-content-folding-function (node override start end)
-  "Font-lock function to make tool_content_tail foldable.
+(defun grgfoo--tool-content-tail-folding-function (node override start end)
+  "Font-lock function to make tool_content_tail invisible by default.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (when node
     (let* ((node-start (treesit-node-start node))
            (node-end (treesit-node-end node))
            (parent (treesit-node-parent node))
-           (is-folded (not (get-text-property node-start 'grgfoo-tool-content-expanded)))
+           (is-visible (get-text-property node-start 'grgfoo-tool-content-expanded))
            (line-count (count-lines node-start node-end)))
       
-      ;; Mark the start of the foldable region
-      (put-text-property node-start (1+ node-start) 'grgfoo-foldable-tool-content t)
-      (put-text-property node-start (1+ node-start) 'grgfoo-tool-content-start node-start)
-      (put-text-property node-start (1+ node-start) 'grgfoo-tool-content-end node-end)
+      ;; Apply invisibility (default is invisible unless expanded)
+      (put-text-property node-start node-end 'invisible (not is-visible))
       
-      ;; Apply invisibility if folded
-      (put-text-property node-start node-end 'invisible is-folded)
+      ;; Store tail info for the head to reference
+      (put-text-property node-start (1+ node-start) 'grgfoo-tool-tail-start node-start)
+      (put-text-property node-start (1+ node-start) 'grgfoo-tool-tail-end node-end)
+      (put-text-property node-start (1+ node-start) 'grgfoo-tool-tail-lines line-count))))
+
+(defun grgfoo--tool-content-head-folding-function (node override start end)
+  "Font-lock function to make tool_content_head TAB-able for controlling tail visibility.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when node
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (parent (treesit-node-parent node))
+           ;; Find the corresponding tail
+           (tail-node (treesit-search-subtree parent "^tool_content_tail$" nil nil 1)))
       
-      ;; Add overlay with fold indicator when folded
-      (when is-folded
-        (let ((overlay (make-overlay node-start node-start)))
-          (overlay-put overlay 'after-string 
-                      (propertize (format " +%d lines, TAB to expand" line-count)
-                                 'face '(:foreground "gray" :height 0.8)))
-          (overlay-put overlay 'grgfoo-fold-overlay t)
-          ;; Store overlay reference for cleanup
-          (put-text-property node-start (1+ node-start) 'grgfoo-fold-overlay overlay)))
-      
-      ;; Clean up old overlays when expanded
-      (unless is-folded
-        (let ((old-overlay (get-text-property node-start 'grgfoo-fold-overlay)))
-          (when old-overlay
-            (delete-overlay old-overlay)
-            (remove-text-properties node-start (1+ node-start) '(grgfoo-fold-overlay nil))))))))
+      (when tail-node
+        (let* ((tail-start (treesit-node-start tail-node))
+               (tail-end (treesit-node-end tail-node))
+               (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded))
+               (line-count (count-lines tail-start tail-end)))
+          
+          ;; Mark the head as foldable and store tail info
+          (put-text-property node-start node-end 'grgfoo-foldable-tool-content t)
+          (put-text-property node-start node-end 'grgfoo-tool-tail-start tail-start)
+          (put-text-property node-start node-end 'grgfoo-tool-tail-end tail-end)
+          
+          ;; Add overlay with fold indicator when tail is hidden
+          (unless is-tail-visible
+            (let ((overlay (make-overlay node-end node-end)))
+              (overlay-put overlay 'after-string 
+                          (propertize (format " +%d lines, TAB to expand" line-count)
+                                     'face '(:foreground "gray" :height 0.8)))
+              (overlay-put overlay 'grgfoo-fold-overlay t)
+              ;; Store overlay reference for cleanup
+              (put-text-property node-start (1+ node-start) 'grgfoo-fold-overlay overlay)))
+          
+          ;; Clean up old overlays when tail is visible
+          (when is-tail-visible
+            (let ((old-overlay (get-text-property node-start 'grgfoo-fold-overlay)))
+              (when old-overlay
+                (delete-overlay old-overlay)
+                (remove-text-properties node-start (1+ node-start) '(grgfoo-fold-overlay nil))))))))))
 
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
