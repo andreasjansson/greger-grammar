@@ -53,11 +53,6 @@
   "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
   :group 'grgfoo)
 
-(defface grgfoo-citations-header-face
-  '((t (:foreground "lightblue" :weight bold)))
-  "Face for CITATIONS header."
-  :group 'grgfoo)
-
 (defface grgfoo-subheading-face
   '((t (:foreground "coral" :weight semi-bold)))
   "Face for subheadings like tool parameters and citation entries."
@@ -176,30 +171,6 @@ START and END are the region bounds."
 
       )))
 
-(defun grgfoo--citations-section-folding-function (node override start end)
-  "Font-lock function to handle citations section folding.
-NODE is the matched tree-sitter node, OVERRIDE is the override setting,
-START and END are the region bounds."
-  (let* ((node-start (treesit-node-start node))
-         (node-end (treesit-node-end node))
-         (should-fold (not (get-text-property node-start 'grgfoo-citations-expanded))))
-
-    (let* ((text (buffer-substring-no-properties node-start node-end))
-           (first-newline (string-search "\n" text))
-           (header-end (if first-newline
-                           (+ node-start first-newline)
-                         node-end)))
-      ;; Make everything after the header invisible
-      (when (< header-end node-end)
-        (put-text-property (1+ header-end) node-end 'invisible should-fold)
-        ;; Add summary text with citation count
-        (let ((citation-count (grgfoo--count-citations-in-section node)))
-          (put-text-property header-end (1+ header-end) 'after-string
-                             (propertize (format "\n[+%d citation%s, TAB to expand]"
-                                                 citation-count
-                                                 (if (= citation-count 1) "" "s"))
-                                         'face 'font-lock-comment-face)))))))
-
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
    :language 'greger
@@ -213,18 +184,13 @@ START and END are the region bounds."
      (tool_use_header) @grgfoo-tool-header-face
      (tool_result_header) @grgfoo-tool-header-face
      (server_tool_use_header) @grgfoo-tool-header-face
-     (web_search_tool_result_header) @grgfoo-tool-header-face
-     (citations_header) @grgfoo-citations-header-face)
+     (web_search_tool_result_header) @grgfoo-tool-header-face)
 
    :language 'greger
    :feature 'folding
    :override t
    '(;; Citation folding - hide individual citations within assistant blocks
-     (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
-     ;; Assistant text merging - merge text across multiple assistant blocks
-     ;(assistant) @grgfoo--assistant-merger-function
-     ;; Citations section folding
-     (citations) @grgfoo--citations-section-folding-function)
+     (assistant (citation_entry) @grgfoo--citation-entry-folding-function))
 
    :language 'greger
    :feature 'subheadings
@@ -273,7 +239,6 @@ START and END are the region bounds."
      ((node-is "tool_result") column-0 0)
      ((node-is "server_tool_use") column-0 0)
      ((node-is "web_search_tool_result") column-0 0)
-     ((node-is "citations") column-0 0)
      ;; Indent content within sections
      ;; Default handling
      (no-node column-0 0)
@@ -307,7 +272,7 @@ START and END are the region bounds."
     (setq-local treesit-defun-type-regexp
                 (rx (or "user" "assistant" "system" "thinking"
                         "tool_use" "tool_result" "server_tool_use"
-                        "web_search_tool_result" "citations")))
+                        "web_search_tool_result")))
 
     ;; Set up defun name function to show heading type
     (setq-local treesit-defun-name-function #'grgfoo--defun-name)
@@ -335,15 +300,8 @@ START and END are the region bounds."
           ("tool_result" "TOOL RESULT")
           ("server_tool_use" "SERVER TOOL USE")
           ("web_search_tool_result" "WEB SEARCH TOOL RESULT")
-          ("citations" "CITATIONS")
           (_ nil))
       (error nil))))
-
-(defun grgfoo--count-citations-in-section (citations-node)
-  "Count the number of citation entries in CITATIONS-NODE."
-  (condition-case nil
-    (length (treesit-query-capture citations-node '((citation_entry) @citation)))
-    (error 0)))
 
 (defun grgfoo-toggle-fold ()
   "Toggle folding of citation at point."

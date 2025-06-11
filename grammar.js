@@ -53,7 +53,6 @@ module.exports = grammar({
       $.tool_result,
       $.server_tool_use,
       $.web_search_tool_result,
-      $.citations,
     ),
 
     user: $ => seq(
@@ -114,12 +113,6 @@ module.exports = grammar({
       $.content,
     ),
 
-    citations: $ => seq(
-      $.citations_header,
-      '\n\n',
-      repeat($.citation_entry),
-    ),
-
     user_header: _ => token('## USER:'),
 
     assistant_header: _ => token('## ASSISTANT:'),
@@ -134,8 +127,6 @@ module.exports = grammar({
     server_tool_use_header: _ => token('## SERVER TOOL USE:'),
 
     web_search_tool_result_header: _ => token('## WEB SEARCH TOOL RESULT:'),
-
-    citations_header: _ => token('## CITATIONS:'),
 
     name: $ => seq(
       'Name:',
