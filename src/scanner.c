@@ -40,21 +40,28 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
 
     if (length == 0) {
         scanner->in_tool_content = false;
+        scanner->expecting_tail = false;
         scanner->tool_id[0] = '\0';
         return;
     }
 
     scanner->in_tool_content = buffer[0] == 1;
     if (length > 1) {
-        unsigned tool_id_len = buffer[1];
-        if (tool_id_len >= 255) tool_id_len = 255;
-        if (length >= 2 + tool_id_len) {
-            memcpy(scanner->tool_id, buffer + 2, tool_id_len);
-            scanner->tool_id[tool_id_len] = '\0';
+        scanner->expecting_tail = buffer[1] == 1;
+        if (length > 2) {
+            unsigned tool_id_len = buffer[2];
+            if (tool_id_len >= 255) tool_id_len = 255;
+            if (length >= 3 + tool_id_len) {
+                memcpy(scanner->tool_id, buffer + 3, tool_id_len);
+                scanner->tool_id[tool_id_len] = '\0';
+            } else {
+                scanner->tool_id[0] = '\0';
+            }
         } else {
             scanner->tool_id[0] = '\0';
         }
     } else {
+        scanner->expecting_tail = false;
         scanner->tool_id[0] = '\0';
     }
 }
