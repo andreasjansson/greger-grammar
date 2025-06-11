@@ -69,6 +69,7 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
 void *tree_sitter_greger_external_scanner_create(void) {
     Scanner *scanner = malloc(sizeof(Scanner));
     scanner->in_tool_content = false;
+    scanner->expecting_tail = false;
     scanner->tool_id[0] = '\0';
     return scanner;
 }
