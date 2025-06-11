@@ -115,6 +115,16 @@
         (+ start first-non-whitespace)
       start)))
 
+;; Invisibility functions
+(defun grgfoo--make-invisible (node override start end)
+  "Font-lock function to make NODE invisible.
+NODE is the matched tree-sitter node, OVERRIDE is the override setting,
+START and END are the region bounds."
+  (when node
+    (let ((node-start (treesit-node-start node))
+          (node-end (treesit-node-end node)))
+      (put-text-property node-start node-end 'invisible t))))
+
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
   "Font-lock function to hide citation entries within assistant blocks.
