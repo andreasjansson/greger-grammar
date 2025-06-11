@@ -107,14 +107,6 @@
          (last-non-whitespace (1- (when (string-match "\\S-\\s-*\\'" text)
                                  (match-beginning 0)))))
 
-    ;; TODO: remove debug
-    (message (format "text: %s" text))
-
-    ;; TODO: remove debug
-    (message (format "(- end start): %s" (- end start)))
-    ;; TODO: remove debug
-    (message (format "last-non-whitespace: %s" last-non-whitespace))
-
     (if last-non-whitespace
         (+ start last-non-whitespace)
       end)))
