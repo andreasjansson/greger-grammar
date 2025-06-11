@@ -229,47 +229,8 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
                 has_content = true;
                 lexer->mark_end(lexer);
                 
-                // If we've completed 4 lines, check if there's more content
+                // If we've completed 4 lines, break and let natural flow determine if tail exists
                 if (line_count >= 4) {
-                    // Look ahead to see if there's more content or if we're at the closing tag
-                    bool more_content = false;
-                    
-                    // Save current position
-                    TSLexer saved_lexer = *lexer;
-                    
-                    // Look for more content before the closing tag
-                    while (lexer->lookahead != 0) {
-                        if (lexer->lookahead == expected_closing[0]) {
-                            // Check if this is the start of our closing tag
-                            int temp_match = 0;
-                            TSLexer temp_lexer = *lexer;
-                            while (temp_lexer.lookahead == expected_closing[temp_match] && temp_match < expected_len) {
-                                temp_match++;
-                                temp_lexer.advance(&temp_lexer, false);
-                            }
-                            if (temp_match == expected_len) {
-                                // Found the closing tag, no more content
-                                break;
-                            }
-                        }
-                        // If we find any non-whitespace content, mark it
-                        if (lexer->lookahead != ' ' && lexer->lookahead != '\t' && lexer->lookahead != '\n') {
-                            more_content = true;
-                            break;
-                        }
-                        if (lexer->lookahead == '\n') {
-                            more_content = true; // Even empty lines count as content
-                            break;
-                        }
-                        lexer->advance(lexer, false);
-                    }
-                    
-                    // Restore position
-                    *lexer = saved_lexer;
-                    
-                    if (more_content) {
-                        scanner->expecting_tail = true;
-                    }
                     break;
                 }
             } else {
