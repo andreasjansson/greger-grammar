@@ -6,7 +6,8 @@
 enum TokenType {
     TOOL_START_TAG,
     TOOL_END_TAG,
-    TOOL_CONTENT,
+    TOOL_CONTENT_HEAD,
+    TOOL_CONTENT_TAIL,
     HTML_COMMENT,
 };
 
