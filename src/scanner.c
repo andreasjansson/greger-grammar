@@ -296,8 +296,13 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     Scanner *scanner = (Scanner *)payload;
 
     // Handle tool content (raw text) when in tool content state
-    if (valid_symbols[TOOL_CONTENT] && scanner->in_tool_content) {
-        return scan_tool_content(scanner, lexer);
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+            return scan_tool_content_tail(scanner, lexer);
+        }
     }
 
     // Skip whitespace but preserve newlines for other tokens
