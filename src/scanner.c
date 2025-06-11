@@ -244,6 +244,25 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
 
     // Return head if we have content
     if (has_content) {
+        // If we broke out because we reached 4 lines, check if there's more content
+        if (line_count >= 4) {
+            // Check if current position is at the closing tag
+            int temp_match = 0;
+            while (lexer->lookahead == expected_closing[temp_match] && temp_match < expected_len) {
+                temp_match++;
+                if (temp_match == expected_len) {
+                    // We're at the closing tag, no tail needed
+                    break;
+                }
+                lexer->advance(lexer, false);
+            }
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_tail = true;
+            }
+        }
+        
         lexer->result_symbol = TOOL_CONTENT_HEAD;
         return true;
     }
