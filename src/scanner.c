@@ -215,30 +215,30 @@ static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
         } else {
             // Reset match and continue as content
             if (match_index > 0) {
-                // We were partially matching, reset but don't advance yet
+                // We were partially matching but failed, reset and process current char as content
                 match_index = 0;
-                // Don't advance here, reprocess this character
-            } else {
-                if (lexer->lookahead == '\n') {
-                    if (current_line_has_content) {
-                        line_count++;
-                        current_line_has_content = false;
-                    }
-                    advance(lexer);
-                    has_content = true;
-                    lexer->mark_end(lexer);
-                    
-                    // If we've completed 4 lines, set expecting_tail and break
-                    if (line_count >= 4) {
-                        scanner->expecting_tail = true;
-                        break;
-                    }
-                } else {
-                    current_line_has_content = true;
-                    advance(lexer);
-                    has_content = true;
-                    lexer->mark_end(lexer);
+            }
+            
+            // Process current character as content
+            if (lexer->lookahead == '\n') {
+                if (current_line_has_content) {
+                    line_count++;
+                    current_line_has_content = false;
                 }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+                
+                // If we've completed 4 lines, set expecting_tail and break
+                if (line_count >= 4) {
+                    scanner->expecting_tail = true;
+                    break;
+                }
+            } else {
+                current_line_has_content = true;
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
             }
         }
     }
