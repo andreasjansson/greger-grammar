@@ -116,7 +116,7 @@
       start)))
 
 ;; Invisibility functions
-(defun grgfoo--make-invisible (node override start end)
+(defun grgfoo--tool-content-folding-function (node override start end)
   "Font-lock function to make NODE invisible.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
@@ -229,7 +229,7 @@ START and END are the region bounds."
    :feature 'tool-folding
    :override t
    '(;; Make tool_content_tail invisible
-     (tool_content_tail) @grgfoo--make-invisible)
+     (tool_content_tail) @grgfoo--tool-content-folding-function)
 
    :language 'greger
    :feature 'comments
