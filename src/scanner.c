@@ -14,6 +14,7 @@ enum TokenType {
 typedef struct {
     char tool_id[256];
     bool in_tool_content;
+    bool expecting_tail; // true when we've scanned head and now need tail
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
