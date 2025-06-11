@@ -175,6 +175,7 @@ static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
     advance(lexer);
 
     scanner->in_tool_content = false;
+    scanner->expecting_tail = false;
     scanner->tool_id[0] = '\0';
     lexer->result_symbol = TOOL_END_TAG;
     return true;
