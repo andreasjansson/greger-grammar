@@ -64,7 +64,7 @@
   :group 'grgfoo)
 
 (defface grgfoo-tool-tag-face
-  '((t (:foreground "gray" :height 0.8)))
+  '((t (:foreground "gray" :height 0.6)))
   "Face for tool start and end tags."
   :group 'grgfoo)
 
@@ -115,15 +115,42 @@
         (+ start first-non-whitespace)
       start)))
 
-;; Invisibility functions
+;; Tool folding functions
 (defun grgfoo--tool-content-folding-function (node override start end)
-  "Font-lock function to make NODE invisible.
+  "Font-lock function to make tool_content_tail foldable.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
   (when node
-    (let ((node-start (treesit-node-start node))
-          (node-end (treesit-node-end node)))
-      (put-text-property node-start node-end 'invisible t))))
+    (let* ((node-start (treesit-node-start node))
+           (node-end (treesit-node-end node))
+           (parent (treesit-node-parent node))
+           (is-folded (not (get-text-property node-start 'grgfoo-tool-content-expanded)))
+           (line-count (count-lines node-start node-end)))
+      
+      ;; Mark the start of the foldable region
+      (put-text-property node-start (1+ node-start) 'grgfoo-foldable-tool-content t)
+      (put-text-property node-start (1+ node-start) 'grgfoo-tool-content-start node-start)
+      (put-text-property node-start (1+ node-start) 'grgfoo-tool-content-end node-end)
+      
+      ;; Apply invisibility if folded
+      (put-text-property node-start node-end 'invisible is-folded)
+      
+      ;; Add overlay with fold indicator when folded
+      (when is-folded
+        (let ((overlay (make-overlay node-start node-start)))
+          (overlay-put overlay 'after-string 
+                      (propertize (format " +%d lines, TAB to expand" line-count)
+                                 'face '(:foreground "gray" :height 0.8)))
+          (overlay-put overlay 'grgfoo-fold-overlay t)
+          ;; Store overlay reference for cleanup
+          (put-text-property node-start (1+ node-start) 'grgfoo-fold-overlay overlay)))
+      
+      ;; Clean up old overlays when expanded
+      (unless is-folded
+        (let ((old-overlay (get-text-property node-start 'grgfoo-fold-overlay)))
+          (when old-overlay
+            (delete-overlay old-overlay)
+            (remove-text-properties node-start (1+ node-start) '(grgfoo-fold-overlay nil))))))))
 
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
