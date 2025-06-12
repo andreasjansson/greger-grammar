@@ -136,62 +136,84 @@
       start)))
 
 ;; Tool folding functions
-(defun grgfoo--tool-content-tail-folding-function (node override start end)
+(defun grgfoo--tool-content-tail-folding-fn (node override start end)
   "Font-lock function to make tool_content_tail invisible by default.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  (when (and node (treesit-node-p node))
-    (condition-case err
-        (let* ((node-start (treesit-node-start node))
-               (node-end (treesit-node-end node))
-               (is-visible (get-text-property node-start 'grgfoo-tool-content-expanded)))
-          
-          ;; Apply invisibility (default is invisible unless expanded)
-          (put-text-property node-start node-end 'invisible (not is-visible)))
-      (error (message "Error in tool-content-tail folding: %s" err)))))
+  (let* ((node-start (treesit-node-start node))
+         (node-end (treesit-node-end node))
+         (is-visible (get-text-property node-start 'grgfoo-tool-content-expanded)))
+    
+    ;; Apply invisibility (default is invisible unless expanded)
+    (put-text-property node-start node-end 'invisible (not is-visible))))
 
-(defun grgfoo--tool-content-head-folding-function (node override start end)
+(defun grgfoo--tool-content-head-folding-fn (node override start end)
   "Font-lock function to make tool_content_head TAB-able for controlling tail visibility.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  (when (and node (treesit-node-p node))
-    (condition-case err
-        (let* ((node-start (treesit-node-start node))
-               (node-end (treesit-node-end node))
-               (parent (treesit-node-parent node)))
-          
-          (when (and parent (treesit-node-p parent))
-            ;; Find the corresponding tail safely
-            (let ((tail-node (treesit-search-subtree parent "^tool_content_tail$" nil nil 1)))
-              
-              (when (and tail-node (treesit-node-p tail-node))
-                (let* ((tail-start (treesit-node-start tail-node))
-                       (tail-end (treesit-node-end tail-node))
-                       (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded))
-                       (line-count (max 1 (count-lines tail-start tail-end))))
-                  
-                  ;; Mark the head as foldable and store tail info
-                  (put-text-property node-start node-end 'grgfoo-foldable-tool-content t)
-                  (put-text-property node-start node-end 'grgfoo-tool-tail-start tail-start)
-                  (put-text-property node-start node-end 'grgfoo-tool-tail-end tail-end)
-                  
-                  ;; Clean up old overlays first
-                  (let ((old-overlay (get-text-property node-start 'grgfoo-fold-overlay)))
-                    (when (and old-overlay (overlayp old-overlay))
-                      (delete-overlay old-overlay)
-                      (remove-text-properties node-start node-end '(grgfoo-fold-overlay nil))))
-                  
-                  ;; Add overlay with fold indicator when tail is hidden
-                  (unless is-tail-visible
-                    (let ((overlay (make-overlay (-  node-end 2) (1- node-end))))
-                      (overlay-put overlay 'after-string 
-                                   (propertize (format "\n[+%d lines, TAB to expand]" line-count)
-                                               'face '(:foreground "gray" :height 0.8 :slant italic)))
-                      (overlay-put overlay 'grgfoo-fold-overlay t)
-                      (overlay-put overlay 'evaporate t)
-                      ;; Store overlay reference for cleanup
-                      (put-text-property node-start node-end 'grgfoo-fold-overlay overlay))))))))
-      (error (message "Error in tool-content-head folding: %s" err)))))
+  (let* ((node-start (treesit-node-start node))
+         (node-end (treesit-node-end node))
+         (parent (treesit-node-parent node)))
+    
+    (when (and parent (treesit-node-p parent))
+      ;; Find the corresponding tail safely
+      (let ((tail-node (treesit-search-subtree parent "^tool_content_tail$" nil nil 1)))
+        
+        (when (and tail-node (treesit-node-p tail-node))
+          (let* ((tail-start (treesit-node-start tail-node))
+                 (tail-end (treesit-node-end tail-node))
+                 (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded))
+                 (line-count (max 1 (count-lines tail-start tail-end))))
+            
+            ;; Mark the head as foldable and store tail info
+            (put-text-property node-start node-end 'grgfoo-foldable-tool-content t)
+            (put-text-property node-start node-end 'grgfoo-tool-tail-start tail-start)
+            (put-text-property node-start node-end 'grgfoo-tool-tail-end tail-end)
+            
+            ;; Clean up old overlays first
+            (let ((old-overlay (get-text-property node-start 'grgfoo-fold-overlay)))
+              (when (and old-overlay (overlayp old-overlay))
+                (delete-overlay old-overlay)
+                (remove-text-properties node-start node-end '(grgfoo-fold-overlay nil))))
+            
+            ;; Add overlay with fold indicator when tail is hidden
+            (unless is-tail-visible
+              (let ((overlay (make-overlay (-  node-end 2) (1- node-end))))
+                (overlay-put overlay 'after-string 
+                             (propertize (format "\n[+%d lines, TAB to expand]" line-count)
+                                         'face '(:foreground "gray" :height 0.8 :slant italic)))
+                (overlay-put overlay 'grgfoo-fold-overlay t)
+                (overlay-put overlay 'evaporate t)
+                ;; Store overlay reference for cleanup
+                (put-text-property node-start node-end 'grgfoo-fold-overlay overlay)))))))))
+
+;; Links
+(defun grgfoo--url-link-fn (node override start end)
+  (let* ((node-start (treesit-node-start node))
+         (node-end (treesit-node-end node))
+         (url-start (+ node-start 3)))
+    (put-text-property url-start node-end 'face 'grgfoo-link-face)
+    (put-text-property url-start node-end 'mouse-face 'highlight)
+    (put-text-property url-start node-end 'keymap grgfoo-link-keymap)))
+
+(defvar grgfoo-link-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'grgfoo-open-url-at-point)
+    (define-key map (kbd "RET") #'grgfoo-open-url-at-point)
+    map))
+
+(defun grgfoo-open-url-at-point ()
+  (interactive)
+  (let* ((node (treesit-node-at (point)))
+         (text (treesit-node-text node t))
+
+         ;; remove leading `## `
+         (url (substring text 3)))
+
+    ;; TODO: remove debug
+    (message (format "url: %s" url))
+
+    (browse-url url)))
 
 ;; Citation keymap for mouse clicks
 (defvar grgfoo-citation-keymap
@@ -201,53 +223,52 @@ START and END are the region bounds."
   "Keymap for citation text to handle mouse clicks.")
 
 ;; Citation folding functions
-(defun grgfoo--citation-entry-folding-function (node override start end)
+(defun grgfoo--citation-entry-folding-fn (node override start end)
   "Font-lock function to hide citation entries within assistant blocks.
 NODE is the matched tree-sitter node, OVERRIDE is the override setting,
 START and END are the region bounds."
-  (when node
-    (let* ((node-start (treesit-node-start node))
-           (node-end (grgfoo--node-end-no-whitespace node))
-           (parent (treesit-node-parent node))
-           (first-text (treesit-search-subtree parent "^text$" nil nil 1))
-           (last-text (treesit-search-subtree parent "^text$" t nil 1))
-           (text-start (treesit-node-start first-text))
-           (text-end (grgfoo--node-end-no-whitespace last-text))
-           (uncle (treesit-node-prev-sibling parent))
-           (aunt (treesit-node-next-sibling parent))
-           (should-fold (not (get-text-property text-start 'grgfoo-citation-expanded)))
-           (invisible-start text-end)
-           (invisible-end node-end))
+  (let* ((node-start (treesit-node-start node))
+         (node-end (grgfoo--node-end-no-whitespace node))
+         (parent (treesit-node-parent node))
+         (first-text (treesit-search-subtree parent "^text$" nil nil 1))
+         (last-text (treesit-search-subtree parent "^text$" t nil 1))
+         (text-start (treesit-node-start first-text))
+         (text-end (grgfoo--node-end-no-whitespace last-text))
+         (uncle (treesit-node-prev-sibling parent))
+         (aunt (treesit-node-next-sibling parent))
+         (should-fold (not (get-text-property text-start 'grgfoo-citation-expanded)))
+         (invisible-start text-end)
+         (invisible-end node-end))
 
-      (put-text-property text-start text-end 'face 'grgfoo-citation-face)
-      (put-text-property text-start text-end 'mouse-face 'highlight)
-      (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
-      (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
-      (put-text-property text-start text-end 'invisible-start invisible-start)
-      (put-text-property text-start text-end 'invisible-end invisible-end)
+    (put-text-property text-start text-end 'face 'grgfoo-citation-face)
+    (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
+    (put-text-property text-start text-end 'mouse-face 'highlight)
+    (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
+    (put-text-property text-start text-end 'invisible-start invisible-start)
+    (put-text-property text-start text-end 'invisible-end invisible-end)
 
-      (when (and uncle (equal (treesit-node-type uncle) "assistant"))
-        (let* ((uncle-last-citation-entry (treesit-search-subtree uncle "^citation_entry$" t nil 1)))
+    (when (and uncle (equal (treesit-node-type uncle) "assistant"))
+      (let* ((uncle-last-citation-entry (treesit-search-subtree uncle "^citation_entry$" t nil 1)))
 
-          (if uncle-last-citation-entry
-              ;; uncle always invisible
-              (put-text-property (treesit-node-end uncle-last-citation-entry) node-start 'invisible t)
+        (if uncle-last-citation-entry
+            ;; uncle always invisible
+            (put-text-property (treesit-node-end uncle-last-citation-entry) node-start 'invisible t)
 
-            (let* ((uncle-last-child (treesit-node-child uncle -1))
-                   (uncle-last-child-end (grgfoo--node-end-no-whitespace uncle-last-child)))
+          (let* ((uncle-last-child (treesit-node-child uncle -1))
+                 (uncle-last-child-end (grgfoo--node-end-no-whitespace uncle-last-child)))
 
-              ;; uncle always invisible
-              (put-text-property uncle-last-child-end text-start 'invisible t)))
+            ;; uncle always invisible
+            (put-text-property uncle-last-child-end text-start 'invisible t)))
 
-          ))
+        ))
 
-      (when (and aunt (equal (treesit-node-type aunt) "assistant"))
-        (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
-               (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
-          ;; space for displayed " "
-          (setq invisible-end (+ aunt-first-child-start 2))))
+    (when (and aunt (equal (treesit-node-type aunt) "assistant"))
+      (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
+             (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
+        ;; space for displayed " "
+        (setq invisible-end (+ aunt-first-child-start 2))))
 
-      (put-text-property invisible-start invisible-end 'invisible should-fold))))
+    (put-text-property invisible-start invisible-end 'invisible should-fold)))
 
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
@@ -268,11 +289,11 @@ START and END are the region bounds."
    :feature 'folding
    :override t
    '(;; Citation folding - hide individual citations within assistant blocks
-     (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
+     (assistant (citation_entry) @grgfoo--citation-entry-folding-fn)
 
      ;; TOol folding
-     (tool_content_tail) @grgfoo--tool-content-tail-folding-function
-     (tool_content_head) @grgfoo--tool-content-head-folding-function)
+     (tool_content_tail) @grgfoo--tool-content-tail-folding-fn
+     (tool_content_head) @grgfoo--tool-content-head-folding-fn)
 
    :language 'greger
    :feature 'subheadings
@@ -289,7 +310,7 @@ START and END are the region bounds."
      ;; Tool parameter names - match name nodes that aren't literal strings
      (tool_param_header) @grgfoo-tool-param-name-face
      (key) @grgfoo-key-face
-     (url) @grgfoo-link-face
+     (url) @grgfoo--url-link-fn
      )
 
    :language 'greger
@@ -361,7 +382,7 @@ START and END are the region bounds."
     ;; (setq-local treesit-defun-type-regexp
     ;;             (rx line-start (or "user" "assistant") line-end))
     ;; Set up defun name function to show heading type
-    ;; (setq-local treesit-defun-name-function #'grgfoo--defun-name)
+    ;; (setq-local treesit-defun-name-fn #'grgfoo--defun-name)
 
   ;; Setup key bindings
   (local-set-key (kbd "TAB") #'grgfoo-toggle-fold)
