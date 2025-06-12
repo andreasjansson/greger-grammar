@@ -113,20 +113,20 @@ module.exports = grammar({
       $.content,
     ),
 
-    user_header: _ => token('## USER:'),
+    user_header: _ => token('# USER'),
 
-    assistant_header: _ => token('## ASSISTANT:'),
-    system_header: _ => token('## SYSTEM:'),
+    assistant_header: _ => token('# ASSISTANT'),
+    system_header: _ => token('# SYSTEM'),
 
-    thinking_header: _ => token('## THINKING:'),
+    thinking_header: _ => token('# THINKING'),
 
-    tool_use_header: _ => token('## TOOL USE:'),
+    tool_use_header: _ => token('# TOOL USE'),
 
-    tool_result_header: _ => token('## TOOL RESULT:'),
+    tool_result_header: _ => token('# TOOL RESULT'),
 
-    server_tool_use_header: _ => token('## SERVER TOOL USE:'),
+    server_tool_use_header: _ => token('# SERVER TOOL USE'),
 
-    web_search_tool_result_header: _ => token('## WEB SEARCH TOOL RESULT:'),
+    web_search_tool_result_header: _ => token('# WEB SEARCH TOOL RESULT'),
 
     name: $ => seq(
       alias('Name:', $.key),
@@ -148,14 +148,14 @@ module.exports = grammar({
     ),
 
     tool_param_header: $ => seq(
-      '### ',
+      '## ',
       alias($.param_name, $.name),
     ),
 
     param_name: $ => /[^\n]+/,
 
     citation_entry: $ => seq(
-      alias(token(/### https?:\/\/[^\n\s]+/), $.url),
+      alias(token(/## https?:\/\/[^\n\s]+/), $.url),
       /\n/,
       optional(/\n/),
       choice(
