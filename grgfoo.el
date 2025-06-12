@@ -331,9 +331,9 @@ START and END are the region bounds."
     (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
     (setq-local treesit-font-lock-feature-list
                 '((error)
-                  (headers folding tool-folding)
+                  (headers folding tool-folding fields)
                   (tool-tags comments)
-                  (subheadings fields)))
+                  (subheadings)))
 
     ;; Indentation - using simple and safe rules
     (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
