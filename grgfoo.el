@@ -271,8 +271,8 @@ START and END are the region bounds."
      (citation_title "Title:") @grgfoo-field-name-face
      (citation_text "Cited text:") @grgfoo-field-name-face
      (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
-     ;; Try targeting name nodes within tool_param - simpler approach
-     (name) @grgfoo-tool-param-name-face)
+     ;; Try targeting name nodes specifically within tool_param context
+     (tool_param name: (name) @grgfoo-tool-param-name-face))
 
    :language 'greger
    :feature 'tool-tags
