@@ -186,7 +186,6 @@ START and END are the region bounds."
 (defvar grgfoo-citation-keymap
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] #'grgfoo-toggle-fold)
-    (define-key map [down-mouse-1] #'grgfoo-toggle-fold)
     map)
   "Keymap for citation text to handle mouse clicks.")
 
@@ -387,49 +386,46 @@ START and END are the region bounds."
   "Toggle folding of citation or tool content at point."
   (interactive)
 
-  (cond
-   ;; Handle citation folding
-   ((get-text-property (point) 'grgfoo-expandable-citation-entry)
-    (let* ((node (treesit-node-at (point)))
-           (node-start (treesit-node-start node))
-           (invisible-start (get-text-property node-start 'invisible-start))
-           (invisible-end (get-text-property node-start 'invisible-end))
-           (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
-      (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
-      (font-lock-flush invisible-start invisible-end)))
+  (let ((node (treesit-node-at (point))))
+    (cond
+     ;; Handle citation folding
+     ((get-text-property (point) 'grgfoo-expandable-citation-entry)
+      (let* ((node-start (treesit-node-start node))
+             (invisible-start (get-text-property node-start 'invisible-start))
+             (invisible-end (get-text-property node-start 'invisible-end))
+             (is-expanded (get-text-property node-start 'grgfoo-citation-expanded)))
+        (put-text-property node-start (1+ node-start) 'grgfoo-citation-expanded (not is-expanded))
+        (font-lock-flush invisible-start invisible-end)))
    
-   ;; Handle tool content folding - TAB in tool_content_head
-   ((get-text-property (point) 'grgfoo-foldable-tool-content)
-    (let* ((tail-start (get-text-property (point) 'grgfoo-tool-tail-start))
-           (tail-end (get-text-property (point) 'grgfoo-tool-tail-end)))
-      (when (and tail-start tail-end)
-        (let ((is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
-          (put-text-property tail-start (min (1+ tail-start) tail-end) 'grgfoo-tool-content-expanded (not is-tail-visible))
-          ;; Also need to flush both head and tail for overlay updates
-          (font-lock-flush (point) tail-end)))))
+     ;; Handle tool content folding - TAB in tool_content_head
+     ((get-text-property (point) 'grgfoo-foldable-tool-content)
+      (let* ((tail-start (get-text-property (point) 'grgfoo-tool-tail-start))
+             (tail-end (get-text-property (point) 'grgfoo-tool-tail-end)))
+        (when (and tail-start tail-end)
+          (let ((is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
+            (put-text-property tail-start (min (1+ tail-start) tail-end) 'grgfoo-tool-content-expanded (not is-tail-visible))
+            ;; Also need to flush both head and tail for overlay updates
+            (font-lock-flush (point) tail-end)))))
+
+     ;; Check if we're inside tool_content_tail when it's visible
+     ((and node (equal (treesit-node-type node) "tool_content_tail"))
+      ;; Check if current node is tool_content_tail or inside it
+      (let* ((tail-start (treesit-node-start node))
+             (tail-end (treesit-node-end node))
+             (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
+        ;; Only toggle if tail is currently visible
+        (when is-tail-visible
+          (put-text-property tail-start (1+ tail-start) 'grgfoo-tool-content-expanded nil)
+          ;; Find the corresponding head to flush it too for overlay updates
+          (let* ((parent (treesit-node-parent node))
+                 (head-node (treesit-search-subtree parent "^tool_content_head$" nil nil 1)))
+            (when head-node
+              (font-lock-flush (treesit-node-start head-node) tail-end)))
+          t)))
    
-   ;; Check if we're inside tool_content_tail when it's visible
-   ((let ((node (treesit-node-at (point))))
-      (when node
-        ;; Check if current node is tool_content_tail or inside it
-        (let ((tail-node (or (and (equal (treesit-node-type node) "tool_content_tail") node)
-                             (treesit-parent-until node (lambda (n) (equal (treesit-node-type n) "tool_content_tail"))))))
-          (when tail-node
-            (let* ((tail-start (treesit-node-start tail-node))
-                   (tail-end (treesit-node-end tail-node))
-                   (is-tail-visible (get-text-property tail-start 'grgfoo-tool-content-expanded)))
-              ;; Only toggle if tail is currently visible
-              (when is-tail-visible
-                (put-text-property tail-start (1+ tail-start) 'grgfoo-tool-content-expanded nil)
-                ;; Find the corresponding head to flush it too for overlay updates
-                (let* ((parent (treesit-node-parent tail-node))
-                       (head-node (treesit-search-subtree parent "^tool_content_head$" nil nil 1)))
-                  (when head-node
-                    (font-lock-flush (treesit-node-start head-node) tail-end)))
-                t)))))))
-   
-   ;; Default behavior
-   (t (indent-for-tab-command))))
+     ;; Default behavior
+     (t (indent-for-tab-command))))
+  )
 
 
 ;; Ensure the grammar is loaded
