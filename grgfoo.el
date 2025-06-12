@@ -274,6 +274,8 @@ START and END are the region bounds."
      (citation_title "Title:") @grgfoo-field-name-face
      (citation_text "Cited text:") @grgfoo-field-name-face
      (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
+     ;; DEBUG: Try to match ALL text to see if this rule works at all
+     (text) @grgfoo-tool-param-name-face
      ;; Tool parameter names - match name nodes that aren't literal strings
      (name) @grgfoo-tool-param-name-face)
 
