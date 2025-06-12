@@ -205,6 +205,7 @@ START and END are the region bounds."
       (put-text-property text-start text-end 'mouse-face 'highlight)
       (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
       (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
+      (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
       (put-text-property text-start text-end 'invisible-start invisible-start)
       (put-text-property text-start text-end 'invisible-end invisible-end)
 
