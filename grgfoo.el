@@ -78,6 +78,16 @@
   "Face for tool start and end tags."
   :group 'grgfoo)
 
+(defface grgfoo-citation-face
+  '((t (:underline "#555588")))
+  "Face for links."
+  :group 'grgfoo)
+
+(defface grgfoo-link-face
+  '((t (:foreground "aqua" :weight semi-bold)))
+  "Face for links."
+  :group 'grgfoo)
+
 (defface grgfoo-error-face
   '((t (:background "red" :foreground "white")))
   "Face for parse errors in grgfoo-mode."
@@ -209,7 +219,7 @@ START and END are the region bounds."
            (invisible-start text-end)
            (invisible-end node-end))
 
-      (put-text-property text-start text-end 'face '(:underline "#555588"))
+      (put-text-property text-start text-end 'face 'grgfoo-citation-face)
       (put-text-property text-start text-end 'mouse-face 'highlight)
       (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
       (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
@@ -235,17 +245,9 @@ START and END are the region bounds."
         (let* ((aunt-first-child (treesit-node-child aunt 1)) ;; skip header
                (aunt-first-child-start (grgfoo--node-start-no-whitespace aunt-first-child)))
           ;; space for displayed " "
-          (setq invisible-end (+ aunt-first-child-start 2))
+          (setq invisible-end (+ aunt-first-child-start 2))))
 
-          ))
-
-      (put-text-property invisible-start invisible-end 'invisible should-fold)
-
-      
-
-      
-
-      )))
+      (put-text-property invisible-start invisible-end 'invisible should-fold))))
 
 (defvar grgfoo--treesit-font-lock-settings
   (treesit-font-lock-rules
@@ -287,6 +289,7 @@ START and END are the region bounds."
      ;; Tool parameter names - match name nodes that aren't literal strings
      (tool_param_header) @grgfoo-tool-param-name-face
      (key) @grgfoo-key-face
+     (url) @grgfoo-link-face
      )
 
    :language 'greger
