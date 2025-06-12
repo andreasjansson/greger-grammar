@@ -260,9 +260,7 @@ START and END are the region bounds."
    :feature 'subheadings
    :override t
    '(;; Sub-sections and parameter headers
-     (citation_entry) @grgfoo-subheading-face
-     ;; Tool parameter names - try different query patterns
-     (tool_param (name) @grgfoo-tool-param-name-face))
+     (citation_entry) @grgfoo-subheading-face)
 
    ;; most of these don't work
    :language 'greger
