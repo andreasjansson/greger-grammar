@@ -63,8 +63,12 @@
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
-;; TODO: this doesn't work
 (defface grgfoo-tool-param-name-face
+  '((t (:foreground "lightgreen")))
+  "Face for tool parameter names like 'path', 'content', etc."
+  :group 'grgfoo)
+
+(defface grgfoo-key-face
   '((t (:foreground "lightblue")))
   "Face for tool parameter names like 'path', 'content', etc."
   :group 'grgfoo)
@@ -269,15 +273,12 @@ START and END are the region bounds."
    :feature 'fields
    :override t
    '(;; Field names only - no highlighting for values or content
-     (name "Name:") @grgfoo-field-name-face
-     (id "ID:") @grgfoo-field-name-face
-     (citation_title "Title:") @grgfoo-field-name-face
-     (citation_text "Cited text:") @grgfoo-field-name-face
-     (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
+
      ;; DEBUG: Try to match ALL text to see if this rule works at all
-     (text) @grgfoo-tool-param-name-face
      ;; Tool parameter names - match name nodes that aren't literal strings
-     (name) @grgfoo-tool-param-name-face)
+     (tool_param_header) @grgfoo-tool-param-name-face
+     (key) @grgfoo-key-face
+     )
 
    :language 'greger
    :feature 'tool-tags

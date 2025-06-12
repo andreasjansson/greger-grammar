@@ -129,23 +129,27 @@ module.exports = grammar({
     web_search_tool_result_header: _ => token('## WEB SEARCH TOOL RESULT:'),
 
     name: $ => seq(
-      'Name:',
+      alias('Name:', $.key),
       field('value', $.value),
       /\n/
     ),
 
     id: $ => seq(
-      'ID:',
+      alias('ID:', $.key),
       field('value', $.value),
       /\n/
     ),
 
     tool_param: $ => seq(
-      '### ',
-      alias($.param_name, $.name),
+      $.tool_param_header,
       /\n/,
       optional(/\n/),
       alias($._tool_element, $.value),
+    ),
+
+    tool_param_header: $ => seq(
+      '### ',
+      alias($.param_name, $.name),
     ),
 
     param_name: $ => /[^\n]+/,
@@ -166,19 +170,19 @@ module.exports = grammar({
 
 
     citation_title: $ => seq(
-      'Title: ',
+      alias('Title: ', $.key),
       field("value", $.value),
       /\n/,
     ),
 
     citation_text: $ => seq(
-      'Cited text: ',
+      alias('Cited text: ', $.key),
       field("value", $.value),
       /\n/,
     ),
 
     citation_encrypted_index: $ => seq(
-      'Encrypted index: ',
+      alias('Encrypted index: ', $.key),
       field("value", $.value),
       /\n/,
     ),
