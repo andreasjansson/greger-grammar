@@ -63,6 +63,7 @@
   "Face for field names like 'Name:', 'ID:', etc."
   :group 'grgfoo)
 
+;; TODO: this doesn't work
 (defface grgfoo-tool-param-name-face
   '((t (:foreground "lightblue")))
   "Face for tool parameter names like 'path', 'content', etc."
@@ -252,14 +253,18 @@ START and END are the region bounds."
    :feature 'folding
    :override t
    '(;; Citation folding - hide individual citations within assistant blocks
-     (assistant (citation_entry) @grgfoo--citation-entry-folding-function))
+     (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
+     )
 
    :language 'greger
    :feature 'subheadings
    :override t
    '(;; Sub-sections and parameter headers
-     (citation_entry) @grgfoo-subheading-face)
+     (citation_entry) @grgfoo-subheading-face
+     ;; Tool parameter names - try different query patterns
+     (tool_param (name) @grgfoo-tool-param-name-face))
 
+   ;; most of these don't work
    :language 'greger
    :feature 'fields
    :override t
@@ -269,8 +274,7 @@ START and END are the region bounds."
      (citation_title "Title:") @grgfoo-field-name-face
      (citation_text "Cited text:") @grgfoo-field-name-face
      (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
-     ;; Tool parameter names
-     (tool_param (name) @grgfoo-tool-param-name-face))
+     )
 
    :language 'greger
    :feature 'tool-tags
@@ -333,8 +337,7 @@ START and END are the region bounds."
                 '((error)
                   (headers folding tool-folding)
                   (tool-tags comments)
-                  (subheadings fields)
-                  (tool-tags comments)))
+                  (subheadings fields)))
 
     ;; Indentation - using simple and safe rules
     (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
