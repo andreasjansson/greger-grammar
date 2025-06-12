@@ -254,7 +254,10 @@ START and END are the region bounds."
    :override t
    '(;; Citation folding - hide individual citations within assistant blocks
      (assistant (citation_entry) @grgfoo--citation-entry-folding-function)
-     )
+
+     ;; TOol folding
+     (tool_content_tail) @grgfoo--tool-content-tail-folding-function
+     (tool_content_head) @grgfoo--tool-content-head-folding-function)
 
    :language 'greger
    :feature 'subheadings
@@ -271,10 +274,8 @@ START and END are the region bounds."
      (citation_title "Title:") @grgfoo-field-name-face
      (citation_text "Cited text:") @grgfoo-field-name-face
      (citation_encrypted_index "Encrypted index:") @grgfoo-field-name-face
-     ;; Try targeting name nodes specifically within tool_param context  
-     (tool_param name: (name) @grgfoo-tool-param-name-face)
-     ;; Alternative syntax
-     ((tool_param (name) @grgfoo-tool-param-name-face)))
+     ;; Tool parameter names using correct tree-sitter query syntax
+     (tool_param (name) @grgfoo-tool-param-name-face))
 
    :language 'greger
    :feature 'tool-tags
@@ -282,13 +283,6 @@ START and END are the region bounds."
    '(;; Tool start and end tags - smaller and less visible
      (tool_start_tag) @grgfoo-tool-tag-face
      (tool_end_tag) @grgfoo-tool-tag-face)
-
-   :language 'greger
-   :feature 'tool-folding
-   :override t
-   '(;; Make tool_content_tail invisible and tool_content_head foldable
-     (tool_content_tail) @grgfoo--tool-content-tail-folding-function
-     (tool_content_head) @grgfoo--tool-content-head-folding-function)
 
    :language 'greger
    :feature 'comments
