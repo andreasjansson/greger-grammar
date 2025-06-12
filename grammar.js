@@ -236,16 +236,20 @@ module.exports = grammar({
 
     code_block: $ => seq(
       '```',
-      optional(/[^\n]*/),
+      optional($.code_block_language),
       /\n/,
-      repeat(choice(
-        /[^`\n]+/,
-        /\n/,
-        /`[^`]/,
-        /``[^`]/,
-      )),
+      optional($.code_block_content),
       '```',
     ),
+
+    code_block_language: _ => /[^\n]*/,
+
+    code_block_content: _ => repeat1(choice(
+      /[^`\n]+/,
+      /\n/,
+      /`[^`]/,
+      /``[^`]/,
+    )),
 
     inline_code: $ => seq(
       '`',
@@ -256,10 +260,13 @@ module.exports = grammar({
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
       repeat(choice(
-        /[^<\n]+/,
+        $.shell_command,
         /\n/,
       )),
       '</safe-shell-commands>',
     ),
+
+    // TODO: allow `<` in safe shell commands, somehow...
+    shell_command: _ => /[^<\n]+/
   }
 });
