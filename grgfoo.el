@@ -178,6 +178,9 @@ START and END are the region bounds."
                                   (propertize (format "\n[+%d lines, TAB to expand]" line-count)
                                              'face '(:foreground "gray" :height 0.8 :slant italic)))
                       (overlay-put overlay 'grgfoo-fold-overlay t)
+                      ;; Add modification hooks to clean up overlay when text changes
+                      (overlay-put overlay 'modification-hooks '(grgfoo--overlay-modification-hook))
+                      (overlay-put overlay 'insert-in-front-hooks '(grgfoo--overlay-modification-hook))
                       ;; Store overlay reference for cleanup
                       (put-text-property node-start node-end 'grgfoo-fold-overlay overlay))))))))
       (error (message "Error in tool-content-head folding: %s" err)))))
@@ -321,8 +324,9 @@ START and END are the region bounds."
      ((node-is "web_search_tool_result") column-0 0)
      ;; Indent content within sections
      ;; Default handling
-     (no-node column-0 0)
-     (catch-all column-0 0)))
+     ;(no-node column-0 0)
+     ;(catch-all column-0 0)
+     ))
   "Tree-sitter indentation rules for `grgfoo-mode'.")
 
 ;;;###autoload
@@ -332,39 +336,39 @@ START and END are the region bounds."
 \\{grgfoo-mode-map}"
   :syntax-table grgfoo-mode-syntax-table
 
-  (when (treesit-ready-p 'greger)
-    ;; Create the tree-sitter parser for this buffer
-    (treesit-parser-create 'greger)
+  (unless (treesit-ready-p 'greger)
+    (error "Tree-sitter for Greger isn't available"))
 
-    ;; Tree-sitter setup
-    (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
-    (setq-local treesit-font-lock-feature-list
-                '((error)
-                  (headers folding tool-folding fields)
-                  (tool-tags comments)
-                  (subheadings)))
+  (treesit-parser-create 'greger)
 
-    ;; Indentation - using simple and safe rules
-    (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+  ;; Tree-sitter setup
+  (setq-local treesit-font-lock-settings grgfoo--treesit-font-lock-settings)
+  (setq-local treesit-font-lock-feature-list
+              '((error)
+                (headers folding tool-folding fields)
+                (tool-tags comments)
+                (subheadings)))
 
+  ;; Indentation - using simple and safe rules
+  (setq-local treesit-simple-indent-rules grgfoo--treesit-indent-rules)
+
+    (setq-local treesit-defun-prefer-top-level t)
+
+    ;; Disabled because this crashes emacs.
+    ;; Reproduce: At beginning of buffer, run (treesit-search-forward-goto (treesit-node-at (point)) "" t t t)
     ;; Navigation - treat headings as defuns for C-M-a and C-M-e
-    (setq-local treesit-defun-type-regexp
-                (rx (or "user" "assistant" "system" "thinking"
-                        "tool_use" "tool_result" "server_tool_use"
-                        "web_search_tool_result")))
-
+    ;; (setq-local treesit-defun-type-regexp
+    ;;             (rx line-start (or "user" "assistant") line-end))
     ;; Set up defun name function to show heading type
-    (setq-local treesit-defun-name-function #'grgfoo--defun-name)
+    ;; (setq-local treesit-defun-name-function #'grgfoo--defun-name)
 
-    ;; Setup key bindings
-    (local-set-key (kbd "TAB") #'grgfoo-toggle-fold)
+  ;; Setup key bindings
+  (local-set-key (kbd "TAB") #'grgfoo-toggle-fold)
 
-    ;; Enable all tree-sitter features
-    (treesit-major-mode-setup)
+  ;; Enable all tree-sitter features
+  (treesit-major-mode-setup)
 
-    ))
-
-
+  )
 
 (defun grgfoo--defun-name (node)
   "Return the name of the defun NODE."
