@@ -29,27 +29,27 @@
 
 ;; Customizable face colors for headers using standard Emacs color names
 (defface grgfoo-user-header-face
-  '((t (:foreground "cyan" :weight bold)))
+  '((t (:foreground "cyan" :weight bold :height 1.1)))
   "Face for USER headers."
   :group 'grgfoo)
 
 (defface grgfoo-assistant-header-face
-  '((t (:foreground "green" :weight bold)))
+  '((t (:foreground "green" :weight bold :height 1.1)))
   "Face for ASSISTANT headers."
   :group 'grgfoo)
 
 (defface grgfoo-system-header-face
-  '((t (:foreground "orange" :weight bold)))
+  '((t (:foreground "orange" :weight bold :height 1.1)))
   "Face for SYSTEM headers."
   :group 'grgfoo)
 
 (defface grgfoo-thinking-header-face
-  '((t (:foreground "magenta" :weight bold)))
+  '((t (:foreground "magenta" :weight bold :height 1.1)))
   "Face for THINKING headers."
   :group 'grgfoo)
 
 (defface grgfoo-tool-header-face
-  '((t (:foreground "yellow" :weight bold)))
+  '((t (:foreground "yellow" :weight bold :height 1.1)))
   "Face for tool-related headers (TOOL USE, TOOL RESULT, etc.)."
   :group 'grgfoo)
 
@@ -204,6 +204,7 @@ START and END are the region bounds."
       (put-text-property text-start text-end 'face '(:underline "#555588"))
       (put-text-property text-start text-end 'mouse-face 'highlight)
       (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
+      (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
       (put-text-property text-start text-end 'invisible-start invisible-start)
       (put-text-property text-start text-end 'invisible-end invisible-end)
 
