@@ -182,6 +182,14 @@ START and END are the region bounds."
                       (put-text-property node-start node-end 'grgfoo-fold-overlay overlay))))))))
       (error (message "Error in tool-content-head folding: %s" err)))))
 
+;; Citation keymap for mouse clicks
+(defvar grgfoo-citation-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] #'grgfoo-toggle-fold)
+    (define-key map [down-mouse-1] #'grgfoo-toggle-fold)
+    map)
+  "Keymap for citation text to handle mouse clicks.")
+
 ;; Citation folding functions
 (defun grgfoo--citation-entry-folding-function (node override start end)
   "Font-lock function to hide citation entries within assistant blocks.
@@ -204,7 +212,6 @@ START and END are the region bounds."
       (put-text-property text-start text-end 'face '(:underline "#555588"))
       (put-text-property text-start text-end 'mouse-face 'highlight)
       (put-text-property text-start text-end 'grgfoo-expandable-citation-entry t)
-      (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
       (put-text-property text-start text-end 'keymap grgfoo-citation-keymap)
       (put-text-property text-start text-end 'invisible-start invisible-start)
       (put-text-property text-start text-end 'invisible-end invisible-end)
