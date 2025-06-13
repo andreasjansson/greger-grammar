@@ -11,7 +11,7 @@ module.exports = grammar({
   name: "greger",
 
   extras: $ => [
-    /[ \t\n]/,
+    /[ \t]/,
   ],
 
   externals: $ => [
@@ -31,11 +31,12 @@ module.exports = grammar({
 
 
   rules: {
-
     source_file: $ => seq(
+      repeat("\n"),
       optional($.untagged_text),
       optional($.system),
-      repeat($._block),
+      repeat(seq($._block, "\n\n")),
+      optional($._block)
     ),
 
     untagged_text: $ => prec(-1,
@@ -57,107 +58,105 @@ module.exports = grammar({
 
     user: $ => seq(
       $.user_header,
-      '\n\n',
+      "\n\n",
       $.content_blocks,
     ),
 
     assistant: $ => seq(
       $.assistant_header,
-      '\n\n',
+      "\n\n",
       $.assistant_content_blocks,
     ),
 
     system: $ => seq(
       $.system_header,
-      '\n\n',
+      "\n\n",
       $.system_content_blocks,
     ),
 
     thinking: $ => seq(
       $.thinking_header,
-      '\n\n',
+      "\n\n",
       $.content_blocks,
     ),
 
     tool_use: $ => seq(
       $.tool_use_header,
-      '\n\n',
-      repeat(choice(
-        $.name,
-        $.id,
-        $.tool_param,
-      )),
+      "\n\n",
+      $.name,
+      $.id,
+      "\n",
+      $.tool_param,
     ),
 
     tool_result: $ => seq(
       $.tool_result_header,
-      '\n\n',
+      "\n\n",
       $.id,
       $.content,
     ),
 
     server_tool_use: $ => seq(
       $.server_tool_use_header,
-      '\n\n',
-      repeat(choice(
-        $.name,
-        $.id,
-        $.tool_param,
-      )),
+      "\n\n",
+      $.name,
+      $.id,
+      "\n",
+      $.tool_param,
     ),
 
     web_search_tool_result: $ => seq(
       $.web_search_tool_result_header,
-      '\n\n',
+      "\n\n",
       $.id,
+      "\n",
       $.content,
     ),
 
-    user_header: _ => token('# USER'),
+    user_header: _ => token("# USER"),
 
-    assistant_header: _ => token('# ASSISTANT'),
-    system_header: _ => token('# SYSTEM'),
+    assistant_header: _ => token("# ASSISTANT"),
+    system_header: _ => token("# SYSTEM"),
 
-    thinking_header: _ => token('# THINKING'),
+    thinking_header: _ => token("# THINKING"),
 
-    tool_use_header: _ => token('# TOOL USE'),
+    tool_use_header: _ => token("# TOOL USE"),
 
-    tool_result_header: _ => token('# TOOL RESULT'),
+    tool_result_header: _ => token("# TOOL RESULT"),
 
-    server_tool_use_header: _ => token('# SERVER TOOL USE'),
+    server_tool_use_header: _ => token("# SERVER TOOL USE"),
 
-    web_search_tool_result_header: _ => token('# WEB SEARCH TOOL RESULT'),
+    web_search_tool_result_header: _ => token("# WEB SEARCH TOOL RESULT"),
 
     name: $ => seq(
-      alias('Name:', $.key),
-      field('value', $.value),
-      /\n/
+      alias("Name:", $.key),
+      field("value", $.value),
+      "\n"
     ),
 
     id: $ => seq(
-      alias('ID:', $.key),
-      field('value', $.value),
-      /\n/
+      alias("ID:", $.key),
+      field("value", $.value),
+      "\n"
     ),
 
     tool_param: $ => seq(
       $.tool_param_header,
-      /\n/,
-      optional(/\n/),
+      "\n",
+      optional("\n"),
       alias($._tool_element, $.value),
     ),
 
     tool_param_header: $ => seq(
-      '## ',
+      "## ",
       alias($.param_name, $.name),
     ),
 
     param_name: $ => /[^\n]+/,
 
     citation_entry: $ => seq(
-      alias(token(/## https?:\/\/[^\n\s]+/), $.url),
-      /\n/,
-      optional(/\n/),
+      $.url_header,
+      "\n\n",
       seq(
         alias($.citation_title, $.title),
         alias($.citation_text, $.cited_text),
@@ -167,24 +166,29 @@ module.exports = grammar({
       optional(alias($.citation_encrypted_index, $.encrypted_index)),
     ),
 
+    url_header: $ => seq(
+      "## ",
+      $.url,
+    ),
 
+    url: _ => token(/## https?:\/\/[^\n\s]+/),
 
     citation_title: $ => seq(
-      alias('Title: ', $.key),
+      alias("Title: ", $.key),
       optional(field("value", $.value)),
-      /\n/,
+      "\n",
     ),
 
     citation_text: $ => seq(
-      alias('Cited text: ', $.key),
+      alias("Cited text: ", $.key),
       optional(field("value", $.value)),
-      /\n/,
+      "\n",
     ),
 
     citation_encrypted_index: $ => seq(
-      alias('Encrypted index: ', $.key),
+      alias("Encrypted index: ", $.key),
       field("value", $.value),
-      /\n/,
+      "\n",
     ),
 
     value: _ => /[^\n]+/,
@@ -214,16 +218,16 @@ module.exports = grammar({
 
     text: $ => prec.right(repeat1(choice(
       $._text_content,
-      /\n/,
+      "\n",
     ))),
 
     _text_content: $ => token(prec(-1, /[^`\n]+/)),
 
-    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, "\n"))),
 
     _tool_element: $ => seq(
       $.tool_start_tag,
-      field('value', $.tool_content),
+      field("value", $.tool_content),
       $.tool_end_tag,
     ),
 
@@ -232,38 +236,38 @@ module.exports = grammar({
       optional($.tool_content_tail),
     ),
 
-    content: $ => alias($._tool_element, 'content'),
+    content: $ => alias($._tool_element, "content"),
 
     code_block: $ => seq(
-      '```',
+      "```",
       optional($.code_block_language),
-      /\n/,
+      "\n",
       optional($.code_block_content),
-      '```',
+      "```",
     ),
 
     code_block_language: _ => /[^\n]*/,
 
     code_block_content: _ => repeat1(choice(
       /[^`\n]+/,
-      /\n/,
+      "\n",
       /`[^`]/,
       /``[^`]/,
     )),
 
     inline_code: $ => seq(
-      '`',
+      "`",
       /[^`\n]+/,
-      '`',
+      "`",
     ),
 
     safe_shell_commands: $ => seq(
-      '<safe-shell-commands>',
+      "<safe-shell-commands>",
       repeat(choice(
         $.shell_command,
-        /\n/,
+        "\n",
       )),
-      '</safe-shell-commands>',
+      "</safe-shell-commands>",
     ),
 
     // TODO: allow `<` in safe shell commands, somehow...
