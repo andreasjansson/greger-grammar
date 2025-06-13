@@ -158,7 +158,7 @@ module.exports = grammar({
       alias(token(/## https?:\/\/[^\n\s]+/), $.url),
       /\n/,
       optional(/\n/),
-      choice(
+      seq(
         alias($.citation_title, $.title),
         alias($.citation_text, $.cited_text),
         alias($.citation_encrypted_index, $.encrypted_index),
@@ -171,13 +171,13 @@ module.exports = grammar({
 
     citation_title: $ => seq(
       alias('Title: ', $.key),
-      field("value", $.value),
+      optional(field("value", $.value)),
       /\n/,
     ),
 
     citation_text: $ => seq(
       alias('Cited text: ', $.key),
-      field("value", $.value),
+      optional(field("value", $.value)),
       /\n/,
     ),
 
