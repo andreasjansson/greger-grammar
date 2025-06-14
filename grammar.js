@@ -29,7 +29,6 @@ module.exports = grammar({
   ],
 
 
-
   rules: {
 
     source_file: $ => seq(
@@ -76,6 +75,10 @@ module.exports = grammar({
     thinking: $ => seq(
       $.thinking_header,
       '\n\n',
+      optional(seq(
+        $.thinking_signature,
+        '\n\n',
+      )),
       $.content_blocks,
     ),
 
@@ -138,6 +141,11 @@ module.exports = grammar({
       alias('ID:', $.key),
       field('value', $.value),
       /\n/
+    ),
+
+    thinking_signature: $ => seq(
+      alias('Signature: ', $.key),
+      field('value', $.value),
     ),
 
     tool_param: $ => seq(
