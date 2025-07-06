@@ -12,6 +12,7 @@ enum TokenType {
     EVAL_START_TAG,
     EVAL_END_TAG,
     EVAL_CONTENT,
+    ERROR_SENTINEL,
 };
 
 typedef struct {
