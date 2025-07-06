@@ -277,7 +277,7 @@ module.exports = grammar({
     ),
 
     // TODO: allow `<` in safe shell commands, somehow...
-    shell_command: _ => /[^<\n]+/,
+    shell_command: _ => token(prec(-1, /[^<\n]+/)),
 
     eval: $ => prec(2, seq(
       $.eval_start_tag,
