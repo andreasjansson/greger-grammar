@@ -673,10 +673,10 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Test simplest possible 'e' check
+            // Test other specific characters
             *lexer = saved;
             advance(lexer); // skip '<'
-            if (lexer->lookahead == 'e') {
+            if (lexer->lookahead == 'a' || lexer->lookahead == 'b' || lexer->lookahead == 'c' || lexer->lookahead == 'd') {
                 *lexer = saved;
                 break;
             }
