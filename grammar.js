@@ -272,8 +272,8 @@ module.exports = grammar({
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
       repeat(choice(
-        $.shell_command,
         $.eval,
+        $.shell_command,
         /\n/,
       )),
       '</safe-shell-commands>',
