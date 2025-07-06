@@ -221,10 +221,10 @@ module.exports = grammar({
     )),
 
     content_blocks: $ => repeat1(choice(
+      $.html_comment,
       $.eval,
       $.code_block,
       $.inline_code,
-      $.html_comment,
       $.text,
     )),
 
