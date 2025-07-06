@@ -706,7 +706,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             }
             
             if (is_eval_result) {
-                // Found "<eval-result-", stop here
+                // Found "<eval-result-", stop here and don't include it in content
                 *lexer = saved;
                 break;
             }
