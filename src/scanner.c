@@ -636,7 +636,7 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
-    lexer->mark_end(lexer);
+    bool has_content = false;
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
@@ -716,11 +716,16 @@ static bool scan_eval_content(TSLexer *lexer) {
         }
         
         advance(lexer);
+        has_content = true;
         lexer->mark_end(lexer);
     }
     
-    lexer->result_symbol = EVAL_CONTENT;
-    return true;
+    if (has_content) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+    
+    return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
