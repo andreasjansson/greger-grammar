@@ -669,13 +669,26 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Check for <eval-result- or other tags starting with letters e-z
+            // Check for <eval-result- pattern specifically
             *lexer = saved;
             advance(lexer); // skip '<'
-            if (lexer->lookahead >= 'e' && lexer->lookahead <= 'z') {
-                // Found a tag that could be eval-result-, stop here
-                *lexer = saved;
-                break;
+            // Since checking for == 'e' doesn't work, use range check
+            if (lexer->lookahead >= 'e' && lexer->lookahead <= 'e') {
+                // Advance and check for 'v'
+                advance(lexer);
+                if (lexer->lookahead >= 'v' && lexer->lookahead <= 'v') {
+                    // Advance and check for 'a'
+                    advance(lexer);
+                    if (lexer->lookahead >= 'a' && lexer->lookahead <= 'a') {
+                        // Advance and check for 'l'
+                        advance(lexer);
+                        if (lexer->lookahead >= 'l' && lexer->lookahead <= 'l') {
+                            // Found "eval", good enough for now
+                            *lexer = saved;
+                            break;
+                        }
+                    }
+                }
             }
             *lexer = saved;
             
