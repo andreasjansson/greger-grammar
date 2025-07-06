@@ -23,6 +23,7 @@ module.exports = grammar({
     $.eval_start_tag,
     $.eval_end_tag,
     $.eval_content,
+    $.error_sentinel,
   ],
 
 
