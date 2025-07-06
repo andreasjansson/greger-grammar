@@ -60,6 +60,9 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
         scanner->in_tool_content = false;
         scanner->expecting_tail = false;
         scanner->tool_id[0] = '\0';
+        scanner->in_eval_result_content = false;
+        scanner->expecting_eval_result_tail = false;
+        scanner->eval_result_id[0] = '\0';
         return;
     }
 
@@ -72,15 +75,52 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
             if (length >= 3 + tool_id_len) {
                 memcpy(scanner->tool_id, buffer + 3, tool_id_len);
                 scanner->tool_id[tool_id_len] = '\0';
+                
+                // Deserialize eval result state
+                size_t offset = 3 + tool_id_len;
+                if (length > offset) {
+                    scanner->in_eval_result_content = buffer[offset] == 1;
+                    if (length > offset + 1) {
+                        scanner->expecting_eval_result_tail = buffer[offset + 1] == 1;
+                        if (length > offset + 2) {
+                            unsigned eval_result_id_len = buffer[offset + 2];
+                            if (eval_result_id_len >= 255) eval_result_id_len = 255;
+                            if (length >= offset + 3 + eval_result_id_len) {
+                                memcpy(scanner->eval_result_id, buffer + offset + 3, eval_result_id_len);
+                                scanner->eval_result_id[eval_result_id_len] = '\0';
+                            } else {
+                                scanner->eval_result_id[0] = '\0';
+                            }
+                        } else {
+                            scanner->eval_result_id[0] = '\0';
+                        }
+                    } else {
+                        scanner->expecting_eval_result_tail = false;
+                        scanner->eval_result_id[0] = '\0';
+                    }
+                } else {
+                    scanner->in_eval_result_content = false;
+                    scanner->expecting_eval_result_tail = false;
+                    scanner->eval_result_id[0] = '\0';
+                }
             } else {
                 scanner->tool_id[0] = '\0';
+                scanner->in_eval_result_content = false;
+                scanner->expecting_eval_result_tail = false;
+                scanner->eval_result_id[0] = '\0';
             }
         } else {
             scanner->tool_id[0] = '\0';
+            scanner->in_eval_result_content = false;
+            scanner->expecting_eval_result_tail = false;
+            scanner->eval_result_id[0] = '\0';
         }
     } else {
         scanner->expecting_tail = false;
         scanner->tool_id[0] = '\0';
+        scanner->in_eval_result_content = false;
+        scanner->expecting_eval_result_tail = false;
+        scanner->eval_result_id[0] = '\0';
     }
 }
 
