@@ -334,53 +334,40 @@ static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 static bool scan_eval_content(TSLexer *lexer) {
-    lexer->mark_end(lexer);
     bool has_content = false;
     
-    while (lexer->lookahead) {
+    for (;;) {
+        // Check if we're at the start of a closing tag
         if (lexer->lookahead == '<') {
-            // Lookahead to check if this is </eval>
-            int i = 1;
-            int32_t chars[7];
-            chars[0] = lexer->lookahead; // '<'
-            
-            // Peek ahead to see if this looks like </eval>
-            for (i = 1; i < 7 && lexer->lookahead != 0; i++) {
-                lexer->advance(lexer, false);
-                chars[i] = lexer->lookahead;
-            }
-            
-            // Check if we found "</eval>"
-            if (i >= 7 && 
-                chars[0] == '<' && chars[1] == '/' && 
-                chars[2] == 'e' && chars[3] == 'v' && 
-                chars[4] == 'a' && chars[5] == 'l' && 
-                chars[6] == '>') {
-                // This is the closing tag, don't consume it
-                // Rewind to the '<'
-                for (int j = 1; j < i; j++) {
-                    // We can't actually rewind, but we mark the end before the '<'
-                }
-                // Just return the content we have so far
-                if (has_content) {
-                    lexer->result_symbol = EVAL_CONTENT;
-                    return true;
-                }
-                return false;
-            }
-            
-            // Not a closing tag, this '<' is part of content
-            has_content = true;
-            // Continue from where we left off after lookahead
-        } else {
+            // Save current position
+            TSLexer saved = *lexer;
             advance(lexer);
-            has_content = true;
+            
+            if (lexer->lookahead == '/' &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '>')) {
+                // Found "</eval>", restore position and return
+                *lexer = saved;
+                break;
+            }
+            
+            // Not a closing tag, restore and consume the '<' as content
+            *lexer = saved;
         }
         
+        if (lexer->lookahead == 0) {
+            // Reached EOF
+            break;
+        }
+        
+        advance(lexer);
+        has_content = true;
         lexer->mark_end(lexer);
     }
     
-    // If we reached EOF, return content if we have any
     if (has_content) {
         lexer->result_symbol = EVAL_CONTENT;
         return true;
