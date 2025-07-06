@@ -475,8 +475,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
-    // Handle eval content
-    if (valid_symbols[EVAL_CONTENT]) {
+    // Handle eval content - only when specifically requested
+    if (valid_symbols[EVAL_CONTENT] && !valid_symbols[EVAL_START_TAG] && !valid_symbols[EVAL_END_TAG]) {
         return scan_eval_content(lexer);
     }
 
