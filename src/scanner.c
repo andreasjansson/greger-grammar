@@ -637,20 +637,13 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 
 static bool is_eval_result_start(TSLexer *lexer) {
     // Assumes we're already at '<'
-    const char* pattern = "eval-result-";
     TSLexer saved = *lexer;
     advance(lexer); // skip '<'
     
-    for (int i = 0; pattern[i] != '\0'; i++) {
-        if (lexer->lookahead != pattern[i]) {
-            *lexer = saved;
-            return false;
-        }
-        advance(lexer);
-    }
-    
+    // Just check for 'e' to start
+    bool result = (lexer->lookahead == 'e');
     *lexer = saved;
-    return true;
+    return result;
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
