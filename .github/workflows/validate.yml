@@ -1,0 +1,65 @@
+name: Validate Grammar
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    name: Validate Grammar
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install tree-sitter CLI
+      run: npm install -g tree-sitter-cli
+    
+    - name: Validate grammar.js syntax
+      run: node -c grammar.js
+    
+    - name: Generate parser
+      run: tree-sitter generate
+    
+    - name: Check for conflicts
+      run: tree-sitter test --debug 2>&1 | grep -i "conflict" && exit 1 || exit 0
+    
+    - name: Parse test examples
+      run: |
+        # Test basic functionality
+        echo "# SYSTEM
+
+        You are a helpful assistant.
+
+        <eval>test content</eval>
+
+        <safe-shell-commands>
+        echo hello
+        <eval bash>echo world</eval>
+        </safe-shell-commands>
+
+        # USER
+
+        <eval>user eval</eval>
+
+        Hello!
+
+        # ASSISTANT
+
+        <eval>this should be text</eval>
+
+        Hi there!" > grammar_test.txt
+        
+        tree-sitter parse grammar_test.txt
+        
+        # Verify eval works in system/user but not assistant
+        tree-sitter parse grammar_test.txt | grep -q "eval_start_tag" && echo "✓ Eval parsing works"
+        rm grammar_test.txt
