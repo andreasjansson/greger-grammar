@@ -385,27 +385,41 @@ static bool scan_eval_end_tag(TSLexer *lexer) {
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
+    lexer->mark_end(lexer);
     
     while (lexer->lookahead) {
         if (lexer->lookahead == '<') {
             // Check if this is the closing tag
-            if (lexer->advance(lexer, false), lexer->lookahead == '/') {
-                if (lexer->advance(lexer, false), lexer->lookahead == 'e') {
-                    if (lexer->advance(lexer, false), lexer->lookahead == 'v') {
-                        if (lexer->advance(lexer, false), lexer->lookahead == 'a') {
-                            if (lexer->advance(lexer, false), lexer->lookahead == 'l') {
-                                // Found closing tag, stop here
-                                break;
+            TSLexer saved_lexer = *lexer;
+            advance(lexer);
+            if (lexer->lookahead == '/') {
+                advance(lexer);
+                if (lexer->lookahead == 'e') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'v') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'a') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                // Found closing tag, stop here and restore lexer
+                                *lexer = saved_lexer;
+                                if (has_content) {
+                                    lexer->result_symbol = EVAL_CONTENT;
+                                    return true;
+                                }
+                                return false;
                             }
                         }
                     }
                 }
             }
-            // Not closing tag, continue
+            // Not closing tag, restore and continue
+            *lexer = saved_lexer;
         }
         
         advance(lexer);
         has_content = true;
+        lexer->mark_end(lexer);
     }
     
     if (has_content) {
