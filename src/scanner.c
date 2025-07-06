@@ -129,6 +129,9 @@ void *tree_sitter_greger_external_scanner_create(void) {
     scanner->in_tool_content = false;
     scanner->expecting_tail = false;
     scanner->tool_id[0] = '\0';
+    scanner->in_eval_result_content = false;
+    scanner->expecting_eval_result_tail = false;
+    scanner->eval_result_id[0] = '\0';
     return scanner;
 }
 
