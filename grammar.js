@@ -291,9 +291,7 @@ module.exports = grammar({
       '>',
     ))),
 
-    eval_end_tag: _ => '</eval>',
-
-    eval_attribute: _ => /[^>]+/,
+    eval_end_tag: _ => token('</eval>'),
 
     eval_content: _ => repeat1(choice(
       /[^<]+/,
