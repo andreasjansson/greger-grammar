@@ -332,6 +332,114 @@ static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
+static bool scan_eval_start_tag(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "eval"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Handle optional attributes (space + anything before >)
+    if (lexer->lookahead == ' ') {
+        advance(lexer);
+        while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+            advance(lexer);
+        }
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_START_TAG;
+    return true;
+}
+
+static bool scan_eval_end_tag(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "eval"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_END_TAG;
+    return true;
+}
+
+static bool scan_eval_content(TSLexer *lexer) {
+    lexer->mark_end(lexer);
+
+    bool has_content = false;
+
+    // Scan until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Check if this is the closing tag
+            lexer->advance(lexer, false);
+            if (lexer->lookahead == '/') {
+                lexer->advance(lexer, false);
+                if (lexer->lookahead == 'e') {
+                    lexer->advance(lexer, false);
+                    if (lexer->lookahead == 'v') {
+                        lexer->advance(lexer, false);
+                        if (lexer->lookahead == 'a') {
+                            lexer->advance(lexer, false);
+                            if (lexer->lookahead == 'l') {
+                                lexer->advance(lexer, false);
+                                if (lexer->lookahead == '>') {
+                                    // Found the closing tag, stop here (don't consume it)
+                                    if (has_content) {
+                                        lexer->result_symbol = EVAL_CONTENT;
+                                        return true;
+                                    } else {
+                                        // No content, let the grammar handle the end tag
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Not the closing tag, continue as content
+            // Reset position and process as content
+            lexer->mark_end(lexer);
+            has_content = true;
+        } else {
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+
+    return false;
+}
+
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
@@ -351,7 +459,17 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     if (lexer->lookahead == '<') {
-        // Handle HTML comments first
+        // Handle eval start tag
+        if (valid_symbols[EVAL_START_TAG]) {
+            return scan_eval_start_tag(lexer);
+        }
+
+        // Handle eval end tag
+        if (valid_symbols[EVAL_END_TAG]) {
+            return scan_eval_end_tag(lexer);
+        }
+
+        // Handle HTML comments
         if (valid_symbols[HTML_COMMENT]) {
             return scan_html_comment(lexer);
         }
@@ -365,6 +483,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         if (valid_symbols[TOOL_END_TAG]) {
             return scan_tool_end_tag(scanner, lexer);
         }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
     }
 
     return false;
