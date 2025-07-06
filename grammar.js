@@ -205,12 +205,12 @@ module.exports = grammar({
     )),
 
     system_content_blocks: $ => repeat1(choice(
-      $.text,
+      $.eval,
       $.code_block,
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
-      $.eval,
+      $.text,
     )),
 
     content_blocks: $ => repeat1(choice(
