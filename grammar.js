@@ -300,6 +300,5 @@ module.exports = grammar({
 
 
     eval_content: _ => /[^<]+/,
-
-
+  },
 });
