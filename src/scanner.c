@@ -346,11 +346,8 @@ static bool scan_eval_start_tag(TSLexer *lexer) {
     advance(lexer);
 
     // Optional attributes
-    if (lexer->lookahead == ' ') {
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
         advance(lexer);
-        while (lexer->lookahead != '>' && lexer->lookahead != 0) {
-            advance(lexer);
-        }
     }
 
     if (lexer->lookahead != '>') return false;
