@@ -715,6 +715,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             *lexer = saved;
         }
         
+        // Mark the end BEFORE advancing so we capture content up to this point
         advance(lexer);
         has_content = true;
         lexer->mark_end(lexer);
