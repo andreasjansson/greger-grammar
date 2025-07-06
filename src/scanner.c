@@ -636,41 +636,7 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool is_eval_result_start(TSLexer *lexer) {
-    // Assumes we're already at '<'
-    TSLexer saved = *lexer;
-    advance(lexer); // skip '<'
-    
-    // Check for "eval-"
-    if (lexer->lookahead != 'e') {
-        *lexer = saved;
-        return false;
-    }
-    advance(lexer);
-    
-    if (lexer->lookahead != 'v') {
-        *lexer = saved;
-        return false;
-    }
-    advance(lexer);
-    
-    if (lexer->lookahead != 'a') {
-        *lexer = saved;
-        return false;
-    }
-    advance(lexer);
-    
-    if (lexer->lookahead != 'l') {
-        *lexer = saved;
-        return false;
-    }
-    advance(lexer);
-    
-    if (lexer->lookahead != '-') {
-        *lexer = saved;
-        return false;
-    }
-    
-    *lexer = saved;
+    // Debug: always return true to see if function is called
     return true;
 }
 
