@@ -640,10 +640,38 @@ static bool is_eval_result_start(TSLexer *lexer) {
     TSLexer saved = *lexer;
     advance(lexer); // skip '<'
     
-    // Just check for 'e' to start
-    bool result = (lexer->lookahead == 'e');
+    // Check for "eval-"
+    if (lexer->lookahead != 'e') {
+        *lexer = saved;
+        return false;
+    }
+    advance(lexer);
+    
+    if (lexer->lookahead != 'v') {
+        *lexer = saved;
+        return false;
+    }
+    advance(lexer);
+    
+    if (lexer->lookahead != 'a') {
+        *lexer = saved;
+        return false;
+    }
+    advance(lexer);
+    
+    if (lexer->lookahead != 'l') {
+        *lexer = saved;
+        return false;
+    }
+    advance(lexer);
+    
+    if (lexer->lookahead != '-') {
+        *lexer = saved;
+        return false;
+    }
+    
     *lexer = saved;
-    return result;
+    return true;
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
