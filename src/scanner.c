@@ -635,6 +635,24 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
+static bool is_eval_result_start(TSLexer *lexer) {
+    // Assumes we're already at '<'
+    const char* pattern = "eval-result-";
+    TSLexer saved = *lexer;
+    advance(lexer); // skip '<'
+    
+    for (int i = 0; pattern[i] != '\0'; i++) {
+        if (lexer->lookahead != pattern[i]) {
+            *lexer = saved;
+            return false;
+        }
+        advance(lexer);
+    }
+    
+    *lexer = saved;
+    return true;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     // If we're at the start of an eval result tag, don't handle as content
     if (lexer->lookahead == '<') {
