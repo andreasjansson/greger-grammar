@@ -673,9 +673,14 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Debug: always break at any < character
+            // Test simplest possible 'e' check
             *lexer = saved;
-            break;
+            advance(lexer); // skip '<'
+            if (lexer->lookahead == 'e') {
+                *lexer = saved;
+                break;
+            }
+            *lexer = saved;
             
             // Not a stop condition, restore and continue as content
             *lexer = saved;
