@@ -640,8 +640,8 @@ static bool is_eval_result_start(TSLexer *lexer) {
     TSLexer saved = *lexer;
     advance(lexer); // skip '<'
     
-    // Check if character is any letter (for debugging)
-    if (lexer->lookahead >= 'a' && lexer->lookahead <= 'z') {
+    // Check for 'e' using character code
+    if (lexer->lookahead == 101) { // 101 is ASCII for 'e'
         *lexer = saved;
         return true;
     }
