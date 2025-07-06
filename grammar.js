@@ -270,8 +270,8 @@ module.exports = grammar({
       '<safe-shell-commands>',
       repeat(prec.left(choice(
         $.eval,
-        $.shell_command,
         /\n/,
+        $.shell_command,
       ))),
       '</safe-shell-commands>',
     ),
