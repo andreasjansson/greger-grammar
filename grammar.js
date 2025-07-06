@@ -287,7 +287,7 @@ module.exports = grammar({
 
     eval_start_tag: $ => seq(
       '<eval',
-      optional($.language),
+      optional(seq(/\s+/, $.language)),
       '>',
     ),
 
