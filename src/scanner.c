@@ -673,12 +673,27 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Check for <eval-result- using helper
+            // Check for <eval-result- inline
             *lexer = saved;
-            if (is_eval_result_start(lexer)) {
-                // Found "<eval-result-", stop here
-                break;
+            advance(lexer); // skip '<'
+            if (lexer->lookahead == 'e') {
+                advance(lexer);
+                if (lexer->lookahead == 'v') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'a') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'l') {
+                            advance(lexer);
+                            if (lexer->lookahead == '-') {
+                                // Found "<eval-", that's enough for now
+                                *lexer = saved;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
+            *lexer = saved;
             
             // Not a stop condition, restore and continue as content
             *lexer = saved;
