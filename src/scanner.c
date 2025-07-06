@@ -386,14 +386,13 @@ static bool scan_eval_end_tag(TSLexer *lexer) {
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
-    lexer->mark_end(lexer);
-
     bool has_content = false;
 
     // Scan until we find the closing tag
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
             // Check if this is the closing tag
+            int32_t saved_char = lexer->lookahead;
             lexer->advance(lexer, false);
             if (lexer->lookahead == '/') {
                 lexer->advance(lexer, false);
@@ -420,13 +419,15 @@ static bool scan_eval_content(TSLexer *lexer) {
                     }
                 }
             }
-            // Not the closing tag, continue as content
-            // Reset position and process as content
-            lexer->mark_end(lexer);
+            // Not the closing tag, the '<' is part of the content
+            advance(lexer);
             has_content = true;
         } else {
             advance(lexer);
             has_content = true;
+        }
+        
+        if (has_content) {
             lexer->mark_end(lexer);
         }
     }
