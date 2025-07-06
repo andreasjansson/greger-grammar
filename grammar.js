@@ -20,6 +20,7 @@ module.exports = grammar({
     $.tool_content_head,
     $.tool_content_tail,
     $.html_comment,
+    $.eval_content,
     $.error_sentinel,
   ],
 
