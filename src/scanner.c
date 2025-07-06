@@ -640,8 +640,44 @@ static bool scan_eval_content(TSLexer *lexer) {
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Stop at any '<' - let the grammar decide what it is
-            break;
+            // Check if this is </eval> or <eval-result-
+            TSLexer saved = *lexer;
+            advance(lexer);
+            
+            // Check for </eval>
+            if (lexer->lookahead == '/' &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '>')) {
+                // Found "</eval>", stop here
+                *lexer = saved;
+                break;
+            }
+            
+            // Check for <eval-result-
+            *lexer = saved;
+            advance(lexer);
+            if (lexer->lookahead == 'e' &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '-') &&
+                (advance(lexer), lexer->lookahead == 'r') &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 's') &&
+                (advance(lexer), lexer->lookahead == 'u') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == 't') &&
+                (advance(lexer), lexer->lookahead == '-')) {
+                // Found "<eval-result-", stop here
+                *lexer = saved;
+                break;
+            }
+            
+            // Not a stop condition, restore and consume as content
+            *lexer = saved;
         }
         
         advance(lexer);
