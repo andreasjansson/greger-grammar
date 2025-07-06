@@ -285,9 +285,11 @@ module.exports = grammar({
 
     eval: $ => seq(
       $.eval_start_tag,
-      optional($.eval_content),
+      repeat(choice(
+        $.eval_content,
+        $.eval_result,
+      )),
       $.eval_end_tag,
-      optional($.eval_result),
     ),
 
     eval_result: $ => seq(
