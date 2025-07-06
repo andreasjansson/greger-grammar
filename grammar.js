@@ -280,12 +280,18 @@ module.exports = grammar({
     shell_command: _ => /[^<\n]+/,
 
     eval: $ => prec(2, seq(
+      $.eval_start_tag,
+      optional($.eval_content),
+      $.eval_end_tag,
+    )),
+
+    eval_start_tag: $ => seq(
       '<eval',
       optional(seq(' ', $.eval_attribute)),
       '>',
-      optional($.eval_content),
-      '</eval>',
-    )),
+    ),
+
+    eval_end_tag: _ => '</eval>',
 
     eval_attribute: _ => /[^>]+/,
 
