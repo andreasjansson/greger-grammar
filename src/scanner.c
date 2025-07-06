@@ -424,6 +424,11 @@ static bool scan_eval_content(TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
     // Handle tool content (raw text) when in tool content state
     if (scanner->in_tool_content) {
         if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
