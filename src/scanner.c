@@ -358,6 +358,7 @@ static bool scan_eval_start_tag(TSLexer *lexer) {
     advance(lexer);
 
     lexer->result_symbol = EVAL_START_TAG;
+    lexer->mark_end(lexer);
     return true;
 }
 
