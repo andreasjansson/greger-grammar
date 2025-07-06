@@ -473,6 +473,47 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     //     return scan_eval_content(lexer);
     // }
 
+    // Debug: if we see '<' but no external symbols match, try to match eval anyway
+    if (lexer->lookahead == '<') {
+        // Check if this could be an eval tag
+        TSLexer saved_lexer = *lexer;
+        advance(lexer);
+        if (lexer->lookahead == 'e') {
+            advance(lexer);
+            if (lexer->lookahead == 'v') {
+                advance(lexer);
+                if (lexer->lookahead == 'a') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'l') {
+                        // This looks like an eval tag - restore and try to parse
+                        *lexer = saved_lexer;
+                        return scan_eval_start_tag(lexer);
+                    }
+                }
+            }
+        }
+        // Also check for closing tag
+        if (lexer->lookahead == '/') {
+            advance(lexer);
+            if (lexer->lookahead == 'e') {
+                advance(lexer);
+                if (lexer->lookahead == 'v') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'a') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'l') {
+                            // This looks like an eval closing tag
+                            *lexer = saved_lexer;
+                            return scan_eval_end_tag(lexer);
+                        }
+                    }
+                }
+            }
+        }
+        // Restore lexer if not an eval tag
+        *lexer = saved_lexer;
+    }
+    
     return false;
 }
 
