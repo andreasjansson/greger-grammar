@@ -214,11 +214,11 @@ module.exports = grammar({
     )),
 
     content_blocks: $ => repeat1(choice(
-      $.text,
+      $.eval,
       $.code_block,
       $.inline_code,
       $.html_comment,
-      $.eval,
+      $.text,
     )),
 
     text: $ => prec.right(repeat1(choice(
