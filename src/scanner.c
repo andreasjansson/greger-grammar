@@ -21,6 +21,9 @@ typedef struct {
     char tool_id[256];
     bool in_tool_content;
     bool expecting_tail; // true when we've scanned head and now need tail
+    char eval_result_id[256];
+    bool in_eval_result_content;
+    bool expecting_eval_result_tail;
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
