@@ -299,6 +299,6 @@ module.exports = grammar({
 
     eval_end_tag: $ => '</eval>',
 
-    eval_content: $ => /[^<]+/,
+
   },
 });
