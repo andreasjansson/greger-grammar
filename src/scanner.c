@@ -384,7 +384,7 @@ static bool scan_eval_end_tag(TSLexer *lexer) {
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
-    bool has_content = false;
+    // Only scan for content that is actually between eval tags
     lexer->mark_end(lexer);
     
     while (lexer->lookahead) {
@@ -403,11 +403,8 @@ static bool scan_eval_content(TSLexer *lexer) {
                             if (lexer->lookahead == 'l') {
                                 // Found closing tag, stop here and restore lexer
                                 *lexer = saved_lexer;
-                                if (has_content) {
-                                    lexer->result_symbol = EVAL_CONTENT;
-                                    return true;
-                                }
-                                return false;
+                                lexer->result_symbol = EVAL_CONTENT;
+                                return true;
                             }
                         }
                     }
@@ -418,16 +415,12 @@ static bool scan_eval_content(TSLexer *lexer) {
         }
         
         advance(lexer);
-        has_content = true;
         lexer->mark_end(lexer);
     }
     
-    if (has_content) {
-        lexer->result_symbol = EVAL_CONTENT;
-        return true;
-    }
-    
-    return false;
+    // If we reached EOF without finding closing tag, return content
+    lexer->result_symbol = EVAL_CONTENT;
+    return true;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
