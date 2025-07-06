@@ -284,4 +284,20 @@ module.exports = grammar({
       optional($.eval_content),
       $.eval_end_tag,
     ),
+
+    eval_start_tag: $ => seq(
+      '<eval',
+      optional(seq(' ', $.eval_attribute)),
+      '>',
+    ),
+
+    eval_end_tag: _ => '</eval>',
+
+    eval_attribute: _ => /[^>]+/,
+
+    eval_content: _ => repeat1(choice(
+      /[^<\n]+/,
+      /\n/,
+      /<[^/][^>]*>/,  // Allow other tags inside eval content
+    )),
 });
