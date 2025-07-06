@@ -716,6 +716,16 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_tail(scanner, lexer);
+        }
+    }
+
     // Skip whitespace but preserve newlines for other tokens
     while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
         skip(lexer);
