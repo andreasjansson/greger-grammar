@@ -638,72 +638,9 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
-    for (;;) {
-        // Check if we're at the start of a closing tag or eval-result tag
+    while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Save current position
-            TSLexer saved = *lexer;
-            advance(lexer);
-            
-            if (lexer->lookahead == '/' &&
-                (advance(lexer), lexer->lookahead == 'e') &&
-                (advance(lexer), lexer->lookahead == 'v') &&
-                (advance(lexer), lexer->lookahead == 'a') &&
-                (advance(lexer), lexer->lookahead == 'l') &&
-                (advance(lexer), lexer->lookahead == '>')) {
-                // Found "</eval>", restore position and return
-                *lexer = saved;
-                break;
-            }
-            
-            // Also check for eval-result start tag
-            *lexer = saved;
-            advance(lexer);
-            if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            advance(lexer);
-                            if (lexer->lookahead == '-') {
-                                advance(lexer);
-                                if (lexer->lookahead == 'r') {
-                                    advance(lexer);
-                                    if (lexer->lookahead == 'e') {
-                                        advance(lexer);
-                                        if (lexer->lookahead == 's') {
-                                            advance(lexer);
-                                            if (lexer->lookahead == 'u') {
-                                                advance(lexer);
-                                                if (lexer->lookahead == 'l') {
-                                                    advance(lexer);
-                                                    if (lexer->lookahead == 't') {
-                                                        advance(lexer);
-                                                        if (lexer->lookahead == '-') {
-                                                            // Found "<eval-result-", restore position and return
-                                                            *lexer = saved;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Not a closing tag or eval-result tag, restore and consume the '<' as content
-            *lexer = saved;
-        }
-        
-        if (lexer->lookahead == 0) {
-            // Reached EOF
+            // Stop at any '<' - let the grammar decide what it is
             break;
         }
         
