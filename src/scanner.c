@@ -659,18 +659,53 @@ static bool scan_eval_content(TSLexer *lexer) {
             // Check for <eval-result-
             *lexer = saved;
             advance(lexer);
-            if (lexer->lookahead == 'e' &&
-                (advance(lexer), lexer->lookahead == 'v') &&
-                (advance(lexer), lexer->lookahead == 'a') &&
-                (advance(lexer), lexer->lookahead == 'l') &&
-                (advance(lexer), lexer->lookahead == '-') &&
-                (advance(lexer), lexer->lookahead == 'r') &&
-                (advance(lexer), lexer->lookahead == 'e') &&
-                (advance(lexer), lexer->lookahead == 's') &&
-                (advance(lexer), lexer->lookahead == 'u') &&
-                (advance(lexer), lexer->lookahead == 'l') &&
-                (advance(lexer), lexer->lookahead == 't') &&
-                (advance(lexer), lexer->lookahead == '-')) {
+            bool is_eval_result = (lexer->lookahead == 'e');
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'v');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'a');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'l');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == '-');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'r');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'e');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 's');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'u');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 'l');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == 't');
+            }
+            if (is_eval_result) {
+                advance(lexer);
+                is_eval_result = (lexer->lookahead == '-');
+            }
+            
+            if (is_eval_result) {
                 // Found "<eval-result-", stop here
                 *lexer = saved;
                 break;
