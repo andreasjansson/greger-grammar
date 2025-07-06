@@ -9,6 +9,9 @@ enum TokenType {
     TOOL_CONTENT_HEAD,
     TOOL_CONTENT_TAIL,
     HTML_COMMENT,
+    EVAL_START_TAG,
+    EVAL_END_TAG,
+    EVAL_CONTENT,
 };
 
 typedef struct {
