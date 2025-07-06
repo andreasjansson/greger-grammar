@@ -270,8 +270,8 @@ module.exports = grammar({
       '<safe-shell-commands>',
       repeat(choice(
         $.eval,
-        /[^<\n]+/,
         /\n/,
+        /[^\n<]+/,
       )),
       '</safe-shell-commands>',
     ),
