@@ -33,9 +33,7 @@ module.exports = grammar({
     $.system_content_blocks,
   ],
 
-  conflicts: $ => [
-    [$.shell_command, $.eval],
-  ],
+
 
 
   rules: {
