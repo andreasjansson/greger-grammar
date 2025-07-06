@@ -367,7 +367,6 @@ static bool scan_eval_end_tag(TSLexer *lexer) {
     if (lexer->lookahead != '/') return false;
     advance(lexer);
 
-    // Check for "eval"
     if (lexer->lookahead != 'e') return false;
     advance(lexer);
     if (lexer->lookahead != 'v') return false;
