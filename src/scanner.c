@@ -676,7 +676,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             // Test other specific characters
             *lexer = saved;
             advance(lexer); // skip '<'
-            if (lexer->lookahead == 'a' || lexer->lookahead == 'b' || lexer->lookahead == 'c' || lexer->lookahead == 'd') {
+            if (lexer->lookahead == 'a' || lexer->lookahead == 'b' || lexer->lookahead == 'c' || lexer->lookahead == 'd' || lexer->lookahead == 'e') {
                 *lexer = saved;
                 break;
             }
