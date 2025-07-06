@@ -356,6 +356,16 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
             return scan_html_comment(lexer);
         }
 
+        // Handle eval start tag
+        if (valid_symbols[EVAL_START_TAG]) {
+            return scan_eval_start_tag(lexer);
+        }
+
+        // Handle eval end tag
+        if (valid_symbols[EVAL_END_TAG]) {
+            return scan_eval_end_tag(lexer);
+        }
+
         // Handle tool start tag
         if (valid_symbols[TOOL_START_TAG]) {
             return scan_tool_start_tag(scanner, lexer);
@@ -365,6 +375,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         if (valid_symbols[TOOL_END_TAG]) {
             return scan_tool_end_tag(scanner, lexer);
         }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
     }
 
     return false;
