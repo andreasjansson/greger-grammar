@@ -637,16 +637,13 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 
 static bool is_eval_result_start(TSLexer *lexer) {
     // Assumes we're already at '<'
-    TSLexer saved = *lexer;
     advance(lexer); // skip '<'
     
-    // Check for 'e' or 'f'
-    if (lexer->lookahead == 'e' || lexer->lookahead == 'f') {
-        *lexer = saved;
+    // Check for 'e' only
+    if (lexer->lookahead == 'e') {
         return true;
     }
     
-    *lexer = saved;
     return false;
 }
 
