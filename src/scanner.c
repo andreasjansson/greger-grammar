@@ -336,7 +336,6 @@ static bool scan_eval_start_tag(TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
     advance(lexer);
 
-    // Check for "eval"
     if (lexer->lookahead != 'e') return false;
     advance(lexer);
     if (lexer->lookahead != 'v') return false;
@@ -346,7 +345,7 @@ static bool scan_eval_start_tag(TSLexer *lexer) {
     if (lexer->lookahead != 'l') return false;
     advance(lexer);
 
-    // Handle optional attributes (space + anything before >)
+    // Optional attributes
     if (lexer->lookahead == ' ') {
         advance(lexer);
         while (lexer->lookahead != '>' && lexer->lookahead != 0) {
@@ -358,7 +357,6 @@ static bool scan_eval_start_tag(TSLexer *lexer) {
     advance(lexer);
 
     lexer->result_symbol = EVAL_START_TAG;
-    lexer->mark_end(lexer);
     return true;
 }
 
