@@ -639,6 +639,9 @@ static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
+        // Mark the end BEFORE checking stop conditions
+        lexer->mark_end(lexer);
+        
         if (lexer->lookahead == '<') {
             // Check if this is </eval> or <eval-result-
             TSLexer saved = *lexer;
@@ -715,10 +718,8 @@ static bool scan_eval_content(TSLexer *lexer) {
             *lexer = saved;
         }
         
-        // Mark the end BEFORE advancing so we capture content up to this point
         advance(lexer);
         has_content = true;
-        lexer->mark_end(lexer);
     }
     
     if (has_content) {
