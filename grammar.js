@@ -23,7 +23,7 @@ module.exports = grammar({
   ],
 
   conflicts: [
-    [$.shell_command, $.eval],
+    ['shell_command', 'eval'],
   ],
 
   inline: $ => [
