@@ -732,20 +732,20 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
-    // Handle eval result start tag (before eval content)
-    if (valid_symbols[EVAL_RESULT_START_TAG] && lexer->lookahead == '<') {
-        return scan_eval_result_start_tag(scanner, lexer);
-    }
-
-    // Handle eval result end tag (before eval content)
-    if (valid_symbols[EVAL_RESULT_END_TAG] && lexer->lookahead == '<') {
-        return scan_eval_result_end_tag(scanner, lexer);
-    }
-
     if (lexer->lookahead == '<') {
         // Handle HTML comments first - they should have priority
         if (valid_symbols[HTML_COMMENT]) {
             return scan_html_comment(lexer);
+        }
+
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
         }
 
         // Handle tool start tag
@@ -759,7 +759,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
-    // Handle eval content (after eval result checks)
+    // Handle eval content
     if (valid_symbols[EVAL_CONTENT]) {
         return scan_eval_content(lexer);
     }
