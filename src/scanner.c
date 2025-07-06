@@ -448,7 +448,8 @@ static bool scan_eval_content(TSLexer *lexer) {
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
             // Check if this is the closing tag
-            if (lexer->advance(lexer, false) && lexer->lookahead == '/') {
+            advance(lexer);
+            if (lexer->lookahead == '/') {
                 // Look ahead to see if this is </eval>
                 TSLexer backup = *lexer;
                 advance(lexer);
