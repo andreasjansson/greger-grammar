@@ -679,7 +679,8 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Not a stop condition, continue as content
+            // Not a stop condition, restore and fall through to advance
+            *lexer = saved;
         }
         
         advance(lexer);
