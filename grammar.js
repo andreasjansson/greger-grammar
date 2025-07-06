@@ -299,6 +299,19 @@ module.exports = grammar({
 
 
 
-    eval_content: _ => /[^<]+/,
+    eval_content: _ => prec.right(repeat1(choice(
+      /[^<\n]+/,
+      /\n/,
+      /<[^e\/]/,
+      /<e[^v]/,
+      /<ev[^a]/,
+      /<eva[^l]/,
+      /<eval[^>]/,
+      /<\/[^e]/,
+      /<\/e[^v]/,
+      /<\/ev[^a]/,
+      /<\/eva[^l]/,
+      /<\/eval[^>]/,
+    ))),
   },
 });
