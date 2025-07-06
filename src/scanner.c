@@ -385,51 +385,34 @@ static bool scan_eval_end_tag(TSLexer *lexer) {
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
-
-    // Scan until we find the closing tag or EOF
-    while (lexer->lookahead != 0) {
+    
+    while (lexer->lookahead) {
         if (lexer->lookahead == '<') {
-            // Look ahead to see if this is the closing tag
-            // We need to save our position because we might need to backtrack
-            TSLexer saved_lexer = *lexer;
-            
-            advance(lexer);
-            if (lexer->lookahead == '/' &&
-                (lexer->advance(lexer, false), lexer->lookahead == 'e') &&
-                (lexer->advance(lexer, false), lexer->lookahead == 'v') &&
-                (lexer->advance(lexer, false), lexer->lookahead == 'a') &&
-                (lexer->advance(lexer, false), lexer->lookahead == 'l') &&
-                (lexer->advance(lexer, false), lexer->lookahead == '>')) {
-                // This is the closing tag, restore position and stop
-                *lexer = saved_lexer;
-                if (has_content) {
-                    lexer->result_symbol = EVAL_CONTENT;
-                    return true;
-                } else {
-                    return false;
+            // Check if this is the closing tag
+            if (lexer->advance(lexer, false), lexer->lookahead == '/') {
+                if (lexer->advance(lexer, false), lexer->lookahead == 'e') {
+                    if (lexer->advance(lexer, false), lexer->lookahead == 'v') {
+                        if (lexer->advance(lexer, false), lexer->lookahead == 'a') {
+                            if (lexer->advance(lexer, false), lexer->lookahead == 'l') {
+                                // Found closing tag, stop here
+                                break;
+                            }
+                        }
+                    }
                 }
-            } else {
-                // Not the closing tag, restore position and consume the '<' as content
-                *lexer = saved_lexer;
-                advance(lexer);
-                has_content = true;
             }
-        } else {
-            advance(lexer);
-            has_content = true;
+            // Not closing tag, continue
         }
         
-        if (has_content) {
-            lexer->mark_end(lexer);
-        }
+        advance(lexer);
+        has_content = true;
     }
-
-    // Reached EOF
+    
     if (has_content) {
         lexer->result_symbol = EVAL_CONTENT;
         return true;
     }
-
+    
     return false;
 }
 
