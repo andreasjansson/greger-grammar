@@ -635,17 +635,7 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
-static bool is_eval_result_start(TSLexer *lexer) {
-    // Assumes we're already at '<'
-    TSLexer saved = *lexer;
-    advance(lexer); // skip '<'
-    
-    // Try casting to char and checking for 'e'
-    char c = (char)lexer->lookahead;
-    bool result = (c == 'e');
-    *lexer = saved;
-    return result;
-}
+
 
 static bool scan_eval_content(TSLexer *lexer) {
     // If we're at the start of an eval result tag, don't handle as content
