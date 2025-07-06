@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Install tree-sitter CLI
+      run: npm install -g tree-sitter-cli
+    
+    - name: Generate parser
+      run: tree-sitter generate
+    
+    - name: Run tests
+      run: tree-sitter test
+    
+    - name: Test parsing examples
+      run: |
+        echo "Testing basic parsing..."
+        echo "# SYSTEM
+        
+        <eval>test</eval>
+        
+        # USER
+        
+        Hello world!
+        
+        # ASSISTANT
+        
+        Hi there!" > test_example.txt
+        tree-sitter parse test_example.txt
+        rm test_example.txt
