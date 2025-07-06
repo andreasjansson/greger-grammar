@@ -636,8 +636,18 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool is_eval_result_start(TSLexer *lexer) {
-    // Debug: always return true to see if function is called
-    return true;
+    // Assumes we're already at '<'
+    TSLexer saved = *lexer;
+    advance(lexer); // skip '<'
+    
+    // Check for just 'e'
+    if (lexer->lookahead == 'e') {
+        *lexer = saved;
+        return true;
+    }
+    
+    *lexer = saved;
+    return false;
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
