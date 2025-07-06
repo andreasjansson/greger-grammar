@@ -35,13 +35,22 @@ unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buff
 
     size_t tool_id_len = strlen(scanner->tool_id);
     if (tool_id_len >= 255) tool_id_len = 255;
+    
+    size_t eval_result_id_len = strlen(scanner->eval_result_id);
+    if (eval_result_id_len >= 255) eval_result_id_len = 255;
 
     buffer[0] = scanner->in_tool_content ? 1 : 0;
     buffer[1] = scanner->expecting_tail ? 1 : 0;
     buffer[2] = tool_id_len;
     memcpy(buffer + 3, scanner->tool_id, tool_id_len);
 
-    return 3 + tool_id_len;
+    size_t offset = 3 + tool_id_len;
+    buffer[offset] = scanner->in_eval_result_content ? 1 : 0;
+    buffer[offset + 1] = scanner->expecting_eval_result_tail ? 1 : 0;
+    buffer[offset + 2] = eval_result_id_len;
+    memcpy(buffer + offset + 3, scanner->eval_result_id, eval_result_id_len);
+
+    return offset + 3 + eval_result_id_len;
 }
 
 void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
