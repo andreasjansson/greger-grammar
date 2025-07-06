@@ -287,6 +287,16 @@ module.exports = grammar({
       $.eval_start_tag,
       optional($.eval_content),
       $.eval_end_tag,
+      optional($.eval_result),
+    ),
+
+    eval_result: $ => seq(
+      $.eval_result_start_tag,
+      choice(
+        $.eval_result_head,
+        seq($.eval_result_head, $.eval_result_tail),
+      ),
+      $.eval_result_end_tag,
     ),
 
     eval_start_tag: $ => seq(
