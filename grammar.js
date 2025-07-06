@@ -288,13 +288,9 @@ module.exports = grammar({
       $.eval_end_tag,
     )),
 
-    eval_start_tag: $ => token(prec(1, seq(
-      '<eval',
-      optional(seq(' ', /[^>]+/)),
-      '>',
-    ))),
+    eval_start_tag: $ => $.eval_start_tag,
 
-    eval_end_tag: _ => token('</eval>'),
+    eval_end_tag: $ => $.eval_end_tag,
 
     eval_content: _ => repeat1(choice(
       /[^<]+/,
