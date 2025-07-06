@@ -334,8 +334,7 @@ static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 static bool scan_eval_content(TSLexer *lexer) {
-    // Only scan for content that is actually between eval tags
-    lexer->mark_end(lexer);
+    bool has_content = false;
     
     while (lexer->lookahead) {
         if (lexer->lookahead == '<') {
@@ -351,10 +350,16 @@ static bool scan_eval_content(TSLexer *lexer) {
                         if (lexer->lookahead == 'a') {
                             advance(lexer);
                             if (lexer->lookahead == 'l') {
-                                // Found closing tag, stop here and restore lexer
-                                *lexer = saved_lexer;
-                                lexer->result_symbol = EVAL_CONTENT;
-                                return true;
+                                advance(lexer);
+                                if (lexer->lookahead == '>') {
+                                    // Found complete closing tag, stop here and restore lexer
+                                    *lexer = saved_lexer;
+                                    if (has_content) {
+                                        lexer->result_symbol = EVAL_CONTENT;
+                                        return true;
+                                    }
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -365,12 +370,17 @@ static bool scan_eval_content(TSLexer *lexer) {
         }
         
         advance(lexer);
+        has_content = true;
         lexer->mark_end(lexer);
     }
     
-    // If we reached EOF without finding closing tag, return content
-    lexer->result_symbol = EVAL_CONTENT;
-    return true;
+    // If we reached EOF without finding closing tag, return content if we have any
+    if (has_content) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+    
+    return false;
 }
 
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
