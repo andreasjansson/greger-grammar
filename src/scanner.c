@@ -739,6 +739,16 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 
 
 
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
+        }
+
         // Handle tool start tag
         if (valid_symbols[TOOL_START_TAG]) {
             return scan_tool_start_tag(scanner, lexer);
