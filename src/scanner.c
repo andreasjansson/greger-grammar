@@ -473,11 +473,10 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
-    // Handle eval content - only when specifically requested
-    // Do not handle eval_content for now to see if start/end tags work
-    // if (valid_symbols[EVAL_CONTENT] && !valid_symbols[EVAL_START_TAG] && !valid_symbols[EVAL_END_TAG]) {
-    //     return scan_eval_content(lexer);
-    // }
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+    }
 
     // Debug: if we see '<' but no external symbols match, try to match eval anyway
     if (lexer->lookahead == '<') {
