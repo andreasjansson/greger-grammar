@@ -392,6 +392,101 @@ static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
+static bool scan_eval_result_start_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "eval-result-"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'r') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'u') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Get the eval result ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->eval_result_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->eval_result_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_eval_result_content = true;
+    scanner->expecting_eval_result_tail = false;
+    lexer->result_symbol = EVAL_RESULT_START_TAG;
+    return true;
+}
+
+static bool scan_eval_result_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "eval-result-"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'r') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'u') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Scan eval result ID until >
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_eval_result_content = false;
+    scanner->expecting_eval_result_tail = false;
+    scanner->eval_result_id[0] = '\0';
+    lexer->result_symbol = EVAL_RESULT_END_TAG;
+    return true;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
