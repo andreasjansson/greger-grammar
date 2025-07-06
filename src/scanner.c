@@ -639,7 +639,7 @@ static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
     for (;;) {
-        // Check if we're at the start of a closing tag
+        // Check if we're at the start of a closing tag or eval-result tag
         if (lexer->lookahead == '<') {
             // Save current position
             TSLexer saved = *lexer;
@@ -656,7 +656,27 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Not a closing tag, restore and consume the '<' as content
+            // Also check for eval-result start tag
+            *lexer = saved;
+            advance(lexer);
+            if (lexer->lookahead == 'e' &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '-') &&
+                (advance(lexer), lexer->lookahead == 'r') &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 's') &&
+                (advance(lexer), lexer->lookahead == 'u') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == 't') &&
+                (advance(lexer), lexer->lookahead == '-')) {
+                // Found "<eval-result-", restore position and return
+                *lexer = saved;
+                break;
+            }
+            
+            // Not a closing tag or eval-result tag, restore and consume the '<' as content
             *lexer = saved;
         }
         
