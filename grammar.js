@@ -213,6 +213,7 @@ module.exports = grammar({
       $.inline_code,
       $.html_comment,
       $.safe_shell_commands,
+      $.eval,
     )),
 
     content_blocks: $ => repeat1(choice(
