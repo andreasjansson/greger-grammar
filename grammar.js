@@ -279,11 +279,17 @@ module.exports = grammar({
     // TODO: allow `<` in safe shell commands, somehow...
     shell_command: _ => /[^<\n]+/,
 
-    eval: $ => prec(1, seq(
-      $.eval_start_tag,
+    eval: $ => prec(2, seq(
+      '<eval',
+      optional(seq(' ', $.eval_attribute)),
+      '>',
       optional($.eval_content),
-      $.eval_end_tag,
+      '</eval>',
     )),
+
+    eval_attribute: _ => /[^>]+/,
+
+    eval_content: _ => /[^<]+/,
 
 
 });
