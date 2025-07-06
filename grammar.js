@@ -212,10 +212,10 @@ module.exports = grammar({
     )),
 
     system_content_blocks: $ => repeat1(choice(
+      $.html_comment,
       $.eval,
       $.code_block,
       $.inline_code,
-      $.html_comment,
       $.safe_shell_commands,
       $.text,
     )),
