@@ -103,9 +103,8 @@ cd bindings/node && npm test
 The project includes comprehensive test coverage:
 
 - **Unit Tests**: `tree-sitter test` runs all corpus tests
-- **CI/CD**: GitHub Actions test on Ubuntu, macOS, and Windows
-- **Node.js Versions**: Tested on Node.js 16, 18, and 20
-- **Grammar Validation**: Automated conflict detection
+- **CI/CD**: GitHub Actions using official tree-sitter actions
+- **Grammar Validation**: Automated parser generation and testing
 
 ## License
 
