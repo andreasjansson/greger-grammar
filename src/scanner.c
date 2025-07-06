@@ -655,65 +655,8 @@ static bool is_eval_result_start(TSLexer *lexer) {
 
 static bool scan_eval_content(TSLexer *lexer) {
     // If we're at the start of an eval result tag, don't handle as content
-    if (lexer->lookahead == '<') {
-        TSLexer saved = *lexer;
-        advance(lexer);
-        
-        // Check for <eval-result-
-        bool is_eval_result = (lexer->lookahead == 'e');
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'v');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'a');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'l');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == '-');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'r');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'e');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 's');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'u');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 'l');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == 't');
-        }
-        if (is_eval_result) {
-            advance(lexer);
-            is_eval_result = (lexer->lookahead == '-');
-        }
-        
-        if (is_eval_result) {
-            // Found "<eval-result-", let eval result scanner handle it
-            *lexer = saved;
-            return false;
-        }
-        
-        // Not an eval result, restore and continue with content scanning
-        *lexer = saved;
+    if (lexer->lookahead == '<' && is_eval_result_start(lexer)) {
+        return false;
     }
     
     bool has_content = false;
@@ -736,63 +679,14 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Check for <eval-result-
+            // Check for <eval-result- using helper
             *lexer = saved;
-            advance(lexer);
-            bool is_eval_result = (lexer->lookahead == 'e');
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'v');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'a');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'l');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == '-');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'r');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'e');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 's');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'u');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 'l');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == 't');
-            }
-            if (is_eval_result) {
-                advance(lexer);
-                is_eval_result = (lexer->lookahead == '-');
-            }
-            
-            if (is_eval_result) {
+            if (is_eval_result_start(lexer)) {
                 // Found "<eval-result-", stop here and don't include it in content
-                *lexer = saved;
                 break;
             }
             
-            // Not a stop condition, restore and consume as content
-            *lexer = saved;
+            // Not a stop condition, continue as content
         }
         
         advance(lexer);
