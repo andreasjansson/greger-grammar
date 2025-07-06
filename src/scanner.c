@@ -331,53 +331,7 @@ static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
-static bool scan_eval_start_tag(TSLexer *lexer) {
-    if (lexer->lookahead != '<') return false;
-    advance(lexer);
 
-    if (lexer->lookahead != 'e') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'v') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'a') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-
-    // Optional attributes
-    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
-        advance(lexer);
-    }
-
-    if (lexer->lookahead != '>') return false;
-    advance(lexer);
-
-    lexer->result_symbol = EVAL_START_TAG;
-    return true;
-}
-
-static bool scan_eval_end_tag(TSLexer *lexer) {
-    if (lexer->lookahead != '<') return false;
-    advance(lexer);
-
-    if (lexer->lookahead != '/') return false;
-    advance(lexer);
-
-    if (lexer->lookahead != 'e') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'v') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'a') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-
-    if (lexer->lookahead != '>') return false;
-    advance(lexer);
-
-    lexer->result_symbol = EVAL_END_TAG;
-    return true;
-}
 
 static bool scan_eval_content(TSLexer *lexer) {
     // Only scan for content that is actually between eval tags
