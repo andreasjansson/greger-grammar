@@ -460,6 +460,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     if (lexer->lookahead == '<') {
+        // Handle HTML comments first - they should have priority
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
         // Handle eval start tag
         if (valid_symbols[EVAL_START_TAG]) {
             return scan_eval_start_tag(lexer);
@@ -468,11 +473,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         // Handle eval end tag
         if (valid_symbols[EVAL_END_TAG]) {
             return scan_eval_end_tag(lexer);
-        }
-
-        // Handle HTML comments
-        if (valid_symbols[HTML_COMMENT]) {
-            return scan_html_comment(lexer);
         }
 
         // Handle tool start tag
