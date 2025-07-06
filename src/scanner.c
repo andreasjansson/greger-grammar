@@ -640,8 +640,8 @@ static bool is_eval_result_start(TSLexer *lexer) {
     TSLexer saved = *lexer;
     advance(lexer); // skip '<'
     
-    // Check for specific characters around 'e'
-    bool result = (lexer->lookahead == 'd' || lexer->lookahead == 'e' || lexer->lookahead == 'f');
+    // Check for just d and f  
+    bool result = (lexer->lookahead == 'd' || lexer->lookahead == 'f');
     *lexer = saved;
     return result;
 }
