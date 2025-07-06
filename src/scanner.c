@@ -663,10 +663,11 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Test other specific characters
+            // Check for <eval-result- or other tags starting with letters e-z
             *lexer = saved;
             advance(lexer); // skip '<'
             if (lexer->lookahead >= 'e' && lexer->lookahead <= 'z') {
+                // Found a tag that could be eval-result-, stop here
                 *lexer = saved;
                 break;
             }
