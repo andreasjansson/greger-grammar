@@ -1,8 +1,6 @@
 # Greger Grammar
 
 [![CI](https://github.com/andreasjansson/greger-grammar/actions/workflows/ci.yml/badge.svg)](https://github.com/andreasjansson/greger-grammar/actions/workflows/ci.yml)
-[![Test Matrix](https://github.com/andreasjansson/greger-grammar/actions/workflows/test-matrix.yml/badge.svg)](https://github.com/andreasjansson/greger-grammar/actions/workflows/test-matrix.yml)
-[![Validate Grammar](https://github.com/andreasjansson/greger-grammar/actions/workflows/validate.yml/badge.svg)](https://github.com/andreasjansson/greger-grammar/actions/workflows/validate.yml)
 
 Tree-sitter grammar for [greger.el](https://github.com/andreasjansson/greger.el) - a structured markdown format for AI conversations.
 
