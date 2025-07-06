@@ -287,9 +287,11 @@ module.exports = grammar({
 
     eval_start_tag: $ => seq(
       '<eval',
-      optional(/[^>]*/), // attributes
+      optional($.language),
       '>',
     ),
+
+    language: $ => /[a-zA-Z0-9_+-]+/,
 
     eval_end_tag: $ => '</eval>',
 
