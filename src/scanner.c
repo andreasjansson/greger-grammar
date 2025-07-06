@@ -673,27 +673,9 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Check for <eval-result- inline
+            // Debug: always break at any < character
             *lexer = saved;
-            advance(lexer); // skip '<'
-            if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            advance(lexer);
-                            if (lexer->lookahead == '-') {
-                                // Found "<eval-", that's enough for now
-                                *lexer = saved;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            *lexer = saved;
+            break;
             
             // Not a stop condition, restore and continue as content
             *lexer = saved;
