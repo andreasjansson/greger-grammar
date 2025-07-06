@@ -22,6 +22,10 @@ module.exports = grammar({
     $.html_comment,
   ],
 
+  conflicts: [
+    [$.shell_command, $.eval],
+  ],
+
   inline: $ => [
     $.content_blocks,
     $.assistant_content_blocks,
