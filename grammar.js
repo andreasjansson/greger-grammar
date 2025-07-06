@@ -288,10 +288,6 @@ module.exports = grammar({
       $.eval_end_tag,
     )),
 
-    eval_start_tag: $ => $.eval_start_tag,
-
-    eval_end_tag: $ => $.eval_end_tag,
-
     eval_content: _ => repeat1(choice(
       /[^<]+/,
       /\n/,
