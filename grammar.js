@@ -296,8 +296,8 @@ module.exports = grammar({
     eval_attribute: _ => /[^>]+/,
 
     eval_content: _ => repeat1(choice(
-      /[^<\n]+/,
+      /[^<]+/,
       /\n/,
-      /<[^/][^>]*>/,  // Allow other tags inside eval content
+      /<(?!\/eval>)[^>]*>/,  // Allow other tags inside eval content, but not the closing tag
     )),
 });
