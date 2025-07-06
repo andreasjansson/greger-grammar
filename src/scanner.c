@@ -636,6 +636,68 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
+    // If we're at the start of an eval result tag, don't handle as content
+    if (lexer->lookahead == '<') {
+        TSLexer saved = *lexer;
+        advance(lexer);
+        
+        // Check for <eval-result-
+        bool is_eval_result = (lexer->lookahead == 'e');
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'v');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'a');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'l');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == '-');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'r');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'e');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 's');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'u');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 'l');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == 't');
+        }
+        if (is_eval_result) {
+            advance(lexer);
+            is_eval_result = (lexer->lookahead == '-');
+        }
+        
+        if (is_eval_result) {
+            // Found "<eval-result-", let eval result scanner handle it
+            *lexer = saved;
+            return false;
+        }
+        
+        // Not an eval result, restore and continue with content scanning
+        *lexer = saved;
+    }
+    
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
