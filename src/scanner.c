@@ -21,10 +21,6 @@ static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
-static bool scan_eval_start_tag(TSLexer *lexer);
-static bool scan_eval_end_tag(TSLexer *lexer);
-static bool scan_eval_content(TSLexer *lexer);
-
 unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
     Scanner *scanner = (Scanner *)payload;
 
