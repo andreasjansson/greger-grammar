@@ -293,7 +293,7 @@ module.exports = grammar({
 
     eval_end_tag: _ => '</eval>',
 
-    eval_attribute: _ => /[^>]+/,
+
 
     eval_content: _ => /[^<]+/,
 
