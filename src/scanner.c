@@ -487,6 +487,154 @@ static bool scan_eval_result_end_tag(Scanner *scanner, TSLexer *lexer) {
     return true;
 }
 
+static bool scan_eval_result_head(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+    int line_count = 0;
+    bool current_line_has_content = false;
+
+    // Scan first 4 lines or until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = EVAL_RESULT_HEAD;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+            current_line_has_content = true;
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching but failed, reset and process current char as content
+                match_index = 0;
+            }
+            
+            // Process current character as content
+            if (lexer->lookahead == '\n') {
+                if (current_line_has_content) {
+                    line_count++;
+                    current_line_has_content = false;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+                
+                // If we've completed 4 lines, break and let natural flow determine if tail exists
+                if (line_count >= 4) {
+                    break;
+                }
+            } else {
+                current_line_has_content = true;
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Return head if we have content
+    if (has_content) {
+        // If we broke out because we reached 4 lines, check if there's more content
+        if (line_count >= 4) {
+            // Check if current position is at the closing tag
+            int temp_match = 0;
+            while (lexer->lookahead == expected_closing[temp_match] && temp_match < expected_len) {
+                temp_match++;
+                if (temp_match == expected_len) {
+                    // We're at the closing tag, no tail needed
+                    break;
+                }
+                lexer->advance(lexer, false);
+            }
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_eval_result_tail = true;
+            }
+        }
+        
+        lexer->result_symbol = EVAL_RESULT_HEAD;
+        return true;
+    }
+
+    return false;
+}
+
+static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || !scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan remaining content until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                scanner->expecting_eval_result_tail = false;
+                if (has_content) {
+                    lexer->result_symbol = EVAL_RESULT_TAIL;
+                    return true;
+                } else {
+                    // No tail content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    scanner->expecting_eval_result_tail = false;
+    if (has_content) {
+        lexer->result_symbol = EVAL_RESULT_TAIL;
+        return true;
+    }
+
+    return false;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
