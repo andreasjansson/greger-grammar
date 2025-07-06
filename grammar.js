@@ -288,9 +288,5 @@ module.exports = grammar({
       $.eval_end_tag,
     )),
 
-    eval_content: _ => repeat1(choice(
-      /[^<]+/,
-      /\n/,
-      /<(?!\/eval>)[^>]*>/,  // Allow other tags inside eval content, but not the closing tag
-    )),
+
 });
