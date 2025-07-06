@@ -24,19 +24,13 @@ module.exports = grammar({
     $.error_sentinel,
   ],
 
-
-
   inline: $ => [
     $.content_blocks,
     $.assistant_content_blocks,
     $.system_content_blocks,
   ],
 
-
-
-
   rules: {
-
     source_file: $ => seq(
       optional($.untagged_text),
       optional($.system),
