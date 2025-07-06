@@ -291,7 +291,7 @@ module.exports = grammar({
       '>',
     ))),
 
-    eval_end_tag: _ => '</eval>',
+    eval_end_tag: _ => token('</eval>'),
 
 
 
