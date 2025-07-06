@@ -268,11 +268,11 @@ module.exports = grammar({
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
-      repeat(choice(
-        prec(1, $.eval),
+      repeat(prec.left(choice(
+        $.eval,
         $.shell_command,
         /\n/,
-      )),
+      ))),
       '</safe-shell-commands>',
     ),
 
