@@ -369,3 +369,105 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 
     return false;
 }
+
+static bool scan_eval_start_tag(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    // Skip any attributes (space and text until >)
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_START_TAG;
+    return true;
+}
+
+static bool scan_eval_end_tag(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_END_TAG;
+    return true;
+}
+
+static bool scan_eval_content(TSLexer *lexer) {
+    lexer->mark_end(lexer);
+    bool has_content = false;
+
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '<') {
+            // Check if this is the closing tag
+            if (lexer->advance(lexer, false) && lexer->lookahead == '/') {
+                // Look ahead to see if this is </eval>
+                TSLexer backup = *lexer;
+                advance(lexer);
+                if (lexer->lookahead == 'e') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'v') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'a') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'l') {
+                                advance(lexer);
+                                if (lexer->lookahead == '>') {
+                                    // This is the closing tag, stop here
+                                    *lexer = backup;
+                                    if (has_content) {
+                                        lexer->result_symbol = EVAL_CONTENT;
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Not the closing tag, restore and continue
+                *lexer = backup;
+            }
+        }
+        
+        advance(lexer);
+        has_content = true;
+        lexer->mark_end(lexer);
+    }
+
+    if (has_content) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+
+    return false;
+}
