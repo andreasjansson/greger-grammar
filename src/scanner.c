@@ -444,13 +444,13 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
             return scan_html_comment(lexer);
         }
 
-        // Handle eval start tag
+        // Handle eval start tag - always try this when we see '<'
         if (valid_symbols[EVAL_START_TAG]) {
             bool result = scan_eval_start_tag(lexer);
             return result;
         }
 
-        // Handle eval end tag
+        // Handle eval end tag - always try this when we see '<'
         if (valid_symbols[EVAL_END_TAG]) {
             bool result = scan_eval_end_tag(lexer);
             return result;
