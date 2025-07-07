@@ -681,8 +681,13 @@
             "name": "citation_entry"
           },
           {
-            "type": "SYMBOL",
-            "name": "text"
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "assistant_text"
+            },
+            "named": true,
+            "value": "text"
           },
           {
             "type": "SYMBOL",
@@ -779,7 +784,38 @@
         }
       }
     },
+    "assistant_text": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "REPEAT1",
+        "content": {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_assistant_text_content"
+            },
+            {
+              "type": "PATTERN",
+              "value": "\\n"
+            }
+          ]
+        }
+      }
+    },
     "_text_content": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": -1,
+        "content": {
+          "type": "PATTERN",
+          "value": "[^`<\\n]+"
+        }
+      }
+    },
+    "_assistant_text_content": {
       "type": "TOKEN",
       "content": {
         "type": "PREC",
