@@ -760,6 +760,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
+    // Handle eval content first - let it decide when to stop
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+    }
+
     if (lexer->lookahead == '<') {
         // Handle HTML comments first - they should have priority
         if (valid_symbols[HTML_COMMENT]) {
@@ -785,11 +790,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         if (valid_symbols[TOOL_END_TAG]) {
             return scan_tool_end_tag(scanner, lexer);
         }
-    }
-
-    // Handle eval content
-    if (valid_symbols[EVAL_CONTENT]) {
-        return scan_eval_content(lexer);
     }
     
     return false;
