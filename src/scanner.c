@@ -701,10 +701,12 @@ static bool scan_eval_content(TSLexer *lexer) {
                 goto found_eval_result;
             }
             
-            // Check if this is an eval-result tag
+            // Check if this might be an eval-result tag
             *lexer = saved;
-            if (is_eval_result_tag(lexer)) {
-                // Found "<eval-result-", stop here and let other scanners handle it
+            advance(lexer); // skip '<'
+            if (lexer->lookahead == 'e') {
+                // Could be eval-result tag, stop here and let other scanners handle it
+                *lexer = saved;
                 goto found_eval_result;
             }
             
