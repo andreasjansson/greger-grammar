@@ -687,8 +687,19 @@ static bool scan_eval_content(TSLexer *lexer) {
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
             TSLexer saved = *lexer;
-            // DEBUG: Always stop at any < for now
-            break; // Exit the while loop
+            advance(lexer);
+            
+            // For now, just check if next char is 'e' and stop
+            if (lexer->lookahead == 'e') {
+                *lexer = saved;
+                break; // Exit the while loop
+            }
+            
+            // Otherwise, restore and continue as content
+            *lexer = saved;
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
         } else {
             advance(lexer);
             has_content = true;
