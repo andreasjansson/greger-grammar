@@ -574,7 +574,7 @@ static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
             }
         }
         
-        lexer->result_symbol = EVAL_RESULT_HEAD;
+        lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
         return true;
     }
 
