@@ -605,7 +605,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
                 // Found complete closing tag, stop here (don't consume it)
                 scanner->expecting_eval_result_tail = false;
                 if (has_content) {
-                    lexer->result_symbol = EVAL_RESULT_TAIL;
+                    lexer->result_symbol = EVAL_RESULT_CONTENT_TAIL;
                     return true;
                 } else {
                     // No tail content, let the grammar handle the end tag
