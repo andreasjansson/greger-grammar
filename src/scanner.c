@@ -706,10 +706,51 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // For any other < tag, restore and stop
-            // This allows other scanners to handle things like <eval-result-
+            // Check if this could be <eval-result-
             *lexer = saved;
-            break;
+            advance(lexer); // skip '<'
+            
+            if (lexer->lookahead == 'e') {
+                advance(lexer);
+                if (lexer->lookahead == 'v') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'a') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'l') {
+                            advance(lexer);
+                            if (lexer->lookahead == '-') {
+                                advance(lexer);
+                                if (lexer->lookahead == 'r') {
+                                    advance(lexer);
+                                    if (lexer->lookahead == 'e') {
+                                        advance(lexer);
+                                        if (lexer->lookahead == 's') {
+                                            advance(lexer);
+                                            if (lexer->lookahead == 'u') {
+                                                advance(lexer);
+                                                if (lexer->lookahead == 'l') {
+                                                    advance(lexer);
+                                                    if (lexer->lookahead == 't') {
+                                                        advance(lexer);
+                                                        if (lexer->lookahead == '-') {
+                                                            // Found "<eval-result-", stop here
+                                                            *lexer = saved;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Not an eval-result tag, restore and continue as content
+            *lexer = saved;
         }
         
         advance(lexer);
