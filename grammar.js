@@ -20,11 +20,11 @@ module.exports = grammar({
     $.tool_content_head,
     $.tool_content_tail,
     $.html_comment,
+    $.eval_content,
     $.eval_result_start_tag,
     $.eval_result_end_tag,
     $.eval_result_head,
     $.eval_result_tail,
-    $.eval_content,
     $.error_sentinel,
   ],
 
