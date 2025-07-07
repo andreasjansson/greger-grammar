@@ -712,11 +712,14 @@ static bool scan_eval_content(TSLexer *lexer) {
             
             // Not an eval tag, restore and continue as content
             *lexer = saved;
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else {
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
         }
-        
-        advance(lexer);
-        has_content = true;
-        lexer->mark_end(lexer);
     }
     
 found_eval_result:
