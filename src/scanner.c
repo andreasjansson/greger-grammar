@@ -638,33 +638,25 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
-    int chars_processed = 0;
-    const int MAX_CHARS = 10000; // Safety limit to prevent infinite loops
     
-    while (lexer->lookahead != 0 && chars_processed < MAX_CHARS) {
+    while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
             TSLexer saved = *lexer;
             advance(lexer);
-            chars_processed++;
             
             // Check for </eval>
             if (lexer->lookahead == '/') {
                 // This is a closing tag, check if it's </eval>
                 TSLexer close_saved = *lexer;
                 advance(lexer);
-                chars_processed++;
                 if (lexer->lookahead == 'e') {
                     advance(lexer);
-                    chars_processed++;
                     if (lexer->lookahead == 'v') {
                         advance(lexer);
-                        chars_processed++;
                         if (lexer->lookahead == 'a') {
                             advance(lexer);
-                            chars_processed++;
                             if (lexer->lookahead == 'l') {
                                 advance(lexer);
-                                chars_processed++;
                                 if (lexer->lookahead == '>') {
                                     // Found "</eval>", stop here
                                     *lexer = saved;
@@ -676,22 +668,12 @@ static bool scan_eval_content(TSLexer *lexer) {
                 }
                 // Not </eval>, restore to after /
                 *lexer = close_saved;
-                chars_processed -= 1; // We're going back
             }
             
             // Check if this is a tag starting with 'e' (could be eval-result)
             if (lexer->lookahead == 'e') {
                 *lexer = saved;
                 break; // Exit the while loop
-            }
-            
-            // Check for any other tag-like patterns that should terminate eval content
-            // This prevents infinite loops with malformed tags like <eval>\n<
-            if (lexer->lookahead != 0 && !iswspace(lexer->lookahead)) {
-                // We have a '<' followed by a non-whitespace character that's not 'e' or '/'
-                // This could be a malformed tag - let's be conservative and stop here
-                *lexer = saved;
-                break;
             }
             
             // Otherwise, restore and continue as content
@@ -702,7 +684,6 @@ static bool scan_eval_content(TSLexer *lexer) {
             advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
-            chars_processed++;
         } else {
             if (!iswspace(lexer->lookahead)) {
                 has_non_whitespace = true;
@@ -710,7 +691,6 @@ static bool scan_eval_content(TSLexer *lexer) {
             advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
-            chars_processed++;
         }
     }
     
