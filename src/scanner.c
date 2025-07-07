@@ -548,7 +548,7 @@ static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
         }
     }
 
-    // Return head if we have content
+    // Always return head token (even for empty content, like tool_content_head)
     if (has_content) {
         // If we broke out because we reached 4 lines, check if there's more content
         if (line_count >= 4) {
@@ -568,10 +568,10 @@ static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
                 scanner->expecting_eval_result_tail = true;
             }
         }
-        
-        lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
-        return true;
     }
+    
+    lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+    return true;
 
     return false;
 }
