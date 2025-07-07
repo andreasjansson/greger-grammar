@@ -639,46 +639,6 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-// Helper function to check if we're at the start of an eval-result tag
-static bool is_eval_result_tag(TSLexer *lexer) {
-    TSLexer saved = *lexer;
-    
-    // Should be at '<'
-    if (lexer->lookahead != '<') {
-        *lexer = saved;
-        return false;
-    }
-    advance(lexer);
-    
-    // Check for "eval-result-"
-    if (lexer->lookahead != 'e') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'v') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'a') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'l') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != '-') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'r') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'e') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 's') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'u') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 'l') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != 't') { *lexer = saved; return false; }
-    advance(lexer);
-    if (lexer->lookahead != '-') { *lexer = saved; return false; }
-    
-    // Found "<eval-result-"
-    *lexer = saved;
-    return true;
-}
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
