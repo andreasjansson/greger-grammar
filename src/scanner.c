@@ -763,6 +763,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
 
     // Handle eval content first - let it decide when to stop
     if (valid_symbols[EVAL_CONTENT]) {
+        // Debug: Trying EVAL_CONTENT
         return scan_eval_content(lexer);
     }
 
