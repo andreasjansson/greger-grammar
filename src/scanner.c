@@ -690,8 +690,24 @@ static bool scan_eval_content(TSLexer *lexer) {
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Debug: stop at ANY < for now
-            goto found_eval_result;
+            // Check if this is </eval>
+            TSLexer saved = *lexer;
+            advance(lexer);
+            
+            // Check for </eval>
+            if (lexer->lookahead == '/' &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '>')) {
+                // Found "</eval>", stop here
+                *lexer = saved;
+                goto found_eval_result;
+            }
+            
+            // For now, treat all other < as content
+            *lexer = saved;
         }
         
         advance(lexer);
