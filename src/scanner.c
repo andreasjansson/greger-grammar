@@ -727,11 +727,11 @@ static bool scan_eval_content(TSLexer *lexer) {
             has_content = true;
             lexer->mark_end(lexer);
         } else {
-            advance(lexer);
-            has_content = true;
             if (!iswspace(lexer->lookahead)) {
                 has_non_whitespace = true;
             }
+            advance(lexer);
+            has_content = true;
             lexer->mark_end(lexer);
         }
     }
