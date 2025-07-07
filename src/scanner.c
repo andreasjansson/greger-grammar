@@ -736,9 +736,6 @@ static bool scan_eval_content(TSLexer *lexer) {
                                                         if (lexer->lookahead == '-') {
                                                             // Found "<eval-result-", stop here
                                                             *lexer = saved;
-                                                            if (has_content) {
-                                                                lexer->mark_end(lexer);
-                                                            }
                                                             break;
                                                         }
                                                     }
