@@ -739,7 +739,7 @@ static bool scan_eval_content(TSLexer *lexer) {
         }
     }
     
-    if (has_content) {
+    if (has_content && has_non_whitespace) {
         lexer->result_symbol = EVAL_CONTENT;
         return true;
     }
