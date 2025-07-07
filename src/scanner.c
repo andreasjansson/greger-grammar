@@ -637,6 +637,47 @@ static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
+// Helper function to check if we're at the start of an eval-result tag
+static bool is_eval_result_tag(TSLexer *lexer) {
+    TSLexer saved = *lexer;
+    
+    // Should be at '<'
+    if (lexer->lookahead != '<') {
+        *lexer = saved;
+        return false;
+    }
+    advance(lexer);
+    
+    // Check for "eval-result-"
+    if (lexer->lookahead != 'e') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'v') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'a') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'l') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != '-') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'r') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'e') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 's') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'u') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 'l') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != 't') { *lexer = saved; return false; }
+    advance(lexer);
+    if (lexer->lookahead != '-') { *lexer = saved; return false; }
+    
+    // Found "<eval-result-"
+    *lexer = saved;
+    return true;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     
@@ -657,47 +698,11 @@ static bool scan_eval_content(TSLexer *lexer) {
                 goto found_eval_result;
             }
             
-            // Check if this is exactly "eval-result-"
+            // Check if this is an eval-result tag
             *lexer = saved;
-            advance(lexer); // skip '<'
-            
-            if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            advance(lexer);
-                            if (lexer->lookahead == '-') {
-                                advance(lexer);
-                                if (lexer->lookahead == 'r') {
-                                    advance(lexer);
-                                    if (lexer->lookahead == 'e') {
-                                        advance(lexer);
-                                        if (lexer->lookahead == 's') {
-                                            advance(lexer);
-                                            if (lexer->lookahead == 'u') {
-                                                advance(lexer);
-                                                if (lexer->lookahead == 'l') {
-                                                    advance(lexer);
-                                                    if (lexer->lookahead == 't') {
-                                                        advance(lexer);
-                                                        if (lexer->lookahead == '-') {
-                                                            // Found "<eval-result-", stop here
-                                                            *lexer = saved;
-                                                            goto found_eval_result;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            if (is_eval_result_tag(lexer)) {
+                // Found "<eval-result-", stop here
+                goto found_eval_result;
             }
             
             // Not an eval tag, restore and continue as content
