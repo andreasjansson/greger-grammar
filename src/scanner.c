@@ -690,7 +690,7 @@ static bool scan_eval_content(TSLexer *lexer) {
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Check if this is </eval> or <eval-result-
+            // Check if this is </eval>
             TSLexer saved = *lexer;
             advance(lexer);
             
@@ -706,31 +706,10 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Restore position to check for <eval-result-
+            // For any other < tag, restore and stop
+            // This allows other scanners to handle things like <eval-result-
             *lexer = saved;
-            advance(lexer); // skip '<'
-            
-            // Simplified check: just look for "eval-" 
-            if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            advance(lexer);
-                            if (lexer->lookahead == '-') {
-                                // Found "<eval-" prefix, stop here
-                                *lexer = saved;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Not a stop condition, restore and continue as content
-            *lexer = saved;
+            break;
         }
         
         advance(lexer);
