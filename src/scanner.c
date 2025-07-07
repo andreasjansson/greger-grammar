@@ -690,45 +690,8 @@ static bool scan_eval_content(TSLexer *lexer) {
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
-            // Check if this is </eval> or <eval-result-
-            TSLexer saved = *lexer;
-            advance(lexer);
-            
-            // Check for </eval>
-            if (lexer->lookahead == '/' &&
-                (advance(lexer), lexer->lookahead == 'e') &&
-                (advance(lexer), lexer->lookahead == 'v') &&
-                (advance(lexer), lexer->lookahead == 'a') &&
-                (advance(lexer), lexer->lookahead == 'l') &&
-                (advance(lexer), lexer->lookahead == '>')) {
-                // Found "</eval>", stop here
-                *lexer = saved;
-                break;
-            }
-            
-            // Check for <eval-result- tag specifically
-            *lexer = saved;
-            advance(lexer); // skip '<'
-            
-            // Check if it matches "eval-result-"
-            const char* expected = "eval-result-";
-            bool matches = true;
-            for (int i = 0; expected[i] != '\0'; i++) {
-                if (lexer->lookahead != expected[i]) {
-                    matches = false;
-                    break;
-                }
-                advance(lexer);
-            }
-            
-            if (matches) {
-                // Found "<eval-result-" prefix, stop here
-                *lexer = saved;
-                break;
-            }
-            
-            // Not a stop condition, restore and continue as content
-            *lexer = saved;
+            // For debugging: stop at ANY < tag for now
+            break;
         }
         
         advance(lexer);
