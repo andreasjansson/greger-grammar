@@ -681,7 +681,6 @@ static bool is_eval_result_tag(TSLexer *lexer) {
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
-    // Debug: Called scan_eval_content
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
