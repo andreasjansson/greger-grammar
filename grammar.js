@@ -294,7 +294,7 @@ module.exports = grammar({
 
     eval_result: $ => seq(
       $.eval_result_start_tag,
-      optional($.eval_result_content),
+      $.eval_result_content,
       $.eval_result_end_tag,
     ),
 
