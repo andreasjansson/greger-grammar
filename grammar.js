@@ -202,7 +202,7 @@ module.exports = grammar({
 
     assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
-      $.assistant_text,
+      alias($.assistant_text, $.text),
       $.code_block,
       $.inline_code,
       $.html_comment,
