@@ -708,7 +708,7 @@ static bool scan_eval_content(TSLexer *lexer) {
                 // Could be eval-result tag, stop here and let other scanners handle it
                 // DEBUG: Always stop at <e tags for now
                 *lexer = saved;
-                goto found_eval_result;
+                break; // Exit the while loop
             }
             
             // Not an eval tag, restore and continue as content
@@ -723,7 +723,6 @@ static bool scan_eval_content(TSLexer *lexer) {
         }
     }
     
-found_eval_result:
     if (has_content) {
         lexer->result_symbol = EVAL_CONTENT;
         return true;
