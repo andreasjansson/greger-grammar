@@ -711,18 +711,9 @@ static bool scan_eval_content(TSLexer *lexer) {
             advance(lexer); // skip '<'
             
             if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            // Found "<eval", stop here and let other scanners handle it
-                            *lexer = saved;
-                            break;
-                        }
-                    }
-                }
+                // Found "<e", stop here for now
+                *lexer = saved;
+                break;
             }
             
             // Not an eval tag, restore and continue as content
