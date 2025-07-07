@@ -669,14 +669,50 @@ static bool scan_eval_content(TSLexer *lexer) {
                 break;
             }
             
-            // Check for tags starting with letters e-z (includes eval-result-)
+            // Check for <eval-result- tag specifically
             *lexer = saved;
             advance(lexer); // skip '<'
-            if (lexer->lookahead >= 'e' && lexer->lookahead <= 'z') {
-                // Found a tag that could be eval-result- or similar, stop here
-                *lexer = saved;
-                break;
+            
+            // Check if it's exactly "eval-result-"
+            if (lexer->lookahead == 'e') {
+                advance(lexer);
+                if (lexer->lookahead == 'v') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'a') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'l') {
+                            advance(lexer);
+                            if (lexer->lookahead == '-') {
+                                advance(lexer);
+                                if (lexer->lookahead == 'r') {
+                                    advance(lexer);
+                                    if (lexer->lookahead == 'e') {
+                                        advance(lexer);
+                                        if (lexer->lookahead == 's') {
+                                            advance(lexer);
+                                            if (lexer->lookahead == 'u') {
+                                                advance(lexer);
+                                                if (lexer->lookahead == 'l') {
+                                                    advance(lexer);
+                                                    if (lexer->lookahead == 't') {
+                                                        advance(lexer);
+                                                        if (lexer->lookahead == '-') {
+                                                            // Found "<eval-result-", stop here
+                                                            *lexer = saved;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
+            
             *lexer = saved;
             
             // Not a stop condition, restore and continue as content
