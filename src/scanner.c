@@ -734,7 +734,7 @@ static bool scan_eval_content(TSLexer *lexer) {
                                                     if (lexer->lookahead == 't') {
                                                         advance(lexer);
                                                         if (lexer->lookahead == '-') {
-                                                            // Found "<eval-result-", stop here
+                                                            // Found "<eval-result-" prefix, stop here
                                                             *lexer = saved;
                                                             break;
                                                         }
