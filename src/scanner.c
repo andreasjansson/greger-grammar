@@ -706,19 +706,9 @@ static bool scan_eval_content(TSLexer *lexer) {
                 goto found_eval_result;
             }
             
-            // Check if this could be <eval-result-
+            // Test: stop at any tag that is not </eval>
             *lexer = saved;
-            advance(lexer); // skip '<'
-            
-            // Check just for 'e' first
-            if (lexer->lookahead == 'e') {
-                // Found "<e", stop here for now
-                *lexer = saved;
-                break;
-            }
-            
-            // Not an eval-result tag, restore and continue as content
-            *lexer = saved;
+            break;
         }
         
         advance(lexer);
