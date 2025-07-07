@@ -710,44 +710,21 @@ static bool scan_eval_content(TSLexer *lexer) {
             *lexer = saved;
             advance(lexer); // skip '<'
             
-            // Check if it's exactly "eval-result-"
-            if (lexer->lookahead == 'e') {
-                advance(lexer);
-                if (lexer->lookahead == 'v') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'a') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'l') {
-                            advance(lexer);
-                            if (lexer->lookahead == '-') {
-                                advance(lexer);
-                                if (lexer->lookahead == 'r') {
-                                    advance(lexer);
-                                    if (lexer->lookahead == 'e') {
-                                        advance(lexer);
-                                        if (lexer->lookahead == 's') {
-                                            advance(lexer);
-                                            if (lexer->lookahead == 'u') {
-                                                advance(lexer);
-                                                if (lexer->lookahead == 'l') {
-                                                    advance(lexer);
-                                                    if (lexer->lookahead == 't') {
-                                                        advance(lexer);
-                                                        if (lexer->lookahead == '-') {
-                                                            // Found "<eval-result-" prefix, stop here
-                                                            *lexer = saved;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+            // Check if it matches "eval-result-"
+            const char* expected = "eval-result-";
+            bool matches = true;
+            for (int i = 0; expected[i] != '\0'; i++) {
+                if (lexer->lookahead != expected[i]) {
+                    matches = false;
+                    break;
                 }
+                advance(lexer);
+            }
+            
+            if (matches) {
+                // Found "<eval-result-" prefix, stop here
+                *lexer = saved;
+                break;
             }
             
             // Not a stop condition, restore and continue as content
