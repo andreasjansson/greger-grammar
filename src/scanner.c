@@ -706,9 +706,27 @@ static bool scan_eval_content(TSLexer *lexer) {
                 goto found_eval_result;
             }
             
-            // Test: stop at any tag that is not </eval>
+            // Check if this starts with "eval"
             *lexer = saved;
-            break;
+            advance(lexer); // skip '<'
+            
+            if (lexer->lookahead == 'e') {
+                advance(lexer);
+                if (lexer->lookahead == 'v') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'a') {
+                        advance(lexer);
+                        if (lexer->lookahead == 'l') {
+                            // Found "<eval", stop here and let other scanners handle it
+                            *lexer = saved;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Not an eval tag, restore and continue as content
+            *lexer = saved;
         }
         
         advance(lexer);
