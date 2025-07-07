@@ -682,6 +682,7 @@ static bool is_eval_result_tag(TSLexer *lexer) {
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
+    bool has_non_whitespace = false;
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '<') {
