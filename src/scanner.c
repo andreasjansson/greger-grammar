@@ -433,10 +433,10 @@ static bool scan_eval_result_start_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
+    lexer->mark_end(lexer);
     scanner->in_eval_result_content = true;
     scanner->expecting_eval_result_tail = false;
     lexer->result_symbol = EVAL_RESULT_START_TAG;
-    lexer->mark_end(lexer);
     return true;
 }
 
