@@ -698,7 +698,7 @@ static bool scan_eval_content(TSLexer *lexer) {
                 (advance(lexer), lexer->lookahead == '>')) {
                 // Found "</eval>", stop here
                 *lexer = saved;
-                goto found_eval_result;
+                break; // Exit the while loop
             }
             
             // Check if this might be an eval-result tag
