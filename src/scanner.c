@@ -630,7 +630,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
     // Reached end without finding closing tag
     scanner->expecting_eval_result_tail = false;
     if (has_content) {
-        lexer->result_symbol = EVAL_RESULT_TAIL;
+        lexer->result_symbol = EVAL_RESULT_CONTENT_TAIL;
         return true;
     }
 
