@@ -642,10 +642,47 @@ static bool scan_eval_content(TSLexer *lexer) {
     if (lexer->lookahead == '<') {
         TSLexer saved = *lexer;
         advance(lexer);
-        if (lexer->lookahead >= 'e' && lexer->lookahead <= 'z') {
-            *lexer = saved;
-            return false;
+        
+        // Check if it's exactly "eval-result-"
+        if (lexer->lookahead == 'e') {
+            advance(lexer);
+            if (lexer->lookahead == 'v') {
+                advance(lexer);
+                if (lexer->lookahead == 'a') {
+                    advance(lexer);
+                    if (lexer->lookahead == 'l') {
+                        advance(lexer);
+                        if (lexer->lookahead == '-') {
+                            advance(lexer);
+                            if (lexer->lookahead == 'r') {
+                                advance(lexer);
+                                if (lexer->lookahead == 'e') {
+                                    advance(lexer);
+                                    if (lexer->lookahead == 's') {
+                                        advance(lexer);
+                                        if (lexer->lookahead == 'u') {
+                                            advance(lexer);
+                                            if (lexer->lookahead == 'l') {
+                                                advance(lexer);
+                                                if (lexer->lookahead == 't') {
+                                                    advance(lexer);
+                                                    if (lexer->lookahead == '-') {
+                                                        // Found "<eval-result-", don't handle as content
+                                                        *lexer = saved;
+                                                        return false;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
+        
         *lexer = saved;
     }
     
