@@ -710,7 +710,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             *lexer = saved;
             advance(lexer); // skip '<'
             
-            // Check if it matches "eval-result-"
+            // Simplified check: just look for "eval-" 
             if (lexer->lookahead == 'e') {
                 advance(lexer);
                 if (lexer->lookahead == 'v') {
@@ -720,30 +720,9 @@ static bool scan_eval_content(TSLexer *lexer) {
                         if (lexer->lookahead == 'l') {
                             advance(lexer);
                             if (lexer->lookahead == '-') {
-                                advance(lexer);
-                                if (lexer->lookahead == 'r') {
-                                    advance(lexer);
-                                    if (lexer->lookahead == 'e') {
-                                        advance(lexer);
-                                        if (lexer->lookahead == 's') {
-                                            advance(lexer);
-                                            if (lexer->lookahead == 'u') {
-                                                advance(lexer);
-                                                if (lexer->lookahead == 'l') {
-                                                    advance(lexer);
-                                                    if (lexer->lookahead == 't') {
-                                                        advance(lexer);
-                                                        if (lexer->lookahead == '-') {
-                                                            // Found "<eval-result-" prefix, stop here
-                                                            *lexer = saved;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                // Found "<eval-" prefix, stop here
+                                *lexer = saved;
+                                break;
                             }
                         }
                     }
