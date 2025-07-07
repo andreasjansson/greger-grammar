@@ -750,8 +750,6 @@ static bool scan_eval_content(TSLexer *lexer) {
                 }
             }
             
-            *lexer = saved;
-            
             // Not a stop condition, restore and continue as content
             *lexer = saved;
         }
