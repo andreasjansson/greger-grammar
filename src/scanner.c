@@ -714,7 +714,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             if (lexer->lookahead == 'e') {
                 // Found "<e", stop here for now
                 *lexer = saved;
-                goto found_eval_result;
+                break;
             }
             
             // Not an eval-result tag, restore and continue as content
