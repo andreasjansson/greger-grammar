@@ -481,6 +481,7 @@ static bool scan_eval_result_end_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '>') return false;
     advance(lexer);
 
+    lexer->mark_end(lexer);
     scanner->in_eval_result_content = false;
     scanner->expecting_eval_result_tail = false;
     scanner->eval_result_id[0] = '\0';
