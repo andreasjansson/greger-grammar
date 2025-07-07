@@ -581,7 +581,7 @@ static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
-static bool scan_eval_result_tail(Scanner *scanner, TSLexer *lexer) {
+static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_eval_result_content || !scanner->expecting_eval_result_tail) return false;
 
     lexer->mark_end(lexer);
