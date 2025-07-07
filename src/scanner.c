@@ -758,6 +758,7 @@ static bool scan_eval_content(TSLexer *lexer) {
         lexer->mark_end(lexer);
     }
     
+found_eval_result:
     if (has_content) {
         lexer->result_symbol = EVAL_CONTENT;
         return true;
