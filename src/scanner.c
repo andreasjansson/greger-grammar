@@ -706,7 +706,18 @@ static bool scan_eval_content(TSLexer *lexer) {
                 goto found_eval_result;
             }
             
-            // For now, treat all other < as content
+            // Check if this could be <eval-result-
+            *lexer = saved;
+            advance(lexer); // skip '<'
+            
+            // Check just for 'e' first
+            if (lexer->lookahead == 'e') {
+                // Found "<e", stop here for now
+                *lexer = saved;
+                goto found_eval_result;
+            }
+            
+            // Not an eval-result tag, restore and continue as content
             *lexer = saved;
         }
         
