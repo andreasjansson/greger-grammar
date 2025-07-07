@@ -513,13 +513,8 @@ static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
             match_index++;
             if (match_index == expected_len) {
                 // Found complete closing tag, stop here (don't consume it)
-                if (has_content) {
-                    lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
-                    return true;
-                } else {
-                    // No content, let the grammar handle the end tag
-                    return false;
-                }
+                lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+                return true;
             }
             advance(lexer);
             current_line_has_content = true;
