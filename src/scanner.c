@@ -729,6 +729,9 @@ static bool scan_eval_content(TSLexer *lexer) {
         } else {
             advance(lexer);
             has_content = true;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
             lexer->mark_end(lexer);
         }
     }
