@@ -723,6 +723,9 @@ static bool scan_eval_content(TSLexer *lexer) {
             
             // Otherwise, restore and continue as content
             *lexer = saved;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
             advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
