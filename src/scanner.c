@@ -691,6 +691,8 @@ static bool scan_eval_content(TSLexer *lexer) {
             
             // Check for </eval>
             if (lexer->lookahead == '/') {
+                // This is a closing tag, check if it's </eval>
+                TSLexer close_saved = *lexer;
                 advance(lexer);
                 if (lexer->lookahead == 'e') {
                     advance(lexer);
@@ -709,11 +711,11 @@ static bool scan_eval_content(TSLexer *lexer) {
                         }
                     }
                 }
+                // Not </eval>, restore to after /
+                *lexer = close_saved;
             }
             
-            // Reset and check if next char is 'e' (could be eval-result)
-            *lexer = saved;
-            advance(lexer);
+            // Check if this is a tag starting with 'e' (could be eval-result)
             if (lexer->lookahead == 'e') {
                 *lexer = saved;
                 break; // Exit the while loop
