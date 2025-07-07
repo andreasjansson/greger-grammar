@@ -227,22 +227,15 @@ module.exports = grammar({
 
     text: $ => prec.right(repeat1(choice(
       $._text_content,
-      $.comparison_operator,
       /\n/,
     ))),
 
     assistant_text: $ => prec.right(repeat1(choice(
       $._assistant_text_content,
-      $.comparison_operator,
       /\n/,
     ))),
 
-    comparison_operator: _ => choice(
-      token(prec(1, seq('<', /\s/))),
-      token(prec(1, seq('>', /\s/))),
-    ),
-
-    _text_content: $ => token(prec(-1, /[^`<\n]+/)),
+    _text_content: $ => token(prec(-1, /[^`<\n]+|<[^/ea-z]/)),
 
     _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
 
