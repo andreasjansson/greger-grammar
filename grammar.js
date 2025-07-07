@@ -202,7 +202,7 @@ module.exports = grammar({
 
     assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
-      $.text,
+      $.assistant_text,
       $.code_block,
       $.inline_code,
       $.html_comment,
@@ -230,7 +230,14 @@ module.exports = grammar({
       /\n/,
     ))),
 
+    assistant_text: $ => prec.right(repeat1(choice(
+      $._assistant_text_content,
+      /\n/,
+    ))),
+
     _text_content: $ => token(prec(-1, /[^`<\n]+/)),
+
+    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
 
     _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
 
