@@ -706,6 +706,7 @@ static bool scan_eval_content(TSLexer *lexer) {
             advance(lexer); // skip '<'
             if (lexer->lookahead == 'e') {
                 // Could be eval-result tag, stop here and let other scanners handle it
+                // DEBUG: Always stop at <e tags for now
                 *lexer = saved;
                 goto found_eval_result;
             }
