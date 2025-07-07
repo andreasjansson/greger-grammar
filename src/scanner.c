@@ -689,7 +689,21 @@ static bool scan_eval_content(TSLexer *lexer) {
             TSLexer saved = *lexer;
             advance(lexer);
             
-            // For now, just check if next char is 'e' and stop
+            // Check for </eval>
+            if (lexer->lookahead == '/' &&
+                (advance(lexer), lexer->lookahead == 'e') &&
+                (advance(lexer), lexer->lookahead == 'v') &&
+                (advance(lexer), lexer->lookahead == 'a') &&
+                (advance(lexer), lexer->lookahead == 'l') &&
+                (advance(lexer), lexer->lookahead == '>')) {
+                // Found "</eval>", stop here
+                *lexer = saved;
+                break; // Exit the while loop
+            }
+            
+            // Reset and check if next char is 'e' (could be eval-result)
+            *lexer = saved;
+            advance(lexer);
             if (lexer->lookahead == 'e') {
                 *lexer = saved;
                 break; // Exit the while loop
