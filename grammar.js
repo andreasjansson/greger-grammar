@@ -294,7 +294,6 @@ module.exports = grammar({
 
     eval: $ => seq(
       $.eval_start_brace,
-      optional(seq(':', $.language)),
       repeat(choice(
         $.eval_content,
         $.eval_result,
