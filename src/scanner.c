@@ -644,6 +644,13 @@ static bool scan_eval_start_brace(TSLexer *lexer) {
     if (lexer->lookahead != '{') return false;
     advance(lexer);
 
+    // Check if there's a language (starts with :)
+    if (lexer->lookahead == ':') {
+        // Don't consume the :, let the grammar handle it
+        lexer->result_symbol = EVAL_START_BRACE;
+        return true;
+    }
+
     lexer->result_symbol = EVAL_START_BRACE;
     return true;
 }
