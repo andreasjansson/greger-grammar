@@ -20,6 +20,8 @@ module.exports = grammar({
     $.tool_content_head,
     $.tool_content_tail,
     $.html_comment,
+    $.eval_start_brace,
+    $.eval_end_brace,
     $.eval_content,
     $.eval_result_start_tag,
     $.eval_result_end_tag,
