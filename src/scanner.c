@@ -640,35 +640,12 @@ static bool scan_eval_content(TSLexer *lexer) {
     bool has_non_whitespace = false;
     
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '<') {
+        if (lexer->lookahead == '}') {
+            // Found closing brace, stop here
+            break;
+        } else if (lexer->lookahead == '<') {
             TSLexer saved = *lexer;
             advance(lexer);
-            
-            // Check for </eval>
-            if (lexer->lookahead == '/') {
-                // This is a closing tag, check if it's </eval>
-                TSLexer close_saved = *lexer;
-                advance(lexer);
-                if (lexer->lookahead == 'e') {
-                    advance(lexer);
-                    if (lexer->lookahead == 'v') {
-                        advance(lexer);
-                        if (lexer->lookahead == 'a') {
-                            advance(lexer);
-                            if (lexer->lookahead == 'l') {
-                                advance(lexer);
-                                if (lexer->lookahead == '>') {
-                                    // Found "</eval>", stop here
-                                    *lexer = saved;
-                                    break; // Exit the while loop
-                                }
-                            }
-                        }
-                    }
-                }
-                // Not </eval>, restore to after /
-                *lexer = close_saved;
-            }
             
             // Check if this is a tag starting with 'e' (could be eval-result)
             if (lexer->lookahead == 'e') {
