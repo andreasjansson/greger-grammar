@@ -811,7 +811,7 @@
         "value": -1,
         "content": {
           "type": "PATTERN",
-          "value": "[^`<\\n]+|<[^/ea-z]"
+          "value": "[^`$<\\n]+|<[^/ea-z]|\\$[^{]"
         }
       }
     },
@@ -1032,7 +1032,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "eval_start_tag"
+          "name": "eval_start_brace"
         },
         {
           "type": "REPEAT",
@@ -1052,7 +1052,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "eval_end_tag"
+          "name": "eval_end_brace"
         }
       ]
     },
@@ -1094,12 +1094,12 @@
         }
       ]
     },
-    "eval_start_tag": {
+    "eval_start_brace": {
       "type": "SEQ",
       "members": [
         {
           "type": "STRING",
-          "value": "<eval"
+          "value": "${"
         },
         {
           "type": "CHOICE",
@@ -1108,8 +1108,8 @@
               "type": "SEQ",
               "members": [
                 {
-                  "type": "PATTERN",
-                  "value": "\\s+"
+                  "type": "STRING",
+                  "value": ":"
                 },
                 {
                   "type": "SYMBOL",
@@ -1121,20 +1121,16 @@
               "type": "BLANK"
             }
           ]
-        },
-        {
-          "type": "STRING",
-          "value": ">"
         }
       ]
+    },
+    "eval_end_brace": {
+      "type": "STRING",
+      "value": "}"
     },
     "language": {
       "type": "PATTERN",
       "value": "[a-zA-Z0-9_+-]+"
-    },
-    "eval_end_tag": {
-      "type": "STRING",
-      "value": "</eval>"
     }
   },
   "extras": [
