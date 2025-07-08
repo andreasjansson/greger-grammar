@@ -640,6 +640,11 @@ static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
     
+    // Don't consume content that starts with : (language prefix)
+    if (lexer->lookahead == ':') {
+        return false;
+    }
+    
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '}') {
             // Found closing brace, stop here
