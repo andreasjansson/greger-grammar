@@ -639,6 +639,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
+    int brace_count = 0;
     
     // Don't consume content that starts with : (language prefix)
     if (lexer->lookahead == ':') {
@@ -646,9 +647,29 @@ static bool scan_eval_content(TSLexer *lexer) {
     }
     
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '}') {
-            // Found closing brace, stop here
-            break;
+        if (lexer->lookahead == '{') {
+            // Found opening brace, increment counter
+            brace_count++;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else if (lexer->lookahead == '}') {
+            if (brace_count > 0) {
+                // This is a closing brace for a nested opening brace
+                brace_count--;
+                if (!iswspace(lexer->lookahead)) {
+                    has_non_whitespace = true;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            } else {
+                // This is the closing brace for our eval, stop here
+                break;
+            }
         } else if (lexer->lookahead == '<') {
             TSLexer saved = *lexer;
             advance(lexer);
