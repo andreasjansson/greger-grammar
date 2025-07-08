@@ -637,6 +637,25 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
+static bool scan_eval_start_brace(TSLexer *lexer) {
+    if (lexer->lookahead != '$') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '{') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_START_BRACE;
+    return true;
+}
+
+static bool scan_eval_end_brace(TSLexer *lexer) {
+    if (lexer->lookahead != '}') return false;
+    advance(lexer);
+
+    lexer->result_symbol = EVAL_END_BRACE;
+    return true;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
