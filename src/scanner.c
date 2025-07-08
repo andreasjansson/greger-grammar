@@ -667,6 +667,18 @@ static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
     
+    // Skip language prefix if it exists (starts with :)
+    if (lexer->lookahead == ':') {
+        // Skip the language part - don't consume it as eval content
+        while (lexer->lookahead != 0 && !iswspace(lexer->lookahead) && lexer->lookahead != '}' && lexer->lookahead != '<') {
+            advance(lexer);
+        }
+        // Now skip any whitespace after the language
+        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            advance(lexer);
+        }
+    }
+    
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '}') {
             // Found closing brace, stop here
