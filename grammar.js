@@ -310,6 +310,13 @@ module.exports = grammar({
       optional($.eval_result_content_tail),
     ),
 
+    eval_start_brace: $ => seq(
+      '${',
+      optional(seq(':', $.language))
+    ),
+
+    eval_end_brace: $ => '}',
+
     language: $ => /[a-zA-Z0-9_+-]+/,
 
 
