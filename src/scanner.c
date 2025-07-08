@@ -637,31 +637,6 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_eval_start_brace(TSLexer *lexer) {
-    if (lexer->lookahead != '$') return false;
-    advance(lexer);
-
-    if (lexer->lookahead != '{') return false;
-    advance(lexer);
-
-    // Check if there's a language (starts with :)
-    if (lexer->lookahead == ':') {
-        // Don't consume the :, let the grammar handle it
-        lexer->result_symbol = EVAL_START_BRACE;
-        return true;
-    }
-
-    lexer->result_symbol = EVAL_START_BRACE;
-    return true;
-}
-
-static bool scan_eval_end_brace(TSLexer *lexer) {
-    if (lexer->lookahead != '}') return false;
-    advance(lexer);
-
-    lexer->result_symbol = EVAL_END_BRACE;
-    return true;
-}
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
