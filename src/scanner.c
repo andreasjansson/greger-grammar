@@ -733,6 +733,20 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         skip(lexer);
     }
 
+    if (lexer->lookahead == '$') {
+        // Handle eval start brace
+        if (valid_symbols[EVAL_START_BRACE]) {
+            return scan_eval_start_brace(lexer);
+        }
+    }
+
+    if (lexer->lookahead == '}') {
+        // Handle eval end brace
+        if (valid_symbols[EVAL_END_BRACE]) {
+            return scan_eval_end_brace(lexer);
+        }
+    }
+
     if (lexer->lookahead == '<') {
         // Handle HTML comments first - they should have priority
         if (valid_symbols[HTML_COMMENT]) {
