@@ -291,12 +291,12 @@ module.exports = grammar({
     shell_command: _ => token(prec(-2, /[^<\n]+/)),
 
     eval: $ => seq(
-      $.eval_start_tag,
+      $.eval_start_brace,
       repeat(choice(
         $.eval_content,
         $.eval_result,
       )),
-      $.eval_end_tag,
+      $.eval_end_brace,
     ),
 
     eval_result: $ => seq(
@@ -310,15 +310,14 @@ module.exports = grammar({
       optional($.eval_result_content_tail),
     ),
 
-    eval_start_tag: $ => seq(
-      '<eval',
-      optional(seq(/\s+/, $.language)),
-      '>',
+    eval_start_brace: $ => seq(
+      '${',
+      optional(seq(':', $.language)),
     ),
 
     language: $ => /[a-zA-Z0-9_+-]+/,
 
-    eval_end_tag: $ => '</eval>',
+    eval_end_brace: $ => '}',
 
 
   },
