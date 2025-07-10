@@ -4164,5 +4164,184 @@ Change order of code token checks - check contents before language
 ID: toolu_01GskDA8ofH7MTcUE2uUiBeQ
 
 <tool.toolu_01GskDA8ofH7MTcUE2uUiBeQ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Change order of code token checks - check contents before language
 </tool.toolu_01GskDA8ofH7MTcUE2uUiBeQ>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015hv1UnCfynX8mhFjWgRTie
+
+## command
+
+<tool.toolu_015hv1UnCfynX8mhFjWgRTie>
+cd . && tree-sitter generate
+</tool.toolu_015hv1UnCfynX8mhFjWgRTie>
+
+# TOOL RESULT
+
+ID: toolu_015hv1UnCfynX8mhFjWgRTie
+
+<tool.toolu_015hv1UnCfynX8mhFjWgRTie>
+
+</tool.toolu_015hv1UnCfynX8mhFjWgRTie>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CdN42FwdUz53PRBHQWyZ4p
+
+## command
+
+<tool.toolu_01CdN42FwdUz53PRBHQWyZ4p>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse --debug
+</tool.toolu_01CdN42FwdUz53PRBHQWyZ4p>
+
+# TOOL RESULT
+
+ID: toolu_01CdN42FwdUz53PRBHQWyZ4p
+
+<tool.toolu_01CdN42FwdUz53PRBHQWyZ4p>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:179, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+DEBUG: valid_symbols - backticks:1, language:0, contents:0, char:'`'
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+DEBUG: valid_symbols - backticks:0, language:1, contents:1, char:'
+'
+DEBUG: scan_code_contents called, backtick_count:3, char:'
+'
+  consume character:10
+  consume character:'h'
+  consume character:'e'
+  consume character:'l'
+  consume character:'l'
+  consume character:'o'
+  consume character:10
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+DEBUG: scan_code_contents returning true, has_content:1
+lexed_lookahead sym:code_contents, size:7
+shift state:138
+process version:0, version_count:1, state:138, row:4, col:0
+lex_external state:12, row:4, column:0
+DEBUG: valid_symbols - backticks:1, language:0, contents:0, char:'`'
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:50
+process version:0, version_count:1, state:50, row:4, col:3
+lex_external state:2, row:4, column:3
+DEBUG: valid_symbols - backticks:1, language:0, contents:0, char:'
+'
+lex_internal state:182, row:4, column:3
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+reduce sym:code, child_count:3
+shift state:29
+process version:0, version_count:1, state:29, row:5, col:0
+lex_external state:2, row:5, column:0
+DEBUG: valid_symbols - backticks:1, language:0, contents:0, char:' '
+lex_internal state:182, row:5, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:assistant_content_blocks_repeat1, child_count:2
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01CdN42FwdUz53PRBHQWyZ4p>
+
+
+# ASSISTANT
+
+Excellent! That fixed it! The parser now correctly handles code blocks without language identifiers. Let me remove the debug output and test the full test suite:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01GwAiGVz6gdD1nCKqUSErLW
+
+## path
+
+<tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+./src/scanner.c
+</tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+
+## git-commit-message
+
+<tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+Remove debug output - fix is working correctly
+</tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+
+## diff
+
+<tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+     Scanner *scanner = (Scanner *)payload;
+ 
+-    // Debug: Print valid symbols for code-related tokens
+-    if (valid_symbols[CODE_BACKTICKS] || valid_symbols[CODE_LANGUAGE_IDENTIFIER] || valid_symbols[CODE_CONTENTS]) {
+-        printf("DEBUG: valid_symbols - backticks:%d, language:%d, contents:%d, char:'%c'\n", 
+-               valid_symbols[CODE_BACKTICKS], valid_symbols[CODE_LANGUAGE_IDENTIFIER], 
+-               valid_symbols[CODE_CONTENTS], lexer->lookahead);
+-    }
+-
+     // Check for error recovery mode
+     if (valid_symbols[ERROR_SENTINEL]) {
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+
+# TOOL RESULT
+
+ID: toolu_01GwAiGVz6gdD1nCKqUSErLW
+
+<tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+
+</tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
