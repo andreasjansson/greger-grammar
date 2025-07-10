@@ -740,17 +740,42 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     return true;
 }
 
-static bool scan_code_contents(TSLexer *lexer) {
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '`') {
-            // Don't consume backticks, let the grammar handle them
-            break;
+            // Check if this is a backtick sequence that matches the opening count
+            TSLexer saved_lexer = *lexer;
+            int backtick_count = 0;
+            
+            // Count consecutive backticks
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // If this matches the opening backtick count, this is the closing sequence
+            if (backtick_count == scanner->last_backtick_count) {
+                // Restore lexer position and let the grammar handle the closing backticks
+                *lexer = saved_lexer;
+                break;
+            } else {
+                // This is not the closing sequence, include it as content
+                // Restore and consume the backticks as content
+                *lexer = saved_lexer;
+                while (backtick_count > 0) {
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
+                    backtick_count--;
+                }
+            }
+        } else {
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
         }
-        advance(lexer);
-        has_content = true;
-        lexer->mark_end(lexer);
     }
     
     if (has_content) {

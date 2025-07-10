@@ -6025,5 +6025,250 @@ Don't skip whitespace when processing code contents
 ID: toolu_01UYWVxK4u35QyyS62Q8w7Vt
 
 <tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Don't skip whitespace when processing code contents
 </tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GesAbJs4kVAE54psYoTXhP
+
+## command
+
+<tool.toolu_01GesAbJs4kVAE54psYoTXhP>
+timeout 10 tree-sitter generate
+</tool.toolu_01GesAbJs4kVAE54psYoTXhP>
+
+# TOOL RESULT
+
+ID: toolu_01GesAbJs4kVAE54psYoTXhP
+
+<tool.toolu_01GesAbJs4kVAE54psYoTXhP>
+Warning: rule eval_start_brace contains a `seq` or `choice` rule with a single element. This is unnecessary.
+
+</tool.toolu_01GesAbJs4kVAE54psYoTXhP>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Kofgw3b5wgSYPoTLJsBSSh
+
+## command
+
+<tool.toolu_01Kofgw3b5wgSYPoTLJsBSSh>
+timeout 10 tree-sitter parse debug-space-contents.greger
+</tool.toolu_01Kofgw3b5wgSYPoTLJsBSSh>
+
+# TOOL RESULT
+
+ID: toolu_01Kofgw3b5wgSYPoTLJsBSSh
+
+<tool.toolu_01Kofgw3b5wgSYPoTLJsBSSh>
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 5]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 3])
+      (code_backticks [2, 3] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_01Kofgw3b5wgSYPoTLJsBSSh>
+
+# ASSISTANT
+
+Excellent! This fixed the issue. Now let me test the original failing case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GD3hx6Qf4A8j442SKoDBri
+
+## command
+
+<tool.toolu_01GD3hx6Qf4A8j442SKoDBri>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_01GD3hx6Qf4A8j442SKoDBri>
+
+# TOOL RESULT
+
+ID: toolu_01GD3hx6Qf4A8j442SKoDBri
+
+<tool.toolu_01GD3hx6Qf4A8j442SKoDBri>
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 4]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 3])
+      (code_backticks [2, 3] - [2, 4]))
+    (code [2, 5] - [3, 0]
+      (code_backticks [2, 5] - [2, 7])
+      (code_contents [2, 7] - [3, 0])
+      (code_backticks [3, 0] - [3, 0]))))
+debug-backticks-trace.greger	Parse:    0.03 ms	   692 bytes/ms	(MISSING code_backticks [3, 0] - [3, 0])
+Command failed with exit code 1
+</tool.toolu_01GD3hx6Qf4A8j442SKoDBri>
+
+# ASSISTANT
+
+Progress! The parser is now recognizing the first part correctly:
+
+
+But there's still an issue with the second part. The parser is trying to parse the second  as a separate code block, but it's not finding the closing backticks.
+
+Looking at the input , the expected structure should be:
+
+
+But the parser is interpreting it as:
+
+
+This is wrong. The issue is that the  function is stopping at the first backtick it encounters, but it should continue until it finds the matching closing backticks.
+
+Let me look at the  function again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Hhw7muUpPCZxHUu2Xb5EPb
+
+## path
+
+<tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+src/scanner.c
+</tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+
+## start-line
+
+<tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+740
+</tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+
+## end-line
+
+<tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+760
+</tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+
+# TOOL RESULT
+
+ID: toolu_01Hhw7muUpPCZxHUu2Xb5EPb
+
+<tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+    return true;
+}
+
+static bool scan_code_contents(TSLexer *lexer) {
+    bool has_content = false;
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Don't consume backticks, let the grammar handle them
+            break;
+        }
+        advance(lexer);
+        has_content = true;
+        lexer->mark_end(lexer);
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
+    }
+    
+</tool.toolu_01Hhw7muUpPCZxHUu2Xb5EPb>
+
+# ASSISTANT
+
+The issue is that the  function stops at the first backtick it encounters. But for the input , the content should be " " (space, backtick, space), not just " " (space).
+
+The problem is that the  function is designed to stop at backticks because it expects the grammar to handle the closing backticks. But in this case, the backtick in the middle is part of the content, not a closing backtick.
+
+The issue is that the current implementation doesn't distinguish between backticks that are part of the content and backticks that are the closing sequence.
+
+To fix this, the  function needs to be smarter about when to stop. It should only stop when it encounters a backtick sequence that matches the opening backtick count.
+
+Let me modify the  function to handle this correctly:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Jb4M8tX1YqTZfrf1C3RQVW
+
+## path
+
+<tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+src/scanner.c
+</tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+
+## git-commit-message
+
+<tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+Fix code_contents to handle backticks that match opening count
+</tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+
+## diff
+
+<tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+-static bool scan_code_contents(TSLexer *lexer) {
++static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     bool has_content = false;
+     
+     while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+-            // Don't consume backticks, let the grammar handle them
+-            break;
++            // Check if this is a backtick sequence that matches the opening count
++            TSLexer saved_lexer = *lexer;
++            int backtick_count = 0;
++            
++            // Count consecutive backticks
++            while (lexer->lookahead == '`') {
++                backtick_count++;
++                advance(lexer);
++            }
++            
++            // If this matches the opening backtick count, this is the closing sequence
++            if (backtick_count == scanner->last_backtick_count) {
++                // Restore lexer position and let the grammar handle the closing backticks
++                *lexer = saved_lexer;
++                break;
++            } else {
++                // This is not the closing sequence, include it as content
++                // Restore and consume the backticks as content
++                *lexer = saved_lexer;
++                while (backtick_count > 0) {
++                    advance(lexer);
++                    has_content = true;
++                    lexer->mark_end(lexer);
++                    backtick_count--;
++                }
++            }
++        } else {
++            advance(lexer);
++            has_content = true;
++            lexer->mark_end(lexer);
+         }
+-        advance(lexer);
+-        has_content = true;
+-        lexer->mark_end(lexer);
+     }
+     
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENTS;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+
+# TOOL RESULT
+
+ID: toolu_01Jb4M8tX1YqTZfrf1C3RQVW
+
+<tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
+
+</tool.toolu_01Jb4M8tX1YqTZfrf1C3RQVW>
