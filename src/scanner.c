@@ -939,7 +939,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     
     // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
-        return scan_code_contents(lexer);
+        return scan_code_contents(scanner, lexer);
     }
     
     return false;
