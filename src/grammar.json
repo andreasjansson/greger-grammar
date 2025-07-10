@@ -681,6 +681,10 @@
             "name": "citation_entry"
           },
           {
+            "type": "SYMBOL",
+            "name": "code"
+          },
+          {
             "type": "ALIAS",
             "content": {
               "type": "SYMBOL",
@@ -688,10 +692,6 @@
             },
             "named": true,
             "value": "text"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "code"
           },
           {
             "type": "SYMBOL",
@@ -1015,7 +1015,7 @@
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "language"
+                  "name": "eval_language"
                 }
               ]
             },
@@ -1030,9 +1030,39 @@
       "type": "STRING",
       "value": "}"
     },
-    "language": {
-      "type": "PATTERN",
-      "value": "[a-zA-Z0-9_+-]+"
+    "code": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "code_backticks"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "code_language_identifier"
+              },
+              "named": true,
+              "value": "code_language"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "code_contents"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "code_backticks"
+        }
+      ]
     }
   },
   "extras": [
@@ -1090,7 +1120,19 @@
     },
     {
       "type": "SYMBOL",
-      "name": "code"
+      "name": "code_backticks"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "code_language_identifier"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "code_contents"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "eval_language"
     }
   ],
   "inline": [
