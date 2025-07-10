@@ -639,25 +639,17 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_backtick(TSLexer *lexer) {
-    if (lexer->lookahead != '`') return false;
-    advance(lexer);
-    lexer->result_symbol = BACKTICK;
-    return true;
-}
-
 static bool scan_code_backticks(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
-    // Count opening backticks
+    // Count and consume opening backticks (any number, 1 or more)
     int backtick_count = 0;
     while (lexer->lookahead == '`') {
         backtick_count++;
         advance(lexer);
     }
     
-    // For multi-backticks, we need at least 2
-    if (backtick_count >= 2) {
+    if (backtick_count >= 1) {
         lexer->result_symbol = CODE_BACKTICKS;
         return true;
     }
