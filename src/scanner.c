@@ -654,20 +654,14 @@ static bool scan_inline_code(TSLexer *lexer) {
         if (lexer->lookahead == '`') {
             // Found closing backtick
             advance(lexer);
-            if (has_content) {
-                lexer->result_symbol = INLINE_CODE;
-                return true;
-            } else {
-                // Empty backticks, not valid inline code
-                return false;
-            }
+            lexer->result_symbol = INLINE_CODE;
+            return true;
         }
         advance(lexer);
         has_content = true;
     }
     
     // We reached end of line without finding closing backtick
-    // Mark the last character as an error by not including it
     if (has_content) {
         lexer->result_symbol = INLINE_CODE;
         return true;
