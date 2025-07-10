@@ -1,6 +1,6 @@
-===========
-Inline code
-===========
+==================
+Single backtick code
+==================
 
 # USER
 
@@ -8,7 +8,7 @@ Foo `bar` baz
 
 # ASSISTANT
 
-Inline code should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
+Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
 
 This new line is just text
 
@@ -24,22 +24,31 @@ hello
   (user
     (user_header)
     (text)
-    (code)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text))
   (assistant
     (assistant_header)
     (text)
-    (code)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text)
-    (code)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text))
   (user
     (user_header)
     (text)))
 
-==================================
-Inline code with double backticks
-==================================
+=======================
+Double backticks no language
+=======================
 
 # ASSISTANT
 
@@ -52,30 +61,15 @@ More text after.
 (source_file
   (assistant
     (assistant_header)
-    (code)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text)))
 
-=========================================
-Inline code with triple backticks inline
-=========================================
-
-# ASSISTANT
-
-``` single line code ```
-
-More text after.
-
----
-
-(source_file
-  (assistant
-    (assistant_header)
-    (code)
-    (text)))
-
-========================================
-Inline code with triple backticks block
-========================================
+===============================
+Triple backticks no language
+===============================
 
 # ASSISTANT
 
@@ -92,17 +86,71 @@ More text after.
 (source_file
   (assistant
     (assistant_header)
-    (code)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text)))
 
-=======================================
-Inline code with quadruple backticks
-=======================================
+==============================
+Triple backticks with language
+==============================
 
 # ASSISTANT
 
-````
-code with ``` inside
+```python
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_language)
+      (code_contents)
+      (code_backticks))
+    (text)))
+
+=========================================
+Triple backticks with invalid language (has spaces)
+=========================================
+
+# ASSISTANT
+
+```python stuff
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text)))
+
+===============================
+Quadruple backticks with language
+===============================
+
+# ASSISTANT
+
+````rust
+fn main() {
+    println!("Hello with ``` inside");
+}
 ````
 
 More text after.
@@ -112,5 +160,73 @@ More text after.
 (source_file
   (assistant
     (assistant_header)
-    (code)
+    (code
+      (code_backticks)
+      (code_language)
+      (code_contents)
+      (code_backticks))
+    (text)))
+
+===============================
+Triple backticks inline with language
+===============================
+
+# ASSISTANT
+
+```javascript console.log("hello")```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_language)
+      (code_contents)
+      (code_backticks))
+    (text)))
+
+===============================
+Triple backticks language with numbers and symbols
+===============================
+
+# ASSISTANT
+
+```c++
+#include <iostream>
+```
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_language)
+      (code_contents)
+      (code_backticks))))
+
+===============================
+Empty code blocks
+===============================
+
+# ASSISTANT
+
+`````
+
+More text.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
     (text)))
