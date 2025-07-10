@@ -261,11 +261,7 @@ module.exports = grammar({
 
 
 
-    inline_code: $ => seq(
-      '`',
-      /[^`\n]+/,
-      '`',
-    ),
+
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
