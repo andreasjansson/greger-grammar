@@ -5493,5 +5493,418 @@ Remove inline token to prevent standalone language parsing
 ID: toolu_016j6oRbEQfeEnXHA3dCYpvw
 
 <tool.toolu_016j6oRbEQfeEnXHA3dCYpvw>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove inline token to prevent standalone language parsing
 </tool.toolu_016j6oRbEQfeEnXHA3dCYpvw>
+
+# ASSISTANT
+
+Now let's test this fix:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011nCGkSNGUhD9cwFPXZyDo3
+
+## command
+
+<tool.toolu_011nCGkSNGUhD9cwFPXZyDo3>
+tree-sitter generate && echo '# USER
+
+`test`
+
+# ASSISTANT
+
+More text.' | tree-sitter parse
+</tool.toolu_011nCGkSNGUhD9cwFPXZyDo3>
+
+# TOOL RESULT
+
+ID: toolu_011nCGkSNGUhD9cwFPXZyDo3
+
+<tool.toolu_011nCGkSNGUhD9cwFPXZyDo3>
+
+(source_file [0, 0] - [7, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 5] - [2, 6]))
+  (assistant [4, 0] - [7, 0]
+    (assistant_header [4, 0] - [4, 11])
+    (text [6, 0] - [7, 0])))
+stdin	Parse:    0.15 ms	   256 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_011nCGkSNGUhD9cwFPXZyDo3>
+
+# ASSISTANT
+
+Good! The standalone  token is gone. But now we have a different issue - the  is not being parsed at all. This suggests the external scanner is not being called for the  token.
+
+Let me check if the issue is that the external scanner is being called correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01J3Q9FmnT123DFgZYZzuHAh
+
+## command
+
+<tool.toolu_01J3Q9FmnT123DFgZYZzuHAh>
+echo '# USER
+
+`test`
+
+# ASSISTANT
+
+More text.' | tree-sitter parse --debug | grep -A 5 -B 5 "CODE_LANGUAGE_IDENTIFIER"
+</tool.toolu_01J3Q9FmnT123DFgZYZzuHAh>
+
+# TOOL RESULT
+
+ID: toolu_01J3Q9FmnT123DFgZYZzuHAh
+
+<tool.toolu_01J3Q9FmnT123DFgZYZzuHAh>
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:174, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'U'
+  consume character:'S'
+  consume character:'E'
+  consume character:'R'
+lexed_lookahead sym:user_header, size:6
+shift state:116
+process version:0, version_count:1, state:116, row:0, col:6
+lex_internal state:8, row:0, column:6
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:59
+process version:0, version_count:1, state:59, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:1
+shift state:97
+process version:0, version_count:1, state:97, row:2, col:1
+lex_external state:7, row:2, column:1
+lex_internal state:0, row:2, column:1
+  consume character:'t'
+  consume character:'e'
+  consume character:'s'
+  consume character:'t'
+lexed_lookahead sym:eval_start_brace_token1, size:4
+detect_error lookahead:eval_start_brace_token1
+resume version:0
+skip_token symbol:eval_start_brace_token1
+process version:0, version_count:1, state:0, row:2, col:5
+lex_external state:1, row:2, column:5
+lex_internal state:0, row:2, column:5
+skip_unrecognized_character
+  consume character:'`'
+lex_external state:1, row:2, column:6
+lex_internal state:0, row:2, column:6
+  skip character:10
+  skip character:10
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:ERROR, size:1
+detect_error lookahead:ERROR
+resume version:0
+skip_token symbol:ERROR
+process version:0, version_count:1, state:0, row:2, col:6
+lex_external state:1, row:2, column:6
+lex_internal state:0, row:2, column:6
+  skip character:10
+  skip character:10
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:13
+recover_to_previous state:1, depth:7
+skip_token symbol:assistant_header
+process version:1, version_count:2, state:1, row:2, col:6
+lex_internal state:174, row:2, column:6
+  skip character:10
+  skip character:10
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:13
+shift state:118
+condense
+process version:0, version_count:1, state:118, row:4, col:11
+lex_internal state:8, row:4, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:6, col:0
+lex_external state:2, row:6, column:0
+lex_internal state:12, row:6, column:0
+  consume character:'M'
+  consume character:'o'
+  consume character:'r'
+  consume character:'e'
+  consume character:' '
+  consume character:'t'
+  consume character:'e'
+  consume character:'x'
+  consume character:'t'
+  consume character:'.'
+lexed_lookahead sym:_assistant_text_content, size:10
+shift state:29
+process version:0, version_count:1, state:29, row:6, col:10
+lex_external state:2, row:6, column:10
+lex_internal state:177, row:6, column:10
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+shift state:31
+process version:0, version_count:1, state:31, row:7, col:0
+lex_external state:2, row:7, column:0
+lex_internal state:177, row:7, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:assistant_text_repeat1, child_count:2
+reduce sym:text, child_count:1
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+Command failed with exit code 1
+</tool.toolu_01J3Q9FmnT123DFgZYZzuHAh>
+
+# ASSISTANT
+
+Perfect! Now I can see the issue. The external scanner is called at , but then the internal lexer generates  which is not expected. The parser detects an error because  is a part of the  rule, not something that should appear after .
+
+The problem is that the regex `/[a-zA-Z0-9_+-]+/` in the  rule is being treated as a standalone rule that can match anywhere. This is creating a conflict with the external scanner.
+
+The fundamental issue is that we have both internal grammar rules and external scanner rules trying to handle the same content. The internal grammar rules are taking precedence.
+
+Let me check if there's any way to resolve this by examining the external scanner and making sure it's getting called properly.
+
+Actually, looking at the debug output again, I can see that the external scanner is being called at `lex_external state:7, row:2, column:1` but it's not returning  - it's returning `false` because single backticks don't get language identifiers.
+
+Then the internal lexer is called and generates  which is not expected in this context.
+
+The issue is that the external scanner is correctly returning  for single backticks, but then the parser is falling back to internal rules, which generate unexpected tokens.
+
+Let me examine the grammar rules more carefully. The problem might be that the `` token is being generated by the internal lexer as a fallback when the external scanner returns `false`.
+
+Actually, let me step back and think about this differently. The issue is that I have both internal grammar rules and external scanner rules for similar patterns. This is creating conflicts.
+
+Let me try a different approach: instead of trying to fix the conflict, let me make the external scanner handle **all** cases, even when there's no valid language identifier. This way, the external scanner will always return a token and the internal lexer won't be called.
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FWdD3xsG5BNtknFHhPm1Q6
+
+## path
+
+<tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+./src/scanner.c
+</tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+
+## git-commit-message
+
+<tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+Make external scanner handle all language identifier cases to avoid internal lexer conflicts
+</tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+
+## original-content
+
+<tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // For single backtick blocks, don't return language token
+    if (scanner->last_backtick_count == 1) {
+        return false;
+    }
+    
+    // For multi-backtick blocks, try to parse language
+    // Save lexer state to restore if we fail
+    TSLexer saved_lexer = *lexer;
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // If we hit a newline immediately, this is an empty language - don't return token
+    if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+        return false;
+    }
+    
+    // Must start with a letter or underscore for valid language
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        // Invalid language (e.g., starts with number or special char)
+        // Don't return language token
+        return false;
+    }
+    
+    // Scan the potential language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        // No valid language content
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // Language must be followed by newline, EOF, or spaces then newline/EOF
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+    }
+    
+    // After the identifier (and any trailing spaces), we must see newline or EOF
+    if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+        // Invalid language (has spaces or other characters)
+        // Don't return language token
+        return false;
+    }
+    
+    // If we get here, we have a valid language identifier
+    *lexer = saved_lexer; // Restore to start of language
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Re-scan and consume the language
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+    }
+    
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+    return true;
+}
+</tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+
+## new-content
+
+<tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Always try to handle language identifier requests to avoid conflicts with internal lexer
+    // This prevents the internal lexer from generating unexpected tokens
+    
+    // For single backtick blocks, don't return language token
+    if (scanner->last_backtick_count == 1) {
+        return false;
+    }
+    
+    // For multi-backtick blocks, try to parse language
+    // Save lexer state to restore if we fail
+    TSLexer saved_lexer = *lexer;
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // If we hit a newline immediately, this is an empty language - don't return token
+    if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+        return false;
+    }
+    
+    // Must start with a letter or underscore for valid language
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        // Invalid language (e.g., starts with number or special char)
+        // Don't return language token
+        return false;
+    }
+    
+    // Scan the potential language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        // No valid language content
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // Language must be followed by newline, EOF, or spaces then newline/EOF
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+    }
+    
+    // After the identifier (and any trailing spaces), we must see newline or EOF
+    if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+        // Invalid language (has spaces or other characters)
+        // Don't return language token
+        return false;
+    }
+    
+    // If we get here, we have a valid language identifier
+    *lexer = saved_lexer; // Restore to start of language
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Re-scan and consume the language
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+    }
+    
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+    return true;
+}
+</tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+
+# TOOL RESULT
+
+ID: toolu_01FWdD3xsG5BNtknFHhPm1Q6
+
+<tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>
+
+</tool.toolu_01FWdD3xsG5BNtknFHhPm1Q6>

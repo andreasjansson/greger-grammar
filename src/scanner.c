@@ -682,6 +682,9 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Always try to handle language identifier requests to avoid conflicts with internal lexer
+    // This prevents the internal lexer from generating unexpected tokens
+    
     // For single backtick blocks, don't return language token
     if (scanner->last_backtick_count == 1) {
         return false;
