@@ -858,9 +858,17 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle unclosed backtick
-    if (valid_symbols[UNCLOSED_BACKTICK_TOKEN]) {
-        return scan_unclosed_backtick(lexer);
+    // Handle backticks (both inline code and code blocks)
+    if (lexer->lookahead == '`') {
+        // Check for code block first (triple backticks)
+        if (valid_symbols[CODE_BLOCK]) {
+            return scan_code_block(lexer);
+        }
+        
+        // Check for inline code (single backtick)
+        if (valid_symbols[INLINE_CODE]) {
+            return scan_inline_code(lexer);
+        }
     }
     
     return false;
