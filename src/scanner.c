@@ -650,17 +650,20 @@ static bool scan_backtick(TSLexer *lexer) {
 static bool scan_code_backticks(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
-    // Count opening backticks (must be at least 2)
+    // Count opening backticks
     int backtick_count = 0;
     while (lexer->lookahead == '`') {
         backtick_count++;
         advance(lexer);
     }
     
-    if (backtick_count < 2) return false;
+    // For multi-backticks, we need at least 2
+    if (backtick_count >= 2) {
+        lexer->result_symbol = CODE_BACKTICKS;
+        return true;
+    }
     
-    lexer->result_symbol = CODE_BACKTICKS;
-    return true;
+    return false;
 }
 
 static bool scan_code_language(TSLexer *lexer) {
