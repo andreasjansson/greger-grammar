@@ -5161,5 +5161,187 @@ Revert order of code token checks - language first, then contents
 ID: toolu_01FAsXqXVQ39sX5THs4PVybk
 
 <tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert order of code token checks - language first, then contents
 </tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01V7arzPJe9BUzz7hSVWqwnf
+
+## command
+
+<tool.toolu_01V7arzPJe9BUzz7hSVWqwnf>
+cd . && tree-sitter generate
+</tool.toolu_01V7arzPJe9BUzz7hSVWqwnf>
+
+# TOOL RESULT
+
+ID: toolu_01V7arzPJe9BUzz7hSVWqwnf
+
+<tool.toolu_01V7arzPJe9BUzz7hSVWqwnf>
+
+</tool.toolu_01V7arzPJe9BUzz7hSVWqwnf>
+
+# ASSISTANT
+
+Let me test with a specific case to see how it works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EV5ePx9h3CMPc4MNF9mQaY
+
+## command
+
+<tool.toolu_01EV5ePx9h3CMPc4MNF9mQaY>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_01EV5ePx9h3CMPc4MNF9mQaY>
+
+# TOOL RESULT
+
+ID: toolu_01EV5ePx9h3CMPc4MNF9mQaY
+
+<tool.toolu_01EV5ePx9h3CMPc4MNF9mQaY>
+
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 15])
+      (code_contents [2, 15] - [3, 0])
+      (code_backticks [3, 0] - [3, 3]))
+    (text [3, 3] - [4, 0])))
+
+</tool.toolu_01EV5ePx9h3CMPc4MNF9mQaY>
+
+# ASSISTANT
+
+Good! The language case works. Let me test the no-language case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017EXqt3JLHwQpYYV4RyVEf2
+
+## command
+
+<tool.toolu_017EXqt3JLHwQpYYV4RyVEf2>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse
+</tool.toolu_017EXqt3JLHwQpYYV4RyVEf2>
+
+# TOOL RESULT
+
+ID: toolu_017EXqt3JLHwQpYYV4RyVEf2
+
+<tool.toolu_017EXqt3JLHwQpYYV4RyVEf2>
+
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 3])
+    (ERROR [3, 0] - [4, 3])))
+stdin	Parse:    0.03 ms	  1026 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_017EXqt3JLHwQpYYV4RyVEf2>
+
+# ASSISTANT
+
+The no-language case is broken again. The issue is that my approach is too complex. Let me think about this differently.
+
+The real issue is that the `scan_code_contents` function is being called with both `CODE_CONTENTS` and `CODE_LANGUAGE_IDENTIFIER` valid, but it's not correctly deferring to the language scanner when a language is present.
+
+Let me simplify the approach. The contents scanner should only handle the case where no language is present. I need to make the language scanner run first, and if it returns false, then contents scanner should run.
+
+The problem is that Tree-sitter calls both scanners in some order, and I need to make sure they coordinate properly. Let me revert the complex contents scanner and take a different approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HtGsrJbNpG7VeUeMFvaDEp
+
+## path
+
+<tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+./src/scanner.c
+</tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+
+## git-commit-message
+
+<tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+Revert complex contents scanner - simpler approach needed
+</tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+
+## diff
+
+<tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    // For multi-backtick blocks, check if there's a language identifier first
+-    if (scanner->last_backtick_count > 1) {
+-        TSLexer saved_lexer = *lexer;
+-        
+-        // Skip any leading whitespace
+-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-            advance(lexer);
+-        }
+-        
+-        // If we hit a newline immediately, there's no language - proceed with contents
+-        if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-            *lexer = saved_lexer; // Restore lexer
+-            // Fall through to contents scanning
+-        } else {
+-            // Check if it's a valid language identifier start
+-            if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+-                // Scan the potential language identifier
+-                bool has_language_content = false;
+-                
+-                while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+-                       iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+-                       lexer->lookahead == '+' || lexer->lookahead == '-') {
+-                    advance(lexer);
+-                    has_language_content = true;
+-                }
+-                
+-                if (has_language_content) {
+-                    // Check what comes after the identifier
+-                    // Skip any trailing spaces
+-                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                        advance(lexer);
+-                    }
+-                    
+-                    // If it's followed by newline or EOF, it's a valid language
+-                    if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-                        // This is a valid language identifier, don't return contents
+-                        // Let the language scanner handle it
+-                        *lexer = saved_lexer;
+-                        return false;
+-                    }
+-                }
+-            }
+-            
+-            // Not a valid language identifier, restore and scan contents
+-            *lexer = saved_lexer;
+-        }
+-    }
+-    
+     bool has_content = false;
+\ No newline at end of file
+
+</tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+
+# TOOL RESULT
+
+ID: toolu_01HtGsrJbNpG7VeUeMFvaDEp
+
+<tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+
+</tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>

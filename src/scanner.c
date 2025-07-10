@@ -757,54 +757,6 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // For multi-backtick blocks, check if there's a language identifier first
-    if (scanner->last_backtick_count > 1) {
-        TSLexer saved_lexer = *lexer;
-        
-        // Skip any leading whitespace
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            advance(lexer);
-        }
-        
-        // If we hit a newline immediately, there's no language - proceed with contents
-        if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
-            *lexer = saved_lexer; // Restore lexer
-            // Fall through to contents scanning
-        } else {
-            // Check if it's a valid language identifier start
-            if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
-                // Scan the potential language identifier
-                bool has_language_content = false;
-                
-                while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
-                       iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
-                       lexer->lookahead == '+' || lexer->lookahead == '-') {
-                    advance(lexer);
-                    has_language_content = true;
-                }
-                
-                if (has_language_content) {
-                    // Check what comes after the identifier
-                    // Skip any trailing spaces
-                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                        advance(lexer);
-                    }
-                    
-                    // If it's followed by newline or EOF, it's a valid language
-                    if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
-                        // This is a valid language identifier, don't return contents
-                        // Let the language scanner handle it
-                        *lexer = saved_lexer;
-                        return false;
-                    }
-                }
-            }
-            
-            // Not a valid language identifier, restore and scan contents
-            *lexer = saved_lexer;
-        }
-    }
-    
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
