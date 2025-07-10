@@ -793,7 +793,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
     
     // Handle unclosed backtick
-    if (valid_symbols[UNCLOSED_BACKTICK]) {
+    if (valid_symbols[UNCLOSED_BACKTICK_TOKEN]) {
         return scan_unclosed_backtick(lexer);
     }
     
