@@ -7331,3 +7331,309 @@ ID: toolu_01YY845LAJDpwdRcDHmCF2WF
 <tool.toolu_01YY845LAJDpwdRcDHmCF2WF>
 
 </tool.toolu_01YY845LAJDpwdRcDHmCF2WF>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PPyWpXPB3w6pmSjVwcpfpJ
+
+## command
+
+<tool.toolu_01PPyWpXPB3w6pmSjVwcpfpJ>
+timeout 10 tree-sitter generate
+</tool.toolu_01PPyWpXPB3w6pmSjVwcpfpJ>
+
+# TOOL RESULT
+
+ID: toolu_01PPyWpXPB3w6pmSjVwcpfpJ
+
+<tool.toolu_01PPyWpXPB3w6pmSjVwcpfpJ>
+
+</tool.toolu_01PPyWpXPB3w6pmSjVwcpfpJ>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SokVtKNbxqih7GHDU8F12t
+
+## command
+
+<tool.toolu_01SokVtKNbxqih7GHDU8F12t>
+timeout 10 tree-sitter parse debug-backticks-with-language.greger
+</tool.toolu_01SokVtKNbxqih7GHDU8F12t>
+
+# TOOL RESULT
+
+ID: toolu_01SokVtKNbxqih7GHDU8F12t
+
+<tool.toolu_01SokVtKNbxqih7GHDU8F12t>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 13]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (eval_language [2, 2] - [2, 8])
+    (ERROR [2, 9] - [2, 13])))
+debug-backticks-with-language.greger	Parse:    0.06 ms	   447 bytes/ms	(ERROR [0, 0] - [2, 13])
+Command failed with exit code 1
+</tool.toolu_01SokVtKNbxqih7GHDU8F12t>
+
+# ASSISTANT
+
+Interesting! This case is generating  tokens instead of . This confirms that there's a conflict between the  rule and the  external token.
+
+The issue is that the parser is using the  rule from the grammar instead of calling the external scanner for .
+
+This confirms that the issue is not with the  function failing to restore the lexer position. The issue is that the parser is never calling the external scanner for  at all. Instead, it's using the  grammar rule.
+
+This means that the grammar structure is causing the parser to prefer the  rule over the external  token.
+
+Let me check the precedence or see if there's a way to fix this. The issue might be that the  rule needs to be removed entirely, or there needs to be a way to prevent it from interfering with the external scanner.
+
+But I can't remove the  rule because it's used in the eval context. Let me check if there's a way to scope the  rule to only apply in eval contexts.
+
+Actually, let me try a different approach. Let me check if I can modify the external scanner to handle both eval language and code language. This would allow me to remove the grammar  rule entirely.
+
+But first, let me run the tests to see how many things are broken with the current state:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01YDhJYnUMVsWYH4bLbFCf6t
+
+## command
+
+<tool.toolu_01YDhJYnUMVsWYH4bLbFCf6t>
+timeout 20 tree-sitter test --file-name code.txt
+</tool.toolu_01YDhJYnUMVsWYH4bLbFCf6t>
+
+# TOOL RESULT
+
+ID: toolu_01YDhJYnUMVsWYH4bLbFCf6t
+
+<tool.toolu_01YDhJYnUMVsWYH4bLbFCf6t>
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+
+7 failures:
+
+correct / expected / unexpected
+
+  1. Single backtick code:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (eval_language)
+          (UNEXPECTED '`')
+          (eval_language))
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (eval_language)
+          (eval_language)
+          (eval_language)
+          (eval_language)
+          (eval_language)
+          (eval_language)
+          (UNEXPECTED '.'))))))(eval_language)(eval_language)(UNEXPECTED ''')(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(UNEXPECTED '.')(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(eval_language)(UNEXPECTED '`')(text)(user
+  (user_header)
+  (text))
+          (code_contents)
+          (code_backticks))
+        (text)
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (user
+        (user_header)
+        (text)))
+
+
+  2. Double backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED '`')
+        (eval_language)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '.')))))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  3. Triple backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '`')
+        (eval_language)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '.')))))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  4. Triple backticks with invalid language (has spaces):
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language)
+        (eval_language)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '(')
+        (eval_language)
+        (UNEXPECTED '(')))))(eval_language)(UNEXPECTED '"')(eval_language)(eval_language)(eval_language)(UNEXPECTED '.')
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  5. Triple backticks inline with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '.')
+        (eval_language)
+        (UNEXPECTED '(')))))(eval_language)(UNEXPECTED '"')(eval_language)(eval_language)(eval_language)(UNEXPECTED '.')
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  6. Triple backticks language with numbers and symbols:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+          (code_backticks))))
+
+
+  7. Empty code blocks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language)
+        (eval_language)
+        (UNEXPECTED '.')))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01YDhJYnUMVsWYH4bLbFCf6t>
+
+# ASSISTANT
+
+The pattern is clear: whenever the parser expects a  (optional), it's generating  tokens instead. Only the cases that successfully parse  work correctly.
+
+This confirms that the issue is the conflict between the  grammar rule and the  external token.
+
+I need to find a way to prevent the  rule from interfering with the code parsing. Let me try a different approach.
+
+One option is to rename the  rule to something else that won't conflict. Let me try:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01X4ywfbY4wDqWeGUuggUVb6
+
+## path
+
+<tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+grammar.js
+</tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+
+## git-commit-message
+
+<tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+Rename eval_language to eval_lang to avoid conflict
+</tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+
+## diff
+
+<tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+     eval_start_brace: $ => seq(
+       '${',
+-      optional(seq(':', $.eval_language))
++      optional(seq(':', $.eval_lang))
+     ),
+ 
+     eval_end_brace: $ => '}',
+ 
+-    eval_language: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
++    eval_lang: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
+
+</tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+
+# TOOL RESULT
+
+ID: toolu_01X4ywfbY4wDqWeGUuggUVb6
+
+<tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
+
+</tool.toolu_01X4ywfbY4wDqWeGUuggUVb6>
