@@ -9948,5 +9948,112 @@ Use choice rule to handle single vs multi-backtick code blocks
 ID: toolu_01JF6kGxApK9S6ZadGbjDAFp
 
 <tool.toolu_01JF6kGxApK9S6ZadGbjDAFp>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Use choice rule to handle single vs multi-backtick code blocks
 </tool.toolu_01JF6kGxApK9S6ZadGbjDAFp>
+
+# ASSISTANT
+
+Now let's test all three cases:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016bSWD99VLMNA7zyqubTv76
+
+## command
+
+<tool.toolu_016bSWD99VLMNA7zyqubTv76>
+tree-sitter generate
+</tool.toolu_016bSWD99VLMNA7zyqubTv76>
+
+# TOOL RESULT
+
+ID: toolu_016bSWD99VLMNA7zyqubTv76
+
+<tool.toolu_016bSWD99VLMNA7zyqubTv76>
+
+</tool.toolu_016bSWD99VLMNA7zyqubTv76>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KbfnrMbVygnRuTGMQriiwi
+
+## command
+
+<tool.toolu_01KbfnrMbVygnRuTGMQriiwi>
+echo '# USER
+
+`test`' | tree-sitter parse
+</tool.toolu_01KbfnrMbVygnRuTGMQriiwi>
+
+# TOOL RESULT
+
+ID: toolu_01KbfnrMbVygnRuTGMQriiwi
+
+<tool.toolu_01KbfnrMbVygnRuTGMQriiwi>
+
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 6])))
+stdin	Parse:    0.07 ms	   206 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01KbfnrMbVygnRuTGMQriiwi>
+
+# ASSISTANT
+
+The single backtick case is still failing. Tree-sitter is choosing the wrong branch of the choice. The issue is that Tree-sitter tries the first branch (multi-backtick) and fails because the external scanner for single backticks returns `false` for the language token.
+
+Let me reorder the choice to try single backtick first:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014U6ArxVvSLLKzg6PXHwnGL
+
+## path
+
+<tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+./grammar.js
+</tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+
+## git-commit-message
+
+<tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+Reorder choice to try single backtick case first
+</tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+
+## diff
+
+<tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+     code: $ => choice(
+-      // Multi-backtick code (2+ backticks, always has language token)
++      // Single backtick code (no language token)
+       seq(
+         $.code_backticks,
+-        alias($.code_language_identifier, $.code_language),
+         $.code_contents,
+         $.code_backticks,
+       ),
+-      // Single backtick code (no language token)
++      // Multi-backtick code (2+ backticks, always has language token)
+       seq(
+         $.code_backticks,
++        alias($.code_language_identifier, $.code_language),
+         $.code_contents,
+         $.code_backticks,
+       ),
+     ),
+\ No newline at end of file
+
+</tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+
+# TOOL RESULT
+
+ID: toolu_014U6ArxVvSLLKzg6PXHwnGL
+
+<tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+
+</tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
