@@ -301,7 +301,7 @@ module.exports = grammar({
 
     code: $ => seq(
       $.code_backticks,
-      optional(alias($.code_language_identifier, $.code_language)),
+      alias($.code_language_identifier, $.code_language),
       $.code_contents,
       $.code_backticks,
     ),
