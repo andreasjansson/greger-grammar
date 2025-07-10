@@ -5343,5 +5343,202 @@ Revert complex contents scanner - simpler approach needed
 ID: toolu_01HtGsrJbNpG7VeUeMFvaDEp
 
 <tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert complex contents scanner - simpler approach needed
 </tool.toolu_01HtGsrJbNpG7VeUeMFvaDEp>
+
+# ASSISTANT
+
+Let me try a different approach. The issue is that when both tokens are valid, Tree-sitter needs to decide which one to return. Let me look at this from a different perspective.
+
+The key insight is that the current grammar structure creates this ambiguity:
+
+```javascript
+code: $ => seq(
+  $.code_backticks,
+  optional(alias($.code_language_identifier, $.code_language)),
+  $.code_contents,
+  $.code_backticks,
+),
+```
+
+The `optional` means that the parser can choose to either:
+1. Include the language identifier, then contents
+2. Skip the language identifier and go directly to contents
+
+But Tree-sitter's parsing strategy tries to be greedy and prefer the first matching token. Let me examine the grammar more carefully.
+
+Actually, let me step back and think about this differently. The issue might be that I need to use a different priority or precedence to help Tree-sitter make the right decision.
+
+But first, let me run a quick test to see what happens in the current state:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Jg78K8Di8qzFrP3A1ngxtx
+
+## command
+
+<tool.toolu_01Jg78K8Di8qzFrP3A1ngxtx>
+cd . && tree-sitter generate && tree-sitter test | head -20
+</tool.toolu_01Jg78K8Di8qzFrP3A1ngxtx>
+
+# TOOL RESULT
+
+ID: toolu_01Jg78K8Di8qzFrP3A1ngxtx
+
+<tool.toolu_01Jg78K8Di8qzFrP3A1ngxtx>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+
+thread 'main' panicked at library/std/src/io/stdio.rs:1165:9:
+failed printing to stdout: Broken pipe (os error 32)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+</tool.toolu_01Jg78K8Di8qzFrP3A1ngxtx>
+
+# ASSISTANT
+
+I see that the language cases are now working but the no-language cases are failing again. This suggests the issue is indeed in the coordination between the two scanners.
+
+Let me try a different approach. Instead of trying to make the scanners coordinate, let me make the language scanner return an empty token when there's no language, similar to what I had before but more carefully implemented:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CkypRVTuZ4WpGWqEnprfBf
+
+## path
+
+<tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+./src/scanner.c
+</tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+
+## git-commit-message
+
+<tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+Make language scanner return empty token for no-language cases
+</tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+
+## diff
+
+<tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+         return false;
+     }
+     
+-    // For multi-backtick blocks (2+), only return language token if there's actual valid language content
++    // For multi-backtick blocks (2+), always return a language token to maintain proper parsing
++    // But make it empty when there's no actual language content
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+-    // If we hit a newline immediately, there's no language
++    // If we hit a newline immediately, return empty language token
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        return false;
++        *lexer = saved_lexer; // Don't consume anything - return zero-length token
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Check if it's a valid language identifier start
+     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+-        // Invalid language start - no language token
+-        return false;
++        // Invalid language start - return empty language token
++        *lexer = saved_lexer;
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Scan the potential language identifier
+     bool has_content = false;
+     
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+         has_content = true;
+     }
+     
+     if (!has_content) {
+-        // No valid language content
+-        return false;
++        // No valid language content - return empty token
++        *lexer = saved_lexer;
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+-        // Invalid language (has spaces or other characters) - no language token
+-        return false;
++        // Invalid language (has spaces or other characters) - return empty token
++        *lexer = saved_lexer;
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // If we get here, we have a valid language identifier
+     *lexer = saved_lexer; // Restore to start of language
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // Re-scan and consume the language
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+     }
+     
+     lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+
+# TOOL RESULT
+
+ID: toolu_01CkypRVTuZ4WpGWqEnprfBf
+
+<tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
+
+</tool.toolu_01CkypRVTuZ4WpGWqEnprfBf>
