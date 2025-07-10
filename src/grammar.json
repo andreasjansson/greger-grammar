@@ -691,10 +691,6 @@
           },
           {
             "type": "SYMBOL",
-            "name": "code_block"
-          },
-          {
-            "type": "SYMBOL",
             "name": "inline_code"
           },
           {
@@ -716,10 +712,6 @@
           {
             "type": "SYMBOL",
             "name": "eval"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "code_block"
           },
           {
             "type": "SYMBOL",
@@ -748,10 +740,6 @@
           {
             "type": "SYMBOL",
             "name": "eval"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "code_block"
           },
           {
             "type": "SYMBOL",
@@ -1045,75 +1033,6 @@
     "language": {
       "type": "PATTERN",
       "value": "[a-zA-Z0-9_+-]+"
-    },
-    "code_block": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "```"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "code_block_language"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "PATTERN",
-          "value": "\\n"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "code_block_content"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "STRING",
-          "value": "```"
-        }
-      ]
-    },
-    "code_block_language": {
-      "type": "PATTERN",
-      "value": "[^\\n]*"
-    },
-    "code_block_content": {
-      "type": "REPEAT1",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "PATTERN",
-            "value": "[^`\\n]+"
-          },
-          {
-            "type": "PATTERN",
-            "value": "\\n"
-          },
-          {
-            "type": "PATTERN",
-            "value": "`[^`]"
-          },
-          {
-            "type": "PATTERN",
-            "value": "``[^`]"
-          }
-        ]
-      }
     }
   },
   "extras": [
