@@ -781,12 +781,11 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
                 // This is not the closing sequence, include it as content
                 // Restore and consume the backticks as content
                 *lexer = saved_lexer;
-                while (backtick_count > 0) {
+                for (int i = 0; i < backtick_count; i++) {
                     advance(lexer);
                     has_content = true;
-                    lexer->mark_end(lexer);
-                    backtick_count--;
                 }
+                lexer->mark_end(lexer);
             }
         } else {
             advance(lexer);
