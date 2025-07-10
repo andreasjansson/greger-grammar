@@ -638,22 +638,42 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_unclosed_backtick(TSLexer *lexer) {
+static bool scan_inline_code(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     advance(lexer);
+    
+    // Check if this is a triple backtick (code block)
+    if (lexer->lookahead == '`') {
+        return false; // Let code block scanner handle this
+    }
+    
+    bool has_content = false;
     
     // Scan content until end of line or closing backtick
     while (lexer->lookahead != 0 && lexer->lookahead != '\n') {
         if (lexer->lookahead == '`') {
-            // Found closing backtick, this is not an unclosed backtick
-            return false;
+            // Found closing backtick
+            advance(lexer);
+            if (has_content) {
+                lexer->result_symbol = INLINE_CODE;
+                return true;
+            } else {
+                // Empty backticks, not valid inline code
+                return false;
+            }
         }
         advance(lexer);
+        has_content = true;
     }
     
     // We reached end of line without finding closing backtick
-    lexer->result_symbol = UNCLOSED_BACKTICK_TOKEN;
-    return true;
+    // Mark the last character as an error by not including it
+    if (has_content) {
+        lexer->result_symbol = INLINE_CODE;
+        return true;
+    }
+    
+    return false;
 }
 
 static bool scan_eval_content(TSLexer *lexer) {
