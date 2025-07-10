@@ -10055,5 +10055,207 @@ Reorder choice to try single backtick case first
 ID: toolu_014U6ArxVvSLLKzg6PXHwnGL
 
 <tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Reorder choice to try single backtick case first
 </tool.toolu_014U6ArxVvSLLKzg6PXHwnGL>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019Xd8FRgHftfZqq8Sm33LxD
+
+## command
+
+<tool.toolu_019Xd8FRgHftfZqq8Sm33LxD>
+tree-sitter generate && echo '# USER
+
+`test`' | tree-sitter parse
+</tool.toolu_019Xd8FRgHftfZqq8Sm33LxD>
+
+# TOOL RESULT
+
+ID: toolu_019Xd8FRgHftfZqq8Sm33LxD
+
+<tool.toolu_019Xd8FRgHftfZqq8Sm33LxD>
+
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 6])))
+stdin	Parse:    0.08 ms	   181 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_019Xd8FRgHftfZqq8Sm33LxD>
+
+# ASSISTANT
+
+Still not working. The issue is that Tree-sitter is still not calling the external scanner for  tokens. Let me check if the multi-backtick cases still work:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0174cv8gYKTWjYXmcShP8Nzp
+
+## command
+
+<tool.toolu_0174cv8gYKTWjYXmcShP8Nzp>
+echo '# ASSISTANT
+
+```
+test
+```' | tree-sitter parse
+</tool.toolu_0174cv8gYKTWjYXmcShP8Nzp>
+
+# TOOL RESULT
+
+ID: toolu_0174cv8gYKTWjYXmcShP8Nzp
+
+<tool.toolu_0174cv8gYKTWjYXmcShP8Nzp>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_0174cv8gYKTWjYXmcShP8Nzp>
+
+# ASSISTANT
+
+Good, the multi-backtick case still works. The issue with single backticks is that Tree-sitter is not parsing the content correctly.
+
+Let me run the tests to see the overall impact:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018USQrfXehQ1AfaZY8VKkZW
+
+## command
+
+<tool.toolu_018USQrfXehQ1AfaZY8VKkZW>
+tree-sitter test 2>&1 | grep "✓\|✗" | head -15
+</tool.toolu_018USQrfXehQ1AfaZY8VKkZW>
+
+# TOOL RESULT
+
+ID: toolu_018USQrfXehQ1AfaZY8VKkZW
+
+<tool.toolu_018USQrfXehQ1AfaZY8VKkZW>
+      1. ✓ Citations after tool result
+      2. ✓ Citations basic
+      3. ✓ Citations multiple
+      4. ✗ Code block with nested headers
+      5. ✗ Code block triple backticks
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+     15. ✓ Complex workflow
+
+</tool.toolu_018USQrfXehQ1AfaZY8VKkZW>
+
+# ASSISTANT
+
+I can see some progress - test 12 "Triple backticks inline with language" is now passing! But tests 7 and 8 (Double/Triple backticks no language) are still failing, which suggests my latest approach broke something.
+
+Let me check what happened to the no-language cases:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Ck4ZFZgLiRTEUDsbyHdpVf
+
+## command
+
+<tool.toolu_01Ck4ZFZgLiRTEUDsbyHdpVf>
+echo '# ASSISTANT
+
+``test``' | tree-sitter parse
+</tool.toolu_01Ck4ZFZgLiRTEUDsbyHdpVf>
+
+# TOOL RESULT
+
+ID: toolu_01Ck4ZFZgLiRTEUDsbyHdpVf
+
+<tool.toolu_01Ck4ZFZgLiRTEUDsbyHdpVf>
+
+(source_file [0, 0] - [2, 9]
+  (assistant [0, 0] - [2, 9]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks [2, 0] - [2, 2])
+      (code_language [2, 2] - [2, 6])
+      (code_contents [2, 6] - [2, 9])
+      (code_backticks [2, 9] - [2, 9]))))
+stdin	Parse:    0.03 ms	   712 bytes/ms	(MISSING code_backticks [2, 9] - [2, 9])
+Command failed with exit code 1
+</tool.toolu_01Ck4ZFZgLiRTEUDsbyHdpVf>
+
+# ASSISTANT
+
+I see what's happening! The double backticks are being parsed as having a language of `test` instead of treating `test` as content. This suggests that the choice rule is causing Tree-sitter to prefer the multi-backtick branch incorrectly.
+
+The issue is that Tree-sitter is trying the second branch (multi-backtick) and the external scanner is returning a language token for `test` even though it should be treated as content.
+
+This is getting complex with the choice rule. Let me try a different approach - let me go back to a single rule but fix the external scanner to be smarter about when to return language tokens based on context.
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01JckR9ywNUc2yj9qihe6cSf
+
+## path
+
+<tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+./grammar.js
+</tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+
+## git-commit-message
+
+<tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+Revert to single code rule with optional language for simplicity
+</tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+
+## diff
+
+<tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+-    code: $ => choice(
+-      // Single backtick code (no language token)
+-      seq(
+-        $.code_backticks,
+-        $.code_contents,
+-        $.code_backticks,
+-      ),
+-      // Multi-backtick code (2+ backticks, always has language token)
+-      seq(
+-        $.code_backticks,
+-        alias($.code_language_identifier, $.code_language),
+-        $.code_contents,
+-        $.code_backticks,
+-      ),
++    code: $ => seq(
++      $.code_backticks,
++      optional(alias($.code_language_identifier, $.code_language)),
++      $.code_contents,
++      $.code_backticks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+
+# TOOL RESULT
+
+ID: toolu_01JckR9ywNUc2yj9qihe6cSf
+
+<tool.toolu_01JckR9ywNUc2yj9qihe6cSf>
+
+</tool.toolu_01JckR9ywNUc2yj9qihe6cSf>

@@ -299,20 +299,11 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    code: $ => choice(
-      // Single backtick code (no language token)
-      seq(
-        $.code_backticks,
-        $.code_contents,
-        $.code_backticks,
-      ),
-      // Multi-backtick code (2+ backticks, always has language token)
-      seq(
-        $.code_backticks,
-        alias($.code_language_identifier, $.code_language),
-        $.code_contents,
-        $.code_backticks,
-      ),
+    code: $ => seq(
+      $.code_backticks,
+      optional(alias($.code_language_identifier, $.code_language)),
+      $.code_contents,
+      $.code_backticks,
     ),
 
   },
