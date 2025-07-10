@@ -5790,5 +5790,240 @@ Add debug case for other contents
 ID: toolu_01GCYT6tPdfwyxjPBD4eNajK
 
 <tool.toolu_01GCYT6tPdfwyxjPBD4eNajK>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/debug-other-contents.greger with 18 characters. Successfully staged 2 file(s) and committed with message: Add debug case for other contents
 </tool.toolu_01GCYT6tPdfwyxjPBD4eNajK>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NX4R7TDK4EpC9W6WsjVxCz
+
+## command
+
+<tool.toolu_01NX4R7TDK4EpC9W6WsjVxCz>
+timeout 10 tree-sitter parse debug-other-contents.greger
+</tool.toolu_01NX4R7TDK4EpC9W6WsjVxCz>
+
+# TOOL RESULT
+
+ID: toolu_01NX4R7TDK4EpC9W6WsjVxCz
+
+<tool.toolu_01NX4R7TDK4EpC9W6WsjVxCz>
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 5]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 3])
+      (code_backticks [2, 3] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_01NX4R7TDK4EpC9W6WsjVxCz>
+
+# ASSISTANT
+
+This works too! So the issue is specifically with spaces. 
+
+Now I understand the issue! The grammar has:
+
+
+
+This means that spaces are treated as "extras" and are automatically skipped by the parser. So when the parser finishes parsing the first  and tries to parse , it automatically skips the space and tries to parse the next token.
+
+But in the case , after skipping the space, the parser sees another  and tries to parse it as . But the  function is expecting to parse the space as content, not skip it.
+
+This is a fundamental issue with how the grammar is structured. The  function expects to parse the space as content, but the grammar is automatically skipping spaces.
+
+Let me check if this is the issue by modifying the grammar to not skip spaces in certain contexts. But that would be a major change.
+
+Actually, let me think about this differently. The issue might be that the  function needs to handle the case where spaces are skipped.
+
+But actually, that doesn't make sense either. The  function should be called before the grammar skips spaces.
+
+Let me check if there's a different issue. Maybe the problem is in how the external scanner is called.
+
+Wait, let me read the tree-sitter documentation about how extras work. If spaces are defined as extras, they should be skipped automatically by the parser, but the external scanner should still be able to see them.
+
+Let me check if the issue is in the  function. Maybe it's not handling spaces correctly.
+
+Actually, let me look at the  function again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_011A9U4bdtFh7wozpkj37bkc
+
+## path
+
+<tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+src/scanner.c
+</tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+
+## start-line
+
+<tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+838
+</tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+
+## end-line
+
+<tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+848
+</tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+
+# TOOL RESULT
+
+ID: toolu_011A9U4bdtFh7wozpkj37bkc
+
+<tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Handle tool content (raw text) when in tool content state
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+</tool.toolu_011A9U4bdtFh7wozpkj37bkc>
+
+# ASSISTANT
+
+Let me find the section where the external scanner skips whitespace:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01XbgiQLEyRVSJDAnxTFrDX4
+
+## path
+
+<tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+src/scanner.c
+</tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+
+## start-line
+
+<tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+853
+</tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+
+## end-line
+
+<tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+863
+</tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+
+# TOOL RESULT
+
+ID: toolu_01XbgiQLEyRVSJDAnxTFrDX4
+
+<tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_tail(scanner, lexer);
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+</tool.toolu_01XbgiQLEyRVSJDAnxTFrDX4>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01LjskkPdrUmeogFdmA8rWXV
+
+## path
+
+<tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+src/scanner.c
+</tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+
+## start-line
+
+<tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+860
+</tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+
+## end-line
+
+<tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+870
+</tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+
+# TOOL RESULT
+
+ID: toolu_01LjskkPdrUmeogFdmA8rWXV
+
+<tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+
+
+    if (lexer->lookahead == '<') {
+</tool.toolu_01LjskkPdrUmeogFdmA8rWXV>
+
+# ASSISTANT
+
+Here's the issue! The external scanner is skipping whitespace before processing any tokens:
+
+
+
+But the  function expects to see spaces as content. The external scanner is skipping the space before calling , so the  function never sees the space.
+
+This is the root cause of the issue. The external scanner is skipping spaces, but the  function needs to parse spaces as content.
+
+The solution is to NOT skip whitespace when processing code contents. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01UYWVxK4u35QyyS62Q8w7Vt
+
+## path
+
+<tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+src/scanner.c
+</tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+
+## git-commit-message
+
+<tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+Don't skip whitespace when processing code contents
+</tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+
+## diff
+
+<tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+     // Skip whitespace but preserve newlines for other tokens
+-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+-        skip(lexer);
++    // Don't skip whitespace for code contents as spaces are part of the content
++    if (!valid_symbols[CODE_CONTENTS]) {
++        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
++            skip(lexer);
++        }
+     }
+\ No newline at end of file
+
+</tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+
+# TOOL RESULT
+
+ID: toolu_01UYWVxK4u35QyyS62Q8w7Vt
+
+<tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
+
+</tool.toolu_01UYWVxK4u35QyyS62Q8w7Vt>
