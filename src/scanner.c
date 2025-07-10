@@ -96,8 +96,17 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
                             if (length >= offset + 3 + eval_result_id_len) {
                                 memcpy(scanner->eval_result_id, buffer + offset + 3, eval_result_id_len);
                                 scanner->eval_result_id[eval_result_id_len] = '\0';
+                                
+                                // Deserialize backtick count
+                                size_t final_offset = offset + 3 + eval_result_id_len;
+                                if (length > final_offset) {
+                                    scanner->last_backtick_count = buffer[final_offset];
+                                } else {
+                                    scanner->last_backtick_count = 0;
+                                }
                             } else {
                                 scanner->eval_result_id[0] = '\0';
+                                scanner->last_backtick_count = 0;
                             }
                         } else {
                             scanner->eval_result_id[0] = '\0';
