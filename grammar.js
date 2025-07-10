@@ -207,7 +207,6 @@ module.exports = grammar({
       alias($.assistant_text, $.text),
       $.code_block,
       $.inline_code,
-      $.unclosed_backtick,
       $.html_comment,
     )),
 
