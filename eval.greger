@@ -2454,5 +2454,586 @@ Make code_language_identifier always return a token (even empty)
 ID: toolu_01Ae3hi7jTvzRMMVGG3fGJTg
 
 <tool.toolu_01Ae3hi7jTvzRMMVGG3fGJTg>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make code_language_identifier always return a token (even empty)
 </tool.toolu_01Ae3hi7jTvzRMMVGG3fGJTg>
+
+# ASSISTANT
+
+Now let's test this change:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NFBkySLx7LpvGQA2TWc5BV
+
+## command
+
+<tool.toolu_01NFBkySLx7LpvGQA2TWc5BV>
+tree-sitter generate && tree-sitter test --subtest "Single backtick code"
+</tool.toolu_01NFBkySLx7LpvGQA2TWc5BV>
+
+# TOOL RESULT
+
+ID: toolu_01NFBkySLx7LpvGQA2TWc5BV
+
+<tool.toolu_01NFBkySLx7LpvGQA2TWc5BV>
+error: unexpected argument '--subtest' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01NFBkySLx7LpvGQA2TWc5BV>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BCzE5MHABu7w9TXkhsVUuE
+
+## command
+
+<tool.toolu_01BCzE5MHABu7w9TXkhsVUuE>
+tree-sitter test -f "Single backtick code"
+</tool.toolu_01BCzE5MHABu7w9TXkhsVUuE>
+
+# TOOL RESULT
+
+ID: toolu_01BCzE5MHABu7w9TXkhsVUuE
+
+<tool.toolu_01BCzE5MHABu7w9TXkhsVUuE>
+error: unexpected argument '-f' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01BCzE5MHABu7w9TXkhsVUuE>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01H5XRSh9BmzzrsxgXM5xswQ
+
+## command
+
+<tool.toolu_01H5XRSh9BmzzrsxgXM5xswQ>
+tree-sitter test
+</tool.toolu_01H5XRSh9BmzzrsxgXM5xswQ>
+
+# TOOL RESULT
+
+ID: toolu_01H5XRSh9BmzzrsxgXM5xswQ
+
+<tool.toolu_01H5XRSh9BmzzrsxgXM5xswQ>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✓ Eval nested braces
+  eval-partial:
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (673.684 bytes/ms)
+  eval-results:
+     18. ✓ Eval results
+  eval:
+     19. ✗ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+     21. ✗ HTML tags should be interpreted as text
+  less-than-greater-than:
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✓ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+14 failures:
+
+correct / expected / unexpected
+
+  1. Code block with nested headers:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  2. Code block triple backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (tool_use
+        (tool_use_header)
+        (name
+          (key)
+          (value))
+        (id
+          (key)
+          (value))
+        (tool_param
+          (tool_param_header
+            (name))
+          (value
+            (tool_start_tag)
+            (tool_content
+              (tool_content_head))
+            (tool_end_tag))))
+      (tool_result
+        (tool_result_header)
+        (id
+          (key)
+          (value))
+        (content
+          (tool_start_tag)
+          (tool_content
+            (tool_content_head))
+          (tool_end_tag))))
+
+
+  3. Single backtick code:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (user
+        (user_header)
+        (text)))
+
+
+  4. Double backticks no language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  5. Triple backticks no language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  6. Triple backticks with invalid language (has spaces):
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  7. Triple backticks language with numbers and symbols:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+          (code_backticks))))
+
+
+  8. Empty code blocks:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (MISSING code_backticks))))
+          (code_backticks))
+        (text)))
+
+
+  9. Eval:
+
+    (source_file
+      (system
+        (system_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (safe_shell_commands
+          (shell_command)
+          (eval
+            (eval_start_brace
+              (eval_language_spec))
+              (language))
+            (eval_content)
+            (eval_end_brace)))
+        (text)
+        (eval
+          (eval_start_brace
+            (eval_language_spec))
+            (language))
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (user
+        (user_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  10. HTML comments:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (html_comment)
+        (text)
+        (html_comment)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text)))
+
+
+  11. HTML tags should be interpreted as text:
+
+    (source_file
+      (system
+        (system_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text)))
+
+
+  12. Mixed code blocks and sections:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  13. Nested code blocks:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text)))
+
+
+  14. Tags in backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01H5XRSh9BmzzrsxgXM5xswQ>
+
+# ASSISTANT
+
+Great! This is a significant improvement. Now the code parsing is working much better. I can see that most of the code blocks are now being properly parsed with  structures, but we're still missing some closing backticks in certain cases.
+
+Let me analyze what's happening:
+
+1. **Good news**: The eval_language_spec conflicts are resolved
+2. **Progress**: Many code blocks are now parsed correctly
+3. **Issues**: Some blocks are missing closing backticks or have extra blocks
+
+Let me look at the specific failing test cases to understand what's wrong:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01ShA9mZSmJZWcMienFA378k
+
+## path
+
+<tool.toolu_01ShA9mZSmJZWcMienFA378k>
+test/corpus/code.txt
+</tool.toolu_01ShA9mZSmJZWcMienFA378k>
+
+## start-line
+
+<tool.toolu_01ShA9mZSmJZWcMienFA378k>
+1
+</tool.toolu_01ShA9mZSmJZWcMienFA378k>
+
+## end-line
+
+<tool.toolu_01ShA9mZSmJZWcMienFA378k>
+35
+</tool.toolu_01ShA9mZSmJZWcMienFA378k>
+
+# TOOL RESULT
+
+ID: toolu_01ShA9mZSmJZWcMienFA378k
+
+<tool.toolu_01ShA9mZSmJZWcMienFA378k>
+==================
+Single backtick code
+==================
+
+# USER
+
+Foo `bar` baz
+
+# ASSISTANT
+
+Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
+
+This new line is just text
+
+Backtick at end of line should not make subsequent lines code: `
+
+# USER
+
+hello
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+</tool.toolu_01ShA9mZSmJZWcMienFA378k>
+
+# ASSISTANT
+
+I see the issue! The problem is that for single backtick code, the test expects **no language node** but our implementation is always returning a language node (even if empty). Let me fix this by making the language node optional only when it's truly empty:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01QyG54phQ2yWWkuj4p7PG9f
+
+## path
+
+<tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+./grammar.js
+</tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+
+## git-commit-message
+
+<tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+Make code_language optional again, but handle empty language properly
+</tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+
+## diff
+
+<tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+     code: $ => seq(
+       $.code_backticks,
+-      alias($.code_language_identifier, $.code_language),
++      optional(alias($.code_language_identifier, $.code_language)),
+       $.code_contents,
+       $.code_backticks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+
+# TOOL RESULT
+
+ID: toolu_01QyG54phQ2yWWkuj4p7PG9f
+
+<tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+
+</tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
