@@ -271,10 +271,16 @@ module.exports = grammar({
       /``[^`]/,
     )),
 
-    inline_code: $ => seq(
-      '`',
-      /[^`\n]+/,
-      '`',
+    inline_code: $ => choice(
+      seq(
+        '`',
+        /[^`\n]+/,
+        '`',
+      ),
+      prec(-1, seq(
+        '`',
+        /[^`\n]+/,
+      )),
     ),
 
     safe_shell_commands: $ => seq(
