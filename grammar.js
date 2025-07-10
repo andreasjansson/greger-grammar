@@ -305,14 +305,14 @@ module.exports = grammar({
       // Single backtick code
       seq(
         $.backtick,
-        $.code_content,
+        $.code_contents,
         $.backtick,
       ),
       // Multi-backtick code
       seq(
         $.code_backticks,
         optional($.code_language),
-        $.code_content,
+        $.code_contents,
         $.code_backticks,
       ),
     ),
