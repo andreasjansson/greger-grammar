@@ -805,6 +805,35 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     return true;
 }
 
+static bool scan_eval_language(TSLexer *lexer) {
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore for valid language
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        return false;
+    }
+    
+    // Scan the language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    lexer->result_symbol = EVAL_LANGUAGE;
+    return true;
+}
+
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;

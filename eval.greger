@@ -5980,5 +5980,108 @@ Add external scanner for eval_language token
 ID: toolu_01P1BsyXEFqHM8Z9UEAcmbea
 
 <tool.toolu_01P1BsyXEFqHM8Z9UEAcmbea>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add external scanner for eval_language token
 </tool.toolu_01P1BsyXEFqHM8Z9UEAcmbea>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01C3TammTGswpdMWtrysxnKB
+
+## path
+
+<tool.toolu_01C3TammTGswpdMWtrysxnKB>
+./src/scanner.c
+</tool.toolu_01C3TammTGswpdMWtrysxnKB>
+
+## git-commit-message
+
+<tool.toolu_01C3TammTGswpdMWtrysxnKB>
+Add scan_eval_language function to handle eval language tokens
+</tool.toolu_01C3TammTGswpdMWtrysxnKB>
+
+## diff
+
+<tool.toolu_01C3TammTGswpdMWtrysxnKB>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     bool has_content = false;
+     
+     while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+             // Check if this is a backtick sequence that matches the opening count
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             // Count consecutive backticks
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening backtick count, this is the closing sequence
+             if (backtick_count == scanner->last_backtick_count) {
+                 // Restore lexer position and let the grammar handle the closing backticks
+                 *lexer = saved_lexer;
+                 break;
+             } else {
+                 // This is not the closing sequence, include it as content
+                 // Restore and consume the backticks as content
+                 *lexer = saved_lexer;
+                 while (backtick_count > 0) {
+                     advance(lexer);
+                     has_content = true;
+                     lexer->mark_end(lexer);
+                     backtick_count--;
+                 }
+             }
+         } else {
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+     
+     // Always return CODE_CONTENTS token, even for empty content
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
++}
++
++static bool scan_eval_language(TSLexer *lexer) {
++    // Skip any leading whitespace
++    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++        advance(lexer);
++    }
++    
++    // Must start with a letter or underscore for valid language
++    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
++        return false;
++    }
++    
++    // Scan the language identifier
++    bool has_content = false;
++    
++    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
++           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
++           lexer->lookahead == '+' || lexer->lookahead == '-') {
++        advance(lexer);
++        has_content = true;
++    }
++    
++    if (!has_content) {
++        return false;
++    }
++    
++    lexer->result_symbol = EVAL_LANGUAGE;
++    return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01C3TammTGswpdMWtrysxnKB>
+
+# TOOL RESULT
+
+ID: toolu_01C3TammTGswpdMWtrysxnKB
+
+<tool.toolu_01C3TammTGswpdMWtrysxnKB>
+
+</tool.toolu_01C3TammTGswpdMWtrysxnKB>
