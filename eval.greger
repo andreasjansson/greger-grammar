@@ -7938,5 +7938,105 @@ Revert eval_lang back to eval_language
 ID: toolu_01AAKVtn6859e51yqMpMqMEZ
 
 <tool.toolu_01AAKVtn6859e51yqMpMqMEZ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert eval_lang back to eval_language
 </tool.toolu_01AAKVtn6859e51yqMpMqMEZ>
+
+# ASSISTANT
+
+Now let me get back to the actual issue. The problem is with code blocks like :
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HsUM6UGLSQHye6RkAxJp81
+
+## command
+
+<tool.toolu_01HsUM6UGLSQHye6RkAxJp81>
+timeout 10 tree-sitter generate
+</tool.toolu_01HsUM6UGLSQHye6RkAxJp81>
+
+# TOOL RESULT
+
+ID: toolu_01HsUM6UGLSQHye6RkAxJp81
+
+<tool.toolu_01HsUM6UGLSQHye6RkAxJp81>
+
+</tool.toolu_01HsUM6UGLSQHye6RkAxJp81>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FnNFmvah1F2JfDpcsbvtZe
+
+## command
+
+<tool.toolu_01FnNFmvah1F2JfDpcsbvtZe>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_01FnNFmvah1F2JfDpcsbvtZe>
+
+# TOOL RESULT
+
+ID: toolu_01FnNFmvah1F2JfDpcsbvtZe
+
+<tool.toolu_01FnNFmvah1F2JfDpcsbvtZe>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 7])))
+debug-backticks-trace.greger	Parse:    0.09 ms	   222 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01FnNFmvah1F2JfDpcsbvtZe>
+
+# ASSISTANT
+
+Right, I'm back to the original issue. The problem is that after parsing the first ``, the parser is failing to parse the space and content properly.
+
+Let me step back and understand what I had working before I got sidetracked. The basic case without the optional language worked:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01H6Fw62hnyLPycuD41Bxr4d
+
+## path
+
+<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+grammar.js
+</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+## git-commit-message
+
+<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+Remove optional language again to get back to working state
+</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+## original-content
+
+<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+    code: $ => seq(
+      $.code_backticks,
+      optional(alias($.code_language_identifier, $.code_language)),
+      $.code_contents,
+      $.code_backticks,
+    ),
+</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+## new-content
+
+<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+    code: $ => seq(
+      $.code_backticks,
+      $.code_contents,
+      $.code_backticks,
+    ),
+</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+# TOOL RESULT
+
+ID: toolu_01H6Fw62hnyLPycuD41Bxr4d
+
+<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
