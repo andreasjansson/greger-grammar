@@ -3035,5 +3035,136 @@ Make code_language optional again, but handle empty language properly
 ID: toolu_01QyG54phQ2yWWkuj4p7PG9f
 
 <tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make code_language optional again, but handle empty language properly
 </tool.toolu_01QyG54phQ2yWWkuj4p7PG9f>
+
+# ASSISTANT
+
+Now I need to update the external scanner to be more selective about when it returns the language token:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HqF2vg8QEnMFinQ6wdrJcn
+
+## path
+
+<tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+./src/scanner.c
+</tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+
+## git-commit-message
+
+<tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+Make code language scanner more selective - only return token when there's actual language content
+</tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+
+## diff
+
+<tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    // Always return a language token after code backticks
+-    
+-    // For single backtick blocks, immediately return empty language token
++    // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+     
+     // For multi-backtick blocks, try to parse language
+     // Save lexer state to restore if we fail
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+-    // If we hit a newline immediately, this is an empty language
++    // If we hit a newline immediately, this is an empty language - don't return token
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+     
+     // Must start with a letter or underscore for valid language
+     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+         // Invalid language (e.g., starts with number or special char)
+-        // Return empty language token
+-        *lexer = saved_lexer; // Restore lexer position
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        // Don't return language token
++        return false;
+     }
+     
+     // Scan the potential language identifier
+     bool has_content = false;
+     
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+         has_content = true;
+     }
+     
+     if (!has_content) {
+         // No valid language content
+-        *lexer = saved_lexer; // Restore lexer position
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+         // Invalid language (has spaces or other characters)
+-        // Return empty language token
+-        *lexer = saved_lexer; // Restore lexer position
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        // Don't return language token
++        return false;
+     }
+     
+     // If we get here, we have a valid language identifier
+     *lexer = saved_lexer; // Restore to start of language
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // Re-scan and consume the language
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+     }
+     
+     lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+
+# TOOL RESULT
+
+ID: toolu_01HqF2vg8QEnMFinQ6wdrJcn
+
+<tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
+
+</tool.toolu_01HqF2vg8QEnMFinQ6wdrJcn>
