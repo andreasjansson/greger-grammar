@@ -4387,5 +4387,682 @@ Constrain eval_language_spec to only match inside eval_start_brace context
 ID: toolu_01AApj3TVmEJzogRrWnrc7V6
 
 <tool.toolu_01AApj3TVmEJzogRrWnrc7V6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Constrain eval_language_spec to only match inside eval_start_brace context
 </tool.toolu_01AApj3TVmEJzogRrWnrc7V6>
+
+# ASSISTANT
+
+Let's test this approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01F8trFPPjpBuq8cbYgv5uRN
+
+## command
+
+<tool.toolu_01F8trFPPjpBuq8cbYgv5uRN>
+tree-sitter generate && tree-sitter test
+</tool.toolu_01F8trFPPjpBuq8cbYgv5uRN>
+
+# TOOL RESULT
+
+ID: toolu_01F8trFPPjpBuq8cbYgv5uRN
+
+<tool.toolu_01F8trFPPjpBuq8cbYgv5uRN>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✓ Eval nested braces
+  eval-partial:
+     17. ✓ Eval partial cases
+  eval-results:
+     18. ✓ Eval results
+  eval:
+     19. ✗ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+     21. ✗ HTML tags should be interpreted as text
+  less-than-greater-than:
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✓ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+15 failures:
+
+correct / expected / unexpected
+
+  1. Code block with nested headers:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+          (code_backticks))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text))
+      (tool_use
+        (tool_use_header))
+      (ERROR
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '`')
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '.')))))(assistant
+  (assistant_header)
+  (text))
+        (text)))
+
+
+  2. Code block triple backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (assistant_header)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec))
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (ERROR
+      (tool_use
+        (tool_use_header)
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '`')
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '?')))))(assistant
+  (assistant_header)
+  (code
+    (code_backticks)
+    (code_language)
+    (code_contents)
+    (MISSING code_backticks)))
+        (name
+          (key)
+          (value))
+        (id
+          (key)
+          (value))
+        (tool_param
+          (tool_param_header
+            (name))
+          (value
+            (tool_start_tag)
+            (tool_content
+              (tool_content_head))
+            (tool_end_tag))))
+      (tool_result
+        (tool_result_header)
+        (id
+          (key)
+          (value))
+        (content
+          (tool_start_tag)
+          (tool_content
+            (tool_content_head))
+          (tool_end_tag))))
+
+
+  3. Single backtick code:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (eval_language_spec)
+          (UNEXPECTED '`')
+          (eval_language_spec))
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (UNEXPECTED '.'))))))(eval_language_spec)(eval_language_spec)(UNEXPECTED ''')(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '.')(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '`')(text)(user
+  (user_header)
+  (text))
+          (code_contents)
+          (code_backticks))
+        (text)
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (user
+        (user_header)
+        (text)))
+
+
+  4. Double backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED '`')
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '.')))))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  5. Triple backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '`')
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '.')))))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  6. Triple backticks with invalid language (has spaces):
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '(')
+        (eval_language_spec)
+        (UNEXPECTED '(')))))(eval_language_spec)(UNEXPECTED '"')(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '.')
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  7. Triple backticks inline with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '.')
+        (eval_language_spec)
+        (UNEXPECTED '(')))))(eval_language_spec)(UNEXPECTED '"')(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '.')
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  8. Triple backticks language with numbers and symbols:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+          (code_backticks))))
+
+
+  9. Empty code blocks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (eval_language_spec)
+        (eval_language_spec)
+        (UNEXPECTED '.')))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  10. Eval:
+
+    (source_file
+      (system
+        (system_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (safe_shell_commands
+          (shell_command)
+          (eval
+            (eval_start_brace
+              (eval_language_spec))
+              (language))
+            (eval_content)
+            (eval_end_brace)))
+        (text)
+        (eval
+          (eval_start_brace
+            (eval_language_spec))
+            (language))
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (user
+        (user_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  11. HTML comments:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (html_comment)
+        (text)
+        (html_comment)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED '!')
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (UNEXPECTED '>'))))))(text)(ERROR
+  (assistant_header)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (tool_use_header)
+  (eval_language_spec)
+  (eval_language_spec)
+  (eval_language_spec)
+  (UNEXPECTED '`'))(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '?')
+        (code)
+        (text)))
+
+
+  12. HTML tags should be interpreted as text:
+
+    (source_file
+      (system
+        (system_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED 'p')
+          (eval_language_spec)
+          (UNEXPECTED '>'))))))(eval_language_spec)(UNEXPECTED 'p')(eval_language_spec)(UNEXPECTED '>')(text)
+        (code)
+        (text)))
+
+
+  13. Mixed code blocks and sections:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  14. Nested code blocks:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+          (code_backticks)
+          (eval_language_spec)
+          (UNEXPECTED ''')
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (eval_language_spec)
+          (UNEXPECTED '`'))))))(eval_language_spec)(eval_language_spec)(UNEXPECTED '`')(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '`')(eval_language_spec)(eval_language_spec)(UNEXPECTED '`')(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '?')(text)
+        (code)
+        (text)))
+
+
+  15. Tags in backticks:
+
+    (ERROR
+      (user_header)
+      (text)
+      (code_backticks)
+      (UNEXPECTED 'e')
+      (eval_language_spec)
+      (UNEXPECTED '>'))))(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED 'e')(eval_language_spec)(UNEXPECTED '>')(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '>')(eval_language_spec)(UNEXPECTED '>')(eval_language_spec)(eval_language_spec)(UNEXPECTED 'f')(eval_language_spec)(UNEXPECTED '>')(eval_language_spec)(eval_language_spec)(eval_language_spec)(eval_language_spec)(UNEXPECTED '?')(eval_language_spec)(UNEXPECTED 'n')(eval_language_spec)(UNEXPECTED '>')(eval_language_spec)(UNEXPECTED '!')(eval_language_spec)(UNEXPECTED '>')
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code)
+        (text)
+        (code)
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01F8trFPPjpBuq8cbYgv5uRN>
+
+# ASSISTANT
+
+I'm still seeing  tokens everywhere. This suggests to me that Tree-sitter is still treating  as a standalone rule that can match anywhere. Let me check the grammar again to make sure I didn't miss any references to this rule:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01V7fUEQPZyuBWZPapFBitjq
+
+## pattern
+
+<tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+eval_language_spec
+</tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+
+## path
+
+<tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+./grammar.js
+</tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+
+# TOOL RESULT
+
+ID: toolu_01V7fUEQPZyuBWZPapFBitjq
+
+<tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+296:      optional(seq(':', alias(token(/[a-zA-Z0-9_+-]+/), $.eval_language_spec)))
+
+</tool.toolu_01V7fUEQPZyuBWZPapFBitjq>
+
+# ASSISTANT
+
+Good, there's only one reference now. But I'm still seeing the  tokens in the output. Let me look more carefully at the test output - I think there might be something else going on.
+
+Wait, let me check if the problem is that Tree-sitter is interpreting individual characters as  tokens when they're embedded in the failed  structures. Let me run a simpler test to isolate the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ShGe2L2SAXErqipRWtCTwj
+
+## command
+
+<tool.toolu_01ShGe2L2SAXErqipRWtCTwj>
+echo '# USER
+
+`test`
+
+# ASSISTANT
+
+More text.' | tree-sitter parse --quiet
+</tool.toolu_01ShGe2L2SAXErqipRWtCTwj>
+
+# TOOL RESULT
+
+ID: toolu_01ShGe2L2SAXErqipRWtCTwj
+
+<tool.toolu_01ShGe2L2SAXErqipRWtCTwj>
+
+stdin	Parse:    0.03 ms	  1218 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01ShGe2L2SAXErqipRWtCTwj>
+
+# ASSISTANT
+
+Let me try with debug mode:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01B6Ce2SbB2CPoYovaZfBUbE
+
+## command
+
+<tool.toolu_01B6Ce2SbB2CPoYovaZfBUbE>
+echo '# USER
+
+`test`
+
+# ASSISTANT
+
+More text.' | tree-sitter parse
+</tool.toolu_01B6Ce2SbB2CPoYovaZfBUbE>
+
+# TOOL RESULT
+
+ID: toolu_01B6Ce2SbB2CPoYovaZfBUbE
+
+<tool.toolu_01B6Ce2SbB2CPoYovaZfBUbE>
+
+(source_file [0, 0] - [7, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (eval_language_spec [2, 1] - [2, 5])
+    (ERROR [2, 5] - [2, 6]))
+  (assistant [4, 0] - [7, 0]
+    (assistant_header [4, 0] - [4, 11])
+    (text [6, 0] - [7, 0])))
+stdin	Parse:    0.04 ms	  1070 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01B6Ce2SbB2CPoYovaZfBUbE>
+
+# ASSISTANT
+
+Perfect! This shows me exactly what's happening. The  is being parsed as an  token even though it's not inside an eval context. This confirms that the issue is that the  token is being treated as a standalone rule.
+
+Let me examine the actual issue more carefully. The problem is that Tree-sitter is treating  as a top-level rule that can match anywhere, not just inside eval contexts. This is happening because when I use  inside the  rule, Tree-sitter is still treating it as a reusable rule.
+
+Let me try a different approach - instead of using an alias, let me create a completely inline token:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Kg1nNCjZuhpP9Jywz4v1cQ
+
+## path
+
+<tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+./grammar.js
+</tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+
+## git-commit-message
+
+<tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+Make eval language completely inline to prevent parsing outside eval context
+</tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+
+## diff
+
+<tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+     eval_start_brace: $ => seq(
+       '${',
+-      optional(seq(':', alias(token(/[a-zA-Z0-9_+-]+/), $.eval_language_spec)))
++      optional(seq(':', alias(token(/[a-zA-Z0-9_+-]+/), $.language)))
+     ),
+\ No newline at end of file
+
+</tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+
+# TOOL RESULT
+
+ID: toolu_01Kg1nNCjZuhpP9Jywz4v1cQ
+
+<tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>
+
+</tool.toolu_01Kg1nNCjZuhpP9Jywz4v1cQ>

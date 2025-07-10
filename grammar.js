@@ -293,7 +293,7 @@ module.exports = grammar({
 
     eval_start_brace: $ => seq(
       '${',
-      optional(seq(':', alias(token(/[a-zA-Z0-9_+-]+/), $.eval_language_spec)))
+      optional(seq(':', alias(token(/[a-zA-Z0-9_+-]+/), $.language)))
     ),
 
     eval_end_brace: $ => '}',
