@@ -904,8 +904,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_code_backticks(scanner, lexer);
     }
     
-    // Handle code language
-    if (valid_symbols[CODE_LANGUAGE]) {
+    // Handle code language identifier
+    if (valid_symbols[CODE_LANGUAGE_IDENTIFIER]) {
         return scan_code_language(scanner, lexer);
     }
     
