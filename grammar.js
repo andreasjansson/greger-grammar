@@ -259,22 +259,7 @@ module.exports = grammar({
 
     content: $ => alias($._tool_element, 'content'),
 
-    code_block: $ => seq(
-      '```',
-      optional($.code_block_language),
-      /\n/,
-      optional($.code_block_content),
-      '```',
-    ),
 
-    code_block_language: _ => /[^\n]*/,
-
-    code_block_content: _ => repeat1(choice(
-      /[^`\n]+/,
-      /\n/,
-      /`[^`]/,
-      /``[^`]/,
-    )),
 
     inline_code: $ => seq(
       '`',
