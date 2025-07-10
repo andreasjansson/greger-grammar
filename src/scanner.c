@@ -669,50 +669,6 @@ static bool scan_inline_code(TSLexer *lexer) {
     return false;
 }
 
-static bool scan_code_block(TSLexer *lexer) {
-    if (lexer->lookahead != '`') return false;
-    advance(lexer);
-    
-    // Check for triple backtick
-    if (lexer->lookahead != '`') return false;
-    advance(lexer);
-    if (lexer->lookahead != '`') return false;
-    advance(lexer);
-    
-    // Scan optional language specifier until newline
-    while (lexer->lookahead != 0 && lexer->lookahead != '\n') {
-        advance(lexer);
-    }
-    
-    // Skip the newline
-    if (lexer->lookahead == '\n') {
-        advance(lexer);
-    }
-    
-    // Scan content until closing triple backticks
-    while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '`') {
-            // Check if this is the closing triple backtick
-            TSLexer saved = *lexer;
-            advance(lexer);
-            if (lexer->lookahead == '`') {
-                advance(lexer);
-                if (lexer->lookahead == '`') {
-                    advance(lexer);
-                    lexer->result_symbol = CODE_BLOCK;
-                    return true;
-                }
-            }
-            // Not a closing triple backtick, restore and continue
-            *lexer = saved;
-        }
-        advance(lexer);
-    }
-    
-    // Reached end without finding closing triple backticks
-    lexer->result_symbol = CODE_BLOCK;
-    return true;
-}
 
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
