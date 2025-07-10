@@ -8864,5 +8864,136 @@ Make code rule handle both single and multi-backtick cases
 ID: toolu_01WvG12GUJ7pEKFYCzQyeKe7
 
 <tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make code rule handle both single and multi-backtick cases
 </tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+# ASSISTANT
+
+Let's test this approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DWg1QTiQwFt3QDeJrmox1B
+
+## command
+
+<tool.toolu_01DWg1QTiQwFt3QDeJrmox1B>
+tree-sitter generate && echo '# USER
+
+`test`' | tree-sitter parse
+</tool.toolu_01DWg1QTiQwFt3QDeJrmox1B>
+
+# TOOL RESULT
+
+ID: toolu_01DWg1QTiQwFt3QDeJrmox1B
+
+<tool.toolu_01DWg1QTiQwFt3QDeJrmox1B>
+
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 6])))
+stdin	Parse:    0.14 ms	   107 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01DWg1QTiQwFt3QDeJrmox1B>
+
+# ASSISTANT
+
+Still not working. The issue is that Tree-sitter doesn't know which branch of the choice to take. Let me check the multi-backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01A1p3Jyr6Q7BNup7E8SkaTL
+
+## command
+
+<tool.toolu_01A1p3Jyr6Q7BNup7E8SkaTL>
+echo '# ASSISTANT
+
+```
+test
+```' | tree-sitter parse
+</tool.toolu_01A1p3Jyr6Q7BNup7E8SkaTL>
+
+# TOOL RESULT
+
+ID: toolu_01A1p3Jyr6Q7BNup7E8SkaTL
+
+<tool.toolu_01A1p3Jyr6Q7BNup7E8SkaTL>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01A1p3Jyr6Q7BNup7E8SkaTL>
+
+# ASSISTANT
+
+The multi-backtick case is still working. The issue with single backticks is that Tree-sitter is trying both branches and failing. Let me try a different approach - let me make the external scanner smarter about when it returns language tokens.
+
+The issue is that I need Tree-sitter to know whether to expect a language token or not. Let me revert to the original approach but fix it properly:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01TRnURQUdK1m9GfrBVe5zTQ
+
+## path
+
+<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+./grammar.js
+</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+## git-commit-message
+
+<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+Revert to single code rule with optional language
+</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+## original-content
+
+<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+    code: $ => choice(
+      // Single backtick code (no language)
+      seq(
+        $.code_backticks,
+        $.code_contents,
+        $.code_backticks,
+      ),
+      // Multi-backtick code (always has language token, even if empty)
+      seq(
+        $.code_backticks,
+        alias($.code_language_identifier, $.code_language),
+        $.code_contents,
+        $.code_backticks,
+      ),
+    ),
+</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+## new-content
+
+<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+    code: $ => seq(
+      $.code_backticks,
+      optional(alias($.code_language_identifier, $.code_language)),
+      $.code_contents,
+      $.code_backticks,
+    ),
+</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+# TOOL RESULT
+
+ID: toolu_01TRnURQUdK1m9GfrBVe5zTQ
+
+<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
