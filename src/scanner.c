@@ -702,6 +702,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     
     // If we hit a newline immediately, there's no language
     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+        printf("DEBUG: scan_code_language returning false (newline/EOF)\n");
         return false;
     }
     
