@@ -5,6 +5,13 @@ Inline code
 # USER
 
 Foo `bar` baz
+
+# ASSISTANT
+
+Inline code should only `parse code in a single line. If there's no closing backtick it should error from the beginning of the backtick to the end of the line.
+
+This new line is just text
+
 ---
 
 (source_file
@@ -12,4 +19,9 @@ Foo `bar` baz
     (user_header)
     (text)
     (inline_code)
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (ERROR)
     (text)))
