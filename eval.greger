@@ -10073,5 +10073,62 @@ Revert scan_code_language to return false when no language
 ID: toolu_018JMykQY8rQuGpsuYcXbVKh
 
 <tool.toolu_018JMykQY8rQuGpsuYcXbVKh>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert scan_code_language to return false when no language
 </tool.toolu_018JMykQY8rQuGpsuYcXbVKh>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01XtNdQ66GVfjeeuhCYapsCU
+
+## path
+
+<tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+src/scanner.c
+</tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+
+## git-commit-message
+
+<tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+Revert other failure cases to return false
+</tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+
+## diff
+
+<tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+     if (!has_content) {
+         *lexer = saved_lexer; // Restore lexer position
+-        // Return empty language token
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+         *lexer = saved_lexer; // Restore lexer position
+-        // Return empty language token
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+
+# TOOL RESULT
+
+ID: toolu_01XtNdQ66GVfjeeuhCYapsCU
+
+<tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>
+
+</tool.toolu_01XtNdQ66GVfjeeuhCYapsCU>

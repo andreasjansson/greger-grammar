@@ -713,9 +713,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     
     if (!has_content) {
         *lexer = saved_lexer; // Restore lexer position
-        // Return empty language token
-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
-        return true;
+        return false;
     }
     
     // Check what comes after the identifier
@@ -730,9 +728,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     // After the identifier (and any trailing spaces), we must see newline or EOF
     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
         *lexer = saved_lexer; // Restore lexer position
-        // Return empty language token
-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
-        return true;
+        return false;
     }
     
     // If we get here, we have a valid language identifier
