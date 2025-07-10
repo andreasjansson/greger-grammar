@@ -323,6 +323,10 @@ module.exports = grammar({
 
     language: $ => /[a-zA-Z0-9_+-]+/,
 
+    unclosed_backtick: $ => seq(
+      $.unclosed_backtick,
+      'MISSING',
+    ),
 
   },
 });
