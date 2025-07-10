@@ -637,6 +637,24 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
+static bool scan_unclosed_backtick(TSLexer *lexer) {
+    if (lexer->lookahead != '`') return false;
+    advance(lexer);
+    
+    // Scan content until end of line or closing backtick
+    while (lexer->lookahead != 0 && lexer->lookahead != '\n') {
+        if (lexer->lookahead == '`') {
+            // Found closing backtick, this is not an unclosed backtick
+            return false;
+        }
+        advance(lexer);
+    }
+    
+    // We reached end of line without finding closing backtick
+    lexer->result_symbol = UNCLOSED_BACKTICK;
+    return true;
+}
+
 static bool scan_eval_content(TSLexer *lexer) {
     bool has_content = false;
     bool has_non_whitespace = false;
