@@ -214,6 +214,7 @@ module.exports = grammar({
       $.eval,
       $.code_block,
       $.inline_code,
+      $.unclosed_backtick,
       $.safe_shell_commands,
       $.text,
     )),
