@@ -5192,5 +5192,210 @@ Add debug case for working triple backticks with language
 ID: toolu_01Xju2dgH7wHaFBebsmFtKzb
 
 <tool.toolu_01Xju2dgH7wHaFBebsmFtKzb>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/debug-working-case.greger with 58 characters. Successfully staged 2 file(s) and committed with message: Add debug case for working triple backticks with language
 </tool.toolu_01Xju2dgH7wHaFBebsmFtKzb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019i5BgTY5nTYN4VwQmwmFJ3
+
+## command
+
+<tool.toolu_019i5BgTY5nTYN4VwQmwmFJ3>
+timeout 10 tree-sitter parse debug-working-case.greger
+</tool.toolu_019i5BgTY5nTYN4VwQmwmFJ3>
+
+# TOOL RESULT
+
+ID: toolu_019i5BgTY5nTYN4VwQmwmFJ3
+
+<tool.toolu_019i5BgTY5nTYN4VwQmwmFJ3>
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 13])
+      (code_contents [2, 14] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_019i5BgTY5nTYN4VwQmwmFJ3>
+
+# ASSISTANT
+
+This works perfectly! The difference is:
+- Working case: , then  (recognized as language), then newline, then content
+- Failing case: , then  (should be recognized as content directly, not language)
+
+The difference is that in the working case, the  function successfully recognizes "python" as a language identifier. In the failing case, it should recognize that " " is not a language identifier and return false.
+
+But the error suggests that the  function is not being called at all. Instead, the parser is generating an ERROR.
+
+Wait, I think I understand the issue now. Let me look at the exact positions in the failing case:
+
+- [2, 0] - [2, 2]: 
+- [2, 3] - [2, 7]: ERROR
+
+Position [2, 3] is right after the . The content at [2, 3] - [2, 7] should be " " (4 characters: space, backtick, space).
+
+But the error suggests that the parser is not able to parse this content as . Why?
+
+Let me check if there's an issue with the  function. Looking at it again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01UNhVbqJ6WUEgKF5wHWRQw5
+
+## path
+
+<tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+src/scanner.c
+</tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+
+## start-line
+
+<tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+738
+</tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+
+## end-line
+
+<tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+758
+</tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+
+# TOOL RESULT
+
+ID: toolu_01UNhVbqJ6WUEgKF5wHWRQw5
+
+<tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+    
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+    return true;
+}
+
+static bool scan_code_contents(TSLexer *lexer) {
+    bool has_content = false;
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Don't consume backticks, let the grammar handle them
+            break;
+        }
+        advance(lexer);
+        has_content = true;
+        lexer->mark_end(lexer);
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
+</tool.toolu_01UNhVbqJ6WUEgKF5wHWRQw5>
+
+# ASSISTANT
+
+The  function should successfully parse " " because:
+1. It sees space → not a backtick → advance → has_content = true
+2. It sees  → this is a backtick → break
+3. has_content is true → return  
+
+This should work. But the error suggests it's not being called.
+
+Let me check if there's an issue with the external scanner setup. Let me look at the main scanner function to see if there's a problem with the  check:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01AJFjgHT4EDcBCYYS1Yzxih
+
+## path
+
+<tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+src/scanner.c
+</tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+
+## start-line
+
+<tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+913
+</tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+
+## end-line
+
+<tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+917
+</tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+
+# TOOL RESULT
+
+ID: toolu_01AJFjgHT4EDcBCYYS1Yzxih
+
+<tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+    if (valid_symbols[CODE_CONTENTS]) {
+        return scan_code_contents(lexer);
+    }
+    
+    return false;
+</tool.toolu_01AJFjgHT4EDcBCYYS1Yzxih>
+
+# ASSISTANT
+
+This looks correct. The scanner should call  when . 
+
+I think the issue might be that the grammar is not properly structured. Let me check if there's an issue with the  rule definition or if there's a conflict.
+
+Actually, let me try a different approach. Let me look at the grammar and see if there's a conflict between the external tokens and the grammar rules.
+
+Looking at the error, I notice that the parser is generating  tokens. But  is not an external token - it's a grammar rule:
+
+
+
+So the parser is falling back to the  rule instead of using the external scanner. This suggests that the external scanner is not being called at all for this case.
+
+This might be because the grammar is structured in a way that the parser never gets to the point where it tries to parse  or .
+
+Let me check if there's an issue with the grammar rule order or precedence. The problem might be that after parsing , the parser is trying to parse the next token using the grammar rules before giving the external scanner a chance.
+
+Actually, let me look at the grammar more carefully. The issue might be that the external scanner is not being called because the grammar is not expecting  or  at the right time.
+
+Let me check if the issue is with the  rule precedence or if there's some other structural issue.
+
+Actually, let me try a different approach. The error suggests that the parser is falling back to the  rule. Let me temporarily remove the  rule entirely and see what happens:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BXyWdPK9oNacvcNdkEDcZH
+
+## path
+
+<tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+grammar.js
+</tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+
+## git-commit-message
+
+<tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+Remove eval_language rule to debug external scanner issue
+</tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+
+## diff
+
+<tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+-    eval_language: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
++    // eval_language: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
+
+</tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+
+# TOOL RESULT
+
+ID: toolu_01BXyWdPK9oNacvcNdkEDcZH
+
+<tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
+
+</tool.toolu_01BXyWdPK9oNacvcNdkEDcZH>
