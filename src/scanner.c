@@ -651,7 +651,7 @@ static bool scan_unclosed_backtick(TSLexer *lexer) {
     }
     
     // We reached end of line without finding closing backtick
-    lexer->result_symbol = UNCLOSED_BACKTICK;
+    lexer->result_symbol = UNCLOSED_BACKTICK_TOKEN;
     return true;
 }
 
