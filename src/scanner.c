@@ -841,14 +841,25 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle single backtick
-    if (valid_symbols[BACKTICK] && lexer->lookahead == '`') {
-        return scan_backtick(lexer);
-    }
-    
-    // Handle multi-backticks
-    if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
-        return scan_code_backticks(lexer);
+    // Handle backticks - check multi-backticks first
+    if (lexer->lookahead == '`') {
+        // Count backticks to see what we're dealing with
+        TSLexer saved_lexer = *lexer;
+        int backtick_count = 0;
+        while (lexer->lookahead == '`') {
+            backtick_count++;
+            advance(lexer);
+        }
+        *lexer = saved_lexer; // Restore position
+        
+        // If we have multiple backticks and the grammar expects CODE_BACKTICKS, use that
+        if (backtick_count >= 2 && valid_symbols[CODE_BACKTICKS]) {
+            return scan_code_backticks(lexer);
+        }
+        // Otherwise, if we have a single backtick and grammar expects BACKTICK, use that
+        else if (backtick_count == 1 && valid_symbols[BACKTICK]) {
+            return scan_backtick(lexer);
+        }
     }
     
     // Handle code language
