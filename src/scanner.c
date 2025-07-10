@@ -657,7 +657,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
-    // Count and consume opening backticks (any number, 1 or more)
+    // Count and consume backticks (any number, 1 or more)
     int backtick_count = 0;
     while (lexer->lookahead == '`') {
         backtick_count++;
@@ -665,7 +665,15 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
     }
     
     if (backtick_count >= 1) {
-        scanner->last_backtick_count = backtick_count;
+        // If this is the first time we're seeing backticks, store the count
+        // If we already have a count, this is likely the closing sequence
+        if (scanner->last_backtick_count == 0) {
+            scanner->last_backtick_count = backtick_count;
+        } else {
+            // This is a closing sequence, reset the count
+            scanner->last_backtick_count = 0;
+        }
+        
         lexer->result_symbol = CODE_BACKTICKS;
         return true;
     }
