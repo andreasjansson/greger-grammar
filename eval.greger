@@ -9068,5 +9068,136 @@ Try alternative grammar structure for code blocks
 ID: toolu_01DkoinJmgocu47UbsKMY96L
 
 <tool.toolu_01DkoinJmgocu47UbsKMY96L>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Try alternative grammar structure for code blocks
 </tool.toolu_01DkoinJmgocu47UbsKMY96L>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01YEA7WvvYHU17nQDQEhzypL
+
+## command
+
+<tool.toolu_01YEA7WvvYHU17nQDQEhzypL>
+cd . && tree-sitter generate
+</tool.toolu_01YEA7WvvYHU17nQDQEhzypL>
+
+# TOOL RESULT
+
+ID: toolu_01YEA7WvvYHU17nQDQEhzypL
+
+<tool.toolu_01YEA7WvvYHU17nQDQEhzypL>
+
+</tool.toolu_01YEA7WvvYHU17nQDQEhzypL>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012zg6Xxk24AndJ29WD7a5M8
+
+## command
+
+<tool.toolu_012zg6Xxk24AndJ29WD7a5M8>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_012zg6Xxk24AndJ29WD7a5M8>
+
+# TOOL RESULT
+
+ID: toolu_012zg6Xxk24AndJ29WD7a5M8
+
+<tool.toolu_012zg6Xxk24AndJ29WD7a5M8>
+
+DEBUG: scan_code_contents called at char:'p' (pos: 3)
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_012zg6Xxk24AndJ29WD7a5M8>
+
+# ASSISTANT
+
+Same issue. The external scanner is still being called immediately. Let me try a different approach - I'll make the contents scanner return `false` when it sees a potential language identifier, forcing the parser to try the internal rule:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FTAFqrMB6RwpndU7wwR2rM
+
+## path
+
+<tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+./src/scanner.c
+</tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+
+## git-commit-message
+
+<tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+Make contents scanner return false when language identifier is present
+</tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+
+## diff
+
+<tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    // The contents scanner should only be called after the grammar has handled the language part
+-    // We expect to be positioned after the language (if any) and after the newline
+-    
+     printf("DEBUG: scan_code_contents called at char:'%c' (pos: %d)\n", lexer->lookahead, lexer->get_column(lexer));
+     
++    // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
++    // Let the grammar handle it
++    if (scanner->last_backtick_count > 1) {
++        // Skip whitespace
++        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++            advance(lexer);
++        }
++        
++        // If we see a language identifier, return false to let grammar handle it
++        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
++            // Check if this looks like a language identifier
++            TSLexer saved_lexer = *lexer;
++            
++            // Scan potential language identifier
++            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
++                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
++                   lexer->lookahead == '+' || lexer->lookahead == '-') {
++                advance(lexer);
++            }
++            
++            // Skip trailing whitespace
++            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++                advance(lexer);
++            }
++            
++            // If followed by newline, this is a language identifier
++            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
++                printf("DEBUG: Found language identifier, returning false\n");
++                return false;
++            }
++            
++            // Not a language identifier, restore lexer and continue
++            *lexer = saved_lexer;
++        }
++    }
++    
+     bool has_content = false;
+\ No newline at end of file
+
+</tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+
+# TOOL RESULT
+
+ID: toolu_01FTAFqrMB6RwpndU7wwR2rM
+
+<tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+
+</tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
