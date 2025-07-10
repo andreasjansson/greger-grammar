@@ -637,7 +637,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_inline_code(TSLexer *lexer) {
+static bool scan_code(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
     // Count opening backticks
@@ -654,15 +654,15 @@ static bool scan_inline_code(TSLexer *lexer) {
             if (lexer->lookahead == '`') {
                 // Found closing backtick
                 advance(lexer);
-                lexer->result_symbol = INLINE_CODE;
+                lexer->result_symbol = CODE;
                 return true;
             }
             advance(lexer);
         }
         
         // We reached end of line without finding closing backtick
-        // Always return INLINE_CODE token, even if empty
-        lexer->result_symbol = INLINE_CODE;
+        // Always return CODE token, even if empty
+        lexer->result_symbol = CODE;
         return true;
     }
     
@@ -681,7 +681,7 @@ static bool scan_inline_code(TSLexer *lexer) {
             
             if (closing_count == backtick_count) {
                 // Found matching closing sequence
-                lexer->result_symbol = INLINE_CODE;
+                lexer->result_symbol = CODE;
                 return true;
             }
             
@@ -698,8 +698,8 @@ static bool scan_inline_code(TSLexer *lexer) {
     }
     
     // Reached end of file without finding closing sequence
-    // Return INLINE_CODE token anyway (unclosed code block)
-    lexer->result_symbol = INLINE_CODE;
+    // Return CODE token anyway (unclosed code block)
+    lexer->result_symbol = CODE;
     return true;
 }
 
