@@ -205,8 +205,8 @@ module.exports = grammar({
 
     assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
-      alias($.assistant_text, $.text),
       $.code,
+      alias($.assistant_text, $.text),
       $.html_comment,
     )),
 
