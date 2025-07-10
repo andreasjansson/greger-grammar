@@ -9775,5 +9775,48 @@ Make language scanner always return token for multi-backtick cases to ensure pro
 ID: toolu_019t4wYxyc6wF64926juE3MC
 
 <tool.toolu_019t4wYxyc6wF64926juE3MC>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make language scanner always return token for multi-backtick cases to ensure proper state transitions
 </tool.toolu_019t4wYxyc6wF64926juE3MC>
+
+# ASSISTANT
+
+And update the grammar to make language non-optional for consistency:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_015tfe3ARwQaYbLL5mt6V3KC
+
+## path
+
+<tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+./grammar.js
+</tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+
+## git-commit-message
+
+<tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+Make code_language non-optional since external scanner always provides it for multi-backtick cases
+</tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+
+## diff
+
+<tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+     code: $ => seq(
+       $.code_backticks,
+-      optional(alias($.code_language_identifier, $.code_language)),
++      alias($.code_language_identifier, $.code_language),
+       $.code_contents,
+       $.code_backticks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+
+# TOOL RESULT
+
+ID: toolu_015tfe3ARwQaYbLL5mt6V3KC
+
+<tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
+
+</tool.toolu_015tfe3ARwQaYbLL5mt6V3KC>
