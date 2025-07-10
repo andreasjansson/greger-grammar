@@ -18,7 +18,7 @@ enum TokenType {
     BACKTICK,
     CODE_BACKTICKS,
     CODE_LANGUAGE,
-    CODE_CONTENT,
+    CODE_CONTENTS,
 };
 
 typedef struct {
