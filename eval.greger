@@ -6620,5 +6620,215 @@ Temporarily disable whitespace skipping to debug
 ID: toolu_012r8Tv1HTAcFXDEi5opjG7K
 
 <tool.toolu_012r8Tv1HTAcFXDEi5opjG7K>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Temporarily disable whitespace skipping to debug
 </tool.toolu_012r8Tv1HTAcFXDEi5opjG7K>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HSZfuGGpADBoEbBASZ259h
+
+## command
+
+<tool.toolu_01HSZfuGGpADBoEbBASZ259h>
+timeout 10 tree-sitter generate
+</tool.toolu_01HSZfuGGpADBoEbBASZ259h>
+
+# TOOL RESULT
+
+ID: toolu_01HSZfuGGpADBoEbBASZ259h
+
+<tool.toolu_01HSZfuGGpADBoEbBASZ259h>
+
+</tool.toolu_01HSZfuGGpADBoEbBASZ259h>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LUQfbgaiaVV9uQ3GPJxUtq
+
+## command
+
+<tool.toolu_01LUQfbgaiaVV9uQ3GPJxUtq>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_01LUQfbgaiaVV9uQ3GPJxUtq>
+
+# TOOL RESULT
+
+ID: toolu_01LUQfbgaiaVV9uQ3GPJxUtq
+
+<tool.toolu_01LUQfbgaiaVV9uQ3GPJxUtq>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 7])))
+debug-backticks-trace.greger	Parse:    0.06 ms	   329 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01LUQfbgaiaVV9uQ3GPJxUtq>
+
+# ASSISTANT
+
+Same error. This suggests that the issue is not with whitespace skipping. The issue is something else.
+
+Let me run the test with the working case to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QoQkEJD2kxGfCA43veAEUt
+
+## command
+
+<tool.toolu_01QoQkEJD2kxGfCA43veAEUt>
+timeout 10 tree-sitter parse debug-working-case.greger
+</tool.toolu_01QoQkEJD2kxGfCA43veAEUt>
+
+# TOOL RESULT
+
+ID: toolu_01QoQkEJD2kxGfCA43veAEUt
+
+<tool.toolu_01QoQkEJD2kxGfCA43veAEUt>
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 13])
+      (code_contents [2, 13] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01QoQkEJD2kxGfCA43veAEUt>
+
+# ASSISTANT
+
+The working case still works. So the issue is specifically with the case where the  function should return false.
+
+Let me think about this differently. Maybe the issue is in the  function itself. Let me look at it again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Xmk78qAfw4d69to9L4Vesi
+
+## path
+
+<tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+src/scanner.c
+</tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+
+## start-line
+
+<tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+684
+</tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+
+## end-line
+
+<tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+720
+</tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+
+# TOOL RESULT
+
+ID: toolu_01Xmk78qAfw4d69to9L4Vesi
+
+<tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Only allow language for multi-backtick blocks (2 or more backticks)
+    if (scanner->last_backtick_count < 2) {
+        return false;
+    }
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        return false;
+    }
+    
+    // Scan the potential language identifier
+    TSLexer saved_lexer = *lexer;
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // If there's a space followed by more content on the same line, this is not a language
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+</tool.toolu_01Xmk78qAfw4d69to9L4Vesi>
+
+# ASSISTANT
+
+The issue might be that the  function is advancing the lexer (consuming the space) but then returning false. When the function returns false, the lexer position is advanced, so the parser is now positioned at the next character instead of at the space.
+
+This could cause the parser to get confused about what token to parse next.
+
+Let me fix this by restoring the lexer position when the function returns false:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_011jv1eEsqLQ4NgYXCwmiDUS
+
+## path
+
+<tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+src/scanner.c
+</tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+
+## git-commit-message
+
+<tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+Fix code_language function to restore lexer position on failure
+</tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+
+## diff
+
+<tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+     // Only allow language for multi-backtick blocks (2 or more backticks)
+     if (scanner->last_backtick_count < 2) {
+         return false;
+     }
+     
++    // Save lexer state to restore if we fail
++    TSLexer saved_lexer = *lexer;
++    
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // Must start with a letter or underscore
+     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
++        *lexer = saved_lexer; // Restore lexer position
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+
+# TOOL RESULT
+
+ID: toolu_011jv1eEsqLQ4NgYXCwmiDUS
+
+<tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+
+</tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>

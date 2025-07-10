@@ -687,6 +687,9 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
         return false;
     }
     
+    // Save lexer state to restore if we fail
+    TSLexer saved_lexer = *lexer;
+    
     // Skip any leading whitespace
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         advance(lexer);
@@ -694,6 +697,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     
     // Must start with a letter or underscore
     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        *lexer = saved_lexer; // Restore lexer position
         return false;
     }
     
