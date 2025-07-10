@@ -736,7 +736,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
         advance(lexer);
     }
     
-    lexer->result_symbol = CODE_LANGUAGE;
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
     return true;
 }
 
