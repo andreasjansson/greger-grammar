@@ -679,7 +679,7 @@ static bool scan_code_language(TSLexer *lexer) {
     return true;
 }
 
-static bool scan_code_content(TSLexer *lexer) {
+static bool scan_code_contents(TSLexer *lexer) {
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
@@ -693,7 +693,7 @@ static bool scan_code_content(TSLexer *lexer) {
     }
     
     if (has_content) {
-        lexer->result_symbol = CODE_CONTENT;
+        lexer->result_symbol = CODE_CONTENTS;
         return true;
     }
     
