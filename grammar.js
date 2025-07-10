@@ -204,14 +204,14 @@ module.exports = grammar({
     assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
       alias($.assistant_text, $.text),
-      $.inline_code,
+      $.code,
       $.html_comment,
     )),
 
     system_content_blocks: $ => repeat1(choice(
       $.html_comment,
       $.eval,
-      $.inline_code,
+      $.code,
       $.safe_shell_commands,
       $.text,
     )),
@@ -219,7 +219,7 @@ module.exports = grammar({
     content_blocks: $ => repeat1(choice(
       $.html_comment,
       $.eval,
-      $.inline_code,
+      $.code,
       $.text,
     )),
 
