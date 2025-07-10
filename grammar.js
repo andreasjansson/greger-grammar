@@ -298,7 +298,7 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    language: $ => /[a-zA-Z0-9_+-]+/,
+    // language: $ => /[a-zA-Z0-9_+-]+/,
 
     code: $ => seq(
       $.code_backticks,

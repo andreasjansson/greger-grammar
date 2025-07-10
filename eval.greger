@@ -4018,5 +4018,172 @@ Fix debug case for proper language with double backticks
 ID: toolu_01CsLixdiGNkHbg3tQiguUvN
 
 <tool.toolu_01CsLixdiGNkHbg3tQiguUvN>
-
+Successfully replaced contents of /Users/andreas/projects/greger-grammar/debug-proper-language.greger with 39 characters. Successfully staged 2 file(s) and committed with message: Fix debug case for proper language with double backticks
 </tool.toolu_01CsLixdiGNkHbg3tQiguUvN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QPke8SsiWSe2gkCyCJSBUg
+
+## command
+
+<tool.toolu_01QPke8SsiWSe2gkCyCJSBUg>
+timeout 10 tree-sitter parse debug-proper-language.greger
+</tool.toolu_01QPke8SsiWSe2gkCyCJSBUg>
+
+# TOOL RESULT
+
+ID: toolu_01QPke8SsiWSe2gkCyCJSBUg
+
+<tool.toolu_01QPke8SsiWSe2gkCyCJSBUg>
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 2]
+      (code_backticks [2, 0] - [2, 2])
+      (code_language [2, 2] - [2, 14])
+      (code_contents [2, 14] - [3, 0])
+      (code_backticks [3, 0] - [3, 2]))
+    (text [3, 2] - [4, 0])))
+
+</tool.toolu_01QPke8SsiWSe2gkCyCJSBUg>
+
+# ASSISTANT
+
+This works! So the problem is that the  is being parsed as text when it should be parsed as code contents. Looking at the failing test case:
+
+```
+`` ` ``
+```
+
+The issue is that the scanner is trying to parse the space and the ` as a language, but it's not a valid language because after the space there's still content on the same line.
+
+# ASSISTANT
+
+
+
+The issue is that the scanner needs to better handle the case where there's no language identifier. For double backticks followed by a space and then content, it should NOT try to parse a language identifier.
+
+Let me look at the  function again:
+
+# ASSISTANT
+
+ The problem is in the `scan_code_language` function. For the case `  ` , it should skip the space and then see that ` ` is not a valid language identifier (because the backtick is not a valid language character). However, it seems like the scanner is getting confused.
+
+Let me check what happens in the main scanner function when `CODE_LANGUAGE_IDENTIFIER` is not found. Looking at the error output, it seems like the grammar is falling back to the `language` rule defined in the grammar rather than properly handling the case where there's no language.
+
+Let me look at the grammar to understand this better:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01EAC6ho1hhd9v8HPuaExFNg
+
+## pattern
+
+<tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+language:
+</tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+
+## path
+
+<tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+grammar.js
+</tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+
+# TOOL RESULT
+
+ID: toolu_01EAC6ho1hhd9v8HPuaExFNg
+
+<tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+301:    language: $ => /[a-zA-Z0-9_+-]+/,
+
+</tool.toolu_01EAC6ho1hhd9v8HPuaExFNg>
+
+# ASSISTANT
+
+I see the issue now! There are two different language rules:
+1. `language: $ => /[a-zA-Z0-9_+-]+/` in the grammar (line 301)
+2. `CODE_LANGUAGE_IDENTIFIER` external token in the scanner
+
+The problem is that when the scanner fails to return a `CODE_LANGUAGE_IDENTIFIER`, the grammar falls back to the `language` rule defined in the grammar itself, which starts matching individual tokens.
+
+Looking at the test output, I can see that `language` tokens are being generated instead of `code_language` tokens. This suggests that the scanner is failing to return `CODE_LANGUAGE_IDENTIFIER` and the grammar is falling back to the `language` rule.
+
+Let me trace through what happens with `` ` ``:
+
+1. Parser sees first `` ` `` → scanner returns `CODE_BACKTICKS` ✓
+2. Parser expects optional `code_language` → scanner checks for `CODE_LANGUAGE_IDENTIFIER` 
+3. Scanner sees space, advances, sees `` ` `` which is not a valid language identifier → returns false
+4. Parser falls back to grammar `language` rule → starts matching "More" as language, "text" as language, etc.
+
+The issue is that the grammar rule for `code` is:
+
+```javascript
+code: $ => seq(
+  $.code_backticks,
+  optional(alias($.code_language_identifier, $.code_language)),
+  $.code_contents,
+  $.code_backticks,
+),
+```
+
+But when the scanner fails to return `CODE_LANGUAGE_IDENTIFIER`, the grammar doesn't fall back to trying to parse `CODE_CONTENTS` directly. Instead, it's getting confused.
+
+Actually, let me check the exact sequence. Looking at the error output:
+
+```
+(ERROR [0, 0] - [2, 8]
+  (assistant_header [0, 0] - [0, 11])
+  (code_backticks [2, 0] - [2, 2])
+  (code_language [2, 2] - [2, 7])
+  (ERROR [2, 7] - [2, 8]))
+```
+
+The issue is that `code_language` is being generated (from the grammar rule) instead of `code_language_identifier` (from the scanner). This means the scanner is not being called for `CODE_LANGUAGE_IDENTIFIER` at all.
+
+The problem is in the grammar precedence. The grammar has both:
+- `language: $ => /[a-zA-Z0-9_+-]+/` 
+- External `$.code_language_identifier` token
+
+And the grammar uses `optional(alias($.code_language_identifier, $.code_language))` in the code rule.
+
+But the issue is that the `language` rule is matching before the external scanner gets a chance to run.
+
+I think the issue is that the grammar is not properly constraining when the `language` rule can match. Let me remove the `language` rule from the grammar and see what happens:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01WmS2rAFW1aVDQs8b2j1K2G
+
+## path
+
+<tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+grammar.js
+</tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+
+## diff
+
+<tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+-    language: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
++    // language: $ => /[a-zA-Z0-9_+-]+/,
+\ No newline at end of file
+
+</tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+
+## git-commit-message
+
+<tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+Comment out language rule to fix external scanner conflict
+</tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+
+# TOOL RESULT
+
+ID: toolu_01WmS2rAFW1aVDQs8b2j1K2G
+
+<tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
+
+</tool.toolu_01WmS2rAFW1aVDQs8b2j1K2G>
