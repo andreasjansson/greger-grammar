@@ -3829,5 +3829,124 @@ Add debug case for double backticks trace
 ID: toolu_013mJYpNxdmiJQtHsb826bFB
 
 <tool.toolu_013mJYpNxdmiJQtHsb826bFB>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/debug-backticks-trace.greger with 21 characters. Successfully staged 2 file(s) and committed with message: Add debug case for double backticks trace
 </tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015USQktMi59Mns9jBguuysY
+
+## command
+
+<tool.toolu_015USQktMi59Mns9jBguuysY>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_015USQktMi59Mns9jBguuysY>
+
+# TOOL RESULT
+
+ID: toolu_015USQktMi59Mns9jBguuysY
+
+<tool.toolu_015USQktMi59Mns9jBguuysY>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 8]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (code_language [2, 2] - [2, 7])
+    (ERROR [2, 7] - [2, 8])))
+debug-backticks-trace.greger	Parse:    0.55 ms	    40 bytes/ms	(ERROR [0, 0] - [2, 8])
+Command failed with exit code 1
+</tool.toolu_015USQktMi59Mns9jBguuysY>
+
+# ASSISTANT
+
+I can see the issue now. The scanner is correctly identifying the first  as , but then it's trying to parse "text" as a . However, "text" is not a valid language identifier because it's not followed by a newline or end-of-file. 
+
+The issue is that the grammar has this rule:
+```
+code: $ => seq(
+  $.code_backticks,
+  optional(alias($.code_language_identifier, $.code_language)),
+  $.code_contents,
+  $.code_backticks,
+),
+```
+
+But when the scanner tries to parse "text``", it fails because "text" doesn't look like a valid language identifier (it's not followed by a newline).
+
+Let me look at the specific problem more closely. For the case , the problem is that the second backtick is being interpreted as content when it should be part of the closing backticks.
+
+Actually, let me look at the expected test output more carefully:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01GBUZpkcfAFMyEnfHE6vtXU
+
+## path
+
+<tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+test/corpus/code.txt
+</tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+
+## start-line
+
+<tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+37
+</tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+
+## end-line
+
+<tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+55
+</tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+
+# TOOL RESULT
+
+ID: toolu_01GBUZpkcfAFMyEnfHE6vtXU
+
+<tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+
+</tool.toolu_01GBUZpkcfAFMyEnfHE6vtXU>
+
+
+# ASSISTANT
+
+", it's not finding a newline after it, so it falls through to the `language` rule from the grammar which then treats each word as a separate language token.
+
+Let me check what happens when we have a proper language:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01S3kCaHic3HA5gzZUHMTN5C
+
+## path
+
+<tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+debug-proper-language.greger
+</tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+
+## contents
+
+<tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+# ASSISTANT
+
+``python
+print("hello")
+``
+</tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+
+## git-commit-message
+
+<tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+Add debug case for proper language
+</tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+
+# TOOL RESULT
+
+ID: toolu_01S3kCaHic3HA5gzZUHMTN5C
+
+<tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
+
+</tool.toolu_01S3kCaHic3HA5gzZUHMTN5C>
