@@ -683,16 +683,14 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
-    // Always try to handle language identifier requests to avoid conflicts with internal lexer
-    // This prevents the internal lexer from generating unexpected tokens
-    
+    // Always return a language token for multi-backtick blocks to ensure proper state transitions
     // For single backtick blocks, don't return language token
     if (scanner->last_backtick_count == 1) {
         return false;
     }
     
-    // For multi-backtick blocks, try to parse language
-    // Save lexer state to restore if we fail
+    // For multi-backtick blocks, always return a language token (even if empty)
+    // Save lexer state to restore if we need to return empty token
     TSLexer saved_lexer = *lexer;
     
     // Skip any leading whitespace
@@ -700,16 +698,19 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
         advance(lexer);
     }
     
-    // If we hit a newline immediately, this is an empty language - don't return token
+    // If we hit a newline immediately, return empty language token
     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
-        return false;
+        *lexer = saved_lexer; // Don't consume anything for empty language
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
-    // Must start with a letter or underscore for valid language
+    // Check if it's a valid language identifier start
     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
-        // Invalid language (e.g., starts with number or special char)
-        // Don't return language token
-        return false;
+        // Invalid language start - return empty language token
+        *lexer = saved_lexer; // Don't consume anything
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
     // Scan the potential language identifier
@@ -723,8 +724,10 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     }
     
     if (!has_content) {
-        // No valid language content
-        return false;
+        // No valid language content - return empty token
+        *lexer = saved_lexer;
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
     // Check what comes after the identifier
@@ -738,9 +741,10 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     
     // After the identifier (and any trailing spaces), we must see newline or EOF
     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
-        // Invalid language (has spaces or other characters)
-        // Don't return language token
-        return false;
+        // Invalid language (has spaces or other characters) - return empty token
+        *lexer = saved_lexer;
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
     // If we get here, we have a valid language identifier
