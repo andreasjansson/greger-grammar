@@ -8728,5 +8728,44 @@ Simplify scan_code_contents - don't skip language, let grammar handle it
 ID: toolu_014a5FN2wabngBzsRE1dhBEC
 
 <tool.toolu_014a5FN2wabngBzsRE1dhBEC>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify scan_code_contents - don't skip language, let grammar handle it
 </tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+
+# ASSISTANT
+
+The issue might be that the grammar rule for `code_language` isn't being recognized properly. Let me debug this by adjusting the language rule. Let me test what happens when I change it to be more explicit:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01APJMUCaLZz56sSKwC39ZWA
+
+## path
+
+<tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+./grammar.js
+</tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+
+## git-commit-message
+
+<tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+Make code_language rule more explicit for debugging
+</tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+
+## diff
+
+<tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+-    code_language: $ => /[a-zA-Z_][a-zA-Z0-9_+\-]*/,
+\ No newline at end of file
++    code_language: $ => token(/[a-zA-Z_][a-zA-Z0-9_+\-]*/),
+\ No newline at end of file
+
+</tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+
+# TOOL RESULT
+
+ID: toolu_01APJMUCaLZz56sSKwC39ZWA
+
+<tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+
+</tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
