@@ -9577,5 +9577,66 @@ Make scan_code_language always return a token, empty for no language
 ID: toolu_01W9eCK8Uon2CjKHuyJBsYs6
 
 <tool.toolu_01W9eCK8Uon2CjKHuyJBsYs6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make scan_code_language always return a token, empty for no language
 </tool.toolu_01W9eCK8Uon2CjKHuyJBsYs6>
+
+# ASSISTANT
+
+I also need to update the rest of the function to handle the cases where it would previously return false:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01TfTApMjTKSgCo7Rm4G11EF
+
+## path
+
+<tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+src/scanner.c
+</tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+
+## git-commit-message
+
+<tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+Update scan_code_language to return empty token instead of false
+</tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+
+## diff
+
+<tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+     if (!has_content) {
+         *lexer = saved_lexer; // Restore lexer position
+-        return false;
++        // Return empty language token
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+         *lexer = saved_lexer; // Restore lexer position
+-        return false;
++        // Return empty language token
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+\ No newline at end of file
+
+</tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+
+# TOOL RESULT
+
+ID: toolu_01TfTApMjTKSgCo7Rm4G11EF
+
+<tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
+
+</tool.toolu_01TfTApMjTKSgCo7Rm4G11EF>
