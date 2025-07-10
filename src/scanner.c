@@ -639,29 +639,66 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 static bool scan_inline_code(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
-    advance(lexer);
     
-    // Check if this is a triple backtick (code block) - let grammar handle it
-    if (lexer->lookahead == '`') {
-        return false;
-    }
-    
-    bool has_content = false;
-    
-    // Scan content until end of line or closing backtick
-    while (lexer->lookahead != 0 && lexer->lookahead != '\n') {
-        if (lexer->lookahead == '`') {
-            // Found closing backtick
-            advance(lexer);
-            lexer->result_symbol = INLINE_CODE;
-            return true;
-        }
+    // Count opening backticks
+    int backtick_count = 0;
+    while (lexer->lookahead == '`') {
+        backtick_count++;
         advance(lexer);
-        has_content = true;
     }
     
-    // We reached end of line without finding closing backtick
-    // Always return INLINE_CODE token, even if empty
+    // Single backtick: inline code, only on current line
+    if (backtick_count == 1) {
+        // Scan content until end of line or closing backtick
+        while (lexer->lookahead != 0 && lexer->lookahead != '\n') {
+            if (lexer->lookahead == '`') {
+                // Found closing backtick
+                advance(lexer);
+                lexer->result_symbol = INLINE_CODE;
+                return true;
+            }
+            advance(lexer);
+        }
+        
+        // We reached end of line without finding closing backtick
+        // Always return INLINE_CODE token, even if empty
+        lexer->result_symbol = INLINE_CODE;
+        return true;
+    }
+    
+    // Multiple backticks: can span multiple lines
+    // Scan until we find the same number of closing backticks
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Count potential closing backticks
+            int closing_count = 0;
+            TSLexer saved_lexer = *lexer;
+            
+            while (lexer->lookahead == '`') {
+                closing_count++;
+                advance(lexer);
+            }
+            
+            if (closing_count == backtick_count) {
+                // Found matching closing sequence
+                lexer->result_symbol = INLINE_CODE;
+                return true;
+            }
+            
+            // Not a match, restore position and continue
+            if (closing_count < backtick_count) {
+                // Restore to the position after the first backtick of this sequence
+                *lexer = saved_lexer;
+                advance(lexer);
+            }
+            // If closing_count > backtick_count, we're already positioned correctly
+        } else {
+            advance(lexer);
+        }
+    }
+    
+    // Reached end of file without finding closing sequence
+    // Return INLINE_CODE token anyway (unclosed code block)
     lexer->result_symbol = INLINE_CODE;
     return true;
 }
