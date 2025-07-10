@@ -4329,5 +4329,213 @@ Add eval_language rule separate from code language
 ID: toolu_01TfWbBCmwe2gDQiqwoze181
 
 <tool.toolu_01TfWbBCmwe2gDQiqwoze181>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add eval_language rule separate from code language
 </tool.toolu_01TfWbBCmwe2gDQiqwoze181>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01UJqYykbgWjpDpitdX123UF
+
+## command
+
+<tool.toolu_01UJqYykbgWjpDpitdX123UF>
+timeout 10 tree-sitter generate
+</tool.toolu_01UJqYykbgWjpDpitdX123UF>
+
+# TOOL RESULT
+
+ID: toolu_01UJqYykbgWjpDpitdX123UF
+
+<tool.toolu_01UJqYykbgWjpDpitdX123UF>
+
+</tool.toolu_01UJqYykbgWjpDpitdX123UF>
+
+# ASSISTANT
+
+Good! Now let's test the double backticks case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Jfc2Bc8c3YHs9rkoRW9otY
+
+## command
+
+<tool.toolu_01Jfc2Bc8c3YHs9rkoRW9otY>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_01Jfc2Bc8c3YHs9rkoRW9otY>
+
+# TOOL RESULT
+
+ID: toolu_01Jfc2Bc8c3YHs9rkoRW9otY
+
+<tool.toolu_01Jfc2Bc8c3YHs9rkoRW9otY>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 8]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (code_language [2, 2] - [2, 7])
+    (ERROR [2, 7] - [2, 8])))
+debug-backticks-trace.greger	Parse:    0.11 ms	   198 bytes/ms	(ERROR [0, 0] - [2, 8])
+Command failed with exit code 1
+</tool.toolu_01Jfc2Bc8c3YHs9rkoRW9otY>
+
+# ASSISTANT
+
+Still getting the same error. The issue is still that  is being generated instead of . This suggests the scanner isn't being called at all for this case.
+
+Actually, let me look at the debug output more carefully. The parser is still generating:
+-  ✓ (from scanner)
+-  ✗ (this should be  but scanner is not recognizing it)
+
+The issue might be that the scanner's  function is incorrectly identifying "text" as a language identifier when it should realize that "text" doesn't end with a newline.
+
+Let me add some debugging to understand what's happening. But first, let me check what the  case should produce:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_013gtooZTmva82pHcTfnU4Ak
+
+## path
+
+<tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+test/corpus/code.txt
+</tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+
+## start-line
+
+<tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+32
+</tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+
+## end-line
+
+<tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+55
+</tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+
+# TOOL RESULT
+
+ID: toolu_013gtooZTmva82pHcTfnU4Ak
+
+<tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text))
+  (user
+    (user_header)
+    (text)))
+
+=======================
+Double backticks no language
+=======================
+
+# ASSISTANT
+
+`` ` ``
+</tool.toolu_013gtooZTmva82pHcTfnU4Ak>
+
+# ASSISTANT
+
+So for the case , the expected output is:
+
+
+This means there should be NO  node, just  directly.
+
+But the scanner is generating a  token when it shouldn't be. The issue is in the  function - it's incorrectly identifying " " as a language identifier.
+
+Looking at the function again:
+
+```c
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Only allow language for multi-backtick blocks (2 or more backticks)
+    if (scanner->last_backtick_count < 2) {
+        return false;
+    }
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        return false;
+    }
+```
+
+The issue is that the scanner skips the space and sees , which is not a letter or underscore, so it should return false. But apparently it's not doing that.
+
+Let me double-check the test input:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_012oSRX25SF6vTKU9qywAnbG
+
+## path
+
+<tool.toolu_012oSRX25SF6vTKU9qywAnbG>
+debug-backticks-trace.greger
+</tool.toolu_012oSRX25SF6vTKU9qywAnbG>
+
+# TOOL RESULT
+
+ID: toolu_012oSRX25SF6vTKU9qywAnbG
+
+<tool.toolu_012oSRX25SF6vTKU9qywAnbG>
+# ASSISTANT
+
+``text``
+</tool.toolu_012oSRX25SF6vTKU9qywAnbG>
+
+# ASSISTANT
+
+Wait, I made an error. The debug case I created is , not . Let me fix it:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01SmiUcQHc7kbnvDuPccRB77
+
+## path
+
+<tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+debug-backticks-trace.greger
+</tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+
+## git-commit-message
+
+<tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+Fix debug case to match failing test case
+</tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+
+## diff
+
+<tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+-``text``
+\ No newline at end of file
++`` ` ``
+\ No newline at end of file
+
+</tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+
+# TOOL RESULT
+
+ID: toolu_01SmiUcQHc7kbnvDuPccRB77
+
+<tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
+
+</tool.toolu_01SmiUcQHc7kbnvDuPccRB77>
