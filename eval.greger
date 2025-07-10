@@ -2623,5 +2623,961 @@ Now the function only returns a language token when there's valid language conte
 ID: toolu_01FPXvEZo4FmHixcjDXaRQ4J
 
 <tool.toolu_01FPXvEZo4FmHixcjDXaRQ4J>
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scan_code_language to only return language token for valid languages
 
+The scanner was incorrectly returning a CODE_LANGUAGE_IDENTIFIER token for all multi-backtick cases, even when there was no actual language content. This caused the grammar to always include a code_language node in the parse tree.
+
+Now the function only returns a language token when there's valid language content, allowing the grammar to properly handle no-language cases.
 </tool.toolu_01FPXvEZo4FmHixcjDXaRQ4J>
+
+# ASSISTANT
+
+Now I need to rebuild the parser and test it:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HTmactrUmXz1semSCph7Rh
+
+## command
+
+<tool.toolu_01HTmactrUmXz1semSCph7Rh>
+cd . && tree-sitter generate
+</tool.toolu_01HTmactrUmXz1semSCph7Rh>
+
+# TOOL RESULT
+
+ID: toolu_01HTmactrUmXz1semSCph7Rh
+
+<tool.toolu_01HTmactrUmXz1semSCph7Rh>
+
+</tool.toolu_01HTmactrUmXz1semSCph7Rh>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013F2A4N5BZJdCtp3YpYEU9U
+
+## command
+
+<tool.toolu_013F2A4N5BZJdCtp3YpYEU9U>
+cd . && tree-sitter test
+</tool.toolu_013F2A4N5BZJdCtp3YpYEU9U>
+
+# TOOL RESULT
+
+ID: toolu_013F2A4N5BZJdCtp3YpYEU9U
+
+<tool.toolu_013F2A4N5BZJdCtp3YpYEU9U>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✓ Eval nested braces
+  eval-partial:
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (673.684 bytes/ms)
+  eval-results:
+     18. ✓ Eval results
+  eval:
+     19. ✗ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+     21. ✗ HTML tags should be interpreted as text
+  less-than-greater-than:
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✓ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+15 failures:
+
+correct / expected / unexpected
+
+  1. Code block with nested headers:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (code)
+        (text))
+      (tool_use
+        (tool_use_header))
+      (ERROR
+        (UNEXPECTED 'a'))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  2. Code block triple backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (ERROR
+      (assistant
+        (assistant_header)
+        (UNEXPECTED 'h')
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (tool_use
+        (tool_use_header)
+        (UNEXPECTED 'e')))))(assistant
+  (assistant_header)
+  (code
+    (code_backticks)
+    (code_language)
+    (code_contents)
+    (MISSING code_backticks)))
+        (name
+          (key)
+          (value))
+        (id
+          (key)
+          (value))
+        (tool_param
+          (tool_param_header
+            (name))
+          (value
+            (tool_start_tag)
+            (tool_content
+              (tool_content_head))
+            (tool_end_tag))))
+      (tool_result
+        (tool_result_header)
+        (id
+          (key)
+          (value))
+        (content
+          (tool_start_tag)
+          (tool_content
+            (tool_content_head))
+          (tool_end_tag))))
+
+
+  3. Single backtick code:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (UNEXPECTED 'b'))
+          (code_contents)
+          (code_backticks))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+        (code
+          (code_backticks)
+          (UNEXPECTED 'p'))))))(UNEXPECTED '`')(text)(user
+  (user_header)
+  (text))
+          (code_contents)
+          (code_backticks))
+        (text)
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text))
+      (user
+        (user_header)
+        (text)))
+
+
+  4. Double backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  5. Triple backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED 'm')))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  6. Triple backticks with invalid language (has spaces):
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED 'p')
+        (UNEXPECTED 'p')))))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  7. Triple backticks inline with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED 'j')))
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  8. Triple backticks language with numbers and symbols:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (text)))
+          (code_backticks))))
+
+
+  9. Empty code blocks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks)
+        (UNEXPECTED 'M')))
+        (code
+          (code_backticks)
+          (code_contents)
+          (code_backticks))
+        (text)))
+
+
+  10. Eval:
+
+    (source_file
+      (system
+        (system_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (safe_shell_commands
+          (shell_command)
+          (eval
+            (eval_start_brace
+              (eval_language))
+              (language))
+            (eval_content)
+            (eval_end_brace)))
+        (text)
+        (eval
+          (eval_start_brace
+            (eval_language))
+            (language))
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (user
+        (user_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  11. HTML comments:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (html_comment)
+        (text)
+        (html_comment)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED '!'))
+        (text))
+      (ERROR
+        (assistant_header)
+        (UNEXPECTED 'h')))))(tool_use_header)(UNEXPECTED 'e')
+        (code)
+        (text)))
+
+
+  12. HTML tags should be interpreted as text:
+
+    (source_file
+      (system
+        (system_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED 'p'))
+        (code)
+        (text)))
+
+
+  13. Mixed code blocks and sections:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks)
+          (code_language)
+          (code_contents)
+          (code_backticks))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  14. Nested code blocks:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED 'H')
+          (UNEXPECTED 'U'))))))(text)
+        (code)
+        (text)))
+
+
+  15. Tags in backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (ERROR
+          (code_backticks)
+          (UNEXPECTED 'e'))
+        (code)
+        (text)
+        (code)
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_013F2A4N5BZJdCtp3YpYEU9U>
+
+# ASSISTANT
+
+Good! I see some progress. The test failures show that I fixed the issue with unwanted `code_language` nodes - now the problem is that the parser is having trouble transitioning from `code_backticks` to `code_contents` when there's no language.
+
+Looking at the failures more carefully, I can see that the parser is getting stuck after parsing `code_backticks` and encountering unexpected characters. This suggests the problem is that the parser expects a `code_language` token but doesn't get one, and then can't transition to `code_contents`.
+
+Let me examine the grammar structure more carefully. The issue might be that the grammar rule makes `code_language` optional, but the parser's state machine doesn't handle the transition properly when it's missing.
+
+Let me test with a specific case to understand the issue better:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016cYeQM4UgjgckZy5n7tHLK
+
+## command
+
+<tool.toolu_016cYeQM4UgjgckZy5n7tHLK>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse --debug
+</tool.toolu_016cYeQM4UgjgckZy5n7tHLK>
+
+# TOOL RESULT
+
+ID: toolu_016cYeQM4UgjgckZy5n7tHLK
+
+<tool.toolu_016cYeQM4UgjgckZy5n7tHLK>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:179, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+lex_internal state:0, row:2, column:3
+  skip character:10
+lex_external state:1, row:2, column:3
+lex_internal state:0, row:2, column:3
+  skip character:10
+skip_unrecognized_character
+  consume character:'h'
+lex_external state:1, row:3, column:1
+lex_internal state:0, row:3, column:1
+  consume character:'e'
+lex_external state:1, row:3, column:2
+lex_internal state:0, row:3, column:2
+  consume character:'l'
+lex_external state:1, row:3, column:3
+lex_internal state:0, row:3, column:3
+  consume character:'l'
+lex_external state:1, row:3, column:4
+lex_internal state:0, row:3, column:4
+  consume character:'o'
+lex_external state:1, row:3, column:5
+lex_internal state:0, row:3, column:5
+  skip character:10
+lex_external state:1, row:4, column:0
+lex_internal state:0, row:4, column:0
+  consume character:'`'
+lex_external state:1, row:4, column:1
+lex_internal state:0, row:4, column:1
+  consume character:'`'
+lex_external state:1, row:4, column:2
+lex_internal state:0, row:4, column:2
+  consume character:'`'
+lex_external state:1, row:4, column:3
+lex_internal state:0, row:4, column:3
+  skip character:10
+lexed_lookahead sym:ERROR, size:10
+detect_error lookahead:ERROR
+resume version:0
+skip_token symbol:ERROR
+process version:0, version_count:1, state:0, row:4, col:3
+lex_external state:1, row:4, column:3
+lex_internal state:0, row:4, column:3
+  skip character:10
+lexed_lookahead sym:end, size:1
+recover_to_previous state:1, depth:5
+recover_eof
+process version:1, version_count:2, state:1, row:4, col:3
+reduce sym:source_file, child_count:0
+accept
+select_smaller_error symbol:source_file, over_symbol:ERROR
+done
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 3])
+    (ERROR [3, 0] - [4, 3])))
+stdin	Parse:   68.90 ms	     0 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_016cYeQM4UgjgckZy5n7tHLK>
+
+# ASSISTANT
+
+I can see the issue! The parser is in state 108 after parsing `code_backticks`, and it's trying to call both the external scanner (state 7) and the internal scanner, but it's failing to get the expected token.
+
+Let me look at the external scanner's scan function to understand the state transitions:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_017FYfpLyAZTBqQhWuWm6rqN
+
+## pattern
+
+<tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+state:7
+</tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+
+## path
+
+<tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+./src/scanner.c
+</tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+
+## context-lines
+
+<tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+3
+</tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+
+# TOOL RESULT
+
+ID: toolu_017FYfpLyAZTBqQhWuWm6rqN
+
+<tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+No matches found
+</tool.toolu_017FYfpLyAZTBqQhWuWm6rqN>
+
+# ASSISTANT
+
+Let me examine the main scanning function to understand how the external scanner handles different states:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01XExLKPKdZB9WY2Qi9fEyPe
+
+## path
+
+<tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+./src/scanner.c
+</tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+
+## start-line
+
+<tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+880
+</tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+
+## end-line
+
+<tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+950
+</tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+
+# TOOL RESULT
+
+ID: toolu_01XExLKPKdZB9WY2Qi9fEyPe
+
+<tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else {
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content && has_non_whitespace) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Handle tool content (raw text) when in tool content state
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+            return scan_tool_content_tail(scanner, lexer);
+        }
+    }
+
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_tail(scanner, lexer);
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    // Don't skip whitespace for code contents as spaces are part of the content
+    if (!valid_symbols[CODE_CONTENTS]) {
+        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            skip(lexer);
+        }
+    }
+
+
+
+    if (lexer->lookahead == '<') {
+        // Handle HTML comments first - they should have priority
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+</tool.toolu_01XExLKPKdZB9WY2Qi9fEyPe>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_018StmaKUnAHy268EBgKkjhZ
+
+## path
+
+<tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+./src/scanner.c
+</tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+
+## start-line
+
+<tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+950
+</tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+
+## end-line
+
+<tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+1000
+</tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+
+# TOOL RESULT
+
+ID: toolu_018StmaKUnAHy268EBgKkjhZ
+
+<tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
+        }
+
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
+
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+    }
+    
+    // Handle code backticks (any number of backticks)
+    if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
+        return scan_code_backticks(scanner, lexer);
+    }
+    
+    // Handle code language identifier
+    if (valid_symbols[CODE_LANGUAGE_IDENTIFIER]) {
+        return scan_code_language(scanner, lexer);
+    }
+    
+    // Handle code contents
+    if (valid_symbols[CODE_CONTENTS]) {
+        return scan_code_contents(scanner, lexer);
+    }
+    
+    // Handle eval language
+    if (valid_symbols[EVAL_LANGUAGE]) {
+        return scan_eval_language(lexer);
+    }
+    
+    return false;
+}
+
+
+</tool.toolu_018StmaKUnAHy268EBgKkjhZ>
+
+# ASSISTANT
+
+I can see the issue now! In the debug output, the parser is in state 108 after parsing `code_backticks`, and it tries to call the external scanner with state 7. This means the parser is looking for a `CODE_LANGUAGE_IDENTIFIER` token first, but when the scanner returns `false` (no language), the parser can't figure out how to transition to `CODE_CONTENTS`.
+
+The problem is that the parser's state machine is structured in a way that after parsing `code_backticks`, it expects to see either:
+1. A `CODE_LANGUAGE_IDENTIFIER` token (if there's a language)
+2. A `CODE_CONTENTS` token (if there's no language)
+
+But the current grammar structure and the way Tree-sitter works means that after parsing `code_backticks`, the parser specifically looks for `CODE_LANGUAGE_IDENTIFIER` first, and only when that fails does it try `CODE_CONTENTS`.
+
+This is a fundamental issue with how the grammar is structured. Let me check the grammar rule again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01VYaK89eivNqxakAzhgnoYK
+
+## path
+
+<tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+./grammar.js
+</tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+
+## start-line
+
+<tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+215
+</tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+
+## end-line
+
+<tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+225
+</tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+
+# TOOL RESULT
+
+ID: toolu_01VYaK89eivNqxakAzhgnoYK
+
+<tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+      $.html_comment,
+      $.eval,
+      $.code,
+      $.safe_shell_commands,
+      $.text,
+    )),
+
+    content_blocks: $ => repeat1(choice(
+      $.html_comment,
+      $.eval,
+      $.code,
+</tool.toolu_01VYaK89eivNqxakAzhgnoYK>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_013e2mCmRtHRqd8fk3dx6pvL
+
+## pattern
+
+<tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+code: \$
+</tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+
+## path
+
+<tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+./grammar.js
+</tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+
+## context-lines
+
+<tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+5
+</tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+
+# TOOL RESULT
+
+ID: toolu_013e2mCmRtHRqd8fk3dx6pvL
+
+<tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+297-      optional(seq(':', $.eval_language))
+298-    ),
+299-
+300-    eval_end_brace: $ => '}',
+301-
+302:    code: $ => seq(
+303-      $.code_backticks,
+304-      optional(alias($.code_language_identifier, $.code_language)),
+305-      $.code_contents,
+306-      $.code_backticks,
+307-    ),
+
+</tool.toolu_013e2mCmRtHRqd8fk3dx6pvL>
+
+# ASSISTANT
+
+I think I understand the issue now. The problem is that Tree-sitter is trying to parse the `optional(alias($.code_language_identifier, $.code_language))` part, but since `code_language_identifier` is an external token, it needs to be actively returned by the scanner or explicitly not returned.
+
+The issue is in the state machine logic. After parsing `code_backticks`, Tree-sitter checks if `CODE_LANGUAGE_IDENTIFIER` is valid, and if the scanner returns `false`, it should move on to `CODE_CONTENTS`. However, the debug output shows that it's not doing that correctly.
+
+Let me add some debug output to understand what's happening in the scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01EYCXjMUEuNzdr2CfUVdSrd
+
+## path
+
+<tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+./src/scanner.c
+</tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+
+## git-commit-message
+
+<tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+Add debug output to understand scanner state transitions
+</tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+
+## diff
+
+<tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+     Scanner *scanner = (Scanner *)payload;
+ 
++    // Debug: Print valid symbols for code-related tokens
++    if (valid_symbols[CODE_BACKTICKS] || valid_symbols[CODE_LANGUAGE_IDENTIFIER] || valid_symbols[CODE_CONTENTS]) {
++        printf("DEBUG: valid_symbols - backticks:%d, language:%d, contents:%d, char:'%c'\n", 
++               valid_symbols[CODE_BACKTICKS], valid_symbols[CODE_LANGUAGE_IDENTIFIER], 
++               valid_symbols[CODE_CONTENTS], lexer->lookahead);
++    }
++
+     // Check for error recovery mode
+     if (valid_symbols[ERROR_SENTINEL]) {
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+
+# TOOL RESULT
+
+ID: toolu_01EYCXjMUEuNzdr2CfUVdSrd
+
+<tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+
+</tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>

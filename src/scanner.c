@@ -901,6 +901,13 @@ static bool scan_eval_content(TSLexer *lexer) {
 bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
 
+    // Debug: Print valid symbols for code-related tokens
+    if (valid_symbols[CODE_BACKTICKS] || valid_symbols[CODE_LANGUAGE_IDENTIFIER] || valid_symbols[CODE_CONTENTS]) {
+        printf("DEBUG: valid_symbols - backticks:%d, language:%d, contents:%d, char:'%c'\n", 
+               valid_symbols[CODE_BACKTICKS], valid_symbols[CODE_LANGUAGE_IDENTIFIER], 
+               valid_symbols[CODE_CONTENTS], lexer->lookahead);
+    }
+
     // Check for error recovery mode
     if (valid_symbols[ERROR_SENTINEL]) {
         return false;
