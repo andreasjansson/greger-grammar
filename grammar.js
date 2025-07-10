@@ -280,12 +280,9 @@ module.exports = grammar({
       seq(
         '`',
         /[^`\n]*/,
-        alias($._newline_or_eof, 'MISSING'),
+        alias('MISSING', 'MISSING'),
       ),
     ),
-
-    _newline_or_eof: $ => choice('\n', $._eof),
-    _eof: $ => prec(1, /$/),
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
