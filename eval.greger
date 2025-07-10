@@ -3401,5 +3401,433 @@ Add debug case for double backticks
 ID: toolu_01KmQCQgLTWuJTD7eA2bBHAR
 
 <tool.toolu_01KmQCQgLTWuJTD7eA2bBHAR>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/debug-double-backticks.greger with 38 characters. Successfully staged 2 file(s) and committed with message: Add debug case for double backticks
 </tool.toolu_01KmQCQgLTWuJTD7eA2bBHAR>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DHwqXyqm6MaaEr88FK4bRE
+
+## command
+
+<tool.toolu_01DHwqXyqm6MaaEr88FK4bRE>
+timeout 10 tree-sitter parse debug-double-backticks.greger
+</tool.toolu_01DHwqXyqm6MaaEr88FK4bRE>
+
+# TOOL RESULT
+
+ID: toolu_01DHwqXyqm6MaaEr88FK4bRE
+
+<tool.toolu_01DHwqXyqm6MaaEr88FK4bRE>
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 7])
+    (language [4, 0] - [4, 4])
+    (language [4, 5] - [4, 9])
+    (language [4, 10] - [4, 15])
+    (ERROR [4, 15] - [4, 16])))
+debug-double-backticks.greger	Parse:    0.03 ms	  1517 bytes/ms	(ERROR [0, 0] - [4, 16])
+Command failed with exit code 1
+</tool.toolu_01DHwqXyqm6MaaEr88FK4bRE>
+
+# ASSISTANT
+
+I can see the issue now. The problem seems to be in the scanner logic. Let me look at the `scan_code_backticks` function in the scanner:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01RCD1wc7ckz8hSfSAwT3Eoo
+
+## path
+
+<tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+src/scanner.c
+</tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+
+## start-line
+
+<tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+375
+</tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+
+## end-line
+
+<tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+392
+</tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+
+# TOOL RESULT
+
+ID: toolu_01RCD1wc7ckz8hSfSAwT3Eoo
+
+<tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                scanner->expecting_tail = false;
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT_TAIL;
+                    return true;
+                } else {
+                    // No tail content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+</tool.toolu_01RCD1wc7ckz8hSfSAwT3Eoo>
+
+# ASSISTANT
+
+Let me find the scan_code_backticks function:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Bmqb3v7AnPXBgLZvyENfG4
+
+## path
+
+<tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+src/scanner.c
+</tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+
+## start-line
+
+<tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+583
+</tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+
+## end-line
+
+<tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+605
+</tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+
+# TOOL RESULT
+
+ID: toolu_01Bmqb3v7AnPXBgLZvyENfG4
+
+<tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_eval_result_tail = true;
+            }
+        }
+    }
+    
+    lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+    return true;
+
+    return false;
+}
+
+static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || !scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+</tool.toolu_01Bmqb3v7AnPXBgLZvyENfG4>
+
+# ASSISTANT
+
+Let me find the scan_code_backticks function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01PNcpTPNCpdD9MAyfqr1CbJ
+
+## pattern
+
+<tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+scan_code_backticks
+</tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+
+## path
+
+<tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+src/scanner.c
+</tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+
+# TOOL RESULT
+
+ID: toolu_01PNcpTPNCpdD9MAyfqr1CbJ
+
+<tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+657:static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
+904:        return scan_code_backticks(scanner, lexer);
+
+</tool.toolu_01PNcpTPNCpdD9MAyfqr1CbJ>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01RVqNKc2dwMEKVUP1mhfU4L
+
+## path
+
+<tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+src/scanner.c
+</tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+
+## start-line
+
+<tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+657
+</tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+
+## end-line
+
+<tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+679
+</tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+
+# TOOL RESULT
+
+ID: toolu_01RVqNKc2dwMEKVUP1mhfU4L
+
+<tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count and consume backticks (any number, 1 or more)
+    int backtick_count = 0;
+    while (lexer->lookahead == '`') {
+        backtick_count++;
+        advance(lexer);
+    }
+    
+    if (backtick_count >= 1) {
+        // If this is the first time we're seeing backticks, store the count
+        // If we already have a count, this is likely the closing sequence
+        if (scanner->last_backtick_count == 0) {
+            scanner->last_backtick_count = backtick_count;
+        } else {
+            // This is a closing sequence, reset the count
+            scanner->last_backtick_count = 0;
+        }
+        
+        lexer->result_symbol = CODE_BACKTICKS;
+        return true;
+    }
+</tool.toolu_01RVqNKc2dwMEKVUP1mhfU4L>
+
+# ASSISTANT
+
+Now let me find the scan_code_language function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_0183pqRW4oJZSrGuyCtz5kQh
+
+## pattern
+
+<tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+scan_code_language
+</tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+
+## path
+
+<tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+src/scanner.c
+</tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+
+# TOOL RESULT
+
+ID: toolu_0183pqRW4oJZSrGuyCtz5kQh
+
+<tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+684:static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+909:        return scan_code_language(scanner, lexer);
+
+</tool.toolu_0183pqRW4oJZSrGuyCtz5kQh>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01YYmVriezBJrxfwWXvFWa6K
+
+## path
+
+<tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+src/scanner.c
+</tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+
+## start-line
+
+<tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+684
+</tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+
+## end-line
+
+<tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+736
+</tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+
+# TOOL RESULT
+
+ID: toolu_01YYmVriezBJrxfwWXvFWa6K
+
+<tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Only allow language for multi-backtick blocks (2 or more backticks)
+    if (scanner->last_backtick_count < 2) {
+        return false;
+    }
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        return false;
+    }
+    
+    // Scan the potential language identifier
+    TSLexer saved_lexer = *lexer;
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // If there's a space followed by more content on the same line, this is not a language
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        
+        // If there's non-newline content after spaces, this is not a valid language line
+        if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+            return false;
+        }
+    }
+    
+    // If we get here, we have a valid language identifier
+    *lexer = saved_lexer; // Restore to start of language
+    
+    // Re-scan and consume the language
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+</tool.toolu_01YYmVriezBJrxfwWXvFWa6K>
+
+# ASSISTANT
+
+I can see that  is defined but it's not being called properly for the double backticks case. Let me look at the main scanner function:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Ub18b1cYTjL8EWrux7ygfL
+
+## path
+
+<tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+src/scanner.c
+</tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+
+## start-line
+
+<tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+900
+</tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+
+## end-line
+
+<tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+920
+</tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+
+# TOOL RESULT
+
+ID: toolu_01Ub18b1cYTjL8EWrux7ygfL
+
+<tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+    }
+    
+    // Handle code backticks (any number of backticks)
+    if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
+        return scan_code_backticks(scanner, lexer);
+    }
+    
+    // Handle code language identifier
+    if (valid_symbols[CODE_LANGUAGE_IDENTIFIER]) {
+        return scan_code_language(scanner, lexer);
+    }
+    
+    // Handle code contents
+    if (valid_symbols[CODE_CONTENTS]) {
+        return scan_code_contents(lexer);
+    }
+    
+    return false;
+}
+
+
+</tool.toolu_01Ub18b1cYTjL8EWrux7ygfL>
+
+# ASSISTANT
+
+I can see that for the double backticks case, the scanner is failing to properly handle the sequence. Let me create a debug version to understand the issue better:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_013mJYpNxdmiJQtHsb826bFB
+
+## path
+
+<tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+debug-backticks-trace.greger
+</tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+
+## contents
+
+<tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+# ASSISTANT
+
+``text``
+</tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+
+## git-commit-message
+
+<tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+Add debug case for double backticks trace
+</tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+
+# TOOL RESULT
+
+ID: toolu_013mJYpNxdmiJQtHsb826bFB
+
+<tool.toolu_013mJYpNxdmiJQtHsb826bFB>
+
+</tool.toolu_013mJYpNxdmiJQtHsb826bFB>
