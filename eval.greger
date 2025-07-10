@@ -9135,3 +9135,260 @@ ID: toolu_01DaS6rKwkY1otB1sVfMtA8D
 <tool.toolu_01DaS6rKwkY1otB1sVfMtA8D>
 
 </tool.toolu_01DaS6rKwkY1otB1sVfMtA8D>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012nBJ7nKZuhx2pjwLvCtLq5
+
+## command
+
+<tool.toolu_012nBJ7nKZuhx2pjwLvCtLq5>
+timeout 10 tree-sitter parse debug-empty-content.greger
+</tool.toolu_012nBJ7nKZuhx2pjwLvCtLq5>
+
+# TOOL RESULT
+
+ID: toolu_012nBJ7nKZuhx2pjwLvCtLq5
+
+<tool.toolu_012nBJ7nKZuhx2pjwLvCtLq5>
+(source_file [0, 0] - [4, 0]
+  (ERROR [0, 0] - [3, 2]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (ERROR [3, 0] - [3, 2])))
+debug-empty-content.greger	Parse:    0.19 ms	   102 bytes/ms	(ERROR [0, 0] - [3, 2])
+Command failed with exit code 1
+</tool.toolu_012nBJ7nKZuhx2pjwLvCtLq5>
+
+# ASSISTANT
+
+Still an error. The parser recognizes the first  at [2, 0] - [2, 2] but then fails to parse what comes next. After the first , there's a newline, then  at [3, 0] - [3, 2].
+
+The grammar expects:
+1.  ✓
+2. Optional  (should fail for newline)
+3.  (should succeed for the newline)
+4.  (should succeed for the second )
+
+But it's failing at step 3. This suggests that the  function is not being called at all, or it's not working correctly.
+
+Let me check if the  function can handle a newline as content:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_013DLRNfGQgsZvVz7eMYMqsg
+
+## path
+
+<tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+src/scanner.c
+</tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+
+## start-line
+
+<tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+742
+</tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+
+## end-line
+
+<tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+762
+</tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+
+# TOOL RESULT
+
+ID: toolu_013DLRNfGQgsZvVz7eMYMqsg
+
+<tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+    // Re-scan and consume the language
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+    }
+    
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+    return true;
+}
+
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+    bool has_content = false;
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Check if this is a backtick sequence that matches the opening count
+            TSLexer saved_lexer = *lexer;
+            int backtick_count = 0;
+            
+            // Count consecutive backticks
+</tool.toolu_013DLRNfGQgsZvVz7eMYMqsg>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_0186Ubkj9dBFnNUTAk7B2go3
+
+## path
+
+<tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+src/scanner.c
+</tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+
+## start-line
+
+<tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+748
+</tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+
+## end-line
+
+<tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+785
+</tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+
+# TOOL RESULT
+
+ID: toolu_0186Ubkj9dBFnNUTAk7B2go3
+
+<tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+    
+    lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+    return true;
+}
+
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+    bool has_content = false;
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Check if this is a backtick sequence that matches the opening count
+            TSLexer saved_lexer = *lexer;
+            int backtick_count = 0;
+            
+            // Count consecutive backticks
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // If this matches the opening backtick count, this is the closing sequence
+            if (backtick_count == scanner->last_backtick_count) {
+                // Restore lexer position and let the grammar handle the closing backticks
+                *lexer = saved_lexer;
+                break;
+            } else {
+                // This is not the closing sequence, include it as content
+                // Restore and consume the backticks as content
+                *lexer = saved_lexer;
+                while (backtick_count > 0) {
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
+                    backtick_count--;
+                }
+            }
+        } else {
+            advance(lexer);
+</tool.toolu_0186Ubkj9dBFnNUTAk7B2go3>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01SGdeEh6mkKvrgrHRq7VUQS
+
+## path
+
+<tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+src/scanner.c
+</tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+
+## start-line
+
+<tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+785
+</tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+
+## end-line
+
+<tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+800
+</tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+
+# TOOL RESULT
+
+ID: toolu_01SGdeEh6mkKvrgrHRq7VUQS
+
+<tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
+    }
+    
+    return false;
+}
+
+
+static bool scan_eval_content(TSLexer *lexer) {
+</tool.toolu_01SGdeEh6mkKvrgrHRq7VUQS>
+
+# ASSISTANT
+
+I see the issue! The  function only returns  if `has_content` is true. But in the empty case, there's no content, so the function returns false.
+
+But the grammar REQUIRES  - it's not optional. So when  returns false, the parser can't proceed and generates an ERROR.
+
+This is a fundamental design issue. The grammar structure requires  to always be present, but the  function only returns  when there's actual content.
+
+I need to fix this by making the  function always return , even when there's no content:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01SF9CCdzhzy9boM59BU5mYC
+
+## path
+
+<tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+src/scanner.c
+</tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+
+## git-commit-message
+
+<tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+Make scan_code_contents always return CODE_CONTENTS even for empty content
+</tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+
+## diff
+
+<tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+-    if (has_content) {
+-        lexer->result_symbol = CODE_CONTENTS;
+-        return true;
+-    }
+-    
+-    return false;
+\ No newline at end of file
++    // Always return CODE_CONTENTS token, even for empty content
++    lexer->result_symbol = CODE_CONTENTS;
++    return true;
+\ No newline at end of file
+
+</tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+
+# TOOL RESULT
+
+ID: toolu_01SF9CCdzhzy9boM59BU5mYC
+
+<tool.toolu_01SF9CCdzhzy9boM59BU5mYC>
+
+</tool.toolu_01SF9CCdzhzy9boM59BU5mYC>

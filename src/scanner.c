@@ -788,12 +788,9 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
         }
     }
     
-    if (has_content) {
-        lexer->result_symbol = CODE_CONTENTS;
-        return true;
-    }
-    
-    return false;
+    // Always return CODE_CONTENTS token, even for empty content
+    lexer->result_symbol = CODE_CONTENTS;
+    return true;
 }
 
 
