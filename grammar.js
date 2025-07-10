@@ -301,10 +301,12 @@ module.exports = grammar({
 
     code: $ => seq(
       $.code_backticks,
-      optional(alias($.code_language_identifier, $.code_language)),
+      optional($.code_language),
       $.code_contents,
       $.code_backticks,
     ),
+    
+    code_language: $ => /[a-zA-Z_][a-zA-Z0-9_+\-]*/,
 
   },
 });
