@@ -8021,5 +8021,353 @@ Remove scan_code_language function definition
 ID: toolu_01KaG58m3Zw29GoY2QPr6h9S
 
 <tool.toolu_01KaG58m3Zw29GoY2QPr6h9S>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove scan_code_language function definition
 </tool.toolu_01KaG58m3Zw29GoY2QPr6h9S>
+
+# ASSISTANT
+
+Now let's test the simplified approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01UdrksFgHRaAG3Q3eW93H2V
+
+## command
+
+<tool.toolu_01UdrksFgHRaAG3Q3eW93H2V>
+cd . && tree-sitter generate
+</tool.toolu_01UdrksFgHRaAG3Q3eW93H2V>
+
+# TOOL RESULT
+
+ID: toolu_01UdrksFgHRaAG3Q3eW93H2V
+
+<tool.toolu_01UdrksFgHRaAG3Q3eW93H2V>
+
+</tool.toolu_01UdrksFgHRaAG3Q3eW93H2V>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FnK2o6dCqwREKanv2zkZUd
+
+## command
+
+<tool.toolu_01FnK2o6dCqwREKanv2zkZUd>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse
+</tool.toolu_01FnK2o6dCqwREKanv2zkZUd>
+
+# TOOL RESULT
+
+ID: toolu_01FnK2o6dCqwREKanv2zkZUd
+
+<tool.toolu_01FnK2o6dCqwREKanv2zkZUd>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01FnK2o6dCqwREKanv2zkZUd>
+
+# ASSISTANT
+
+Great! The no-language case works. Let me test the language case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Hq698oWcmyHjkhhKW9ZSbC
+
+## command
+
+<tool.toolu_01Hq698oWcmyHjkhhKW9ZSbC>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_01Hq698oWcmyHjkhhKW9ZSbC>
+
+# TOOL RESULT
+
+ID: toolu_01Hq698oWcmyHjkhhKW9ZSbC
+
+<tool.toolu_01Hq698oWcmyHjkhhKW9ZSbC>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01Hq698oWcmyHjkhhKW9ZSbC>
+
+# ASSISTANT
+
+The language case isn't working - it's not parsing the `python` part as a language. The issue is that the grammar rule expects an optional language after the backticks, but the `code_contents` scanner is consuming everything from the backticks onward.
+
+I need to modify the `scan_code_contents` function to properly handle the case where there's a language identifier. Let me look at the current implementation:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01QFiWLNawqxkcNyygXH4KDY
+
+## path
+
+<tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+./src/scanner.c
+</tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+
+## start-line
+
+<tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+770
+</tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+
+## end-line
+
+<tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+800
+</tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+
+# TOOL RESULT
+
+ID: toolu_01QFiWLNawqxkcNyygXH4KDY
+
+<tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+            // Found opening brace, increment counter
+            brace_count++;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else if (lexer->lookahead == '}') {
+            if (brace_count > 0) {
+                // This is a closing brace for a nested opening brace
+                brace_count--;
+                if (!iswspace(lexer->lookahead)) {
+                    has_non_whitespace = true;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            } else {
+                // This is the closing brace for our eval, stop here
+                break;
+            }
+        } else if (lexer->lookahead == '<') {
+            TSLexer saved = *lexer;
+            advance(lexer);
+            
+            // Check if this is a tag starting with 'e' (could be eval-result)
+            if (lexer->lookahead == 'e') {
+                *lexer = saved;
+                break; // Exit the while loop
+            }
+</tool.toolu_01QFiWLNawqxkcNyygXH4KDY>
+
+# ASSISTANT
+
+Let me find the `scan_code_contents` function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_018osTwLGmXLCBkc2Wu7ERWF
+
+## pattern
+
+<tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+static bool scan_code_contents
+</tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+
+## path
+
+<tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+./src/scanner.c
+</tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+
+## context-lines
+
+<tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+3
+</tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+
+# TOOL RESULT
+
+ID: toolu_018osTwLGmXLCBkc2Wu7ERWF
+
+<tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+683-
+684-
+685-
+686:static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+687-    bool has_content = false;
+688-    
+689-    while (lexer->lookahead != 0) {
+
+</tool.toolu_018osTwLGmXLCBkc2Wu7ERWF>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01FFVhXpBU9jA1EmKWu6ZbFa
+
+## path
+
+<tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+./src/scanner.c
+</tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+
+## start-line
+
+<tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+686
+</tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+
+## end-line
+
+<tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+720
+</tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+
+# TOOL RESULT
+
+ID: toolu_01FFVhXpBU9jA1EmKWu6ZbFa
+
+<tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+    bool has_content = false;
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Check if this is a backtick sequence that matches the opening count
+            TSLexer saved_lexer = *lexer;
+            int backtick_count = 0;
+            
+            // Count consecutive backticks
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // If this matches the opening backtick count, this is the closing sequence
+            if (backtick_count == scanner->last_backtick_count) {
+                // Restore lexer position and let the grammar handle the closing backticks
+                *lexer = saved_lexer;
+                break;
+            } else {
+                // This is not the closing sequence, include it as content
+                // Restore and consume the backticks as content
+                *lexer = saved_lexer;
+                for (int i = 0; i < backtick_count; i++) {
+                    advance(lexer);
+                    has_content = true;
+                }
+                lexer->mark_end(lexer);
+            }
+        } else {
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+</tool.toolu_01FFVhXpBU9jA1EmKWu6ZbFa>
+
+# ASSISTANT
+
+I see the issue. The `scan_code_contents` function is consuming all content from the backticks onward, including the language identifier. I need to modify it to only consume the actual content part, not the language part.
+
+The problem is that the grammar expects:
+1. `code_backticks` 
+2. `optional(code_language)` 
+3. `code_contents` 
+4. `code_backticks`
+
+But the external scanner is consuming everything between the backticks. I need to adjust the approach.
+
+Looking at the markdown parser again, I think the issue is that I need to skip the language part when scanning for contents. Let me modify the `scan_code_contents` function:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01NPh5wX1cPsdFgaRgJe5Mmy
+
+## path
+
+<tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+./src/scanner.c
+</tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+
+## git-commit-message
+
+<tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+Fix scan_code_contents to skip language identifier part
+</tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+
+## diff
+
+<tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
++    // For multi-backtick blocks, we need to skip the language part if it exists
++    if (scanner->last_backtick_count > 1) {
++        // Skip whitespace
++        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++            advance(lexer);
++        }
++        
++        // Skip language identifier if present
++        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
++            // Skip the language identifier
++            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
++                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
++                   lexer->lookahead == '+' || lexer->lookahead == '-') {
++                advance(lexer);
++            }
++            
++            // Skip any trailing whitespace after language
++            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++                advance(lexer);
++            }
++        }
++        
++        // Skip the newline after language (or after backticks if no language)
++        if (lexer->lookahead == '\n') {
++            advance(lexer);
++        } else if (lexer->lookahead == '\r') {
++            advance(lexer);
++            if (lexer->lookahead == '\n') {
++                advance(lexer);
++            }
++        }
++    }
++    
+     bool has_content = false;
+     
+     while (lexer->lookahead != 0) {
+\ No newline at end of file
+
+</tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+
+# TOOL RESULT
+
+ID: toolu_01NPh5wX1cPsdFgaRgJe5Mmy
+
+<tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+
+</tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
