@@ -9492,5 +9492,288 @@ Fix code_contents scanner to properly handle closing backticks
 ID: toolu_017mqFG9bLNgvisYFtLfyias
 
 <tool.toolu_017mqFG9bLNgvisYFtLfyias>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code_contents scanner to properly handle closing backticks
 </tool.toolu_017mqFG9bLNgvisYFtLfyias>
+
+# ASSISTANT
+
+Now let's test if this fixes the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ELXcFUijVL2nwYJNb8P5PR
+
+## command
+
+<tool.toolu_01ELXcFUijVL2nwYJNb8P5PR>
+tree-sitter generate && echo '# ASSISTANT
+
+```python
+test
+```' | tree-sitter parse
+</tool.toolu_01ELXcFUijVL2nwYJNb8P5PR>
+
+# TOOL RESULT
+
+ID: toolu_01ELXcFUijVL2nwYJNb8P5PR
+
+<tool.toolu_01ELXcFUijVL2nwYJNb8P5PR>
+
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 14])
+      (code_contents [2, 14] - [3, 0])
+      (code_backticks [3, 0] - [3, 3]))
+    (text [3, 3] - [4, 0])))
+
+</tool.toolu_01ELXcFUijVL2nwYJNb8P5PR>
+
+# ASSISTANT
+
+Good! Now let me test the no-language case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01P8J8urjr9VJuoCKUeYwK4x
+
+## command
+
+<tool.toolu_01P8J8urjr9VJuoCKUeYwK4x>
+echo '# ASSISTANT
+
+```
+test
+```' | tree-sitter parse
+</tool.toolu_01P8J8urjr9VJuoCKUeYwK4x>
+
+# TOOL RESULT
+
+ID: toolu_01P8J8urjr9VJuoCKUeYwK4x
+
+<tool.toolu_01P8J8urjr9VJuoCKUeYwK4x>
+
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 3])
+    (ERROR [3, 0] - [4, 3])))
+stdin	Parse:    0.03 ms	   990 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_01P8J8urjr9VJuoCKUeYwK4x>
+
+# ASSISTANT
+
+The no-language case is still failing, but let me test single backticks to see if that improved:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011RxskaVyYoAsrqzaHkQMKP
+
+## command
+
+<tool.toolu_011RxskaVyYoAsrqzaHkQMKP>
+echo '# USER
+
+`test`' | tree-sitter parse
+</tool.toolu_011RxskaVyYoAsrqzaHkQMKP>
+
+# TOOL RESULT
+
+ID: toolu_011RxskaVyYoAsrqzaHkQMKP
+
+<tool.toolu_011RxskaVyYoAsrqzaHkQMKP>
+
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 6])))
+stdin	Parse:    0.03 ms	   586 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_011RxskaVyYoAsrqzaHkQMKP>
+
+# ASSISTANT
+
+Still failing. Let me run the tests to see the current status:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Czw8EEy8SDRbg4CxC9Vrh1
+
+## command
+
+<tool.toolu_01Czw8EEy8SDRbg4CxC9Vrh1>
+tree-sitter test 2>&1 | grep -A 3 -B 1 "✓\|✗" | head -20
+</tool.toolu_01Czw8EEy8SDRbg4CxC9Vrh1>
+
+# TOOL RESULT
+
+ID: toolu_01Czw8EEy8SDRbg4CxC9Vrh1
+
+<tool.toolu_01Czw8EEy8SDRbg4CxC9Vrh1>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✗ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+
+</tool.toolu_01Czw8EEy8SDRbg4CxC9Vrh1>
+
+# ASSISTANT
+
+I can see that the multi-backtick cases with language (tests 9, 11) are still working, which means the fix didn't break those. The issue is still with the cases that don't have language tokens.
+
+Let me go back to the fundamental issue. I need to make the external scanner work for the no-language cases. The problem is that the external scanner isn't being called for  tokens when there's no language.
+
+Looking at the debug output from earlier, the issue is that when the external scanner is called after , it needs to be called for  tokens. Let me try a different approach by ensuring the external scanner gets called for content in all cases.
+
+Let me check if the issue is that we need to adjust the precedence or make the external scanner handle the transition better. The key insight is that the multi-backtick cases with language work, but the cases without language don't.
+
+Let me try a simpler fix. Instead of trying to make the language optional through grammar rules, let me make the external scanner **always** return a language token for multi-backtick cases, even if it's empty (zero-length):
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019t4wYxyc6wF64926juE3MC
+
+## path
+
+<tool.toolu_019t4wYxyc6wF64926juE3MC>
+./src/scanner.c
+</tool.toolu_019t4wYxyc6wF64926juE3MC>
+
+## git-commit-message
+
+<tool.toolu_019t4wYxyc6wF64926juE3MC>
+Make language scanner always return token for multi-backtick cases to ensure proper state transitions
+</tool.toolu_019t4wYxyc6wF64926juE3MC>
+
+## diff
+
+<tool.toolu_019t4wYxyc6wF64926juE3MC>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+         return false;
+     }
+     
+-    // For multi-backtick blocks, only return language token if there's valid language content
+-    // Save lexer state to restore if we fail
++    // For multi-backtick blocks (2+), always return a language token
++    // This ensures proper state transitions even when there's no actual language
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+-    // If we hit a newline immediately, no language present
++    // If we hit a newline immediately, return empty language token
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        return false;
++        *lexer = saved_lexer; // Don't consume anything - return zero-length token
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+-    // Must start with a letter or underscore for valid language
++    // Check if it's a valid language identifier start
+     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+-        // Invalid language start
+-        return false;
++        // Invalid language start - return empty language token
++        *lexer = saved_lexer; // Don't consume anything
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Scan the potential language identifier
+     bool has_content = false;
+     
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+         has_content = true;
+     }
+     
+     if (!has_content) {
+-        // No valid language content
+-        return false;
++        // No valid language content - return empty token
++        *lexer = saved_lexer;
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+-        // Invalid language (has spaces or other characters)
+-        return false;
++        // Invalid language (has spaces or other characters) - return empty token
++        *lexer = saved_lexer;
++        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
++        return true;
+     }
+     
+     // If we get here, we have a valid language identifier
+     *lexer = saved_lexer; // Restore to start of language
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // Re-scan and consume the language
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+     }
+     
+     lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_019t4wYxyc6wF64926juE3MC>
+
+# TOOL RESULT
+
+ID: toolu_019t4wYxyc6wF64926juE3MC
+
+<tool.toolu_019t4wYxyc6wF64926juE3MC>
+
+</tool.toolu_019t4wYxyc6wF64926juE3MC>
