@@ -18,6 +18,7 @@ enum TokenType {
     CODE_BACKTICKS,
     CODE_LANGUAGE_IDENTIFIER,
     CODE_CONTENTS,
+    EVAL_LANGUAGE,
 };
 
 typedef struct {
