@@ -702,7 +702,6 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     }
     
     // Scan the potential language identifier
-    TSLexer saved_lexer = *lexer;
     bool has_content = false;
     
     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
@@ -713,6 +712,7 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     }
     
     if (!has_content) {
+        *lexer = saved_lexer; // Restore lexer position
         return false;
     }
     
@@ -726,12 +726,18 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
         
         // If there's non-newline content after spaces, this is not a valid language line
         if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+            *lexer = saved_lexer; // Restore lexer position
             return false;
         }
     }
     
     // If we get here, we have a valid language identifier
     *lexer = saved_lexer; // Restore to start of language
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
     
     // Re-scan and consume the language
     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 

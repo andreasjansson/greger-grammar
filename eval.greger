@@ -6830,5 +6830,152 @@ Fix code_language function to restore lexer position on failure
 ID: toolu_011jv1eEsqLQ4NgYXCwmiDUS
 
 <tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code_language function to restore lexer position on failure
 </tool.toolu_011jv1eEsqLQ4NgYXCwmiDUS>
+
+# ASSISTANT
+
+I also need to fix the other places where the function returns false:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01LpNqQi9XY4Qm5naxnHGgy7
+
+## path
+
+<tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+src/scanner.c
+</tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+
+## start-line
+
+<tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+708
+</tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+
+## end-line
+
+<tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+740
+</tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+
+# TOOL RESULT
+
+ID: toolu_01LpNqQi9XY4Qm5naxnHGgy7
+
+<tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // If there's a space followed by more content on the same line, this is not a language
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        
+        // If there's non-newline content after spaces, this is not a valid language line
+        if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+            return false;
+        }
+    }
+    
+    // If we get here, we have a valid language identifier
+    *lexer = saved_lexer; // Restore to start of language
+    
+    // Re-scan and consume the language
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+</tool.toolu_01LpNqQi9XY4Qm5naxnHGgy7>
+
+# ASSISTANT
+
+I need to fix this function to properly restore the lexer position on all failure paths:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_013YhZvzVXoyFMT8Mmvd8jqc
+
+## path
+
+<tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+src/scanner.c
+</tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+
+## git-commit-message
+
+<tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+Fix all failure paths in code_language to restore lexer position
+</tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+
+## diff
+
+<tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+     // Scan the potential language identifier
+-    TSLexer saved_lexer = *lexer;
+     bool has_content = false;
+     
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+         has_content = true;
+     }
+     
+     if (!has_content) {
++        *lexer = saved_lexer; // Restore lexer position
+         return false;
+     }
+     
+     // Check what comes after the identifier
+     // If there's a space followed by more content on the same line, this is not a language
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+         // If there's non-newline content after spaces, this is not a valid language line
+         if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
++            *lexer = saved_lexer; // Restore lexer position
+             return false;
+         }
+     }
+     
+     // If we get here, we have a valid language identifier
+     *lexer = saved_lexer; // Restore to start of language
+     
++    // Skip any leading whitespace
++    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++        advance(lexer);
++    }
++    
+     // Re-scan and consume the language
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+\ No newline at end of file
+
+</tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+
+# TOOL RESULT
+
+ID: toolu_013YhZvzVXoyFMT8Mmvd8jqc
+
+<tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
+
+</tool.toolu_013YhZvzVXoyFMT8Mmvd8jqc>
