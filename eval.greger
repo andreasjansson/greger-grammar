@@ -4343,5 +4343,170 @@ Remove debug output - fix is working correctly
 ID: toolu_01GwAiGVz6gdD1nCKqUSErLW
 
 <tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output - fix is working correctly
 </tool.toolu_01GwAiGVz6gdD1nCKqUSErLW>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019eiaSeugXX5JiUFRqdAtEf
+
+## path
+
+<tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+./src/scanner.c
+</tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+
+## git-commit-message
+
+<tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+Remove debug output from language scanner
+</tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+
+## diff
+
+<tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    printf("DEBUG: scan_code_language called, backtick_count:%d, char:'%c'\n", 
+-           scanner->last_backtick_count, lexer->lookahead);
+-    
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+-        printf("DEBUG: scan_code_language returning false (single backtick)\n");
+         return false;
+     }
+ 
+     // For multi-backtick blocks (2+), only return language token if there's actual valid language content
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // If we hit a newline immediately, there's no language
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        printf("DEBUG: scan_code_language returning false (newline/EOF)\n");
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+
+# TOOL RESULT
+
+ID: toolu_019eiaSeugXX5JiUFRqdAtEf
+
+<tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+Original content not found in file: /Users/andreas/projects/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_019eiaSeugXX5JiUFRqdAtEf>
+
+# ASSISTANT
+
+Let me check the current state of the file:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01NK91y3CjLUHHGNsiBKBsEy
+
+## path
+
+<tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+./src/scanner.c
+</tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+
+## start-line
+
+<tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+685
+</tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+
+## end-line
+
+<tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+705
+</tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+
+# TOOL RESULT
+
+ID: toolu_01NK91y3CjLUHHGNsiBKBsEy
+
+<tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    printf("DEBUG: scan_code_language called, backtick_count:%d, char:'%c'\n", 
+           scanner->last_backtick_count, lexer->lookahead);
+    
+    // For single backtick blocks, don't return language token
+    if (scanner->last_backtick_count == 1) {
+        printf("DEBUG: scan_code_language returning false (single backtick)\n");
+        return false;
+    }
+    
+    // For multi-backtick blocks (2+), only return language token if there's actual valid language content
+    TSLexer saved_lexer = *lexer;
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // If we hit a newline immediately, there's no language
+    if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+        printf("DEBUG: scan_code_language returning false (newline/EOF)\n");
+</tool.toolu_01NK91y3CjLUHHGNsiBKBsEy>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01E4ehKgCkhDMAXzthJy8Urd
+
+## path
+
+<tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+./src/scanner.c
+</tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+
+## git-commit-message
+
+<tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+Remove debug output from language scanner
+</tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+
+## diff
+
+<tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    printf("DEBUG: scan_code_language called, backtick_count:%d, char:'%c'\n", 
+-           scanner->last_backtick_count, lexer->lookahead);
+-    
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+-        printf("DEBUG: scan_code_language returning false (single backtick)\n");
+         return false;
+     }
+     
+     // For multi-backtick blocks (2+), only return language token if there's actual valid language content
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // If we hit a newline immediately, there's no language
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        printf("DEBUG: scan_code_language returning false (newline/EOF)\n");
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+
+# TOOL RESULT
+
+ID: toolu_01E4ehKgCkhDMAXzthJy8Urd
+
+<tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
+
+</tool.toolu_01E4ehKgCkhDMAXzthJy8Urd>
