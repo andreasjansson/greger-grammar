@@ -5105,5 +5105,61 @@ Make code contents scanner smarter - check for language first
 ID: toolu_01QTVPYkDMqWv62cLNs7QP4L
 
 <tool.toolu_01QTVPYkDMqWv62cLNs7QP4L>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make code contents scanner smarter - check for language first
 </tool.toolu_01QTVPYkDMqWv62cLNs7QP4L>
+
+# ASSISTANT
+
+Now I need to revert the order of checks in the main scanner function:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FAsXqXVQ39sX5THs4PVybk
+
+## path
+
+<tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+./src/scanner.c
+</tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+
+## git-commit-message
+
+<tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+Revert order of code token checks - language first, then contents
+</tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+
+## diff
+
+<tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+     // Handle code backticks (any number of backticks)
+     if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
+         return scan_code_backticks(scanner, lexer);
+     }
+     
+-    // Handle code contents first - this will match for no-language cases
+-    if (valid_symbols[CODE_CONTENTS]) {
+-        return scan_code_contents(scanner, lexer);
+-    }
+-    
+-    // Handle code language identifier
++    // Handle code language identifier first - the contents scanner will defer if language is found
+     if (valid_symbols[CODE_LANGUAGE_IDENTIFIER]) {
+         return scan_code_language(scanner, lexer);
++    }
++    
++    // Handle code contents - will only match if no language is found
++    if (valid_symbols[CODE_CONTENTS]) {
++        return scan_code_contents(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+
+# TOOL RESULT
+
+ID: toolu_01FAsXqXVQ39sX5THs4PVybk
+
+<tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
+
+</tool.toolu_01FAsXqXVQ39sX5THs4PVybk>
