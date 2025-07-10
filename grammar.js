@@ -301,7 +301,22 @@ module.exports = grammar({
 
     language: $ => /[a-zA-Z0-9_+-]+/,
 
+    code_block: $ => seq(
+      '```',
+      optional($.code_block_language),
+      /\n/,
+      optional($.code_block_content),
+      '```',
+    ),
 
+    code_block_language: _ => /[^\n]*/,
+
+    code_block_content: _ => repeat1(choice(
+      /[^`\n]+/,
+      /\n/,
+      /`[^`]/,
+      /``[^`]/,
+    )),
 
   },
 });
