@@ -684,38 +684,8 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // For multi-backtick blocks, we need to skip the language part if it exists
-    if (scanner->last_backtick_count > 1) {
-        // Skip whitespace
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            advance(lexer);
-        }
-        
-        // Skip language identifier if present
-        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
-            // Skip the language identifier
-            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
-                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
-                   lexer->lookahead == '+' || lexer->lookahead == '-') {
-                advance(lexer);
-            }
-            
-            // Skip any trailing whitespace after language
-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                advance(lexer);
-            }
-        }
-        
-        // Skip the newline after language (or after backticks if no language)
-        if (lexer->lookahead == '\n') {
-            advance(lexer);
-        } else if (lexer->lookahead == '\r') {
-            advance(lexer);
-            if (lexer->lookahead == '\n') {
-                advance(lexer);
-            }
-        }
-    }
+    // The contents scanner should only be called after the grammar has handled the language part
+    // We expect to be positioned after the language (if any) and after the newline
     
     bool has_content = false;
     

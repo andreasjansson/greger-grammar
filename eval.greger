@@ -8369,5 +8369,364 @@ Fix scan_code_contents to skip language identifier part
 ID: toolu_01NPh5wX1cPsdFgaRgJe5Mmy
 
 <tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scan_code_contents to skip language identifier part
 </tool.toolu_01NPh5wX1cPsdFgaRgJe5Mmy>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01F855K5xGyfapNnWCw6xspt
+
+## command
+
+<tool.toolu_01F855K5xGyfapNnWCw6xspt>
+cd . && tree-sitter generate
+</tool.toolu_01F855K5xGyfapNnWCw6xspt>
+
+# TOOL RESULT
+
+ID: toolu_01F855K5xGyfapNnWCw6xspt
+
+<tool.toolu_01F855K5xGyfapNnWCw6xspt>
+
+</tool.toolu_01F855K5xGyfapNnWCw6xspt>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EQRFXAX5TiZzqyXaMns9NJ
+
+## command
+
+<tool.toolu_01EQRFXAX5TiZzqyXaMns9NJ>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_01EQRFXAX5TiZzqyXaMns9NJ>
+
+# TOOL RESULT
+
+ID: toolu_01EQRFXAX5TiZzqyXaMns9NJ
+
+<tool.toolu_01EQRFXAX5TiZzqyXaMns9NJ>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01EQRFXAX5TiZzqyXaMns9NJ>
+
+# ASSISTANT
+
+Still not working. Let me check if the issue is with the external scanner's skipping logic or with the grammar. Let me test with a simple debug:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0163CZY8Hy1jNHjZfj5M7D2A
+
+## command
+
+<tool.toolu_0163CZY8Hy1jNHjZfj5M7D2A>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse --debug | head -20
+</tool.toolu_0163CZY8Hy1jNHjZfj5M7D2A>
+
+# TOOL RESULT
+
+ID: toolu_0163CZY8Hy1jNHjZfj5M7D2A
+
+<tool.toolu_0163CZY8Hy1jNHjZfj5M7D2A>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:174, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+  consume character:'p'
+  consume character:'y'
+  consume character:'t'
+  consume character:'h'
+  consume character:'o'
+  consume character:'n'
+  consume character:10
+  consume character:'h'
+  consume character:'e'
+  consume character:'l'
+  consume character:'l'
+  consume character:'o'
+  consume character:10
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_contents, size:13
+shift state:138
+process version:0, version_count:1, state:138, row:4, col:0
+lex_external state:11, row:4, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:50
+process version:0, version_count:1, state:50, row:4, col:3
+lex_external state:2, row:4, column:3
+lex_internal state:177, row:4, column:3
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+reduce sym:code, child_count:3
+shift state:29
+process version:0, version_count:1, state:29, row:5, col:0
+lex_external state:2, row:5, column:0
+lex_internal state:177, row:5, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:assistant_content_blocks_repeat1, child_count:2
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_0163CZY8Hy1jNHjZfj5M7D2A>
+
+# ASSISTANT
+
+I can see the problem! The debug shows `lexed_lookahead sym:code_contents, size:13`, which means the external scanner is consuming the "python\nhello\n" part as contents. The grammar isn't getting a chance to parse the language part because the external scanner is consuming it.
+
+The issue is that I'm treating this as an external scanner problem, but I need to let the grammar handle the language part. Let me look at how Tree-sitter's parsing works:
+
+After `code_backticks`, the parser should:
+1. Try to match `optional(code_language)` using the grammar rule
+2. Then try to match `code_contents` using the external scanner
+
+But the external scanner is being called immediately after the backticks and consuming everything. I need to adjust this approach.
+
+Let me check if the issue is that the grammar rule for `code_language` is not being properly recognized. Let me test what happens when I place the language token right after the backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Nn3kXLjuAkL5qvfwqVJ2jm
+
+## command
+
+<tool.toolu_01Nn3kXLjuAkL5qvfwqVJ2jm>
+cd . && echo '# ASSISTANT
+
+```python hello
+```' | tree-sitter parse --debug | head -30
+</tool.toolu_01Nn3kXLjuAkL5qvfwqVJ2jm>
+
+# TOOL RESULT
+
+ID: toolu_01Nn3kXLjuAkL5qvfwqVJ2jm
+
+<tool.toolu_01Nn3kXLjuAkL5qvfwqVJ2jm>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:174, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+  consume character:'p'
+  consume character:'y'
+  consume character:'t'
+  consume character:'h'
+  consume character:'o'
+  consume character:'n'
+  consume character:' '
+  consume character:'h'
+  consume character:'e'
+  consume character:'l'
+  consume character:'l'
+  consume character:'o'
+  consume character:10
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_contents, size:13
+shift state:138
+process version:0, version_count:1, state:138, row:3, col:0
+lex_external state:11, row:3, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:50
+process version:0, version_count:1, state:50, row:3, col:3
+lex_external state:2, row:3, column:3
+lex_internal state:177, row:3, column:3
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+reduce sym:code, child_count:3
+shift state:29
+process version:0, version_count:1, state:29, row:4, col:0
+lex_external state:2, row:4, column:0
+lex_internal state:177, row:4, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:assistant_content_blocks_repeat1, child_count:2
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [3, 0])
+      (code_backticks [3, 0] - [3, 3]))
+    (text [3, 3] - [4, 0])))
+
+</tool.toolu_01Nn3kXLjuAkL5qvfwqVJ2jm>
+
+# ASSISTANT
+
+Same issue. The external scanner is consuming everything immediately. The problem is that the parser never gets to the internal grammar rule for `code_language` because the external scanner is consuming everything.
+
+Looking at the debug output, after `code_backticks`, it's directly calling the external scanner (state 7) and getting `code_contents`. The grammar rule `optional(code_language)` is never getting a chance to match.
+
+This suggests the problem is in the grammar structure. The external scanner is being called too early. Let me check if the issue is the order of tokens in the grammar.
+
+Let me try a different approach. Instead of trying to make the external scanner smart about skipping language, let me change the strategy. I'll modify the contents scanner to NOT consume language tokens, and let the grammar handle the language part naturally:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014a5FN2wabngBzsRE1dhBEC
+
+## path
+
+<tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+./src/scanner.c
+</tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+
+## git-commit-message
+
+<tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+Simplify scan_code_contents - don't skip language, let grammar handle it
+</tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+
+## diff
+
+<tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    // For multi-backtick blocks, we need to skip the language part if it exists
+-    if (scanner->last_backtick_count > 1) {
+-        // Skip whitespace
+-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-            advance(lexer);
+-        }
+-        
+-        // Skip language identifier if present
+-        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+-            // Skip the language identifier
+-            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+-                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+-                   lexer->lookahead == '+' || lexer->lookahead == '-') {
+-                advance(lexer);
+-            }
+-            
+-            // Skip any trailing whitespace after language
+-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                advance(lexer);
+-            }
+-        }
+-        
+-        // Skip the newline after language (or after backticks if no language)
+-        if (lexer->lookahead == '\n') {
+-            advance(lexer);
+-        } else if (lexer->lookahead == '\r') {
+-            advance(lexer);
+-            if (lexer->lookahead == '\n') {
+-                advance(lexer);
+-            }
+-        }
+-    }
++    // The contents scanner should only be called after the grammar has handled the language part
++    // We expect to be positioned after the language (if any) and after the newline
+     
+     bool has_content = false;
+     
+     while (lexer->lookahead != 0) {
+\ No newline at end of file
+
+</tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+
+# TOOL RESULT
+
+ID: toolu_014a5FN2wabngBzsRE1dhBEC
+
+<tool.toolu_014a5FN2wabngBzsRE1dhBEC>
+
+</tool.toolu_014a5FN2wabngBzsRE1dhBEC>
