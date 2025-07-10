@@ -29,6 +29,7 @@ module.exports = grammar({
     $.code_backticks,
     $.code_language_identifier,
     $.code_contents,
+    $.eval_lang,
   ],
 
   inline: $ => [
