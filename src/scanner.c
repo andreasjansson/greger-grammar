@@ -654,7 +654,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_code_backticks(TSLexer *lexer) {
+static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
     // Count and consume opening backticks (any number, 1 or more)
@@ -665,6 +665,7 @@ static bool scan_code_backticks(TSLexer *lexer) {
     }
     
     if (backtick_count >= 1) {
+        scanner->last_backtick_count = backtick_count;
         lexer->result_symbol = CODE_BACKTICKS;
         return true;
     }
