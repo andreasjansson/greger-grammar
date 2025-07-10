@@ -7991,7 +7991,7 @@ Command failed with exit code 1
 
 # ASSISTANT
 
-Right, I'm back to the original issue. The problem is that after parsing the first ``, the parser is failing to parse the space and content properly.
+Right, I'm back to the original issue. The problem is that after parsing the first ``` `` ```, the parser is failing to parse the space and content properly.
 
 Let me step back and understand what I had working before I got sidetracked. The basic case without the optional language worked:
 
@@ -8012,25 +8012,17 @@ grammar.js
 Remove optional language again to get back to working state
 </tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
 
-## original-content
+## diff
 
 <tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
-    code: $ => seq(
-      $.code_backticks,
-      optional(alias($.code_language_identifier, $.code_language)),
-      $.code_contents,
-      $.code_backticks,
-    ),
-</tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+     code: $ => seq(
+       $.code_backticks,
+-      optional(alias($.code_language_identifier, $.code_language)),
+       $.code_contents,
+       $.code_backticks,
+     ),
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
-    code: $ => seq(
-      $.code_backticks,
-      $.code_contents,
-      $.code_backticks,
-    ),
 </tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
 
 # TOOL RESULT
@@ -8040,3 +8032,137 @@ ID: toolu_01H6Fw62hnyLPycuD41Bxr4d
 <tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
 
 </tool.toolu_01H6Fw62hnyLPycuD41Bxr4d>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EveMVUbyGFmbjDBNY4M8Yw
+
+## command
+
+<tool.toolu_01EveMVUbyGFmbjDBNY4M8Yw>
+timeout 10 tree-sitter generate
+</tool.toolu_01EveMVUbyGFmbjDBNY4M8Yw>
+
+# TOOL RESULT
+
+ID: toolu_01EveMVUbyGFmbjDBNY4M8Yw
+
+<tool.toolu_01EveMVUbyGFmbjDBNY4M8Yw>
+
+</tool.toolu_01EveMVUbyGFmbjDBNY4M8Yw>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01K2Pb5Tpsu6e1ZV6piEL843
+
+## command
+
+<tool.toolu_01K2Pb5Tpsu6e1ZV6piEL843>
+timeout 10 tree-sitter parse debug-backticks-trace.greger
+</tool.toolu_01K2Pb5Tpsu6e1ZV6piEL843>
+
+# TOOL RESULT
+
+ID: toolu_01K2Pb5Tpsu6e1ZV6piEL843
+
+<tool.toolu_01K2Pb5Tpsu6e1ZV6piEL843>
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 5])
+      (code_backticks [2, 5] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01K2Pb5Tpsu6e1ZV6piEL843>
+
+# ASSISTANT
+
+Good! This works. Now the issue is: how do I add back the optional language support without breaking this?
+
+The real issue I need to focus on is: why does adding  break the parsing? 
+
+The expected behavior should be:
+1. For : parse as code without language
+2. For : parse as code with language  
+
+Let me test the language case to make sure that works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FFqdXEqVnXUVekQTmjMMeT
+
+## command
+
+<tool.toolu_01FFqdXEqVnXUVekQTmjMMeT>
+timeout 10 tree-sitter parse debug-working-case.greger
+</tool.toolu_01FFqdXEqVnXUVekQTmjMMeT>
+
+# TOOL RESULT
+
+ID: toolu_01FFqdXEqVnXUVekQTmjMMeT
+
+<tool.toolu_01FFqdXEqVnXUVekQTmjMMeT>
+(source_file [0, 0] - [6, 0]
+  (assistant [0, 0] - [6, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [5, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [5, 0])
+      (code_backticks [5, 0] - [5, 3]))
+    (text [5, 3] - [6, 0])))
+
+</tool.toolu_01FFqdXEqVnXUVekQTmjMMeT>
+
+# ASSISTANT
+
+Wait, this is now parsing  as content instead of as a separate language token. This is because I removed the optional language part.
+
+So the fundamental issue is: I need the external scanner to be able to distinguish between:
+1. Cases where there should be a language (like )
+2. Cases where there shouldn't be a language (like )
+
+And the grammar needs to handle both cases correctly. Let me add back the optional language and focus on fixing the specific issue:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01KBnwbaduf51zf8HgS4d36j
+
+## path
+
+<tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+grammar.js
+</tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+
+## git-commit-message
+
+<tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+Add back optional language to focus on fixing the real issue
+</tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+
+## diff
+
+<tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+     code: $ => seq(
+       $.code_backticks,
++      optional(alias($.code_language_identifier, $.code_language)),
+       $.code_contents,
+       $.code_backticks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+
+# TOOL RESULT
+
+ID: toolu_01KBnwbaduf51zf8HgS4d36j
+
+<tool.toolu_01KBnwbaduf51zf8HgS4d36j>
+
+</tool.toolu_01KBnwbaduf51zf8HgS4d36j>
