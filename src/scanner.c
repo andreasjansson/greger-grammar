@@ -641,9 +641,9 @@ static bool scan_inline_code(TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     advance(lexer);
     
-    // Check if this is a triple backtick (code block)
+    // Check if this is a triple backtick (code block) - let grammar handle it
     if (lexer->lookahead == '`') {
-        return false; // Let code block scanner handle this
+        return false;
     }
     
     bool has_content = false;
