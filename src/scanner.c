@@ -15,7 +15,10 @@ enum TokenType {
     EVAL_RESULT_CONTENT_HEAD,
     EVAL_RESULT_CONTENT_TAIL,
     ERROR_SENTINEL,
-    CODE,
+    BACKTICK,
+    CODE_BACKTICKS,
+    CODE_LANGUAGE,
+    CODE_CONTENT,
 };
 
 typedef struct {
