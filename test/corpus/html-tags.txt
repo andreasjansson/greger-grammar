@@ -8,13 +8,19 @@ You are a helpful assistant.
 
 <foo>foo<bar></bar></foo>
 
+This should not be parsed as safe shell commands:
+
+<safe-shell-commands-something-else>
+
 # USER
 
 <safe-shell-commands>safe shell commands should only be parsed in system</safe-shell-commands>
 
 What's the weather like?
 
-<eval>Eval isn't a thing, shouldn't be parsed</eval>
+<eval>Eval isn't a thing, shouldn't be parsed separately</eval>
+
+This is an unclosed tag which should still just be parsed as text: <qux>
 
 # ASSISTANT
 
@@ -32,5 +38,5 @@ This is a <pre>unparsed `<pre>` tag</pre>
   (assistant
     (assistant_header)
     (text)
-    (inline-code)
+    (inline_code)
     (text)))
