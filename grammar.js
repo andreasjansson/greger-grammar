@@ -293,12 +293,12 @@ module.exports = grammar({
 
     eval_start_brace: $ => seq(
       '${',
-      optional(seq(':', $.language))
+      optional(seq(':', $.eval_language))
     ),
 
     eval_end_brace: $ => '}',
 
-    // language: $ => /[a-zA-Z0-9_+-]+/,
+    eval_language: $ => /[a-zA-Z0-9_+-]+/,
 
     code: $ => seq(
       $.code_backticks,
