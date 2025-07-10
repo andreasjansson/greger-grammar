@@ -683,8 +683,12 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    printf("DEBUG: scan_code_language called, backtick_count:%d, char:'%c'\n", 
+           scanner->last_backtick_count, lexer->lookahead);
+    
     // For single backtick blocks, don't return language token
     if (scanner->last_backtick_count == 1) {
+        printf("DEBUG: scan_code_language returning false (single backtick)\n");
         return false;
     }
     

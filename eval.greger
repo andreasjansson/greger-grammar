@@ -3579,5 +3579,207 @@ Add debug output to understand scanner state transitions
 ID: toolu_01EYCXjMUEuNzdr2CfUVdSrd
 
 <tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to understand scanner state transitions
 </tool.toolu_01EYCXjMUEuNzdr2CfUVdSrd>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KbMZmn2DMjSvvqSBSidXVo
+
+## command
+
+<tool.toolu_01KbMZmn2DMjSvvqSBSidXVo>
+cd . && tree-sitter generate
+</tool.toolu_01KbMZmn2DMjSvvqSBSidXVo>
+
+# TOOL RESULT
+
+ID: toolu_01KbMZmn2DMjSvvqSBSidXVo
+
+<tool.toolu_01KbMZmn2DMjSvvqSBSidXVo>
+
+</tool.toolu_01KbMZmn2DMjSvvqSBSidXVo>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018G9ebHhcVEkybmyxnVo4fk
+
+## command
+
+<tool.toolu_018G9ebHhcVEkybmyxnVo4fk>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse --debug
+</tool.toolu_018G9ebHhcVEkybmyxnVo4fk>
+
+# TOOL RESULT
+
+ID: toolu_018G9ebHhcVEkybmyxnVo4fk
+
+<tool.toolu_018G9ebHhcVEkybmyxnVo4fk>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:179, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+DEBUG: valid_symbols - backticks:1, language:0, contents:0, char:'`'
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+DEBUG: valid_symbols - backticks:0, language:1, contents:1, char:'
+'
+lex_internal state:0, row:2, column:3
+  skip character:10
+lex_external state:1, row:2, column:3
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'
+'
+lex_internal state:0, row:2, column:3
+  skip character:10
+skip_unrecognized_character
+  consume character:'h'
+lex_external state:1, row:3, column:1
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'e'
+lex_internal state:0, row:3, column:1
+  consume character:'e'
+lex_external state:1, row:3, column:2
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'l'
+lex_internal state:0, row:3, column:2
+  consume character:'l'
+lex_external state:1, row:3, column:3
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'l'
+lex_internal state:0, row:3, column:3
+  consume character:'l'
+lex_external state:1, row:3, column:4
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'o'
+lex_internal state:0, row:3, column:4
+  consume character:'o'
+lex_external state:1, row:3, column:5
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'
+'
+lex_internal state:0, row:3, column:5
+  skip character:10
+lex_external state:1, row:4, column:0
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'`'
+lex_internal state:0, row:4, column:0
+  consume character:'`'
+lex_external state:1, row:4, column:1
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'`'
+lex_internal state:0, row:4, column:1
+  consume character:'`'
+lex_external state:1, row:4, column:2
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'`'
+lex_internal state:0, row:4, column:2
+  consume character:'`'
+lex_external state:1, row:4, column:3
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'
+'
+lex_internal state:0, row:4, column:3
+  skip character:10
+lexed_lookahead sym:ERROR, size:10
+detect_error lookahead:ERROR
+resume version:0
+skip_token symbol:ERROR
+process version:0, version_count:1, state:0, row:4, col:3
+lex_external state:1, row:4, column:3
+DEBUG: valid_symbols - backticks:1, language:1, contents:1, char:'
+'
+lex_internal state:0, row:4, column:3
+  skip character:10
+lexed_lookahead sym:end, size:1
+recover_to_previous state:1, depth:5
+recover_eof
+process version:1, version_count:2, state:1, row:4, col:3
+reduce sym:source_file, child_count:0
+accept
+select_smaller_error symbol:source_file, over_symbol:ERROR
+done
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 3])
+    (ERROR [3, 0] - [4, 3])))
+stdin	Parse:   83.92 ms	     0 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_018G9ebHhcVEkybmyxnVo4fk>
+
+# ASSISTANT
+
+Perfect! This debug output is very revealing. I can see:
+
+1. State 62: `backticks:1, language:0, contents:0` - Only backticks are valid, and it successfully returns `code_backticks`
+2. State 108: `backticks:0, language:1, contents:1` - After backticks, both language and contents are valid
+3. The scanner tries to parse language at the newline character, but fails (as expected)
+4. The scanner then tries to parse contents, but something is failing
+
+The issue is that after the scanner returns `false` for `CODE_LANGUAGE_IDENTIFIER`, it should be able to return `CODE_CONTENTS`. But looking at the debug output, it seems like the parser isn't correctly handling the case where the language scanner returns false.
+
+Let me add more debug output to the language and contents scanners:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01PReCd2DEdSt4BJPSvUc3fJ
+
+## path
+
+<tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+./src/scanner.c
+</tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+
+## git-commit-message
+
+<tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+Add debug output to language and contents scanners
+</tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+
+## diff
+
+<tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
++    printf("DEBUG: scan_code_language called, backtick_count:%d, char:'%c'\n", 
++           scanner->last_backtick_count, lexer->lookahead);
++    
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
++        printf("DEBUG: scan_code_language returning false (single backtick)\n");
+         return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+
+# TOOL RESULT
+
+ID: toolu_01PReCd2DEdSt4BJPSvUc3fJ
+
+<tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
+
+</tool.toolu_01PReCd2DEdSt4BJPSvUc3fJ>
