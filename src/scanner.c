@@ -717,18 +717,18 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     }
     
     // Check what comes after the identifier
-    // If there's a space followed by more content on the same line, this is not a language
+    // Language must be followed by newline, EOF, or spaces then newline/EOF
     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         // Skip spaces
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             advance(lexer);
         }
-        
-        // If there's non-newline content after spaces, this is not a valid language line
-        if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
-            *lexer = saved_lexer; // Restore lexer position
-            return false;
-        }
+    }
+    
+    // After the identifier (and any trailing spaces), we must see newline or EOF
+    if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+        *lexer = saved_lexer; // Restore lexer position
+        return false;
     }
     
     // If we get here, we have a valid language identifier

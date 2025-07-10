@@ -8367,5 +8367,235 @@ Add debug case without space after backticks
 ID: toolu_0124W91d4Doy4xyCEmHR8fBj
 
 <tool.toolu_0124W91d4Doy4xyCEmHR8fBj>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/debug-no-space.greger with 18 characters. Successfully staged 2 file(s) and committed with message: Add debug case without space after backticks
 </tool.toolu_0124W91d4Doy4xyCEmHR8fBj>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Jm4vzcQsfJdrnqPivtsrKE
+
+## command
+
+<tool.toolu_01Jm4vzcQsfJdrnqPivtsrKE>
+timeout 10 tree-sitter parse debug-no-space.greger
+</tool.toolu_01Jm4vzcQsfJdrnqPivtsrKE>
+
+# TOOL RESULT
+
+ID: toolu_01Jm4vzcQsfJdrnqPivtsrKE
+
+<tool.toolu_01Jm4vzcQsfJdrnqPivtsrKE>
+(source_file [0, 0] - [2, 6]
+  (assistant [0, 0] - [2, 6]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 6]
+      (code_backticks [2, 0] - [2, 2])
+      (code_language [2, 2] - [2, 4])
+      (code_contents [2, 4] - [2, 6])
+      (code_backticks [2, 6] - [2, 6]))))
+debug-no-space.greger	Parse:    0.12 ms	   159 bytes/ms	(MISSING code_backticks [2, 6] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01Jm4vzcQsfJdrnqPivtsrKE>
+
+# ASSISTANT
+
+Interesting! In this case, the scanner incorrectly identifies "a" as a  when it should be . This suggests that the  function is not working correctly.
+
+Looking at this output:
+- `code_backticks [2, 0] - [2, 2]`: `` ✓
+- `code_language [2, 2] - [2, 4]`: "a"  ✗ (should be part of contents)
+- `code_contents [2, 4] - [2, 6]`: `` ✗ (should be "a")
+- `code_backticks [2, 6] - [2, 6]`: missing ✗
+
+The  function is incorrectly identifying "a" as a valid language identifier. Let me check the function again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01EtEnuv6rXnkHiMcjmfXVbr
+
+## path
+
+<tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+src/scanner.c
+</tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+
+## start-line
+
+<tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+684
+</tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+
+## end-line
+
+<tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+700
+</tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+
+# TOOL RESULT
+
+ID: toolu_01EtEnuv6rXnkHiMcjmfXVbr
+
+<tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Only allow language for multi-backtick blocks (2 or more backticks)
+    if (scanner->last_backtick_count < 2) {
+        return false;
+    }
+    
+    // Save lexer state to restore if we fail
+    TSLexer saved_lexer = *lexer;
+    
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        *lexer = saved_lexer; // Restore lexer position
+</tool.toolu_01EtEnuv6rXnkHiMcjmfXVbr>
+
+# ASSISTANT
+
+The function looks correct. For the input , it should:
+1. Skip any leading whitespace (none)
+2. See 'a' which is a letter ✓
+3. Scan "a" as potential language ✓
+4. See  which is not a newline or end-of-file ✗
+5. Return false and restore lexer position
+
+But it's returning . This suggests that the validation logic is not working correctly. Let me check the rest of the function:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01FBkFvYzLiwtqXaoRkgFkrh
+
+## path
+
+<tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+src/scanner.c
+</tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+
+## start-line
+
+<tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+700
+</tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+
+## end-line
+
+<tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+730
+</tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+
+# TOOL RESULT
+
+ID: toolu_01FBkFvYzLiwtqXaoRkgFkrh
+
+<tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+        *lexer = saved_lexer; // Restore lexer position
+        return false;
+    }
+    
+    // Scan the potential language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        *lexer = saved_lexer; // Restore lexer position
+        return false;
+    }
+    
+    // Check what comes after the identifier
+    // If there's a space followed by more content on the same line, this is not a language
+    if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        // Skip spaces
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        
+        // If there's non-newline content after spaces, this is not a valid language line
+        if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+            *lexer = saved_lexer; // Restore lexer position
+            return false;
+</tool.toolu_01FBkFvYzLiwtqXaoRkgFkrh>
+
+# ASSISTANT
+
+For the input , after scanning "a", the function should:
+1. See  (backtick)
+2. This is not a space or tab, so skip the space-checking logic
+3. The backtick is not a newline or end-of-file, so... wait, what should happen here?
+
+Looking at the logic, after scanning "a", if the next character is not a space/tab, the function proceeds directly to the "success" path. But that's wrong! If the next character after a potential language identifier is a backtick, that means the language identifier is immediately followed by content, which means this is not a valid language line.
+
+The function should validate that after the language identifier, there's either:
+1. End of file
+2. A newline 
+3. Spaces followed by newline/end-of-file
+
+But in the case , after "a" comes , which should make this NOT a valid language line.
+
+Let me fix this logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01QJ14opjdw4p3wTJkMYh9XX
+
+## path
+
+<tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+src/scanner.c
+</tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+
+## git-commit-message
+
+<tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+Fix code_language validation to check for newline/EOF after identifier
+</tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+
+## diff
+
+<tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+     // Check what comes after the identifier
+-    // If there's a space followed by more content on the same line, this is not a language
++    // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+-        
+-        // If there's non-newline content after spaces, this is not a valid language line
+-        if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+-            *lexer = saved_lexer; // Restore lexer position
+-            return false;
+-        }
++    }
++    
++    // After the identifier (and any trailing spaces), we must see newline or EOF
++    if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
++        *lexer = saved_lexer; // Restore lexer position
++        return false;
+     }
+\ No newline at end of file
+
+</tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+
+# TOOL RESULT
+
+ID: toolu_01QJ14opjdw4p3wTJkMYh9XX
+
+<tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
+
+</tool.toolu_01QJ14opjdw4p3wTJkMYh9XX>
