@@ -8767,5 +8767,176 @@ Make code_language rule more explicit for debugging
 ID: toolu_01APJMUCaLZz56sSKwC39ZWA
 
 <tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make code_language rule more explicit for debugging
 </tool.toolu_01APJMUCaLZz56sSKwC39ZWA>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014wYrfXFUBJhemahFkfca9i
+
+## command
+
+<tool.toolu_014wYrfXFUBJhemahFkfca9i>
+cd . && tree-sitter generate
+</tool.toolu_014wYrfXFUBJhemahFkfca9i>
+
+# TOOL RESULT
+
+ID: toolu_014wYrfXFUBJhemahFkfca9i
+
+<tool.toolu_014wYrfXFUBJhemahFkfca9i>
+
+</tool.toolu_014wYrfXFUBJhemahFkfca9i>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FvXPxijSbDMU6mB7sqA5KT
+
+## command
+
+<tool.toolu_01FvXPxijSbDMU6mB7sqA5KT>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse --debug | head -30
+</tool.toolu_01FvXPxijSbDMU6mB7sqA5KT>
+
+# TOOL RESULT
+
+ID: toolu_01FvXPxijSbDMU6mB7sqA5KT
+
+<tool.toolu_01FvXPxijSbDMU6mB7sqA5KT>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:174, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+  consume character:'p'
+  consume character:'y'
+  consume character:'t'
+  consume character:'h'
+  consume character:'o'
+  consume character:'n'
+  consume character:10
+  consume character:'h'
+  consume character:'e'
+  consume character:'l'
+  consume character:'l'
+  consume character:'o'
+  consume character:10
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_contents, size:13
+shift state:138
+process version:0, version_count:1, state:138, row:4, col:0
+lex_external state:11, row:4, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:50
+process version:0, version_count:1, state:50, row:4, col:3
+lex_external state:2, row:4, column:3
+lex_internal state:177, row:4, column:3
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+reduce sym:code, child_count:3
+shift state:29
+process version:0, version_count:1, state:29, row:5, col:0
+lex_external state:2, row:5, column:0
+lex_internal state:177, row:5, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:assistant_content_blocks_repeat1, child_count:2
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01FvXPxijSbDMU6mB7sqA5KT>
+
+# ASSISTANT
+
+Same issue. The problem is clearly that the external scanner is being called immediately after the backticks, consuming everything including the language. The `optional(code_language)` rule is never getting a chance to match because the external scanner is consuming the content.
+
+Let me try a different approach. I need to understand Tree-sitter's parsing strategy better. Let me look at this from a different angle - maybe the issue is that both the internal `code_language` rule and the external `code_contents` rule are valid at the same position, and Tree-sitter is choosing the external one first.
+
+Let me check if the issue is that the external scanner is too greedy. I'll add some debug output to understand what's happening:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019LFSZuFEE9gvoWJoPLKnVP
+
+## path
+
+<tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+./src/scanner.c
+</tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+
+## git-commit-message
+
+<tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+Add debug output to understand when contents scanner is called
+</tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+
+## diff
+
+<tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // The contents scanner should only be called after the grammar has handled the language part
+     // We expect to be positioned after the language (if any) and after the newline
+     
++    printf("DEBUG: scan_code_contents called at char:'%c' (pos: %d)\n", lexer->lookahead, lexer->get_column(lexer));
++    
+     bool has_content = false;
+\ No newline at end of file
+
+</tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+
+# TOOL RESULT
+
+ID: toolu_019LFSZuFEE9gvoWJoPLKnVP
+
+<tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+
+</tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>

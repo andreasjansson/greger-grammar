@@ -687,6 +687,8 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     // The contents scanner should only be called after the grammar has handled the language part
     // We expect to be positioned after the language (if any) and after the newline
     
+    printf("DEBUG: scan_code_contents called at char:'%c' (pos: %d)\n", lexer->lookahead, lexer->get_column(lexer));
+    
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
