@@ -1,0 +1,36 @@
+=======================================
+HTML tags should be interpreted as text
+=======================================
+
+# SYSTEM
+
+You are a helpful assistant.
+
+<foo>foo<bar></bar></foo>
+
+# USER
+
+<safe-shell-commands>safe shell commands should only be parsed in system</safe-shell-commands>
+
+What's the weather like?
+
+<eval>Eval isn't a thing, shouldn't be parsed</eval>
+
+# ASSISTANT
+
+This is a <pre>unparsed `<pre>` tag</pre>
+
+---
+
+(source_file
+  (system
+    (system_header)
+    (text))
+  (user
+    (user_header)
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (inline-code)
+    (text)))
