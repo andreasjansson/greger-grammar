@@ -305,7 +305,7 @@ module.exports = grammar({
 
     language: $ => /[a-zA-Z0-9_+-]+/,
 
-    unclosed_backtick: $ => $.unclosed_backtick_token,
+
 
   },
 });
