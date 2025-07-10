@@ -802,6 +802,7 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     }
     
     // Always return CODE_CONTENTS token, even for empty content
+    printf("DEBUG: scan_code_contents returning true, has_content:%d\n", has_content);
     lexer->result_symbol = CODE_CONTENTS;
     return true;
 }
