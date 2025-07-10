@@ -673,7 +673,12 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
     return false;
 }
 
-static bool scan_code_language(TSLexer *lexer) {
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Only allow language for multi-backtick blocks (2 or more backticks)
+    if (scanner->last_backtick_count < 2) {
+        return false;
+    }
+    
     // Skip any leading whitespace
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
         advance(lexer);
