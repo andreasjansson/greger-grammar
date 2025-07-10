@@ -8729,5 +8729,140 @@ Make code_language non-optional since external scanner always returns it
 ID: toolu_01XdC6K98MHQD7Dmm4gTmBXA
 
 <tool.toolu_01XdC6K98MHQD7Dmm4gTmBXA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Make code_language non-optional since external scanner always returns it
 </tool.toolu_01XdC6K98MHQD7Dmm4gTmBXA>
+
+# ASSISTANT
+
+Now let's test this approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018pwNfU93xrw2g8adpn2q26
+
+## command
+
+<tool.toolu_018pwNfU93xrw2g8adpn2q26>
+tree-sitter generate && echo '# ASSISTANT
+
+```
+test
+```' | tree-sitter parse
+</tool.toolu_018pwNfU93xrw2g8adpn2q26>
+
+# TOOL RESULT
+
+ID: toolu_018pwNfU93xrw2g8adpn2q26
+
+<tool.toolu_018pwNfU93xrw2g8adpn2q26>
+
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_018pwNfU93xrw2g8adpn2q26>
+
+# ASSISTANT
+
+Excellent! This is working! Now I have:
+- 
+- **Empty** 
+- 
+- 
+
+Let me test the single backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MhbvRqciJADSkoxsYt8MXq
+
+## command
+
+<tool.toolu_01MhbvRqciJADSkoxsYt8MXq>
+echo '# USER
+
+`test`' | tree-sitter parse
+</tool.toolu_01MhbvRqciJADSkoxsYt8MXq>
+
+# TOOL RESULT
+
+ID: toolu_01MhbvRqciJADSkoxsYt8MXq
+
+<tool.toolu_01MhbvRqciJADSkoxsYt8MXq>
+
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 6])))
+stdin	Parse:    0.04 ms	   347 bytes/ms	(ERROR [0, 0] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01MhbvRqciJADSkoxsYt8MXq>
+
+# ASSISTANT
+
+The single backtick case still isn't working because the external scanner returns `false` for single backticks (which is correct - single backticks shouldn't have language tokens). Let me fix this by making the language truly optional but only for single backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01WvG12GUJ7pEKFYCzQyeKe7
+
+## path
+
+<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+./grammar.js
+</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+## git-commit-message
+
+<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+Make code rule handle both single and multi-backtick cases
+</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+## original-content
+
+<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+    code: $ => seq(
+      $.code_backticks,
+      alias($.code_language_identifier, $.code_language),
+      $.code_contents,
+      $.code_backticks,
+    ),
+</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+## new-content
+
+<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+    code: $ => choice(
+      // Single backtick code (no language)
+      seq(
+        $.code_backticks,
+        $.code_contents,
+        $.code_backticks,
+      ),
+      // Multi-backtick code (always has language token, even if empty)
+      seq(
+        $.code_backticks,
+        alias($.code_language_identifier, $.code_language),
+        $.code_contents,
+        $.code_backticks,
+      ),
+    ),
+</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+# TOOL RESULT
+
+ID: toolu_01WvG12GUJ7pEKFYCzQyeKe7
+
+<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+
+</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
