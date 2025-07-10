@@ -841,9 +841,9 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle inline code (single backtick)
-    if (valid_symbols[INLINE_CODE] && lexer->lookahead == '`') {
-        return scan_inline_code(lexer);
+    // Handle code (backticks)
+    if (valid_symbols[CODE] && lexer->lookahead == '`') {
+        return scan_code(lexer);
     }
     
     return false;
