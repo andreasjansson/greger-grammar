@@ -838,22 +838,14 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle backtick tokens
-    if (lexer->lookahead == '`') {
-        // Count backticks to determine which token to scan
-        TSLexer saved_lexer = *lexer;
-        int backtick_count = 0;
-        while (lexer->lookahead == '`') {
-            backtick_count++;
-            advance(lexer);
-        }
-        *lexer = saved_lexer; // Restore position
-        
-        if (backtick_count == 1 && valid_symbols[BACKTICK]) {
-            return scan_backtick(lexer);
-        } else if (backtick_count >= 2 && valid_symbols[CODE_BACKTICKS]) {
-            return scan_code_backticks(lexer);
-        }
+    // Handle single backtick
+    if (valid_symbols[BACKTICK] && lexer->lookahead == '`') {
+        return scan_backtick(lexer);
+    }
+    
+    // Handle multi-backticks
+    if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
+        return scan_code_backticks(lexer);
     }
     
     // Handle code language
