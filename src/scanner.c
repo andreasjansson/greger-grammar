@@ -661,12 +661,9 @@ static bool scan_inline_code(TSLexer *lexer) {
     }
     
     // We reached end of line without finding closing backtick
-    if (has_content) {
-        lexer->result_symbol = INLINE_CODE;
-        return true;
-    }
-    
-    return false;
+    // Always return INLINE_CODE token, even if empty
+    lexer->result_symbol = INLINE_CODE;
+    return true;
 }
 
 
