@@ -8828,35 +8828,31 @@ ID: toolu_01WvG12GUJ7pEKFYCzQyeKe7
 Make code rule handle both single and multi-backtick cases
 </tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
 
-## original-content
+## diff
 
 <tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
-    code: $ => seq(
-      $.code_backticks,
-      alias($.code_language_identifier, $.code_language),
-      $.code_contents,
-      $.code_backticks,
-    ),
-</tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
+-    code: $ => seq(
+-      $.code_backticks,
+-      alias($.code_language_identifier, $.code_language),
+-      $.code_contents,
+-      $.code_backticks,
++    code: $ => choice(
++      // Single backtick code (no language)
++      seq(
++        $.code_backticks,
++        $.code_contents,
++        $.code_backticks,
++      ),
++      // Multi-backtick code (always has language token, even if empty)
++      seq(
++        $.code_backticks,
++        alias($.code_language_identifier, $.code_language),
++        $.code_contents,
++        $.code_backticks,
++      ),
+     ),
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
-    code: $ => choice(
-      // Single backtick code (no language)
-      seq(
-        $.code_backticks,
-        $.code_contents,
-        $.code_backticks,
-      ),
-      // Multi-backtick code (always has language token, even if empty)
-      seq(
-        $.code_backticks,
-        alias($.code_language_identifier, $.code_language),
-        $.code_contents,
-        $.code_backticks,
-      ),
-    ),
 </tool.toolu_01WvG12GUJ7pEKFYCzQyeKe7>
 
 # TOOL RESULT
@@ -8959,35 +8955,31 @@ ID: toolu_01TRnURQUdK1m9GfrBVe5zTQ
 Revert to single code rule with optional language
 </tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
 
-## original-content
+## diff
 
 <tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
-    code: $ => choice(
-      // Single backtick code (no language)
-      seq(
-        $.code_backticks,
-        $.code_contents,
-        $.code_backticks,
-      ),
-      // Multi-backtick code (always has language token, even if empty)
-      seq(
-        $.code_backticks,
-        alias($.code_language_identifier, $.code_language),
-        $.code_contents,
-        $.code_backticks,
-      ),
-    ),
-</tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+-    code: $ => choice(
+-      // Single backtick code (no language)
+-      seq(
+-        $.code_backticks,
+-        $.code_contents,
+-        $.code_backticks,
+-      ),
+-      // Multi-backtick code (always has language token, even if empty)
+-      seq(
+-        $.code_backticks,
+-        alias($.code_language_identifier, $.code_language),
+-        $.code_contents,
+-        $.code_backticks,
+-      ),
++    code: $ => seq(
++      $.code_backticks,
++      optional(alias($.code_language_identifier, $.code_language)),
++      $.code_contents,
++      $.code_backticks,
+     ),
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
-    code: $ => seq(
-      $.code_backticks,
-      optional(alias($.code_language_identifier, $.code_language)),
-      $.code_contents,
-      $.code_backticks,
-    ),
 </tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
 
 # TOOL RESULT
@@ -8995,5 +8987,135 @@ Revert to single code rule with optional language
 ID: toolu_01TRnURQUdK1m9GfrBVe5zTQ
 
 <tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert to single code rule with optional language
 </tool.toolu_01TRnURQUdK1m9GfrBVe5zTQ>
+
+# ASSISTANT
+
+Now let me fix the external scanner to handle this correctly. The key insight is that the external scanner should return a language token for multi-backtick cases but not for single-backtick cases:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01QC4jUJWSEqp3VUhimpD9kZ
+
+## path
+
+<tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+./src/scanner.c
+</tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+
+## git-commit-message
+
+<tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+Fix language scanner to only return tokens for multi-backtick cases with valid content
+</tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+
+## diff
+
+<tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    // Always return a language token for multi-backtick blocks to ensure proper state transitions
+     // For single backtick blocks, don't return language token
+     if (scanner->last_backtick_count == 1) {
+         return false;
+     }
+     
+-    // For multi-backtick blocks, always return a language token (even if empty)
+-    // Save lexer state to restore if we need to return empty token
++    // For multi-backtick blocks, only return language token if there's valid language content
++    // Save lexer state to restore if we fail
+     TSLexer saved_lexer = *lexer;
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+-    // If we hit a newline immediately, return empty language token
++    // If we hit a newline immediately, no language present
+     if (lexer->lookahead == '\n' || lexer->lookahead == 0) {
+-        *lexer = saved_lexer; // Don't consume anything for empty language
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        return false;
+     }
+     
+-    // Check if it's a valid language identifier start
++    // Must start with a letter or underscore for valid language
+     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+-        // Invalid language start - return empty language token
+-        *lexer = saved_lexer; // Don't consume anything
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        // Invalid language start
++        return false;
+     }
+     
+     // Scan the potential language identifier
+     bool has_content = false;
+     
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+         has_content = true;
+     }
+     
+     if (!has_content) {
+-        // No valid language content - return empty token
+-        *lexer = saved_lexer;
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        // No valid language content
++        return false;
+     }
+     
+     // Check what comes after the identifier
+     // Language must be followed by newline, EOF, or spaces then newline/EOF
+     if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         // Skip spaces
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+     }
+     
+     // After the identifier (and any trailing spaces), we must see newline or EOF
+     if (lexer->lookahead != '\n' && lexer->lookahead != 0) {
+-        // Invalid language (has spaces or other characters) - return empty token
+-        *lexer = saved_lexer;
+-        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+-        return true;
++        // Invalid language (has spaces or other characters)
++        return false;
+     }
+     
+     // If we get here, we have a valid language identifier
+     *lexer = saved_lexer; // Restore to start of language
+     
+     // Skip any leading whitespace
+     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+         advance(lexer);
+     }
+     
+     // Re-scan and consume the language
+     while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+            iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+            lexer->lookahead == '+' || lexer->lookahead == '-') {
+         advance(lexer);
+     }
+     
+     lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+
+# TOOL RESULT
+
+ID: toolu_01QC4jUJWSEqp3VUhimpD9kZ
+
+<tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
+
+</tool.toolu_01QC4jUJWSEqp3VUhimpD9kZ>
