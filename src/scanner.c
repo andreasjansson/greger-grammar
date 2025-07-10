@@ -757,9 +757,6 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    printf("DEBUG: scan_code_contents called, backtick_count:%d, char:'%c'\n", 
-           scanner->last_backtick_count, lexer->lookahead);
-    
     bool has_content = false;
     
     while (lexer->lookahead != 0) {
