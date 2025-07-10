@@ -990,6 +990,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_code_contents(scanner, lexer);
     }
     
+    // Handle eval language
+    if (valid_symbols[EVAL_LANGUAGE]) {
+        return scan_eval_language(lexer);
+    }
+    
     return false;
 }
 
