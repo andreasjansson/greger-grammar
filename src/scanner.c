@@ -989,14 +989,14 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_code_backticks(scanner, lexer);
     }
     
+    // Handle code contents first - this will match for no-language cases
+    if (valid_symbols[CODE_CONTENTS]) {
+        return scan_code_contents(scanner, lexer);
+    }
+    
     // Handle code language identifier
     if (valid_symbols[CODE_LANGUAGE_IDENTIFIER]) {
         return scan_code_language(scanner, lexer);
-    }
-    
-    // Handle code contents
-    if (valid_symbols[CODE_CONTENTS]) {
-        return scan_code_contents(scanner, lexer);
     }
     
     // Handle eval language
