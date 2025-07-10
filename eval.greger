@@ -8938,5 +8938,135 @@ Add debug output to understand when contents scanner is called
 ID: toolu_019LFSZuFEE9gvoWJoPLKnVP
 
 <tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to understand when contents scanner is called
 </tool.toolu_019LFSZuFEE9gvoWJoPLKnVP>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DgJtKm2YWrDfcQKwCfPetP
+
+## command
+
+<tool.toolu_01DgJtKm2YWrDfcQKwCfPetP>
+cd . && tree-sitter generate
+</tool.toolu_01DgJtKm2YWrDfcQKwCfPetP>
+
+# TOOL RESULT
+
+ID: toolu_01DgJtKm2YWrDfcQKwCfPetP
+
+<tool.toolu_01DgJtKm2YWrDfcQKwCfPetP>
+
+</tool.toolu_01DgJtKm2YWrDfcQKwCfPetP>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Csn9crVTF431MVRfH25YHQ
+
+## command
+
+<tool.toolu_01Csn9crVTF431MVRfH25YHQ>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_01Csn9crVTF431MVRfH25YHQ>
+
+# TOOL RESULT
+
+ID: toolu_01Csn9crVTF431MVRfH25YHQ
+
+<tool.toolu_01Csn9crVTF431MVRfH25YHQ>
+
+DEBUG: scan_code_contents called at char:'p' (pos: 3)
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01Csn9crVTF431MVRfH25YHQ>
+
+# ASSISTANT
+
+Perfect! This confirms the issue. The `scan_code_contents` function is being called immediately after the backticks, at character 'p' (position 3). This means Tree-sitter is not giving the internal grammar rule for `code_language` a chance to match.
+
+The problem is that Tree-sitter is preferring the external token over the internal token. I need to understand why this is happening and fix it.
+
+Let me think about this differently. The issue might be that the external scanner is being called because `CODE_CONTENTS` is valid at that position. But the internal rule `code_language` should also be valid at that position.
+
+Looking at the grammar rule:
+```javascript
+code: $ => seq(
+  $.code_backticks,
+  optional($.code_language),
+  $.code_contents,
+  $.code_backticks,
+),
+```
+
+After parsing `code_backticks`, the parser has two options:
+1. Try to match `code_language` (internal rule)
+2. Skip the optional `code_language` and try to match `code_contents` (external rule)
+
+It seems like Tree-sitter is choosing option 2 instead of option 1.
+
+Let me try a different approach. Instead of making the language optional, let me force the parser to make a decision by making the language rule more specific. Let me try changing the grammar to use a different structure that forces proper ordering:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01DkoinJmgocu47UbsKMY96L
+
+## path
+
+<tool.toolu_01DkoinJmgocu47UbsKMY96L>
+./grammar.js
+</tool.toolu_01DkoinJmgocu47UbsKMY96L>
+
+## git-commit-message
+
+<tool.toolu_01DkoinJmgocu47UbsKMY96L>
+Try alternative grammar structure for code blocks
+</tool.toolu_01DkoinJmgocu47UbsKMY96L>
+
+## diff
+
+<tool.toolu_01DkoinJmgocu47UbsKMY96L>
+-    code: $ => seq(
+-      $.code_backticks,
+-      optional($.code_language),
+-      $.code_contents,
+-      $.code_backticks,
++    code: $ => choice(
++      seq(
++        $.code_backticks,
++        $.code_language,
++        $.code_contents,
++        $.code_backticks,
++      ),
++      seq(
++        $.code_backticks,
++        $.code_contents,
++        $.code_backticks,
++      ),
+     ),
+     
+     code_language: $ => token(/[a-zA-Z_][a-zA-Z0-9_+\-]*/),
+\ No newline at end of file
+
+</tool.toolu_01DkoinJmgocu47UbsKMY96L>
+
+# TOOL RESULT
+
+ID: toolu_01DkoinJmgocu47UbsKMY96L
+
+<tool.toolu_01DkoinJmgocu47UbsKMY96L>
+
+</tool.toolu_01DkoinJmgocu47UbsKMY96L>

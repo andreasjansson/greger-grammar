@@ -298,11 +298,18 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    code: $ => seq(
-      $.code_backticks,
-      optional($.code_language),
-      $.code_contents,
-      $.code_backticks,
+    code: $ => choice(
+      seq(
+        $.code_backticks,
+        $.code_language,
+        $.code_contents,
+        $.code_backticks,
+      ),
+      seq(
+        $.code_backticks,
+        $.code_contents,
+        $.code_backticks,
+      ),
     ),
     
     code_language: $ => token(/[a-zA-Z_][a-zA-Z0-9_+\-]*/),
