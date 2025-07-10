@@ -300,20 +300,11 @@ module.exports = grammar({
 
     language: $ => /[a-zA-Z0-9_+-]+/,
 
-    code: $ => choice(
-      // Single backtick code
-      seq(
-        $.backtick,
-        $.code_contents,
-        $.backtick,
-      ),
-      // Multi-backtick code
-      seq(
-        $.code_backticks,
-        optional($.code_language),
-        $.code_contents,
-        $.code_backticks,
-      ),
+    code: $ => seq(
+      $.code_backticks,
+      optional($.code_language),
+      $.code_contents,
+      $.code_backticks,
     ),
 
   },
