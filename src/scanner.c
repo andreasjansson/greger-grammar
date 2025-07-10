@@ -682,9 +682,10 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
-    // Only allow language for multi-backtick blocks (2 or more backticks)
+    // For single backtick blocks, return empty language token
     if (scanner->last_backtick_count < 2) {
-        return false;
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
     // Save lexer state to restore if we fail
@@ -698,7 +699,9 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
     // Must start with a letter or underscore
     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
         *lexer = saved_lexer; // Restore lexer position
-        return false;
+        // Return empty language token
+        lexer->result_symbol = CODE_LANGUAGE_IDENTIFIER;
+        return true;
     }
     
     // Scan the potential language identifier
