@@ -6332,5 +6332,117 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_01RfjcPNoXWFWDVzno5nd8D6
 
 <tool.toolu_01RfjcPNoXWFWDVzno5nd8D6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement basic code content scanner without complex lookahead
 </tool.toolu_01RfjcPNoXWFWDVzno5nd8D6>
+
+# ASSISTANT
+
+Let me test this simpler approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CVeS3De5aYmUN3bk7Fnr3F
+
+## command
+
+<tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+
+## timeout
+
+<tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+10
+</tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+
+# TOOL RESULT
+
+ID: toolu_01CVeS3De5aYmUN3bk7Fnr3F
+
+<tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+Command timed out after 10 seconds
+</tool.toolu_01CVeS3De5aYmUN3bk7Fnr3F>
+
+# ASSISTANT
+
+There's still an infinite loop. Let me debug this by testing with a simple case first:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0122NjwS8rB41nTnZQonUmnN
+
+## command
+
+<tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+
+## timeout
+
+<tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+10
+</tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+
+# TOOL RESULT
+
+ID: toolu_0122NjwS8rB41nTnZQonUmnN
+
+<tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+Command timed out after 10 seconds
+</tool.toolu_0122NjwS8rB41nTnZQonUmnN>
+
+# ASSISTANT
+
+Even the simple case is hanging. There must be an issue with the scanner logic. Let me check if there's an issue with the state management or the scanner calling conditions. Let me add some debug output to understand what's happening:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014gUfUJeio52NFvpsR4CSyA
+
+## path
+
+<tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+./src/scanner.c
+</tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+
+## git-commit-message
+
+<tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+Add debug output to understand scanner behavior
+</tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+
+## diff
+
+<tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+     // Handle code content when in code parsing state
+     if (scanner->in_code_content) {
++        fprintf(stderr, "DEBUG: in_code_content=true, delimiter_length=%d\n", scanner->fenced_code_block_delimiter_length);
+         if (valid_symbols[CODE_CONTENT]) {
++            fprintf(stderr, "DEBUG: calling scan_code_content\n");
+             return scan_code_content(scanner, lexer);
+         }
+         if (valid_symbols[CODE_BACKTICKS_END]) {
++            fprintf(stderr, "DEBUG: calling scan_code_backticks_end\n");
+             return scan_code_backticks_end(scanner, lexer);
+         }
+     }
+     
+     // Handle code backticks start
+     if (lexer->lookahead == '`' && valid_symbols[CODE_BACKTICKS_START]) {
++        fprintf(stderr, "DEBUG: calling scan_code_backticks_start\n");
+         return scan_code_backticks_start(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+
+# TOOL RESULT
+
+ID: toolu_014gUfUJeio52NFvpsR4CSyA
+
+<tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+
+</tool.toolu_014gUfUJeio52NFvpsR4CSyA>
