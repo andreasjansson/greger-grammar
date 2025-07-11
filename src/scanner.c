@@ -729,11 +729,22 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     
     lexer->mark_end(lexer);
     
-    bool at_line_start = true;  // Track if we're at the beginning of a line
     bool has_content = false;
+    bool at_line_start = true;
     
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '`' && (scanner->code_backtick_count <= 2 || at_line_start)) {
+        // Check if we're at a potential closing delimiter
+        if (lexer->lookahead == '`') {
+            // For fenced code blocks, only consider closing at line start
+            if (scanner->code_backtick_count >= 3 && !at_line_start) {
+                // Not at line start, treat as content
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+                at_line_start = false;
+                continue;
+            }
+            
             // Count consecutive backticks
             int closing_backticks = 0;
             TSLexer temp_lexer = *lexer;
@@ -743,66 +754,65 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             }
             
             if (closing_backticks == scanner->code_backtick_count) {
-                // Found matching closing delimiter
+                // Check if this is a valid closing delimiter
                 if (scanner->code_backtick_count >= 3) {
-                    // For fenced code blocks, check if followed by newline/EOF
+                    // For fenced code blocks, require newline/EOF after closing
                     while (temp_lexer.lookahead == ' ' || temp_lexer.lookahead == '\t') {
                         temp_lexer.advance(&temp_lexer, false);
                     }
                     if (temp_lexer.lookahead == '\n' || temp_lexer.lookahead == '\r' || temp_lexer.lookahead == 0) {
-                        // This is the closing delimiter, stop content here
+                        // Valid closing delimiter
                         if (has_content) {
                             lexer->result_symbol = CODE_CONTENT;
                             return true;
                         } else {
-                            // No content, let end tag handle the closing
                             return false;
                         }
                     }
-                    // Not followed by newline/EOF, treat as content and continue
-                    advance(lexer);
-                    has_content = true;
-                    lexer->mark_end(lexer);
-                    at_line_start = false;
                 } else {
-                    // For inline code, this is the closing delimiter
+                    // For inline code, this is a valid closing delimiter
                     if (has_content) {
                         lexer->result_symbol = CODE_CONTENT;
                         return true;
                     } else {
-                        // No content, let end tag handle the closing
                         return false;
                     }
                 }
-            } else {
-                // Not a matching closing delimiter, continue as content
-                advance(lexer);
-                has_content = true;
-                lexer->mark_end(lexer);
-                at_line_start = false;
             }
+            
+            // Not a valid closing delimiter, treat as content
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+            at_line_start = false;
         } else {
             // For inline code (1-2 backticks), stop at newlines
             if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                return false;
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
             }
             
-            // Update line start tracking
+            // Regular content
             if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                advance(lexer);
                 at_line_start = true;
-            } else if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                // Whitespace at start of line keeps us at line start
-                advance(lexer);
-            } else {
-                // Non-whitespace means we're not at line start anymore
-                advance(lexer);
+            } else if (lexer->lookahead != ' ' && lexer->lookahead != '\t') {
                 at_line_start = false;
             }
             
+            advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
         }
+    }
+    
+    // Reached end of input
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
     }
     
     return false;
