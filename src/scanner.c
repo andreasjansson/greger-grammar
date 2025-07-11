@@ -684,8 +684,6 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    printf("DEBUG: scan_code_contents called, backtick_count=%d, char='%c'\n", scanner->last_backtick_count, lexer->lookahead);
-    
     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
     // Let the grammar handle it
     if (scanner->last_backtick_count > 1) {
@@ -694,11 +692,8 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
             advance(lexer);
         }
         
-        printf("DEBUG: After skipping whitespace, char='%c'\n", lexer->lookahead);
-        
         // If we see a language identifier, return false to let grammar handle it
         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
-            printf("DEBUG: Found potential language start\n");
             // Check if this looks like a language identifier
             TSLexer saved_lexer = *lexer;
             
@@ -709,20 +704,14 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
                 advance(lexer);
             }
             
-            printf("DEBUG: After scanning identifier, char='%c'\n", lexer->lookahead);
-            
-            printf("DEBUG: After scanning identifier, checking what follows\n");
-            
             // A language identifier is valid if it's followed by:
             // 1. Newline (block style: ```python\ncode\n```)
             // 2. Space/tab then anything (inline style: ```javascript console.log()```)
             if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
                 lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                printf("DEBUG: Detected language identifier, returning false\n");
                 return false;
             }
             
-            printf("DEBUG: Not a language identifier, continuing with contents\n");
             // Not a language identifier, restore lexer and continue
             *lexer = saved_lexer;
         }

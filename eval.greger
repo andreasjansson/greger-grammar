@@ -10680,5 +10680,299 @@ Fix language detection logic - allow content after language identifier
 ID: toolu_019Jw2GTJsb8E71beommu1L4
 
 <tool.toolu_019Jw2GTJsb8E71beommu1L4>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix language detection logic - allow content after language identifier
 </tool.toolu_019Jw2GTJsb8E71beommu1L4>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BAJuY52ZXDkh6zkbGDGs3K
+
+## command
+
+<tool.toolu_01BAJuY52ZXDkh6zkbGDGs3K>
+cd . && tree-sitter generate
+</tool.toolu_01BAJuY52ZXDkh6zkbGDGs3K>
+
+# TOOL RESULT
+
+ID: toolu_01BAJuY52ZXDkh6zkbGDGs3K
+
+<tool.toolu_01BAJuY52ZXDkh6zkbGDGs3K>
+
+</tool.toolu_01BAJuY52ZXDkh6zkbGDGs3K>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01TALXNAPy2LW5msxfHyRA32
+
+## command
+
+<tool.toolu_01TALXNAPy2LW5msxfHyRA32>
+cd . && echo '# ASSISTANT
+
+```javascript console.log("hello")```' | tree-sitter parse
+</tool.toolu_01TALXNAPy2LW5msxfHyRA32>
+
+# TOOL RESULT
+
+ID: toolu_01TALXNAPy2LW5msxfHyRA32
+
+<tool.toolu_01TALXNAPy2LW5msxfHyRA32>
+
+DEBUG: scan_code_contents called, backtick_count=3, char='j'
+DEBUG: After skipping whitespace, char='j'
+DEBUG: Found potential language start
+DEBUG: After scanning identifier, char=' '
+DEBUG: After scanning identifier, checking what follows
+DEBUG: Detected language identifier, returning false
+DEBUG: scan_code_contents called, backtick_count=3, char=' '
+DEBUG: After skipping whitespace, char='c'
+DEBUG: Found potential language start
+DEBUG: After scanning identifier, char='.'
+DEBUG: After scanning identifier, checking what follows
+DEBUG: Not a language identifier, continuing with contents
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 13])
+      (code_contents [2, 13] - [2, 34])
+      (code_backticks [2, 34] - [2, 37]))
+    (text [2, 37] - [3, 0])))
+
+</tool.toolu_01TALXNAPy2LW5msxfHyRA32>
+
+# ASSISTANT
+
+Excellent! It's working now! The debug output shows:
+
+1. First call: detects "javascript" as language identifier, returns false
+2. Grammar parses language from position 3 to 13 ("javascript")
+3. Second call: positioned at the space after "javascript", processes " console.log..." as contents
+
+The parse tree now correctly shows:
+- `(code_language [2, 3] - [2, 13])` containing "javascript"
+- `(code_contents [2, 13] - [2, 34])` containing " console.log("hello")"
+
+Let me remove the debug output and test a few more cases to make sure it works:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01USZRCSZ3favAKNfQcZ436f
+
+## path
+
+<tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+./src/scanner.c
+</tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+
+## git-commit-message
+
+<tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+Remove debug output - inline language detection is working
+</tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+
+## diff
+
+<tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    printf("DEBUG: scan_code_contents called, backtick_count=%d, char='%c'\n", scanner->last_backtick_count, lexer->lookahead);
+-    
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->last_backtick_count > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+-        printf("DEBUG: After skipping whitespace, char='%c'\n", lexer->lookahead);
+-        
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+-            printf("DEBUG: Found potential language start\n");
+             // Check if this looks like a language identifier
+             TSLexer saved_lexer = *lexer;
+             
+             // Scan potential language identifier
+             while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+                    iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+                    lexer->lookahead == '+' || lexer->lookahead == '-') {
+                 advance(lexer);
+             }
+             
+-            printf("DEBUG: After scanning identifier, checking what follows\n");
+-            
+             // A language identifier is valid if it's followed by:
+             // 1. Newline (block style: ```python\ncode\n```)
+             // 2. Space/tab then anything (inline style: ```javascript console.log()```)
+             if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
+                 lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                printf("DEBUG: Detected language identifier, returning false\n");
+                 return false;
+             }
+             
+-            printf("DEBUG: Not a language identifier, continuing with contents\n");
+             // Not a language identifier, restore lexer and continue
+             *lexer = saved_lexer;
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+
+# TOOL RESULT
+
+ID: toolu_01USZRCSZ3favAKNfQcZ436f
+
+<tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+Original content not found in file: /Users/andreas/projects/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01USZRCSZ3favAKNfQcZ436f>
+
+# ASSISTANT
+
+Let me check the current content:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01R9QdU2uyd8dcNVfMCiHdvA
+
+## path
+
+<tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+./src/scanner.c
+</tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+
+## start-line
+
+<tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+686
+</tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+
+## end-line
+
+<tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+720
+</tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+
+# TOOL RESULT
+
+ID: toolu_01R9QdU2uyd8dcNVfMCiHdvA
+
+<tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+    printf("DEBUG: scan_code_contents called, backtick_count=%d, char='%c'\n", scanner->last_backtick_count, lexer->lookahead);
+    
+    // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+    // Let the grammar handle it
+    if (scanner->last_backtick_count > 1) {
+        // Skip whitespace
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        
+        printf("DEBUG: After skipping whitespace, char='%c'\n", lexer->lookahead);
+        
+        // If we see a language identifier, return false to let grammar handle it
+        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+            printf("DEBUG: Found potential language start\n");
+            // Check if this looks like a language identifier
+            TSLexer saved_lexer = *lexer;
+            
+            // Scan potential language identifier
+            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+                   lexer->lookahead == '+' || lexer->lookahead == '-') {
+                advance(lexer);
+            }
+            
+            printf("DEBUG: After scanning identifier, char='%c'\n", lexer->lookahead);
+            
+            printf("DEBUG: After scanning identifier, checking what follows\n");
+            
+            // A language identifier is valid if it's followed by:
+            // 1. Newline (block style: ```python\ncode\n```)
+            // 2. Space/tab then anything (inline style: ```javascript console.log()```)
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
+                lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+</tool.toolu_01R9QdU2uyd8dcNVfMCiHdvA>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017LmRCkQwRwJv441DLcUeMX
+
+## path
+
+<tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+./src/scanner.c
+</tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+
+## git-commit-message
+
+<tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+Remove debug output - inline language detection is working
+</tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+
+## diff
+
+<tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+-    printf("DEBUG: scan_code_contents called, backtick_count=%d, char='%c'\n", scanner->last_backtick_count, lexer->lookahead);
+-    
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->last_backtick_count > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+-        printf("DEBUG: After skipping whitespace, char='%c'\n", lexer->lookahead);
+-        
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+-            printf("DEBUG: Found potential language start\n");
+             // Check if this looks like a language identifier
+             TSLexer saved_lexer = *lexer;
+             
+             // Scan potential language identifier
+             while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+                    iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+                    lexer->lookahead == '+' || lexer->lookahead == '-') {
+                 advance(lexer);
+             }
+             
+-            printf("DEBUG: After scanning identifier, char='%c'\n", lexer->lookahead);
+-            
+-            printf("DEBUG: After scanning identifier, checking what follows\n");
+-            
+             // A language identifier is valid if it's followed by:
+             // 1. Newline (block style: ```python\ncode\n```)
+             // 2. Space/tab then anything (inline style: ```javascript console.log()```)
+             if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
+                 lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                printf("DEBUG: Detected language identifier, returning false\n");
+                 return false;
+             }
+             
+-            printf("DEBUG: Not a language identifier, continuing with contents\n");
+             // Not a language identifier, restore lexer and continue
+             *lexer = saved_lexer;
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+
+# TOOL RESULT
+
+ID: toolu_017LmRCkQwRwJv441DLcUeMX
+
+<tool.toolu_017LmRCkQwRwJv441DLcUeMX>
+
+</tool.toolu_017LmRCkQwRwJv441DLcUeMX>
