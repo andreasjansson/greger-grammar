@@ -755,6 +755,8 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             // If we're in the middle of matching code close tag, advance but don't continue
             // We need to check for backtick patterns as well
             advance(lexer);
+            fprintf(stderr, "DEBUG: Advanced past char, now looking at: %c (code: %d)\n", 
+                    lexer->lookahead, lexer->lookahead);
             // Don't continue here - we want to check for backtick patterns too
         } else {
             if (code_close_match_index > 0) {
