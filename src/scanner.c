@@ -667,8 +667,8 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
     lexer->mark_end(lexer);
     
     // If this can close a code block (exact match of delimiter length)
-    if (valid_symbols[CODE_BACKTICKS_END] && 
-        level == scanner->fenced_code_block_delimiter_length &&
+    if (level == scanner->fenced_code_block_delimiter_length && 
+        valid_symbols[CODE_BACKTICKS_END] &&
         scanner->fenced_code_block_delimiter_length > 0) {
         
         // For fenced code blocks (3+ backticks), require newline/EOF after closing
@@ -722,11 +722,38 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
             lexer->result_symbol = CODE_BACKTICKS_START;
             return true;
         } else {
-            // For inline code (1-2 backticks), always accept as start
-            // Let the grammar handle finding the matching end
-            scanner->fenced_code_block_delimiter_length = level;
-            lexer->result_symbol = CODE_BACKTICKS_START;
-            return true;
+            // For inline code (1-2 backticks), use lookahead like markdown parser
+            // Save current position to restore later
+            TSLexer saved_lexer = *lexer;
+            
+            int close_level = 0;
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    close_level++;
+                } else {
+                    if (close_level == level) {
+                        // Found matching closing delimiter
+                        *lexer = saved_lexer; // Restore position
+                        scanner->fenced_code_block_delimiter_length = level;
+                        lexer->result_symbol = CODE_BACKTICKS_START;
+                        return true;
+                    }
+                    close_level = 0;
+                }
+                advance(lexer);
+            }
+            
+            // Check if we ended with the right level
+            if (close_level == level) {
+                *lexer = saved_lexer; // Restore position
+                scanner->fenced_code_block_delimiter_length = level;
+                lexer->result_symbol = CODE_BACKTICKS_START;
+                return true;
+            }
+            
+            // No matching closing delimiter found, restore position
+            *lexer = saved_lexer;
+            return false;
         }
     }
     

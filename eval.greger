@@ -9449,5 +9449,290 @@ Add separate text content rule for code blocks that allows backticks
 ID: toolu_0181D6czoYRJigk2TynWzz73
 
 <tool.toolu_0181D6czoYRJigk2TynWzz73>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add separate text content rule for code blocks that allows backticks
 </tool.toolu_0181D6czoYRJigk2TynWzz73>
+
+# ASSISTANT
+
+Let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01X368XSXmh5JZ3Nu47DT5uH
+
+## command
+
+<tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+
+## timeout
+
+<tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+10
+</tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+
+# TOOL RESULT
+
+ID: toolu_01X368XSXmh5JZ3Nu47DT5uH
+
+<tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.02 ms	  1083 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01X368XSXmh5JZ3Nu47DT5uH>
+
+# ASSISTANT
+
+The issue is still exactly the same. I think the problem is deeper than the content rule. The issue is that when the parser encounters the single backtick at position [2, 3], it's still calling the external scanner because backticks are in the externals list.
+
+Let me think about this more carefully. In the markdown approach, the key insight is that:
+
+1. The external scanner ONLY handles the opening and closing delimiters
+2. Once we're inside a code span, backticks are treated as regular text and the external scanner is NOT called for them
+
+The problem might be that Tree-sitter is calling my external scanner for every backtick it encounters, even those that should be content.
+
+But looking at the markdown inline parser, it still has the same issue - backticks are handled by the external scanner. Let me look at the markdown inline scanner logic more carefully to see how it handles this case:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01WERkwns1sqShuh1NoZqXkU
+
+## path
+
+<tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/scanner.c
+</tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+
+## start-line
+
+<tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+95
+</tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+
+## end-line
+
+<tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+145
+</tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+
+# TOOL RESULT
+
+ID: toolu_01WERkwns1sqShuh1NoZqXkU
+
+<tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+static bool parse_leaf_delimiter(TSLexer *lexer, uint8_t *delimiter_length,
+                                 const bool *valid_symbols,
+                                 const char delimiter,
+                                 const TokenType open_token,
+                                 const TokenType close_token) {
+    uint8_t level = 0;
+    while (lexer->lookahead == delimiter) {
+        lexer->advance(lexer, false);
+        level++;
+    }
+    lexer->mark_end(lexer);
+    if (level == *delimiter_length && valid_symbols[close_token]) {
+        *delimiter_length = 0;
+        lexer->result_symbol = close_token;
+        return true;
+    }
+    if (valid_symbols[open_token]) {
+        // Parse ahead to check if there is a closing delimiter
+        size_t close_level = 0;
+        while (!lexer->eof(lexer)) {
+            if (lexer->lookahead == delimiter) {
+                close_level++;
+            } else {
+                if (close_level == level) {
+                    // Found a matching delimiter
+                    break;
+                }
+                close_level = 0;
+            }
+            lexer->advance(lexer, false);
+        }
+        if (close_level == level) {
+            *delimiter_length = level;
+            lexer->result_symbol = open_token;
+            return true;
+        }
+        if (valid_symbols[UNCLOSED_SPAN]) {
+            lexer->result_symbol = UNCLOSED_SPAN;
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool parse_backtick(Scanner *s, TSLexer *lexer,
+                           const bool *valid_symbols) {
+    return parse_leaf_delimiter(lexer, &s->code_span_delimiter_length,
+                                valid_symbols, '`', CODE_SPAN_START,
+                                CODE_SPAN_CLOSE);
+}
+
+</tool.toolu_01WERkwns1sqShuh1NoZqXkU>
+
+# ASSISTANT
+
+Ah! This is the key insight I was missing. The markdown inline scanner uses **exactly the same lookahead approach I was trying**, but the critical difference is in the `valid_symbols` check.
+
+Look at line 106: `if (level == *delimiter_length && valid_symbols[close_token])`. The scanner will ONLY try to close a code span if `valid_symbols[CODE_SPAN_CLOSE]` is true. Similarly, it will only try to open a code span if `valid_symbols[CODE_SPAN_START]` is true.
+
+This means that when the parser encounters a backtick in the middle of content, `valid_symbols[CODE_BACKTICKS_START]` and `valid_symbols[CODE_BACKTICKS_END]` are both false, so the scanner returns false and lets the grammar handle it as regular text.
+
+The issue with my implementation might be that my scanner is being called even when it shouldn't be. Let me add some debug output to see what's happening with the valid_symbols:
+
+Actually, let me first try implementing the exact same logic as the markdown inline parser:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017G8AJ6MyPbvWPJdcYm7Wxk
+
+## path
+
+<tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+./src/scanner.c
+</tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+
+## git-commit-message
+
+<tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+Rewrite scanner to exactly match markdown inline parser logic
+</tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+
+## diff
+
+<tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of backticks
+     int level = 0;
+     while (lexer->lookahead == '`') {
+         advance(lexer);
+         level++;
+     }
+     
+     lexer->mark_end(lexer);
+     
+     // If this can close a code block (exact match of delimiter length)
+-    if (valid_symbols[CODE_BACKTICKS_END] && 
+-        level == scanner->fenced_code_block_delimiter_length &&
++    if (level == scanner->fenced_code_block_delimiter_length && 
++        valid_symbols[CODE_BACKTICKS_END] &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+         
+         // For fenced code blocks (3+ backticks), require newline/EOF after closing
+         if (scanner->fenced_code_block_delimiter_length >= 3) {
+             // Skip whitespace after closing backticks
+             while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                 advance(lexer);
+             }
+             if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+                 scanner->fenced_code_block_delimiter_length = 0;
+                 lexer->result_symbol = CODE_BACKTICKS_END;
+                 return true;
+             }
+         } else {
+             // For inline code (1-2 backticks), close immediately
+             scanner->fenced_code_block_delimiter_length = 0;
+             lexer->result_symbol = CODE_BACKTICKS_END;
+             return true;
+         }
+     }
+     
+     // If this could be the start of a code block
+     if (valid_symbols[CODE_BACKTICKS_START]) {
+         // For fenced code blocks (3+ backticks), check if info string contains backticks
+         if (level >= 3) {
+             bool info_string_has_backtick = false;
+             
+             // Save current position to restore later
+             TSLexer saved_lexer = *lexer;
+             
+             // Look for backticks in the info string (until newline)
+             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                    lexer->lookahead != 0) {
+                 if (lexer->lookahead == '`') {
+                     info_string_has_backtick = true;
+                     break;
+                 }
+                 advance(lexer);
+             }
+             
+             // Restore position - we only checked, didn't consume
+             *lexer = saved_lexer;
+             
+             // Invalid if info string contains backticks
+             if (info_string_has_backtick) {
+                 return false;
+             }
+             
+             // Valid fenced code block start
+             scanner->fenced_code_block_delimiter_length = level;
+             lexer->result_symbol = CODE_BACKTICKS_START;
+             return true;
+         } else {
+-            // For inline code (1-2 backticks), always accept as start
+-            // Let the grammar handle finding the matching end
+-            scanner->fenced_code_block_delimiter_length = level;
+-            lexer->result_symbol = CODE_BACKTICKS_START;
+-            return true;
++            // For inline code (1-2 backticks), use lookahead like markdown parser
++            // Save current position to restore later
++            TSLexer saved_lexer = *lexer;
++            
++            int close_level = 0;
++            while (!lexer->eof(lexer)) {
++                if (lexer->lookahead == '`') {
++                    close_level++;
++                } else {
++                    if (close_level == level) {
++                        // Found matching closing delimiter
++                        *lexer = saved_lexer; // Restore position
++                        scanner->fenced_code_block_delimiter_length = level;
++                        lexer->result_symbol = CODE_BACKTICKS_START;
++                        return true;
++                    }
++                    close_level = 0;
++                }
++                advance(lexer);
++            }
++            
++            // Check if we ended with the right level
++            if (close_level == level) {
++                *lexer = saved_lexer; // Restore position
++                scanner->fenced_code_block_delimiter_length = level;
++                lexer->result_symbol = CODE_BACKTICKS_START;
++                return true;
++            }
++            
++            // No matching closing delimiter found, restore position
++            *lexer = saved_lexer;
++            return false;
+         }
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+
+# TOOL RESULT
+
+ID: toolu_017G8AJ6MyPbvWPJdcYm7Wxk
+
+<tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+
+</tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
