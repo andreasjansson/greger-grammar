@@ -10195,5 +10195,146 @@ Simplify code content scanner to avoid infinite loops
 ID: toolu_0188rSTeLbDXk4rtnAG6Dxj7
 
 <tool.toolu_0188rSTeLbDXk4rtnAG6Dxj7>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code content scanner to avoid infinite loops
 </tool.toolu_0188rSTeLbDXk4rtnAG6Dxj7>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Pv1bFYoCm11qJyVx5fuevi
+
+## command
+
+<tool.toolu_01Pv1bFYoCm11qJyVx5fuevi>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01Pv1bFYoCm11qJyVx5fuevi>
+
+# TOOL RESULT
+
+ID: toolu_01Pv1bFYoCm11qJyVx5fuevi
+
+<tool.toolu_01Pv1bFYoCm11qJyVx5fuevi>
+
+</tool.toolu_01Pv1bFYoCm11qJyVx5fuevi>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015DdAxN1d3L1wyBUtNDpAh6
+
+## command
+
+<tool.toolu_015DdAxN1d3L1wyBUtNDpAh6>
+printf '# ASSISTANT\n\n`hello`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_015DdAxN1d3L1wyBUtNDpAh6>
+
+# TOOL RESULT
+
+ID: toolu_015DdAxN1d3L1wyBUtNDpAh6
+
+<tool.toolu_015DdAxN1d3L1wyBUtNDpAh6>
+Command failed with exit code 124
+</tool.toolu_015DdAxN1d3L1wyBUtNDpAh6>
+
+# ASSISTANT
+
+Still hanging. Let me check if the issue is in the `scan_code_start_tag` function. The problem might be in the lookahead logic there. Let me simplify that function too:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BAaYEb15Ed8hezs2dhThVd
+
+## path
+
+<tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+./src/scanner.c
+</tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+
+## git-commit-message
+
+<tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+Simplify code start tag scanner to avoid infinite loops
+</tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+
+## diff
+
+<tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of opening backticks
+     int opening_backticks = 0;
+-    while (lexer->lookahead == '`') {
++    while (lexer->lookahead == '`' && opening_backticks < 20) {
+         advance(lexer);
+         opening_backticks++;
+     }
+     
+     // For fenced code blocks (3+ backticks), validate info string
+     if (opening_backticks >= 3) {
+         // Skip until newline or first backtick (which would be content/closing)
++        int chars_read = 0;
+         while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+-               lexer->lookahead != 0 && lexer->lookahead != '`') {
++               lexer->lookahead != 0 && lexer->lookahead != '`' && chars_read < 200) {
+             advance(lexer);
++            chars_read++;
+         }
+     } else {
+-        // For inline code (1-2 backticks), check if closing delimiter exists
++        // For inline code (1-2 backticks), do simplified lookahead
+         TSLexer saved_lexer = *lexer;
+         bool found_closing = false;
++        int chars_read = 0;
+         
+-        while (!lexer->eof(lexer)) {
++        while (!lexer->eof(lexer) && chars_read < 1000) {
+             if (lexer->lookahead == '`') {
+                 int consecutive_backticks = 0;
+-                while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
++                while (lexer->lookahead == '`' && !lexer->eof(lexer) && consecutive_backticks < 20) {
+                     consecutive_backticks++;
+                     advance(lexer);
++                    chars_read++;
+                 }
+                 
+                 if (consecutive_backticks == opening_backticks) {
+                     found_closing = true;
+                     break;
+                 }
+             } else {
+                 // For inline code, stop at newlines
+                 if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                     break;
+                 }
+                 advance(lexer);
++                chars_read++;
+             }
+         }
+         
+         // Restore position
+         *lexer = saved_lexer;
+         
+         if (!found_closing) {
+             return false;
+         }
+     }
+     
+     // Valid code block start
+     scanner->code_backtick_count = opening_backticks;
+     scanner->in_code_content = true;
+     lexer->result_symbol = CODE_START_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+
+# TOOL RESULT
+
+ID: toolu_01BAaYEb15Ed8hezs2dhThVd
+
+<tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+
+</tool.toolu_01BAaYEb15Ed8hezs2dhThVd>

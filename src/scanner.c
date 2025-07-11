@@ -671,7 +671,7 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
     
     // Count the number of opening backticks
     int opening_backticks = 0;
-    while (lexer->lookahead == '`') {
+    while (lexer->lookahead == '`' && opening_backticks < 20) {
         advance(lexer);
         opening_backticks++;
     }
@@ -679,21 +679,25 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
     // For fenced code blocks (3+ backticks), validate info string
     if (opening_backticks >= 3) {
         // Skip until newline or first backtick (which would be content/closing)
+        int chars_read = 0;
         while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-               lexer->lookahead != 0 && lexer->lookahead != '`') {
+               lexer->lookahead != 0 && lexer->lookahead != '`' && chars_read < 200) {
             advance(lexer);
+            chars_read++;
         }
     } else {
-        // For inline code (1-2 backticks), check if closing delimiter exists
+        // For inline code (1-2 backticks), do simplified lookahead
         TSLexer saved_lexer = *lexer;
         bool found_closing = false;
+        int chars_read = 0;
         
-        while (!lexer->eof(lexer)) {
+        while (!lexer->eof(lexer) && chars_read < 1000) {
             if (lexer->lookahead == '`') {
                 int consecutive_backticks = 0;
-                while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
+                while (lexer->lookahead == '`' && !lexer->eof(lexer) && consecutive_backticks < 20) {
                     consecutive_backticks++;
                     advance(lexer);
+                    chars_read++;
                 }
                 
                 if (consecutive_backticks == opening_backticks) {
@@ -706,6 +710,7 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
                     break;
                 }
                 advance(lexer);
+                chars_read++;
             }
         }
         
