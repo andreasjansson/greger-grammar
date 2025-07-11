@@ -5858,5 +5858,86 @@ Update main scan function to use simplified code parsing
 ID: toolu_01WQdHrsjSQEthJN3fW5Z54M
 
 <tool.toolu_01WQdHrsjSQEthJN3fW5Z54M>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update main scan function to use simplified code parsing
 </tool.toolu_01WQdHrsjSQEthJN3fW5Z54M>
+
+# ASSISTANT
+
+Now let me test this simplified approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012nbpgQvm5BeEvewVoy4XB1
+
+## command
+
+<tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+
+## timeout
+
+<tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+10
+</tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+
+# TOOL RESULT
+
+ID: toolu_012nbpgQvm5BeEvewVoy4XB1
+
+<tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+Command timed out after 10 seconds
+</tool.toolu_012nbpgQvm5BeEvewVoy4XB1>
+
+# ASSISTANT
+
+There's an infinite loop. Let me check if there's an issue with the backwards advance in the scanner. The `lexer->advance(lexer, true)` might not be working as expected. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01JM4vkyYDbKSjgPbbEDWNsQ
+
+## path
+
+<tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+./src/scanner.c
+</tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+## git-commit-message
+
+<tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+Fix backwards advance issue in code content scanning
+</tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+## original-content
+
+<tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+                } else {
+                    // For inline code (1-2 backticks), close immediately
+                    // Back up to before the closing backticks
+                    for (int i = 0; i < match_index; i++) {
+                        lexer->advance(lexer, true); // advance backwards
+                    }
+                    break;
+                }
+</tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+## new-content
+
+<tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+                } else {
+                    // For inline code (1-2 backticks), close immediately
+                    // Don't consume the closing backticks - let the end scanner handle them
+                    break;
+                }
+</tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+# TOOL RESULT
+
+ID: toolu_01JM4vkyYDbKSjgPbbEDWNsQ
+
+<tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+</tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>

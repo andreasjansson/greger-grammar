@@ -776,10 +776,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     }
                 } else {
                     // For inline code (1-2 backticks), close immediately
-                    // Back up to before the closing backticks
-                    for (int i = 0; i < match_index; i++) {
-                        lexer->advance(lexer, true); // advance backwards
-                    }
+                    // Don't consume the closing backticks - let the end scanner handle them
                     break;
                 }
             } else {
