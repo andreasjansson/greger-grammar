@@ -7600,5 +7600,104 @@ Add thinking_signature to content_blocks choice
 ID: toolu_01SDzJfkiiFkfR4VmKfTcVh6
 
 <tool.toolu_01SDzJfkiiFkfR4VmKfTcVh6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add thinking_signature to content_blocks choice
 </tool.toolu_01SDzJfkiiFkfR4VmKfTcVh6>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DrJVnHFxkq4URXPNwQrzXb
+
+## command
+
+<tool.toolu_01DrJVnHFxkq4URXPNwQrzXb>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01DrJVnHFxkq4URXPNwQrzXb>
+
+# TOOL RESULT
+
+ID: toolu_01DrJVnHFxkq4URXPNwQrzXb
+
+<tool.toolu_01DrJVnHFxkq4URXPNwQrzXb>
+
+</tool.toolu_01DrJVnHFxkq4URXPNwQrzXb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Mpbg6bUDHqxKU9jjhBpgmm
+
+## command
+
+<tool.toolu_01Mpbg6bUDHqxKU9jjhBpgmm>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01Mpbg6bUDHqxKU9jjhBpgmm>
+
+# TOOL RESULT
+
+ID: toolu_01Mpbg6bUDHqxKU9jjhBpgmm
+
+<tool.toolu_01Mpbg6bUDHqxKU9jjhBpgmm>
+(source_file [0, 0] - [4, 10]
+  (thinking [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [4, 10])))
+
+</tool.toolu_01Mpbg6bUDHqxKU9jjhBpgmm>
+
+# ASSISTANT
+
+Still not working. Let me check if the issue is with the `value` rule. Let me try a simpler approach - maybe the thinking signature needs to be at the top level, not inside content_blocks. Let me look at how the structure should work based on the test expectation:
+
+The test expects:
+```
+(thinking
+  (thinking_header)
+  (thinking_signature
+    (key)
+    (value))
+  (text))
+```
+
+This suggests the thinking signature should be a direct child of the thinking rule, not buried inside content_blocks. Let me revert my changes and try a different approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CkPexzLUXgG5yMESSuSrwH
+
+## path
+
+<tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+./grammar.js
+</tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+
+## git-commit-message
+
+<tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+Revert to original thinking rule structure
+</tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+
+## diff
+
+<tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+     thinking: $ => seq(
+       $.thinking_header,
+       '\n\n',
++      optional(seq(
++        $.thinking_signature,
++        '\n\n',
++      )),
+       $.content_blocks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+
+# TOOL RESULT
+
+ID: toolu_01CkPexzLUXgG5yMESSuSrwH
+
+<tool.toolu_01CkPexzLUXgG5yMESSuSrwH>
+
+</tool.toolu_01CkPexzLUXgG5yMESSuSrwH>

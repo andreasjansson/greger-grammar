@@ -80,6 +80,10 @@ module.exports = grammar({
     thinking: $ => seq(
       $.thinking_header,
       '\n\n',
+      optional(seq(
+        $.thinking_signature,
+        '\n\n',
+      )),
       $.content_blocks,
     ),
 
