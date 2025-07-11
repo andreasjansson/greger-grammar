@@ -7812,5 +7812,156 @@ static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_01EF8oe3amKgscQKMaxVtnDk
 
 <tool.toolu_01EF8oe3amKgscQKMaxVtnDk>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug logging to understand scanner behavior
 </tool.toolu_01EF8oe3amKgscQKMaxVtnDk>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013zLxEQ6Lp4KTnE4wg9Huqa
+
+## command
+
+<tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+printf '# ASSISTANT\n\n`a`' | tree-sitter parse /dev/stdin
+</tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+
+## timeout
+
+<tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+10
+</tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+
+# TOOL RESULT
+
+ID: toolu_013zLxEQ6Lp4KTnE4wg9Huqa
+
+<tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+(source_file [0, 0] - [2, 3]
+  (assistant [0, 0] - [2, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 2]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 1] - [2, 2]))
+    (code [2, 2] - [2, 3]
+      (code_backticks_start [2, 2] - [2, 3])
+      (code_backticks_end [2, 3] - [2, 3]))))
+/dev/stdin	Parse:    0.06 ms	   282 bytes/ms	(MISSING code_backticks_end [2, 3] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_013zLxEQ6Lp4KTnE4wg9Huqa>
+
+# ASSISTANT
+
+No debug output, which means the `scan_code_backticks_end` function is never being called. This means something else is producing the `code_backticks_end` tokens. This suggests there's a fundamental issue with my understanding of how the scanner works.
+
+Let me trace through what's happening. The issue might be that the scanner is being called for the wrong reasons. Let me check if there's a different function that's producing the tokens:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01B5jydsd8wAS79UkCurrv2c
+
+## path
+
+<tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+./src/scanner.c
+</tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+
+## git-commit-message
+
+<tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+Add debug logging to all scanner functions to understand what's being called
+</tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+
+## original-content
+
+<tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    // For fenced code blocks (3+ backticks), check if info string contains backticks
+    if (level >= 3) {
+        // Save current position to restore later
+        TSLexer saved_lexer = *lexer;
+        
+        // Look for backticks in the info string (until newline)
+        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+               lexer->lookahead != 0) {
+            if (lexer->lookahead == '`') {
+                // Invalid if info string contains backticks
+                return false;
+            }
+            advance(lexer);
+        }
+        
+        // Restore position - we only checked, didn't consume
+        *lexer = saved_lexer;
+    }
+    
+    // Valid code block start - don't do lookahead for inline code
+    scanner->fenced_code_block_delimiter_length = level;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_BACKTICKS_START;
+    return true;
+}
+</tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+
+## new-content
+
+<tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '`') return false;
+    
+    fprintf(stderr, "DEBUG: scan_code_backticks_start called, lookahead='%c'\n", lexer->lookahead);
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    fprintf(stderr, "DEBUG: counted %d backticks\n", level);
+    
+    // For fenced code blocks (3+ backticks), check if info string contains backticks
+    if (level >= 3) {
+        // Save current position to restore later
+        TSLexer saved_lexer = *lexer;
+        
+        // Look for backticks in the info string (until newline)
+        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+               lexer->lookahead != 0) {
+            if (lexer->lookahead == '`') {
+                // Invalid if info string contains backticks
+                return false;
+            }
+            advance(lexer);
+        }
+        
+        // Restore position - we only checked, didn't consume
+        *lexer = saved_lexer;
+    }
+    
+    // Valid code block start - don't do lookahead for inline code
+    scanner->fenced_code_block_delimiter_length = level;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_BACKTICKS_START;
+    fprintf(stderr, "DEBUG: returning CODE_BACKTICKS_START, set delimiter_length=%d\n", level);
+    return true;
+}
+</tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+
+# TOOL RESULT
+
+ID: toolu_01B5jydsd8wAS79UkCurrv2c
+
+<tool.toolu_01B5jydsd8wAS79UkCurrv2c>
+
+</tool.toolu_01B5jydsd8wAS79UkCurrv2c>
