@@ -7842,5 +7842,308 @@ Fix thinking_signature to match name/id pattern
 ID: toolu_01P8VLsVUTC8ZqM8YQbnG9t1
 
 <tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix thinking_signature to match name/id pattern
 </tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FasRoikKkcaQctUMkJh7Hw
+
+## command
+
+<tool.toolu_01FasRoikKkcaQctUMkJh7Hw>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01FasRoikKkcaQctUMkJh7Hw>
+
+# TOOL RESULT
+
+ID: toolu_01FasRoikKkcaQctUMkJh7Hw
+
+<tool.toolu_01FasRoikKkcaQctUMkJh7Hw>
+
+</tool.toolu_01FasRoikKkcaQctUMkJh7Hw>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018DGYAr7xNQu2Qc5hkgbBeY
+
+## command
+
+<tool.toolu_018DGYAr7xNQu2Qc5hkgbBeY>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_018DGYAr7xNQu2Qc5hkgbBeY>
+
+# TOOL RESULT
+
+ID: toolu_018DGYAr7xNQu2Qc5hkgbBeY
+
+<tool.toolu_018DGYAr7xNQu2Qc5hkgbBeY>
+(source_file [0, 0] - [4, 10]
+  (thinking [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [4, 10])))
+
+</tool.toolu_018DGYAr7xNQu2Qc5hkgbBeY>
+
+# ASSISTANT
+
+Still not working. Let me debug this differently. Let me look at the Tree-sitter parse output with more detail to understand why the signature isn't matching.
+
+Let me check what the exact error is by running the test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013ysrEjNMmTmu88KBdSDPwz
+
+## command
+
+<tool.toolu_013ysrEjNMmTmu88KBdSDPwz>
+timeout 30 tree-sitter test 2>&1 | grep -A 20 "Thinking section"
+</tool.toolu_013ysrEjNMmTmu88KBdSDPwz>
+
+# TOOL RESULT
+
+ID: toolu_013ysrEjNMmTmu88KBdSDPwz
+
+<tool.toolu_013ysrEjNMmTmu88KBdSDPwz>
+     34. ✗ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✓ Tags in backticks
+
+5 failures:
+
+correct / expected / unexpected
+--
+  5. Thinking section:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (thinking
+        (thinking_header)
+        (thinking_signature
+          (key)
+          (value))
+        (text))
+      (assistant
+        (assistant_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (thinking
+        (thinking_header)
+        (text)))
+
+</tool.toolu_013ysrEjNMmTmu88KBdSDPwz>
+
+# ASSISTANT
+
+The failure shows that the current structure is missing the thinking_signature entirely. This suggests that the thinking signature rule is not being matched at all.
+
+Let me try a different approach. Instead of trying to fix this in the grammar, let me examine what's happening at the lexer level. Maybe the issue is that the `content_blocks` rule is consuming the text before the thinking signature can be parsed.
+
+Let me check if there's a conflict with the `_text_content` rule. Looking at the grammar, there are two `_text_content` rules, which might be causing issues:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_013U9LdyJrWo49dvas4JCcsv
+
+## pattern
+
+<tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+_text_content
+</tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+
+## path
+
+<tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+./grammar.js
+</tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+
+## context-lines
+
+<tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+2
+</tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+
+# TOOL RESULT
+
+ID: toolu_013U9LdyJrWo49dvas4JCcsv
+
+<tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+46-    untagged_text: $ => prec(-1, repeat1(
+47-      seq(
+48:        $._untagged_text_content,
+49-        "\n"
+50-      ))),
+--
+227-
+228-    text: $ => prec.right(repeat1(choice(
+229:      $._text_content,
+230-      /\n/,
+231-    ))),
+232-
+233-    assistant_text: $ => prec.right(repeat1(choice(
+234:      $._assistant_text_content,
+235-      /\n/,
+236-    ))),
+237-
+238:    _text_content: $ => token(prec(-1, /[^`$\n]+|\$[^{]/)),
+239-
+240:    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
+241-
+242:    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+243-
+244-    _tool_element: $ => seq(
+--
+301-    code: $ => $.code_content,
+302-
+303:    _text_content: $ => choice(
+304-      /[^`\n]+/,
+305-      /[ \t]+/,
+
+</tool.toolu_013U9LdyJrWo49dvas4JCcsv>
+
+# ASSISTANT
+
+Yes! There are two `_text_content` rules defined (lines 238 and 303), which is definitely causing problems. The second one is overriding the first one, and it's not using the proper token precedence.
+
+Let me remove the duplicate `_text_content` rule:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_016LXRm1LVwypDi8MqCZQEwo
+
+## path
+
+<tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+./grammar.js
+</tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+
+## git-commit-message
+
+<tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+Remove duplicate _text_content rule
+</tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+
+## diff
+
+<tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+     code: $ => $.code_content,
+ 
+-    _text_content: $ => choice(
+-      /[^`\n]+/,
+-      /[ \t]+/,
+-    ),
+-    
+-
+   },
+\ No newline at end of file
+
+</tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+
+# TOOL RESULT
+
+ID: toolu_016LXRm1LVwypDi8MqCZQEwo
+
+<tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+Original content not found in file: /Users/andreas/projects/greger-grammar/grammar.js -- Try again!
+</tool.toolu_016LXRm1LVwypDi8MqCZQEwo>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01PrcysymcrokSWzoghHNPxt
+
+## path
+
+<tool.toolu_01PrcysymcrokSWzoghHNPxt>
+./grammar.js
+</tool.toolu_01PrcysymcrokSWzoghHNPxt>
+
+## start-line
+
+<tool.toolu_01PrcysymcrokSWzoghHNPxt>
+300
+</tool.toolu_01PrcysymcrokSWzoghHNPxt>
+
+## end-line
+
+<tool.toolu_01PrcysymcrokSWzoghHNPxt>
+310
+</tool.toolu_01PrcysymcrokSWzoghHNPxt>
+
+# TOOL RESULT
+
+ID: toolu_01PrcysymcrokSWzoghHNPxt
+
+<tool.toolu_01PrcysymcrokSWzoghHNPxt>
+
+    code: $ => $.code_content,
+
+    _text_content: $ => choice(
+      /[^`\n]+/,
+      /[ \t]+/,
+    ),
+    
+
+
+  },
+</tool.toolu_01PrcysymcrokSWzoghHNPxt>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014K4pHgp2UKP1u97oHonxVy
+
+## path
+
+<tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+./grammar.js
+</tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+
+## git-commit-message
+
+<tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+Remove duplicate _text_content rule
+</tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+
+## diff
+
+<tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+-    _text_content: $ => choice(
+-      /[^`\n]+/,
+-      /[ \t]+/,
+-    ),
+\ No newline at end of file
+
+</tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+
+# TOOL RESULT
+
+ID: toolu_014K4pHgp2UKP1u97oHonxVy
+
+<tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+
+</tool.toolu_014K4pHgp2UKP1u97oHonxVy>

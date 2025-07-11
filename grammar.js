@@ -300,10 +300,7 @@ module.exports = grammar({
 
     code: $ => $.code_content,
 
-    _text_content: $ => choice(
-      /[^`\n]+/,
-      /[ \t]+/,
-    ),
+
     
 
 
