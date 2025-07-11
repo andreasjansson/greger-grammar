@@ -6947,5 +6947,33 @@ Clean up test file
 ID: toolu_011Jd3BFc3DKvn72Y7bZv5FK
 
 <tool.toolu_011Jd3BFc3DKvn72Y7bZv5FK>
-
+Successfully deleted 1 file(s): /Users/andreas/projects/greger-grammar/test-original-example.greger. Git status: Successfully staged 2 file(s) and committed with message: Clean up test file
 </tool.toolu_011Jd3BFc3DKvn72Y7bZv5FK>
+
+# ASSISTANT
+
+Perfect! 
+
+## Summary
+
+I successfully identified and fixed the issue with backticks at the end of lines. Here's what I did:
+
+1. **Added a test case** for "Backtick at end of line" in `test/corpus/code.txt` to capture the expected behavior.
+
+2. **Reproduced the issue** by testing with the example `# USER\n\na`\n\nb` and confirmed it was causing parse errors.
+
+3. **Identified the root cause**: When a single or double backtick appears at the end of a line (with no content between the backtick and newline), the `scan_code_content` function was returning `false`, which caused the parser to fail to generate the proper code structure.
+
+4. **Fixed the issue** by modifying the `scan_code_content` function to return an empty `CODE_CONTENT` token when a single or double backtick is immediately followed by a newline, instead of returning `false`.
+
+5. **Verified the fix** by running all tests and confirming that:
+   - The new test case passes
+   - All existing tests continue to pass
+   - Single backticks at end of line work: `a`\n becomes proper code block with empty content
+   - Double backticks at end of line work: `a``\n becomes proper code block with empty content  
+   - Triple backticks continue to work as expected (multi-line blocks)
+
+The fix ensures that single and double backticks are automatically terminated by newlines, even when there's no content between the backtick and the newline, which matches the expected behavior described in the issue.
+
+# USER
+
