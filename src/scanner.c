@@ -655,7 +655,7 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     if (lexer->lookahead != '`') return false;
     
     // Count the number of backticks
@@ -665,12 +665,11 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
         level++;
     }
     
-    // Mark the end after consuming just the backticks
     lexer->mark_end(lexer);
     
-    // If this is able to close a code block then that is the only valid interpretation
+    // If this can close a code block (exact match of delimiter length)
     if (valid_symbols[CODE_BACKTICKS_END] && 
-        level >= scanner->fenced_code_block_delimiter_length &&
+        level == scanner->fenced_code_block_delimiter_length &&
         scanner->fenced_code_block_delimiter_length > 0) {
         
         // For fenced code blocks (3+ backticks), require newline/EOF after closing
@@ -695,9 +694,9 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
     // If this could be the start of a code block
     if (valid_symbols[CODE_BACKTICKS_START]) {
         // For fenced code blocks (3+ backticks), check if info string contains backticks
-        bool info_string_has_backtick = false;
-        
         if (level >= 3) {
+            bool info_string_has_backtick = false;
+            
             // Save current position to restore later
             TSLexer saved_lexer = *lexer;
             
@@ -713,15 +712,49 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
             
             // Restore position - we only checked, didn't consume
             *lexer = saved_lexer;
-        }
-        
-        // Valid code block start if:
-        // - 1-2 backticks (inline code, always valid)
-        // - 3+ backticks with no backticks in info string (fenced code block)
-        if (level < 3 || !info_string_has_backtick) {
-            lexer->result_symbol = CODE_BACKTICKS_START;
+            
+            // Invalid if info string contains backticks
+            if (info_string_has_backtick) {
+                return false;
+            }
+            
+            // Valid fenced code block start
             scanner->fenced_code_block_delimiter_length = level;
+            lexer->result_symbol = CODE_BACKTICKS_START;
             return true;
+        } else {
+            // For inline code (1-2 backticks), look ahead for matching closing delimiter
+            // Save current position
+            TSLexer saved_lexer = *lexer;
+            
+            int close_level = 0;
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    close_level++;
+                } else {
+                    if (close_level == level) {
+                        // Found matching closing delimiter
+                        *lexer = saved_lexer; // Restore position
+                        scanner->fenced_code_block_delimiter_length = level;
+                        lexer->result_symbol = CODE_BACKTICKS_START;
+                        return true;
+                    }
+                    close_level = 0;
+                }
+                advance(lexer);
+            }
+            
+            // Check if we ended with the right level
+            if (close_level == level) {
+                *lexer = saved_lexer; // Restore position
+                scanner->fenced_code_block_delimiter_length = level;
+                lexer->result_symbol = CODE_BACKTICKS_START;
+                return true;
+            }
+            
+            // No matching closing delimiter found
+            *lexer = saved_lexer; // Restore position
+            return false;
         }
     }
     
