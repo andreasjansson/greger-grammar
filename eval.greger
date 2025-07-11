@@ -4094,5 +4094,351 @@ Simplify scanner logic to avoid potential infinite loops
 ID: toolu_01PYGcRnhHZR8BAN6GrF1Xn8
 
 <tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify scanner logic to avoid potential infinite loops
 </tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0151bz4NTpdB4TfT4m3SNMFf
+
+## command
+
+<tool.toolu_0151bz4NTpdB4TfT4m3SNMFf>
+tree-sitter generate && tree-sitter build
+</tool.toolu_0151bz4NTpdB4TfT4m3SNMFf>
+
+# TOOL RESULT
+
+ID: toolu_0151bz4NTpdB4TfT4m3SNMFf
+
+<tool.toolu_0151bz4NTpdB4TfT4m3SNMFf>
+
+</tool.toolu_0151bz4NTpdB4TfT4m3SNMFf>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01UZSr7XYd5hQJadfgcoZ6Lj
+
+## command
+
+<tool.toolu_01UZSr7XYd5hQJadfgcoZ6Lj>
+printf '# ASSISTANT\n\n```javascript console.log("hello")```\n\nMore text after.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01UZSr7XYd5hQJadfgcoZ6Lj>
+
+# TOOL RESULT
+
+ID: toolu_01UZSr7XYd5hQJadfgcoZ6Lj
+
+<tool.toolu_01UZSr7XYd5hQJadfgcoZ6Lj>
+(source_file [0, 0] - [4, 16]
+  (assistant [0, 0] - [4, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_content [2, 0] - [2, 37]))
+    (text [2, 37] - [4, 16])))
+
+</tool.toolu_01UZSr7XYd5hQJadfgcoZ6Lj>
+
+# ASSISTANT
+
+Excellent! Now the inline triple backticks with language work correctly. Let me run the tests to see how many are passing now:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QYNJHwnpXpBwT1U7nkRJwZ
+
+## command
+
+<tool.toolu_01QYNJHwnpXpBwT1U7nkRJwZ>
+timeout 30 tree-sitter test test/corpus/code.txt
+</tool.toolu_01QYNJHwnpXpBwT1U7nkRJwZ>
+
+# TOOL RESULT
+
+ID: toolu_01QYNJHwnpXpBwT1U7nkRJwZ
+
+<tool.toolu_01QYNJHwnpXpBwT1U7nkRJwZ>
+error: unexpected argument 'test/corpus/code.txt' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01QYNJHwnpXpBwT1U7nkRJwZ>
+
+# ASSISTANT
+
+Let me just run the full test suite to see our progress:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HYvg5g4sjtNufAusaNRn9q
+
+## command
+
+<tool.toolu_01HYvg5g4sjtNufAusaNRn9q>
+timeout 30 tree-sitter test 2>&1 | grep "code:" -A 20
+</tool.toolu_01HYvg5g4sjtNufAusaNRn9q>
+
+# TOOL RESULT
+
+ID: toolu_01HYvg5g4sjtNufAusaNRn9q
+
+<tool.toolu_01HYvg5g4sjtNufAusaNRn9q>
+  code:
+      6. ✓ Inline code with single backticks
+      7. ✓ Inline code with double backticks
+      8. ✓ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✓ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✗ Eval nested braces
+  eval-partial:
+     17. ✗ Eval partial cases
+  eval-results:
+     18. ✗ Eval results
+  eval:
+     19. ✗ Eval
+  html-comments:
+
+</tool.toolu_01HYvg5g4sjtNufAusaNRn9q>
+
+# ASSISTANT
+
+Perfect! All the code tests are now passing (tests 6-14). Let me also test some other test files that might have been affected. Let me check what other files might need updating:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01Rhv8jSLx6mVGPEV8jikENR
+
+## pattern
+
+<tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+code_backticks_start
+</tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+
+## path
+
+<tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+./test/corpus/
+</tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+
+## file-type
+
+<tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+txt
+</tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+
+# TOOL RESULT
+
+ID: toolu_01Rhv8jSLx6mVGPEV8jikENR
+
+<tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+/Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt:53:      (code_backticks_start)
+/Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt:60:      (code_backticks_start)
+
+</tool.toolu_01Rhv8jSLx6mVGPEV8jikENR>
+
+# ASSISTANT
+
+Let me update these files too:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Khgu1LpSCbCzjfKffuJRty
+
+## path
+
+<tool.toolu_01Khgu1LpSCbCzjfKffuJRty>
+./test/corpus/code-block-triple-backticks.txt
+</tool.toolu_01Khgu1LpSCbCzjfKffuJRty>
+
+# TOOL RESULT
+
+ID: toolu_01Khgu1LpSCbCzjfKffuJRty
+
+<tool.toolu_01Khgu1LpSCbCzjfKffuJRty>
+===========================
+Code block triple backticks
+===========================
+
+# USER
+
+Here's some code:
+
+```
+# ASSISTANT
+This should not be parsed as a section header
+# TOOL USE
+Neither should this
+```
+
+What do you think?
+
+# ASSISTANT
+
+```text
+Single ` within a triple-backtick block should not be parsed separately
+even ` ` ` if there are multiple with spaces between them.
+```
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01T2qsrhEoxETc9BfoS7KqJT
+
+## path
+
+<tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+debug-last-char-is-backtick.txt
+</tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+
+# TOOL RESULT
+
+ID: toolu_01T2qsrhEoxETc9BfoS7KqJT
+
+<tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+```
+tool content should not parse backticks
+```
+</tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text))
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text))
+  (tool_use
+    (tool_use_header)
+    (name
+      (key)
+      (value))
+    (id
+      (key)
+      (value))
+    (tool_param
+      (tool_param_header
+        (name))
+      (value
+        (tool_start_tag)
+        (tool_content
+          (tool_content_head))
+        (tool_end_tag))))
+  (tool_result
+    (tool_result_header)
+    (id
+      (key)
+      (value))
+    (content
+      (tool_start_tag)
+      (tool_content
+        (tool_content_head))
+      (tool_end_tag))))
+</tool.toolu_01Khgu1LpSCbCzjfKffuJRty>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019aan6a4SBhPG97EAWsM47J
+
+## path
+
+<tool.toolu_019aan6a4SBhPG97EAWsM47J>
+./test/corpus/code-block-triple-backticks.txt
+</tool.toolu_019aan6a4SBhPG97EAWsM47J>
+
+## git-commit-message
+
+<tool.toolu_019aan6a4SBhPG97EAWsM47J>
+Update code-block-triple-backticks test to use new token structure
+</tool.toolu_019aan6a4SBhPG97EAWsM47J>
+
+## diff
+
+<tool.toolu_019aan6a4SBhPG97EAWsM47J>
+     (code
+-      (code_backticks_start)
+-      (code_contents)
+-      (code_backticks_end))
+\ No newline at end of file
++      (code_content))
+\ No newline at end of file
+
+</tool.toolu_019aan6a4SBhPG97EAWsM47J>
+
+# TOOL RESULT
+
+ID: toolu_019aan6a4SBhPG97EAWsM47J
+
+<tool.toolu_019aan6a4SBhPG97EAWsM47J>
+Found 2 occurrences of original content in file: /Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt. Use replace-all=t to replace all instances, or make the original content more specific -- Try again!
+</tool.toolu_019aan6a4SBhPG97EAWsM47J>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012qWVho4g3dkzBisJD7ZnZ2
+
+## path
+
+<tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+./test/corpus/code-block-triple-backticks.txt
+</tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+## git-commit-message
+
+<tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+Update code-block-triple-backticks test to use new token structure
+</tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+## replace-all
+
+<tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+true
+</tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+## diff
+
+<tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+     (code
+-      (code_backticks_start)
+-      (code_contents)
+-      (code_backticks_end))
+\ No newline at end of file
++      (code_content))
+\ No newline at end of file
+
+</tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+# TOOL RESULT
+
+ID: toolu_012qWVho4g3dkzBisJD7ZnZ2
+
+<tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+</tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
