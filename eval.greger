@@ -9479,5 +9479,72 @@ Remove scan_code_close_tag function since it's now a regular token
 ID: toolu_01UqEUYGdyJk66k2PkcxQ1yA
 
 <tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove scan_code_close_tag function since it's now a regular token
 </tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+
+# ASSISTANT
+
+Now let me remove the code close tag check from the main scanner dispatch:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01A5iytBYdtNHUwKvg7TAEb6
+
+## path
+
+<tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+./src/scanner.c
+</tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+
+## git-commit-message
+
+<tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+Remove code close tag handling from main scanner dispatch
+</tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+
+## diff
+
+<tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+     if (lexer->lookahead == '<') {
+         // Handle HTML comments first - they should have priority
+         if (valid_symbols[HTML_COMMENT]) {
+             return scan_html_comment(lexer);
+         }
+ 
+-        // Handle code close tag (check early since it has a specific pattern)
+-        if (valid_symbols[CODE_CLOSE_TAG]) {
+-            return scan_code_close_tag(scanner, lexer);
+-        }
+-
+         // Handle eval result start tag
+         if (valid_symbols[EVAL_RESULT_START_TAG]) {
+             return scan_eval_result_start_tag(scanner, lexer);
+         }
+ 
+         // Handle eval result end tag
+         if (valid_symbols[EVAL_RESULT_END_TAG]) {
+             return scan_eval_result_end_tag(scanner, lexer);
+         }
+ 
+         // Handle tool start tag
+         if (valid_symbols[TOOL_START_TAG]) {
+             return scan_tool_start_tag(scanner, lexer);
+         }
+ 
+         // Handle tool end tag
+         if (valid_symbols[TOOL_END_TAG]) {
+             return scan_tool_end_tag(scanner, lexer);
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+
+# TOOL RESULT
+
+ID: toolu_01A5iytBYdtNHUwKvg7TAEb6
+
+<tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+
+</tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
