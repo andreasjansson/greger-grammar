@@ -6489,5 +6489,60 @@ Restructure code parsing to separate inline code from fenced code blocks
 ID: toolu_01LFpWrEMFREVj7cgc6Dd3j8
 
 <tool.toolu_01LFpWrEMFREVj7cgc6Dd3j8>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restructure code parsing to separate inline code from fenced code blocks
 </tool.toolu_01LFpWrEMFREVj7cgc6Dd3j8>
+
+# ASSISTANT
+
+Actually, let me simplify this even more and keep the unified approach, but fix the scanner logic. The issue is that the scanner needs to be smarter about handling the different types of backticks.
+
+Let me revert to a single code rule and focus on fixing the scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BsLXfbhfJqaRGXRocCrAMH
+
+## path
+
+<tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+./grammar.js
+</tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+
+## git-commit-message
+
+<tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+Simplify back to single code rule while fixing scanner
+</tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+
+## diff
+
+<tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+-    code: $ => choice(
+-      $.inline_code,
+-      $.fenced_code_block,
+-    ),
+-
+-    inline_code: $ => seq(
++    code: $ => seq(
+       $.code_backticks_start,
+       optional($.code_contents),
+       $.code_backticks_end,
+-    ),
+-
+-    fenced_code_block: $ => seq(
+-      $.code_backticks_start,
+-      optional($.code_contents),
+-      $.code_backticks_end,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+
+# TOOL RESULT
+
+ID: toolu_01BsLXfbhfJqaRGXRocCrAMH
+
+<tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
+
+</tool.toolu_01BsLXfbhfJqaRGXRocCrAMH>
