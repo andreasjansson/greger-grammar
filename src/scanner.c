@@ -732,31 +732,10 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
 
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // For single backticks, only scan until end of line
-    // For multi-backticks, scan until we hit a backtick
-    
-    bool has_content = false;
-    
-    if (scanner->fenced_code_block_delimiter_length == 1) {
-        // Single backtick - only scan until end of line
-        while (lexer->lookahead != 0 && lexer->lookahead != '`' && 
-               lexer->lookahead != '\n' && lexer->lookahead != '\r') {
-            advance(lexer);
-            has_content = true;
-        }
-        
-        // If we hit end of line, consume the rest of the line as content
-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-            // Don't consume the newline, but mark this as the end of content
-            lexer->result_symbol = CODE_CONTENTS;
-            return true;
-        }
-    } else {
-        // Multi-backtick - consume until we hit any backtick
-        while (lexer->lookahead != 0 && lexer->lookahead != '`') {
-            advance(lexer);
-            has_content = true;
-        }
+    // Simple approach: consume characters until we hit a backtick, then stop
+    // Let the grammar handle the backticks
+    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+        advance(lexer);
     }
     
     lexer->result_symbol = CODE_CONTENTS;
