@@ -7438,5 +7438,128 @@ Change thinking_signature to use token for key
 ID: toolu_017s4k8JZpzfNM2VWWRbF22W
 
 <tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Change thinking_signature to use token for key
 </tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01C8kcka6QuTGKgYYt49d82e
+
+## command
+
+<tool.toolu_01C8kcka6QuTGKgYYt49d82e>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01C8kcka6QuTGKgYYt49d82e>
+
+# TOOL RESULT
+
+ID: toolu_01C8kcka6QuTGKgYYt49d82e
+
+<tool.toolu_01C8kcka6QuTGKgYYt49d82e>
+
+</tool.toolu_01C8kcka6QuTGKgYYt49d82e>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Anri4MmTfEWVsMh9QM4ytx
+
+## command
+
+<tool.toolu_01Anri4MmTfEWVsMh9QM4ytx>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01Anri4MmTfEWVsMh9QM4ytx>
+
+# TOOL RESULT
+
+ID: toolu_01Anri4MmTfEWVsMh9QM4ytx
+
+<tool.toolu_01Anri4MmTfEWVsMh9QM4ytx>
+(source_file [0, 0] - [4, 10]
+  (thinking [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [4, 10])))
+
+</tool.toolu_01Anri4MmTfEWVsMh9QM4ytx>
+
+# ASSISTANT
+
+Still not working. Let me take a different approach. Let me look at how the `name` and `id` rules work in the tool_use context. Maybe I need to understand why they work there but the thinking signature doesn't work.
+
+Let me test a tool_use block to see if name and id work correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018cAKx251Dmm6TpZ1fvpYe6
+
+## command
+
+<tool.toolu_018cAKx251Dmm6TpZ1fvpYe6>
+printf '# TOOL USE\n\nName: test\nID: 123\n' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_018cAKx251Dmm6TpZ1fvpYe6>
+
+# TOOL RESULT
+
+ID: toolu_018cAKx251Dmm6TpZ1fvpYe6
+
+<tool.toolu_018cAKx251Dmm6TpZ1fvpYe6>
+(source_file [0, 0] - [4, 0]
+  (tool_use [0, 0] - [4, 0]
+    (tool_use_header [0, 0] - [0, 10])
+    (name [2, 0] - [3, 0]
+      (key [2, 0] - [2, 5])
+      value: (value [2, 5] - [2, 10]))
+    (id [3, 0] - [4, 0]
+      (key [3, 0] - [3, 3])
+      value: (value [3, 3] - [3, 7]))))
+
+</tool.toolu_018cAKx251Dmm6TpZ1fvpYe6>
+
+# ASSISTANT
+
+The `name` and `id` rules work fine in tool_use. The key difference is that in tool_use, the parser is explicitly looking for `name` and `id` rules within a `repeat(choice(...))` structure. But in thinking, the parser is looking for an optional signature followed by content_blocks.
+
+I think the issue might be that the thinking signature needs to be parsed before the content_blocks parsing begins. Let me try moving the thinking signature out of the optional seq and into the content_blocks choice:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FX1T1kH5kKdLwkiEYq93hK
+
+## path
+
+<tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+./grammar.js
+</tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+
+## git-commit-message
+
+<tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+Move thinking_signature into content_blocks choice
+</tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+
+## diff
+
+<tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+     thinking: $ => seq(
+       $.thinking_header,
+       '\n\n',
+-      optional(seq(
+-        $.thinking_signature,
+-        '\n\n',
+-      )),
+       $.content_blocks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+
+# TOOL RESULT
+
+ID: toolu_01FX1T1kH5kKdLwkiEYq93hK
+
+<tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
+
+</tool.toolu_01FX1T1kH5kKdLwkiEYq93hK>
