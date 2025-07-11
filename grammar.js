@@ -26,8 +26,7 @@ module.exports = grammar({
     $.eval_result_content_head,
     $.eval_result_content_tail,
     $.error_sentinel,
-    $.code_backticks_start,
-    $.code_backticks_end,
+    $.code_content,
     $.eval_language,
   ],
 
