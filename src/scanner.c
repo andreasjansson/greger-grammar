@@ -711,35 +711,10 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
 
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // Simple content scanning - consume everything until we hit closing backticks
-    int safety_counter = 0;
-    const int max_iterations = 10000;
-    
-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
-        safety_counter++;
-        
-        if (lexer->lookahead == '`') {
-            // Check if this could be closing backticks
-            TSLexer saved_lexer = *lexer;
-            int backtick_count = 0;
-            
-            while (lexer->lookahead == '`') {
-                backtick_count++;
-                advance(lexer);
-            }
-            
-            // If this matches the opening count, stop here
-            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
-                *lexer = saved_lexer; // Restore position
-                break;
-            } else {
-                // Not the closing sequence, include as content
-                *lexer = saved_lexer;
-                advance(lexer);
-            }
-        } else {
-            advance(lexer);
-        }
+    // Very simple approach: consume characters until we hit a backtick, then stop
+    // Let the grammar handle the backticks
+    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+        advance(lexer);
     }
     
     lexer->result_symbol = CODE_CONTENTS;

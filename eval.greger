@@ -6,7 +6,7 @@ Example repos to look at: ~/src/github/emacs-tree-sitter/tree-sitter-langs/repos
 
 If you get stuck, look at the scanner from ~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
 
-## Code
+## Project
 
 The code is in ./grammar.js and ./src/scanner.c
 
@@ -24,6 +24,9 @@ printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
 
 might cause an infinite loop. Make sure you add a timeout to the shell-command tool.
 
+## Code parsing
+
+Code parsing should be supported in system, user, assistant, and thinking blocks.
 
 # USER
 
@@ -10497,5 +10500,402 @@ true
 ID: toolu_01CzroY3xwChyZ6es5eZMxCj
 
 <tool.toolu_01CzroY3xwChyZ6es5eZMxCj>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt. Successfully staged 2 file(s) and committed with message: Remove code_language from code-block-triple-backticks test
 </tool.toolu_01CzroY3xwChyZ6es5eZMxCj>
+
+# ASSISTANT
+
+Now let me generate and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Twg4ycNUsxNTEp7vbwJ7sT
+
+## command
+
+<tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+cd . && tree-sitter generate
+</tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+
+## timeout
+
+<tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+10
+</tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+
+# TOOL RESULT
+
+ID: toolu_01Twg4ycNUsxNTEp7vbwJ7sT
+
+<tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+
+</tool.toolu_01Twg4ycNUsxNTEp7vbwJ7sT>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011sciksHa8hxUrFVNGWJWRn
+
+## command
+
+<tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+cd . && printf '# ASSISTANT\n\n`hello`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+
+## timeout
+
+<tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+10
+</tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+
+# TOOL RESULT
+
+ID: toolu_011sciksHa8hxUrFVNGWJWRn
+
+<tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+Command failed with exit code 124
+</tool.toolu_011sciksHa8hxUrFVNGWJWRn>
+
+# ASSISTANT
+
+Still timing out. Let me add the safety check back:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_011S35SZtTLmhjLrFN8xuPyr
+
+## path
+
+<tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+./src/scanner.c
+</tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+
+## git-commit-message
+
+<tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+Add safety check to prevent infinite loop
+</tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+
+## diff
+
+<tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // Simple content scanning - consume everything until we hit closing backticks
+-    while (lexer->lookahead != 0) {
++    int safety_counter = 0;
++    const int max_iterations = 1000;
++    
++    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
++        safety_counter++;
++        
+         if (lexer->lookahead == '`') {
+             // Check if this could be closing backticks
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening count, stop here
+             if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+                 *lexer = saved_lexer; // Restore position
+                 break;
+             } else {
+                 // Not the closing sequence, include as content
+                 *lexer = saved_lexer;
+                 advance(lexer);
+             }
+         } else {
+             advance(lexer);
+         }
+     }
+     
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+
+# TOOL RESULT
+
+ID: toolu_011S35SZtTLmhjLrFN8xuPyr
+
+<tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+Original content not found in file: /Users/andreas/projects/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_011S35SZtTLmhjLrFN8xuPyr>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_015dgwxfYWRpCU8AgKXfBD2m
+
+## pattern
+
+<tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+scan_code_contents
+</tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+
+## path
+
+<tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+./src/scanner.c
+</tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+
+## context-lines
+
+<tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+10
+</tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+
+# TOOL RESULT
+
+ID: toolu_015dgwxfYWRpCU8AgKXfBD2m
+
+<tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+703-        }
+704-    }
+705-    
+706-    return false;
+707-}
+708-
+709-
+710-
+711-
+712-
+713:static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+714-    // Simple content scanning - consume everything until we hit closing backticks
+715-    int safety_counter = 0;
+716-    const int max_iterations = 10000;
+717-    
+718-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+719-        safety_counter++;
+720-        
+721-        if (lexer->lookahead == '`') {
+722-            // Check if this could be closing backticks
+723-            TSLexer saved_lexer = *lexer;
+--
+916-        return scan_eval_content(lexer);
+917-    }
+918-    
+919-    // Handle code backticks (any number of backticks)
+920-    if ((valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END]) && lexer->lookahead == '`') {
+921-        return parse_fenced_code_block(scanner, lexer, valid_symbols);
+922-    }
+923-    
+924-    // Handle code contents
+925-    if (valid_symbols[CODE_CONTENTS]) {
+926:        return scan_code_contents(scanner, lexer);
+927-    }
+928-    
+929-    // Handle eval language
+930-    if (valid_symbols[EVAL_LANGUAGE]) {
+931-        return scan_eval_language(lexer);
+932-    }
+933-    
+934-    return false;
+935-}
+936-
+
+</tool.toolu_015dgwxfYWRpCU8AgKXfBD2m>
+
+# ASSISTANT
+
+The safety check is already there. Let me try a different approach - let me test with a very simple case first:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XV1uoZH5PGdLz9PNaQdDxH
+
+## command
+
+<tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+cd . && printf '```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+
+## timeout
+
+<tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+10
+</tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+
+# TOOL RESULT
+
+ID: toolu_01XV1uoZH5PGdLz9PNaQdDxH
+
+<tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+(source_file [0, 0] - [0, 3]
+  (ERROR [0, 0] - [0, 3]
+    (ERROR [0, 0] - [0, 3])))
+/dev/stdin	Parse:    0.01 ms	   189 bytes/ms	(ERROR [0, 0] - [0, 3])
+Command failed with exit code 1
+</tool.toolu_01XV1uoZH5PGdLz9PNaQdDxH>
+
+# ASSISTANT
+
+It works without a timeout. The issue is that it's trying to parse code outside of assistant/user/system sections. Let me test the right context:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JidVoxGnHt8QhC9ZzhvWXx
+
+## command
+
+<tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+cd . && printf '# ASSISTANT\n\n```\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+
+## timeout
+
+<tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+10
+</tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+
+# TOOL RESULT
+
+ID: toolu_01JidVoxGnHt8QhC9ZzhvWXx
+
+<tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+Command failed with exit code 124
+</tool.toolu_01JidVoxGnHt8QhC9ZzhvWXx>
+
+# ASSISTANT
+
+There's definitely an infinite loop. Let me check what's happening. The issue might be in the logic where we're checking for closing backticks. Let me simplify the contents scanner drastically:
+
+# USER
+
+Fix the infinite loop.
+
+Alos, code parsing should be supported in system, user, assistant, and thinking blocks.
+
+
+
+# THINKING
+
+Signature: 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
+
+The user is asking me to fix the infinite loop in the scanner and also mentions that code parsing should be supported in system, user, assistant, and thinking blocks.
+
+Let me think about the infinite loop first. Looking at the `scan_code_contents` function, the issue is likely in this loop:
+
+```c
+while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+    safety_counter++;
+    
+    if (lexer->lookahead == '`') {
+        // Check if this could be closing backticks
+        TSLexer saved_lexer = *lexer;
+        int backtick_count = 0;
+        
+        while (lexer->lookahead == '`') {
+            backtick_count++;
+            advance(lexer);
+        }
+        
+        // If this matches the opening count, stop here
+        if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+            *lexer = saved_lexer; // Restore position
+            break;
+        } else {
+            // Not the closing sequence, include as content
+            *lexer = saved_lexer;
+            advance(lexer);
+        }
+    } else {
+        advance(lexer);
+    }
+}
+```
+
+The problem could be:
+1. The `advance(lexer)` call might not be actually advancing the lexer position
+2. The safety counter limit might be too high
+3. There might be an issue with the lexer state restoration
+
+Let me look at the advance function to see if there's an issue there.
+
+Also, for the second part, I need to check the grammar to make sure code parsing is enabled in system, user, assistant, and thinking blocks. Let me check the current grammar.
+
+Let me fix the infinite loop first by simplifying the contents scanner, and then check the grammar for the block support.
+
+# ASSISTANT
+
+Let me fix the infinite loop by simplifying the contents scanner and also check the grammar for block support.
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CJ9cZ3z2yBMbf2wToPkKfE
+
+## path
+
+<tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+./src/scanner.c
+</tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+
+## git-commit-message
+
+<tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+Fix infinite loop by drastically simplifying code_contents scanner
+</tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+
+## diff
+
+<tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    // Simple content scanning - consume everything until we hit closing backticks
+-    int safety_counter = 0;
+-    const int max_iterations = 10000;
+-    
+-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+-        safety_counter++;
+-        
+-        if (lexer->lookahead == '`') {
+-            // Check if this could be closing backticks
+-            TSLexer saved_lexer = *lexer;
+-            int backtick_count = 0;
+-            
+-            while (lexer->lookahead == '`') {
+-                backtick_count++;
+-                advance(lexer);
+-            }
+-            
+-            // If this matches the opening count, stop here
+-            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+-                *lexer = saved_lexer; // Restore position
+-                break;
+-            } else {
+-                // Not the closing sequence, include as content
+-                *lexer = saved_lexer;
+-                advance(lexer);
+-            }
+-        } else {
+-            advance(lexer);
+-        }
++    // Very simple approach: consume characters until we hit a backtick, then stop
++    // Let the grammar handle the backticks
++    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
++        advance(lexer);
+     }
+     
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+
+# TOOL RESULT
+
+ID: toolu_01CJ9cZ3z2yBMbf2wToPkKfE
+
+<tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
+
+</tool.toolu_01CJ9cZ3z2yBMbf2wToPkKfE>
