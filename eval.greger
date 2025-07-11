@@ -9200,5 +9200,393 @@ Update main scanner loop to use consolidated code delimiter function
 ID: toolu_01CFdfNxzF6A9AmPXmZUGTLh
 
 <tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update main scanner loop to use consolidated code delimiter function
 </tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+# ASSISTANT
+
+Now let me test this simplified approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PESyv2hUFEUBVzb87Hj6Cm
+
+## command
+
+<tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+
+## timeout
+
+<tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+10
+</tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+
+# TOOL RESULT
+
+ID: toolu_01PESyv2hUFEUBVzb87Hj6Cm
+
+<tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.06 ms	   415 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01PESyv2hUFEUBVzb87Hj6Cm>
+
+# ASSISTANT
+
+We're back to the original issue. Let me try a simpler test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016ahSwBFdJuzDkRpLQXRF1q
+
+## command
+
+<tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+printf '# ASSISTANT\n\n``' | tree-sitter parse /dev/stdin
+</tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+
+## timeout
+
+<tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+10
+</tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+
+# TOOL RESULT
+
+ID: toolu_016ahSwBFdJuzDkRpLQXRF1q
+
+<tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+(source_file [0, 0] - [2, 2]
+  (ERROR [0, 0] - [2, 2]
+    (assistant_header [0, 0] - [0, 11])
+    (ERROR [2, 0] - [2, 2])))
+/dev/stdin	Parse:    0.03 ms	   531 bytes/ms	(ERROR [0, 0] - [2, 2])
+Command failed with exit code 1
+</tool.toolu_016ahSwBFdJuzDkRpLQXRF1q>
+
+# ASSISTANT
+
+Even the empty case is failing. Let me go back to the basics and implement the simplest possible case that works. Let me check what the current working tests look like:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GrM5SrqrKLFAkConViz3Aa
+
+## command
+
+<tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+cd . && tree-sitter test | grep -A 3 "✓"
+</tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+
+## timeout
+
+<tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+30
+</tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+
+# TOOL RESULT
+
+ID: toolu_01GrM5SrqrKLFAkConViz3Aa
+
+<tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+--
+      6. ✓ Inline code with single backticks
+      7. ✗ Inline code with double backticks
+      8. ✓ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✗ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✓ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✓ Eval nested braces
+  eval-partial:
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (2031.746 bytes/ms)
+  eval-results:
+     18. ✓ Eval results
+  eval:
+     19. ✓ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+--
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✓ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+
+</tool.toolu_01GrM5SrqrKLFAkConViz3Aa>
+
+# ASSISTANT
+
+Good! Single backticks and triple backticks are working. The issue is specifically with double backticks. Let me check what the single backtick test looks like:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01T8ofRCg1kdh6QsWZgM8tks
+
+## command
+
+<tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+
+## timeout
+
+<tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+10
+</tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+
+# TOOL RESULT
+
+ID: toolu_01T8ofRCg1kdh6QsWZgM8tks
+
+<tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01T8ofRCg1kdh6QsWZgM8tks>
+
+# ASSISTANT
+
+Great! Single backticks work perfectly. The issue is specifically with double backticks where the content contains backticks. Let me understand what's happening in the double backtick case by looking at the lookahead logic in my scanner.
+
+The issue is that for double backticks ``, the scanner is doing lookahead to find matching closing backticks, but when it encounters ` `code` ``, it's not properly handling the single backticks inside the content.
+
+Let me run a comprehensive test to figure out exactly what's working and what's not:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JCV9K8M3W6WgBFuWt1Xx8u
+
+## command
+
+<tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+cd . && tree-sitter test | grep "code" | head -15
+</tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+
+## timeout
+
+<tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+30
+</tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+
+# TOOL RESULT
+
+ID: toolu_01JCV9K8M3W6WgBFuWt1Xx8u
+
+<tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+  code-block-nested-headers:
+  code-block-triple-backticks:
+  code:
+      6. ✓ Inline code with single backticks
+      7. ✗ Inline code with double backticks
+     14. ✓ Empty code blocks
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+        (code
+          (code_backticks_start)
+          (code_backticks_end))
+
+</tool.toolu_01JCV9K8M3W6WgBFuWt1Xx8u>
+
+# ASSISTANT
+
+The issue is clear - single backticks work, but double backticks don't. This tells me that the problem is in the lookahead logic for inline code in my scanner.
+
+Looking at the failing case again, the issue is that for the input ` `code` `, the scanner is doing lookahead to find matching closing backticks. But when it encounters the first single backtick inside the content, it thinks this is the closing delimiter and stops the lookahead. But that's wrong - for double backticks, the closing delimiter should be two backticks, not one.
+
+The issue is in this part of the logic:
+
+```c
+// For inline code (1-2 backticks), use lookahead to find closing delimiter
+TSLexer saved_lexer = *lexer;
+
+int close_level = 0;
+while (!lexer->eof(lexer)) {
+    if (lexer->lookahead == '`') {
+        close_level++;
+    } else {
+        if (close_level == level) {
+            // Found matching closing delimiter
+            *lexer = saved_lexer; // Restore position
+            break;
+        }
+        close_level = 0;
+    }
+    advance(lexer);
+}
+```
+
+When it encounters the first single backtick in the content, `close_level` becomes 1. Then it encounters the `c` character and checks if `close_level == level` (which is 2). Since 1 != 2, it resets `close_level = 0` and continues.
+
+But the problem is that this logic doesn't correctly handle the case where there are backticks inside the content. The logic should continue counting consecutive backticks until it finds exactly the right number of consecutive backticks.
+
+Let me fix this lookahead logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01VR29pxDtfcaU7agLCkNvzZ
+
+## path
+
+<tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+./src/scanner.c
+</tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+
+## git-commit-message
+
+<tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+Fix lookahead logic for inline code to properly handle consecutive backticks
+</tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+
+## original-content
+
+<tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+        } else {
+            // For inline code (1-2 backticks), use lookahead to find closing delimiter
+            TSLexer saved_lexer = *lexer;
+            
+            int close_level = 0;
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    close_level++;
+                } else {
+                    if (close_level == level) {
+                        // Found matching closing delimiter
+                        *lexer = saved_lexer; // Restore position
+                        break;
+                    }
+                    close_level = 0;
+                }
+                advance(lexer);
+            }
+            
+            // Check if we ended with the right level
+            if (close_level != level) {
+                // No matching closing delimiter found, restore position
+                *lexer = saved_lexer;
+                return false;
+            }
+            
+            // Restore position
+            *lexer = saved_lexer;
+        }
+</tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+
+## new-content
+
+<tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+        } else {
+            // For inline code (1-2 backticks), use lookahead to find closing delimiter
+            TSLexer saved_lexer = *lexer;
+            
+            bool found_closing = false;
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    // Count consecutive backticks
+                    int consecutive_backticks = 0;
+                    while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
+                        consecutive_backticks++;
+                        advance(lexer);
+                    }
+                    
+                    if (consecutive_backticks == level) {
+                        // Found matching closing delimiter
+                        found_closing = true;
+                        break;
+                    }
+                } else {
+                    // For inline code (1-2 backticks), stop at newlines
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                        break;
+                    }
+                    advance(lexer);
+                }
+            }
+            
+            // Restore position
+            *lexer = saved_lexer;
+            
+            if (!found_closing) {
+                return false;
+            }
+        }
+</tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+
+# TOOL RESULT
+
+ID: toolu_01VR29pxDtfcaU7agLCkNvzZ
+
+<tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>
+
+</tool.toolu_01VR29pxDtfcaU7agLCkNvzZ>

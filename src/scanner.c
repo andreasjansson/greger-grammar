@@ -725,30 +725,36 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
             // For inline code (1-2 backticks), use lookahead to find closing delimiter
             TSLexer saved_lexer = *lexer;
             
-            int close_level = 0;
+            bool found_closing = false;
             while (!lexer->eof(lexer)) {
                 if (lexer->lookahead == '`') {
-                    close_level++;
-                } else {
-                    if (close_level == level) {
+                    // Count consecutive backticks
+                    int consecutive_backticks = 0;
+                    while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
+                        consecutive_backticks++;
+                        advance(lexer);
+                    }
+                    
+                    if (consecutive_backticks == level) {
                         // Found matching closing delimiter
-                        *lexer = saved_lexer; // Restore position
+                        found_closing = true;
                         break;
                     }
-                    close_level = 0;
+                } else {
+                    // For inline code (1-2 backticks), stop at newlines
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                        break;
+                    }
+                    advance(lexer);
                 }
-                advance(lexer);
-            }
-            
-            // Check if we ended with the right level
-            if (close_level != level) {
-                // No matching closing delimiter found, restore position
-                *lexer = saved_lexer;
-                return false;
             }
             
             // Restore position
             *lexer = saved_lexer;
+            
+            if (!found_closing) {
+                return false;
+            }
         }
         
         // Valid code block start
