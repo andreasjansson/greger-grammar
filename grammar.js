@@ -301,15 +301,15 @@ module.exports = grammar({
 
     code: $ => choice(
       seq(
-        $.code_backticks,
+        $.code_backticks_start,
         $.code_language,
         $.code_contents,
-        $.code_backticks,
+        $.code_backticks_end,
       ),
       seq(
-        $.code_backticks,
+        $.code_backticks_start,
         $.code_contents,
-        $.code_backticks,
+        $.code_backticks_end,
       ),
     ),
     
