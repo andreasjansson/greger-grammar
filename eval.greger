@@ -24,11 +24,6 @@ printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
 
 might cause an infinite loop. Make sure you add a timeout to the shell-command tool.
 
-## Code/backtick handling logic
-
-Rule 1. Single backticks: No language parsing: `(code (code_backticks_start) (code_contents) (code_backticks_start))`
-Rule 2. Two or more backticks optionally followed by spaces (not newlines) followed by *non-spaces* followed by newline: The *non-spaces* are parsed as `(code_language)`. The following contents up to the closing backticks is parsed as `(code_contents)`: `(code (code_backticks_start) (code_language) (code_contents) (code_backticks_start))`
-Rule 3. Two or more backticks followed by anything else that's not parsed in Rule 2: The entire contents up to the closing backticks is parsed as `(code_contents)`: `(code (code_backticks_start) (code_contents) (code_backticks_start))`
 
 # USER
 
@@ -9382,5 +9377,131 @@ Add safety check to prevent infinite loop in code_contents
 ID: toolu_01NjWZ2tfTiR7GRWv2EVbvGb
 
 <tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add safety check to prevent infinite loop in code_contents
 </tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GtcebKudsGC9fhK4GXJEGm
+
+## command
+
+<tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+cd . && tree-sitter generate
+</tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+
+## timeout
+
+<tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+10
+</tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+
+# TOOL RESULT
+
+ID: toolu_01GtcebKudsGC9fhK4GXJEGm
+
+<tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+
+</tool.toolu_01GtcebKudsGC9fhK4GXJEGm>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MBv4hdw9uD8ebSaq95eRzp
+
+## command
+
+<tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+cd . && printf '# ASSISTANT\n\n```python\ncode\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+
+## timeout
+
+<tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+10
+</tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+
+# TOOL RESULT
+
+ID: toolu_01MBv4hdw9uD8ebSaq95eRzp
+
+<tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+Command failed with exit code 9
+</tool.toolu_01MBv4hdw9uD8ebSaq95eRzp>
+
+# USER
+
+You know what, fuck it. Let's just scrap code_language and copy over the markdown scanners backtick parsing logic. This is getting way too complicated.
+
+# THINKING
+
+Signature: Ep0ECkYIBRgCKkAjo1a7Eo3iJ3ptxYsvQ3HdbntbO09TmwYxYpIKv96EpG8DQuXKWooFXh/ARLMin45JTPIBGF6IN+NkfTRWpk0TEgyibpdWm7oKbHLNMnkaDGGJrkPPYbQIwwk15SIwsyeXJKu74UNwhBQq0saHFazW+ZEMjh9q3l9LEVLV5ZmwutHthDDoKzZXb7lPNueeKoQDotCjMh7zGHeA5Ry6zYwGkvz9VBL1cwd6ASspHhRHWQQh3TO0tUBfNNgkRJnpu0fgFQhU1biU4wHW0Ms/E6Rj2pdlWuK1RKFRWnpytpgpzYQcNDQhl+vxC6Cp2taYs0U13U2Ez4d2CN69fOtQZOuAiuFzyYjnzjNEUuv87Lf58oJPQ5cty7ADbesvITGDapm5+cQ/H1AppGbuQyG3fC/ENa0lAz6uSI/guSQr7Uactxzku9ol279SHFKd4YmHmB906VhcVuIXR48Ch310IWOrosd/5hMfm5/+5liogQbYCKzB1E9Uc4S1nWBs/N6TJsDagvCvVSWYMlypx32tCsLmPYgK/NjGbC069SWKbxfYlhJ9f3qsJVXyrP3wwI2CFWgQTRvSAbKDySEoPnsS3SGiMc+T/OgJEnESwhvXHhqrj2kf9wL1mdlomc2Aty3YsQWi+WkUrR7cZL8VE0EHPJbCkL6C2M6PQho5Lo7RHge2RVcx4KVAQCrdb1OV9MrURpDNmbxPeRgB
+
+The user is right, this is getting overly complicated. Let's simplify by:
+
+1. Removing code_language entirely from the grammar
+2. Just having code_backticks_start, code_contents, code_backticks_end
+3. Copying the markdown scanner's backtick logic directly
+4. The language will just be part of the content, not a separate node
+
+This will be much simpler and more reliable.
+
+# ASSISTANT
+
+You're absolutely right. Let's simplify this drastically. I'll:
+
+1. Remove `code_language` entirely 
+2. Just have `code_backticks_start`, `code_contents`, `code_backticks_end`
+3. Copy the markdown scanner's backtick logic directly
+4. Language will just be part of the content
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01LtbD5S4147MyPFnkvyYfi8
+
+## path
+
+<tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+./grammar.js
+</tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+
+## git-commit-message
+
+<tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+Remove code_language entirely, simplify to just start/content/end
+</tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+
+## diff
+
+<tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+   externals: $ => [
+     $.tool_start_tag,
+     $.tool_end_tag,
+     $.tool_content_head,
+     $.tool_content_tail,
+     $.html_comment,
+     $.eval_content,
+     $.eval_result_start_tag,
+     $.eval_result_end_tag,
+     $.eval_result_content_head,
+     $.eval_result_content_tail,
+     $.error_sentinel,
+     $.code_backticks_start,
+     $.code_backticks_end,
+     $.code_contents,
+-    $.code_language,
+     $.eval_language,
+   ],
+\ No newline at end of file
+
+</tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+
+# TOOL RESULT
+
+ID: toolu_01LtbD5S4147MyPFnkvyYfi8
+
+<tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
+
+</tool.toolu_01LtbD5S4147MyPFnkvyYfi8>
