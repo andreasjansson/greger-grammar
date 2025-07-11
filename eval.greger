@@ -1060,5 +1060,175 @@ Rewrite code content scanner to properly handle end marking like tool scanner
 ID: toolu_01HWrxN75w5DdGumdkCQoHYt
 
 <tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Rewrite code content scanner to properly handle end marking like tool scanner
 </tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
+
+# ASSISTANT
+
+Let's test this version:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01E3XPBviFvJ9DvhT57bXNWM
+
+## command
+
+<tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
+printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
+
+# TOOL RESULT
+
+ID: toolu_01E3XPBviFvJ9DvhT57bXNWM
+
+<tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.73 ms	    49 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
+
+# ASSISTANT
+
+The same issue persists. I think I need to understand this more fundamentally. Let me try a different approach. The problem is that `lexer->mark_end(lexer)` is being called after we've already consumed part of the `<$code-close/>` pattern.
+
+Let me trace this step by step. The scanner is processing:
+1. `code` - advances and marks end
+2. `\n` - advances and marks end  
+3. `<` - matches first char of code-close pattern, advances and marks end (BUG!)
+4. `$` - matches second char of code-close pattern, advances and marks end (BUG!)
+5. ... continues until `>` 
+6. When it reaches the complete pattern, it tries to return, but mark_end was already called at position 13 (just before the `>`)
+
+The fix is to NOT call `mark_end` when we're in the middle of matching the code-close pattern. Let me implement this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01PGe8hdbxvtHc4mkYR4GF2Y
+
+## path
+
+<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+./src/scanner.c
+</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+
+## git-commit-message
+
+<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+Fix mark_end issue - don't mark end when matching code-close pattern
+</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+
+## diff
+
+<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+     // Build the expected closing pattern (just the right number of backticks)
+     char expected_closing[21]; // Max 20 backticks + null terminator
+     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+         expected_closing[i] = '`';
+     }
+     expected_closing[scanner->code_backtick_count] = '\0';
+     int expected_len = scanner->code_backtick_count;
+     
+     // Also check for code close tag pattern (to stop before it)
+     const char *code_close_pattern = "<$code-close/>";
+     int code_close_len = 14;
+     
+     int match_index = 0;
+     int code_close_match_index = 0;
+     
+     // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
+         // Check for code close tag pattern first
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             // Continue checking this character for backtick patterns too
+         } else {
+             code_close_match_index = 0;
+         }
+         
+         // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+             has_content = true;
++            // Only mark end if we're not in middle of matching code close pattern
++            if (code_close_match_index == 0) {
++                lexer->mark_end(lexer);
++            }
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+-                lexer->mark_end(lexer);
++                // Only mark end if we're not in middle of matching code close pattern
++                if (code_close_match_index == 0) {
++                    lexer->mark_end(lexer);
++                }
+             }
+         }
+     }
+     
+     // Reached end without finding closing tag
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+
+# TOOL RESULT
+
+ID: toolu_01PGe8hdbxvtHc4mkYR4GF2Y
+
+<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+
+</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>

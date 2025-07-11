@@ -737,6 +737,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             }
             advance(lexer);
             has_content = true;
+            // Only mark end if we're not in middle of matching code close pattern
+            if (code_close_match_index == 0) {
+                lexer->mark_end(lexer);
+            }
         } else {
             // Reset match and continue as content
             if (match_index > 0) {
@@ -756,7 +760,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                 
                 advance(lexer);
                 has_content = true;
-                lexer->mark_end(lexer);
+                // Only mark end if we're not in middle of matching code close pattern
+                if (code_close_match_index == 0) {
+                    lexer->mark_end(lexer);
+                }
             }
         }
     }
