@@ -300,8 +300,14 @@ module.exports = grammar({
 
     code: $ => seq(
       $.code_backticks_start,
+      repeat(choice(
+        $._code_text,
+        /\n/,
+      )),
       $.code_backticks_end,
     ),
+
+    _code_text: $ => /[^`\n]+/,
 
     _text_content: $ => choice(
       /[^`\n]+/,

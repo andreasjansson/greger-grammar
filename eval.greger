@@ -9785,5 +9785,133 @@ Add debug output to lookahead logic
 ID: toolu_01WXxJvGTvbzAdXxqkMM1VDY
 
 <tool.toolu_01WXxJvGTvbzAdXxqkMM1VDY>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to lookahead logic
 </tool.toolu_01WXxJvGTvbzAdXxqkMM1VDY>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01UybJhXEaxVvVCN1RSMy6C5
+
+## command
+
+<tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+
+## timeout
+
+<tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+10
+</tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+
+# TOOL RESULT
+
+ID: toolu_01UybJhXEaxVvVCN1RSMy6C5
+
+<tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+DEBUG: doing lookahead for level=2
+DEBUG: found 1 consecutive backticks
+DEBUG: found 1 consecutive backticks
+DEBUG: found 2 consecutive backticks
+DEBUG: found matching closing delimiter
+DEBUG: lookahead successful, returning true
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.09 ms	   273 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01UybJhXEaxVvVCN1RSMy6C5>
+
+# ASSISTANT
+
+Excellent! The debug output shows that the lookahead logic is working correctly:
+1. It finds 1 consecutive backtick (the first single backtick in the content)
+2. It finds 1 consecutive backtick (the second single backtick in the content)
+3. It finds 2 consecutive backticks (the closing delimiter)
+4. It successfully identifies the matching closing delimiter
+
+So the scanner is correctly creating the `code_backticks_start` token. The issue must be in the grammar or in how the closing delimiter is being parsed.
+
+The issue is that the scanner successfully creates the start token, but then when it encounters the content, it fails to parse it correctly.
+
+The error shows that position [2,3] to [2,12] is causing an ERROR. Position [2,3] is the space after the opening backticks, and position [2,12] is the end of the string. This suggests that the grammar is expecting something that it's not finding.
+
+Since the scanner is working correctly for the opening delimiter, the issue must be in how the closing delimiter is being parsed. Let me check if the issue is that the closing delimiter scanner is not being called.
+
+Looking at the current grammar:
+
+```javascript
+code: $ => seq(
+  $.code_backticks_start,
+  $.code_backticks_end,
+),
+```
+
+The grammar expects a `code_backticks_start` followed immediately by a `code_backticks_end`. But there's content in between that needs to be handled.
+
+I think the issue is that I need to have the content handled by the grammar, not by the scanner. Let me check how the markdown parser handles this by looking at its grammar again:
+
+The markdown parser has:
+```javascript
+code_span: $ => seq(
+    alias($._code_span_start, $.code_span_delimiter),
+    repeat(choice($._text_base, '[', ']', $._soft_line_break, $._html_tag)),
+    alias($._code_span_close, $.code_span_delimiter)
+),
+```
+
+The key insight is that they have `repeat(choice($._text_base, '[', ']', $._soft_line_break, $._html_tag))` in the middle to handle content!
+
+I need to add content handling to my grammar. Let me add a simple text rule to handle the content:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019szzevrGJspcrU6SaYQSk3
+
+## path
+
+<tool.toolu_019szzevrGJspcrU6SaYQSk3>
+./grammar.js
+</tool.toolu_019szzevrGJspcrU6SaYQSk3>
+
+## git-commit-message
+
+<tool.toolu_019szzevrGJspcrU6SaYQSk3>
+Add content handling to code rule following markdown pattern
+</tool.toolu_019szzevrGJspcrU6SaYQSk3>
+
+## original-content
+
+<tool.toolu_019szzevrGJspcrU6SaYQSk3>
+    code: $ => seq(
+      $.code_backticks_start,
+      $.code_backticks_end,
+    ),
+</tool.toolu_019szzevrGJspcrU6SaYQSk3>
+
+## new-content
+
+<tool.toolu_019szzevrGJspcrU6SaYQSk3>
+    code: $ => seq(
+      $.code_backticks_start,
+      repeat(choice(
+        $._code_text,
+        /\n/,
+      )),
+      $.code_backticks_end,
+    ),
+
+    _code_text: $ => /[^`\n]+/,
+</tool.toolu_019szzevrGJspcrU6SaYQSk3>
+
+# TOOL RESULT
+
+ID: toolu_019szzevrGJspcrU6SaYQSk3
+
+<tool.toolu_019szzevrGJspcrU6SaYQSk3>
+
+</tool.toolu_019szzevrGJspcrU6SaYQSk3>
