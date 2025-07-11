@@ -777,7 +777,12 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
 
 static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
-    if (lexer->lookahead != '`') return false;
+    if (lexer->lookahead != '`') {
+        fprintf(stderr, "DEBUG: scan_code_backticks_end returning false, lookahead='%c'\n", lexer->lookahead);
+        return false;
+    }
+    
+    fprintf(stderr, "DEBUG: scan_code_backticks_end called, lookahead='%c'\n", lexer->lookahead);
     
     // Count the number of backticks
     int level = 0;

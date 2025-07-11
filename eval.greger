@@ -8484,5 +8484,112 @@ Add code_content back to grammar and test
 ID: toolu_01DuJtBX3wEEMmgkiBayTXFh
 
 <tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add code_content back to grammar and test
 </tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+# ASSISTANT
+
+Now let me test the double backtick case to see if it works better:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015mF1bEHfpsFtDAugEHn5Hu
+
+## command
+
+<tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+
+## timeout
+
+<tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+10
+</tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+
+# TOOL RESULT
+
+ID: toolu_015mF1bEHfpsFtDAugEHn5Hu
+
+<tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+(source_file [0, 0] - [2, 12]
+  (assistant [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 10]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 3] - [2, 10]))
+    (code [2, 10] - [2, 12]
+      (code_backticks_start [2, 10] - [2, 12])
+      (code_backticks_end [2, 12] - [2, 12]))))
+/dev/stdin	Parse:    0.03 ms	   870 bytes/ms	(MISSING code_backticks_end [2, 12] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_015mF1bEHfpsFtDAugEHn5Hu>
+
+# ASSISTANT
+
+Great! Now I can see the pattern. For the input `` `code` ``, the parser is producing:
+- `code_backticks_start` from [2,0] to [2,2] (the opening ``)
+- `code_backticks_end` from [2,3] to [2,10] (the content ` `code` `)
+
+This means that my `code_backticks_end` function is being called and it's consuming the content as if it were the closing delimiter. This is wrong - the content should be consumed by the `code_content` function, not the end function.
+
+I think the issue is that my `code_backticks_end` function is not properly checking if what it's looking at is actually backticks. Let me check what the `code_backticks_end` function is seeing when it's called at position [2,3]:
+
+At position [2,3], the character is a space ` `, not a backtick. But my function starts with:
+
+```c
+if (lexer->lookahead != '`') return false;
+```
+
+This should return false, so it shouldn't be producing a `code_backticks_end` token. This suggests that there's something else going on.
+
+Let me add some debug output to the end function to see what's happening:```
+
+
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01TS9ggK9TiiGYbtuqMKfaWk
+
+## path
+
+<tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+./src/scanner.c
+</tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+## git-commit-message
+
+<tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+Add debug output to end scanner to understand the issue
+</tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+## original-content
+
+<tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    if (lexer->lookahead != '`') return false;
+</tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+## new-content
+
+<tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    if (lexer->lookahead != '`') {
+        fprintf(stderr, "DEBUG: scan_code_backticks_end returning false, lookahead='%c'\n", lexer->lookahead);
+        return false;
+    }
+    
+    fprintf(stderr, "DEBUG: scan_code_backticks_end called, lookahead='%c'\n", lexer->lookahead);
+</tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+# TOOL RESULT
+
+ID: toolu_01TS9ggK9TiiGYbtuqMKfaWk
+
+<tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+</tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
