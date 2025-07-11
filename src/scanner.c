@@ -1031,11 +1031,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_code_start_tag(scanner, lexer);
     }
     
-    // Handle code close tag (check before code content so it doesn't get consumed)
-    if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
-        return scan_code_close_tag(scanner, lexer);
-    }
-    
     // Handle code content
     if (valid_symbols[CODE_CONTENT]) {
         return scan_code_content(scanner, lexer);

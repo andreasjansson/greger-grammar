@@ -7004,5 +7004,60 @@ Move code close tag check inside main < handling block
 ID: toolu_01JoQBEQAj1ECE76DEGp798X
 
 <tool.toolu_01JoQBEQAj1ECE76DEGp798X>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Move code close tag check inside main < handling block
 </tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+
+# ASSISTANT
+
+Now let me remove the duplicate code close tag check:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FgEnrDJsQ97CtXCUdoDuSV
+
+## path
+
+<tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+./src/scanner.c
+</tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+
+## git-commit-message
+
+<tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+Remove duplicate code close tag check
+</tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+
+## diff
+
+<tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+     // Handle code start tag
+     if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+         return scan_code_start_tag(scanner, lexer);
+     }
+     
+-    // Handle code close tag (check before code content so it doesn't get consumed)
+-    if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
+-        return scan_code_close_tag(scanner, lexer);
+-    }
+-    
+     // Handle code content
+     if (valid_symbols[CODE_CONTENT]) {
+         return scan_code_content(scanner, lexer);
+     }
+     
+     // Handle code end tag
+     if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
+         return scan_code_end_tag(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+
+# TOOL RESULT
+
+ID: toolu_01FgEnrDJsQ97CtXCUdoDuSV
+
+<tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+
+</tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
