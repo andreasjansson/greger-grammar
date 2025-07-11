@@ -689,12 +689,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     // For inline code (1-2 backticks), check if we're immediately at a newline
     if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
         // No content between backtick and newline, return empty content
-        fprintf(stderr, "DEBUG: Empty code content at newline\n");
         lexer->result_symbol = CODE_CONTENT;
         return true;
     }
-    
-    fprintf(stderr, "DEBUG: Starting code content scan, backtick count: %d\n", scanner->code_backtick_count);
     
     lexer->mark_end(lexer);
     bool has_content = false;
@@ -706,9 +703,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     }
     expected_closing[scanner->code_backtick_count] = '\0';
     int expected_len = scanner->code_backtick_count;
-    
-    fprintf(stderr, "DEBUG: Expected closing pattern: '%s' (len: %d)\n", 
-            expected_closing, expected_len);
     
     // Also check for code close tag pattern (to stop before it)
     const char *code_close_pattern = "<$code-close/>";

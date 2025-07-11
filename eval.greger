@@ -4373,5 +4373,62 @@ Remove debug output from scanner
 ID: toolu_01CAKPVZBHi12GXNtpLzbvvE
 
 <tool.toolu_01CAKPVZBHi12GXNtpLzbvvE>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output from scanner
 </tool.toolu_01CAKPVZBHi12GXNtpLzbvvE>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BS39Sa9unhgYgk4KV5Y2K6
+
+## path
+
+<tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+src/scanner.c
+</tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+
+## git-commit-message
+
+<tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+Remove more debug output
+</tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+
+## diff
+
+<tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+     // For inline code (1-2 backticks), check if we're immediately at a newline
+     if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+         // No content between backtick and newline, return empty content
+-        fprintf(stderr, "DEBUG: Empty code content at newline\n");
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+-    fprintf(stderr, "DEBUG: Starting code content scan, backtick count: %d\n", scanner->code_backtick_count);
+-    
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+     // Build the expected closing pattern (just the right number of backticks)
+     char expected_closing[21]; // Max 20 backticks + null terminator
+     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+         expected_closing[i] = '`';
+     }
+     expected_closing[scanner->code_backtick_count] = '\0';
+-    int expected_len = scanner->code_backtick_count;
+-    
+-    fprintf(stderr, "DEBUG: Expected closing pattern: '%s' (len: %d)\n", 
+-            expected_closing, expected_len);
+\ No newline at end of file
++    int expected_len = scanner->code_backtick_count;
+\ No newline at end of file
+
+</tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+
+# TOOL RESULT
+
+ID: toolu_01BS39Sa9unhgYgk4KV5Y2K6
+
+<tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+
+</tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
