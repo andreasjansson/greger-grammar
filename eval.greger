@@ -8761,5 +8761,203 @@ Simplify scanner to not do lookahead for inline code delimiters
 ID: toolu_017rxN5A8wkKuV4XXBpxx2mu
 
 <tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify scanner to not do lookahead for inline code delimiters
 </tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+
+# ASSISTANT
+
+Now let me test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Troszjx1H4VNPYWkrZm5ij
+
+## command
+
+<tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+
+## timeout
+
+<tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+10
+</tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+
+# TOOL RESULT
+
+ID: toolu_01Troszjx1H4VNPYWkrZm5ij
+
+<tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.05 ms	   458 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01Troszjx1H4VNPYWkrZm5ij>
+
+# ASSISTANT
+
+The issue is still there. Let me think about this differently. The problem might be that the grammar rule isn't correctly handling the space between the backticks. Let me check if the issue is with whitespace handling in the scanner:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01U7FR6JauKj6Q84HZVNKEut
+
+## command
+
+<tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+cd . && printf '# ASSISTANT\n\n``x`y``' | tree-sitter parse /dev/stdin
+</tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+
+## timeout
+
+<tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+10
+</tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+
+# TOOL RESULT
+
+ID: toolu_01U7FR6JauKj6Q84HZVNKEut
+
+<tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+(source_file [0, 0] - [2, 7]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 7])))
+/dev/stdin	Parse:    0.02 ms	   905 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01U7FR6JauKj6Q84HZVNKEut>
+
+# ASSISTANT
+
+The issue is at the exact same position [2, 3], which suggests the problem is that the single backtick at that position is being parsed by the scanner when it should be handled by the grammar. Let me check if the scanner is being called for that backtick:
+
+Let me check if the issue is that my grammar rule isn't working. Let me test a simple case first:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012sEDgKcAJLstUNmNRWRGM2
+
+## command
+
+<tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+cd . && printf '# ASSISTANT\n\n``x``' | tree-sitter parse /dev/stdin
+</tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+
+## timeout
+
+<tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+10
+</tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+
+# TOOL RESULT
+
+ID: toolu_012sEDgKcAJLstUNmNRWRGM2
+
+<tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+(source_file [0, 0] - [2, 5]
+  (assistant [0, 0] - [2, 5]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 5]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 3] - [2, 5]))))
+
+</tool.toolu_012sEDgKcAJLstUNmNRWRGM2>
+
+# ASSISTANT
+
+That works! Let me try with a space:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LSwH3KixKqavj3PvTLr4Hb
+
+## command
+
+<tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+cd . && printf '# ASSISTANT\n\n`` x``' | tree-sitter parse /dev/stdin
+</tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+
+## timeout
+
+<tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+10
+</tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+
+# TOOL RESULT
+
+ID: toolu_01LSwH3KixKqavj3PvTLr4Hb
+
+<tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+(source_file [0, 0] - [2, 6]
+  (assistant [0, 0] - [2, 6]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 6]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 4] - [2, 6]))))
+
+</tool.toolu_01LSwH3KixKqavj3PvTLr4Hb>
+
+# ASSISTANT
+
+That works too! The issue is specifically when there's a backtick in the content. The problem is that when the grammar encounters the single backtick at position [2, 3], the scanner is called to handle it, but the scanner should not be trying to parse it as a delimiter.
+
+Looking at this more carefully, I think the issue is that the scanner is being called for every backtick, even those that should be content. Let me check if I need to be more careful about when the scanner is invoked.
+
+Looking at the markdown inline scanner, I notice it uses a different approach. Let me check if the issue is that I need to change when the scanner is called. The scanner should only be called when the parser expects a delimiter, not when parsing content.
+
+Actually, let me step back and look at this differently. The markdown approach uses separate rules for the content. Let me try to match that approach more closely by creating a proper content rule that explicitly handles all content including backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RZZr9DCoMXqroF6m8pESew
+
+## path
+
+<tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+./grammar.js
+</tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+
+## git-commit-message
+
+<tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+Use separate token for code content to avoid scanner conflicts
+</tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+
+## diff
+
+<tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+     code: $ => seq(
+       $.code_backticks_start,
+-      repeat(choice(
+-        /[^`\n]+/,  // non-backtick, non-newline characters
+-        /`/,        // single backticks as content
+-        /\n/,       // newlines
+-      )),
++      optional($.code_content),
+       $.code_backticks_end,
+-    ),
+\ No newline at end of file
++    ),
++
++    code_content: $ => token(prec(-1, /[^]*?/)),
+\ No newline at end of file
+
+</tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+
+# TOOL RESULT
+
+ID: toolu_01RZZr9DCoMXqroF6m8pESew
+
+<tool.toolu_01RZZr9DCoMXqroF6m8pESew>
+
+</tool.toolu_01RZZr9DCoMXqroF6m8pESew>
