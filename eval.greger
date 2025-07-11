@@ -5853,5 +5853,154 @@ Modify code_content scanner to stop at <$code-close/> tags
 ID: toolu_017zLHbHPYDTVRZnEx3tpizA
 
 <tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Modify code_content scanner to stop at <$code-close/> tags
 </tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+
+# ASSISTANT
+
+Now let's test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DpsDKkLCC3UB2vK6eANxLd
+
+## command
+
+<tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>\n\nMore text after.' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+
+## timeout
+
+<tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+10
+</tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+
+# TOOL RESULT
+
+ID: toolu_01DpsDKkLCC3UB2vK6eANxLd
+
+<tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+(source_file [0, 0] - [6, 16]
+  (ERROR [0, 0] - [6, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [6, 16])))
+/dev/stdin	Parse:    1.04 ms	    60 bytes/ms	(ERROR [0, 0] - [6, 16])
+Command failed with exit code 1
+</tool.toolu_01DpsDKkLCC3UB2vK6eANxLd>
+
+# ASSISTANT
+
+Progress! The code_content is now stopping at the code close tag, but there's still an issue with the parsing. Let me try a simpler test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Vy9n3FirfPDiyyuwxAUxwV
+
+## command
+
+<tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+cd . && printf '# ASSISTANT\n\n<$code-close/>\n\nMore text after.' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+
+## timeout
+
+<tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+10
+</tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+
+# TOOL RESULT
+
+ID: toolu_01Vy9n3FirfPDiyyuwxAUxwV
+
+<tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+(source_file [0, 0] - [4, 16]
+  (assistant [0, 0] - [4, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [4, 16])))
+
+</tool.toolu_01Vy9n3FirfPDiyyuwxAUxwV>
+
+# ASSISTANT
+
+So the code close tag is being parsed as regular text when there's no open code block. Let me test with an open code block:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019t2BEPLCk1fL3UFVW2LCCT
+
+## command
+
+<tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+
+## timeout
+
+<tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+10
+</tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+
+# TOOL RESULT
+
+ID: toolu_019t2BEPLCk1fL3UFVW2LCCT
+
+<tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.02 ms	  1809 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_019t2BEPLCk1fL3UFVW2LCCT>
+
+# ASSISTANT
+
+The issue is that the code close tag is being detected but the grammar expects it to be in the proper context. Let me debug this step by step. The problem might be that the code close tag can only be recognized when there's actually an open code block, but also it needs to be handled differently in the grammar.
+
+Let me modify the approach. Instead of making code_close_tag a standalone rule, I should make it an alternative way to close a code block:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01AisFYK89vZRkukcHNHs3MR
+
+## path
+
+<tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+./grammar.js
+</tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+
+## git-commit-message
+
+<tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+Modify code rule to accept code_close_tag as alternative to code_end_tag
+</tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+
+## diff
+
+<tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+     code: $ => seq(
+       $.code_start_tag,
+       optional($.code_content),
+-      $.code_end_tag,
++      choice($.code_end_tag, $.code_close_tag),
+     ),
+\ No newline at end of file
+
+</tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+
+# TOOL RESULT
+
+ID: toolu_01AisFYK89vZRkukcHNHs3MR
+
+<tool.toolu_01AisFYK89vZRkukcHNHs3MR>
+
+</tool.toolu_01AisFYK89vZRkukcHNHs3MR>
