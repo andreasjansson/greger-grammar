@@ -2701,5 +2701,376 @@ Fix syntax error - remove extra braces
 ID: toolu_013nSapAFD5kF6SsSWJ5q8Ye
 
 <tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix syntax error - remove extra braces
 </tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+# ASSISTANT
+
+Now let's test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HSoMbmKaptpgfGkX5Fj4Le
+
+## command
+
+<tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
+printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
+
+# TOOL RESULT
+
+ID: toolu_01HSoMbmKaptpgfGkX5Fj4Le
+
+<tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_end_tag [4, 0] - [4, 3]))))
+
+</tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
+
+# ASSISTANT
+
+Perfect! Now the code content ends at `[4, 0]` (before the closing backticks) and the code end tag is properly recognized from `[4, 0]` to `[4, 3]`.
+
+Let's test the code-close functionality is still working:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019efNS9ky4nGG3VJxFdWyMD
+
+## command
+
+<tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
+printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
+
+# TOOL RESULT
+
+ID: toolu_019efNS9ky4nGG3VJxFdWyMD
+
+<tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
+(source_file [0, 0] - [4, 14]
+  (assistant [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_close_tag [4, 0] - [4, 14]))))
+
+</tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
+
+# ASSISTANT
+
+Great! Both cases are working. Let's run the full test suite:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NR4HgYpjv43x11sEMHRQJU
+
+## command
+
+<tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
+tree-sitter test
+</tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
+
+# TOOL RESULT
+
+ID: toolu_01NR4HgYpjv43x11sEMHRQJU
+
+<tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+  complex-workflow:
+     16. ✓ Complex workflow
+  eval-nested-braces:
+     17. ✓ Eval nested braces
+  eval-partial:
+     18. ✓ Eval partial cases -- Warning: Slow parse rate (1328.683 bytes/ms)
+  eval-results:
+     19. ✓ Eval results
+  eval:
+     20. ✓ Eval
+  html-comments:
+     21. ✓ HTML comments
+  html-tags:
+     22. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     23. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     24. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     25. ✓ Multiple tool uses
+  nested-code-blocks:
+     26. ✓ Nested code blocks
+  safe-shell-commands:
+     27. ✓ Safe shell commands
+  server-tool-use-basic:
+     28. ✓ Server tool use basic
+  server-tool-use-string-result:
+     29. ✓ Server tool use string result
+  simple-conversation:
+     30. ✓ Simple conversation
+  simple-user-message:
+     31. ✓ Simple user message
+  system-and-user:
+     32. ✓ System and user
+  text-with-markdown-headings:
+     33. ✓ Text with markdown headings
+  thinking-only:
+     34. ✓ Thinking only
+  thinking-section:
+     35. ✓ Thinking section
+  tool-use-multiple-params:
+     36. ✓ Tool use multiple params
+  tool-use-only:
+     37. ✓ Tool use only
+  tool-use-single-param:
+     38. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     39. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     40. ✓ Tool use with tool use in params
+  triple-hash:
+     41. ✓ Triple hash not in citation
+  untagged-content:
+     42. ✓ Untagged content
+  xml-tags-backticks:
+     43. ✓ Tags in backticks
+
+Total parses: 43; successful parses: 43; failed parses: 0; success percentage: 100.00%; average speed: 24415 bytes/ms
+
+
+</tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
+
+# ASSISTANT
+
+Excellent! All tests are passing now. Let me run a few more specific tests to make sure everything is working correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GDbDt5cJqiSjSWWsBPhKTr
+
+## command
+
+<tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
+printf '# ASSISTANT\n\n`inline code`' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
+
+# TOOL RESULT
+
+ID: toolu_01GDbDt5cJqiSjSWWsBPhKTr
+
+<tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
+(source_file [0, 0] - [2, 13]
+  (assistant [0, 0] - [2, 13]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 13]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 12])
+      (code_end_tag [2, 12] - [2, 13]))))
+
+</tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015qyA4yQMs9PDvSQudu1NZL
+
+## command
+
+<tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
+printf '# ASSISTANT\n\n``double backticks``' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
+
+# TOOL RESULT
+
+ID: toolu_015qyA4yQMs9PDvSQudu1NZL
+
+<tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
+(source_file [0, 0] - [2, 20]
+  (assistant [0, 0] - [2, 20]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 20]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 2] - [2, 18])
+      (code_end_tag [2, 18] - [2, 20]))))
+
+</tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
+
+# ASSISTANT
+
+Perfect! Let's also test edge cases:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011ya1TwrXC1QqtqU8tKUbQa
+
+## command
+
+<tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
+printf '# ASSISTANT\n\n```\ncode with backticks ` inside\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
+
+# TOOL RESULT
+
+ID: toolu_011ya1TwrXC1QqtqU8tKUbQa
+
+<tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
+(source_file [0, 0] - [4, 14]
+  (assistant [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_close_tag [4, 0] - [4, 14]))))
+
+</tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
+
+# ASSISTANT
+
+Great! The code-close works even when there are backticks inside the content.
+
+Let me test another edge case - what happens when `<$code-close/>` appears outside of a code block:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01E3LmBNJXNDRoS22PzGPzrN
+
+## command
+
+<tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
+printf '# ASSISTANT\n\nRegular text with <$code-close/> inside.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
+
+# TOOL RESULT
+
+ID: toolu_01E3LmBNJXNDRoS22PzGPzrN
+
+<tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
+(source_file [0, 0] - [2, 40]
+  (assistant [0, 0] - [2, 40]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 40])))
+
+</tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
+
+# ASSISTANT
+
+Perfect! When `<$code-close/>` appears outside of a code block, it's treated as regular text and doesn't interfere with parsing.
+
+Let me also test the complex case with more content after the code-close:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BNbRbkov8e8nLNuw21mqqQ
+
+## command
+
+<tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
+printf '# ASSISTANT\n\n```\ncode\n<$code-close/>\n\nMore text after the code block.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
+
+# TOOL RESULT
+
+ID: toolu_01BNbRbkov8e8nLNuw21mqqQ
+
+<tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
+(source_file [0, 0] - [6, 31]
+  (assistant [0, 0] - [6, 31]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_close_tag [4, 0] - [4, 14]))
+    (text [4, 14] - [6, 31])))
+
+</tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
+
+# ASSISTANT
+
+Excellent! The parser correctly handles the text after the code-close tag.
+
+## Summary
+
+I've successfully implemented the `<$code-close/>` tag functionality in the Greger markdown parser. Here's what was accomplished:
+
+### ✅ **Core Implementation**
+
+1. **Grammar Definition**: Added `code_close_tag: $ => '<$code-close/>'` as a regular grammar token
+2. **Code Rule**: Modified `code` rule to accept either `code_end_tag` or `code_close_tag` as closing tokens
+3. **Scanner Logic**: Fixed the `scan_code_content()` function to properly detect and stop before the `<$code-close/>` pattern
+
+### ✅ **Key Technical Fixes**
+
+1. **Boundary Detection**: Scanner now correctly stops code content before consuming any part of the `<$code-close/>` pattern
+2. **Mark End Logic**: Implemented proper `lexer->mark_end()` behavior to ensure token boundaries are correct
+3. **Pattern Matching**: Fixed the backtick pattern matching to work correctly with the code-close detection
+4. **Syntax Preservation**: All existing code block functionality (inline, fenced, nested) continues to work perfectly
+
+### ✅ **Test Results**
+
+- **All 43 tests passing** (100% success rate)
+- **Code-close functionality working** - properly closes unclosed code blocks
+- **Regular code blocks working** - `` `inline` ``, ` ``` triple backticks, etc.
+- **Edge cases handled** - backticks inside content, code-close outside code blocks, content after code-close
+
+### ✅ **Usage Examples**
+
+```
+# ASSISTANT
+
+```
+unclosed code block
+<$code-close/>
+
+More text continues here.
+```
+
+**Parse result:**
+```
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_close_tag))
+    (text)))
+```
+
+The implementation successfully addresses Claude's tendency to leave code blocks unclosed by providing a force-close mechanism that allows the parser to recover and continue parsing subsequent sections correctly.
+
+# USER
+
