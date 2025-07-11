@@ -9080,5 +9080,55 @@ Update deserialization to include code state
 ID: toolu_01VcbKJ8WcEM4sRNEqvm6V9x
 
 <tool.toolu_01VcbKJ8WcEM4sRNEqvm6V9x>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update deserialization to include code state
 </tool.toolu_01VcbKJ8WcEM4sRNEqvm6V9x>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019iSZLoBB6QBvHzUAbvmSwU
+
+## path
+
+<tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+./src/scanner.c
+</tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+
+## git-commit-message
+
+<tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+Add code state deserialization logic
+</tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+
+## diff
+
+<tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
++                                // Deserialize code state
++                                size_t final_offset = offset + 3 + eval_result_id_len;
++                                if (length > final_offset) {
++                                    scanner->code_backtick_count = buffer[final_offset];
++                                    if (length > final_offset + 1) {
++                                        scanner->in_code_content = buffer[final_offset + 1] == 1;
++                                    } else {
++                                        scanner->in_code_content = false;
++                                    }
++                                } else {
++                                    scanner->code_backtick_count = 0;
++                                    scanner->in_code_content = false;
++                                }
+                             } else {
+                                 scanner->eval_result_id[0] = '\0';
++                                scanner->code_backtick_count = 0;
++                                scanner->in_code_content = false;
+                             }
+\ No newline at end of file
+
+</tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+
+# TOOL RESULT
+
+ID: toolu_019iSZLoBB6QBvHzUAbvmSwU
+
+<tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
+
+</tool.toolu_019iSZLoBB6QBvHzUAbvmSwU>
