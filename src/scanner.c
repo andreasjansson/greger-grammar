@@ -665,13 +665,14 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
         level++;
     }
     
+    // Mark the end after consuming just the backticks
+    lexer->mark_end(lexer);
+    
     // If this is able to close a fenced code block then that is the only valid interpretation
     if (valid_symbols[CODE_BACKTICKS_END] && 
         level >= scanner->fenced_code_block_delimiter_length &&
         scanner->fenced_code_block_delimiter_length > 0) {
         
-        // Check if this is at the end of line (closing delimiter must be on its own line for block style)
-        // For inline style, we don't require newline
         scanner->fenced_code_block_delimiter_length = 0;
         lexer->result_symbol = CODE_BACKTICKS_END;
         return true;
@@ -681,7 +682,6 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
     if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
         // Check if the info string contains any backticks (invalid for fenced code blocks)
         bool info_string_has_backtick = false;
-        TSLexer saved_lexer = *lexer;
         
         // Only check for backticks in the info string for multi-backtick blocks
         if (level > 1) {
@@ -694,9 +694,6 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
                 advance(lexer);
             }
         }
-        
-        // Restore lexer position
-        *lexer = saved_lexer;
         
         // If info string doesn't contain backticks, this is a valid fenced code block start
         if (!info_string_has_backtick) {

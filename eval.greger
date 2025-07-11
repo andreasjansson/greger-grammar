@@ -7992,5 +7992,258 @@ true
 ID: toolu_01X8Jhq31EMVSAzbXqsJ344g
 
 <tool.toolu_01X8Jhq31EMVSAzbXqsJ344g>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt. Successfully staged 2 file(s) and committed with message: Update code-block-triple-backticks test to use separate start/end backtick tokens with language
 </tool.toolu_01X8Jhq31EMVSAzbXqsJ344g>
+
+# ASSISTANT
+
+Now let me test this new approach:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01W49PBzWACjcD68XMJtqDKq
+
+## command
+
+<tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+
+## timeout
+
+<tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+10
+</tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+
+# TOOL RESULT
+
+ID: toolu_01W49PBzWACjcD68XMJtqDKq
+
+<tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+(source_file [0, 0] - [2, 11]
+  (ERROR [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (ERROR [2, 0] - [2, 2])
+    (code_language [2, 3] - [2, 8])
+    (ERROR [2, 9] - [2, 11])))
+/dev/stdin	Parse:    3.21 ms	     7 bytes/ms	(ERROR [0, 0] - [2, 11])
+Command failed with exit code 1
+</tool.toolu_01W49PBzWACjcD68XMJtqDKq>
+
+# ASSISTANT
+
+The grammar is not working correctly. The issue is that it's still trying to parse "hello" as a language when it should be content. Let me test a simpler case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GHjgzyV6GD3Nyms7km5MjW
+
+## command
+
+<tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+cd . && printf '# ASSISTANT\n\n```\nhello\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+
+## timeout
+
+<tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+10
+</tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+
+# TOOL RESULT
+
+ID: toolu_01GHjgzyV6GD3Nyms7km5MjW
+
+<tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks_start [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks_end [4, 0] - [4, 3]))))
+
+</tool.toolu_01GHjgzyV6GD3Nyms7km5MjW>
+
+# ASSISTANT
+
+Good! The basic case works. The issue is with the language detection. Let me test with a language:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ULxfhB3CGsxcd3B83FQjJU
+
+## command
+
+<tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+cd . && printf '# ASSISTANT\n\n```python\nprint("hello")\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+
+## timeout
+
+<tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+10
+</tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+
+# TOOL RESULT
+
+ID: toolu_01ULxfhB3CGsxcd3B83FQjJU
+
+<tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+(source_file [0, 0] - [3, 3]
+  (assistant [0, 0] - [3, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_backticks_start [2, 0] - [2, 9])
+      (code_language [2, 9] - [2, 15])
+      (code_contents [2, 15] - [3, 0])
+      (code_backticks_end [3, 0] - [3, 3]))))
+
+</tool.toolu_01ULxfhB3CGsxcd3B83FQjJU>
+
+# ASSISTANT
+
+That's wrong. The `code_backticks_start` should be just `[2, 0] - [2, 3]` (the three backticks), not `[2, 0] - [2, 9]` (backticks + python). The issue is that the scanner is consuming too much.
+
+Let me fix the scanner to only consume the backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01KALz2WQRDTs9mHrW8itCiT
+
+## path
+
+<tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+./src/scanner.c
+</tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+
+## git-commit-message
+
+<tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+Fix scanner to only consume backticks, not the language identifier
+</tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+
+## original-content
+
+<tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    // If this is able to close a fenced code block then that is the only valid interpretation
+    if (valid_symbols[CODE_BACKTICKS_END] && 
+        level >= scanner->fenced_code_block_delimiter_length &&
+        scanner->fenced_code_block_delimiter_length > 0) {
+        
+        // Check if this is at the end of line (closing delimiter must be on its own line for block style)
+        // For inline style, we don't require newline
+        scanner->fenced_code_block_delimiter_length = 0;
+        lexer->result_symbol = CODE_BACKTICKS_END;
+        return true;
+    }
+    
+    // If this could be the start of a fenced code block
+    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+        // Check if the info string contains any backticks (invalid for fenced code blocks)
+        bool info_string_has_backtick = false;
+        TSLexer saved_lexer = *lexer;
+        
+        // Only check for backticks in the info string for multi-backtick blocks
+        if (level > 1) {
+            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                   lexer->lookahead != 0) {
+                if (lexer->lookahead == '`') {
+                    info_string_has_backtick = true;
+                    break;
+                }
+                advance(lexer);
+            }
+        }
+        
+        // Restore lexer position
+        *lexer = saved_lexer;
+        
+        // If info string doesn't contain backticks, this is a valid fenced code block start
+        if (!info_string_has_backtick) {
+            lexer->result_symbol = CODE_BACKTICKS_START;
+            scanner->fenced_code_block_delimiter_length = level;
+            return true;
+        }
+    }
+    
+    return false;
+}
+</tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+
+## new-content
+
+<tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    // Mark the end after consuming just the backticks
+    lexer->mark_end(lexer);
+    
+    // If this is able to close a fenced code block then that is the only valid interpretation
+    if (valid_symbols[CODE_BACKTICKS_END] && 
+        level >= scanner->fenced_code_block_delimiter_length &&
+        scanner->fenced_code_block_delimiter_length > 0) {
+        
+        scanner->fenced_code_block_delimiter_length = 0;
+        lexer->result_symbol = CODE_BACKTICKS_END;
+        return true;
+    }
+    
+    // If this could be the start of a fenced code block
+    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+        // Check if the info string contains any backticks (invalid for fenced code blocks)
+        bool info_string_has_backtick = false;
+        
+        // Only check for backticks in the info string for multi-backtick blocks
+        if (level > 1) {
+            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                   lexer->lookahead != 0) {
+                if (lexer->lookahead == '`') {
+                    info_string_has_backtick = true;
+                    break;
+                }
+                advance(lexer);
+            }
+        }
+        
+        // If info string doesn't contain backticks, this is a valid fenced code block start
+        if (!info_string_has_backtick) {
+            lexer->result_symbol = CODE_BACKTICKS_START;
+            scanner->fenced_code_block_delimiter_length = level;
+            return true;
+        }
+    }
+    
+    return false;
+}
+</tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+
+# TOOL RESULT
+
+ID: toolu_01KALz2WQRDTs9mHrW8itCiT
+
+<tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
+
+</tool.toolu_01KALz2WQRDTs9mHrW8itCiT>
