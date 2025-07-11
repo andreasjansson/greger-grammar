@@ -688,62 +688,18 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     
     lexer->mark_end(lexer);
     bool has_content = false;
-    bool at_line_start = true;
     
+    // Simple approach: just consume content until we find potential closing backticks
     while (lexer->lookahead != 0) {
-        // Check if we're at a potential closing delimiter
         if (lexer->lookahead == '`') {
-            // For fenced code blocks, only consider closing at line start
-            if (scanner->code_backtick_count >= 3 && !at_line_start) {
-                // Not at line start, treat as content
-                advance(lexer);
-                has_content = true;
-                lexer->mark_end(lexer);
-                at_line_start = false;
-                continue;
+            // Check if this could be the start of a closing sequence
+            // For simplicity, just stop at any backtick and let the end tag handle it
+            if (has_content) {
+                lexer->result_symbol = CODE_CONTENT;
+                return true;
+            } else {
+                return false;
             }
-            
-            // Count consecutive backticks at current position
-            int closing_backticks = 0;
-            TSLexer temp_lexer = *lexer;
-            while (temp_lexer.lookahead == '`' && closing_backticks < 20) {
-                closing_backticks++;
-                temp_lexer.advance(&temp_lexer, false);
-            }
-            
-            // Check if this could be a valid closing delimiter
-            if (closing_backticks == scanner->code_backtick_count) {
-                // For fenced code blocks, require newline/EOF after closing
-                if (scanner->code_backtick_count >= 3) {
-                    // Skip whitespace after closing backticks
-                    while (temp_lexer.lookahead == ' ' || temp_lexer.lookahead == '\t') {
-                        temp_lexer.advance(&temp_lexer, false);
-                    }
-                    if (temp_lexer.lookahead == '\n' || temp_lexer.lookahead == '\r' || temp_lexer.lookahead == 0) {
-                        // Valid closing delimiter found, stop content here
-                        if (has_content) {
-                            lexer->result_symbol = CODE_CONTENT;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                } else {
-                    // For inline code, this is a valid closing delimiter
-                    if (has_content) {
-                        lexer->result_symbol = CODE_CONTENT;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-            
-            // Not a valid closing delimiter, treat as content
-            advance(lexer);
-            has_content = true;
-            lexer->mark_end(lexer);
-            at_line_start = false;
         } else {
             // For inline code (1-2 backticks), stop at newlines
             if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
@@ -756,12 +712,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             }
             
             // Regular content
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                at_line_start = true;
-            } else if (lexer->lookahead != ' ' && lexer->lookahead != '\t') {
-                at_line_start = false;
-            }
-            
             advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
@@ -782,7 +732,7 @@ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
     
     // Count the number of closing backticks
     int closing_backticks = 0;
-    while (lexer->lookahead == '`') {
+    while (lexer->lookahead == '`' && closing_backticks < 20) {
         advance(lexer);
         closing_backticks++;
     }
