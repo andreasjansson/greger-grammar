@@ -2837,5 +2837,101 @@ Fix scanner priority - handle code content before HTML tags when in code state
 ID: toolu_01LnCQMc7f6uW7hwU4texC16
 
 <tool.toolu_01LnCQMc7f6uW7hwU4texC16>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scanner priority - handle code content before HTML tags when in code state
 </tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+
+# ASSISTANT
+
+Now let's test both debug files:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GWuqEQqZV5NXB31HLj4Dm6
+
+## command
+
+<tool.toolu_01GWuqEQqZV5NXB31HLj4Dm6>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01GWuqEQqZV5NXB31HLj4Dm6>
+
+# TOOL RESULT
+
+ID: toolu_01GWuqEQqZV5NXB31HLj4Dm6
+
+<tool.toolu_01GWuqEQqZV5NXB31HLj4Dm6>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.09 ms	   127 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01GWuqEQqZV5NXB31HLj4Dm6>
+
+# ASSISTANT
+
+Still having the issue. Let me debug this more carefully. The problem might be that the code content isn't being parsed properly at all. Let me check what valid_symbols are being passed:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01LVnF3WgqTZbGrqVMz1kW2a
+
+## path
+
+<tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+debug_scanner.c
+</tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+
+## git-commit-message
+
+<tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+Add debug version of scanner
+</tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+
+## contents
+
+<tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+#include "tree_sitter/parser.h"
+#include <wctype.h>
+#include <string.h>
+#include <stdio.h>
+
+// Debug function to print valid symbols
+void debug_valid_symbols(const bool *valid_symbols) {
+    const char *symbol_names[] = {
+        "TOOL_START_TAG",
+        "TOOL_END_TAG", 
+        "TOOL_CONTENT_HEAD",
+        "TOOL_CONTENT_TAIL",
+        "HTML_COMMENT",
+        "EVAL_CONTENT",
+        "EVAL_RESULT_START_TAG",
+        "EVAL_RESULT_END_TAG",
+        "EVAL_RESULT_CONTENT_HEAD",
+        "EVAL_RESULT_CONTENT_TAIL",
+        "ERROR_SENTINEL",
+        "CODE_START_TAG",
+        "CODE_CONTENT",
+        "CODE_END_TAG",
+        "EVAL_LANGUAGE",
+    };
+    
+    fprintf(stderr, "Valid symbols: ");
+    for (int i = 0; i < 15; i++) {
+        if (valid_symbols[i]) {
+            fprintf(stderr, "%s ", symbol_names[i]);
+        }
+    }
+    fprintf(stderr, "\n");
+}
+</tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+
+# TOOL RESULT
+
+ID: toolu_01LVnF3WgqTZbGrqVMz1kW2a
+
+<tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
+
+</tool.toolu_01LVnF3WgqTZbGrqVMz1kW2a>
