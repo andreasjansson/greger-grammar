@@ -740,20 +740,73 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             code_close_match_index = 0;
         }
         
-        // Check for regular closing pattern (for all backtick counts)
+        // Check for regular closing pattern
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
-                // Found complete closing pattern, stop here (don't consume it)
-                if (has_content) {
-                    lexer->result_symbol = CODE_CONTENT;
-                    return true;
-                } else {
-                    return false;
+                // Found complete closing pattern, but need to check if it's a valid close
+                bool is_valid_close = true;
+                
+                // For single and double backticks, only close if followed by whitespace, 
+                // end of input, or certain punctuation
+                if (scanner->code_backtick_count <= 2) {
+                    // Look ahead to see what comes after the potential closing backticks
+                    TSLexer saved_lexer = *lexer;
+                    
+                    // Advance past the potential closing backticks
+                    for (int i = 0; i < scanner->code_backtick_count; i++) {
+                        if (lexer->lookahead == '`') {
+                            advance(lexer);
+                        } else {
+                            is_valid_close = false;
+                            break;
+                        }
+                    }
+                    
+                    if (is_valid_close) {
+                        // Check what comes after the closing backticks
+                        if (lexer->lookahead != 0 && 
+                            !iswspace(lexer->lookahead) && 
+                            lexer->lookahead != '.' && 
+                            lexer->lookahead != ',' && 
+                            lexer->lookahead != '!' && 
+                            lexer->lookahead != '?' && 
+                            lexer->lookahead != ';' && 
+                            lexer->lookahead != ':' && 
+                            lexer->lookahead != ')' && 
+                            lexer->lookahead != ']' && 
+                            lexer->lookahead != '}' && 
+                            lexer->lookahead != '<' && 
+                            lexer->lookahead != '>' &&
+                            lexer->lookahead != '`') {
+                            // Not followed by whitespace or punctuation, treat as content
+                            is_valid_close = false;
+                        }
+                    }
+                    
+                    // Restore lexer position
+                    *lexer = saved_lexer;
                 }
+                
+                if (is_valid_close) {
+                    // Valid closing pattern, stop here (don't consume it)
+                    if (has_content) {
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    // Not a valid close, treat as content
+                    match_index = 0;
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
+                }
+            } else {
+                // Advance while matching the closing pattern, but don't include in content
+                advance(lexer);
             }
-            // Advance while matching the closing pattern, but don't include in content
-            advance(lexer);
         } else {
             // Reset match and continue as content
             if (match_index > 0) {

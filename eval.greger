@@ -1776,5 +1776,710 @@ Remove the condition that only applied closing pattern detection to 3+ backticks
 ID: toolu_01HDZawUDSG2f3wAbzwC47RY
 
 <tool.toolu_01HDZawUDSG2f3wAbzwC47RY>
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix single/double backtick parsing to close at matching backticks
 
+Remove the condition that only applied closing pattern detection to 3+ backticks, allowing single and double backticks to properly close at their matching backticks instead of extending to end of line.
 </tool.toolu_01HDZawUDSG2f3wAbzwC47RY>
+
+# ASSISTANT
+
+Now let's test the fix:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0199qKTcZCi8jB1yHpPkRakw
+
+## command
+
+<tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+cd . && echo '# USER
+
+`a` b' | tree-sitter parse /dev/stdin
+</tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+
+## timeout
+
+<tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+10
+</tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+
+# TOOL RESULT
+
+ID: toolu_0199qKTcZCi8jB1yHpPkRakw
+
+<tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (text [2, 3] - [3, 0])))
+
+</tool.toolu_0199qKTcZCi8jB1yHpPkRakw>
+
+# ASSISTANT
+
+Great! Now the code content is `[2, 1] - [2, 2]` which is just `"a"`, and the text after is `[2, 3] - [3, 0]` which is `" b"`. This is the correct behavior.
+
+Let's test with double backticks to make sure that works too:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015skG6QMYhAMcEbPfcF2Jet
+
+## command
+
+<tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+cd . && echo '# USER
+
+``a`` b' | tree-sitter parse /dev/stdin
+</tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+
+## timeout
+
+<tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+10
+</tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+
+# TOOL RESULT
+
+ID: toolu_015skG6QMYhAMcEbPfcF2Jet
+
+<tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 5]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 2] - [2, 3])
+      (code_end_tag [2, 3] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_015skG6QMYhAMcEbPfcF2Jet>
+
+# ASSISTANT
+
+Perfect! Double backticks also work correctly. Let's also test the tricky case where we have backticks inside backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013cKVFs38CinVSZzhzSNY3k
+
+## command
+
+<tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+cd . && echo '# USER
+
+`a``' | tree-sitter parse /dev/stdin
+</tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+
+## timeout
+
+<tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+10
+</tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+
+# TOOL RESULT
+
+ID: toolu_013cKVFs38CinVSZzhzSNY3k
+
+<tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 4]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (code_content [2, 1] - [2, 2])
+    (ERROR [2, 2] - [2, 4])))
+/dev/stdin	Parse:    0.02 ms	   556 bytes/ms	(ERROR [0, 0] - [2, 4])
+Command failed with exit code 1
+</tool.toolu_013cKVFs38CinVSZzhzSNY3k>
+
+# ASSISTANT
+
+There's an issue. Let me check what's happening. The problem is that `a`` is being parsed as `a` followed by an additional backtick, creating a syntax error. Let me test a case that should work:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01S16LPBrJgtk9YH6heCJSf2
+
+## command
+
+<tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+cd . && echo '# USER
+
+`a` `b`' | tree-sitter parse /dev/stdin
+</tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+
+## timeout
+
+<tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+10
+</tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+
+# TOOL RESULT
+
+ID: toolu_01S16LPBrJgtk9YH6heCJSf2
+
+<tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (code [2, 4] - [2, 7]
+      (code_start_tag [2, 4] - [2, 5])
+      (code_content [2, 5] - [2, 6])
+      (code_end_tag [2, 6] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01S16LPBrJgtk9YH6heCJSf2>
+
+# ASSISTANT
+
+Good, that works. The `a`` case should terminate at the newline, not create a syntax error. Let me check the existing tests to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CvYhcLp4yxTmGRknokZ8wM
+
+## command
+
+<tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+cd . && tree-sitter test
+</tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+
+## timeout
+
+<tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+15
+</tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+
+# TOOL RESULT
+
+ID: toolu_01CvYhcLp4yxTmGRknokZ8wM
+
+<tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✗ Single backtick with double backticks inside -- Warning: Slow parse rate (2107.994 bytes/ms)
+     19. ✓ Triple backticks with content on same line
+     20. ✓ Single backtick extends to end of line
+  complex-workflow:
+     21. ✓ Complex workflow
+  eval-nested-braces:
+     22. ✓ Eval nested braces
+  eval-partial:
+     23. ✓ Eval partial cases -- Warning: Slow parse rate (1969.231 bytes/ms)
+  eval-results:
+     24. ✓ Eval results
+  eval:
+     25. ✓ Eval
+  html-comments:
+     26. ✓ HTML comments
+  html-tags:
+     27. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     28. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     29. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     30. ✓ Multiple tool uses
+  nested-code-blocks:
+     31. ✓ Nested code blocks
+  safe-shell-commands:
+     32. ✓ Safe shell commands
+  server-tool-use-basic:
+     33. ✓ Server tool use basic
+  server-tool-use-string-result:
+     34. ✓ Server tool use string result
+  simple-conversation:
+     35. ✓ Simple conversation
+  simple-user-message:
+     36. ✓ Simple user message
+  system-and-user:
+     37. ✓ System and user
+  text-with-markdown-headings:
+     38. ✓ Text with markdown headings
+  thinking-only:
+     39. ✓ Thinking only
+  thinking-section:
+     40. ✓ Thinking section
+  tool-use-multiple-params:
+     41. ✓ Tool use multiple params
+  tool-use-only:
+     42. ✓ Tool use only
+  tool-use-single-param:
+     43. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     44. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     45. ✓ Tool use with tool use in params
+  triple-hash:
+     46. ✓ Triple hash not in citation
+  untagged-content:
+     47. ✓ Untagged content
+  xml-tags-backticks:
+     48. ✓ Tags in backticks
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Single backtick with double backticks inside:
+
+    (source_file
+      (ERROR
+      (user
+        (user_header)
+        (code_start_tag)
+        (code_content)
+        (UNEXPECTED '`')))
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01CvYhcLp4yxTmGRknokZ8wM>
+
+# ASSISTANT
+
+There's one test failure. Let me check the specific test case that's failing:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01KinGrkkxYMnEPMVWMWT2WM
+
+## path
+
+<tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+./test/corpus/code.txt
+</tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+## start-line
+
+<tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+174
+</tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+## end-line
+
+<tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+190
+</tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+## include-line-numbers
+
+<tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+true
+</tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+# TOOL RESULT
+
+ID: toolu_01KinGrkkxYMnEPMVWMWT2WM
+
+<tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+</tool.toolu_01KinGrkkxYMnEPMVWMWT2WM>
+
+
+# USER
+
+```
+`a``
+```
+
+should be parsed as
+
+* single backtick (open code)
+* code content: a BACKTICK BACKTICK (the double backticks should not be parsed)
+* implicit close of inline code
+
+but
+
+```
+`a` b
+```
+
+should be parsed as
+
+* single backtick (open code)
+* code content: a
+* single backtick (close code)
+* text: SPACE b
+
+
+# THINKING
+
+Signature: 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
+
+I see the issue now. The problem is that my current fix treats all closing backticks as valid closing patterns, but that's not correct. The issue is that when we have `a``, the first backtick opens a single backtick code block, and then we need to find the matching single backtick to close it. But in the sequence `a```, we have:
+
+1. ` - opens single backtick code
+2. a - content
+3. ` - should close the single backtick code (this is the matching closing backtick)
+4. ` - this is a new backtick that should start a new code block
+
+But my current logic is probably consuming the double backticks `` as content rather than recognizing that the first backtick closes the code block.
+
+Let me understand the issue better. The expectation is:
+- `a`` should parse as: code block containing "a`" (where the double backticks are treated as content)
+- `a` b should parse as: code block containing "a" followed by text " b"
+
+The difference is that in `a```, there's no space after the second backtick, so it doesn't qualify as a closing pattern. But in `a` b, there's a space after the second backtick, so it does qualify as a closing pattern.
+
+Wait, let me re-read the user's explanation:
+
+```
+`a``
+```
+should be parsed as:
+* single backtick (open code)
+* code content: a BACKTICK BACKTICK (the double backticks should not be parsed)
+* implicit close of inline code
+
+This means that `a`` should be parsed as a single code block containing "a``" that gets implicitly closed at the end of the line.
+
+But 
+
+```
+`a` b
+```
+should be parsed as:
+* single backtick (open code)  
+* code content: a
+* single backtick (close code)
+
+
+* text: SPACE b
+
+I need to develop a nuanced approach to distinguish between closing backticks and content. The key is to recognize when a backtick truly closes a code block versus when it should be treated as part of the content. This requires a context-aware parsing strategy that considers the surrounding characters and potential closing conditions.
+
+The critical insight is the space or end of content as the determining factor for closing a code block. When no clear closing delimiter exists, the backticks remain part of the code block's content.
+
+# ASSISTANT
+
+I understand the issue now. Looking at your explanation, the problem is that my current fix is too aggressive - it's treating any matching backtick sequence as a closing pattern, but that's not correct.
+
+The logic should be:
+- `a`` should parse as a single code block containing "a``" (the double backticks are treated as literal content)
+- `a` b should parse as a code block containing "a" followed by text " b"
+
+The key insight is that we need to be more careful about when to treat backticks as closing patterns versus content. Let me examine the failing test case:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01NT2oCL9jsQZ2MSyZ7SMmR6
+
+## pattern
+
+<tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+Single backtick with double backticks inside
+</tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+
+## path
+
+<tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+./test/corpus/code.txt
+</tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+
+## context-lines
+
+<tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+10
+</tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+
+# TOOL RESULT
+
+ID: toolu_01NT2oCL9jsQZ2MSyZ7SMmR6
+
+<tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+257-  (user
+258-    (user_header)
+259-    (text)
+260-    (code
+261-      (code_start_tag)
+262-      (code_content)
+263-      (code_end_tag))
+264-    (text)))
+265-
+266-===============================
+267:Single backtick with double backticks inside
+268-===============================
+269-
+270-# USER
+271-
+272-`a``
+273-
+274----
+275-
+276-(source_file
+277-  (user
+
+</tool.toolu_01NT2oCL9jsQZ2MSyZ7SMmR6>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_017YpfLgfzAyMqhGQMZPjCh9
+
+## pattern
+
+<tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+Single backtick with double backticks inside
+</tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+
+## path
+
+<tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+./test/corpus/code.txt
+</tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+
+## context-lines
+
+<tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+20
+</tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+
+# TOOL RESULT
+
+ID: toolu_017YpfLgfzAyMqhGQMZPjCh9
+
+<tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+247-
+248-# USER
+249-
+250-a`
+251-
+252-b
+253-
+254----
+255-
+256-(source_file
+257-  (user
+258-    (user_header)
+259-    (text)
+260-    (code
+261-      (code_start_tag)
+262-      (code_content)
+263-      (code_end_tag))
+264-    (text)))
+265-
+266-===============================
+267:Single backtick with double backticks inside
+268-===============================
+269-
+270-# USER
+271-
+272-`a``
+273-
+274----
+275-
+276-(source_file
+277-  (user
+278-    (user_header)
+279-    (code
+280-      (code_start_tag)
+281-      (code_content)
+282-      (code_end_tag))
+283-    (text)))
+284-
+285-===============================
+286-Triple backticks with content on same line
+287-===============================
+
+</tool.toolu_017YpfLgfzAyMqhGQMZPjCh9>
+
+# ASSISTANT
+
+Perfect! I can see the expected behavior. The test case `a`` should be parsed as:
+- A single code block containing "a``" (the double backticks are treated as content)
+- The code block gets implicitly closed at the end of the line
+
+But the current behavior is trying to close the code block at the first backtick, which creates a syntax error because there's an unexpected extra backtick.
+
+The issue is that I need to implement a more sophisticated heuristic to determine when backticks should be treated as closing patterns versus content. Looking at the patterns, it seems like the key is to look ahead and see if there's a space or word boundary after the potential closing backticks.
+
+Let me implement a more careful approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Hp2eoyWMbAjeMoTNJ9JAuR
+
+## path
+
+<tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+./src/scanner.c
+</tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+
+## git-commit-message
+
+<tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+Implement proper backtick closing pattern detection
+
+Add logic to distinguish between closing backticks and content backticks by checking for word boundaries. Single/double backticks only close if followed by whitespace or end of content, preventing cases like `a`` from incorrectly closing at the first backtick.
+</tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+
+## original-content
+
+<tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+        // Check for regular closing pattern (for all backtick counts)
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // Advance while matching the closing pattern, but don't include in content
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                // Only mark end if we're not in middle of matching code close pattern
+                if (code_close_match_index == 0) {
+                    lexer->mark_end(lexer);
+                }
+            }
+        }
+</tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+
+## new-content
+
+<tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+        // Check for regular closing pattern
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, but need to check if it's a valid close
+                bool is_valid_close = true;
+                
+                // For single and double backticks, only close if followed by whitespace, 
+                // end of input, or certain punctuation
+                if (scanner->code_backtick_count <= 2) {
+                    // Look ahead to see what comes after the potential closing backticks
+                    TSLexer saved_lexer = *lexer;
+                    
+                    // Advance past the potential closing backticks
+                    for (int i = 0; i < scanner->code_backtick_count; i++) {
+                        if (lexer->lookahead == '`') {
+                            advance(lexer);
+                        } else {
+                            is_valid_close = false;
+                            break;
+                        }
+                    }
+                    
+                    if (is_valid_close) {
+                        // Check what comes after the closing backticks
+                        if (lexer->lookahead != 0 && 
+                            !iswspace(lexer->lookahead) && 
+                            lexer->lookahead != '.' && 
+                            lexer->lookahead != ',' && 
+                            lexer->lookahead != '!' && 
+                            lexer->lookahead != '?' && 
+                            lexer->lookahead != ';' && 
+                            lexer->lookahead != ':' && 
+                            lexer->lookahead != ')' && 
+                            lexer->lookahead != ']' && 
+                            lexer->lookahead != '}' && 
+                            lexer->lookahead != '<' && 
+                            lexer->lookahead != '>' &&
+                            lexer->lookahead != '`') {
+                            // Not followed by whitespace or punctuation, treat as content
+                            is_valid_close = false;
+                        }
+                    }
+                    
+                    // Restore lexer position
+                    *lexer = saved_lexer;
+                }
+                
+                if (is_valid_close) {
+                    // Valid closing pattern, stop here (don't consume it)
+                    if (has_content) {
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    // Not a valid close, treat as content
+                    match_index = 0;
+                    advance(lexer);
+                    has_content = true;
+                    lexer->mark_end(lexer);
+                }
+            } else {
+                // Advance while matching the closing pattern, but don't include in content
+                advance(lexer);
+            }
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                // Only mark end if we're not in middle of matching code close pattern
+                if (code_close_match_index == 0) {
+                    lexer->mark_end(lexer);
+                }
+            }
+        }
+</tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+
+# TOOL RESULT
+
+ID: toolu_01Hp2eoyWMbAjeMoTNJ9JAuR
+
+<tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
+
+</tool.toolu_01Hp2eoyWMbAjeMoTNJ9JAuR>
