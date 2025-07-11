@@ -816,6 +816,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                 
                 if (is_valid_close) {
                     // Valid closing pattern, stop here (don't consume it)
+                    fprintf(stderr, "DEBUG: Valid close, has_content: %d\n", has_content);
                     if (has_content) {
                         lexer->result_symbol = CODE_CONTENT;
                         return true;
@@ -824,6 +825,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     }
                 } else {
                     // Not a valid close, treat as content
+                    fprintf(stderr, "DEBUG: Not a valid close, treating as content\n");
                     match_index = 0;
                     advance(lexer);
                     has_content = true;
