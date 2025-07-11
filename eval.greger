@@ -5939,5 +5939,224 @@ Fix backwards advance issue in code content scanning
 ID: toolu_01JM4vkyYDbKSjgPbbEDWNsQ
 
 <tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backwards advance issue in code content scanning
 </tool.toolu_01JM4vkyYDbKSjgPbbEDWNsQ>
+
+# ASSISTANT
+
+Let me test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016V6hdhbF5jQL96GSz1aRnt
+
+## command
+
+<tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+
+## timeout
+
+<tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+10
+</tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+
+# TOOL RESULT
+
+ID: toolu_016V6hdhbF5jQL96GSz1aRnt
+
+<tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+Command timed out after 10 seconds
+</tool.toolu_016V6hdhbF5jQL96GSz1aRnt>
+
+# ASSISTANT
+
+Still hanging. Let me simplify the approach even more and remove the complex lookahead logic. The issue might be in the `scan_code_content` function. Let me make it much simpler:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01TdpFjJJ8jVwAKCHZ9jmtXT
+
+## path
+
+<tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+./src/scanner.c
+</tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+
+## git-commit-message
+
+<tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+Simplify code content scanning to avoid infinite loops
+</tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+
+## original-content
+
+<tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    lexer->mark_end(lexer);
+    
+    // Build the expected closing delimiter
+    char expected_closing[256];
+    for (int i = 0; i < scanner->fenced_code_block_delimiter_length; i++) {
+        expected_closing[i] = '`';
+    }
+    expected_closing[scanner->fenced_code_block_delimiter_length] = '\0';
+    int expected_len = scanner->fenced_code_block_delimiter_length;
+    
+    int match_index = 0;
+    bool has_content = false;
+    
+    // Scan content until we find the closing delimiter
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing delimiter
+                // For fenced code blocks (3+ backticks), require newline/EOF after closing
+                if (scanner->fenced_code_block_delimiter_length >= 3) {
+                    // Save position to check what comes after
+                    TSLexer saved_lexer = *lexer;
+                    advance(lexer);
+                    
+                    // Skip whitespace after closing backticks
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+                        // Valid closing delimiter, restore position and stop
+                        *lexer = saved_lexer;
+                        break;
+                    } else {
+                        // Not a valid closing delimiter, restore and continue as content
+                        *lexer = saved_lexer;
+                        match_index = 0;
+                        advance(lexer);
+                        has_content = true;
+                        lexer->mark_end(lexer);
+                    }
+                } else {
+                    // For inline code (1-2 backticks), close immediately
+                    // Don't consume the closing backticks - let the end scanner handle them
+                    break;
+                }
+            } else {
+                advance(lexer);
+            }
+        } else {
+            // Reset match and process as content
+            if (match_index > 0) {
+                match_index = 0;
+            }
+            
+            // For inline code (1-2 backticks), don't allow newlines
+            if (scanner->fenced_code_block_delimiter_length <= 2 && 
+                (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                break;
+            }
+            
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+
+## new-content
+
+<tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    lexer->mark_end(lexer);
+    
+    bool has_content = false;
+    
+    // Simple approach: consume content until we see the expected number of backticks
+    while (lexer->lookahead != 0) {
+        // For inline code (1-2 backticks), stop at newlines
+        if (scanner->fenced_code_block_delimiter_length <= 2 && 
+            (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+            break;
+        }
+        
+        // Check if we're seeing the start of a closing delimiter
+        if (lexer->lookahead == '`') {
+            // Count consecutive backticks
+            int backtick_count = 0;
+            TSLexer saved_lexer = *lexer;
+            
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // Check if this matches our expected closing delimiter
+            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+                // For fenced code blocks (3+ backticks), require newline/EOF after closing
+                if (scanner->fenced_code_block_delimiter_length >= 3) {
+                    // Skip whitespace after closing backticks
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+                        // Valid closing delimiter, restore position and stop
+                        *lexer = saved_lexer;
+                        break;
+                    } else {
+                        // Not a valid closing delimiter, restore and continue as content
+                        *lexer = saved_lexer;
+                        advance(lexer);
+                        has_content = true;
+                        lexer->mark_end(lexer);
+                    }
+                } else {
+                    // For inline code (1-2 backticks), this is a valid closing delimiter
+                    *lexer = saved_lexer;
+                    break;
+                }
+            } else {
+                // Not the right number of backticks, restore and continue as content
+                *lexer = saved_lexer;
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        } else {
+            // Regular content character
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+
+# TOOL RESULT
+
+ID: toolu_01TdpFjJJ8jVwAKCHZ9jmtXT
+
+<tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>
+
+</tool.toolu_01TdpFjJJ8jVwAKCHZ9jmtXT>

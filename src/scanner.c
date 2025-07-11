@@ -734,29 +734,31 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     
     lexer->mark_end(lexer);
     
-    // Build the expected closing delimiter
-    char expected_closing[256];
-    for (int i = 0; i < scanner->fenced_code_block_delimiter_length; i++) {
-        expected_closing[i] = '`';
-    }
-    expected_closing[scanner->fenced_code_block_delimiter_length] = '\0';
-    int expected_len = scanner->fenced_code_block_delimiter_length;
-    
-    int match_index = 0;
     bool has_content = false;
     
-    // Scan content until we find the closing delimiter
+    // Simple approach: consume content until we see the expected number of backticks
     while (lexer->lookahead != 0) {
+        // For inline code (1-2 backticks), stop at newlines
+        if (scanner->fenced_code_block_delimiter_length <= 2 && 
+            (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+            break;
+        }
+        
+        // Check if we're seeing the start of a closing delimiter
         if (lexer->lookahead == '`') {
-            match_index++;
-            if (match_index == expected_len) {
-                // Found complete closing delimiter
+            // Count consecutive backticks
+            int backtick_count = 0;
+            TSLexer saved_lexer = *lexer;
+            
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // Check if this matches our expected closing delimiter
+            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
                 // For fenced code blocks (3+ backticks), require newline/EOF after closing
                 if (scanner->fenced_code_block_delimiter_length >= 3) {
-                    // Save position to check what comes after
-                    TSLexer saved_lexer = *lexer;
-                    advance(lexer);
-                    
                     // Skip whitespace after closing backticks
                     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
                         advance(lexer);
@@ -769,31 +771,24 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     } else {
                         // Not a valid closing delimiter, restore and continue as content
                         *lexer = saved_lexer;
-                        match_index = 0;
                         advance(lexer);
                         has_content = true;
                         lexer->mark_end(lexer);
                     }
                 } else {
-                    // For inline code (1-2 backticks), close immediately
-                    // Don't consume the closing backticks - let the end scanner handle them
+                    // For inline code (1-2 backticks), this is a valid closing delimiter
+                    *lexer = saved_lexer;
                     break;
                 }
             } else {
+                // Not the right number of backticks, restore and continue as content
+                *lexer = saved_lexer;
                 advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
             }
         } else {
-            // Reset match and process as content
-            if (match_index > 0) {
-                match_index = 0;
-            }
-            
-            // For inline code (1-2 backticks), don't allow newlines
-            if (scanner->fenced_code_block_delimiter_length <= 2 && 
-                (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                break;
-            }
-            
+            // Regular content character
             advance(lexer);
             has_content = true;
             lexer->mark_end(lexer);
