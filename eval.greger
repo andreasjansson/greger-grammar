@@ -6969,11 +6969,80 @@ I successfully identified and fixed the issue with backticks at the end of lines
 5. **Verified the fix** by running all tests and confirming that:
    - The new test case passes
    - All existing tests continue to pass
-   - Single backticks at end of line work: `a`\n becomes proper code block with empty content
-   - Double backticks at end of line work: `a``\n becomes proper code block with empty content  
+   - Single backticks at end of line work: `a`\n becomes proper code block with empty content` 
+   - Double backticks at end of line work: `a``\n becomes proper code block with empty content
    - Triple backticks continue to work as expected (multi-line blocks)
 
 The fix ensures that single and double backticks are automatically terminated by newlines, even when there's no content between the backtick and the newline, which matches the expected behavior described in the issue.
 
 # USER
 
+This case is failing:
+
+```
+`a``
+```
+
+# THINKING
+
+Signature: ErsHCkYIBRgCKkAG1+luT8f8tFmGu0b1gLuvYGiunOr4VyOy5ytXW8yFu5Fe2TAJ5q04NtGKetrtQxDiiQV8UGodvZiqko10JzmaEgxo248azpBXvDElpuoaDKzAC7wAXCmnZZbKrSIwrIoFGdyzbiNBEICuSruKEbbJM29jXqAEydYmeMqO9MH1zceyAxW2viMOibxRVquyKqIGcLn0OYhyraqmD8EDN/u9Fhr68ZrrEEV4vZKS1zaElg+aztEGRgpj2xYEs4J5dCq+b9HQndShDqAyPXnUYTWmpWYilTu6miVxs6ARkTTl9hZ6gF6LUMznjcXJ8rTQOUVTaXmB4wHolYGkJ9lNDC3FC65f8qTiTAZ/bV5y4tu+1sqP1nvxDYCDjG72gnkOheKdHO/Aqq8qqQ+ikTZsTxYEWRPbZmI+/KZ85kM+chq3CzO1u7+S/Cihdu1kVN51n8mbo3CPpcaLTsWCEg4R5aaZPV75LVNW+8LWTgxGDaKYhXnZXMf5MiUMVMvtzG4Fe9m8qGKZ8BsEkUjP/SpF68xoWJiePomrjtEBx3CLgV5Og7TMcLIj3a5UWCJFaG6Mlg39BGjLaQD/DPMAs+zZX72M1ZVZKuNjTuAvYj6Vsn/80zYxGxQ09ndg7OVyzh70ulpcxQ+60oXTVtTiaq+shhWvkNfQxTo/P0n9Q2zJ44q0qsnYjw3v92QtMyPnanmW5oC8X2P+yYUmH1M4pAYkMphKPcIIPGkX3JqT6EBNQbB84vG6ffgeTlM9e5NNPI8drhkyeC3WZA2GujVpRXEnaWaOAC2kjZRsO3mUdWuUE4tCQnwVGiRs2XNW/gnSVDRoTLAoIsBykb+PnLbFu0ObX8EaW59ptbiQVSdnuEGn72zaO1UwjTVpO2UB6CO/0Qj3riEFp4XVXUMt/uBtngWN/zjL0SMaMpThW3/ecxyDwHvyOCCXkdwUAhYT0JSgSmEL4hM2vwZDfsnCfVq027jqf+CdNqFfQHfo7U/blaA3j0BsFYkB0LOQnHSaqOre6nw62aQsgG1qlDJhzXu1e1Utv27rYccFGZxe2O7As4+XnzPmQRo/Z1CnD42g5zJqAiwkxnd5hicAyMsSOLGZgFhJboBEZ/P/LC8x50Ba7FJ2t1DN7uWlxRpmbC7de3Wz690mqQyJ508KEo5wFb5oObgnSKVVwp9W3aTBgcW2S2S/3q8WjkI41HzPGZQf4CWcvq4O1l8lPMnsxSViHg4qNmYl30WhK+OAtvlf+d9YTuXJhjmQfp1xdxgB
+
+The user is reporting that this case is failing:
+
+```
+`a``
+```
+
+This is an interesting case. Let me think about what should happen here:
+
+1. We have a single backtick `
+2. Then the content "a"
+3. Then two backticks ``
+
+According to the logic I implemented, single backticks should be closed by the first matching backtick they encounter, or by a newline. But in this case, we have `a`` which means:
+- Opening: single backtick
+- Content: "a"
+- Closing: should be the first backtick of the two backticks
+
+So it should parse as:
+- `a` (single backtick code block with content "a")
+- ` (remaining single backtick, which would be another code block)
+
+But I suspect what's happening is that the scanner is getting confused about the closing backticks. Let me create a test to reproduce this.
+
+# ASSISTANT
+
+You're right! Let me create a test case to reproduce this issue:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01Qns7eAjc8D39HsM2qDwpX1
+
+## path
+
+<tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+test-backtick-edge-case.greger
+</tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+
+## contents
+
+<tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+# USER
+
+`a``
+</tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+
+## git-commit-message
+
+<tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+Add test for backtick edge case
+</tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+
+# TOOL RESULT
+
+ID: toolu_01Qns7eAjc8D39HsM2qDwpX1
+
+<tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
+
+</tool.toolu_01Qns7eAjc8D39HsM2qDwpX1>
