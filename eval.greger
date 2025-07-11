@@ -2456,5 +2456,386 @@ Add less than test file
 ID: toolu_015mbyTAXWtXqoRaFuA4XYij
 
 <tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test_lessthan.greger with 11 characters. Successfully staged 2 file(s) and committed with message: Add less than test file
 </tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015tnN9EQBNkXWKzyCPHVs9s
+
+## command
+
+<tool.toolu_015tnN9EQBNkXWKzyCPHVs9s>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_015tnN9EQBNkXWKzyCPHVs9s>
+
+# TOOL RESULT
+
+ID: toolu_015tnN9EQBNkXWKzyCPHVs9s
+
+<tool.toolu_015tnN9EQBNkXWKzyCPHVs9s>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.03 ms	   452 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_015tnN9EQBNkXWKzyCPHVs9s>
+
+# ASSISTANT
+
+Aha! The issue is specifically with the LESSTHAN character. The problem is that in the scanner, we're looking for HTML tags and other patterns that start with LESSTHAN, and this is interfering with the code content parsing.
+
+Let me check what happens in the scanner when we encounter LESSTHAN:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01ALPa6dBNHBe7zG3HXYghfQ
+
+## path
+
+<tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+src/scanner.c
+</tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+
+## start-line
+
+<tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+890
+</tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+
+## end-line
+
+<tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+920
+</tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+
+# TOOL RESULT
+
+ID: toolu_01ALPa6dBNHBe7zG3HXYghfQ
+
+<tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+    }
+    
+    // Scan the language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    lexer->result_symbol = EVAL_LANGUAGE;
+    return true;
+}
+
+
+static bool scan_eval_content(TSLexer *lexer) {
+    bool has_content = false;
+    bool has_non_whitespace = false;
+    int brace_count = 0;
+    
+    // Don't consume content that starts with : (language prefix)
+    if (lexer->lookahead == ':') {
+        return false;
+    }
+    
+</tool.toolu_01ALPa6dBNHBe7zG3HXYghfQ>
+
+# ASSISTANT
+
+Let me check the main scanning logic to see what happens when we encounter LESSTHAN:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01UmBABnSfKeHzwAQxr2Qidj
+
+## path
+
+<tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+src/scanner.c
+</tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+
+## start-line
+
+<tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+970
+</tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+
+## end-line
+
+<tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+1020
+</tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+
+# TOOL RESULT
+
+ID: toolu_01UmBABnSfKeHzwAQxr2Qidj
+
+<tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+        }
+    }
+    
+    if (has_content && has_non_whitespace) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Handle tool content (raw text) when in tool content state
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+            return scan_tool_content_tail(scanner, lexer);
+        }
+    }
+
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_tail(scanner, lexer);
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    // Don't skip whitespace when scanning code content
+    if (!scanner->in_code_content) {
+        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            skip(lexer);
+        }
+    }
+
+
+
+    if (lexer->lookahead == '<') {
+        // Handle HTML comments first - they should have priority
+</tool.toolu_01UmBABnSfKeHzwAQxr2Qidj>
+
+# ASSISTANT
+
+I found the issue! When the scanner encounters LESSTHAN, it tries to match various HTML tags first, even when we're in code content. But there's a priority issue - the scanner is trying to parse HTML content when it should be parsing code content.
+
+Let me check the scanning order more carefully:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01SfjZpuQNaEM63FBy5s9EHu
+
+## path
+
+<tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+src/scanner.c
+</tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+
+## start-line
+
+<tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+1020
+</tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+
+## end-line
+
+<tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+1070
+</tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+
+# TOOL RESULT
+
+ID: toolu_01SfjZpuQNaEM63FBy5s9EHu
+
+<tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+        // Handle HTML comments first - they should have priority
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
+        }
+
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
+
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+    }
+    
+    // Handle code start tag (only when not already in code content)
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
+        return scan_code_start_tag(scanner, lexer);
+    }
+    
+    // Handle code content
+    if (valid_symbols[CODE_CONTENT]) {
+        return scan_code_content(scanner, lexer);
+    }
+    
+    // Handle code end tag
+    if (valid_symbols[CODE_END_TAG]) {
+        // For single/double backticks, newlines can also trigger end tag
+        if (lexer->lookahead == '`' || 
+            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+            return scan_code_end_tag(scanner, lexer);
+        }
+    }
+    
+</tool.toolu_01SfjZpuQNaEM63FBy5s9EHu>
+
+# ASSISTANT
+
+I see the issue! The problem is in the scanning order. When we have a LESSTHAN character in code content, the scanner first tries to match HTML tags (like HTML comments, tool tags, etc.) before it tries to match code content.
+
+We need to prioritize code content when we're in code content state. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01LnCQMc7f6uW7hwU4texC16
+
+## path
+
+<tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+src/scanner.c
+</tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+
+## git-commit-message
+
+<tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+Fix scanner priority - handle code content before HTML tags when in code state
+</tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+
+## diff
+
+<tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+     // Skip whitespace but preserve newlines for other tokens
+     // Don't skip whitespace when scanning code content
+     if (!scanner->in_code_content) {
+         while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+             skip(lexer);
+         }
+     }
+ 
++    // Handle code content first when in code state - this has highest priority
++    if (valid_symbols[CODE_CONTENT] && scanner->in_code_content) {
++        return scan_code_content(scanner, lexer);
++    }
++    
++    // Handle code end tag
++    if (valid_symbols[CODE_END_TAG]) {
++        // For single/double backticks, newlines can also trigger end tag
++        if (lexer->lookahead == '`' || 
++            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
++             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
++            return scan_code_end_tag(scanner, lexer);
++        }
++    }
+ 
++    // Handle code start tag (only when not already in code content)
++    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
++        return scan_code_start_tag(scanner, lexer);
++    }
+ 
+     if (lexer->lookahead == '<') {
+         // Handle HTML comments first - they should have priority
+         if (valid_symbols[HTML_COMMENT]) {
+             return scan_html_comment(lexer);
+         }
+ 
+         // Handle eval result start tag
+         if (valid_symbols[EVAL_RESULT_START_TAG]) {
+             return scan_eval_result_start_tag(scanner, lexer);
+         }
+ 
+         // Handle eval result end tag
+         if (valid_symbols[EVAL_RESULT_END_TAG]) {
+             return scan_eval_result_end_tag(scanner, lexer);
+         }
+ 
+         // Handle tool start tag
+         if (valid_symbols[TOOL_START_TAG]) {
+             return scan_tool_start_tag(scanner, lexer);
+         }
+ 
+         // Handle tool end tag
+         if (valid_symbols[TOOL_END_TAG]) {
+             return scan_tool_end_tag(scanner, lexer);
+         }
+     }
+ 
+     // Handle eval content
+     if (valid_symbols[EVAL_CONTENT]) {
+         return scan_eval_content(lexer);
+-    }
+-    
+-    // Handle code start tag (only when not already in code content)
+-    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
+-        return scan_code_start_tag(scanner, lexer);
+-    }
+-    
+-    // Handle code content
+-    if (valid_symbols[CODE_CONTENT]) {
+-        return scan_code_content(scanner, lexer);
+-    }
+-    
+-    // Handle code end tag
+-    if (valid_symbols[CODE_END_TAG]) {
+-        // For single/double backticks, newlines can also trigger end tag
+-        if (lexer->lookahead == '`' || 
+-            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+-             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+-            return scan_code_end_tag(scanner, lexer);
+-        }
+     }
+\ No newline at end of file
+
+</tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+
+# TOOL RESULT
+
+ID: toolu_01LnCQMc7f6uW7hwU4texC16
+
+<tool.toolu_01LnCQMc7f6uW7hwU4texC16>
+
+</tool.toolu_01LnCQMc7f6uW7hwU4texC16>

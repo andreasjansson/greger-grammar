@@ -1014,7 +1014,25 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         }
     }
 
+    // Handle code content first when in code state - this has highest priority
+    if (valid_symbols[CODE_CONTENT] && scanner->in_code_content) {
+        return scan_code_content(scanner, lexer);
+    }
+    
+    // Handle code end tag
+    if (valid_symbols[CODE_END_TAG]) {
+        // For single/double backticks, newlines can also trigger end tag
+        if (lexer->lookahead == '`' || 
+            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+            return scan_code_end_tag(scanner, lexer);
+        }
+    }
 
+    // Handle code start tag (only when not already in code content)
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
+        return scan_code_start_tag(scanner, lexer);
+    }
 
     if (lexer->lookahead == '<') {
         // Handle HTML comments first - they should have priority
@@ -1046,26 +1064,6 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     // Handle eval content
     if (valid_symbols[EVAL_CONTENT]) {
         return scan_eval_content(lexer);
-    }
-    
-    // Handle code start tag (only when not already in code content)
-    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
-        return scan_code_start_tag(scanner, lexer);
-    }
-    
-    // Handle code content
-    if (valid_symbols[CODE_CONTENT]) {
-        return scan_code_content(scanner, lexer);
-    }
-    
-    // Handle code end tag
-    if (valid_symbols[CODE_END_TAG]) {
-        // For single/double backticks, newlines can also trigger end tag
-        if (lexer->lookahead == '`' || 
-            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
-             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
-            return scan_code_end_tag(scanner, lexer);
-        }
     }
     
     // Handle eval language
