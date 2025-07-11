@@ -764,16 +764,7 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
 
 
 
-static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // Simple approach: consume characters until we hit a backtick, then stop
-    // Let the grammar handle the backticks
-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
-        advance(lexer);
-    }
-    
-    lexer->result_symbol = CODE_CONTENTS;
-    return true;
-}
+
 
 static bool scan_eval_language(TSLexer *lexer) {
     // Skip any leading whitespace
