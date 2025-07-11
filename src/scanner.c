@@ -737,7 +737,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             // Count consecutive backticks
             int closing_backticks = 0;
             TSLexer temp_lexer = *lexer;
-            while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer)) {
+            while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer) && closing_backticks < 20) {
                 closing_backticks++;
                 temp_lexer.advance(&temp_lexer, false);
             }
