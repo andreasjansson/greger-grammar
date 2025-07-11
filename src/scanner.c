@@ -665,8 +665,6 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
     }
     
     lexer->mark_end(lexer);
-    fprintf(stderr, "DEBUG: parse_code_delimiter level=%d, delimiter_length=%d\n", 
-            level, scanner->fenced_code_block_delimiter_length);
     
     // PRIORITY 1: Check if this can close an existing code block (exact match of delimiter length)
     if (level == scanner->fenced_code_block_delimiter_length && 

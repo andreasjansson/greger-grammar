@@ -3793,5 +3793,55 @@ Remove debug output and fix scanner call conditions
 ID: toolu_01GWYXX7FLrknMmH586tnWVv
 
 <tool.toolu_01GWYXX7FLrknMmH586tnWVv>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output and fix scanner call conditions
 </tool.toolu_01GWYXX7FLrknMmH586tnWVv>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_015j5wCi74kPJK8k9JuAfCDP
+
+## path
+
+<tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+./src/scanner.c
+</tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+
+## git-commit-message
+
+<tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+Remove debug output from parse_code_delimiter
+</tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+
+## diff
+
+<tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of backticks
+     int level = 0;
+     while (lexer->lookahead == '`') {
+         advance(lexer);
+         level++;
+     }
+     
+     lexer->mark_end(lexer);
+-    fprintf(stderr, "DEBUG: parse_code_delimiter level=%d, delimiter_length=%d\n", 
+-            level, scanner->fenced_code_block_delimiter_length);
+     
+     // PRIORITY 1: Check if this can close an existing code block (exact match of delimiter length)
+     if (level == scanner->fenced_code_block_delimiter_length && 
+         valid_symbols[CODE_BACKTICKS_END] &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+\ No newline at end of file
+
+</tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+
+# TOOL RESULT
+
+ID: toolu_015j5wCi74kPJK8k9JuAfCDP
+
+<tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
+
+</tool.toolu_015j5wCi74kPJK8k9JuAfCDP>
