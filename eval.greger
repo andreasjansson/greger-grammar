@@ -7119,5 +7119,299 @@ static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_01AwpLfGdtMnojzBX8GUahfC
 
 <tool.toolu_01AwpLfGdtMnojzBX8GUahfC>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code backticks start scanner to remove lookahead complexity
 </tool.toolu_01AwpLfGdtMnojzBX8GUahfC>
+
+# ASSISTANT
+
+Now let me test this simplified version:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01R3ax8kFqwXWxdwbw6pmzqa
+
+## command
+
+<tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+
+## timeout
+
+<tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+10
+</tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+
+# TOOL RESULT
+
+ID: toolu_01R3ax8kFqwXWxdwbw6pmzqa
+
+<tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 6]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 1] - [2, 6]))
+    (code [2, 6] - [2, 7]
+      (code_backticks_start [2, 6] - [2, 7])
+      (code_backticks_end [2, 7] - [2, 7]))))
+/dev/stdin	Parse:    0.05 ms	   419 bytes/ms	(MISSING code_backticks_end [2, 7] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01R3ax8kFqwXWxdwbw6pmzqa>
+
+# ASSISTANT
+
+Great! It's no longer hanging, but the parsing is wrong. I can see that it's parsing `hello` as a `code_backticks_end` token instead of content. This means the scanner is not working correctly.
+
+Let me test the double backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CSkV2FyHdeJwcFLmGYvnUo
+
+## command
+
+<tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+
+## timeout
+
+<tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+10
+</tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+
+# TOOL RESULT
+
+ID: toolu_01CSkV2FyHdeJwcFLmGYvnUo
+
+<tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.03 ms	   771 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01CSkV2FyHdeJwcFLmGYvnUo>
+
+# ASSISTANT
+
+The issue is that the scanner is consuming the opening backticks correctly but then it's not properly handling the content and closing backticks. The problem seems to be in the scanner priority - when it encounters content, it should call the content scanner, not the end scanner.
+
+The issue is that my approach might be fundamentally flawed. Let me study the tool content approach more carefully and implement it exactly like that:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01PeTCfHQ7Ui5TujQirJHifq
+
+## path
+
+<tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+./src/scanner.c
+</tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+
+## start-line
+
+<tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+440
+</tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+
+## end-line
+
+<tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+470
+</tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+
+# TOOL RESULT
+
+ID: toolu_01PeTCfHQ7Ui5TujQirJHifq
+
+<tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'u') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Get the eval result ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->eval_result_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->eval_result_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->mark_end(lexer);
+    scanner->in_eval_result_content = true;
+    scanner->expecting_eval_result_tail = false;
+    lexer->result_symbol = EVAL_RESULT_START_TAG;
+    return true;
+}
+</tool.toolu_01PeTCfHQ7Ui5TujQirJHifq>
+
+# ASSISTANT
+
+I need to understand the key insight: the tool content works because it tracks state (`in_tool_content`) and then handles content scanning and end tag detection based on that state. The problem in my approach is that I'm trying to handle the content and end detection within the same scanner function.
+
+Let me look at the tool content pattern more carefully. The key insight is that the tool content scanner consumes all the content in one go, and then the end tag scanner takes over. Let me implement this pattern for code content:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HZYSyP54qMXvPKoJ8FotTb
+
+## path
+
+<tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+./src/scanner.c
+</tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+## git-commit-message
+
+<tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+Implement code content scanner using tool content pattern
+</tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+## original-content
+
+<tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    bool has_content = false;
+    
+    // For inline code, stop at backticks or newlines
+    if (scanner->fenced_code_block_delimiter_length <= 2) {
+        if (lexer->lookahead == '`' || lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            return false;
+        }
+        
+        // Consume characters until backtick or newline
+        while (lexer->lookahead != 0 && lexer->lookahead != '`' && 
+               lexer->lookahead != '\n' && lexer->lookahead != '\r') {
+            advance(lexer);
+            has_content = true;
+        }
+    } else {
+        // For fenced code, stop at backticks
+        if (lexer->lookahead == '`') {
+            return false;
+        }
+        
+        // Consume characters until backtick
+        while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+            advance(lexer);
+            has_content = true;
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+## new-content
+
+<tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    lexer->mark_end(lexer);
+    
+    // Build the expected closing delimiter
+    int expected_len = scanner->fenced_code_block_delimiter_length;
+    
+    int match_index = 0;
+    bool has_content = false;
+    
+    // Scan content until we find the closing delimiter
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing delimiter
+                // For fenced code blocks (3+ backticks), check what comes after
+                if (scanner->fenced_code_block_delimiter_length >= 3) {
+                    // Save position to check what comes after
+                    TSLexer saved_lexer = *lexer;
+                    advance(lexer);
+                    
+                    // Skip whitespace after closing backticks
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+                        // Valid closing delimiter, stop here (don't consume it)
+                        *lexer = saved_lexer;
+                        break;
+                    } else {
+                        // Not a valid closing delimiter, restore and continue as content
+                        *lexer = saved_lexer;
+                        match_index = 0;
+                        advance(lexer);
+                        has_content = true;
+                        lexer->mark_end(lexer);
+                    }
+                } else {
+                    // For inline code (1-2 backticks), this is a valid closing delimiter
+                    // Stop here (don't consume it)
+                    break;
+                }
+            } else {
+                advance(lexer);
+            }
+        } else {
+            // Reset match and process as content
+            if (match_index > 0) {
+                match_index = 0;
+            }
+            
+            // For inline code (1-2 backticks), don't allow newlines
+            if (scanner->fenced_code_block_delimiter_length <= 2 && 
+                (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                break;
+            }
+            
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+</tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+# TOOL RESULT
+
+ID: toolu_01HZYSyP54qMXvPKoJ8FotTb
+
+<tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+</tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
