@@ -8145,5 +8145,297 @@ Remove duplicate _text_content rule
 ID: toolu_014K4pHgp2UKP1u97oHonxVy
 
 <tool.toolu_014K4pHgp2UKP1u97oHonxVy>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove duplicate _text_content rule
 </tool.toolu_014K4pHgp2UKP1u97oHonxVy>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JSFp1putfCVkpyUxpuB732
+
+## command
+
+<tool.toolu_01JSFp1putfCVkpyUxpuB732>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01JSFp1putfCVkpyUxpuB732>
+
+# TOOL RESULT
+
+ID: toolu_01JSFp1putfCVkpyUxpuB732
+
+<tool.toolu_01JSFp1putfCVkpyUxpuB732>
+
+</tool.toolu_01JSFp1putfCVkpyUxpuB732>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QzkNgS3p8YyhnjGVNLxADy
+
+## command
+
+<tool.toolu_01QzkNgS3p8YyhnjGVNLxADy>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01QzkNgS3p8YyhnjGVNLxADy>
+
+# TOOL RESULT
+
+ID: toolu_01QzkNgS3p8YyhnjGVNLxADy
+
+<tool.toolu_01QzkNgS3p8YyhnjGVNLxADy>
+(source_file [0, 0] - [4, 10]
+  (ERROR [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (thinking_signature [2, 0] - [4, 0]
+      (key [2, 0] - [2, 11])
+      value: (value [2, 11] - [2, 15]))
+    (ERROR [4, 0] - [4, 10])))
+/dev/stdin	Parse:    0.06 ms	   704 bytes/ms	(ERROR [0, 0] - [4, 10])
+Command failed with exit code 1
+</tool.toolu_01QzkNgS3p8YyhnjGVNLxADy>
+
+# ASSISTANT
+
+Great! Now the thinking signature is being recognized! I can see it in the output:
+```
+(thinking_signature [2, 0] - [4, 0]
+  (key [2, 0] - [2, 11])
+  value: (value [2, 11] - [2, 15]))
+```
+
+The issue now is that there's an error with the text parsing. Let me run the original test to see if it works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Mqxc4ZmKGdmgcgoKf2zgsu
+
+## command
+
+<tool.toolu_01Mqxc4ZmKGdmgcgoKf2zgsu>
+timeout 10 tree-sitter parse /tmp/thinking_test.txt
+</tool.toolu_01Mqxc4ZmKGdmgcgoKf2zgsu>
+
+# TOOL RESULT
+
+ID: toolu_01Mqxc4ZmKGdmgcgoKf2zgsu
+
+<tool.toolu_01Mqxc4ZmKGdmgcgoKf2zgsu>
+(source_file [0, 0] - [21, 0]
+  (user [0, 0] - [4, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [4, 0]))
+  (ERROR [4, 0] - [8, 91]
+    (thinking_header [4, 0] - [4, 10])
+    (thinking_signature [6, 0] - [8, 0]
+      (key [6, 0] - [6, 11])
+      value: (value [6, 11] - [6, 17]))
+    (ERROR [8, 0] - [8, 91]))
+  (assistant [10, 0] - [14, 0]
+    (assistant_header [10, 0] - [10, 11])
+    (text [12, 0] - [14, 0]))
+  (user [14, 0] - [18, 0]
+    (user_header [14, 0] - [14, 6])
+    (text [16, 0] - [18, 0]))
+  (thinking [18, 0] - [21, 0]
+    (thinking_header [18, 0] - [18, 10])
+    (text [20, 0] - [21, 0])))
+/tmp/thinking_test.txt	Parse:    0.05 ms	  5090 bytes/ms	(ERROR [4, 0] - [8, 91])
+Command failed with exit code 1
+</tool.toolu_01Mqxc4ZmKGdmgcgoKf2zgsu>
+
+# ASSISTANT
+
+I can see that the first thinking block is now recognizing the signature correctly, but there's an error with the text parsing. The issue is that after removing the duplicate `_text_content` rule, the text parsing is breaking.
+
+Looking at the error more carefully, it seems like the text parsing is failing because the `content_blocks` rule is expecting to find valid content after the thinking signature. Let me check what's happening by examining the remaining text rule.
+
+The issue is that the `_text_content` rule I removed might have been needed. Let me check which one is correct by looking at how text is used:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_013aNhyMDeY5ATKf3QfEaCcW
+
+## path
+
+<tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+./grammar.js
+</tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+
+## start-line
+
+<tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+228
+</tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+
+## end-line
+
+<tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+242
+</tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+
+# TOOL RESULT
+
+ID: toolu_013aNhyMDeY5ATKf3QfEaCcW
+
+<tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+    text: $ => prec.right(repeat1(choice(
+      $._text_content,
+      /\n/,
+    ))),
+
+    assistant_text: $ => prec.right(repeat1(choice(
+      $._assistant_text_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^`$\n]+|\$[^{]/)),
+
+    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
+
+    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+</tool.toolu_013aNhyMDeY5ATKf3QfEaCcW>
+
+# ASSISTANT
+
+The `_text_content` rule on line 238 is using `token(prec(-1, /[^`$\n]+|\$[^{]/))`. This seems like the correct one. The one I removed was likely a leftover from the code parsing changes.
+
+Let me check if the current `_text_content` rule is working properly. The issue might be that it's not matching the content in the thinking block correctly. Let me test with a simpler example:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018U3EVCdnHPLdJ5vS8pYBv4
+
+## command
+
+<tool.toolu_018U3EVCdnHPLdJ5vS8pYBv4>
+printf '# THINKING\n\nSignature: test\n\nHello world.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_018U3EVCdnHPLdJ5vS8pYBv4>
+
+# TOOL RESULT
+
+ID: toolu_018U3EVCdnHPLdJ5vS8pYBv4
+
+<tool.toolu_018U3EVCdnHPLdJ5vS8pYBv4>
+(source_file [0, 0] - [4, 12]
+  (ERROR [0, 0] - [4, 12]
+    (thinking_header [0, 0] - [0, 10])
+    (thinking_signature [2, 0] - [4, 0]
+      (key [2, 0] - [2, 11])
+      value: (value [2, 11] - [2, 15]))
+    (ERROR [4, 0] - [4, 12])))
+/dev/stdin	Parse:    0.12 ms	   326 bytes/ms	(ERROR [0, 0] - [4, 12])
+Command failed with exit code 1
+</tool.toolu_018U3EVCdnHPLdJ5vS8pYBv4>
+
+# ASSISTANT
+
+The issue is with the text parsing after the signature. Looking at this error pattern, it seems like the `content_blocks` rule is not being satisfied properly. Let me check if the issue is with the `content_blocks` rule itself.
+
+Let me try without the signature to see if basic text parsing works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BCV2LxJbqEpqyt9eA3mk93
+
+## command
+
+<tool.toolu_01BCV2LxJbqEpqyt9eA3mk93>
+printf '# THINKING\n\nHello world.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01BCV2LxJbqEpqyt9eA3mk93>
+
+# TOOL RESULT
+
+ID: toolu_01BCV2LxJbqEpqyt9eA3mk93
+
+<tool.toolu_01BCV2LxJbqEpqyt9eA3mk93>
+(source_file [0, 0] - [2, 12]
+  (thinking [0, 0] - [2, 12]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [2, 12])))
+
+</tool.toolu_01BCV2LxJbqEpqyt9eA3mk93>
+
+# ASSISTANT
+
+So basic text parsing works fine. The issue is specifically when there's a signature followed by text. Looking at the grammar, after the thinking signature there should be `\n\n` followed by `content_blocks`. Let me check if this is the issue.
+
+In my test, I have:
+```
+# THINKING
+
+Signature: test
+
+Hello world.
+```
+
+There's `\n\n` after the header, then the signature with `\n`, then `\n` (for the second newline), then the text. This should match the pattern:
+```
+thinking: $ => seq(
+  $.thinking_header,
+  '\n\n',
+  optional(seq(
+    $.thinking_signature,
+    '\n\n',
+  )),
+  $.content_blocks,
+),
+```
+
+But the signature rule includes `\n` at the end:
+```
+thinking_signature: $ => seq(
+  alias('Signature: ', $.key),
+  field('value', $.value),
+  /\n/
+),
+```
+
+So after the signature rule matches, it consumes the first `\n`. Then the thinking rule expects another `\n` to make `\n\n`. But looking at the parse output, it seems like the second `\n` is not being consumed properly.
+
+Let me fix this by adjusting the thinking rule to not require the second `\n\n` after the signature:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012dQGmmV4JcooNeAaAJGWWE
+
+## path
+
+<tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+./grammar.js
+</tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+
+## git-commit-message
+
+<tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+Fix thinking rule to handle newlines after signature properly
+</tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+
+## diff
+
+<tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+     thinking: $ => seq(
+       $.thinking_header,
+       '\n\n',
+       optional(seq(
+         $.thinking_signature,
+-        '\n\n',
++        '\n',
+       )),
+       $.content_blocks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+
+# TOOL RESULT
+
+ID: toolu_012dQGmmV4JcooNeAaAJGWWE
+
+<tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+
+</tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
