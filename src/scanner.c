@@ -687,7 +687,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
     
     lexer->mark_end(lexer);
-    
     bool has_content = false;
     bool at_line_start = true;
     
@@ -704,23 +703,24 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                 continue;
             }
             
-            // Count consecutive backticks
+            // Count consecutive backticks at current position
             int closing_backticks = 0;
             TSLexer temp_lexer = *lexer;
-            while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer) && closing_backticks < 20) {
+            while (temp_lexer.lookahead == '`' && closing_backticks < 20) {
                 closing_backticks++;
                 temp_lexer.advance(&temp_lexer, false);
             }
             
+            // Check if this could be a valid closing delimiter
             if (closing_backticks == scanner->code_backtick_count) {
-                // Check if this is a valid closing delimiter
+                // For fenced code blocks, require newline/EOF after closing
                 if (scanner->code_backtick_count >= 3) {
-                    // For fenced code blocks, require newline/EOF after closing
+                    // Skip whitespace after closing backticks
                     while (temp_lexer.lookahead == ' ' || temp_lexer.lookahead == '\t') {
                         temp_lexer.advance(&temp_lexer, false);
                     }
                     if (temp_lexer.lookahead == '\n' || temp_lexer.lookahead == '\r' || temp_lexer.lookahead == 0) {
-                        // Valid closing delimiter
+                        // Valid closing delimiter found, stop content here
                         if (has_content) {
                             lexer->result_symbol = CODE_CONTENT;
                             return true;
