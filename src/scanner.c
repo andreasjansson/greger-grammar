@@ -725,7 +725,13 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     
     bool has_content = false;
     
-    while (lexer->lookahead != 0) {
+    // Add safety counter to prevent infinite loops
+    int safety_counter = 0;
+    const int max_iterations = 10000; // Reasonable limit
+    
+    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+        safety_counter++;
+        
         if (lexer->lookahead == '`') {
             // Check if this is a backtick sequence that matches the opening count
             TSLexer saved_lexer = *lexer;

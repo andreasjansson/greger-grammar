@@ -5387,5 +5387,185 @@ Simplify code_contents scanner to fix timeout issue
 ID: toolu_01MC696WvAfe34o8ZiwhhwG3
 
 <tool.toolu_01MC696WvAfe34o8ZiwhhwG3>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code_contents scanner to fix timeout issue
 </tool.toolu_01MC696WvAfe34o8ZiwhhwG3>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011ox4RtYr9mdwZ2HsoCzVxf
+
+## command
+
+<tool.toolu_011ox4RtYr9mdwZ2HsoCzVxf>
+cd . && tree-sitter generate
+</tool.toolu_011ox4RtYr9mdwZ2HsoCzVxf>
+
+# TOOL RESULT
+
+ID: toolu_011ox4RtYr9mdwZ2HsoCzVxf
+
+<tool.toolu_011ox4RtYr9mdwZ2HsoCzVxf>
+
+</tool.toolu_011ox4RtYr9mdwZ2HsoCzVxf>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01X4jF2dN17bEgC1WFBVbscq
+
+## command
+
+<tool.toolu_01X4jF2dN17bEgC1WFBVbscq>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01X4jF2dN17bEgC1WFBVbscq>
+
+# TOOL RESULT
+
+ID: toolu_01X4jF2dN17bEgC1WFBVbscq
+
+<tool.toolu_01X4jF2dN17bEgC1WFBVbscq>
+Command failed with exit code 124
+</tool.toolu_01X4jF2dN17bEgC1WFBVbscq>
+
+# ASSISTANT
+
+The issue is still there. The problem might be in the logic of how I'm detecting and handling the closing backticks. Let me step back and think about this differently. 
+
+Looking at the markdown implementation, I notice that they have separate tokens for start and end of fenced code blocks. This is a key insight - I should not be trying to handle both opening and closing in the same token.
+
+Let me look at what's in the grammar vs what's in the scanner. The timeout suggests there's an infinite loop somewhere. Let me check if the issue is in how I'm managing the backtick count state.
+
+Let me check if the issue is that I'm calling the contents scanner when I shouldn't:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NCzXdUL3CEpmhytnexkYe8
+
+## command
+
+<tool.toolu_01NCzXdUL3CEpmhytnexkYe8>
+cd . && printf '# ASSISTANT\n\n``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01NCzXdUL3CEpmhytnexkYe8>
+
+# TOOL RESULT
+
+ID: toolu_01NCzXdUL3CEpmhytnexkYe8
+
+<tool.toolu_01NCzXdUL3CEpmhytnexkYe8>
+(source_file [0, 0] - [2, 2]
+  (assistant [0, 0] - [2, 2]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 2]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 2])
+      (code_backticks [2, 2] - [2, 2]))))
+/dev/stdin	Parse:    0.03 ms	   458 bytes/ms	(MISSING code_backticks [2, 2] - [2, 2])
+Command failed with exit code 1
+</tool.toolu_01NCzXdUL3CEpmhytnexkYe8>
+
+# ASSISTANT
+
+That works fine. Let me try with content:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LABpVtExmvCvLqcTDvhNyU
+
+## command
+
+<tool.toolu_01LABpVtExmvCvLqcTDvhNyU>
+cd . && printf '# ASSISTANT\n\n`` hello' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01LABpVtExmvCvLqcTDvhNyU>
+
+# TOOL RESULT
+
+ID: toolu_01LABpVtExmvCvLqcTDvhNyU
+
+<tool.toolu_01LABpVtExmvCvLqcTDvhNyU>
+Command failed with exit code 124
+</tool.toolu_01LABpVtExmvCvLqcTDvhNyU>
+
+# ASSISTANT
+
+The issue is when there's content but no closing backticks. The scanner is getting stuck in an infinite loop. Let me examine the logic in the while loop more carefully. The issue is likely in the line:
+
+```c
+while (lexer->lookahead != 0) {
+```
+
+If the content scanner is called but there are no closing backticks, it will loop forever. Let me add some safeguards:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01WscFsEArbmFcJcDZC6PDTy
+
+## path
+
+<tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+./src/scanner.c
+</tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+
+## git-commit-message
+
+<tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+Add safety checks to prevent infinite loop in code_contents scanner
+</tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+
+## diff
+
+<tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+-    while (lexer->lookahead != 0) {
++    // Add safety counter to prevent infinite loops
++    int safety_counter = 0;
++    const int max_iterations = 10000; // Reasonable limit
++    
++    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
++        safety_counter++;
++        
+         if (lexer->lookahead == '`') {
+             // Check if this is a backtick sequence that matches the opening count
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             // Count consecutive backticks
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening backtick count, this is the closing sequence
+             if (backtick_count == scanner->last_backtick_count) {
+                 // Restore lexer position and let the grammar handle the closing backticks
+                 *lexer = saved_lexer;
+                 break;
+             } else {
+                 // This is not the closing sequence, include it as content
+                 // Restore and consume the backticks as content
+                 *lexer = saved_lexer;
+                 for (int i = 0; i < backtick_count; i++) {
+                     advance(lexer);
+                     has_content = true;
+                 }
+                 lexer->mark_end(lexer);
+             }
+         } else {
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+
+# TOOL RESULT
+
+ID: toolu_01WscFsEArbmFcJcDZC6PDTy
+
+<tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+
+</tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
