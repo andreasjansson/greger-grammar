@@ -775,7 +775,19 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
-    if (!scanner->in_code_content || lexer->lookahead != '`') return false;
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're at a newline to generate synthetic closing tag
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // Generate synthetic closing tag without consuming the newline
+        scanner->code_backtick_count = 0;
+        scanner->in_code_content = false;
+        lexer->result_symbol = CODE_END_TAG;
+        return true;
+    }
+    
+    // Regular case: looking for actual backticks
+    if (lexer->lookahead != '`') return false;
     
     // Count the number of closing backticks
     int closing_backticks = 0;

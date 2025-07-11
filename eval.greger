@@ -2319,5 +2319,86 @@ Fix code content to terminate single/double backticks at newlines
 ID: toolu_01CepNg3os8dbsrJU5sTj15K
 
 <tool.toolu_01CepNg3os8dbsrJU5sTj15K>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code content to terminate single/double backticks at newlines
 </tool.toolu_01CepNg3os8dbsrJU5sTj15K>
+
+# ASSISTANT
+
+Now I need to also modify the `scan_code_end_tag` function to generate a synthetic closing tag when we encounter a newline for single/double backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01EtBjopJAdZexoeDWrC4RbM
+
+## path
+
+<tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+src/scanner.c
+</tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+
+## git-commit-message
+
+<tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+Add synthetic closing tag for single/double backticks at newlines
+</tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+
+## diff
+
+<tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+-    if (!scanner->in_code_content || lexer->lookahead != '`') return false;
++    if (!scanner->in_code_content) return false;
+     
++    // For inline code (1-2 backticks), check if we're at a newline to generate synthetic closing tag
++    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
++        // Generate synthetic closing tag without consuming the newline
++        scanner->code_backtick_count = 0;
++        scanner->in_code_content = false;
++        lexer->result_symbol = CODE_END_TAG;
++        return true;
++    }
++    
++    // Regular case: looking for actual backticks
++    if (lexer->lookahead != '`') return false;
++    
+     // Count the number of closing backticks
+     int closing_backticks = 0;
+     while (lexer->lookahead == '`' && closing_backticks < 20) {
+         advance(lexer);
+         closing_backticks++;
+     }
+     
+     // Check if this matches the opening backticks
+     if (closing_backticks != scanner->code_backtick_count) {
+         return false;
+     }
+     
+     // For fenced code blocks (3+ backticks), require newline/EOF after closing
+     if (scanner->code_backtick_count >= 3) {
+         // Skip whitespace after closing backticks
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+             return false;
+         }
+     }
+     
+     // Valid closing tag
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->result_symbol = CODE_END_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+
+# TOOL RESULT
+
+ID: toolu_01EtBjopJAdZexoeDWrC4RbM
+
+<tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
+
+</tool.toolu_01EtBjopJAdZexoeDWrC4RbM>
