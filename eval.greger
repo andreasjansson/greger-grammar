@@ -4770,5 +4770,260 @@ Revert unclosed_code_span addition
 ID: toolu_01Hvg2hMJUp9LXQPpJZs4vHS
 
 <tool.toolu_01Hvg2hMJUp9LXQPpJZs4vHS>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Revert unclosed_code_span addition
 </tool.toolu_01Hvg2hMJUp9LXQPpJZs4vHS>
+
+# ASSISTANT
+
+Let me look more carefully at how the markdown parser works. The key insight is that their scanner doesn't consume characters when it returns false. Let me examine their actual implementation more closely:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01KdCCsQrvhq6cjCBoxNWoKb
+
+## path
+
+<tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/scanner.c
+</tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+
+## start-line
+
+<tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+139
+</tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+
+## end-line
+
+<tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+150
+</tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+
+# TOOL RESULT
+
+ID: toolu_01KdCCsQrvhq6cjCBoxNWoKb
+
+<tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+static bool parse_backtick(Scanner *s, TSLexer *lexer,
+                           const bool *valid_symbols) {
+    return parse_leaf_delimiter(lexer, &s->code_span_delimiter_length,
+                                valid_symbols, '`', CODE_SPAN_START,
+                                CODE_SPAN_CLOSE);
+}
+
+static bool parse_dollar(Scanner *s, TSLexer *lexer,
+                         const bool *valid_symbols) {
+    return parse_leaf_delimiter(lexer, &s->latex_span_delimiter_length,
+                                valid_symbols, '$', LATEX_SPAN_START,
+                                LATEX_SPAN_CLOSE);
+</tool.toolu_01KdCCsQrvhq6cjCBoxNWoKb>
+
+# ASSISTANT
+
+Now let me check how the scanner is called in the main scan function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_016Bb5WkuPrgX1w61jde14t2
+
+## pattern
+
+<tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+parse_backtick
+</tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+
+## path
+
+<tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/scanner.c
+</tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+
+## context-lines
+
+<tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+5
+</tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+
+# TOOL RESULT
+
+ID: toolu_016Bb5WkuPrgX1w61jde14t2
+
+<tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+134-        }
+135-    }
+136-    return false;
+137-}
+138-
+139:static bool parse_backtick(Scanner *s, TSLexer *lexer,
+140-                           const bool *valid_symbols) {
+141-    return parse_leaf_delimiter(lexer, &s->code_span_delimiter_length,
+142-                                valid_symbols, '`', CODE_SPAN_START,
+143-                                CODE_SPAN_CLOSE);
+144-}
+--
+348-    // character
+349-    switch (lexer->lookahead) {
+350-        case '`':
+351-            // A backtick could mark the beginning or ending of a code span or a
+352-            // fenced code block.
+353:            return parse_backtick(s, lexer, valid_symbols);
+354-        case '$':
+355-            return parse_dollar(s, lexer, valid_symbols);
+356-        case '*':
+357-            // A star could either mark the beginning or ending of emphasis, a
+358-            // list item or thematic break. This code is similar to the code for
+
+</tool.toolu_016Bb5WkuPrgX1w61jde14t2>
+
+# ASSISTANT
+
+The key insight is that the markdown parser is consuming characters and returning false, but this works for them because their grammar is structured to handle this. The critical difference is that their `parse_leaf_delimiter` function has a fundamentally different logic.
+
+Looking at their code again, I think the issue is that when they return false, they've consumed characters but the grammar can still parse the content. The problem in my case is that my grammar isn't structured to handle this.
+
+Let me try a different approach. Instead of trying to restore the lexer position, let me make sure the scanner only gets called when it should. The key insight is that the markdown parser's approach works because they have `UNCLOSED_SPAN` as a fallback.
+
+But wait, let me check if there's a simpler issue. Looking at their `parse_leaf_delimiter` function again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_018G1ikuz2Kaa8Kty6t2CGef
+
+## path
+
+<tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/src/scanner.c
+</tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+
+## start-line
+
+<tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+95
+</tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+
+## end-line
+
+<tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+137
+</tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+
+# TOOL RESULT
+
+ID: toolu_018G1ikuz2Kaa8Kty6t2CGef
+
+<tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+static bool parse_leaf_delimiter(TSLexer *lexer, uint8_t *delimiter_length,
+                                 const bool *valid_symbols,
+                                 const char delimiter,
+                                 const TokenType open_token,
+                                 const TokenType close_token) {
+    uint8_t level = 0;
+    while (lexer->lookahead == delimiter) {
+        lexer->advance(lexer, false);
+        level++;
+    }
+    lexer->mark_end(lexer);
+    if (level == *delimiter_length && valid_symbols[close_token]) {
+        *delimiter_length = 0;
+        lexer->result_symbol = close_token;
+        return true;
+    }
+    if (valid_symbols[open_token]) {
+        // Parse ahead to check if there is a closing delimiter
+        size_t close_level = 0;
+        while (!lexer->eof(lexer)) {
+            if (lexer->lookahead == delimiter) {
+                close_level++;
+            } else {
+                if (close_level == level) {
+                    // Found a matching delimiter
+                    break;
+                }
+                close_level = 0;
+            }
+            lexer->advance(lexer, false);
+        }
+        if (close_level == level) {
+            *delimiter_length = level;
+            lexer->result_symbol = open_token;
+            return true;
+        }
+        if (valid_symbols[UNCLOSED_SPAN]) {
+            lexer->result_symbol = UNCLOSED_SPAN;
+            return true;
+        }
+    }
+    return false;
+}
+</tool.toolu_018G1ikuz2Kaa8Kty6t2CGef>
+
+# ASSISTANT
+
+The critical insight is that they do have `UNCLOSED_SPAN` as a fallback! When they can't match an opening or closing delimiter, they produce an `UNCLOSED_SPAN` token. This is the key difference.
+
+But you said not to add a new span. Let me think about this differently. Maybe the issue is that I need to make sure the external scanner is NOT called for content backticks at all.
+
+Let me check if the issue is that I'm calling the scanner when I shouldn't be. The problem might be that my scanner is being called when the parser should be handling backticks as regular text. Let me look at the condition more carefully:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018ZdQcgUnQmnB1CYAaT6126
+
+## path
+
+<tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+./src/scanner.c
+</tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+
+## git-commit-message
+
+<tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+Restore lexer position when scanner returns false to avoid consuming characters
+</tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+
+## original-content
+
+<tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    lexer->mark_end(lexer);
+</tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+
+## new-content
+
+<tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Save the starting position so we can restore it if we don't match
+    TSLexer saved_lexer = *lexer;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    lexer->mark_end(lexer);
+</tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+
+# TOOL RESULT
+
+ID: toolu_018ZdQcgUnQmnB1CYAaT6126
+
+<tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
+
+</tool.toolu_018ZdQcgUnQmnB1CYAaT6126>
