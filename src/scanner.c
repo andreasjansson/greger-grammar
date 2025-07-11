@@ -752,9 +752,8 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Advance but don't mark end - we're matching the closing pattern
+            // Advance while matching the closing pattern, but don't include in content
             advance(lexer);
-            has_content = true;
         } else {
             // Reset match and continue as content
             if (match_index > 0) {
