@@ -3637,5 +3637,152 @@ Add debug output to check loop continuation
 ID: toolu_01Eo2KBLMi9C3fFXxmEbiKrr
 
 <tool.toolu_01Eo2KBLMi9C3fFXxmEbiKrr>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to check loop continuation
 </tool.toolu_01Eo2KBLMi9C3fFXxmEbiKrr>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PFh3T3GYzoFPW9igpvFBnA
+
+## command
+
+<tool.toolu_01PFh3T3GYzoFPW9igpvFBnA>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01PFh3T3GYzoFPW9igpvFBnA>
+
+# TOOL RESULT
+
+ID: toolu_01PFh3T3GYzoFPW9igpvFBnA
+
+<tool.toolu_01PFh3T3GYzoFPW9igpvFBnA>
+DEBUG: In code content, looking at char: < (code: 60)
+DEBUG: Starting code content scan, backtick count: 1
+DEBUG: Loop iteration, char: < (code: 60)
+DEBUG: Matching code close pattern at index 0
+DEBUG: Advanced past char, now looking at: ` (code: 96)
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.13 ms	    92 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01PFh3T3GYzoFPW9igpvFBnA>
+
+# ASSISTANT
+
+Now I see what's happening! After advancing past the LESSTHAN character, we're looking at the BACKTICK, but the code is not proceeding to check for the backtick pattern matching. The issue is that when we're in the middle of matching the code close pattern and we advance, we're not continuing the while loop.
+
+Let me look at the rest of the logic to see where the issue is:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01CMzVSYduFKNuzrvQTSTbCx
+
+## path
+
+<tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+src/scanner.c
+</tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+
+## start-line
+
+<tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+760
+</tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+
+## end-line
+
+<tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+790
+</tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+
+# TOOL RESULT
+
+ID: toolu_01CMzVSYduFKNuzrvQTSTbCx
+
+<tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+            // Don't continue here - we want to check for backtick patterns too
+        } else {
+            if (code_close_match_index > 0) {
+                fprintf(stderr, "DEBUG: Resetting code close match index\n");
+                code_close_match_index = 0;
+            }
+        }
+        
+        // Check for regular closing pattern
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, but need to check if it's a valid close
+                bool is_valid_close = true;
+                
+                // For all backtick counts, check if the closing pattern is valid
+                // Look ahead to see what comes after the potential closing backticks
+                TSLexer saved_lexer = *lexer;
+                
+                // We're currently at the last backtick of the potential closing sequence
+                // We need to advance past it to see what comes next
+                advance(lexer);
+                
+                if (scanner->code_backtick_count <= 2) {
+                    // For single and double backticks, only close if followed by whitespace, 
+                    // end of input, or certain punctuation
+                    if (lexer->lookahead != 0 && 
+                        !iswspace(lexer->lookahead) && 
+                        lexer->lookahead != '.' && 
+                        lexer->lookahead != ',' && 
+                        lexer->lookahead != '!' && 
+</tool.toolu_01CMzVSYduFKNuzrvQTSTbCx>
+
+# ASSISTANT
+
+I see the issue! The logic flow is complex. When we process the code close pattern matching, we advance past the LESSTHAN character, but then we continue to check for the regular closing pattern (backticks). But the issue is that we're looking for a single backtick match, and when we find it, we think it's the end of the code block.
+
+Let me check what the expected_closing pattern is for a single backtick:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FVG62gH6gEgrY39hY1uu5R
+
+## path
+
+<tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+src/scanner.c
+</tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+
+## git-commit-message
+
+<tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+Add debug output to show expected closing pattern
+</tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+
+## diff
+
+<tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+     // Build the expected closing pattern (just the right number of backticks)
+     char expected_closing[21]; // Max 20 backticks + null terminator
+     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+         expected_closing[i] = '`';
+     }
+     expected_closing[scanner->code_backtick_count] = '\0';
+-    int expected_len = scanner->code_backtick_count;
+\ No newline at end of file
++    int expected_len = scanner->code_backtick_count;
++    
++    fprintf(stderr, "DEBUG: Expected closing pattern: '%s' (len: %d)\n", 
++            expected_closing, expected_len);
+\ No newline at end of file
+
+</tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+
+# TOOL RESULT
+
+ID: toolu_01FVG62gH6gEgrY39hY1uu5R
+
+<tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+
+</tool.toolu_01FVG62gH6gEgrY39hY1uu5R>

@@ -713,6 +713,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     expected_closing[scanner->code_backtick_count] = '\0';
     int expected_len = scanner->code_backtick_count;
     
+    fprintf(stderr, "DEBUG: Expected closing pattern: '%s' (len: %d)\n", 
+            expected_closing, expected_len);
+    
     // Also check for code close tag pattern (to stop before it)
     const char *code_close_pattern = "<$code-close/>";
     int code_close_len = 14;
