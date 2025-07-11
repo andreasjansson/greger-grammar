@@ -735,7 +735,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Continue checking this character for backtick patterns too
+            // If we're in the middle of matching code close tag, don't process as regular content yet
+            advance(lexer);
+            continue;
         } else {
             code_close_match_index = 0;
         }
