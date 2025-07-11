@@ -10037,5 +10037,338 @@ true
 ID: toolu_01QgjdJgEKCPKmFwid5H3GhD
 
 <tool.toolu_01QgjdJgEKCPKmFwid5H3GhD>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt (made 7 replacements). Successfully staged 2 file(s) and committed with message: Update all code test expectations to not expect code_contents nodes
 </tool.toolu_01QgjdJgEKCPKmFwid5H3GhD>
+
+# ASSISTANT
+
+Now let me test the updated expectations:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SoZe94FPgnYcF1PAfahcdE
+
+## command
+
+<tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+cd . && tree-sitter test --include "Inline code with single"
+</tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+
+## timeout
+
+<tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+10
+</tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+
+# TOOL RESULT
+
+ID: toolu_01SoZe94FPgnYcF1PAfahcdE
+
+<tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+  code:
+      6. ✓ Inline code with single backticks
+
+Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 2307 bytes/ms
+
+
+</tool.toolu_01SoZe94FPgnYcF1PAfahcdE>
+
+# ASSISTANT
+
+Great! The single backtick test is working. Now let me test the double backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SbaBp3C2bMzuDhCDspc3K6
+
+## command
+
+<tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+cd . && tree-sitter test --include "Inline code with double"
+</tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+
+## timeout
+
+<tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+10
+</tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+
+# TOOL RESULT
+
+ID: toolu_01SbaBp3C2bMzuDhCDspc3K6
+
+<tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+  code:
+      7. ✗ Inline code with double backticks
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Inline code with double backticks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01SbaBp3C2bMzuDhCDspc3K6>
+
+# ASSISTANT
+
+Now I can see the issue more clearly! The problem is that we get an UNEXPECTED ` after the `code_backticks_start`. This confirms that the single backtick at position [2, 3] (which should be content) is being treated as a token by the parser.
+
+This suggests that even though the scanner is returning false when it shouldn't parse the backtick, the parser is still trying to handle it as a token somehow.
+
+But wait - in my current test, I'm able to parse single backticks correctly. Let me verify this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QLFq1sPVDHTK2deqe5SQsL
+
+## command
+
+<tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+
+## timeout
+
+<tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+10
+</tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+
+# TOOL RESULT
+
+ID: toolu_01QLFq1sPVDHTK2deqe5SQsL
+
+<tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01QLFq1sPVDHTK2deqe5SQsL>
+
+# ASSISTANT
+
+Single backticks work. The issue is specifically with double backticks containing single backticks. This suggests that the scanner's lookahead logic is working correctly (it finds the matching closing `
+
+Let me test this precisely:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NgxDb4y8LeYEfWSXeqH7Pr
+
+## command
+
+<tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+cd . && printf '``a``' | tree-sitter parse /dev/stdin --scope source.greger
+</tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+
+## timeout
+
+<tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+10
+</tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+
+# TOOL RESULT
+
+ID: toolu_01NgxDb4y8LeYEfWSXeqH7Pr
+
+<tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+Unknown scope 'source.greger'
+Command failed with exit code 1
+</tool.toolu_01NgxDb4y8LeYEfWSXeqH7Pr>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Fs4ZCNqctUrxt2GHYnb8Sd
+
+## command
+
+<tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+cd . && printf '``a``' | tree-sitter parse /dev/stdin
+</tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+
+## timeout
+
+<tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+10
+</tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+
+# TOOL RESULT
+
+ID: toolu_01Fs4ZCNqctUrxt2GHYnb8Sd
+
+<tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+(source_file [0, 0] - [0, 5]
+  (ERROR [0, 0] - [0, 5]
+    (ERROR [0, 0] - [0, 5])))
+/dev/stdin	Parse:    0.02 ms	   295 bytes/ms	(ERROR [0, 0] - [0, 5])
+Command failed with exit code 1
+</tool.toolu_01Fs4ZCNqctUrxt2GHYnb8Sd>
+
+# ASSISTANT
+
+Hmm, that doesn't parse correctly either. Let me put it in a proper context:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012ocwMaxnLGB8LkukAPFPkh
+
+## command
+
+<tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+cd . && printf '# USER\n\n``a``' | tree-sitter parse /dev/stdin
+</tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+
+## timeout
+
+<tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+10
+</tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+
+# TOOL RESULT
+
+ID: toolu_012ocwMaxnLGB8LkukAPFPkh
+
+<tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+(source_file [0, 0] - [2, 5]
+  (user [0, 0] - [2, 5]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 5]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 3] - [2, 5]))))
+
+</tool.toolu_012ocwMaxnLGB8LkukAPFPkh>
+
+# ASSISTANT
+
+That works! So the issue is specific to the space and backtick combination. Let me test that:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PkgN34zHhLEJAT6rS1bi3x
+
+## command
+
+<tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+cd . && printf '# USER\n\n`` a ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+
+## timeout
+
+<tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+10
+</tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+
+# TOOL RESULT
+
+ID: toolu_01PkgN34zHhLEJAT6rS1bi3x
+
+<tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+(source_file [0, 0] - [2, 7]
+  (user [0, 0] - [2, 7]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 5] - [2, 7]))))
+
+</tool.toolu_01PkgN34zHhLEJAT6rS1bi3x>
+
+# ASSISTANT
+
+That works too! So the issue is specifically when there's a backtick immediately after the space. Let me test that:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JsWeiYuMkVgA7yNbUjk3cP
+
+## command
+
+<tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+cd . && printf '# USER\n\n`` `a ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+
+## timeout
+
+<tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+10
+</tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+
+# TOOL RESULT
+
+ID: toolu_01JsWeiYuMkVgA7yNbUjk3cP
+
+<tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+(source_file [0, 0] - [2, 8]
+  (ERROR [0, 0] - [2, 8]
+    (user_header [0, 0] - [0, 6])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 8])))
+/dev/stdin	Parse:    0.02 ms	   698 bytes/ms	(ERROR [0, 0] - [2, 8])
+Command failed with exit code 1
+</tool.toolu_01JsWeiYuMkVgA7yNbUjk3cP>
+
+# ASSISTANT
+
+There's the exact issue! The problem happens when there's a backtick at position [2, 3] (right after the space).
+
+This suggests that the grammar rule `repeat(choice($._code_text_content, /\n/))` is not matching the space+backtick combination correctly.
+
+The issue might be that the `$._code_text_content` rule pattern `/[^\n]+/` is **too greedy** - it's trying to match everything until newline, including the closing backticks.
+
+Let me try a different approach. Instead of using `/[^\n]+/`, let me use something that stops at the individual character level:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01UX41hCTNfmRD6H21n8tWtW
+
+## path
+
+<tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+./grammar.js
+</tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+
+## git-commit-message
+
+<tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+Change code content to match individual characters instead of greedy pattern
+</tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+
+## diff
+
+<tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+-    _code_text_content: $ => token(prec(-1, /[^\n]+/)),
+\ No newline at end of file
++    _code_text_content: $ => /[^\n]/,
+\ No newline at end of file
+
+</tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+
+# TOOL RESULT
+
+ID: toolu_01UX41hCTNfmRD6H21n8tWtW
+
+<tool.toolu_01UX41hCTNfmRD6H21n8tWtW>
+
+</tool.toolu_01UX41hCTNfmRD6H21n8tWtW>

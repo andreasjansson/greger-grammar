@@ -307,7 +307,7 @@ module.exports = grammar({
       $.code_backticks_end,
     ),
 
-    _code_text_content: $ => token(prec(-1, /[^\n]+/)),
+    _code_text_content: $ => /[^\n]/,
 
     _text_content: $ => choice(
       /[^`\n]+/,
