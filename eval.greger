@@ -3561,5 +3561,401 @@ Fix empty code blocks test to include proper closing backticks
 ID: toolu_01965jLjZZRQq46RuhnEwsP6
 
 <tool.toolu_01965jLjZZRQq46RuhnEwsP6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Fix empty code blocks test to include proper closing backticks
 </tool.toolu_01965jLjZZRQq46RuhnEwsP6>
+
+# ASSISTANT
+
+Now let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0156khbvKcWen17rTYa3BZFG
+
+## command
+
+<tool.toolu_0156khbvKcWen17rTYa3BZFG>
+cd . && echo '# ASSISTANT
+
+`````
+`````
+
+More text.' | tree-sitter parse /dev/stdin
+</tool.toolu_0156khbvKcWen17rTYa3BZFG>
+
+# TOOL RESULT
+
+ID: toolu_0156khbvKcWen17rTYa3BZFG
+
+<tool.toolu_0156khbvKcWen17rTYa3BZFG>
+(source_file [0, 0] - [6, 0]
+  (assistant [0, 0] - [6, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 5]
+      (code_backticks [2, 0] - [2, 5])
+      (code_contents [2, 5] - [3, 0])
+      (code_backticks [3, 0] - [3, 5]))
+    (text [3, 5] - [6, 0])))
+
+</tool.toolu_0156khbvKcWen17rTYa3BZFG>
+
+# ASSISTANT
+
+Perfect! That works. Now let me run the tests to see what's fixed:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Tc7G6wbAM9G9GfGeXGHx2L
+
+## command
+
+<tool.toolu_01Tc7G6wbAM9G9GfGeXGHx2L>
+cd . && tree-sitter test | grep -E "(✓|✗)" | head -20
+</tool.toolu_01Tc7G6wbAM9G9GfGeXGHx2L>
+
+# TOOL RESULT
+
+ID: toolu_01Tc7G6wbAM9G9GfGeXGHx2L
+
+<tool.toolu_01Tc7G6wbAM9G9GfGeXGHx2L>
+      1. ✓ Citations after tool result
+      2. ✓ Citations basic
+      3. ✓ Citations multiple
+      4. ✗ Code block with nested headers
+      5. ✓ Code block triple backticks
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✓ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✓ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✓ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+     15. ✓ Complex workflow
+     16. ✓ Eval nested braces
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (1691.690 bytes/ms)
+     18. ✓ Eval results
+     19. ✓ Eval
+     20. ✗ HTML comments
+
+</tool.toolu_01Tc7G6wbAM9G9GfGeXGHx2L>
+
+# ASSISTANT
+
+Great! We fixed the "Triple backticks language with numbers and symbols" and "Empty code blocks" tests. But now there are new issues with "Double backticks no language" and "Single backtick code". Let me check what happened:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KDKyYxFCy5uegUye9hD39L
+
+## command
+
+<tool.toolu_01KDKyYxFCy5uegUye9hD39L>
+cd . && tree-sitter test | grep -A15 "Double backticks no language:"
+</tool.toolu_01KDKyYxFCy5uegUye9hD39L>
+
+# TOOL RESULT
+
+ID: toolu_01KDKyYxFCy5uegUye9hD39L
+
+<tool.toolu_01KDKyYxFCy5uegUye9hD39L>
+  3. Double backticks no language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_backticks)
+          (code_contents)
+          (MISSING code_backticks))))
+          (code_backticks))
+        (text)))
+
+
+  4. HTML comments:
+
+    (source_file
+
+</tool.toolu_01KDKyYxFCy5uegUye9hD39L>
+
+# ASSISTANT
+
+Let me test the double backticks case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PL3BseAZmMoXfeF3QRGeQ1
+
+## command
+
+<tool.toolu_01PL3BseAZmMoXfeF3QRGeQ1>
+cd . && echo '# ASSISTANT
+
+`` ` ``
+
+More text after.' | tree-sitter parse /dev/stdin
+</tool.toolu_01PL3BseAZmMoXfeF3QRGeQ1>
+
+# TOOL RESULT
+
+ID: toolu_01PL3BseAZmMoXfeF3QRGeQ1
+
+<tool.toolu_01PL3BseAZmMoXfeF3QRGeQ1>
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 0]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [4, 0])
+      (code_backticks [4, 0] - [4, 0]))))
+/dev/stdin	Parse:    0.04 ms	  1050 bytes/ms	(MISSING code_backticks [4, 0] - [4, 0])
+Command failed with exit code 1
+</tool.toolu_01PL3BseAZmMoXfeF3QRGeQ1>
+
+# ASSISTANT
+
+The issue here is that the backticks are `` ` `` but there's a space and a backtick in the middle, so the opening is 2 backticks but it's trying to find a closing sequence of 2 backticks. The problem is with the backtick counting logic. Let me check the exact input from the test:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01SjRVHS9PB3QQ1gTgZKgPxC
+
+## path
+
+<tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+./test/corpus/code.txt
+</tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+
+## start-line
+
+<tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+33
+</tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+
+## end-line
+
+<tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+50
+</tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+
+# TOOL RESULT
+
+ID: toolu_01SjRVHS9PB3QQ1gTgZKgPxC
+
+<tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+    (assistant_header)
+    (text)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text))
+  (user
+    (user_header)
+    (text)))
+
+=======================
+Double backticks no language
+</tool.toolu_01SjRVHS9PB3QQ1gTgZKgPxC>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Fk4w2zJQDBzYsYvp1nZiMn
+
+## path
+
+<tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+./test/corpus/code.txt
+</tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+
+## start-line
+
+<tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+50
+</tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+
+## end-line
+
+<tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+70
+</tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+
+# TOOL RESULT
+
+ID: toolu_01Fk4w2zJQDBzYsYvp1nZiMn
+
+<tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+Double backticks no language
+=======================
+
+# ASSISTANT
+
+`` ` ``
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks)
+      (code_contents)
+      (code_backticks))
+    (text)))
+
+===============================
+</tool.toolu_01Fk4w2zJQDBzYsYvp1nZiMn>
+
+# ASSISTANT
+
+I see! The test input is ```` ` ```` where there are 2 opening backticks, then a space, then a backtick, then a space, then 2 closing backticks. The content should be ` ` (space, backtick, space). Let me test this:
+
+```
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QHeqVs5ix4qKAs3rZUTdcz
+
+## command
+
+<tool.toolu_01QHeqVs5ix4qKAs3rZUTdcz>
+cd . && echo '# ASSISTANT
+
+`` ` ``
+
+More text after.' | xxd
+</tool.toolu_01QHeqVs5ix4qKAs3rZUTdcz>
+
+# TOOL RESULT
+
+ID: toolu_01QHeqVs5ix4qKAs3rZUTdcz
+
+<tool.toolu_01QHeqVs5ix4qKAs3rZUTdcz>
+
+</tool.toolu_01QHeqVs5ix4qKAs3rZUTdcz>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01F7hEF9YAcPG5SpCzyuDL8Q
+
+## command
+
+<tool.toolu_01F7hEF9YAcPG5SpCzyuDL8Q>
+cd . && printf '# ASSISTANT\n\n`` ` ``\n\nMore text after.\n' | xxd
+</tool.toolu_01F7hEF9YAcPG5SpCzyuDL8Q>
+
+# TOOL RESULT
+
+ID: toolu_01F7hEF9YAcPG5SpCzyuDL8Q
+
+<tool.toolu_01F7hEF9YAcPG5SpCzyuDL8Q>
+00000000: 2320 4153 5349 5354 414e 540a 0a60 6020  # ASSISTANT..`` 
+00000010: 6020 6060 0a0a 4d6f 7265 2074 6578 7420  ` ``..More text 
+00000020: 6166 7465 722e 0a                        after..
+
+</tool.toolu_01F7hEF9YAcPG5SpCzyuDL8Q>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AQNwSBnAqKF313urCAPTxb
+
+## command
+
+<tool.toolu_01AQNwSBnAqKF313urCAPTxb>
+cd . && printf '# ASSISTANT\n\n`` ` ``\n\nMore text after.\n' | tree-sitter parse /dev/stdin
+</tool.toolu_01AQNwSBnAqKF313urCAPTxb>
+
+# TOOL RESULT
+
+ID: toolu_01AQNwSBnAqKF313urCAPTxb
+
+<tool.toolu_01AQNwSBnAqKF313urCAPTxb>
+(source_file [0, 0] - [4, 0]
+  (assistant [0, 0] - [4, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 0]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [4, 0])
+      (code_backticks [4, 0] - [4, 0]))))
+/dev/stdin	Parse:    0.13 ms	   302 bytes/ms	(MISSING code_backticks [4, 0] - [4, 0])
+Command failed with exit code 1
+</tool.toolu_01AQNwSBnAqKF313urCAPTxb>
+
+# ASSISTANT
+
+The issue is still there. The problem is that my special handling for empty code blocks might be interfering with the normal case. Let me debug this by looking at what the scanner is doing. The issue seems to be that the scanner isn't finding the closing `  `` properly.
+
+Actually, wait. Let me test the exact input from the test to see if this is a problem with my testing or the actual logic:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VtkzDaxa1E9vF8iJPuszvB
+
+## command
+
+<tool.toolu_01VtkzDaxa1E9vF8iJPuszvB>
+cd . && printf '`` ` ``' | xxd
+</tool.toolu_01VtkzDaxa1E9vF8iJPuszvB>
+
+# TOOL RESULT
+
+ID: toolu_01VtkzDaxa1E9vF8iJPuszvB
+
+<tool.toolu_01VtkzDaxa1E9vF8iJPuszvB>
+00000000: 6060 2060 2060 60                        `` ` ``
+
+</tool.toolu_01VtkzDaxa1E9vF8iJPuszvB>
+
+# ASSISTANT
+
+I think I see the issue. There are indeed 2 opening backticks: ``. Then a space, then a backtick as content, then a space, then 2 closing backticks ``. But the scanner is treating the middle backtick as a potential closing sequence. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CQ5uN5sFVMaKbxCwgBMQ3q
+
+## path
+
+<tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+./src/scanner.c
+</tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+
+## git-commit-message
+
+<tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+Fix backtick counting to handle embedded backticks properly
+</tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+
+## diff
+
+<tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+
+</tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+
+# TOOL RESULT
+
+ID: toolu_01CQ5uN5sFVMaKbxCwgBMQ3q
+
+<tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
+
+</tool.toolu_01CQ5uN5sFVMaKbxCwgBMQ3q>
