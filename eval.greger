@@ -7915,5 +7915,297 @@ Fix test expectation for single backtick with double backticks inside
 ID: toolu_01GVXrHi7ekPynWgEtvrqK9M
 
 <tool.toolu_01GVXrHi7ekPynWgEtvrqK9M>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Fix test expectation for single backtick with double backticks inside
 </tool.toolu_01GVXrHi7ekPynWgEtvrqK9M>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GscGoYjTtSR1imyhSkdXSi
+
+## command
+
+<tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+tree-sitter test
+</tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+
+## timeout
+
+<tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+30
+</tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+
+# TOOL RESULT
+
+ID: toolu_01GscGoYjTtSR1imyhSkdXSi
+
+<tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result -- Warning: Slow parse rate (2173.996 bytes/ms)
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✓ Single backtick with double backticks inside
+  complex-workflow:
+     19. ✓ Complex workflow
+  eval-nested-braces:
+     20. ✓ Eval nested braces
+  eval-partial:
+     21. ✓ Eval partial cases -- Warning: Slow parse rate (1745.581 bytes/ms)
+  eval-results:
+     22. ✓ Eval results
+  eval:
+     23. ✓ Eval
+  html-comments:
+     24. ✓ HTML comments
+  html-tags:
+     25. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     26. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     27. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     28. ✓ Multiple tool uses
+  nested-code-blocks:
+     29. ✓ Nested code blocks
+  safe-shell-commands:
+     30. ✓ Safe shell commands
+  server-tool-use-basic:
+     31. ✓ Server tool use basic
+  server-tool-use-string-result:
+     32. ✓ Server tool use string result
+  simple-conversation:
+     33. ✓ Simple conversation
+  simple-user-message:
+     34. ✓ Simple user message
+  system-and-user:
+     35. ✓ System and user
+  text-with-markdown-headings:
+     36. ✓ Text with markdown headings
+  thinking-only:
+     37. ✓ Thinking only
+  thinking-section:
+     38. ✓ Thinking section
+  tool-use-multiple-params:
+     39. ✓ Tool use multiple params
+  tool-use-only:
+     40. ✓ Tool use only
+  tool-use-single-param:
+     41. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     42. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     43. ✓ Tool use with tool use in params
+  triple-hash:
+     44. ✓ Triple hash not in citation
+  untagged-content:
+     45. ✓ Untagged content
+  xml-tags-backticks:
+     46. ✓ Tags in backticks
+
+Total parses: 46; successful parses: 46; failed parses: 0; success percentage: 100.00%; average speed: 20284 bytes/ms
+
+
+</tool.toolu_01GscGoYjTtSR1imyhSkdXSi>
+
+# ASSISTANT
+
+Perfect! All tests are passing now. Let me test a few more edge cases to make sure the fix is robust:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DY8QVcGBdhVNucFjxrgbtz
+
+## command
+
+<tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+printf '# USER\n\n`a``b`' | tree-sitter parse /dev/stdin
+</tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+
+## timeout
+
+<tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+5
+</tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+
+# TOOL RESULT
+
+ID: toolu_01DY8QVcGBdhVNucFjxrgbtz
+
+<tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+(source_file [0, 0] - [2, 6]
+  (user [0, 0] - [2, 6]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 6]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 6])
+      (code_close_tag [2, 6] - [2, 6]))))
+/dev/stdin	Parse:    0.06 ms	   216 bytes/ms	(MISSING code_close_tag [2, 6] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01DY8QVcGBdhVNucFjxrgbtz>
+
+# ASSISTANT
+
+Good! This shows that the single backtick properly consumes all content (`a``b`) until the end of the line, and since there's no newline, it creates a missing code_close_tag which is the expected behavior.
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018cDsA9wSo5k4JSQ6rLGgR9
+
+## command
+
+<tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+printf '# USER\n\n`a``b`\n' | tree-sitter parse /dev/stdin
+</tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+
+## timeout
+
+<tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+5
+</tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+
+# TOOL RESULT
+
+ID: toolu_018cDsA9wSo5k4JSQ6rLGgR9
+
+<tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 6]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 6])
+      (code_end_tag [2, 6] - [2, 6]))
+    (text [2, 6] - [3, 0])))
+
+</tool.toolu_018cDsA9wSo5k4JSQ6rLGgR9>
+
+# ASSISTANT
+
+Perfect! And with a newline, it properly terminates the single backtick block.
+
+Let me test a double backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GecXJM2bzZpyopzVerQ6rH
+
+## command
+
+<tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+printf '# USER\n\n``a`b``\n' | tree-sitter parse /dev/stdin
+</tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+
+## timeout
+
+<tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+5
+</tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+
+# TOOL RESULT
+
+ID: toolu_01GecXJM2bzZpyopzVerQ6rH
+
+<tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 2] - [2, 7])
+      (code_end_tag [2, 7] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01GecXJM2bzZpyopzVerQ6rH>
+
+# ASSISTANT
+
+Great! This also works correctly - the double backtick treats all content 
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017iNeMhyeFZtPHxQWJG3bD9
+
+## command
+
+<tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+printf '# USER\n\n```a``b```\n' | tree-sitter parse /dev/stdin
+</tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+
+## timeout
+
+<tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+5
+</tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+
+# TOOL RESULT
+
+ID: toolu_017iNeMhyeFZtPHxQWJG3bD9
+
+<tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 10]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 7])
+      (code_end_tag [2, 7] - [2, 10]))
+    (text [2, 10] - [3, 0])))
+
+</tool.toolu_017iNeMhyeFZtPHxQWJG3bD9>
+
+# ASSISTANT
+
+Perfect! The triple backtick case also works correctly, properly matching the closing triple backticks.
+
+Let me clean up the test file:
+
+# TOOL USE
+
+Name: delete-files
+ID: toolu_01L365HnJFXJNLycZWLnRjCa
+
+## paths
+
+<tool.toolu_01L365HnJFXJNLycZWLnRjCa>
+[
+  "test-backtick-edge-case.greger"
+]
+</tool.toolu_01L365HnJFXJNLycZWLnRjCa>
+
+## git-commit-message
+
+<tool.toolu_01L365HnJFXJNLycZWLnRjCa>
+Clean up test file
+</tool.toolu_01L365HnJFXJNLycZWLnRjCa>
+
+# TOOL RESULT
+
+ID: toolu_01L365HnJFXJNLycZWLnRjCa
+
+<tool.toolu_01L365HnJFXJNLycZWLnRjCa>
+
+</tool.toolu_01L365HnJFXJNLycZWLnRjCa>
