@@ -686,6 +686,12 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
 static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
     
+    // For inline code (1-2 backticks), check if we're immediately at a newline
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // No content between backtick and newline, let parser skip to code_end_tag
+        return false;
+    }
+    
     lexer->mark_end(lexer);
     bool has_content = false;
     
