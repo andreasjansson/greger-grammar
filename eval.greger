@@ -10561,5 +10561,124 @@ Add debug output to understand language detection logic
 ID: toolu_0138L7pAJfKRCFPBS2N51e6c
 
 <tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to understand language detection logic
 </tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AWJNWceQTjLDrqWDgm9rUF
+
+## command
+
+<tool.toolu_01AWJNWceQTjLDrqWDgm9rUF>
+cd . && tree-sitter generate
+</tool.toolu_01AWJNWceQTjLDrqWDgm9rUF>
+
+# TOOL RESULT
+
+ID: toolu_01AWJNWceQTjLDrqWDgm9rUF
+
+<tool.toolu_01AWJNWceQTjLDrqWDgm9rUF>
+
+</tool.toolu_01AWJNWceQTjLDrqWDgm9rUF>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01J57KMPn3vhqHJ3qkAk2bH4
+
+## command
+
+<tool.toolu_01J57KMPn3vhqHJ3qkAk2bH4>
+cd . && echo '# ASSISTANT
+
+```javascript console.log("hello")```' | tree-sitter parse
+</tool.toolu_01J57KMPn3vhqHJ3qkAk2bH4>
+
+# TOOL RESULT
+
+ID: toolu_01J57KMPn3vhqHJ3qkAk2bH4
+
+<tool.toolu_01J57KMPn3vhqHJ3qkAk2bH4>
+
+DEBUG: scan_code_contents called, backtick_count=3, char='j'
+DEBUG: After skipping whitespace, char='j'
+DEBUG: Found potential language start
+DEBUG: After scanning identifier, char=' '
+DEBUG: After skipping trailing whitespace, char='c'
+DEBUG: Not a language identifier, continuing with contents
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [2, 34])
+      (code_backticks [2, 34] - [2, 37]))
+    (text [2, 37] - [3, 0])))
+
+</tool.toolu_01J57KMPn3vhqHJ3qkAk2bH4>
+
+# ASSISTANT
+
+Perfect! Now I can see the issue. The debug output shows:
+
+1. It correctly identifies "javascript" as a language identifier
+2. After scanning "javascript", it finds a space
+3. It skips the trailing whitespace and finds 'c' (from "console")
+4. Since it's not a newline or space/tab, it concludes this is NOT a language identifier
+5. It continues with contents scanning
+
+The problem is in my logic. After skipping trailing whitespace, I'm checking for more whitespace or newlines, but in the inline case, there's actual content after the language. 
+
+The issue is that my logic is wrong. In markdown, a language identifier followed by content on the same line is still a valid language identifier. I need to fix this logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019Jw2GTJsb8E71beommu1L4
+
+## path
+
+<tool.toolu_019Jw2GTJsb8E71beommu1L4>
+./src/scanner.c
+</tool.toolu_019Jw2GTJsb8E71beommu1L4>
+
+## git-commit-message
+
+<tool.toolu_019Jw2GTJsb8E71beommu1L4>
+Fix language detection logic - allow content after language identifier
+</tool.toolu_019Jw2GTJsb8E71beommu1L4>
+
+## diff
+
+<tool.toolu_019Jw2GTJsb8E71beommu1L4>
+-            // Skip trailing whitespace
+-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                advance(lexer);
+-            }
++            printf("DEBUG: After scanning identifier, checking what follows\n");
+             
+-            printf("DEBUG: After skipping trailing whitespace, char='%c'\n", lexer->lookahead);
+-            
+-            // If followed by newline or space, this is a language identifier
+-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++            // A language identifier is valid if it's followed by:
++            // 1. Newline (block style: ```python\ncode\n```)
++            // 2. Space/tab then anything (inline style: ```javascript console.log()```)
++            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
++                lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                 printf("DEBUG: Detected language identifier, returning false\n");
+                 return false;
+             }
+\ No newline at end of file
+
+</tool.toolu_019Jw2GTJsb8E71beommu1L4>
+
+# TOOL RESULT
+
+ID: toolu_019Jw2GTJsb8E71beommu1L4
+
+<tool.toolu_019Jw2GTJsb8E71beommu1L4>
+
+</tool.toolu_019Jw2GTJsb8E71beommu1L4>

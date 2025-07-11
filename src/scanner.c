@@ -711,15 +711,13 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
             
             printf("DEBUG: After scanning identifier, char='%c'\n", lexer->lookahead);
             
-            // Skip trailing whitespace
-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                advance(lexer);
-            }
+            printf("DEBUG: After scanning identifier, checking what follows\n");
             
-            printf("DEBUG: After skipping trailing whitespace, char='%c'\n", lexer->lookahead);
-            
-            // If followed by newline or space, this is a language identifier
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            // A language identifier is valid if it's followed by:
+            // 1. Newline (block style: ```python\ncode\n```)
+            // 2. Space/tab then anything (inline style: ```javascript console.log()```)
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
+                lexer->lookahead == ' ' || lexer->lookahead == '\t') {
                 printf("DEBUG: Detected language identifier, returning false\n");
                 return false;
             }
