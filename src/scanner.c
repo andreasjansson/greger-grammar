@@ -692,13 +692,27 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     // Simple approach: just consume content until we find potential closing backticks
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '`') {
-            // Check if this could be the start of a closing sequence
-            // For simplicity, just stop at any backtick and let the end tag handle it
-            if (has_content) {
-                lexer->result_symbol = CODE_CONTENT;
-                return true;
+            // Count consecutive backticks at current position to see if it could be closing
+            int consecutive_backticks = 0;
+            TSLexer temp_lexer = *lexer;
+            while (temp_lexer.lookahead == '`' && consecutive_backticks < 20) {
+                consecutive_backticks++;
+                temp_lexer.advance(&temp_lexer, false);
+            }
+            
+            // If we have enough backticks to potentially close, stop here
+            if (consecutive_backticks >= scanner->code_backtick_count) {
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                // Not enough backticks to close, consume as content
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
             }
         } else {
             // For inline code (1-2 backticks), stop at newlines
