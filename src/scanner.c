@@ -709,8 +709,8 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
                 advance(lexer);
             }
             
-            // If followed by newline, this is a language identifier
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            // If followed by newline or space, this is a language identifier
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == ' ' || lexer->lookahead == '\t') {
                 return false;
             }
             
