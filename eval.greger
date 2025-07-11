@@ -3224,5 +3224,79 @@ Add debug output to scanner
 ID: toolu_01CNXE5f123hGPyuWNagwky8
 
 <tool.toolu_01CNXE5f123hGPyuWNagwky8>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to scanner
 </tool.toolu_01CNXE5f123hGPyuWNagwky8>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RShVH3QMxBfYnhcuMN9hbe
+
+## command
+
+<tool.toolu_01RShVH3QMxBfYnhcuMN9hbe>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01RShVH3QMxBfYnhcuMN9hbe>
+
+# TOOL RESULT
+
+ID: toolu_01RShVH3QMxBfYnhcuMN9hbe
+
+<tool.toolu_01RShVH3QMxBfYnhcuMN9hbe>
+DEBUG: In code content, looking at char: < (code: 60)
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.13 ms	    93 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01RShVH3QMxBfYnhcuMN9hbe>
+
+# ASSISTANT
+
+Great! So the scanner is being called and it's seeing the LESSTHAN character. The issue must be in the scan_code_content function itself. Let me add more debug info:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01B1C9Nn8SC32xUJkVyX4oaa
+
+## path
+
+<tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+src/scanner.c
+</tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+
+## git-commit-message
+
+<tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+Add more debug output
+</tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+
+## diff
+
+<tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+     // For inline code (1-2 backticks), check if we're immediately at a newline
+     if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+         // No content between backtick and newline, return empty content
++        fprintf(stderr, "DEBUG: Empty code content at newline\n");
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
++    fprintf(stderr, "DEBUG: Starting code content scan, backtick count: %d\n", scanner->code_backtick_count);
++    
+     lexer->mark_end(lexer);
+     bool has_content = false;
+\ No newline at end of file
+
+</tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+
+# TOOL RESULT
+
+ID: toolu_01B1C9Nn8SC32xUJkVyX4oaa
+
+<tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+
+</tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
