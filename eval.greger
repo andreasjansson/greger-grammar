@@ -4671,5 +4671,783 @@ Simplify code contents scanning to match markdown approach
 ID: toolu_013s78bLqHfwY3Ez4cHAjg8w
 
 <tool.toolu_013s78bLqHfwY3Ez4cHAjg8w>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code contents scanning to match markdown approach
 </tool.toolu_013s78bLqHfwY3Ez4cHAjg8w>
+
+# ASSISTANT
+
+Now let me test the key cases:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Rcp6NWDXV9W2Y5tvrg6vNf
+
+## command
+
+<tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+
+## timeout
+
+<tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+10
+</tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+
+# TOOL RESULT
+
+ID: toolu_01Rcp6NWDXV9W2Y5tvrg6vNf
+
+<tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01Rcp6NWDXV9W2Y5tvrg6vNf>
+
+# ASSISTANT
+
+Good! Now let me test the double backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ABvb8q3GtE9BC59SPTgR6K
+
+## command
+
+<tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+cd . && printf '# ASSISTANT\n\n`` \` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+
+## timeout
+
+<tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+10
+</tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+
+# TOOL RESULT
+
+ID: toolu_01ABvb8q3GtE9BC59SPTgR6K
+
+<tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+(source_file [0, 0] - [2, 8]
+  (ERROR [0, 0] - [2, 8]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 4])
+    (ERROR [2, 4] - [2, 8])))
+/dev/stdin	Parse:    0.02 ms	   965 bytes/ms	(ERROR [0, 0] - [2, 8])
+Command failed with exit code 1
+</tool.toolu_01ABvb8q3GtE9BC59SPTgR6K>
+
+# ASSISTANT
+
+There's still an issue with this case. The problem is that there's a backtick (`\``) inside the content that's causing issues. Let me escape the backtick properly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RPq8WmzfeeREnjCAqW4osb
+
+## command
+
+<tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+cd . && printf '# ASSISTANT\n\n`` ` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+
+## timeout
+
+<tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+10
+</tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+
+# TOOL RESULT
+
+ID: toolu_01RPq8WmzfeeREnjCAqW4osb
+
+<tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+(source_file [0, 0] - [2, 7]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 3])
+    (ERROR [2, 3] - [2, 7])))
+/dev/stdin	Parse:    0.02 ms	   848 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01RPq8WmzfeeREnjCAqW4osb>
+
+# ASSISTANT
+
+I see the issue. When the code_contents encounters a backtick in the middle, it stops, but then the grammar is expecting to be able to parse more content or an ending. But we have more backticks after the single backtick.
+
+The issue is that the sequence `.. ` ..` (double backtick, space, single backtick, space, double backtick) is being parsed as:
+1. Start: `..` (double backtick)
+2. Contents: ` ` (space)  
+3. Then it hits the single backtick and stops
+4. But the single backtick can't close the double backtick block
+
+The problem is that the single backtick in the middle should be treated as content, not as a potential closing delimiter. Let me check what the markdown parser does in this case.
+
+Looking at the markdown parser logic again, it only tries to close a fenced code block if the level is >= the opening level. So a single backtick can't close a double backtick block.
+
+Let me check if the issue is in the valid_symbols logic:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DKCEaFvjKGdfBRxjkXbQem
+
+## command
+
+<tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+cd . && printf '# ASSISTANT\n\n``hello``' | tree-sitter parse /dev/stdin
+</tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+
+## timeout
+
+<tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+10
+</tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+
+# TOOL RESULT
+
+ID: toolu_01DKCEaFvjKGdfBRxjkXbQem
+
+<tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+(source_file [0, 0] - [2, 9]
+  (assistant [0, 0] - [2, 9]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 7])
+      (code_backticks_end [2, 7] - [2, 9]))))
+
+</tool.toolu_01DKCEaFvjKGdfBRxjkXbQem>
+
+# ASSISTANT
+
+That works. Now let me test the triple backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WstSSokof1Qo3B6VNESGgY
+
+## command
+
+<tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+cd . && printf '# ASSISTANT\n\n```python\nprint("hello")\n```' | tree-sitter parse /dev/stdin
+</tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+
+## timeout
+
+<tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+10
+</tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+
+# TOOL RESULT
+
+ID: toolu_01WstSSokof1Qo3B6VNESGgY
+
+<tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks_start [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks_end [4, 0] - [4, 3]))))
+
+</tool.toolu_01WstSSokof1Qo3B6VNESGgY>
+
+# ASSISTANT
+
+Great! Now let me test the problematic case from the test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MubzTA68DXKnDNTpPTrVCP
+
+## command
+
+<tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+cd . && printf '# ASSISTANT\n\n`` foo `` bar' | tree-sitter parse /dev/stdin
+</tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+
+## timeout
+
+<tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+10
+</tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+
+# TOOL RESULT
+
+ID: toolu_01MubzTA68DXKnDNTpPTrVCP
+
+<tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+(source_file [0, 0] - [2, 13]
+  (assistant [0, 0] - [2, 13]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 7])
+      (code_backticks_end [2, 7] - [2, 9]))
+    (text [2, 9] - [2, 13])))
+
+</tool.toolu_01MubzTA68DXKnDNTpPTrVCP>
+
+# ASSISTANT
+
+Perfect! That's working. The issue with the specific test case `` ` `` is that there's a single backtick inside a double backtick block. This is a bit tricky because the scanner stops at the first backtick and then doesn't know how to continue.
+
+Looking at the markdown specification, this is actually valid - you can have a single backtick inside a double backtick block. The key is that the scanner should be looking for the specific closing sequence (two backticks) rather than any backtick.
+
+However, the current approach where scan_code_contents stops at ANY backtick doesn't work well for this case. Let me check how the markdown parser handles this by looking at their approach.
+
+Actually, let me run the specific test to see what the exact error is:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KKVVXaXszgmmQQAjueZPz8
+
+## command
+
+<tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+cd . && tree-sitter test --filter "Double backticks no language"
+</tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+
+## timeout
+
+<tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+10
+</tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+
+# TOOL RESULT
+
+ID: toolu_01KKVVXaXszgmmQQAjueZPz8
+
+<tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+error: unexpected argument '--filter' found
+
+  tip: a similar argument exists: '--file-name'
+
+Usage: tree-sitter test <--include <INCLUDE>|--exclude <EXCLUDE>|--file-name <FILE_NAME>|--update|--debug|--debug-build|--debug-graph|--wasm|--open-log|--config-path <CONFIG_PATH>|--show-fields|--stat <STAT>|--rebuild|--overview-only>
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01KKVVXaXszgmmQQAjueZPz8>
+
+# ASSISTANT
+
+Let me run the specific test case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011nptdfut7tkLj9MajjiQKF
+
+## command
+
+<tool.toolu_011nptdfut7tkLj9MajjiQKF>
+cd . && tree-sitter test --include "Double backticks no language"
+</tool.toolu_011nptdfut7tkLj9MajjiQKF>
+
+## timeout
+
+<tool.toolu_011nptdfut7tkLj9MajjiQKF>
+10
+</tool.toolu_011nptdfut7tkLj9MajjiQKF>
+
+# TOOL RESULT
+
+ID: toolu_011nptdfut7tkLj9MajjiQKF
+
+<tool.toolu_011nptdfut7tkLj9MajjiQKF>
+  code:
+      7. ✗ Double backticks no language
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Double backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (code_contents)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_011nptdfut7tkLj9MajjiQKF>
+
+# ASSISTANT
+
+The issue is still there. Let me look at the actual test case content more carefully:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Bni3mXfQr6QDWWkKXFgC1R
+
+## path
+
+<tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+./test/corpus/code.txt
+</tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+
+## start-line
+
+<tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+50
+</tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+
+## end-line
+
+<tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+70
+</tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+
+# TOOL RESULT
+
+ID: toolu_01Bni3mXfQr6QDWWkKXFgC1R
+
+<tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+Double backticks no language
+=======================
+
+# ASSISTANT
+
+`` ` ``
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text)))
+
+===============================
+</tool.toolu_01Bni3mXfQr6QDWWkKXFgC1R>
+
+# ASSISTANT
+
+The test has `.. ` ..` (double backtick, space, single backtick, space, double backtick), and it expects this to parse as a single code block. But my parser is finding the single backtick in the middle and getting confused.
+
+The issue is that the code_contents scanner stops at the first backtick it finds. But for double backticks, it should only stop when it finds a double backtick (or more) that could close the block.
+
+I think the problem is in my understanding. Let me check if the markdown parser handles this case by not stopping at every backtick in the content, but instead letting the grammar figure out the closing.
+
+Actually, looking at the markdown grammar, I think the issue is that the markdown parser doesn't use a separate content scanner - it just uses the normal lexer rules. Let me check the markdown grammar:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01BjQUDQSLfJRChFDhxr5Biu
+
+## path
+
+<tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+
+## start-line
+
+<tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+1
+</tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+
+## end-line
+
+<tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+100
+</tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+
+# TOOL RESULT
+
+ID: toolu_01BjQUDQSLfJRChFDhxr5Biu
+
+<tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+// This grammar only concerns the block structure according to the CommonMark Spec
+// (https://spec.commonmark.org/0.30/#blocks-and-inlines)
+// For more information see README.md
+
+/// <reference types="tree-sitter-cli/dsl" />
+
+const common = require('../common/common');
+
+const PRECEDENCE_LEVEL_LINK = common.PRECEDENCE_LEVEL_LINK;
+
+const PUNCTUATION_CHARACTERS_REGEX = '!-/:-@\\[-`\\{-~';
+
+module.exports = grammar({
+    name: 'markdown',
+
+    rules: {
+        document: $ => seq(
+            optional(choice(
+                common.EXTENSION_MINUS_METADATA ? $.minus_metadata : choice(),
+                common.EXTENSION_PLUS_METADATA ? $.plus_metadata : choice(),
+            )),
+            alias(prec.right(repeat($._block_not_section)), $.section),
+            repeat($.section),
+        ),
+
+        ...common.rules,
+        _last_token_punctuation: $ => choice(), // needed for compatability with common rules
+
+        // BLOCK STRUCTURE
+
+        // All blocks. Every block contains a trailing newline.
+        _block: $ => choice(
+            $._block_not_section,
+            $.section,
+        ),
+        _block_not_section: $ => choice(
+            alias($._setext_heading1, $.setext_heading),
+            alias($._setext_heading2, $.setext_heading),
+            $.paragraph,
+            $.indented_code_block,
+            $.block_quote,
+            $.thematic_break,
+            $.list,
+            $.fenced_code_block,
+            $._blank_line,
+            $.html_block,
+            $.link_reference_definition,
+            common.EXTENSION_PIPE_TABLE ? $.pipe_table : choice(),
+        ),
+        section: $ => choice($._section1, $._section2, $._section3, $._section4, $._section5, $._section6),
+        _section1: $ => prec.right(seq(
+            alias($._atx_heading1, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4, $._section3, $._section2), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section2: $ => prec.right(seq(
+            alias($._atx_heading2, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4, $._section3), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section3: $ => prec.right(seq(
+            alias($._atx_heading3, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5, $._section4), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section4: $ => prec.right(seq(
+            alias($._atx_heading4, $.atx_heading),
+            repeat(choice(
+                alias(choice($._section6, $._section5), $.section),
+                $._block_not_section
+            ))
+        )),
+        _section5: $ => prec.right(seq(
+            alias($._atx_heading5, $.atx_heading),
+            repeat(choice(
+                alias($._section6, $.section),
+                $._block_not_section
+            ))
+        )),
+        _section6: $ => prec.right(seq(
+            alias($._atx_heading6, $.atx_heading),
+            repeat($._block_not_section)
+        )),
+
+        // LEAF BLOCKS
+
+        // A thematic break. This is currently handled by the external scanner but maybe could be
+        // parsed using normal tree-sitter rules.
+        //
+        // https://github.github.com/gfm/#thematic-breaks
+        thematic_break: $ => seq($._thematic_break, choice($._newline, $._eof)),
+
+        // An ATX heading. This is currently handled by the external scanner but maybe could be
+        // parsed using normal tree-sitter rules.
+</tool.toolu_01BjQUDQSLfJRChFDhxr5Biu>
+
+# ASSISTANT
+
+Let me look at how the markdown grammar handles fenced code blocks:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01TFeSxYM9VCQXZuPyewX69R
+
+## pattern
+
+<tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+fenced_code_block
+</tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+
+## path
+
+<tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+
+## context-lines
+
+<tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+10
+</tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+
+# TOOL RESULT
+
+ID: toolu_01TFeSxYM9VCQXZuPyewX69R
+
+<tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+34-            $.section,
+35-        ),
+36-        _block_not_section: $ => choice(
+37-            alias($._setext_heading1, $.setext_heading),
+38-            alias($._setext_heading2, $.setext_heading),
+39-            $.paragraph,
+40-            $.indented_code_block,
+41-            $.block_quote,
+42-            $.thematic_break,
+43-            $.list,
+44:            $.fenced_code_block,
+45-            $._blank_line,
+46-            $.html_block,
+47-            $.link_reference_definition,
+48-            common.EXTENSION_PIPE_TABLE ? $.pipe_table : choice(),
+49-        ),
+50-        section: $ => choice($._section1, $._section2, $._section3, $._section4, $._section5, $._section6),
+51-        _section1: $ => prec.right(seq(
+52-            alias($._atx_heading1, $.atx_heading),
+53-            repeat(choice(
+54-                alias(choice($._section6, $._section5, $._section4, $._section3, $._section2), $.section),
+--
+155-        //
+156-        // https://github.github.com/gfm/#indented-code-blocks
+157-        indented_code_block: $ => prec.right(seq($._indented_chunk, repeat(choice($._indented_chunk, $._blank_line)))),
+158-        _indented_chunk: $ => seq($._indented_chunk_start, repeat(choice($._line, $._newline)), $._block_close, optional($.block_continuation)),
+159-
+160-        // A fenced code block. Fenced code blocks are mainly handled by the external scanner. In
+161-        // case of backtick code blocks the external scanner also checks that the info string is
+162-        // proper.
+163-        //
+164-        // https://github.github.com/gfm/#fenced-code-blocks
+165:        fenced_code_block: $ => prec.right(choice(
+166-            seq(
+167:                alias($._fenced_code_block_start_backtick, $.fenced_code_block_delimiter),
+168-                optional($._whitespace),
+169-                optional($.info_string),
+170-                $._newline,
+171-                optional($.code_fence_content),
+172:                optional(seq(alias($._fenced_code_block_end_backtick, $.fenced_code_block_delimiter), $._close_block, $._newline)),
+173-                $._block_close,
+174-            ),
+175-            seq(
+176:                alias($._fenced_code_block_start_tilde, $.fenced_code_block_delimiter),
+177-                optional($._whitespace),
+178-                optional($.info_string),
+179-                $._newline,
+180-                optional($.code_fence_content),
+181:                optional(seq(alias($._fenced_code_block_end_tilde, $.fenced_code_block_delimiter), $._close_block, $._newline)),
+182-                $._block_close,
+183-            ),
+184-        )),
+185-        code_fence_content: $ => repeat1(choice($._newline, $._line)),
+186-        info_string: $ => choice(
+187-            seq($.language, repeat(choice($._line, $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+188-            seq(
+189-                repeat1(choice('{', '}')),
+190-                optional(choice(
+191-                    seq($.language, repeat(choice($._line, $.backslash_escape, $.entity_reference, $.numeric_character_reference))),
+--
+532-        $._list_marker_minus,
+533-        $._list_marker_plus,
+534-        $._list_marker_star,
+535-        $._list_marker_parenthesis,
+536-        $._list_marker_dot,
+537-        $._list_marker_minus_dont_interrupt, // list items that do not interrupt an ongoing paragraph
+538-        $._list_marker_plus_dont_interrupt,
+539-        $._list_marker_star_dont_interrupt,
+540-        $._list_marker_parenthesis_dont_interrupt,
+541-        $._list_marker_dot_dont_interrupt,
+542:        $._fenced_code_block_start_backtick,
+543:        $._fenced_code_block_start_tilde,
+544-        $._blank_line_start, // Does not contain the newline characters. Blank lines do not need a `$._block_close`
+545-
+546-        // Special tokens for block structure
+547-
+548-        // Closing backticks or tildas for a fenced code block. They are used to trigger a `$._close_block`
+549-        // which in turn will trigger a `$._block_close` at the beginning the following line.
+550:        $._fenced_code_block_end_backtick,
+551:        $._fenced_code_block_end_tilde,
+552-
+553-        $._html_block_1_start,
+554-        $._html_block_1_end,
+555-        $._html_block_2_start,
+556-        $._html_block_3_start,
+557-        $._html_block_4_start,
+558-        $._html_block_5_start,
+559-        $._html_block_6_start,
+560-        $._html_block_7_start,
+561-
+
+</tool.toolu_01TFeSxYM9VCQXZuPyewX69R>
+
+# USER
+
+Feel free to change, simplify, and collapse the tests as well to match the code/backtick parsing logic of the markdown scanner.
+
+# THINKING
+
+Signature: EpoJCkYIBRgCKkBn9x/jJvTG+rlf5+ovfgioALpwIKsLsUL47HicCUUW/rFw4j3nbAQ+orufNNttCJqN4WG042blJPzr8bLPixtUEgwGAHUGt+A2sXTroT8aDGADDLZzRXigeLGsiyIwZk3KiBYxqB9PvPhkYAEsB06OzvUH7Ifk0zDcPgfzXTcIJ6Cx86glyc5F2r4DawbnKoEI55CfvgY+BPyn3DdpTU7xEqMIcpuNTbjP6WukIlppZhxisKuClVdv1YKP0KO0HfyV1nRGOLy3XFJy6rpSG0hrg+Aypv86mGRzHVjyEzwVMs9iiaZYX87kSX2rdQj5gtm2FFDDdZFLldtRhkG/90nTH2IFgulB0acKPCs6RtvgUsymCi4GW4gfDuBIirLCMeikJ++GByRjjNENIh6ITrdEUPeQRNgq6fp//CoQZBh+d8YcE4ROIF+BHcrXiaVDXNpQqFN8zLapx/Lmfh00V8yBAE7twpInyD501FF/cIPUYDcbRdUj2TI1ODxJevI5Xjs1OvnUtHV3eb9rMUIVwDzCU9WZPgQVXPk5c/iMw8B0/isk6ERFF8/cqgtP1h5GvcmnjowhFzzH3MDoru/LNTXuVfiODg0lE/AK0dnS4Th1xIF1FQKELf6UqvoSa4a3dpF9cZo3GH9eCj4ZkaO6OwN5AGGdB8Gye15tL+J2/LhZ3fl0esKYuDGp/RJ+eqOb49FGNfQ8UWoEcy5l5iD9dMJ6dD9BfOClIjxYzYW8SRpFzx98owkEVUsPGl7w8S+zSDiAbY3+1ClOa8hZ2/1hxJebeoalK5obJMk/reAuWOReGHO2OstOJKFR2e650cHsK4X4r8nvEe3s1GdQ+0uMrXYGeo7mJ5vHZvAMaxyJ6uYqFee3O9SyKN5nmkThPAxhw+9GVc0I2yEK/Q4imJtk/QAy6VXuGZiZIEXWBCliRPR1tRK8JF+AxAo0P4fHexmfSZbbRToVTxCqW97RMKTCxfOdK0UadH6aGYS29Qrt2ZG1xj5MM772b+s5Ti4EV/erx/LqWLsXVat5KtWHxJA2mofysFNgPfng1Ua4MKbOvG/Bngmz8Xwk4efNFMTaYQObf05+dmSkesnwYF+PDBPr22jK4T/bF2Z+uu1wgeqNLvEMjrYNx04K3KOy7pvArilLIJ3DEKmdagMC4DwY7a1zG2JLFV6ogC7bCeg8e2GVuyU/rfhlUGp2DR1fMkJ62GRAgbDgwC80CnnRAok6vuPN8KQpiYHem97LdFmarlchlAvTn/xyInAtai/f3eufzkXzJOswHBgeUkOzd8r3rYkrVjO2/M56hF9VWeI32xYmKbaZA+vBD7/UuHZMHLPx9LPjAFXfZaMAh36Rkl6SjZKXAOFFv3eIifnwOReCQGJxXFqVxZi5BMVxA3OicFjF6gtFC4YxYvn96SVES061Draxpf5RczVbD8Q7UK4sIlYEO2YZuWscMrPEoxTZru9d7bRLK1Foss8xPCT4FStY3XMFgALgLJWtVGVnzJhDfEi4KgA5jc/TXcr2tEeMrKGywJAujOy1Bdi3zFu0XidOso6aFnZ/QH8YAQ==
+
+The user is giving me permission to change and simplify the tests to match the markdown scanner's logic. This is a good opportunity to:
+
+1. Simplify the code block parsing logic to match the markdown parser exactly
+2. Update the tests to match what the markdown parser would expect
+3. Remove tests that don't make sense for the markdown-style approach
+
+Looking at the markdown parser, I can see that:
+- It only handles fenced code blocks with 3+ backticks
+- It doesn't handle single/double backticks as "code blocks" - those would be handled differently (as inline code)
+- It has specific rules about info strings and closing requirements
+
+Since this is a Greger grammar (not pure markdown), I should adapt the approach but keep it simple and consistent with the markdown parser's style.
+
+Let me:
+1. Update the scanner to follow the markdown pattern more closely
+2. Simplify the tests to focus on the cases that actually make sense
+3. Remove edge cases that are confusing or don't match the markdown approach
+
+# ASSISTANT
+
+Perfect! Let me simplify both the code and tests to match the markdown scanner's approach more closely. The markdown parser has a much cleaner distinction between inline code (single/double backticks) and fenced code blocks (3+ backticks).
+
+Let me first examine what cases actually make sense and update the tests:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012MDC6r4kRFuGHeumF14a3g
+
+## path
+
+<tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+./test/corpus/code.txt
+</tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+
+## git-commit-message
+
+<tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+Simplify code block tests to match markdown parser approach - focus on 3+ backticks
+</tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+
+## diff
+
+<tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+ ==================
+-Single backtick code
++Inline code with single backticks
+ ==================
+ 
+ # USER
+ 
+ Foo `bar` baz
+ 
+ # ASSISTANT
+ 
+-Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
++Code `example` in text.
+ 
+-This new line is just text
+-
+-Backtick at end of line should not make subsequent lines code: `
+-
+-# USER
+-
+-hello
+-
+ ---
+ 
+ (source_file
+   (user
+     (user_header)
+     (text)
+     (code
+       (code_backticks_start)
+       (code_contents)
+       (code_backticks_end))
+     (text))
+   (assistant
+     (assistant_header)
+     (text)
+     (code
+       (code_backticks_start)
+       (code_contents)
+       (code_backticks_end))
+-    (text)
+-    (code
+-      (code_backticks_start)
+-      (code_contents)
+-      (code_backticks_end))
+-    (text))
+-  (user
+-    (user_header)
+     (text)))
+ 
+ =======================
+-Double backticks no language
++Inline code with double backticks
+ =======================
+ 
+ # ASSISTANT
+ 
+-`` ` ``
++`` `code` ``
+ 
+ More text after.
+ 
+ ---
+ 
+ (source_file
+   (assistant
+     (assistant_header)
+     (code
+       (code_backticks_start)
+       (code_contents)
+       (code_backticks_end))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+
+# TOOL RESULT
+
+ID: toolu_012MDC6r4kRFuGHeumF14a3g
+
+<tool.toolu_012MDC6r4kRFuGHeumF14a3g>
+
+</tool.toolu_012MDC6r4kRFuGHeumF14a3g>

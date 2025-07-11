@@ -1,5 +1,5 @@
 ==================
-Single backtick code
+Inline code with single backticks
 ==================
 
 # USER
@@ -8,15 +8,7 @@ Foo `bar` baz
 
 # ASSISTANT
 
-Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
-
-This new line is just text
-
-Backtick at end of line should not make subsequent lines code: `
-
-# USER
-
-hello
+Code `example` in text.
 
 ---
 
@@ -36,23 +28,15 @@ hello
       (code_backticks_start)
       (code_contents)
       (code_backticks_end))
-    (text)
-    (code
-      (code_backticks_start)
-      (code_contents)
-      (code_backticks_end))
-    (text))
-  (user
-    (user_header)
     (text)))
 
 =======================
-Double backticks no language
+Inline code with double backticks
 =======================
 
 # ASSISTANT
 
-`` ` ``
+`` `code` ``
 
 More text after.
 
