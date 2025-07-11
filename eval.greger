@@ -4583,5 +4583,73 @@ Remove lexer position restoration on false return
 ID: toolu_01W4LzXgbouBMyDz2WMR5m8L
 
 <tool.toolu_01W4LzXgbouBMyDz2WMR5m8L>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove lexer position restoration on false return
 </tool.toolu_01W4LzXgbouBMyDz2WMR5m8L>
+
+# ASSISTANT
+
+Now let me think about this differently. The issue might be that I'm not handling the case where backticks are consumed but no token is produced. In tree-sitter, when an external scanner consumes characters but returns false, it creates an error.
+
+Let me check if the markdown parser has a different approach. Maybe the key is to make sure that when the scanner is called, it always produces a valid token or doesn't consume any characters.
+
+Looking at the markdown parser again, I notice they have this pattern:
+
+```c
+if (valid_symbols[UNCLOSED_SPAN]) {
+    lexer->result_symbol = UNCLOSED_SPAN;
+    return true;
+}
+```
+
+This means when they can't match an opening or closing delimiter, they produce an `UNCLOSED_SPAN` token. This avoids the situation where characters are consumed but no token is produced.
+
+Let me add a similar token to my grammar:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01B4hJHfCQzF4TGatx62wb3d
+
+## path
+
+<tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+./grammar.js
+</tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+
+## git-commit-message
+
+<tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+Add unclosed_code_span token to handle unmatched backticks
+</tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+
+## diff
+
+<tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+   externals: $ => [
+     $.tool_start_tag,
+     $.tool_end_tag,
+     $.tool_content_head,
+     $.tool_content_tail,
+     $.html_comment,
+     $.eval_content,
+     $.eval_result_start_tag,
+     $.eval_result_end_tag,
+     $.eval_result_content_head,
+     $.eval_result_content_tail,
+     $.error_sentinel,
+     $.code_backticks_start,
+     $.code_backticks_end,
++    $.unclosed_code_span,
+     $.eval_language,
+   ],
+\ No newline at end of file
+
+</tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+
+# TOOL RESULT
+
+ID: toolu_01B4hJHfCQzF4TGatx62wb3d
+
+<tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
+
+</tool.toolu_01B4hJHfCQzF4TGatx62wb3d>
