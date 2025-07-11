@@ -734,7 +734,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     lexer->result_symbol = CODE_CONTENT;
                     return true;
                 } else {
-                    return false;
+                    // No content before code close tag - this is valid, let grammar handle it
+                    // We need to return a zero-length CODE_CONTENT token
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
                 }
             }
             // If we're in the middle of matching code close tag, advance and continue

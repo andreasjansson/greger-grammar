@@ -5607,5 +5607,387 @@ Add test case for code close tag immediately after backtick
 ID: toolu_01GdFeokQGixJn6Zt9Nf8ck5
 
 <tool.toolu_01GdFeokQGixJn6Zt9Nf8ck5>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code-close-tag-mixed.txt. Successfully staged 2 file(s) and committed with message: Add test case for code close tag immediately after backtick
 </tool.toolu_01GdFeokQGixJn6Zt9Nf8ck5>
+
+# ASSISTANT
+
+Now let me run the test to confirm it fails with the current implementation:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012V2uqg5GU4FywiHWhYCWwk
+
+## command
+
+<tool.toolu_012V2uqg5GU4FywiHWhYCWwk>
+timeout 10 tree-sitter test -f "code-close-tag-mixed"
+</tool.toolu_012V2uqg5GU4FywiHWhYCWwk>
+
+# TOOL RESULT
+
+ID: toolu_012V2uqg5GU4FywiHWhYCWwk
+
+<tool.toolu_012V2uqg5GU4FywiHWhYCWwk>
+error: unexpected argument '-f' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_012V2uqg5GU4FywiHWhYCWwk>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Pgro3jmsMeBja1vhCU5pBN
+
+## command
+
+<tool.toolu_01Pgro3jmsMeBja1vhCU5pBN>
+timeout 10 tree-sitter test --filter "code-close-tag-mixed"
+</tool.toolu_01Pgro3jmsMeBja1vhCU5pBN>
+
+# TOOL RESULT
+
+ID: toolu_01Pgro3jmsMeBja1vhCU5pBN
+
+<tool.toolu_01Pgro3jmsMeBja1vhCU5pBN>
+error: unexpected argument '--filter' found
+
+  tip: a similar argument exists: '--file-name'
+
+Usage: tree-sitter test <--include <INCLUDE>|--exclude <EXCLUDE>|--file-name <FILE_NAME>|--update|--debug|--debug-build|--debug-graph|--wasm|--open-log|--config-path <CONFIG_PATH>|--show-fields|--stat <STAT>|--rebuild|--overview-only>
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01Pgro3jmsMeBja1vhCU5pBN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QVTMnv1sGYVuNPVGcVGBQa
+
+## command
+
+<tool.toolu_01QVTMnv1sGYVuNPVGcVGBQa>
+timeout 10 tree-sitter test --file-name "code-close-tag-mixed"
+</tool.toolu_01QVTMnv1sGYVuNPVGcVGBQa>
+
+# TOOL RESULT
+
+ID: toolu_01QVTMnv1sGYVuNPVGcVGBQa
+
+<tool.toolu_01QVTMnv1sGYVuNPVGcVGBQa>
+
+Total parses: 0; successful parses: 0; failed parses: 0; success percentage: N/A; average speed: N/A
+
+
+</tool.toolu_01QVTMnv1sGYVuNPVGcVGBQa>
+
+# ASSISTANT
+
+Let me try running it with the include flag:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0196R7fk6f2WrXkJukDxQspX
+
+## command
+
+<tool.toolu_0196R7fk6f2WrXkJukDxQspX>
+timeout 10 tree-sitter test --include "code-close-tag-mixed"
+</tool.toolu_0196R7fk6f2WrXkJukDxQspX>
+
+# TOOL RESULT
+
+ID: toolu_0196R7fk6f2WrXkJukDxQspX
+
+<tool.toolu_0196R7fk6f2WrXkJukDxQspX>
+
+Total parses: 0; successful parses: 0; failed parses: 0; success percentage: N/A; average speed: N/A
+
+
+</tool.toolu_0196R7fk6f2WrXkJukDxQspX>
+
+# USER
+
+You need --file-name code-close-tag-mixed.txt
+
+# THINKING
+
+Signature: Eo8CCkYIBRgCKkCmk6uOPL1d5VTLLfMP4n9e+mxv+OyLMRK10snvADF2/NZRTdz4061Aa1qc5JyU8tuU3rbL+GFkz5ETnGK11salEgz+G+Fd/7/wAgBgUqYaDE0GIMUrUTpWWQUS2SIwLZ2jHplx10a9HHczC92zeR1SAybbAmfTisCIZCEJQ+ejz4bdTauo7Nu7pUOUb15XKnc3XBEKBxR1MUKTD6wuBH8tGbYKz+3wkrEy6t647mwU7ul4j9S5keq1x71AOJf9FSd55uJ1eDvyNH3fUPTwikrZWx/d+F9+uAN286wk3T4bn9hsau4t3uvHvE0/H2Iho51H2vSsI3DCw4wyxNdFPEe3ndO9U8MV2BgB
+
+The user is correct, I need to specify the full filename with .txt extension for the --file-name flag.
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014m7dcFXidMJYWZgTB61aSF
+
+## command
+
+<tool.toolu_014m7dcFXidMJYWZgTB61aSF>
+timeout 10 tree-sitter test --file-name code-close-tag-mixed.txt
+</tool.toolu_014m7dcFXidMJYWZgTB61aSF>
+
+# TOOL RESULT
+
+ID: toolu_014m7dcFXidMJYWZgTB61aSF
+
+<tool.toolu_014m7dcFXidMJYWZgTB61aSF>
+  code-close-tag-mixed:
+      7. ✓ Code close tag with mixed code blocks
+      8. ✗ Code close tag immediately after backtick
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag immediately after backtick:
+
+    (source_file
+      (user
+        (user_header)
+        (code
+          (code_start_tag)
+          (code_close_tag))
+        (text
+          (ERROR
+            (UNEXPECTED '`')))))
+        (text)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_014m7dcFXidMJYWZgTB61aSF>
+
+# ASSISTANT
+
+Perfect! I can see the issue clearly now. The test is failing because when there's a BACKTICK immediately followed by `<$code-close/>`, the scanner doesn't generate any code content, and then the grammar expects a different structure.
+
+The problem is in the scanner logic. When we encounter the code close tag pattern immediately after a BACKTICK, we need to handle the case where there's no content between the code start tag and the code close tag.
+
+Let me analyze the issue in the scanner:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Hrrye6nB2QLUd4iLPy3L28
+
+## path
+
+<tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+src/scanner.c
+</tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+
+## start-line
+
+<tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+680
+</tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+
+## end-line
+
+<tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+720
+</tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+
+# TOOL RESULT
+
+ID: toolu_01Hrrye6nB2QLUd4iLPy3L28
+
+<tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+    scanner->code_backtick_count = opening_backticks;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_START_TAG;
+    return true;
+}
+
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're immediately at a newline
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // No content between backtick and newline, return empty content
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    lexer->mark_end(lexer);
+    bool has_content = false;
+    
+    // Build the expected closing pattern (just the right number of backticks)
+    char expected_closing[21]; // Max 20 backticks + null terminator
+    for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+        expected_closing[i] = '`';
+    }
+    expected_closing[scanner->code_backtick_count] = '\0';
+    int expected_len = scanner->code_backtick_count;
+    
+    // Also check for code close tag pattern (to stop before it)
+    const char *code_close_pattern = "<$code-close/>";
+    int code_close_len = 14;
+    
+    int match_index = 0;
+    int code_close_match_index = 0;
+    
+    // Scan content until we find the closing pattern or code close tag
+    while (lexer->lookahead != 0) {
+        // For inline code (1-2 backticks), stop at newlines
+        if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+            if (has_content) {
+                lexer->result_symbol = CODE_CONTENT;
+                return true;
+</tool.toolu_01Hrrye6nB2QLUd4iLPy3L28>
+
+# ASSISTANT
+
+The issue is that when we have `<$code-close/>` immediately after a BACKTICK, the scanner starts looking for code content but immediately encounters the code close tag pattern. The scanner then resets the state but doesn't return any code content token.
+
+Looking at the grammar, the code rule is:
+
+```
+code: $ => seq(
+  $.code_start_tag,
+  optional($.code_content),
+  choice($.code_end_tag, $.code_close_tag),
+),
+```
+
+This means code content is optional, so the scanner should be able to handle the case where there's no content between the start tag and the close tag.
+
+Let me check what happens in the scanner when it encounters the code close tag immediately:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01B2Co93aiQqATf43RU5yvP1
+
+## path
+
+<tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+src/scanner.c
+</tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+
+## start-line
+
+<tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+730
+</tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+
+## end-line
+
+<tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+760
+</tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+
+# TOOL RESULT
+
+ID: toolu_01B2Co93aiQqATf43RU5yvP1
+
+<tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+                // Found complete code close tag, reset scanner state and stop here (don't consume it)
+                scanner->code_backtick_count = 0;
+                scanner->in_code_content = false;
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // If we're in the middle of matching code close tag, advance and continue
+            advance(lexer);
+            continue; // Continue to next iteration to check this new character
+        } else {
+            if (code_close_match_index > 0) {
+                // We had a partial match that failed, so the previous characters should be content
+                has_content = true;
+                lexer->mark_end(lexer);
+                code_close_match_index = 0;
+            }
+        }
+        
+        // Check for regular closing pattern
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, but need to check if it's a valid close
+                bool is_valid_close = true;
+                
+                // For all backtick counts, check if the closing pattern is valid
+                // Look ahead to see what comes after the potential closing backticks
+</tool.toolu_01B2Co93aiQqATf43RU5yvP1>
+
+# ASSISTANT
+
+I can see the problem! When the scanner encounters the complete code close tag pattern and `has_content` is false, it returns false instead of allowing the grammar to handle the optional code content. But the grammar expects that when we're in a code block, we should either get code content OR be able to proceed directly to the code close tag.
+
+The issue is that the scanner is preventing the grammar from proceeding when there's no code content before the code close tag.
+
+Looking at the grammar more carefully:
+
+```
+code: $ => seq(
+  $.code_start_tag,
+  optional($.code_content),
+  choice($.code_end_tag, $.code_close_tag),
+),
+```
+
+The grammar allows for no code content, but the scanner is interfering. The problem is that the scanner is called to check for `CODE_CONTENT` but when it finds the code close tag immediately, it returns false, which prevents the grammar from proceeding to match the code close tag.
+
+Let me check how the scanner is called and fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01VsAuMD4vVHC7iLeSMn991j
+
+## path
+
+<tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+src/scanner.c
+</tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+
+## git-commit-message
+
+<tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+Fix scanner to allow empty code content when code close tag is encountered immediately
+</tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+
+## diff
+
+<tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, reset scanner state and stop here (don't consume it)
+                 scanner->code_backtick_count = 0;
+                 scanner->in_code_content = false;
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+-                    return false;
++                    // No content before code close tag - this is valid, let grammar handle it
++                    // We need to return a zero-length CODE_CONTENT token
++                    lexer->result_symbol = CODE_CONTENT;
++                    return true;
+                 }
+             }
+\ No newline at end of file
+
+</tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+
+# TOOL RESULT
+
+ID: toolu_01VsAuMD4vVHC7iLeSMn991j
+
+<tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+
+</tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
