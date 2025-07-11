@@ -769,8 +769,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
         
         // Check for regular closing pattern
         if (lexer->lookahead == expected_closing[match_index]) {
+            fprintf(stderr, "DEBUG: Matching backtick pattern at index %d\n", match_index);
             match_index++;
             if (match_index == expected_len) {
+                fprintf(stderr, "DEBUG: Found complete backtick pattern\n");
                 // Found complete closing pattern, but need to check if it's a valid close
                 bool is_valid_close = true;
                 
