@@ -4031,5 +4031,259 @@ Revert to simplest approach: just consume non-backtick characters
 ID: toolu_01JhQNvLm7Yvru3cRvJtVHvF
 
 <tool.toolu_01JhQNvLm7Yvru3cRvJtVHvF>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Revert to simplest approach: just consume non-backtick characters
 </tool.toolu_01JhQNvLm7Yvru3cRvJtVHvF>
+
+# ASSISTANT
+
+This won't work for the nested case either. Let me think about this from a different angle. The issue is that I'm trying to be too clever. Let me look at what the grammar actually expects:
+
+For `\`\` \`hello\` \`\` the expected pattern is:
+- `code_start_tag`: `\`\``
+- `code_content`: ` \`hello\` ` 
+- `code_end_tag`: `\`\``
+
+So the content should include the inner backticks. Let me modify the approach:
+
+# USER
+
+Can you just fucking look at the subsequent characters like in scan_eval_result_end_tag?
+
+# THINKING
+
+Signature: EtICCkYIBRgCKkAYdjdUYvjwW76gzbUnovx8y3sHmgceB1LKi/4o2+AekWG5FznderB6R8LXq32pbFwCnhFdlQsXaFpFMzN/yDocEgxwOxIHO+UDnQhnJ1UaDPWNQP7zegyIiGO2tiIwI7cfxaC9fBZ40e4qiKveXmg/my40e25u+dVTmuxvQLdsdmIupR7Vy/NxdhAbrGI7KrkBBb8hLltxnqnD/CkbF2UcVBheyzeMSu0WsKNkUx8/jMMMs3v8BEKZdwnhPwCi6WWLC5Hgh/ToZxLB7jUDOOfwBpJkOw5QayOpuubeLm5E3rl/HS85JR2USLFywxMGK6REc8eYotiUenQr6Ox7RQG8jgc+gHIF9NXkbZ7KhcbineU08WiMARaKEGQlDPItlVC5LTzHijOShn3VpC0SMHy0RCeBPLuQoYJB2w59UUKsTidVR+RAkVzDJQoYAQ==
+
+The user is frustrated and pointing out that I should look at how `scan_eval_result_end_tag` works. Let me look at that function to see how it handles parsing properly.
+
+# ASSISTANT
+
+You're absolutely right! Let me look at how `scan_eval_result_end_tag` works:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_014x69XyUsM2TFHut4CwKzLP
+
+## path
+
+<tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+./src/scanner.c
+</tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+
+## start-line
+
+<tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+500
+</tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+
+## end-line
+
+<tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+550
+</tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+
+## include-line-numbers
+
+<tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+true
+</tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+
+# TOOL RESULT
+
+ID: toolu_014x69XyUsM2TFHut4CwKzLP
+
+<tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+500:     advance(lexer);
+501:     if (lexer->lookahead != 't') return false;
+502:     advance(lexer);
+503:     if (lexer->lookahead != '-') return false;
+504:     advance(lexer);
+505: 
+506:     // Scan eval result ID until >
+507:     while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+508:         advance(lexer);
+509:     }
+510: 
+511:     if (lexer->lookahead != '>') return false;
+512:     advance(lexer);
+513: 
+514:     lexer->mark_end(lexer);
+515:     scanner->in_eval_result_content = false;
+516:     scanner->expecting_eval_result_tail = false;
+517:     scanner->eval_result_id[0] = '\0';
+518:     lexer->result_symbol = EVAL_RESULT_END_TAG;
+519:     return true;
+520: }
+521: 
+522: static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
+523:     if (!scanner->in_eval_result_content || scanner->expecting_eval_result_tail) return false;
+524: 
+525:     lexer->mark_end(lexer);
+526: 
+527:     // Build the expected closing tag
+528:     char expected_closing[512];
+529:     strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+530:     expected_closing[sizeof(expected_closing) - 1] = '\0';
+531:     strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+532:     strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+533:     int expected_len = strlen(expected_closing);
+534: 
+535:     int match_index = 0;
+536:     bool has_content = false;
+537:     int line_count = 0;
+538:     bool current_line_has_content = false;
+539: 
+540:     // Scan first 4 lines or until we find the closing tag
+541:     while (lexer->lookahead != 0) {
+542:         if (lexer->lookahead == expected_closing[match_index]) {
+543:             match_index++;
+544:             if (match_index == expected_len) {
+545:                 // Found complete closing tag, stop here (don't consume it)
+546:                 lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+547:                 return true;
+548:             }
+549:             advance(lexer);
+550:             current_line_has_content = true;
+</tool.toolu_014x69XyUsM2TFHut4CwKzLP>
+
+# ASSISTANT
+
+Perfect! Now I see the pattern. Let me fix the code scanning functions to use the same approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01REXthmkg2jdKTvYaKEJuyN
+
+## path
+
+<tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+./src/scanner.c
+</tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+
+## git-commit-message
+
+<tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+Fix code scanning to use lookahead pattern like eval_result functions
+</tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+
+## diff
+
+<tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+-    // Simple pattern: consume anything except backticks
+-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+-        // For inline code (1-2 backticks), stop at newlines
+-        if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+-            break;
++    // Build the expected closing pattern (just the right number of backticks)
++    char expected_closing[21]; // Max 20 backticks + null terminator
++    for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
++        expected_closing[i] = '`';
++    }
++    expected_closing[scanner->code_backtick_count] = '\0';
++    int expected_len = scanner->code_backtick_count;
++    
++    int match_index = 0;
++    
++    // Scan content until we find the closing pattern
++    while (lexer->lookahead != 0) {
++        if (lexer->lookahead == expected_closing[match_index]) {
++            match_index++;
++            if (match_index == expected_len) {
++                // Found complete closing pattern, stop here (don't consume it)
++                if (has_content) {
++                    lexer->result_symbol = CODE_CONTENT;
++                    return true;
++                } else {
++                    return false;
++                }
++            }
++            advance(lexer);
++        } else {
++            // Reset match and continue as content
++            if (match_index > 0) {
++                // We were partially matching, reset but don't advance yet
++                match_index = 0;
++                // Don't advance here, reprocess this character
++            } else {
++                // For inline code (1-2 backticks), stop at newlines
++                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
++                    if (has_content) {
++                        lexer->result_symbol = CODE_CONTENT;
++                        return true;
++                    } else {
++                        return false;
++                    }
++                }
++                
++                advance(lexer);
++                has_content = true;
++                lexer->mark_end(lexer);
++            }
+         }
+-        
+-        // Regular content
+-        advance(lexer);
+-        has_content = true;
+-        lexer->mark_end(lexer);
+     }
+     
+-    // Return content if we found any
++    // Reached end without finding closing tag
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+ 
+ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content || lexer->lookahead != '`') return false;
+     
+     // Count the number of closing backticks
+     int closing_backticks = 0;
+     while (lexer->lookahead == '`' && closing_backticks < 20) {
+         advance(lexer);
+         closing_backticks++;
+     }
+     
+     // Check if this matches the opening backticks
+     if (closing_backticks != scanner->code_backtick_count) {
+         return false;
+     }
+     
+     // For fenced code blocks (3+ backticks), require newline/EOF after closing
+     if (scanner->code_backtick_count >= 3) {
+         // Skip whitespace after closing backticks
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+             return false;
+         }
+     }
+     
+     // Valid closing tag
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->result_symbol = CODE_END_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+
+# TOOL RESULT
+
+ID: toolu_01REXthmkg2jdKTvYaKEJuyN
+
+<tool.toolu_01REXthmkg2jdKTvYaKEJuyN>
+
+</tool.toolu_01REXthmkg2jdKTvYaKEJuyN>

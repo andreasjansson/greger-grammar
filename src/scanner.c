@@ -689,20 +689,55 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     lexer->mark_end(lexer);
     bool has_content = false;
     
-    // Simple pattern: consume anything except backticks
-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
-        // For inline code (1-2 backticks), stop at newlines
-        if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-            break;
+    // Build the expected closing pattern (just the right number of backticks)
+    char expected_closing[21]; // Max 20 backticks + null terminator
+    for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+        expected_closing[i] = '`';
+    }
+    expected_closing[scanner->code_backtick_count] = '\0';
+    int expected_len = scanner->code_backtick_count;
+    
+    int match_index = 0;
+    
+    // Scan content until we find the closing pattern
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                // For inline code (1-2 backticks), stop at newlines
+                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                    if (has_content) {
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
         }
-        
-        // Regular content
-        advance(lexer);
-        has_content = true;
-        lexer->mark_end(lexer);
     }
     
-    // Return content if we found any
+    // Reached end without finding closing tag
     if (has_content) {
         lexer->result_symbol = CODE_CONTENT;
         return true;
