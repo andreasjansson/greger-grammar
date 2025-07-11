@@ -5567,5 +5567,233 @@ Add safety checks to prevent infinite loop in code_contents scanner
 ID: toolu_01WscFsEArbmFcJcDZC6PDTy
 
 <tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add safety checks to prevent infinite loop in code_contents scanner
 </tool.toolu_01WscFsEArbmFcJcDZC6PDTy>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014JeJBTZMuKbyxtG4HDMCvb
+
+## command
+
+<tool.toolu_014JeJBTZMuKbyxtG4HDMCvb>
+cd . && tree-sitter generate
+</tool.toolu_014JeJBTZMuKbyxtG4HDMCvb>
+
+# TOOL RESULT
+
+ID: toolu_014JeJBTZMuKbyxtG4HDMCvb
+
+<tool.toolu_014JeJBTZMuKbyxtG4HDMCvb>
+
+</tool.toolu_014JeJBTZMuKbyxtG4HDMCvb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BXzR715sDykfeTQBboyq1Z
+
+## command
+
+<tool.toolu_01BXzR715sDykfeTQBboyq1Z>
+cd . && printf '# ASSISTANT\n\n`` hello' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01BXzR715sDykfeTQBboyq1Z>
+
+# TOOL RESULT
+
+ID: toolu_01BXzR715sDykfeTQBboyq1Z
+
+<tool.toolu_01BXzR715sDykfeTQBboyq1Z>
+(source_file [0, 0] - [2, 8]
+  (assistant [0, 0] - [2, 8]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 8]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 8])
+      (code_backticks [2, 8] - [2, 8]))))
+/dev/stdin	Parse:    0.10 ms	   208 bytes/ms	(MISSING code_backticks [2, 8] - [2, 8])
+Command failed with exit code 1
+</tool.toolu_01BXzR715sDykfeTQBboyq1Z>
+
+# ASSISTANT
+
+Good! That fixes the timeout. Now let me test the cases that were failing:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01P9qJtnWf1EPQeJcb1qrXyR
+
+## command
+
+<tool.toolu_01P9qJtnWf1EPQeJcb1qrXyR>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01P9qJtnWf1EPQeJcb1qrXyR>
+
+# TOOL RESULT
+
+ID: toolu_01P9qJtnWf1EPQeJcb1qrXyR
+
+<tool.toolu_01P9qJtnWf1EPQeJcb1qrXyR>
+Command failed with exit code 130
+</tool.toolu_01P9qJtnWf1EPQeJcb1qrXyR>
+
+# USER
+
+It timed out. Make sure you use a timeout
+
+# THINKING
+
+Signature: EpICCkYIBRgCKkDLXYyn4ircyQKPJo35pxwnUIh8j59IdQF75/bdt0Tb8ApEmgyj13c4EA9WAtbxcytcnIZaj1Epmy+PNso0R1AlEgxvDbQdmd6X9HZlVXoaDPJidJPKVjCC0dZV2yIw6LByJlJkSZ4n09sRzezx1BGo+UkILNGisx2+/+vxJf7tUGarkNG5ND1UuCSkgRKjKnob2xC/nsemKdy3OyXoD4VzQ4Fat0TR4Yu8JfqQGTktwz5zG7wN+4sRDYVdu0PAjNdlSHg/OYt51Zixs7mCFOlGI5m++7JBbn0MGKBDlQmzMVwVfCe0BbBzIICKGyxqWJaSv/RrIePSfvE+qOFWlqGes67ml8cruDdK9BgB
+
+The user is right, I need to use a timeout. Let me add a timeout to the shell command to prevent hanging.
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ScUomeWPVgnVBHvU9cwYTe
+
+## command
+
+<tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+
+## timeout
+
+<tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+10
+</tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+
+# TOOL RESULT
+
+ID: toolu_01ScUomeWPVgnVBHvU9cwYTe
+
+<tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+Command failed with exit code 124
+</tool.toolu_01ScUomeWPVgnVBHvU9cwYTe>
+
+# ASSISTANT
+
+Still timing out. The issue is still in the scanner logic. Let me try a different approach - instead of trying to be smart about language detection, let me simplify it drastically and just handle the basic case:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01XNvZR8xG3ga7o2BZ9dFdTK
+
+## path
+
+<tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+./src/scanner.c
+</tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+
+## git-commit-message
+
+<tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+Drastically simplify code_contents scanner to fix timeout
+</tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+
+## diff
+
+<tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->last_backtick_count > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+-            // Simple check: if next character after potential language is newline, defer to grammar
+-            TSLexer saved_lexer = *lexer;
+-            
+-            // Scan potential language identifier
+-            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+-                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+-                   lexer->lookahead == '+' || lexer->lookahead == '-') {
+-                advance(lexer);
+-            }
+-            
+-            // If followed by newline or whitespace then newline, let grammar handle it
+-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-                return false;
+-            }
+-            
+-            // Skip whitespace and check again
+-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-                advance(lexer);
+-            }
+-            
+-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-                return false;
+-            }
+-            
+-            // Not a language identifier, restore lexer and continue
+-            *lexer = saved_lexer;
++            return false;
+         }
+     }
+     
+     bool has_content = false;
+     
+-    // Add safety counter to prevent infinite loops
+-    int safety_counter = 0;
+-    const int max_iterations = 10000; // Reasonable limit
+-    
+-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+-        safety_counter++;
+-        
++    while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+             // Check if this is a backtick sequence that matches the opening count
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             // Count consecutive backticks
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening backtick count, this is the closing sequence
+             if (backtick_count == scanner->last_backtick_count) {
+                 // Restore lexer position and let the grammar handle the closing backticks
+                 *lexer = saved_lexer;
+                 break;
+             } else {
+                 // This is not the closing sequence, include it as content
+                 // Restore and consume the backticks as content
+                 *lexer = saved_lexer;
+                 for (int i = 0; i < backtick_count; i++) {
+                     advance(lexer);
+                     has_content = true;
+                 }
+                 lexer->mark_end(lexer);
+             }
+         } else {
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+     
+     // Always return CODE_CONTENTS token, even for empty content
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+
+# TOOL RESULT
+
+ID: toolu_01XNvZR8xG3ga7o2BZ9dFdTK
+
+<tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>
+
+</tool.toolu_01XNvZR8xG3ga7o2BZ9dFdTK>

@@ -694,44 +694,13 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
         
         // If we see a language identifier, return false to let grammar handle it
         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
-            // Simple check: if next character after potential language is newline, defer to grammar
-            TSLexer saved_lexer = *lexer;
-            
-            // Scan potential language identifier
-            while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
-                   iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
-                   lexer->lookahead == '+' || lexer->lookahead == '-') {
-                advance(lexer);
-            }
-            
-            // If followed by newline or whitespace then newline, let grammar handle it
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                return false;
-            }
-            
-            // Skip whitespace and check again
-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                advance(lexer);
-            }
-            
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                return false;
-            }
-            
-            // Not a language identifier, restore lexer and continue
-            *lexer = saved_lexer;
+            return false;
         }
     }
     
     bool has_content = false;
     
-    // Add safety counter to prevent infinite loops
-    int safety_counter = 0;
-    const int max_iterations = 10000; // Reasonable limit
-    
-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
-        safety_counter++;
-        
+    while (lexer->lookahead != 0) {
         if (lexer->lookahead == '`') {
             // Check if this is a backtick sequence that matches the opening count
             TSLexer saved_lexer = *lexer;
