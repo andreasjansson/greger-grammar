@@ -718,19 +718,34 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Don't advance yet - we need to continue checking this character
+            // Continue checking this character for backtick patterns too
         } else {
-            // Reset code close match
             code_close_match_index = 0;
         }
         
-        // Only proceed with regular processing if we haven't found code close
-        if (code_close_match_index == 0) {
-            // Check for regular closing pattern
-            if (lexer->lookahead == expected_closing[match_index]) {
-                match_index++;
-                if (match_index == expected_len) {
-                    // Found complete closing pattern, stop here (don't consume it)
+        // Check for regular closing pattern
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            advance(lexer);
+            has_content = true;
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                // For inline code (1-2 backticks), stop at newlines
+                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
                     if (has_content) {
                         lexer->result_symbol = CODE_CONTENT;
                         return true;
@@ -738,34 +753,11 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                         return false;
                     }
                 }
+                
                 advance(lexer);
-            } else {
-                // Reset match and continue as content
-                if (match_index > 0) {
-                    // We were partially matching, reset but don't advance yet
-                    match_index = 0;
-                    // Don't advance here, reprocess this character
-                } else {
-                    // For inline code (1-2 backticks), stop at newlines
-                    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                        if (has_content) {
-                            lexer->result_symbol = CODE_CONTENT;
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }
-                    
-                    advance(lexer);
-                    has_content = true;
-                    lexer->mark_end(lexer);
-                }
+                has_content = true;
+                lexer->mark_end(lexer);
             }
-        } else {
-            // We're in middle of matching code close pattern, advance and continue
-            advance(lexer);
-            has_content = true;
-            lexer->mark_end(lexer);
         }
     }
     
