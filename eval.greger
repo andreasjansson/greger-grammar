@@ -10169,5 +10169,133 @@ Remove debug output
 ID: toolu_01P4wK2oWCtfw2QYqJBoudDd
 
 <tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output
 </tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+# ASSISTANT
+
+Let me test the simple case again to make sure it still works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0195KEyMeSbm143MraQXWk14
+
+## command
+
+<tool.toolu_0195KEyMeSbm143MraQXWk14>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_0195KEyMeSbm143MraQXWk14>
+
+## timeout
+
+<tool.toolu_0195KEyMeSbm143MraQXWk14>
+10
+</tool.toolu_0195KEyMeSbm143MraQXWk14>
+
+# TOOL RESULT
+
+ID: toolu_0195KEyMeSbm143MraQXWk14
+
+<tool.toolu_0195KEyMeSbm143MraQXWk14>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_0195KEyMeSbm143MraQXWk14>
+
+# ASSISTANT
+
+Good! Single backticks still work. Now let me test the case without backticks inside:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RQjpW4b5gNgE9rwNBbkptA
+
+## command
+
+<tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+
+## timeout
+
+<tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+10
+</tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+
+# TOOL RESULT
+
+ID: toolu_01RQjpW4b5gNgE9rwNBbkptA
+
+<tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+(source_file [0, 0] - [2, 11]
+  (assistant [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 11]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 9] - [2, 11]))))
+
+</tool.toolu_01RQjpW4b5gNgE9rwNBbkptA>
+
+# ASSISTANT
+
+That works too. The issue is specifically when there are backticks inside the content. Let me think about this differently. The issue might be that the grammar rule is creating conflicts between the content backticks and the closing delimiter backticks.
+
+Looking at the parse tree, I can see that in the working cases, there's no explicit content between the start and end tokens. This means the content is being handled implicitly, just like in the markdown parser.
+
+Let me try to match the markdown parser approach more closely by removing the explicit content handling:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_013b3rVPy2JmLPKHcXP43Xno
+
+## path
+
+<tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+./grammar.js
+</tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+
+## git-commit-message
+
+<tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+Remove explicit content handling to match markdown parser pattern
+</tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+
+## original-content
+
+<tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+    code: $ => seq(
+      $.code_backticks_start,
+      repeat(choice(
+        $._code_text,
+        '`',
+        /\n/,
+      )),
+      $.code_backticks_end,
+    ),
+
+    _code_text: $ => /[^`\n]+/,
+</tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+
+## new-content
+
+<tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+    code: $ => seq(
+      $.code_backticks_start,
+      $.code_backticks_end,
+    ),
+</tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+
+# TOOL RESULT
+
+ID: toolu_013b3rVPy2JmLPKHcXP43Xno
+
+<tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
+
+</tool.toolu_013b3rVPy2JmLPKHcXP43Xno>
