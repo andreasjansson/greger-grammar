@@ -1001,8 +1001,8 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle code start tag
-    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+    // Handle code start tag (only when not already in code content)
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
         return scan_code_start_tag(scanner, lexer);
     }
     

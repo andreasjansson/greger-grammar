@@ -7196,5 +7196,60 @@ Add test case for single backtick with double backticks inside
 ID: toolu_01KPvd6vNzbZnjuutUNKqnrN
 
 <tool.toolu_01KPvd6vNzbZnjuutUNKqnrN>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Add test case for single backtick with double backticks inside
 </tool.toolu_01KPvd6vNzbZnjuutUNKqnrN>
+
+# ASSISTANT
+
+Now let me understand the issue. The problem is that the scanner sees the single backtick first, identifies it as a `CODE_START_TAG`, but then when it's scanning for content, it encounters the double backticks and tries to treat them as another `CODE_START_TAG`.
+
+Looking at the main scanner function:
+
+```c
+// Handle code start tag
+if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+    return scan_code_start_tag(scanner, lexer);
+}
+```
+
+The issue is that when we're already inside a code block (`scanner->in_code_content` is true), we shouldn't be looking for new code start tags. The backticks should be treated as literal content.
+
+Let me fix this by modifying the condition for `CODE_START_TAG`:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Sd8m2owJgFFHwdDnSVqF4z
+
+## path
+
+<tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+src/scanner.c
+</tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+
+## git-commit-message
+
+<tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+Fix nested backticks by preventing code start tag detection when already in code content
+</tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+
+## diff
+
+<tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+-    // Handle code start tag
+-    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
++    // Handle code start tag (only when not already in code content)
++    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG] && !scanner->in_code_content) {
+         return scan_code_start_tag(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+
+# TOOL RESULT
+
+ID: toolu_01Sd8m2owJgFFHwdDnSVqF4z
+
+<tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
+
+</tool.toolu_01Sd8m2owJgFFHwdDnSVqF4z>
