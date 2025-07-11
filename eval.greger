@@ -9448,5 +9448,54 @@ Replace scan_code_content with separate start/content/end functions
 ID: toolu_01RFieoR8pKrNjqutYoHqP2K
 
 <tool.toolu_01RFieoR8pKrNjqutYoHqP2K>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Replace scan_code_content with separate start/content/end functions
 </tool.toolu_01RFieoR8pKrNjqutYoHqP2K>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014uSfNyTF9tkmxesPGH9pm7
+
+## path
+
+<tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+./src/scanner.c
+</tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+
+## git-commit-message
+
+<tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+Update scanner main function to use separate code scanning functions
+</tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+
+## diff
+
+<tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+-    // Handle code content (any number of backticks)
+-    if (lexer->lookahead == '`' && valid_symbols[CODE_CONTENT]) {
+-        return scan_code_content(lexer);
++    // Handle code start tag
++    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
++        return scan_code_start_tag(scanner, lexer);
++    }
++    
++    // Handle code content
++    if (valid_symbols[CODE_CONTENT]) {
++        return scan_code_content(scanner, lexer);
++    }
++    
++    // Handle code end tag
++    if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
++        return scan_code_end_tag(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+
+# TOOL RESULT
+
+ID: toolu_014uSfNyTF9tkmxesPGH9pm7
+
+<tool.toolu_014uSfNyTF9tkmxesPGH9pm7>
+
+</tool.toolu_014uSfNyTF9tkmxesPGH9pm7>

@@ -1014,9 +1014,19 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle code content (any number of backticks)
-    if (lexer->lookahead == '`' && valid_symbols[CODE_CONTENT]) {
-        return scan_code_content(lexer);
+    // Handle code start tag
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+        return scan_code_start_tag(scanner, lexer);
+    }
+    
+    // Handle code content
+    if (valid_symbols[CODE_CONTENT]) {
+        return scan_code_content(scanner, lexer);
+    }
+    
+    // Handle code end tag
+    if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
+        return scan_code_end_tag(scanner, lexer);
     }
     
 
