@@ -735,13 +735,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Not complete pattern yet, advance and continue
-            advance(lexer);
-            has_content = true;
-            // Only mark end if we're not in middle of matching code close pattern
-            if (code_close_match_index == 0) {
-                lexer->mark_end(lexer);
-            }
+            // Not complete pattern yet, but DON'T advance - we want to leave these for code_end_tag
+            // Just continue the loop to check the next character
+        }
         } else {
             // Reset match and continue as content
             if (match_index > 0) {

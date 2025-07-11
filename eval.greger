@@ -2083,5 +2083,154 @@ Fix backtick pattern matching - check complete pattern before advancing
 ID: toolu_017tnoRMDp7kKDq3ouffr7Zs
 
 <tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick pattern matching - check complete pattern before advancing
 </tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+
+# ASSISTANT
+
+Now let's test the basic case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014KLBRUD1AsB6rkcYZFPT3D
+
+## command
+
+<tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
+printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
+
+# TOOL RESULT
+
+ID: toolu_014KLBRUD1AsB6rkcYZFPT3D
+
+<tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
+(source_file [0, 0] - [4, 3]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 2])
+    (ERROR [4, 2] - [4, 3])))
+/dev/stdin	Parse:    0.68 ms	    36 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
+
+# ASSISTANT
+
+The same issue persists. Let me examine this more carefully by looking at the specific case. The issue seems to be that the content scanner is consuming to `[4, 2]` when it should consume only to `[4, 0]`. 
+
+Let me check what the content actually is:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013df4YQ1PNFbtDu3RV3SFvb
+
+## command
+
+<tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
+printf '# ASSISTANT\n\n```\ntest\n```' | od -c
+</tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
+
+# TOOL RESULT
+
+ID: toolu_013df4YQ1PNFbtDu3RV3SFvb
+
+<tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
+0000000    #       A   S   S   I   S   T   A   N   T  \n  \n   `   `   `
+0000020   \n   t   e   s   t  \n   `   `   `                            
+0000031
+
+</tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
+
+# ASSISTANT
+
+So the content is:
+- `[2, 3]` to `[4, 0]` should be: `\ntest\n`
+- `[4, 0]` to `[4, 3]` should be: ``` (the closing backticks)
+
+But the scanner is consuming `[2, 3]` to `[4, 2]` which is `\ntest\n`` (it's consuming 2 of the 3 closing backticks).
+
+The issue is that the scanner is still calling `advance(lexer)` when it shouldn't be. Let me trace through this again:
+
+1. Scanner starts at position `[2, 3]` (after opening ```)
+2. It sees `\n` - this doesn't match expected_closing[0] (which is `), so it goes to the else branch
+3. In the else branch, match_index is 0, so it goes to the inner else
+4. It calls `advance(lexer)` and `has_content = true`
+5. Continue this pattern for `test\n`
+6. Scanner sees first closing `` ` at position `[4, 0]`
+7. This matches expected_closing[0], so match_index becomes 1
+8. match_index (1) != expected_len (3), so it continues
+9. It calls `advance(lexer)` advancing to position `[4, 1]`
+10. Scanner sees second closing `` ` at position `[4, 1]`
+11. This matches expected_closing[1], so match_index becomes 2
+12. match_index (2) != expected_len (3), so it continues
+13. It calls `advance(lexer)` advancing to position `[4, 2]`
+14. Scanner sees third closing `` ` at position `[4, 2]`
+15. This matches expected_closing[2], so match_index becomes 3
+16. match_index (3) == expected_len (3), so it returns with CODE_CONTENT
+17. The lexer position is now at `[4, 2]` but we want it at `[4, 0]`
+
+The problem is that the logic assumes we should always advance when we're matching a pattern, but that's only true if we're consuming the pattern. For the closing pattern, we should NOT advance because we want to leave the closing backticks for the `code_end_tag` scanner.
+
+I need to distinguish between:
+1. Characters that are part of the content (should advance and mark end)
+2. Characters that are part of the closing pattern (should not advance)
+
+Let me fix this by not advancing when matching the closing pattern:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018xtWx1GRzP8pZ6yT7rh9tH
+
+## path
+
+<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+./src/scanner.c
+</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+
+## git-commit-message
+
+<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+Fix backtick pattern matching - don't advance when matching closing pattern
+</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+
+## diff
+
+<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+         // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+-            // Not complete pattern yet, advance and continue
+-            advance(lexer);
+-            has_content = true;
+-            // Only mark end if we're not in middle of matching code close pattern
+-            if (code_close_match_index == 0) {
+-                lexer->mark_end(lexer);
+-            }
+\ No newline at end of file
++            // Not complete pattern yet, but DON'T advance - we want to leave these for code_end_tag
++            // Just continue the loop to check the next character
++        }
+\ No newline at end of file
+
+</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+
+# TOOL RESULT
+
+ID: toolu_018xtWx1GRzP8pZ6yT7rh9tH
+
+<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
+
+</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
