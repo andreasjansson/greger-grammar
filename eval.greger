@@ -8231,64 +8231,533 @@ I successfully fixed the issue with nested backticks in single and double backti
    - All existing tests continue to pass
    - Single backticks: `a``b` parses as one code block containing "a``b"
    - Double backticks: ``a`b`` parses as one code block containing "a`b"  
-   - Triple+ backticks: ```a``b``` still work correctly with proper closing detection
+
 
 The fix ensures that nested backticks are treated as literal content within single and double backtick code blocks, matching the expected Markdown behavior.
 
 # USER
 
-There's also an issue where triple-backticks followed by other content is erroring:
+There's also an issue where triple-backticks followed by other content is erroring. Look at debug.greger
 
-```a``` b
+
 
 # THINKING
 
-Signature: EvwDCkYIBRgCKkCI7GtKCTlFIDPBRaBTMWKBtCXOnBSc4uROAxlMdJZnjwH2HO/ZzjFM0ci7TVEn142Dgy1YAJLPVqooFdqeh1+dEgzkuHF1ZdiH4WaaFZIaDIOSIyBFiUsdeaYvxCIwQZx58MWGpdXgesqmYLo3LOZ8lL0rZ4SNxdW1GR5bfrVu4fZxUlQ0yIHsbbRaEN9tKuMCkE1ixG7JOo9iUUyh7wRhp4bgda2h9qeEAmSnFjrRKXnJ/LN3z0f1TMy3GBwdIgl7Q2QUYLLLHBVHZyuKM8pLhP7s3eivZmSR9JmlkqArydJyNbuDmq32VLCu4zde6t1S7UbkKxKHHa6wSolj5vGyM5lbjr5jkjAAzdRwXWrCZPaib/k3fLv6TSwxHlkLlaME6gK8Jz2eYWU9Ey6J4WEfms5wszHO6t+Vg9HtiPNAWlSNrzdgGjw0Jb8YMoUQszMzZQK3zXp8Au0PzUIbEcEHYxCoBQNUqB8vH6yhqB3EbXwRRzk1gY7jqjPejwQGxX+6qlyxEiJvYE3DB7FMTesSMpnfIPu6oXysT3SPEZjGShP8Ox9t2tOz6gNikbZg9at87TA6MEgOGWT2kzJ9q/sz1jvY9Bd05l6991ho2L2v0iG41jTBLn5nf3inbm4ET6abhy2p7qtPLISP9Sk8UpFMGwwkoxgB
+Signature: EsMCCkYIBRgCKkB7RNL3WX3ckHMZRcg887LyIGIkfFq/jqmuse0XhP3fGT9QEr4R+I4q1PcwrI1svJD1YE+6VdCl5pANC8ghmTRpEgxn1pzNpgAlLlrpcI0aDCy6QLOEiAb8qu5o2yIwl7qY3ENpjSwwrddsEdLB5pI2A7a+p3GaIoEFCnxzJs8qo9AQhfg9C8Anfnf6wOSRKqoBnouGGaGWQHUeHAQVgIJx7xZEHwykThh/2U+AFCDW67YaKTFjS8FuJiym02XuHBIomvOjTahx8/Qtz/AHNebMIddkmJCac+/Q9g2rdF37QjCd/jMyqQ6BTriYj4fzybkRf97WDfYsNCZMK+NVKqO5782iw6fv6Vc2xNQj7mQlq8MidfHl95usRFM471q5e7F5HpTPTyQJHrJT7XUycyoQD2rkhPyJo2jE3VMYAQ==
 
-The user is reporting an issue with triple-backticks followed by other content. Let me think about what this might mean. 
+The user is asking me to look at debug.greger to see an issue with triple-backticks followed by other content. Let me first check what's in debug.greger.
 
-They could be referring to cases like:
-1. ```some content on the same line
-2. ```language some extra content
-3. ```content without proper closing
+# TOOL USE
 
-Let me create a test case to reproduce this issue and then debug it.
+Name: read-file
+ID: toolu_01L4wtfJQhyexbfEmZZdgDxo
+
+## path
+
+<tool.toolu_01L4wtfJQhyexbfEmZZdgDxo>
+debug.greger
+</tool.toolu_01L4wtfJQhyexbfEmZZdgDxo>
+
+# TOOL RESULT
+
+ID: toolu_01L4wtfJQhyexbfEmZZdgDxo
+
+<tool.toolu_01L4wtfJQhyexbfEmZZdgDxo>
+
+</tool.toolu_01L4wtfJQhyexbfEmZZdgDxo>
 
 # ASSISTANT
 
-Let me create a test case to reproduce this issue:
+Now let me test this to see the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0129YNSz4gK2epWiS3HnpS4Y
+
+## command
+
+<tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+tree-sitter parse debug.greger
+</tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+
+## timeout
+
+<tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+10
+</tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+
+# TOOL RESULT
+
+ID: toolu_0129YNSz4gK2epWiS3HnpS4Y
+
+<tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 9]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [2, 4])
+    (ERROR [2, 4] - [2, 9])))
+debug.greger	Parse:    0.56 ms	    31 bytes/ms	(ERROR [0, 0] - [2, 9])
+Command failed with exit code 1
+</tool.toolu_0129YNSz4gK2epWiS3HnpS4Y>
+
+
+
+# ASSISTANT
+
+I can see there's an error. Let me create a test file to reproduce this issue:
 
 # TOOL USE
 
 Name: write-new-file
-ID: toolu_01NWu5T1SWYGzNwUaj1oi1uU
+ID: toolu_01RCMZsk5ES9JPDTNfYfHLWH
 
 ## path
 
-<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+<tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
 test-triple-backtick-issue.greger
-</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+</tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
 
 ## contents
 
-<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+<tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+# USER
+
+```x hello
+</tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+
+## git-commit-message
+
+<tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+Add test for triple backtick issue
+</tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+
+# TOOL RESULT
+
+ID: toolu_01RCMZsk5ES9JPDTNfYfHLWH
+
+<tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+File already exists: /Users/andreas/projects/greger-grammar/test-triple-backtick-issue.greger
+</tool.toolu_01RCMZsk5ES9JPDTNfYfHLWH>
+
+# ASSISTANT
+
+Let me check if this file exists:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_011vtBUcRxsG4RnUatfqaF1h
+
+## path
+
+<tool.toolu_011vtBUcRxsG4RnUatfqaF1h>
+test-triple-backtick-issue.greger
+</tool.toolu_011vtBUcRxsG4RnUatfqaF1h>
+
+# TOOL RESULT
+
+ID: toolu_011vtBUcRxsG4RnUatfqaF1h
+
+<tool.toolu_011vtBUcRxsG4RnUatfqaF1h>
 # USER
 
 ```python print("hello")
 more content
 ```
-</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+</tool.toolu_011vtBUcRxsG4RnUatfqaF1h>
 
-## git-commit-message
+# TOOL USE
 
-<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
-Add test for triple backtick issue
-</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+Name: shell-command
+ID: toolu_01RX6WCZvSsMQW6WkwkdRJ1J
+
+## command
+
+<tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
+tree-sitter parse test-triple-backtick-issue.greger
+</tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
+
+## timeout
+
+<tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
+10
+</tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
 
 # TOOL RESULT
 
-ID: toolu_01NWu5T1SWYGzNwUaj1oi1uU
+ID: toolu_01RX6WCZvSsMQW6WkwkdRJ1J
 
-<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+<tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [4, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_end_tag [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
 
-</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+</tool.toolu_01RX6WCZvSsMQW6WkwkdRJ1J>
+
+# ASSISTANT
+
+This one works fine. Let me debug what's in debug.greger more systematically by checking the entire file again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013aHosubgqjaWCFcdpNVjUe
+
+## command
+
+<tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+cat debug.greger
+</tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+
+## timeout
+
+<tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+5
+</tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+
+# TOOL RESULT
+
+ID: toolu_013aHosubgqjaWCFcdpNVjUe
+
+<tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+# USER
+
+```a``` b
+
+</tool.toolu_013aHosubgqjaWCFcdpNVjUe>
+
+# ASSISTANT
+
+Ah! Now I see the issue. The problem is with the pattern `
+
+Let me debug this with the debug output:
+
+# ASSISTANT
+
+I see there's an error. Let me first check if debug.greger exists and has content:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019keivjm8jbsUFBDeDpMQ1p
+
+## command
+
+<tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+tree-sitter parse debug.greger --debug
+</tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+
+## timeout
+
+<tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+10
+</tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+
+# TOOL RESULT
+
+ID: toolu_019keivjm8jbsUFBDeDpMQ1p
+
+<tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:191, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'U'
+  consume character:'S'
+  consume character:'E'
+  consume character:'R'
+lexed_lookahead sym:user_header, size:6
+shift state:123
+process version:0, version_count:1, state:123, row:0, col:6
+lex_internal state:8, row:0, column:6
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:54
+process version:0, version_count:1, state:54, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_start_tag, size:3
+shift state:87
+process version:0, version_count:1, state:87, row:2, col:3
+lex_external state:5, row:2, column:3
+  consume character:'a'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_content, size:1
+shift state:109
+process version:0, version_count:1, state:109, row:2, col:4
+lex_external state:9, row:2, column:4
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+  consume character:' '
+lex_internal state:0, row:2, column:4
+lex_external state:1, row:2, column:4
+lex_internal state:0, row:2, column:4
+skip_unrecognized_character
+  consume character:'`'
+lex_external state:1, row:2, column:5
+lex_internal state:0, row:2, column:5
+  consume character:'`'
+lex_external state:1, row:2, column:6
+lex_internal state:0, row:2, column:6
+  consume character:'`'
+lex_external state:1, row:2, column:7
+lex_internal state:0, row:2, column:7
+  skip character:' '
+lex_external state:1, row:2, column:8
+lex_internal state:0, row:2, column:8
+  consume character:'b'
+lex_external state:1, row:2, column:9
+lex_internal state:0, row:2, column:9
+  skip character:10
+lexed_lookahead sym:ERROR, size:5
+detect_error lookahead:ERROR
+resume version:0
+skip_token symbol:ERROR
+process version:0, version_count:1, state:0, row:2, col:9
+lex_external state:1, row:2, column:9
+lex_internal state:0, row:2, column:9
+  skip character:10
+lexed_lookahead sym:end, size:1
+recover_to_previous state:1, depth:6
+recover_eof
+process version:1, version_count:2, state:1, row:2, col:9
+reduce sym:source_file, child_count:0
+accept
+select_smaller_error symbol:source_file, over_symbol:ERROR
+done
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 9]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [2, 4])
+    (ERROR [2, 4] - [2, 9])))
+debug.greger	Parse:   13.11 ms	     1 bytes/ms	(ERROR [0, 0] - [2, 9])
+Command failed with exit code 1
+</tool.toolu_019keivjm8jbsUFBDeDpMQ1p>
+
+# TOOL USE
+
+Name: list-directory
+ID: toolu_01AKjwyph2fe4NGLu5sCaC6n
+
+## path
+
+<tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+.
+</tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+
+## recursive
+
+<tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+:json-false
+</tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+
+# TOOL RESULT
+
+ID: toolu_01AKjwyph2fe4NGLu5sCaC6n
+
+<tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+./:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       541  .editorconfig
+drwxr-xr-x  (dir)  .git
+-rw-r--r--       941  .gitattributes
+drwxr-xr-x  (dir)  .github
+-rw-r--r--       431  .gitignore
+-rw-r--r--      2820  CMakeLists.txt
+-rw-r--r--       725  Cargo.toml
+-rw-r--r--      1071  LICENSE
+-rw-r--r--      3451  Makefile
+-rw-r--r--      1090  Package.swift
+-rw-r--r--      2570  README.md
+-rw-r--r--       765  binding.gyp
+drwxr-xr-x  (dir)  bindings
+-rw-r--r--        39  debug-double-backticks.greger
+-rw-r--r--         9  debug-last-char-is-backtick.txt
+-rw-r--r--        42  debug-simple-code.greger
+-rw-r--r--        18  debug.greger
+-rw-r--r--        77  debug_eval.greger
+-rw-r--r--        20  debug_single.greger
+-rw-r--r--    243441  eval.greger
+-rw-r--r--       113  go.mod
+-rw-r--r--      6086  grammar.js
+-rw-r--r--     88288  libtree-sitter-greger.a
+-rwxr-xr-x    101512  libtree-sitter-greger.dylib
+-rw-r--r--    142195  log.html
+-rw-r--r--      1194  package.json
+-rwxr-xr-x    101344  parser.dylib
+-rw-r--r--       771  pyproject.toml
+-rw-r--r--      2066  setup.py
+drwxr-xr-x  (dir)  src
+drwxr-xr-x  (dir)  test
+-rw-r--r--        14  test-backtick-line-end.greger
+-rw-r--r--        60  test-hang.greger
+-rw-r--r--        50  test-triple-backtick-issue.greger
+-rw-r--r--       172  test_edge_case_error.txt
+-rw-r--r--        21  test_minimal_error.txt
+-rw-r--r--       241  tree-sitter-greger.pc
+-rwxr-xr-x     49216  tree-sitter-greger.wasm
+-rw-r--r--       874  tree-sitter.json
+</tool.toolu_01AKjwyph2fe4NGLu5sCaC6n>
+
+# USER
+
+From now on, don't type out backticks, but write BACKTICK instead since I'm using the broken parser here and it's failing. When you're editing files, still use actual backticks. Just when you're outputting text, write the word BACKTICK instead of actual backticks
+
+# ASSISTANT
+
+I understand! Let me analyze the debug output to see what's happening with the triple-BACKTICK issue:
+
+From the debug output, I can see:
+1. Triple-BACKTICK start tag is detected correctly: BACKTICK BACKTICK BACKTICK
+2. Scanner consumes 'a' as code_content (only 1 character)
+3. Scanner is then looking for code_end_tag at position where it sees BACKTICK BACKTICK BACKTICK
+4. But it encounters the closing triple-BACKTICK followed by space and 'b', which causes an error
+
+The issue is that the scanner is only consuming 'a' as code content, but it should consume 'a' + the three closing backticks as a complete match. The problem seems to be that the scanner is detecting the closing pattern too early.
+
+Let me look at the exact content again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017tXWRdFF9ggeySz8Ra13g9
+
+## command
+
+<tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+hexdump -C debug.greger
+</tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+
+## timeout
+
+<tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+5
+</tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+
+# TOOL RESULT
+
+ID: toolu_017tXWRdFF9ggeySz8Ra13g9
+
+<tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+00000000  23 20 55 53 45 52 0a 0a  60 60 60 61 60 60 60 20  |# USER..```a``` |
+00000010  62 0a                                             |b.|
+00000012
+
+</tool.toolu_017tXWRdFF9ggeySz8Ra13g9>
+
+# ASSISTANT
+
+So the content is: BACKTICK BACKTICK BACKTICK a BACKTICK BACKTICK BACKTICK space b
+
+The issue is that when scanning code content for triple-backticks, it should consume everything until it finds the matching closing triple-backticks. But looking at the debug output, it only consumed 'a' and then tried to find a code_end_tag.
+
+Let me examine the scan_code_content function logic for triple-backticks. The issue might be in how I modified the closing pattern detection. I changed it to only apply to 3+ backticks, but maybe there's a bug in that logic.
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_018GWadmwczC5pDY3dGP1QFN
+
+## path
+
+<tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+src/scanner.c
+</tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+
+## start-line
+
+<tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+735
+</tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+
+## end-line
+
+<tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+755
+</tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+
+# TOOL RESULT
+
+ID: toolu_018GWadmwczC5pDY3dGP1QFN
+
+<tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+                    return false;
+                }
+            }
+            // Continue checking this character for backtick patterns too
+        } else {
+            code_close_match_index = 0;
+        }
+        
+        // Check for regular closing pattern (only for 3+ backticks)
+        if (scanner->code_backtick_count >= 3 && lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // Advance but don't mark end - we're matching the closing pattern
+</tool.toolu_018GWadmwczC5pDY3dGP1QFN>
+
+# ASSISTANT
+
+I think I see the issue! In the debug output, the scanner consumed 'a' and then returned, but it should have continued until it found the complete closing pattern. The issue might be that the scanner is returning too early.
+
+Looking at the debug trace:
+- Scanner consumes 'a' as code_content (size:1)
+- But it should continue and consume until it finds the matching closing triple-backticks
+
+Let me create a test case to better understand this:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01Vn9rvPo4tL3u4Qfwzhoggu
+
+## path
+
+<tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+test-debug-triple.greger
+</tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+
+## contents
+
+<tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+# USER
+
+BACKTICK BACKTICK BACKTICK a BACKTICK BACKTICK BACKTICK b
+</tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+
+## git-commit-message
+
+<tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+Add debug test for triple backtick issue
+</tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+
+# TOOL RESULT
+
+ID: toolu_01Vn9rvPo4tL3u4Qfwzhoggu
+
+<tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
+
+</tool.toolu_01Vn9rvPo4tL3u4Qfwzhoggu>
