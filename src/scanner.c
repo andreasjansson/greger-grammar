@@ -979,20 +979,16 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     
     // Handle code content when in code parsing state
     if (scanner->in_code_content) {
-        fprintf(stderr, "DEBUG: in_code_content=true, delimiter_length=%d\n", scanner->fenced_code_block_delimiter_length);
         if (valid_symbols[CODE_CONTENT]) {
-            fprintf(stderr, "DEBUG: calling scan_code_content\n");
             return scan_code_content(scanner, lexer);
         }
         if (valid_symbols[CODE_BACKTICKS_END]) {
-            fprintf(stderr, "DEBUG: calling scan_code_backticks_end\n");
             return scan_code_backticks_end(scanner, lexer);
         }
     }
     
     // Handle code backticks start
     if (lexer->lookahead == '`' && valid_symbols[CODE_BACKTICKS_START]) {
-        fprintf(stderr, "DEBUG: calling scan_code_backticks_start\n");
         return scan_code_backticks_start(scanner, lexer);
     }
     
