@@ -56,7 +56,7 @@ unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buff
     memcpy(buffer + offset + 3, scanner->eval_result_id, eval_result_id_len);
     
     size_t final_offset = offset + 3 + eval_result_id_len;
-    buffer[final_offset] = scanner->last_backtick_count;
+    buffer[final_offset] = scanner->fenced_code_block_delimiter_length;
 
     return final_offset + 1;
 }
