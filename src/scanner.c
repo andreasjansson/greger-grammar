@@ -811,31 +811,6 @@ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '$') return false;
     advance(lexer);
     
-    // Check for "code-close"
-    if (lexer->lookahead != 'c') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'd') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'e') return false;
-    advance(lexer);
-    if (lexer->lookahead != '-') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'c') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'l') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'o') return false;
-    advance(lexer);
-    if (lexer->lookahead != 's') return false;
-    advance(lexer);
-    if (lexer->lookahead != 'e') return false;
-    advance(lexer);
-    
-    if (lexer->lookahead != '/') return false;
-    advance(lexer);
-    
     if (lexer->lookahead != '>') return false;
     advance(lexer);
     

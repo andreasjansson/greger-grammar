@@ -7949,5 +7949,156 @@ Add mark_end at the beginning of scan_code_close_tag like other scanners
 ID: toolu_015ZxFA6LmqkvwB5ayXNVNEG
 
 <tool.toolu_015ZxFA6LmqkvwB5ayXNVNEG>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add mark_end at the beginning of scan_code_close_tag like other scanners
 </tool.toolu_015ZxFA6LmqkvwB5ayXNVNEG>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01TkwHUN7FjKazF8hAK4cC51
+
+## command
+
+<tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+cd . && printf '# ASSISTANT\n\n```\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+
+## timeout
+
+<tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+10
+</tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+
+# TOOL RESULT
+
+ID: toolu_01TkwHUN7FjKazF8hAK4cC51
+
+<tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+(source_file [0, 0] - [3, 14]
+  (ERROR [0, 0] - [3, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [3, 13])
+    (ERROR [3, 13] - [3, 14])))
+/dev/stdin	Parse:    0.49 ms	    63 bytes/ms	(ERROR [0, 0] - [3, 14])
+Command failed with exit code 1
+</tool.toolu_01TkwHUN7FjKazF8hAK4cC51>
+
+# ASSISTANT
+
+Still failing. Let me carefully examine the exact location of the error. Position `[3, 13]` in the string `<$code-close/>` would be the `>` character. But the `code_content` stops at position `[3, 13]`, which means it's stopping at the `>` character. But the actual issue is that the parser can't find a valid `code_close_tag` token starting at position `[3, 13]`.
+
+This tells me the problem is that the scanner is not being called with the correct `valid_symbols` or that it's failing to match. Let me check if there's an issue with the scanner being called.
+
+Actually, let me check what happens if I put the code close tag in the middle:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KncEMTgBtwyvNskEKu3Y5u
+
+## command
+
+<tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>\nmore' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+
+## timeout
+
+<tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+10
+</tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+
+# TOOL RESULT
+
+ID: toolu_01KncEMTgBtwyvNskEKu3Y5u
+
+<tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+(source_file [0, 0] - [5, 4]
+  (ERROR [0, 0] - [5, 4]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [5, 4])))
+/dev/stdin	Parse:    0.03 ms	  1544 bytes/ms	(ERROR [0, 0] - [5, 4])
+Command failed with exit code 1
+</tool.toolu_01KncEMTgBtwyvNskEKu3Y5u>
+
+# ASSISTANT
+
+Same issue. Let me try something different. Let me check if the issue might be that the scanner is being called correctly but there's an issue with the pattern matching. Let me try simplifying the pattern just to test:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01DG2VyPX6VcC6urLwjBCM85
+
+## path
+
+<tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+./src/scanner.c
+</tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+
+## git-commit-message
+
+<tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+Simplify code close tag pattern to just <$> for debugging
+</tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+
+## diff
+
+<tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+     if (lexer->lookahead != '<') return false;
+     lexer->mark_end(lexer);
+     advance(lexer);
+     
+     if (lexer->lookahead != '$') return false;
+     advance(lexer);
+     
+-    // Check for "code-close"
+-    if (lexer->lookahead != 'c') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'o') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'd') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'e') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != '-') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'c') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'l') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'o') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 's') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'e') return false;
+-    advance(lexer);
+-    
+-    if (lexer->lookahead != '/') return false;
+-    advance(lexer);
+-    
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->mark_end(lexer);
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+
+# TOOL RESULT
+
+ID: toolu_01DG2VyPX6VcC6urLwjBCM85
+
+<tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+
+</tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
