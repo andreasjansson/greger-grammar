@@ -752,14 +752,15 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // If we're in the middle of matching code close tag, don't process as regular content yet
+            // If we're in the middle of matching code close tag, advance but don't continue
+            // We need to check for backtick patterns as well
             advance(lexer);
-            continue;
+            // Don't continue here - we want to check for backtick patterns too
         } else {
             if (code_close_match_index > 0) {
                 fprintf(stderr, "DEBUG: Resetting code close match index\n");
+                code_close_match_index = 0;
             }
-            code_close_match_index = 0;
         }
         
         // Check for regular closing pattern
