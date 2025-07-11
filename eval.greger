@@ -5041,19 +5041,15 @@ ID: toolu_016V1op3pEDrj2QQpYFWYVmQ
 Restore lexer position when returning false to prevent character consumption
 </tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
 
-## original-content
+## diff
 
 <tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
-    // PRIORITY 3: If neither open nor close is valid, don't consume the backticks
-    return false;
-</tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
+-    // PRIORITY 3: If neither open nor close is valid, don't consume the backticks
++    // PRIORITY 3: If neither open nor close is valid, restore position and don't consume the backticks
++    *lexer = saved_lexer;
+     return false;
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
-    // PRIORITY 3: If neither open nor close is valid, restore position and don't consume the backticks
-    *lexer = saved_lexer;
-    return false;
 </tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
 
 # TOOL RESULT
@@ -5061,5 +5057,102 @@ Restore lexer position when returning false to prevent character consumption
 ID: toolu_016V1op3pEDrj2QQpYFWYVmQ
 
 <tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Restore lexer position when returning false to prevent character consumption
 </tool.toolu_016V1op3pEDrj2QQpYFWYVmQ>
+
+# ASSISTANT
+
+Now let me test this change:
+
+# USER
+
+Can you simplify it even further, so that single and double are single line, triple, quadruple, etc. are multi-line, but the parsing of the content follows this simple logic:
+
+when not in code parsing state:
+1. encounter a number of backticks not separated by spaces
+2a. if open backticks are single or double: consume arbitrary non-newline text until closing backticks (matched by the number of backtics in step 1)
+2b if open backticks are triple or above: consume arbitrary text (including newlines) until closing backticks (matched by the number of backtics in step 1)
+3. consume closing backticks (matched by the number of backtics in step 1)
+
+This should be implemented by the scanner, similar to how we implement tool use content or eval responses.
+
+# THINKING
+
+Signature: Eu8JCkYIBRgCKkBZgvD3/KZJnCvwkch+sL7zvgmrC/5TSeXpeR/44yFHiHKubQouTfuZFIGxE7rbmn6EzjZgazGBBwvDHYbFZDiqEgwgKOfLv34+LkJjjIoaDJUsxIy/nKnQaUi4IiIwRaWGP1eL+umON0/N9ortuQtv/Fv7PaassDFO7Yxdhs0Ca1u6DxjVA0QK1J9E3sH4KtYItWHH9WGVPZaMNVc9A+JPhRhI0pzpwBcqO1dfGUaXpW23ut4lCjBg3cGumqUqYbzQ7r5Clijw6z1Em+xYb8IUC0vIDScAfFUqovGieLYEvyFXjQ1lTgN9O6DYfOm/iJ/VKesBj4qoHDbhzxoKul+Gppb1hmn4AcWg3YK4+X6YLzcouLcMeN9URJ0IPbrlVEdqWB3h46vhKwuc0Jl1NhXcJstyyQ1JwYy/WZeSXZ6p9JAP0mHXxCsMa97Iv+Esr8hnIYMEhjehVFi6dIZ+losKHI/ZfYG1unM1WMeLk7nRlpyRbJB4qd59Ud8OsNGw8B9VyZRPBmuEIYQVzOmsHGQkMVqoIV8xytqPPdiGqdO8c/4QbB0YIFrOSNkq8SbwuVgTKUHm67IAJdQem2JXDDJUELskju0cc9aBMG6NT0rN/cn0vERlJxj7Q2kmP3Jd9D90IsVRYap8zGzkkXK6GXV+ln/2dBUKc4BBS1tR0pSV86QCo+TuTmeR8gZzAnfVFoXdNeCjsHX94+WknHSG0d8MqrZ4eJcwlPc9I4TOdscUNSUpA9DdCXAYWbB7vVK06T3iBxiTEHePew/+digd6ZERH1b/4ruh+LOfHfmi50NS/VvTwh9WDGcBxjw5IXImFoNGLUMAx5YUJJHNm6ZS0nExwJiQlro3VkfyvCAba0qDqSH1SHkLcaCU3ABJc57E6orPm3CQa4BeVNx2cAvnXdPVSeE0kTKIb744I3PJ+b0P1YDmzYiAJUwjD67bcRhd+n4igNFTxTMP3HmHLPpYOBrKxJCk4ansYAjepafnFAZ2ZCayYjb5xLEnVp7ZQnDc85vP9ROPXLdtRWAK6PmigyWlEo+6U6OMUEPoD0NRTOerMai7j+Y6z/PpC8AV8jB58vX/RhqBIqNUEkV9CARpV5MFMB5i4qdpnJZBz96cRjQLOEujwt7VrwAUgP2b9EJRJn2g2aG2E6lZWpSxSw7kRb7FyWsYTG5qZoSrTqVOnt3tWMTxdFj6tW7oeklMmr7nsv3QkSimGn4S7IQLTJ9ZqiNNMBJg6S+GsQVdb08+3EwaKYWlooo22azXaRDk3h8TkC8vQ77AgqpbVxFGFX4lhdhPzh6PLKEZK39NWJgbwVNe3iPy+U/8M2SygrtLdwVnBOdDjjl9aFzlfWnFgLW8irDYjlVjCAbBBDFQu5nhaWXYJGsxzvXuewsqY4iY0I5MBvsNVTTkN/AW7SEd+DeTMStwxn2t/X7PiMEY0SZcuObAW/kXvazCd37HqAzPMP/aLndAABGpNF+OtxqQ9IulH1YmYO5VK4S2Px1lOh1cZmy7mC1rZF2HJaP26kYe623L/AHKM2u2WMbOGkwsVNpXw9//O3quMt7XdqskcN2mJO5lGQZJIoPUdWD1jFfdUUIQ3+mKaRUZ+I29vjV3TB1r2NKfkJSS1L6Sjjlkth9jQS3C+oA0aobX8WmhQy/JK8FhxrJgdAFUoj9WGAE=
+
+The user wants me to simplify the code parsing logic by making it similar to how we handle tool use content or eval responses. Instead of trying to handle content in the grammar, I should handle it entirely in the scanner.
+
+The logic they want is:
+1. When encountering backticks, count them
+2. If 1-2 backticks: consume text until matching closing backticks (no newlines)
+3. If 3+ backticks: consume text until matching closing backticks (including newlines)
+4. Consume matching closing backticks
+
+This is much simpler than the current approach which tries to mimic the markdown parser's complex grammar-based content handling.
+
+Looking at how tool content is handled:
+- `tool_start_tag` starts the content state
+- `tool_content_head` and `tool_content_tail` consume the content
+- `tool_end_tag` ends the content state
+
+For code, I can do something similar:
+- `code_backticks_start` starts the code state and stores the delimiter length
+- `code_content` consumes the content (with different rules for inline vs block)
+- `code_backticks_end` ends the code state
+
+Let me implement this approach.
+
+# ASSISTANT
+
+You're absolutely right! That's a much simpler and cleaner approach. Let me implement this by following the same pattern as tool content, where the scanner handles all the content consumption.
+
+First, let me add a code content token to the externals:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Ke7srnZphsPRroksQ53Mt2
+
+## path
+
+<tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+./grammar.js
+</tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+
+## git-commit-message
+
+<tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+Add code_content token for scanner-based content handling
+</tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+
+## diff
+
+<tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+   externals: $ => [
+     $.tool_start_tag,
+     $.tool_end_tag,
+     $.tool_content_head,
+     $.tool_content_tail,
+     $.html_comment,
+     $.eval_content,
+     $.eval_result_start_tag,
+     $.eval_result_end_tag,
+     $.eval_result_content_head,
+     $.eval_result_content_tail,
+     $.error_sentinel,
+     $.code_backticks_start,
++    $.code_content,
+     $.code_backticks_end,
+     $.eval_language,
+   ],
+\ No newline at end of file
+
+</tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+
+# TOOL RESULT
+
+ID: toolu_01Ke7srnZphsPRroksQ53Mt2
+
+<tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
+
+</tool.toolu_01Ke7srnZphsPRroksQ53Mt2>
