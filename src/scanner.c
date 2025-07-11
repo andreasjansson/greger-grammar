@@ -694,7 +694,7 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
         
         // If we see a language identifier, return false to let grammar handle it
         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
-            // Check if this looks like a language identifier
+            // Simple check: if next character after potential language is newline, defer to grammar
             TSLexer saved_lexer = *lexer;
             
             // Scan potential language identifier
@@ -704,32 +704,18 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
                 advance(lexer);
             }
             
-            // A language identifier is valid if it's followed by:
-            // 1. Newline (block style: ```python\ncode\n```)
-            // 2. Space/tab then newline (inline style with just language: ```python ```)
-            // 3. Space/tab then content that continues to closing backticks (inline: ```javascript console.log()```)
+            // If followed by newline or whitespace then newline, let grammar handle it
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                return false;
+            }
+            
+            // Skip whitespace and check again
+            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                advance(lexer);
+            }
             
             if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                // Case 1: language followed by newline (block style)
                 return false;
-            } else if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                // Save position after language
-                TSLexer after_language = *lexer;
-                
-                // Skip whitespace after language
-                while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                    advance(lexer);
-                }
-                
-                // Check what comes after the whitespace
-                if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                    // Case 2: language followed by whitespace then newline
-                    return false;
-                } else {
-                    // Case 3: Check if this continues to closing backticks (inline style)
-                    // Simple check: if we see more content, let contents handle it
-                    *lexer = saved_lexer;
-                }
             }
             
             // Not a language identifier, restore lexer and continue
