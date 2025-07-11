@@ -726,43 +726,12 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
         }
     }
     
-    bool has_content = false;
-    
-    while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '`') {
-            // Check if this is a backtick sequence that matches the opening count
-            TSLexer saved_lexer = *lexer;
-            int backtick_count = 0;
-            
-            // Count consecutive backticks
-            while (lexer->lookahead == '`') {
-                backtick_count++;
-                advance(lexer);
-            }
-            
-            // If this matches the opening backtick count, this is the closing sequence
-            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
-                // Restore lexer position and let the grammar handle the closing backticks
-                *lexer = saved_lexer;
-                break;
-            } else {
-                // This is not the closing sequence, include it as content
-                // Restore and consume the backticks as content
-                *lexer = saved_lexer;
-                for (int i = 0; i < backtick_count; i++) {
-                    advance(lexer);
-                    has_content = true;
-                }
-                lexer->mark_end(lexer);
-            }
-        } else {
-            advance(lexer);
-            has_content = true;
-            lexer->mark_end(lexer);
-        }
+    // Simple content scanning - consume everything until we hit a backtick
+    // The grammar will handle the backticks separately
+    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+        advance(lexer);
     }
     
-    // Always return CODE_CONTENTS token, even for empty content
     lexer->result_symbol = CODE_CONTENTS;
     return true;
 }

@@ -7589,5 +7589,100 @@ Update scan_code_contents to use new field name
 ID: toolu_01GmsMA4qho8KBq4j62iSkUX
 
 <tool.toolu_01GmsMA4qho8KBq4j62iSkUX>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update scan_code_contents to use new field name
 </tool.toolu_01GmsMA4qho8KBq4j62iSkUX>
+
+# ASSISTANT
+
+Now let me simplify the code contents scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_015q3ibQHysmZNV8KsrqZGHw
+
+## path
+
+<tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+./src/scanner.c
+</tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+
+## git-commit-message
+
+<tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+Simplify code_contents scanner since backtick detection is now handled separately
+</tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+
+## diff
+
+<tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->fenced_code_block_delimiter_length > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+             return false;
+         }
+     }
+     
+-    bool has_content = false;
+-    
+-    while (lexer->lookahead != 0) {
+-        if (lexer->lookahead == '`') {
+-            // Check if this is a backtick sequence that matches the opening count
+-            TSLexer saved_lexer = *lexer;
+-            int backtick_count = 0;
+-            
+-            // Count consecutive backticks
+-            while (lexer->lookahead == '`') {
+-                backtick_count++;
+-                advance(lexer);
+-            }
+-            
+-            // If this matches the opening backtick count, this is the closing sequence
+-            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+-                // Restore lexer position and let the grammar handle the closing backticks
+-                *lexer = saved_lexer;
+-                break;
+-            } else {
+-                // This is not the closing sequence, include it as content
+-                // Restore and consume the backticks as content
+-                *lexer = saved_lexer;
+-                for (int i = 0; i < backtick_count; i++) {
+-                    advance(lexer);
+-                    has_content = true;
+-                }
+-                lexer->mark_end(lexer);
+-            }
+-        } else {
+-            advance(lexer);
+-            has_content = true;
+-            lexer->mark_end(lexer);
+-        }
++    // Simple content scanning - consume everything until we hit a backtick
++    // The grammar will handle the backticks separately
++    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
++        advance(lexer);
+     }
+     
+-    // Always return CODE_CONTENTS token, even for empty content
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+
+# TOOL RESULT
+
+ID: toolu_015q3ibQHysmZNV8KsrqZGHw
+
+<tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+
+</tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
