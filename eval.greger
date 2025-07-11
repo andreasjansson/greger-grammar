@@ -7413,5 +7413,257 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_01HZYSyP54qMXvPKoJ8FotTb
 
 <tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement code content scanner using tool content pattern
 </tool.toolu_01HZYSyP54qMXvPKoJ8FotTb>
+
+# ASSISTANT
+
+Now let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RYM6JViG6wN586vTD8aWNA
+
+## command
+
+<tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+
+## timeout
+
+<tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+10
+</tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+
+# TOOL RESULT
+
+ID: toolu_01RYM6JViG6wN586vTD8aWNA
+
+<tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 6]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 1] - [2, 6]))
+    (code [2, 6] - [2, 7]
+      (code_backticks_start [2, 6] - [2, 7])
+      (code_backticks_end [2, 7] - [2, 7]))))
+/dev/stdin	Parse:    0.06 ms	   313 bytes/ms	(MISSING code_backticks_end [2, 7] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01RYM6JViG6wN586vTD8aWNA>
+
+# ASSISTANT
+
+The parsing is still wrong. It's parsing `hello` as `code_backticks_end` instead of `code_content`. This suggests there's a fundamental issue with how the scanner is being called.
+
+Looking at the output, I can see that it's treating each individual character as a separate code block instead of treating the whole `hello` as content. This tells me that my scanner approach is fundamentally flawed.
+
+Let me step back and think about this differently. The issue might be that I need to understand how tree-sitter calls the external scanner. Let me check the very simple case again and see what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SDLXJp18qFdaV5XCDEhQVA
+
+## command
+
+<tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+printf '# ASSISTANT\n\n`a`' | tree-sitter parse /dev/stdin
+</tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+
+## timeout
+
+<tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+10
+</tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+
+# TOOL RESULT
+
+ID: toolu_01SDLXJp18qFdaV5XCDEhQVA
+
+<tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+(source_file [0, 0] - [2, 3]
+  (assistant [0, 0] - [2, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 2]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_backticks_end [2, 1] - [2, 2]))
+    (code [2, 2] - [2, 3]
+      (code_backticks_start [2, 2] - [2, 3])
+      (code_backticks_end [2, 3] - [2, 3]))))
+/dev/stdin	Parse:    0.03 ms	   476 bytes/ms	(MISSING code_backticks_end [2, 3] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01SDLXJp18qFdaV5XCDEhQVA>
+
+# ASSISTANT
+
+I can see that the single character `a` is being treated as a `code_backticks_end` token from position [2,1] to [2,2]. This means the scanner is incorrectly identifying the content as the end token.
+
+I think the issue is in how I'm handling the scanner priorities. The problem is that the scanner is seeing `a` and trying to match it as a closing backtick, but it should be matching it as content.
+
+Let me check if there's a more fundamental issue with my approach. Maybe the scanner shouldn't handle content at all, and the grammar should handle content.
+
+Actually, let me reconsider the user's original request. They wanted the scanner to handle content consumption, similar to tool content. But maybe the issue is that I need to understand the tool content pattern better. Let me see how the tool content actually works in the main scanner loop:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_013m7MgXiMeVg9cq2Gsxmh9n
+
+## pattern
+
+<tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+in_tool_content
+</tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+
+## path
+
+<tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+./src/scanner.c
+</tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+
+## context-lines
+
+<tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+3
+</tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+
+# TOOL RESULT
+
+ID: toolu_013m7MgXiMeVg9cq2Gsxmh9n
+
+<tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+23-
+24-typedef struct {
+25-    char tool_id[256];
+26:    bool in_tool_content;
+27-    bool expecting_tail; // true when we've scanned head and now need tail
+28-    char eval_result_id[256];
+29-    bool in_eval_result_content;
+--
+45-    size_t eval_result_id_len = strlen(scanner->eval_result_id);
+46-    if (eval_result_id_len >= 255) eval_result_id_len = 255;
+47-
+48:    buffer[0] = scanner->in_tool_content ? 1 : 0;
+49-    buffer[1] = scanner->expecting_tail ? 1 : 0;
+50-    buffer[2] = tool_id_len;
+51-    memcpy(buffer + 3, scanner->tool_id, tool_id_len);
+--
+67-    Scanner *scanner = (Scanner *)payload;
+68-
+69-    if (length == 0) {
+70:        scanner->in_tool_content = false;
+71-        scanner->expecting_tail = false;
+72-        scanner->tool_id[0] = '\0';
+73-        scanner->in_eval_result_content = false;
+--
+78-        return;
+79-    }
+80-
+81:    scanner->in_tool_content = buffer[0] == 1;
+82-    if (length > 1) {
+83-        scanner->expecting_tail = buffer[1] == 1;
+84-        if (length > 2) {
+--
+153-
+154-void *tree_sitter_greger_external_scanner_create(void) {
+155-    Scanner *scanner = malloc(sizeof(Scanner));
+156:    scanner->in_tool_content = false;
+157-    scanner->expecting_tail = false;
+158-    scanner->tool_id[0] = '\0';
+159-    scanner->in_eval_result_content = false;
+--
+231-    if (lexer->lookahead != '>') return false;
+232-    advance(lexer);
+233-
+234:    scanner->in_tool_content = true;
+235-    scanner->expecting_tail = false;
+236-    lexer->result_symbol = TOOL_START_TAG;
+237-    return true;
+--
+264-    if (lexer->lookahead != '>') return false;
+265-    advance(lexer);
+266-
+267:    scanner->in_tool_content = false;
+268-    scanner->expecting_tail = false;
+269-    scanner->tool_id[0] = '\0';
+270-    lexer->result_symbol = TOOL_END_TAG;
+--
+272-}
+273-
+274-static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
+275:    if (!scanner->in_tool_content || scanner->expecting_tail) return false;
+276-
+277-    lexer->mark_end(lexer);
+278-
+--
+364-}
+365-
+366-static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
+367:    if (!scanner->in_tool_content || !scanner->expecting_tail) return false;
+368-
+369-    lexer->mark_end(lexer);
+370-
+--
+924-    }
+925-
+926-    // Handle tool content (raw text) when in tool content state
+927:    if (scanner->in_tool_content) {
+928-        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+929-            return scan_tool_content_head(scanner, lexer);
+930-        }
+
+</tool.toolu_013m7MgXiMeVg9cq2Gsxmh9n>
+
+# ASSISTANT
+
+The key insight is that the tool content scanner works by having exclusive states: when `in_tool_content` is true, it only handles tool content tokens, not other tokens. But in my implementation, I'm still trying to handle both content and end tokens.
+
+The issue is that my scanner is getting called for the wrong tokens. Let me check what happens when I remove the content handling altogether and just have start and end tokens:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01TeBvPLQifNjMzy6AWwFQmm
+
+## path
+
+<tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+./grammar.js
+</tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+
+## git-commit-message
+
+<tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+Temporarily remove code_content to test basic start/end tokens
+</tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+
+## original-content
+
+<tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+    code: $ => seq(
+      $.code_backticks_start,
+      optional($.code_content),
+      $.code_backticks_end,
+    ),
+</tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+
+## new-content
+
+<tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+    code: $ => seq(
+      $.code_backticks_start,
+      $.code_backticks_end,
+    ),
+</tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+
+# TOOL RESULT
+
+ID: toolu_01TeBvPLQifNjMzy6AWwFQmm
+
+<tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
+
+</tool.toolu_01TeBvPLQifNjMzy6AWwFQmm>
