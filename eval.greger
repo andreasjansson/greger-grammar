@@ -3376,5 +3376,95 @@ Add debug output to main loop
 ID: toolu_01XkNQpUWNd22wfs9EopsHtb
 
 <tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to main loop
 </tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XGYCvYSHosUe9r7RRkiiBk
+
+## command
+
+<tool.toolu_01XGYCvYSHosUe9r7RRkiiBk>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01XGYCvYSHosUe9r7RRkiiBk>
+
+# TOOL RESULT
+
+ID: toolu_01XGYCvYSHosUe9r7RRkiiBk
+
+<tool.toolu_01XGYCvYSHosUe9r7RRkiiBk>
+DEBUG: In code content, looking at char: < (code: 60)
+DEBUG: Starting code content scan, backtick count: 1
+DEBUG: Loop iteration, char: < (code: 60)
+DEBUG: Loop iteration, char: ` (code: 96)
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.14 ms	    83 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01XGYCvYSHosUe9r7RRkiiBk>
+
+# ASSISTANT
+
+I can see the issue! The scanner is processing the LESSTHAN character and then the closing BACKTICK. But it's not returning the CODE_CONTENT token. Let me add more debug output to see what path it's taking:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01EWUp7W94MvUSJmQQ7vbp5z
+
+## path
+
+<tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+src/scanner.c
+</tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+
+## git-commit-message
+
+<tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+Add debug output to check code close matching
+</tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+
+## diff
+
+<tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+         // Check for code close tag pattern first
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
++            fprintf(stderr, "DEBUG: Matching code close pattern at index %d\n", code_close_match_index);
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, reset scanner state and stop here (don't consume it)
++                fprintf(stderr, "DEBUG: Found complete code close tag\n");
+                 scanner->code_backtick_count = 0;
+                 scanner->in_code_content = false;
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             // If we're in the middle of matching code close tag, don't process as regular content yet
+             advance(lexer);
+             continue;
+         } else {
++            if (code_close_match_index > 0) {
++                fprintf(stderr, "DEBUG: Resetting code close match index\n");
++            }
+             code_close_match_index = 0;
+         }
+\ No newline at end of file
+
+</tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+
+# TOOL RESULT
+
+ID: toolu_01EWUp7W94MvUSJmQQ7vbp5z
+
+<tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
+
+</tool.toolu_01EWUp7W94MvUSJmQQ7vbp5z>
