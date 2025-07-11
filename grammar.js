@@ -29,7 +29,6 @@ module.exports = grammar({
     $.code_start_tag,
     $.code_content,
     $.code_end_tag,
-    $.code_close_tag,
     $.eval_language,
   ],
 
