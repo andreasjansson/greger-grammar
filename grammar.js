@@ -218,6 +218,7 @@ module.exports = grammar({
       $.html_comment,
       $.eval,
       $.code,
+      $.thinking_signature,
       $.text,
     )),
 
