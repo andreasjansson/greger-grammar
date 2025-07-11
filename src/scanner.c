@@ -706,10 +706,51 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
             
             // A language identifier is valid if it's followed by:
             // 1. Newline (block style: ```python\ncode\n```)
-            // 2. Space/tab then anything (inline style: ```javascript console.log()```)
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || 
-                lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            // 2. Space/tab then newline (inline style with just language: ```python ```)
+            // 3. Space/tab then content that continues to closing backticks (inline: ```javascript console.log()```)
+            
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                // Case 1: language followed by newline (block style)
                 return false;
+            } else if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                // Save position after language
+                TSLexer after_language = *lexer;
+                
+                // Skip whitespace after language
+                while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                    advance(lexer);
+                }
+                
+                // Check what comes after the whitespace
+                if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                    // Case 2: language followed by whitespace then newline
+                    return false;
+                } else {
+                    // Case 3: Check if this continues to closing backticks (inline style)
+                    // Look ahead to see if we can find matching closing backticks
+                    while (lexer->lookahead != 0 && lexer->lookahead != '\n' && lexer->lookahead != '\r') {
+                        if (lexer->lookahead == '`') {
+                            // Count consecutive backticks
+                            int closing_backticks = 0;
+                            while (lexer->lookahead == '`') {
+                                closing_backticks++;
+                                advance(lexer);
+                            }
+                            
+                            // If we found matching closing backticks, this is valid inline style
+                            if (closing_backticks == scanner->last_backtick_count) {
+                                return false;
+                            }
+                            // Otherwise continue scanning
+                        } else {
+                            advance(lexer);
+                        }
+                    }
+                    
+                    // If we reached newline/EOF without finding closing backticks,
+                    // this might be invalid language (like "python stuff")
+                    // Let contents scanner handle it
+                }
             }
             
             // Not a language identifier, restore lexer and continue
