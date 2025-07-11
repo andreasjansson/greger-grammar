@@ -4056,5 +4056,253 @@ Fix single backtick closing logic to handle end-of-line cases
 ID: toolu_01RiEEnWXkpNUgff4685WAoT
 
 <tool.toolu_01RiEEnWXkpNUgff4685WAoT>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix single backtick closing logic to handle end-of-line cases
 </tool.toolu_01RiEEnWXkpNUgff4685WAoT>
+
+# ASSISTANT
+
+Actually, let me step back and think about this more carefully. The problem is that we're trying to make the scanner too smart. Let me check what's happening in the simple case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RgLokJeXjWjepbUvNSGFCZ
+
+## command
+
+<tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+
+## timeout
+
+<tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+10
+</tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+
+# TOOL RESULT
+
+ID: toolu_01RgLokJeXjWjepbUvNSGFCZ
+
+<tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01RgLokJeXjWjepbUvNSGFCZ>
+
+# ASSISTANT
+
+That's still working. Let me check what happens when there's no closing backtick:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NVUmYSJfdUZjLjPDLF4EZ8
+
+## command
+
+<tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+cd . && printf '# ASSISTANT\n\n`hello' | tree-sitter parse /dev/stdin
+</tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+
+## timeout
+
+<tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+10
+</tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+
+# TOOL RESULT
+
+ID: toolu_01NVUmYSJfdUZjLjPDLF4EZ8
+
+<tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+(source_file [0, 0] - [2, 6]
+  (assistant [0, 0] - [2, 6]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 6]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 6]))))
+/dev/stdin	Parse:    0.03 ms	   719 bytes/ms	(MISSING code_backticks_end [2, 6] - [2, 6])
+Command failed with exit code 1
+</tool.toolu_01NVUmYSJfdUZjLjPDLF4EZ8>
+
+# ASSISTANT
+
+This is interesting - the parser is expecting a closing backtick but not finding one. But from the test case, the expectation is that a single backtick at the end of the line should be parsed as a complete code block.
+
+Let me check the actual test case more carefully. The test seems to expect that:
+1. `bar` - matches `bar` with opening and closing backticks
+2. ` `parse code...` ` - matches everything from the first backtick to the period at the end of the line
+3. But there's also a single backtick at the end that should parse as its own code block
+
+Let me test this specific case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012cVW9RKbHFwZvLr91DsTQv
+
+## command
+
+<tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+cd . && printf '# ASSISTANT\n\nBacktick at end of line should not make subsequent lines code: `\n\n# USER\n\nhello' | tree-sitter parse /dev/stdin
+</tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+
+## timeout
+
+<tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+10
+</tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+
+# TOOL RESULT
+
+ID: toolu_012cVW9RKbHFwZvLr91DsTQv
+
+<tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+(source_file [0, 0] - [6, 5]
+  (assistant [0, 0] - [2, 64]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 63])
+    (code [2, 63] - [2, 64]
+      (code_backticks_start [2, 63] - [2, 64])
+      (code_contents [2, 64] - [2, 64])
+      (code_backticks_end [2, 64] - [2, 64])))
+  (user [4, 0] - [6, 5]
+    (user_header [4, 0] - [4, 6])
+    (text [6, 0] - [6, 5])))
+/dev/stdin	Parse:    0.04 ms	  2295 bytes/ms	(MISSING code_backticks_end [2, 64] - [2, 64])
+Command failed with exit code 1
+</tool.toolu_012cVW9RKbHFwZvLr91DsTQv>
+
+# ASSISTANT
+
+The issue is that the grammar is still expecting a closing backtick. This is because the scanner is incorrectly handling the case where we need to auto-close the code block.
+
+However, I think the approach I'm taking is wrong. Let me look at the markdown parser again to understand how it handles this specific case.
+
+Actually, let me step back and think about the problem differently. The issue might be that my understanding of the test case is wrong. Let me look at the test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WANx1ZutwQxFFeSmJbPjVe
+
+## command
+
+<tool.toolu_01WANx1ZutwQxFFeSmJbPjVe>
+cd . && head -n 20 ./test/corpus/code.txt
+</tool.toolu_01WANx1ZutwQxFFeSmJbPjVe>
+
+# TOOL RESULT
+
+ID: toolu_01WANx1ZutwQxFFeSmJbPjVe
+
+<tool.toolu_01WANx1ZutwQxFFeSmJbPjVe>
+==================
+Single backtick code
+==================
+
+# USER
+
+Foo `bar` baz
+
+# ASSISTANT
+
+Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
+
+This new line is just text
+
+Backtick at end of line should not make subsequent lines code: `
+
+# USER
+
+hello
+
+
+</tool.toolu_01WANx1ZutwQxFFeSmJbPjVe>
+
+# ASSISTANT
+
+I'm reading the test comments wrong. Let me re-read:
+
+1. "Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code."
+
+This suggests that the backtick after "only" should consume "parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code." as code content.
+
+2. "Backtick at end of line should not make subsequent lines code: `"
+
+This has a backtick at the end of the line, and the comment says it should NOT make subsequent lines code.
+
+So the expected behavior is:
+- ` `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.` (no closing backtick, consumes rest of line)
+- ` ` at end of line (no closing backtick, consumes nothing, ends at newline)
+
+But the current behavior is consuming everything from the first backtick to the second backtick.
+
+The key insight is that single backticks should have different behavior than multi-backticks. For single backticks, if there's no closing backtick on the same line, the entire rest of the line should be consumed as content.
+
+Let me fix this by modifying the parse_fenced_code_block function to handle this case:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01UYTvn71xWoG8pQLe6obfid
+
+## path
+
+<tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+./src/scanner.c
+</tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+
+## git-commit-message
+
+<tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+Special handling for single backticks - auto-close at end of line
+</tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+
+## diff
+
+<tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+     // If this is able to close a fenced code block then that is the only valid interpretation
+     if (valid_symbols[CODE_BACKTICKS_END] && 
+         level >= scanner->fenced_code_block_delimiter_length &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+         
+         // For inline code (1-2 backticks), we can close immediately
+         // For block code (3+ backticks), we need to be followed by newline or EOF
+         if (scanner->fenced_code_block_delimiter_length <= 2 || 
+             lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+             scanner->fenced_code_block_delimiter_length = 0;
+             lexer->result_symbol = CODE_BACKTICKS_END;
+             return true;
+         }
++    }
++    
++    // Special case: if we're looking for a closing backtick and we see a newline,
++    // and this is a single backtick code block, then auto-close
++    if (valid_symbols[CODE_BACKTICKS_END] && 
++        scanner->fenced_code_block_delimiter_length == 1 &&
++        (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0)) {
++        
++        // Don't consume the newline, just mark this as the end
++        scanner->fenced_code_block_delimiter_length = 0;
++        lexer->result_symbol = CODE_BACKTICKS_END;
++        return true;
+     }
+\ No newline at end of file
+
+</tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+
+# TOOL RESULT
+
+ID: toolu_01UYTvn71xWoG8pQLe6obfid
+
+<tool.toolu_01UYTvn71xWoG8pQLe6obfid>
+
+</tool.toolu_01UYTvn71xWoG8pQLe6obfid>

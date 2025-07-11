@@ -683,6 +683,18 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
         }
     }
     
+    // Special case: if we're looking for a closing backtick and we see a newline,
+    // and this is a single backtick code block, then auto-close
+    if (valid_symbols[CODE_BACKTICKS_END] && 
+        scanner->fenced_code_block_delimiter_length == 1 &&
+        (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0)) {
+        
+        // Don't consume the newline, just mark this as the end
+        scanner->fenced_code_block_delimiter_length = 0;
+        lexer->result_symbol = CODE_BACKTICKS_END;
+        return true;
+    }
+    
     // If this could be the start of a fenced code block
     if (valid_symbols[CODE_BACKTICKS_START]) {
         // For triple+ backticks, check if info string contains backticks (invalid for fenced code blocks)
