@@ -8408,5 +8408,81 @@ Update code_content scanner to look for simplified <$> pattern
 ID: toolu_013Y4sCVkhogcafA7F3tiN4t
 
 <tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update code_content scanner to look for simplified <$> pattern
 </tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MG8KuMkHFXrLog1XPPCTtM
+
+## command
+
+<tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+
+## timeout
+
+<tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+10
+</tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+
+# TOOL RESULT
+
+ID: toolu_01MG8KuMkHFXrLog1XPPCTtM
+
+<tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+(source_file [0, 0] - [4, 3]
+  (ERROR [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 2])
+    (ERROR [4, 2] - [4, 3])))
+/dev/stdin	Parse:    0.41 ms	    60 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_01MG8KuMkHFXrLog1XPPCTtM>
+
+# ASSISTANT
+
+Good! Now the code_content is stopping at the right place (`[2, 3] - [4, 2]`) which means it's consuming up to the `<` but not the `<$>`. But there's still an error at `[4, 2] - [4, 3]` which is just the `>` character.
+
+This tells me there's an issue with the scanner logic. The code_content stops at the `<` but the code_close_tag scanner might not be working correctly. Let me put back the full pattern and make sure the code_close_tag scanner is working:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018wrGmKRCEWLu1MDnhj2TjJ
+
+## path
+
+<tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+./src/scanner.c
+</tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+
+## git-commit-message
+
+<tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+Restore full code close tag pattern and fix the scanner
+</tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+
+## diff
+
+<tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+     // Also check for code close tag pattern
+-    const char *code_close_pattern = "<$>";
+-    int code_close_len = 3;
+\ No newline at end of file
++    const char *code_close_pattern = "<$code-close/>";
++    int code_close_len = 14;
+\ No newline at end of file
+
+</tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+
+# TOOL RESULT
+
+ID: toolu_018wrGmKRCEWLu1MDnhj2TjJ
+
+<tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+
+</tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
