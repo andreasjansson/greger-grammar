@@ -4952,5 +4952,115 @@ Add CODE_CLOSE_TAG token for force-closing code blocks
 ID: toolu_017xzGVE9L1u6gnGqWRSU4Sf
 
 <tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add CODE_CLOSE_TAG token for force-closing code blocks
 </tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+
+# ASSISTANT
+
+Now I need to add the scanner function for detecting `<$code-close/>`. Let me add it right after the code end tag function:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HwbPLEEXq4myscXzyDtf83
+
+## path
+
+<tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+./src/scanner.c
+</tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+
+## git-commit-message
+
+<tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+Add scan_code_close_tag function to detect <$code-close/> tags
+</tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+
+## diff
+
+<tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content || lexer->lookahead != '`') return false;
+     
+     // Count the number of closing backticks
+     int closing_backticks = 0;
+     while (lexer->lookahead == '`' && closing_backticks < 20) {
+         advance(lexer);
+         closing_backticks++;
+     }
+     
+     // Check if this matches the opening backticks
+     if (closing_backticks != scanner->code_backtick_count) {
+         return false;
+     }
+     
+     // For fenced code blocks (3+ backticks), require newline/EOF after closing
+     if (scanner->code_backtick_count >= 3) {
+         // Skip whitespace after closing backticks
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+             return false;
+         }
+     }
+     
+     // Valid closing tag
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->result_symbol = CODE_END_TAG;
+     return true;
++}
++
++static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
++    if (lexer->lookahead != '<') return false;
++    advance(lexer);
++    
++    if (lexer->lookahead != '$') return false;
++    advance(lexer);
++    
++    // Check for "code-close"
++    if (lexer->lookahead != 'c') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'o') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'd') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'e') return false;
++    advance(lexer);
++    if (lexer->lookahead != '-') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'c') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'l') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'o') return false;
++    advance(lexer);
++    if (lexer->lookahead != 's') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'e') return false;
++    advance(lexer);
++    
++    if (lexer->lookahead != '/') return false;
++    advance(lexer);
++    
++    if (lexer->lookahead != '>') return false;
++    advance(lexer);
++    
++    // Force close any open code block
++    scanner->code_backtick_count = 0;
++    scanner->in_code_content = false;
++    lexer->result_symbol = CODE_CLOSE_TAG;
++    return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+
+# TOOL RESULT
+
+ID: toolu_01HwbPLEEXq4myscXzyDtf83
+
+<tool.toolu_01HwbPLEEXq4myscXzyDtf83>
+
+</tool.toolu_01HwbPLEEXq4myscXzyDtf83>
