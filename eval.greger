@@ -3158,5 +3158,868 @@ Fix inline triple backticks by properly handling info string vs closing backtick
 ID: toolu_01HS3K5atLW6wwGmdR5yvuEa
 
 <tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix inline triple backticks by properly handling info string vs closing backticks
 </tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+
+# ASSISTANT
+
+Let me test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012uYdN8d9AJnDKQwf2XvFhN
+
+## command
+
+<tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+cd . && printf '# ASSISTANT\n\n```javascript console.log("hello")```' | tree-sitter parse /dev/stdin
+</tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+
+## timeout
+
+<tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+10
+</tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+
+# TOOL RESULT
+
+ID: toolu_012uYdN8d9AJnDKQwf2XvFhN
+
+<tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+(source_file [0, 0] - [2, 37]
+  (assistant [0, 0] - [2, 37]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_backticks_start [2, 0] - [2, 3])
+      (code_contents [2, 3] - [2, 34])
+      (code_backticks_end [2, 34] - [2, 37]))))
+
+</tool.toolu_012uYdN8d9AJnDKQwf2XvFhN>
+
+# ASSISTANT
+
+Perfect! Now let me test the quadruple backticks case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Jbx5CaGGWRpYX1qq8UbsgH
+
+## command
+
+<tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+cd . && printf '# ASSISTANT\n\n````rust\nfn main() {\n    println!("Hello");\n}\n````' | tree-sitter parse /dev/stdin
+</tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+
+## timeout
+
+<tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+10
+</tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+
+# TOOL RESULT
+
+ID: toolu_01Jbx5CaGGWRpYX1qq8UbsgH
+
+<tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+(source_file [0, 0] - [6, 4]
+  (assistant [0, 0] - [6, 4]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [6, 4]
+      (code_backticks_start [2, 0] - [2, 4])
+      (code_contents [2, 4] - [6, 0])
+      (code_backticks_end [6, 0] - [6, 4]))))
+
+</tool.toolu_01Jbx5CaGGWRpYX1qq8UbsgH>
+
+# ASSISTANT
+
+Great! Now let me run the tests to see how many are passing:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Q9kUT2mTJDwDfBiGu7F8A1
+
+## command
+
+<tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+cd . && tree-sitter test
+</tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+
+## timeout
+
+<tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+30
+</tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+
+# TOOL RESULT
+
+ID: toolu_01Q9kUT2mTJDwDfBiGu7F8A1
+
+<tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✓ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✗ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✓ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✓ Eval nested braces
+  eval-partial:
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (1969.231 bytes/ms)
+  eval-results:
+     18. ✓ Eval results
+  eval:
+     19. ✓ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+     21. ✗ HTML tags should be interpreted as text
+  less-than-greater-than:
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✓ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+10 failures:
+
+correct / expected / unexpected
+
+  1. Code block with nested headers:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  2. Code block triple backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (code_contents)
+        (UNEXPECTED '`'))
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (tool_use
+        (tool_use_header)
+        (name
+          (key)
+          (value))
+        (id
+          (key)
+          (value))
+        (tool_param
+          (tool_param_header
+            (name))
+          (value
+            (tool_start_tag)
+            (tool_content
+              (tool_content_head))
+            (tool_end_tag))))
+      (tool_result
+        (tool_result_header)
+        (id
+          (key)
+          (value))
+        (content
+          (tool_start_tag)
+          (tool_content
+            (tool_content_head))
+          (tool_end_tag))))
+
+
+  3. Single backtick code:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (user
+        (user_header)
+        (text)))
+
+
+  4. Double backticks no language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (code_contents)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)))
+
+
+  5. Quadruple backticks with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (code_contents)
+        (UNEXPECTED '`')
+        (eval_end_brace)
+        (UNEXPECTED '`')))))
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)))
+
+
+  6. HTML comments:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (html_comment)
+        (text)
+        (html_comment)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text)))
+
+
+  7. HTML tags should be interpreted as text:
+
+    (source_file
+      (system
+        (system_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text)))
+
+
+  8. Mixed code blocks and sections:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  9. Nested code blocks:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+          (code_backticks_start)
+          (code_contents)
+          (UNEXPECTED '`')
+          (UNEXPECTED 'U'))))))(text)
+        (code)
+        (text)))
+
+
+  10. Tags in backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (code)
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01Q9kUT2mTJDwDfBiGu7F8A1>
+
+# ASSISTANT
+
+Good progress! We got 3 more tests passing (triple backticks inline with language worked). Let me focus on the remaining issues. The main problems seem to be:
+
+1. **Empty code blocks**: Some tests expect empty code blocks but we're getting parsing errors
+2. **Complex nested structure**: Some tests have complex content
+
+Let me check what the "Double backticks no language" test looks like:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AUB5i7UvX3SZb8k6vCrCLU
+
+## command
+
+<tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+cd . && printf '# ASSISTANT\n\n`` \` ``\n\nMore text after.' | tree-sitter parse /dev/stdin
+</tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+
+## timeout
+
+<tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+10
+</tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+
+# TOOL RESULT
+
+ID: toolu_01AUB5i7UvX3SZb8k6vCrCLU
+
+<tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+(source_file [0, 0] - [4, 16]
+  (ERROR [0, 0] - [4, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 4])
+    (ERROR [2, 4] - [4, 16])))
+/dev/stdin	Parse:    0.03 ms	  1554 bytes/ms	(ERROR [0, 0] - [4, 16])
+Command failed with exit code 1
+</tool.toolu_01AUB5i7UvX3SZb8k6vCrCLU>
+
+# ASSISTANT
+
+I see the issue. There's a backtick in the content (`\``) which is confusing the parser. Let me check what the test case actually looks like:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_0157zn4LESs32mFxa8tgHBhM
+
+## pattern
+
+<tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+`` \` ``
+</tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+
+## path
+
+<tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+./test/corpus/code.txt
+</tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+
+## context-lines
+
+<tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+5
+</tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+
+# TOOL RESULT
+
+ID: toolu_0157zn4LESs32mFxa8tgHBhM
+
+<tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+Failed to execute ripgrep search: Command failed with exit code 2: regex parse error:
+    `` \` ``
+       ^^
+error: unrecognized escape sequence
+
+</tool.toolu_0157zn4LESs32mFxa8tgHBhM>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01MpqZp2NgL61WQs3s4pLkxL
+
+## pattern
+
+<tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+Double backticks no language
+</tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+
+## path
+
+<tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+./test/corpus/code.txt
+</tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+
+## context-lines
+
+<tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+8
+</tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+
+# TOOL RESULT
+
+ID: toolu_01MpqZp2NgL61WQs3s4pLkxL
+
+<tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+42-      (code_contents)
+43-      (code_backticks_end))
+44-    (text))
+45-  (user
+46-    (user_header)
+47-    (text)))
+48-
+49-=======================
+50:Double backticks no language
+51-=======================
+52-
+53-# ASSISTANT
+54-
+55-`` ` ``
+56-
+57-More text after.
+58-
+
+</tool.toolu_01MpqZp2NgL61WQs3s4pLkxL>
+
+# ASSISTANT
+
+I see the issue! There's a single backtick inside the double backticks. The problem is likely that our code_contents scanner is not properly handling the content - it's stopping at the first backtick it encounters rather than consuming until it finds the matching closing delimiter.
+
+Let me look at the scan_code_contents function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01STcYpzsKTzdS7u2y74uT2Q
+
+## pattern
+
+<tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+scan_code_contents
+</tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+
+## path
+
+<tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+./src/scanner.c
+</tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+
+## context-lines
+
+<tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+10
+</tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+
+# TOOL RESULT
+
+ID: toolu_01STcYpzsKTzdS7u2y74uT2Q
+
+<tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+714-        }
+715-    }
+716-    
+717-    return false;
+718-}
+719-
+720-
+721-
+722-
+723-
+724:static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+725-    // Very simple approach: consume characters until we hit a backtick, then stop
+726-    // Let the grammar handle the backticks
+727-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+728-        advance(lexer);
+729-    }
+730-    
+731-    lexer->result_symbol = CODE_CONTENTS;
+732-    return true;
+733-}
+734-
+--
+902-        return scan_eval_content(lexer);
+903-    }
+904-    
+905-    // Handle code backticks (any number of backticks)
+906-    if ((valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END]) && lexer->lookahead == '`') {
+907-        return parse_fenced_code_block(scanner, lexer, valid_symbols);
+908-    }
+909-    
+910-    // Handle code contents
+911-    if (valid_symbols[CODE_CONTENTS]) {
+912:        return scan_code_contents(scanner, lexer);
+913-    }
+914-    
+915-    // Handle eval language
+916-    if (valid_symbols[EVAL_LANGUAGE]) {
+917-        return scan_eval_language(lexer);
+918-    }
+919-    
+920-    return false;
+921-}
+922-
+
+</tool.toolu_01STcYpzsKTzdS7u2y74uT2Q>
+
+# ASSISTANT
+
+There's the issue! The `scan_code_contents` function is stopping at the first backtick, but it should be consuming ALL content until the grammar decides to parse the closing backticks. The issue is that we need to let the grammar handle the decision about when to parse the closing backticks.
+
+But looking more closely, I realize the issue is more fundamental. The problem is that our scanner is too simplistic - it doesn't take into account the fact that the content parsing and backtick parsing are interacting poorly.
+
+Let me check the test case for "Single backtick code" to understand the expected behavior:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01JRQkDJaRjWWz7LHRX4yAt2
+
+## pattern
+
+<tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+Single backtick code
+</tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+
+## path
+
+<tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+./test/corpus/code.txt
+</tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+
+## context-lines
+
+<tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+15
+</tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+
+# TOOL RESULT
+
+ID: toolu_01JRQkDJaRjWWz7LHRX4yAt2
+
+<tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+1-==================
+2:Single backtick code
+3-==================
+4-
+5-# USER
+6-
+7-Foo `bar` baz
+8-
+9-# ASSISTANT
+10-
+11-Single backtick should only `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.
+12-
+13-This new line is just text
+14-
+15-Backtick at end of line should not make subsequent lines code: `
+16-
+17-# USER
+
+</tool.toolu_01JRQkDJaRjWWz7LHRX4yAt2>
+
+# ASSISTANT
+
+I see the issue now. The test expects:
+1. `bar` - should parse as a code block
+2. `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.` - single backtick followed by text until end of line
+3. `\n` - at the end of line, should not continue to next line
+
+But the current test output shows multiple separate code blocks. This suggests that the issue is that we need to implement the behavior where if there's no closing backtick on the same line, we should parse until the end of the line.
+
+However, let me look at what the actual test expects:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01FHyCXhQnbKwU29pqkQ2h9k
+
+## path
+
+<tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+./test/corpus/code.txt
+</tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+
+## start-line
+
+<tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+18
+</tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+
+## end-line
+
+<tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+50
+</tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+
+# TOOL RESULT
+
+ID: toolu_01FHyCXhQnbKwU29pqkQ2h9k
+
+<tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+
+hello
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text)
+    (code
+      (code_backticks_start)
+      (code_contents)
+      (code_backticks_end))
+    (text))
+  (user
+    (user_header)
+    (text)))
+
+=======================
+Double backticks no language
+</tool.toolu_01FHyCXhQnbKwU29pqkQ2h9k>
+
+# ASSISTANT
+
+Looking at the expected output, the test does expect THREE separate code blocks in the assistant section:
+1. `` `parse code in a single line. If there's no closing backtick it should parse the remainder of the line as code.` ``
+2. `` `\n` `` (just the backtick at the end of the line)
+3. Empty?
+
+Wait, that doesn't make sense. Let me look at the actual test input more carefully:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Uvp6NWVKQm8JK3igt3rk2B
+
+## command
+
+<tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+cd . && printf '# ASSISTANT\n\nSingle backtick should only `parse code in a single line. If there'"'"'s no closing backtick it should parse the remainder of the line as code.\n\nThis new line is just text\n\nBacktick at end of line should not make subsequent lines code: `' | tree-sitter parse /dev/stdin
+</tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+
+## timeout
+
+<tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+10
+</tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+
+# TOOL RESULT
+
+ID: toolu_01Uvp6NWVKQm8JK3igt3rk2B
+
+<tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+(source_file [0, 0] - [6, 64]
+  (assistant [0, 0] - [6, 64]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 28])
+    (code [2, 28] - [6, 64]
+      (code_backticks_start [2, 28] - [2, 29])
+      (code_contents [2, 29] - [6, 63])
+      (code_backticks_end [6, 63] - [6, 64]))))
+
+</tool.toolu_01Uvp6NWVKQm8JK3igt3rk2B>
+
+# ASSISTANT
+
+I can see the issue now. The current implementation is parsing from the first backtick to the last backtick, but the test expects the single backtick at the end of the line to be a separate code block that continues to the end of the line.
+
+Looking at the test more carefully, I believe the expectation is that the single backtick at the end of the line should parse the "remainder of the line as code" (which would be empty in this case) and then the next line should be treated as text.
+
+But the current implementation treats the single backtick as the start of a code block and consumes everything until the final backtick. This is wrong behavior.
+
+Let me check how the markdown parser handles this. The key insight is that for single backticks, we need different behavior - they should only match within the same line, not across lines.
+
+Let me modify the parse_fenced_code_block function to handle this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RgqXLvmZXNZUG5f85WhQAu
+
+## path
+
+<tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+./src/scanner.c
+</tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+
+## git-commit-message
+
+<tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+Fix single backtick handling to only match within same line
+</tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+
+## diff
+
+<tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    // Very simple approach: consume characters until we hit a backtick, then stop
+-    // Let the grammar handle the backticks
+-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+-        advance(lexer);
++    // For single backticks, only scan until end of line
++    // For multi-backticks, scan until we hit a backtick
++    
++    bool has_content = false;
++    
++    if (scanner->fenced_code_block_delimiter_length == 1) {
++        // Single backtick - only scan until end of line
++        while (lexer->lookahead != 0 && lexer->lookahead != '`' && 
++               lexer->lookahead != '\n' && lexer->lookahead != '\r') {
++            advance(lexer);
++            has_content = true;
++        }
++        
++        // If we hit end of line, consume the rest of the line as content
++        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
++            // Don't consume the newline, but mark this as the end of content
++            lexer->result_symbol = CODE_CONTENTS;
++            return true;
++        }
++    } else {
++        // Multi-backtick - consume until we hit any backtick
++        while (lexer->lookahead != 0 && lexer->lookahead != '`') {
++            advance(lexer);
++            has_content = true;
++        }
+     }
+     
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+
+# TOOL RESULT
+
+ID: toolu_01RgqXLvmZXNZUG5f85WhQAu
+
+<tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
+
+</tool.toolu_01RgqXLvmZXNZUG5f85WhQAu>
