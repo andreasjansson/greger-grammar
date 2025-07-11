@@ -664,8 +664,9 @@ static bool scan_code_content(TSLexer *lexer) {
     }
     
     // Now consume content until we find matching closing backticks
+    bool at_line_start = true;  // Track if we're at the beginning of a line
     while (lexer->lookahead != 0) {
-        if (lexer->lookahead == '`') {
+        if (lexer->lookahead == '`' && (opening_backticks <= 2 || at_line_start)) {
             // Count consecutive backticks
             int closing_backticks = 0;
             while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
@@ -687,19 +688,35 @@ static bool scan_code_content(TSLexer *lexer) {
                         return true;
                     }
                     // If not followed by newline/EOF, treat as content and continue
+                    at_line_start = false;
                 } else {
                     // For inline code (1-2 backticks), close immediately
                     lexer->mark_end(lexer);
                     lexer->result_symbol = CODE_CONTENT;
                     return true;
                 }
+            } else {
+                // Not a matching closing delimiter, continue as content
+                at_line_start = false;
             }
         } else {
             // For inline code (1-2 backticks), stop at newlines
             if (opening_backticks <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
                 return false;
             }
-            advance(lexer);
+            
+            // Update line start tracking
+            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                advance(lexer);
+                at_line_start = true;
+            } else if (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                // Whitespace at start of line keeps us at line start
+                advance(lexer);
+            } else {
+                // Non-whitespace means we're not at line start anymore
+                advance(lexer);
+                at_line_start = false;
+            }
         }
     }
     
