@@ -725,11 +725,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
         
         // Check for code close tag pattern first
         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-            fprintf(stderr, "DEBUG: Matching code close pattern at index %d\n", code_close_match_index);
             code_close_match_index++;
             if (code_close_match_index == code_close_len) {
                 // Found complete code close tag, reset scanner state and stop here (don't consume it)
-                fprintf(stderr, "DEBUG: Found complete code close tag\n");
                 scanner->code_backtick_count = 0;
                 scanner->in_code_content = false;
                 if (has_content) {
@@ -741,12 +739,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             }
             // If we're in the middle of matching code close tag, advance and continue
             advance(lexer);
-            fprintf(stderr, "DEBUG: Advanced past char, now looking at: %c (code: %d)\n", 
-                    lexer->lookahead, lexer->lookahead);
             continue; // Continue to next iteration to check this new character
         } else {
             if (code_close_match_index > 0) {
-                fprintf(stderr, "DEBUG: Resetting code close match index, marking previous chars as content\n");
                 // We had a partial match that failed, so the previous characters should be content
                 has_content = true;
                 lexer->mark_end(lexer);
