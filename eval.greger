@@ -5888,5 +5888,255 @@ Temporarily disable code_contents scanner to isolate timeout issue
 ID: toolu_01HM9rXvajyL525rtafaR9au
 
 <tool.toolu_01HM9rXvajyL525rtafaR9au>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Temporarily disable code_contents scanner to isolate timeout issue
 </tool.toolu_01HM9rXvajyL525rtafaR9au>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01T1PTfBURqJAr6meTSghvVN
+
+## command
+
+<tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+cd . && tree-sitter generate
+</tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+
+## timeout
+
+<tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+10
+</tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+
+# TOOL RESULT
+
+ID: toolu_01T1PTfBURqJAr6meTSghvVN
+
+<tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+
+</tool.toolu_01T1PTfBURqJAr6meTSghvVN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ENU875JBQWMA3rsp5DDjiJ
+
+## command
+
+<tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+
+## timeout
+
+<tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+10
+</tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+
+# TOOL RESULT
+
+ID: toolu_01ENU875JBQWMA3rsp5DDjiJ
+
+<tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+(source_file [0, 0] - [2, 11]
+  (ERROR [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks [2, 0] - [2, 2])
+    (code_language [2, 3] - [2, 8])
+    (ERROR [2, 9] - [2, 11])))
+/dev/stdin	Parse:    0.07 ms	   343 bytes/ms	(ERROR [0, 0] - [2, 11])
+Command failed with exit code 1
+</tool.toolu_01ENU875JBQWMA3rsp5DDjiJ>
+
+# ASSISTANT
+
+Good! Now it doesn't timeout. The issue is in the `scan_code_contents` function. The problem is that without contents, the grammar can't properly match. 
+
+Looking at the output, I can see that `code_language` is being matched for "hello" when it should be contents. This suggests that the grammar is trying to match the language rule when it shouldn't.
+
+Let me look at the grammar choice structure:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Dnkc5p9RFDS3D7dgLgYwDY
+
+## path
+
+<tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+./grammar.js
+</tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+
+## start-line
+
+<tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+210
+</tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+
+## end-line
+
+<tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+230
+</tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+
+# TOOL RESULT
+
+ID: toolu_01Dnkc5p9RFDS3D7dgLgYwDY
+
+<tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+      $.html_comment,
+    )),
+
+    system_content_blocks: $ => repeat1(choice(
+      $.html_comment,
+      $.eval,
+      $.code,
+      $.safe_shell_commands,
+      $.text,
+    )),
+
+    content_blocks: $ => repeat1(choice(
+      $.html_comment,
+      $.eval,
+      $.code,
+      $.text,
+    )),
+
+    text: $ => prec.right(repeat1(choice(
+      $._text_content,
+      /\n/,
+</tool.toolu_01Dnkc5p9RFDS3D7dgLgYwDY>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01VvuhjTExvfDdctvok6E37s
+
+## path
+
+<tool.toolu_01VvuhjTExvfDdctvok6E37s>
+./grammar.js
+</tool.toolu_01VvuhjTExvfDdctvok6E37s>
+
+## start-line
+
+<tool.toolu_01VvuhjTExvfDdctvok6E37s>
+290
+</tool.toolu_01VvuhjTExvfDdctvok6E37s>
+
+## end-line
+
+<tool.toolu_01VvuhjTExvfDdctvok6E37s>
+310
+</tool.toolu_01VvuhjTExvfDdctvok6E37s>
+
+# TOOL RESULT
+
+ID: toolu_01VvuhjTExvfDdctvok6E37s
+
+<tool.toolu_01VvuhjTExvfDdctvok6E37s>
+      $.eval_result_content_head,
+      optional($.eval_result_content_tail),
+    ),
+
+    eval_start_brace: $ => seq(
+      '${',
+      optional(seq(':', $.eval_language))
+    ),
+
+    eval_end_brace: $ => '}',
+
+    code: $ => choice(
+      seq(
+        $.code_backticks,
+        $.code_language,
+        $.code_contents,
+        $.code_backticks,
+      ),
+      seq(
+        $.code_backticks,
+        $.code_contents,
+</tool.toolu_01VvuhjTExvfDdctvok6E37s>
+
+# ASSISTANT
+
+I can see the issue now. The `code` rule has two choices:
+1. `code_backticks, code_language, code_contents, code_backticks` 
+2. `code_backticks, code_contents, code_backticks`
+
+The first choice will try to match `code_language` after the opening backticks, and since `code_language` is defined as `/[a-zA-Z_][a-zA-Z0-9_+\-]*/`, it will match "hello" in ```` hello ```` as a language.
+
+The issue is the order - tree-sitter will try the first choice first, so it will always try to match a language. I need to reorder this or change the logic.
+
+Let me enable the contents scanner again with a very simple implementation:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01JYZqXaF3VuoKBp4uGrtauX
+
+## path
+
+<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+./src/scanner.c
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+## git-commit-message
+
+<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+Re-enable code_contents scanner with minimal implementation
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+## original-content
+
+<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+    // Handle code contents - temporarily disabled
+    if (valid_symbols[CODE_CONTENTS]) {
+        // return scan_code_contents(scanner, lexer);
+        return false;
+    }
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+## new-content
+
+<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+    // Handle code contents
+    if (valid_symbols[CODE_CONTENTS]) {
+        // Simple implementation - consume everything until closing backticks
+        while (lexer->lookahead != 0) {
+            if (lexer->lookahead == '`') {
+                // Check if this could be closing backticks
+                int backtick_count = 0;
+                TSLexer saved_lexer = *lexer;
+                
+                while (lexer->lookahead == '`') {
+                    backtick_count++;
+                    advance(lexer);
+                }
+                
+                if (backtick_count == scanner->last_backtick_count) {
+                    // This is the closing sequence, restore and stop
+                    *lexer = saved_lexer;
+                    break;
+                } else {
+                    // Not the closing sequence, restore and include as content
+                    *lexer = saved_lexer;
+                    advance(lexer);
+                }
+            } else {
+                advance(lexer);
+            }
+        }
+        
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
+    }
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+# TOOL RESULT
+
+ID: toolu_01JYZqXaF3VuoKBp4uGrtauX
+
+<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>

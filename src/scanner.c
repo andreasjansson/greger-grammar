@@ -914,10 +914,36 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_code_backticks(scanner, lexer);
     }
     
-    // Handle code contents - temporarily disabled
+    // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
-        // return scan_code_contents(scanner, lexer);
-        return false;
+        // Simple implementation - consume everything until closing backticks
+        while (lexer->lookahead != 0) {
+            if (lexer->lookahead == '`') {
+                // Check if this could be closing backticks
+                int backtick_count = 0;
+                TSLexer saved_lexer = *lexer;
+                
+                while (lexer->lookahead == '`') {
+                    backtick_count++;
+                    advance(lexer);
+                }
+                
+                if (backtick_count == scanner->last_backtick_count) {
+                    // This is the closing sequence, restore and stop
+                    *lexer = saved_lexer;
+                    break;
+                } else {
+                    // Not the closing sequence, restore and include as content
+                    *lexer = saved_lexer;
+                    advance(lexer);
+                }
+            } else {
+                advance(lexer);
+            }
+        }
+        
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
     }
     
     // Handle eval language
