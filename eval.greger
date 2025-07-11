@@ -6890,5 +6890,469 @@ Fix thinking_signature rule to include newline termination
 ID: toolu_0122hMNeDDq1RWS4ZUCueUgk
 
 <tool.toolu_0122hMNeDDq1RWS4ZUCueUgk>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix thinking_signature rule to include newline termination
 </tool.toolu_0122hMNeDDq1RWS4ZUCueUgk>
+
+# ASSISTANT
+
+Now let me regenerate the grammar and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GgWJQBNsVniU1YeCxRBHxa
+
+## command
+
+<tool.toolu_01GgWJQBNsVniU1YeCxRBHxa>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01GgWJQBNsVniU1YeCxRBHxa>
+
+# TOOL RESULT
+
+ID: toolu_01GgWJQBNsVniU1YeCxRBHxa
+
+<tool.toolu_01GgWJQBNsVniU1YeCxRBHxa>
+
+</tool.toolu_01GgWJQBNsVniU1YeCxRBHxa>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PqHgMQ8G6yKM4XPDVBN9Ng
+
+## command
+
+<tool.toolu_01PqHgMQ8G6yKM4XPDVBN9Ng>
+timeout 10 tree-sitter parse /tmp/simple_thinking.txt
+</tool.toolu_01PqHgMQ8G6yKM4XPDVBN9Ng>
+
+# TOOL RESULT
+
+ID: toolu_01PqHgMQ8G6yKM4XPDVBN9Ng
+
+<tool.toolu_01PqHgMQ8G6yKM4XPDVBN9Ng>
+(source_file [0, 0] - [5, 0]
+  (thinking [0, 0] - [5, 0]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [5, 0])))
+
+</tool.toolu_01PqHgMQ8G6yKM4XPDVBN9Ng>
+
+# ASSISTANT
+
+Still not working. Let me check the thinking rule more closely. I notice that the thinking rule expects the signature to be followed by `\n\n` (two newlines):
+
+```javascript
+thinking: $ => seq(
+  $.thinking_header,
+  '\n\n',
+  optional(seq(
+    $.thinking_signature,
+    '\n\n',
+  )),
+  $.content_blocks,
+),
+```
+
+But in our test file, we have:
+
+```
+# THINKING
+
+Signature: sig123
+
+Some text.
+```
+
+So there's `\n\n` after the header, then the signature, then `\n\n` after the signature. The issue might be that the parser is not recognizing the signature at all.
+
+Let me try a different approach. Let me look at the `value` rule to see if there's an issue:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01GYTJBJ6oYaaSEGhrARRwUW
+
+## pattern
+
+<tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+value.*=
+</tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+
+## path
+
+<tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+./grammar.js
+</tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+
+## context-lines
+
+<tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+2
+</tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+
+# TOOL RESULT
+
+ID: toolu_01GYTJBJ6oYaaSEGhrARRwUW
+
+<tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+202-    ),
+203-
+204:    value: _ => /[^\n]+/,
+205-
+206-    assistant_content_blocks: $ => repeat1(choice(
+
+</tool.toolu_01GYTJBJ6oYaaSEGhrARRwUW>
+
+# ASSISTANT
+
+The `value` rule looks fine. Let me check if the issue is with the precedence. The thinking signature might be getting parsed as regular text instead of being recognized as a signature.
+
+Let me try adding some debug output by creating a test with just the thinking signature:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DRLswfvRJ6PUX6zsEVfyX2
+
+## command
+
+<tool.toolu_01DRLswfvRJ6PUX6zsEVfyX2>
+cat > /tmp/just_signature.txt << 'EOF'
+# THINKING
+
+Signature: test123
+EOF
+</tool.toolu_01DRLswfvRJ6PUX6zsEVfyX2>
+
+# TOOL RESULT
+
+ID: toolu_01DRLswfvRJ6PUX6zsEVfyX2
+
+<tool.toolu_01DRLswfvRJ6PUX6zsEVfyX2>
+
+</tool.toolu_01DRLswfvRJ6PUX6zsEVfyX2>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016EY7VyGxi4uhPGJ8pkuN5Y
+
+## command
+
+<tool.toolu_016EY7VyGxi4uhPGJ8pkuN5Y>
+timeout 10 tree-sitter parse /tmp/just_signature.txt
+</tool.toolu_016EY7VyGxi4uhPGJ8pkuN5Y>
+
+# TOOL RESULT
+
+ID: toolu_016EY7VyGxi4uhPGJ8pkuN5Y
+
+<tool.toolu_016EY7VyGxi4uhPGJ8pkuN5Y>
+(source_file [0, 0] - [3, 0]
+  (thinking [0, 0] - [3, 0]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [3, 0])))
+
+</tool.toolu_016EY7VyGxi4uhPGJ8pkuN5Y>
+
+# ASSISTANT
+
+I see the issue now. The problem is that the thinking signature is being parsed as regular text because the grammar isn't correctly recognizing it. Let me examine what's happening by looking more closely at the thinking rule structure.
+
+The thinking rule is:
+```javascript
+thinking: $ => seq(
+  $.thinking_header,
+  '\n\n',
+  optional(seq(
+    $.thinking_signature,
+    '\n\n',
+  )),
+  $.content_blocks,
+),
+```
+
+But if the signature is not being recognized, then the parser falls back to parsing everything as `content_blocks`, which would be `text`.
+
+Let me check if there's a precedence issue. The problem might be that the text rule is matching before the thinking signature rule can match. Looking at the text rule:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01Hjs8YGVyt8tfNMQd8G7PpG
+
+## pattern
+
+<tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+text.*=
+</tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+
+## path
+
+<tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+./grammar.js
+</tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+
+## context-lines
+
+<tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+5
+</tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+
+# TOOL RESULT
+
+ID: toolu_01Hjs8YGVyt8tfNMQd8G7PpG
+
+<tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+41-      optional($.untagged_text),
+42-      optional($.system),
+43-      repeat($._block),
+44-    ),
+45-
+46:    untagged_text: $ => prec(-1, repeat1(
+47-      seq(
+48-        $._untagged_text_content,
+49-        "\n"
+50-      ))),
+51-
+--
+187-      alias('Title: ', $.key),
+188-      optional(field("value", $.value)),
+189-      /\n/,
+190-    ),
+191-
+192:    citation_text: $ => seq(
+193-      alias('Cited text: ', $.key),
+194-      optional(field("value", $.value)),
+195-      /\n/,
+196-    ),
+197-
+--
+223-      $.eval,
+224-      $.code,
+225-      $.text,
+226-    )),
+227-
+228:    text: $ => prec.right(repeat1(choice(
+229-      $._text_content,
+230-      /\n/,
+231-    ))),
+232-
+233:    assistant_text: $ => prec.right(repeat1(choice(
+234-      $._assistant_text_content,
+235-      /\n/,
+236-    ))),
+237-
+238:    _text_content: $ => token(prec(-1, /[^`$\n]+|\$[^{]/)),
+239-
+240:    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
+241-
+242:    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+243-
+244-    _tool_element: $ => seq(
+245-      $.tool_start_tag,
+246-      field('value', $.tool_content),
+247-      $.tool_end_tag,
+--
+298-
+299-    eval_end_brace: $ => '}',
+300-
+301-    code: $ => $.code_content,
+302-
+303:    _text_content: $ => choice(
+304-      /[^`\n]+/,
+305-      /[ \t]+/,
+306-    ),
+307-    
+308-
+
+</tool.toolu_01Hjs8YGVyt8tfNMQd8G7PpG>
+
+# ASSISTANT
+
+I notice there are two `_text_content` rules defined, which might be causing issues. Let me check if this is a grammar problem. But first, let me check if the issue is with the `content_blocks` rule. 
+
+Let me look at the `content_blocks` rule to see what it includes:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_015Q1U1Y52ehxkwgNnpYzPb3
+
+## pattern
+
+<tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+content_blocks.*=
+</tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+
+## path
+
+<tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+./grammar.js
+</tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+
+## context-lines
+
+<tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+5
+</tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+
+# TOOL RESULT
+
+ID: toolu_015Q1U1Y52ehxkwgNnpYzPb3
+
+<tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+201-      /\n/,
+202-    ),
+203-
+204-    value: _ => /[^\n]+/,
+205-
+206:    assistant_content_blocks: $ => repeat1(choice(
+207-      $.citation_entry,
+208-      $.code,
+209-      alias($.assistant_text, $.text),
+210-      $.html_comment,
+211-    )),
+212-
+213:    system_content_blocks: $ => repeat1(choice(
+214-      $.html_comment,
+215-      $.eval,
+216-      $.code,
+217-      $.safe_shell_commands,
+218-      $.text,
+219-    )),
+220-
+221:    content_blocks: $ => repeat1(choice(
+222-      $.html_comment,
+223-      $.eval,
+224-      $.code,
+225-      $.text,
+226-    )),
+
+</tool.toolu_015Q1U1Y52ehxkwgNnpYzPb3>
+
+# ASSISTANT
+
+I see! The `content_blocks` rule includes `$.text` as one of its options, and `text` has high precedence. The issue is that the thinking signature is being parsed as `text` instead of being recognized as a signature.
+
+I think the issue is that the thinking signature needs to be parsed at a higher precedence level than text. Let me look at how other similar constructs handle this. For example, how do `name` and `id` work in tool_use blocks?
+
+Let me check the tool_use grammar:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Qtdr63Z7jddZz3uYn9btDn
+
+## path
+
+<tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+./grammar.js
+</tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+
+## start-line
+
+<tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+90
+</tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+
+## end-line
+
+<tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+100
+</tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+
+# TOOL RESULT
+
+ID: toolu_01Qtdr63Z7jddZz3uYn9btDn
+
+<tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+    tool_use: $ => seq(
+      $.tool_use_header,
+      '\n\n',
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    tool_result: $ => seq(
+</tool.toolu_01Qtdr63Z7jddZz3uYn9btDn>
+
+# ASSISTANT
+
+I see! In the `tool_use` rule, the `name` and `id` are in a `repeat(choice(...))` structure. But in the thinking rule, the signature is in an `optional(seq(...))` structure. This means the thinking signature must be recognized before the parser falls back to `content_blocks`.
+
+Let me check if the issue is that the thinking signature is not being recognized at all. Let me test with a very simple case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SK3MRDx3HtqUZ3Fuv5pvJY
+
+## command
+
+<tool.toolu_01SK3MRDx3HtqUZ3Fuv5pvJY>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01SK3MRDx3HtqUZ3Fuv5pvJY>
+
+# TOOL RESULT
+
+ID: toolu_01SK3MRDx3HtqUZ3Fuv5pvJY
+
+<tool.toolu_01SK3MRDx3HtqUZ3Fuv5pvJY>
+(source_file [0, 0] - [4, 10]
+  (thinking [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [4, 10])))
+
+</tool.toolu_01SK3MRDx3HtqUZ3Fuv5pvJY>
+
+# ASSISTANT
+
+The problem is that the thinking signature is still not being recognized. Let me check if there's an issue with the tokenization. The signature might be getting tokenized as part of the text content before the parser can recognize it as a signature.
+
+Let me add a precedence to the thinking signature rule:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_016QvT8ETUmoeXkH1Pa5fHnN
+
+## path
+
+<tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+./grammar.js
+</tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+
+## git-commit-message
+
+<tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+Add precedence to thinking_signature rule
+</tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+
+## diff
+
+<tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+-    thinking_signature: $ => seq(
++    thinking_signature: $ => prec(1, seq(
+       alias('Signature: ', $.key),
+       field('value', $.value),
+       /\n/
+-    ),
+\ No newline at end of file
++    )),
+\ No newline at end of file
+
+</tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+
+# TOOL RESULT
+
+ID: toolu_016QvT8ETUmoeXkH1Pa5fHnN
+
+<tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+
+</tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
