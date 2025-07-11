@@ -2525,5 +2525,181 @@ Fix code scanner to match tool scanner pattern - advance but don't mark end when
 ID: toolu_01YP6nNcvorYyyTEQrzqsd1M
 
 <tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code scanner to match tool scanner pattern - advance but don't mark end when matching closing pattern
 </tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+
+# ASSISTANT
+
+Let's test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Q8wR1Uqev9qXRYmhRY3NiU
+
+## command
+
+<tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
+printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
+
+# TOOL RESULT
+
+ID: toolu_01Q8wR1Uqev9qXRYmhRY3NiU
+
+<tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
+Failed to load language in current directory
+
+Caused by:
+    Parser compilation failed.
+    Stdout: 
+    Stderr: /Users/andreas/projects/greger-grammar/./src/scanner.c:742:11: error: expected expression
+            } else {
+              ^
+    /Users/andreas/projects/greger-grammar/./src/scanner.c:770:5: error: expected identifier or '('
+        if (has_content) {
+        ^
+    /Users/andreas/projects/greger-grammar/./src/scanner.c:775:5: error: expected identifier or '('
+        return false;
+        ^
+    /Users/andreas/projects/greger-grammar/./src/scanner.c:776:1: error: extraneous closing brace ('}')
+    }
+    ^
+    4 errors generated.
+    
+Command failed with exit code 1
+</tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
+
+# ASSISTANT
+
+I have a syntax error. Let me check the scanner code:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_014vU7xbVpMeYTUjg3VhSkEa
+
+## path
+
+<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+./src/scanner.c
+</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+
+## start-line
+
+<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+735
+</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+
+## end-line
+
+<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+780
+</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+
+## include-line-numbers
+
+<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+true
+</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+
+# TOOL RESULT
+
+ID: toolu_014vU7xbVpMeYTUjg3VhSkEa
+
+<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+735:                     return false;
+736:                 }
+737:             }
+738:             // Advance but don't mark end - we're matching the closing pattern
+739:             advance(lexer);
+740:             has_content = true;
+741:         }
+742:         } else {
+743:             // Reset match and continue as content
+744:             if (match_index > 0) {
+745:                 // We were partially matching, reset but don't advance yet
+746:                 match_index = 0;
+747:                 // Don't advance here, reprocess this character
+748:             } else {
+749:                 // For inline code (1-2 backticks), stop at newlines
+750:                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+751:                     if (has_content) {
+752:                         lexer->result_symbol = CODE_CONTENT;
+753:                         return true;
+754:                     } else {
+755:                         return false;
+756:                     }
+757:                 }
+758:                 
+759:                 advance(lexer);
+760:                 has_content = true;
+761:                 // Only mark end if we're not in middle of matching code close pattern
+762:                 if (code_close_match_index == 0) {
+763:                     lexer->mark_end(lexer);
+764:                 }
+765:             }
+766:         }
+767:     }
+768:     
+769:     // Reached end without finding closing tag
+770:     if (has_content) {
+771:         lexer->result_symbol = CODE_CONTENT;
+772:         return true;
+773:     }
+774:     
+775:     return false;
+776: }
+777: 
+778: static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+779:     if (!scanner->in_code_content || lexer->lookahead != '`') return false;
+780:     
+</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
+
+# ASSISTANT
+
+I see the issue - there's an extra `}` on line 741 and a misplaced `} else {` on line 742. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_013nSapAFD5kF6SsSWJ5q8Ye
+
+## path
+
+<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+./src/scanner.c
+</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+## git-commit-message
+
+<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+Fix syntax error - remove extra braces
+</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+## original-content
+
+<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+            // Advance but don't mark end - we're matching the closing pattern
+            advance(lexer);
+            has_content = true;
+        }
+        } else {
+</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+## new-content
+
+<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+            // Advance but don't mark end - we're matching the closing pattern
+            advance(lexer);
+            has_content = true;
+        } else {
+</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+# TOOL RESULT
+
+ID: toolu_013nSapAFD5kF6SsSWJ5q8Ye
+
+<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
+
+</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>

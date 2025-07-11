@@ -738,7 +738,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             // Advance but don't mark end - we're matching the closing pattern
             advance(lexer);
             has_content = true;
-        }
         } else {
             // Reset match and continue as content
             if (match_index > 0) {
