@@ -718,8 +718,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Don't advance yet, let regular pattern matching handle it
+            // Continue to advance and process as regular content for now
+            // This character might also be part of a backtick pattern
         } else {
+            // Reset code close match
             code_close_match_index = 0;
         }
         
@@ -735,11 +737,20 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            advance(lexer);
+            // If we're also matching code-close pattern, we need to be careful
+            if (code_close_match_index > 0) {
+                // We're in middle of matching code close - advance and continue
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            } else {
+                // Only matching backticks, advance normally
+                advance(lexer);
+            }
         } else {
-            // Reset match and continue as content
+            // Reset backtick match and continue as content
             if (match_index > 0) {
-                // We were partially matching, reset but don't advance yet
+                // We were partially matching backticks, reset but don't advance yet
                 match_index = 0;
                 // Don't advance here, reprocess this character
             } else {
