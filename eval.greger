@@ -6530,5 +6530,322 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_018wGAxcV5cSBimzNGDr66vx
 
 <tool.toolu_018wGAxcV5cSBimzNGDr66vx>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Return empty code content instead of false for backtick at end of line
 </tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+# ASSISTANT
+
+Now let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FxXSF4uHdyCcvdbz9j9GSD
+
+## command
+
+<tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+tree-sitter generate
+</tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+
+## timeout
+
+<tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+30
+</tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+
+# TOOL RESULT
+
+ID: toolu_01FxXSF4uHdyCcvdbz9j9GSD
+
+<tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+
+</tool.toolu_01FxXSF4uHdyCcvdbz9j9GSD>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QTA8aD95EV9CfuPG73Hczx
+
+## command
+
+<tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+tree-sitter parse test-backtick-end-of-line.greger
+</tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+
+## timeout
+
+<tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+10
+</tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+
+# TOOL RESULT
+
+ID: toolu_01QTA8aD95EV9CfuPG73Hczx
+
+<tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (code [2, 1] - [2, 2]
+      (code_start_tag [2, 1] - [2, 2])
+      (code_content [2, 2] - [2, 2])
+      (code_end_tag [2, 2] - [2, 2]))
+    (text [2, 2] - [5, 0])))
+
+</tool.toolu_01QTA8aD95EV9CfuPG73Hczx>
+
+# ASSISTANT
+
+Excellent! This works! The backtick at the end of the line is now properly recognized as a code block with empty content and a synthetic closing tag.
+
+Let me run the full test suite to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FqJoyFWtaSXELqW4ntMPjW
+
+## command
+
+<tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+tree-sitter test
+</tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+
+## timeout
+
+<tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+30
+</tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+
+# TOOL RESULT
+
+ID: toolu_01FqJoyFWtaSXELqW4ntMPjW
+
+<tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+  complex-workflow:
+     18. ✓ Complex workflow
+  eval-nested-braces:
+     19. ✓ Eval nested braces
+  eval-partial:
+     20. ✓ Eval partial cases -- Warning: Slow parse rate (1284.315 bytes/ms)
+  eval-results:
+     21. ✓ Eval results
+  eval:
+     22. ✓ Eval
+  html-comments:
+     23. ✓ HTML comments
+  html-tags:
+     24. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     25. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     26. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     27. ✓ Multiple tool uses
+  nested-code-blocks:
+     28. ✓ Nested code blocks
+  safe-shell-commands:
+     29. ✓ Safe shell commands
+  server-tool-use-basic:
+     30. ✓ Server tool use basic
+  server-tool-use-string-result:
+     31. ✓ Server tool use string result
+  simple-conversation:
+     32. ✓ Simple conversation
+  simple-user-message:
+     33. ✓ Simple user message
+  system-and-user:
+     34. ✓ System and user
+  text-with-markdown-headings:
+     35. ✓ Text with markdown headings
+  thinking-only:
+     36. ✓ Thinking only
+  thinking-section:
+     37. ✓ Thinking section
+  tool-use-multiple-params:
+     38. ✓ Tool use multiple params
+  tool-use-only:
+     39. ✓ Tool use only
+  tool-use-single-param:
+     40. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     41. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     42. ✓ Tool use with tool use in params
+  triple-hash:
+     43. ✓ Triple hash not in citation
+  untagged-content:
+     44. ✓ Untagged content
+  xml-tags-backticks:
+     45. ✓ Tags in backticks
+
+Total parses: 45; successful parses: 45; failed parses: 0; success percentage: 100.00%; average speed: 23251 bytes/ms
+
+
+</tool.toolu_01FqJoyFWtaSXELqW4ntMPjW>
+
+# ASSISTANT
+
+Perfect! All tests are passing. Let me test a few more edge cases to make sure the fix is robust:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SrB9cDhgamScG11Wg4Feg7
+
+## command
+
+<tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+printf '# USER\n\na`\n\nb' | tree-sitter parse /dev/stdin
+</tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+
+## timeout
+
+<tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+5
+</tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+
+# TOOL RESULT
+
+ID: toolu_01SrB9cDhgamScG11Wg4Feg7
+
+<tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+(source_file [0, 0] - [4, 1]
+  (user [0, 0] - [4, 1]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (code [2, 1] - [2, 2]
+      (code_start_tag [2, 1] - [2, 2])
+      (code_content [2, 2] - [2, 2])
+      (code_end_tag [2, 2] - [2, 2]))
+    (text [2, 2] - [4, 1])))
+
+</tool.toolu_01SrB9cDhgamScG11Wg4Feg7>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WH5mbMSpNgc8aLC5LuaQtG
+
+## command
+
+<tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+printf '# USER\n\na``\n\nb' | tree-sitter parse /dev/stdin
+</tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+
+## timeout
+
+<tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+5
+</tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+
+# TOOL RESULT
+
+ID: toolu_01WH5mbMSpNgc8aLC5LuaQtG
+
+<tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+(source_file [0, 0] - [4, 1]
+  (user [0, 0] - [4, 1]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (code [2, 1] - [2, 3]
+      (code_start_tag [2, 1] - [2, 3])
+      (code_content [2, 3] - [2, 3])
+      (code_end_tag [2, 3] - [2, 3]))
+    (text [2, 3] - [4, 1])))
+
+</tool.toolu_01WH5mbMSpNgc8aLC5LuaQtG>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01A2SAJxonnGAJXkbnXC8w8k
+
+## command
+
+<tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+printf '# USER\n\na```\n\nb' | tree-sitter parse /dev/stdin
+</tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+
+## timeout
+
+<tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+5
+</tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+
+# TOOL RESULT
+
+ID: toolu_01A2SAJxonnGAJXkbnXC8w8k
+
+<tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+(source_file [0, 0] - [4, 1]
+  (user [0, 0] - [4, 1]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (code [2, 1] - [4, 1]
+      (code_start_tag [2, 1] - [2, 4])
+      (code_content [2, 4] - [4, 1])
+      (code_close_tag [4, 1] - [4, 1]))))
+/dev/stdin	Parse:    0.03 ms	   439 bytes/ms	(MISSING code_close_tag [4, 1] - [4, 1])
+Command failed with exit code 1
+</tool.toolu_01A2SAJxonnGAJXkbnXC8w8k>
+
+# ASSISTANT
+
+Great! The single and double backticks work correctly now. The triple backtick case shows a missing closing tag which is expected behavior (it's waiting for the proper closing triple backticks).
+
+Let me clean up the test files:
+
+# TOOL USE
+
+Name: delete-files
+ID: toolu_018j3JDQCChLiPNJmR3Bxidm
+
+## paths
+
+<tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
+[
+  "test-backtick-end-of-line.greger",
+  "test-backtick-with-content.greger"
+]
+</tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
+
+## git-commit-message
+
+<tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
+Clean up test files
+</tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
+
+# TOOL RESULT
+
+ID: toolu_018j3JDQCChLiPNJmR3Bxidm
+
+<tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
+
+</tool.toolu_018j3JDQCChLiPNJmR3Bxidm>
