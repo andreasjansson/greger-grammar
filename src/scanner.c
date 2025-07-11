@@ -727,7 +727,9 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
             code_close_match_index++;
             if (code_close_match_index == code_close_len) {
-                // Found complete code close tag, stop here (don't consume it)
+                // Found complete code close tag, reset scanner state and stop here (don't consume it)
+                scanner->code_backtick_count = 0;
+                scanner->in_code_content = false;
                 if (has_content) {
                     lexer->result_symbol = CODE_CONTENT;
                     return true;
