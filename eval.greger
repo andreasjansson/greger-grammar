@@ -8237,3 +8237,58 @@ The fix ensures that nested backticks are treated as literal content within sing
 
 # USER
 
+There's also an issue where triple-backticks followed by other content is erroring:
+
+```a``` b
+
+# THINKING
+
+Signature: EvwDCkYIBRgCKkCI7GtKCTlFIDPBRaBTMWKBtCXOnBSc4uROAxlMdJZnjwH2HO/ZzjFM0ci7TVEn142Dgy1YAJLPVqooFdqeh1+dEgzkuHF1ZdiH4WaaFZIaDIOSIyBFiUsdeaYvxCIwQZx58MWGpdXgesqmYLo3LOZ8lL0rZ4SNxdW1GR5bfrVu4fZxUlQ0yIHsbbRaEN9tKuMCkE1ixG7JOo9iUUyh7wRhp4bgda2h9qeEAmSnFjrRKXnJ/LN3z0f1TMy3GBwdIgl7Q2QUYLLLHBVHZyuKM8pLhP7s3eivZmSR9JmlkqArydJyNbuDmq32VLCu4zde6t1S7UbkKxKHHa6wSolj5vGyM5lbjr5jkjAAzdRwXWrCZPaib/k3fLv6TSwxHlkLlaME6gK8Jz2eYWU9Ey6J4WEfms5wszHO6t+Vg9HtiPNAWlSNrzdgGjw0Jb8YMoUQszMzZQK3zXp8Au0PzUIbEcEHYxCoBQNUqB8vH6yhqB3EbXwRRzk1gY7jqjPejwQGxX+6qlyxEiJvYE3DB7FMTesSMpnfIPu6oXysT3SPEZjGShP8Ox9t2tOz6gNikbZg9at87TA6MEgOGWT2kzJ9q/sz1jvY9Bd05l6991ho2L2v0iG41jTBLn5nf3inbm4ET6abhy2p7qtPLISP9Sk8UpFMGwwkoxgB
+
+The user is reporting an issue with triple-backticks followed by other content. Let me think about what this might mean. 
+
+They could be referring to cases like:
+1. ```some content on the same line
+2. ```language some extra content
+3. ```content without proper closing
+
+Let me create a test case to reproduce this issue and then debug it.
+
+# ASSISTANT
+
+Let me create a test case to reproduce this issue:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01NWu5T1SWYGzNwUaj1oi1uU
+
+## path
+
+<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+test-triple-backtick-issue.greger
+</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+
+## contents
+
+<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+# USER
+
+```python print("hello")
+more content
+```
+</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+
+## git-commit-message
+
+<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+Add test for triple backtick issue
+</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+
+# TOOL RESULT
+
+ID: toolu_01NWu5T1SWYGzNwUaj1oi1uU
+
+<tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
+
+</tool.toolu_01NWu5T1SWYGzNwUaj1oi1uU>
