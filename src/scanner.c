@@ -740,8 +740,8 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             code_close_match_index = 0;
         }
         
-        // Check for regular closing pattern
-        if (lexer->lookahead == expected_closing[match_index]) {
+        // Check for regular closing pattern (only for 3+ backticks)
+        if (scanner->code_backtick_count >= 3 && lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
                 // Found complete closing pattern, stop here (don't consume it)
