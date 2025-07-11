@@ -107,7 +107,7 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
                                 }
                             } else {
                                 scanner->eval_result_id[0] = '\0';
-                                scanner->last_backtick_count = 0;
+                                scanner->fenced_code_block_delimiter_length = 0;
                             }
                         } else {
                             scanner->eval_result_id[0] = '\0';
