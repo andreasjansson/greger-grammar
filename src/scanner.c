@@ -722,38 +722,11 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
             lexer->result_symbol = CODE_BACKTICKS_START;
             return true;
         } else {
-            // For inline code (1-2 backticks), look ahead for matching closing delimiter
-            // Save current position
-            TSLexer saved_lexer = *lexer;
-            
-            int close_level = 0;
-            while (!lexer->eof(lexer)) {
-                if (lexer->lookahead == '`') {
-                    close_level++;
-                } else {
-                    if (close_level == level) {
-                        // Found matching closing delimiter
-                        *lexer = saved_lexer; // Restore position
-                        scanner->fenced_code_block_delimiter_length = level;
-                        lexer->result_symbol = CODE_BACKTICKS_START;
-                        return true;
-                    }
-                    close_level = 0;
-                }
-                advance(lexer);
-            }
-            
-            // Check if we ended with the right level
-            if (close_level == level) {
-                *lexer = saved_lexer; // Restore position
-                scanner->fenced_code_block_delimiter_length = level;
-                lexer->result_symbol = CODE_BACKTICKS_START;
-                return true;
-            }
-            
-            // No matching closing delimiter found
-            *lexer = saved_lexer; // Restore position
-            return false;
+            // For inline code (1-2 backticks), always accept as start
+            // Let the grammar handle finding the matching end
+            scanner->fenced_code_block_delimiter_length = level;
+            lexer->result_symbol = CODE_BACKTICKS_START;
+            return true;
         }
     }
     

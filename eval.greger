@@ -8527,6 +8527,8 @@ Actually, let me look at the exact difference again. In the working case ```hell
 
 Let me try a different approach. Let me use a more explicit content rule:
 
+```
+
 # TOOL USE
 
 Name: str-replace
@@ -8544,33 +8546,26 @@ ID: toolu_01GJfPgvMww5desQ4wm6vdFL
 Use explicit content tokens for code blocks
 </tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
 
-## original-content
+## diff
 
 <tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
-    code: $ => seq(
-      $.code_backticks_start,
-      repeat(choice(
-        $._code_content,
-        /\n/,
-      )),
-      $.code_backticks_end,
-    ),
+     code: $ => seq(
+       $.code_backticks_start,
+       repeat(choice(
+-        $._code_content,
+-        /\n/,
++        /[^`\n]+/,  // non-backtick, non-newline characters
++        /`/,        // single backticks as content
++        /\n/,       // newlines
+       )),
+       $.code_backticks_end,
+-    ),
+-
+-    _code_content: $ => token(prec(-1, /[^\n]+/)),
+\ No newline at end of file
++    ),
+\ No newline at end of file
 
-    _code_content: $ => token(prec(-1, /[^\n]+/)),
-</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
-
-## new-content
-
-<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
-    code: $ => seq(
-      $.code_backticks_start,
-      repeat(choice(
-        /[^`\n]+/,  // non-backtick, non-newline characters
-        /`/,        // single backticks as content
-        /\n/,       // newlines
-      )),
-      $.code_backticks_end,
-    ),
 </tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
 
 # TOOL RESULT
@@ -8580,3 +8575,191 @@ ID: toolu_01GJfPgvMww5desQ4wm6vdFL
 <tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
 
 </tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01G2VgApGAac8Mr54Bd5LdU4
+
+## command
+
+<tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+
+## timeout
+
+<tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+10
+</tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+
+# TOOL RESULT
+
+ID: toolu_01G2VgApGAac8Mr54Bd5LdU4
+
+<tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.12 ms	   217 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01G2VgApGAac8Mr54Bd5LdU4>
+
+# ASSISTANT
+
+The issue is still there. Let me look more carefully at the exact structure. The key insight is that the issue is not with the content parsing, but with the fact that the scanner needs to properly handle when to start/stop parsing delimiters.
+
+Let me look at the space issue again. The problem is that the opening backticks ```` are parsed correctly, but there's a space that's not being handled. Let me check what's happening at the exact position:
+
+```
+
+# USER
+
+continue
+
+# THINKING
+
+Signature: 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
+
+The user is asking me to continue debugging the issue with the code block parsing. Looking at the current state:
+
+1. The opening backticks `` are being parsed correctly as `code_backticks_start`
+2. There's an ERROR starting at position [2, 3] which suggests that the space after the opening backticks is not being handled properly
+3. The content should be " `code` " (space, backtick, "code", backtick, space)
+
+The issue seems to be that my scanner logic is not properly allowing the grammar to handle the content between the delimiters. Let me think about this more systematically.
+
+Looking at the markdown inline parser approach:
+1. The external scanner only handles the opening and closing delimiters
+2. The grammar handles everything in between using regular grammar rules
+3. The content can include backticks because they're treated as regular text content
+
+The problem might be in my scanner logic where I'm looking ahead to find matching closing delimiters. The issue could be that the scanner is interfering with the normal parsing of content.
+
+Let me examine what happens step by step:
+1. `` - this gets parsed as code_backticks_start ✓
+2. Space - this should be handled by the grammar rule as content
+3. ` - this should be handled by the grammar rule as content  
+4. code - this should be handled by the grammar rule as content
+5. ` - this should be handled by the grammar rule as content
+6. Space - this should be handled by the grammar rule as content
+7. `` - this should get parsed as code_backticks_end
+
+The issue might be that the scanner is trying to parse the single backtick at position [2, 3] as a delimiter when it should just be treated as content.
+
+Let me check if there's an issue with the scanner logic where it's trying to parse every backtick it encounters.
+
+# ASSISTANT
+
+Let me debug this step by step. The issue seems to be that the scanner is still trying to parse every backtick it encounters. Let me check what's happening with the space character:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AE3mdNM6mfGeuCAa7uCiMH
+
+## command
+
+<tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+cd . && printf '# ASSISTANT\n\n`` hello``' | tree-sitter parse /dev/stdin
+</tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+
+## timeout
+
+<tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+10
+</tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+
+# TOOL RESULT
+
+ID: toolu_01AE3mdNM6mfGeuCAa7uCiMH
+
+<tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+(source_file [0, 0] - [2, 10]
+  (assistant [0, 0] - [2, 10]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 10]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 8] - [2, 10]))))
+
+</tool.toolu_01AE3mdNM6mfGeuCAa7uCiMH>
+
+# ASSISTANT
+
+That works! So the issue is specifically when there's a backtick inside the content. The problem is that the scanner is trying to parse the single backtick as a delimiter when it should be ignored.
+
+Looking at the markdown inline scanner more carefully, I think the issue is that my lookahead logic in the scanner is interfering with normal parsing. Let me simplify the scanner to not do lookahead for inline code:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017rxN5A8wkKuV4XXBpxx2mu
+
+## path
+
+<tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+./src/scanner.c
+</tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+
+## git-commit-message
+
+<tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+Simplify scanner to not do lookahead for inline code delimiters
+</tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+
+## diff
+
+<tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+         } else {
+-            // For inline code (1-2 backticks), look ahead for matching closing delimiter
+-            // Save current position
+-            TSLexer saved_lexer = *lexer;
+-            
+-            int close_level = 0;
+-            while (!lexer->eof(lexer)) {
+-                if (lexer->lookahead == '`') {
+-                    close_level++;
+-                } else {
+-                    if (close_level == level) {
+-                        // Found matching closing delimiter
+-                        *lexer = saved_lexer; // Restore position
+-                        scanner->fenced_code_block_delimiter_length = level;
+-                        lexer->result_symbol = CODE_BACKTICKS_START;
+-                        return true;
+-                    }
+-                    close_level = 0;
+-                }
+-                advance(lexer);
+-            }
+-            
+-            // Check if we ended with the right level
+-            if (close_level == level) {
+-                *lexer = saved_lexer; // Restore position
+-                scanner->fenced_code_block_delimiter_length = level;
+-                lexer->result_symbol = CODE_BACKTICKS_START;
+-                return true;
+-            }
+-            
+-            // No matching closing delimiter found
+-            *lexer = saved_lexer; // Restore position
+-            return false;
++            // For inline code (1-2 backticks), always accept as start
++            // Let the grammar handle finding the matching end
++            scanner->fenced_code_block_delimiter_length = level;
++            lexer->result_symbol = CODE_BACKTICKS_START;
++            return true;
+         }
+\ No newline at end of file
+
+</tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+
+# TOOL RESULT
+
+ID: toolu_017rxN5A8wkKuV4XXBpxx2mu
+
+<tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
+
+</tool.toolu_017rxN5A8wkKuV4XXBpxx2mu>
