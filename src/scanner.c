@@ -686,6 +686,7 @@ static bool scan_code_content(TSLexer *lexer) {
                         lexer->result_symbol = CODE_CONTENT;
                         return true;
                     }
+                    // If not followed by newline/EOF, treat as content and continue
                 } else {
                     // For inline code (1-2 backticks), close immediately
                     lexer->mark_end(lexer);
