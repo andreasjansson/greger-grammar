@@ -727,29 +727,8 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 } else {
                     // Case 3: Check if this continues to closing backticks (inline style)
-                    // Look ahead to see if we can find matching closing backticks
-                    while (lexer->lookahead != 0 && lexer->lookahead != '\n' && lexer->lookahead != '\r') {
-                        if (lexer->lookahead == '`') {
-                            // Count consecutive backticks
-                            int closing_backticks = 0;
-                            while (lexer->lookahead == '`') {
-                                closing_backticks++;
-                                advance(lexer);
-                            }
-                            
-                            // If we found matching closing backticks, this is valid inline style
-                            if (closing_backticks == scanner->last_backtick_count) {
-                                return false;
-                            }
-                            // Otherwise continue scanning
-                        } else {
-                            advance(lexer);
-                        }
-                    }
-                    
-                    // If we reached newline/EOF without finding closing backticks,
-                    // this might be invalid language (like "python stuff")
-                    // Let contents scanner handle it
+                    // Simple check: if we see more content, let contents handle it
+                    *lexer = saved_lexer;
                 }
             }
             
@@ -759,32 +738,6 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     }
     
     bool has_content = false;
-    
-    // Special handling for empty code blocks: if we immediately find closing backticks,
-    // mark the end immediately and return with empty content
-    if (lexer->lookahead == '`') {
-        TSLexer saved_lexer = *lexer;
-        int backtick_count = 0;
-        
-        // Count consecutive backticks
-        while (lexer->lookahead == '`') {
-            backtick_count++;
-            advance(lexer);
-        }
-        
-        // If this matches the opening backtick count, this is the closing sequence for empty content
-        if (backtick_count == scanner->last_backtick_count) {
-            // Restore lexer position and let the grammar handle the closing backticks
-            *lexer = saved_lexer;
-            // Mark end at the current position (empty content)
-            lexer->mark_end(lexer);
-            lexer->result_symbol = CODE_CONTENTS;
-            return true;
-        } else {
-            // This is not the closing sequence, restore and continue as normal
-            *lexer = saved_lexer;
-        }
-    }
     
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '`') {
