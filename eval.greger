@@ -2226,5 +2226,171 @@ Add simple test file for debugging
 ID: toolu_01Xemwjs4J4Fkv5tfkaASYyh
 
 <tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test_simple.greger with 3 characters. Successfully staged 2 file(s) and committed with message: Add simple test file for debugging
 </tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011aemDSTAsVqHHBFKuuQsM8
+
+## command
+
+<tool.toolu_011aemDSTAsVqHHBFKuuQsM8>
+timeout 10 tree-sitter parse test_simple.greger
+</tool.toolu_011aemDSTAsVqHHBFKuuQsM8>
+
+# TOOL RESULT
+
+ID: toolu_011aemDSTAsVqHHBFKuuQsM8
+
+<tool.toolu_011aemDSTAsVqHHBFKuuQsM8>
+(source_file [0, 0] - [1, 0]
+  (ERROR [0, 0] - [1, 0]))
+test_simple.greger	Parse:    0.02 ms	   175 bytes/ms	(ERROR [0, 0] - [1, 0])
+Command failed with exit code 1
+</tool.toolu_011aemDSTAsVqHHBFKuuQsM8>
+
+# ASSISTANT
+
+It seems like even simple code parsing is broken. Let me check the tree-sitter generate and build:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019n5wxgHCNraPCYw3CsEcGV
+
+## command
+
+<tool.toolu_019n5wxgHCNraPCYw3CsEcGV>
+tree-sitter generate
+</tool.toolu_019n5wxgHCNraPCYw3CsEcGV>
+
+# TOOL RESULT
+
+ID: toolu_019n5wxgHCNraPCYw3CsEcGV
+
+<tool.toolu_019n5wxgHCNraPCYw3CsEcGV>
+
+</tool.toolu_019n5wxgHCNraPCYw3CsEcGV>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013WnH4tVWdUrYMskXRiuokZ
+
+## command
+
+<tool.toolu_013WnH4tVWdUrYMskXRiuokZ>
+tree-sitter build
+</tool.toolu_013WnH4tVWdUrYMskXRiuokZ>
+
+# TOOL RESULT
+
+ID: toolu_013WnH4tVWdUrYMskXRiuokZ
+
+<tool.toolu_013WnH4tVWdUrYMskXRiuokZ>
+
+</tool.toolu_013WnH4tVWdUrYMskXRiuokZ>
+
+# ASSISTANT
+
+Let me look at the scan_code_content function more carefully. The issue might be that we're not properly handling the case where the code content is a single character like LESSTHAN:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01N9qFcRh6ncqVAp2pLD3w1C
+
+## path
+
+<tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+src/scanner.c
+</tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+
+## start-line
+
+<tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+670
+</tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+
+## end-line
+
+<tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+690
+</tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+
+# TOOL RESULT
+
+ID: toolu_01N9qFcRh6ncqVAp2pLD3w1C
+
+<tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of opening backticks
+    int opening_backticks = 0;
+    while (lexer->lookahead == '`' && opening_backticks < 20) {
+        advance(lexer);
+        opening_backticks++;
+    }
+    
+    // Store the count and set state
+    scanner->code_backtick_count = opening_backticks;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_START_TAG;
+    return true;
+}
+
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're immediately at a newline
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+</tool.toolu_01N9qFcRh6ncqVAp2pLD3w1C>
+
+# ASSISTANT
+
+Let me examine the issue more carefully. I notice that in the failing case, we have the structure:
+
+```
+# USER
+
+`<`
+```
+
+This is a single backtick, followed by a LESSTHAN sign, followed by another single backtick. But the scanner is seeing the first backtick as starting a code block, then encountering the LESSTHAN, then the second backtick should close it.
+
+Let me debug this step by step. Let me add a test file that should definitely work:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01H8eokYctutpprgPFUZ8NWY
+
+## path
+
+<tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+test_code_debug.greger
+</tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+
+## git-commit-message
+
+<tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+Add code debug test file
+</tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+
+## contents
+
+<tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+# USER
+
+`hello`
+</tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+
+# TOOL RESULT
+
+ID: toolu_01H8eokYctutpprgPFUZ8NWY
+
+<tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+
+</tool.toolu_01H8eokYctutpprgPFUZ8NWY>
