@@ -18,7 +18,6 @@ enum TokenType {
     CODE_START_TAG,
     CODE_CONTENT,
     CODE_END_TAG,
-    CODE_CLOSE_TAG,
     EVAL_LANGUAGE,
 };
 
