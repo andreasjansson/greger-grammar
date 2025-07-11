@@ -9986,5 +9986,157 @@ Make code_content scanner stop at <$code-close/> pattern
 ID: toolu_01BgZy2TYbYwSGg9E4NScLfb
 
 <tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make code_content scanner stop at <$code-close/> pattern
 </tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+
+# ASSISTANT
+
+Now let's test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Mrr4MviwKTAUcLs5UKGGpF
+
+## command
+
+<tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+
+## timeout
+
+<tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+10
+</tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+
+# TOOL RESULT
+
+ID: toolu_01Mrr4MviwKTAUcLs5UKGGpF
+
+<tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.32 ms	   114 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01Mrr4MviwKTAUcLs5UKGGpF>
+
+# ASSISTANT
+
+We're getting closer! Now the code_content is stopping at the right place (`[2, 3] - [4, 13]`) which means it's stopping before the `>` in the code close tag. But there's still an error at the `>` character.
+
+This suggests that the grammar is trying to match the `<$code-close/>` token but failing. Let me test if the issue is with the token pattern itself:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017yXqkg6t1nvTBwQBdUzzra
+
+## command
+
+<tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+cd . && printf '# ASSISTANT\n\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+
+## timeout
+
+<tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+10
+</tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+
+# TOOL RESULT
+
+ID: toolu_017yXqkg6t1nvTBwQBdUzzra
+
+<tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+(source_file [0, 0] - [2, 14]
+  (assistant [0, 0] - [2, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 14])))
+
+</tool.toolu_017yXqkg6t1nvTBwQBdUzzra>
+
+# ASSISTANT
+
+So when the code close tag is on its own, it's treated as text, which means the token pattern is not being recognized outside of a code context. This is good behavior.
+
+The issue might be that the choice between `code_end_tag` and `code_close_tag` is not working correctly. Since `code_end_tag` is an external token and `code_close_tag` is a regular token, there might be a conflict.
+
+Let me try a different approach. Instead of making it a choice, let me see if I can handle this differently. But first, let me test what happens with a normal code block to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HcCNHf8CVirY7mpzhByyqq
+
+## command
+
+<tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+cd . && printf '# ASSISTANT\n\n```\ncode\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+
+## timeout
+
+<tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+10
+</tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+
+# TOOL RESULT
+
+ID: toolu_01HcCNHf8CVirY7mpzhByyqq
+
+<tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_end_tag [4, 0] - [4, 3]))))
+
+</tool.toolu_01HcCNHf8CVirY7mpzhByyqq>
+
+# ASSISTANT
+
+Good! Normal code blocks still work. The issue is specifically with the code close tag choice. Let me try using a different approach. Maybe the issue is that both tokens can match at the same position, and the parser is getting confused.
+
+Let me try making the code_close_tag more specific by adding a conflict declaration or changing the precedence:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Nfi3YGqMG5qRFhKTTKHnfL
+
+## path
+
+<tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+./grammar.js
+</tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+
+## git-commit-message
+
+<tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+Try higher precedence for code_close_tag
+</tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+
+## diff
+
+<tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+-    code_close_tag: $ => token(prec(1, '<$code-close/>')),
+\ No newline at end of file
++    code_close_tag: $ => token(prec(10, '<$code-close/>')),
+\ No newline at end of file
+
+</tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+
+# TOOL RESULT
+
+ID: toolu_01Nfi3YGqMG5qRFhKTTKHnfL
+
+<tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
+
+</tool.toolu_01Nfi3YGqMG5qRFhKTTKHnfL>
