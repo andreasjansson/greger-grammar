@@ -6070,6 +6070,8 @@ The issue is the order - tree-sitter will try the first choice first, so it will
 
 Let me enable the contents scanner again with a very simple implementation:
 
+```
+
 # TOOL USE
 
 Name: str-replace
@@ -6087,19 +6089,210 @@ ID: toolu_01JYZqXaF3VuoKBp4uGrtauX
 Re-enable code_contents scanner with minimal implementation
 </tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
 
-## original-content
+## diff
 
 <tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
-    // Handle code contents - temporarily disabled
-    if (valid_symbols[CODE_CONTENTS]) {
-        // return scan_code_contents(scanner, lexer);
-        return false;
-    }
+-    // Handle code contents - temporarily disabled
++    // Handle code contents
+     if (valid_symbols[CODE_CONTENTS]) {
+-        // return scan_code_contents(scanner, lexer);
+-        return false;
++        // Simple implementation - consume everything until closing backticks
++        while (lexer->lookahead != 0) {
++            if (lexer->lookahead == '`') {
++                // Check if this could be closing backticks
++                int backtick_count = 0;
++                TSLexer saved_lexer = *lexer;
++                
++                while (lexer->lookahead == '`') {
++                    backtick_count++;
++                    advance(lexer);
++                }
++                
++                if (backtick_count == scanner->last_backtick_count) {
++                    // This is the closing sequence, restore and stop
++                    *lexer = saved_lexer;
++                    break;
++                } else {
++                    // Not the closing sequence, restore and include as content
++                    *lexer = saved_lexer;
++                    advance(lexer);
++                }
++            } else {
++                advance(lexer);
++            }
++        }
++        
++        lexer->result_symbol = CODE_CONTENTS;
++        return true;
+     }
+\ No newline at end of file
+
 </tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
 
-## new-content
+# TOOL RESULT
+
+ID: toolu_01JYZqXaF3VuoKBp4uGrtauX
 
 <tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017EEDHmSkWqugtitY5n23q8
+
+## command
+
+<tool.toolu_017EEDHmSkWqugtitY5n23q8>
+cd . && tree-sitter generate
+</tool.toolu_017EEDHmSkWqugtitY5n23q8>
+
+## timeout
+
+<tool.toolu_017EEDHmSkWqugtitY5n23q8>
+10
+</tool.toolu_017EEDHmSkWqugtitY5n23q8>
+
+# TOOL RESULT
+
+ID: toolu_017EEDHmSkWqugtitY5n23q8
+
+<tool.toolu_017EEDHmSkWqugtitY5n23q8>
+
+</tool.toolu_017EEDHmSkWqugtitY5n23q8>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Pse3NYknpNTntgXcGDhN22
+
+## command
+
+<tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+
+## timeout
+
+<tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+10
+</tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+
+# TOOL RESULT
+
+ID: toolu_01Pse3NYknpNTntgXcGDhN22
+
+<tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+Command failed with exit code 124
+</tool.toolu_01Pse3NYknpNTntgXcGDhN22>
+
+# ASSISTANT
+
+Still timing out. I think the issue is that the while loop is infinite. Let me trace through what happens:
+
+1. ```` hello ``` -> scanner sees opening backticks (count=2)
+2. Grammar tries to match `code_language` which matches "hello"
+3. Then it tries `code_contents` which calls the scanner
+4. The scanner looks for 2 consecutive backticks to close
+5. It sees 2 backticks at the end, but maybe the loop condition is wrong
+
+Let me check the exact content:
+
+```
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014PjTVN3x8GpegV4FtdEw9K
+
+## command
+
+<tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+cd . && printf '`` hello ``' | xxd
+</tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+
+## timeout
+
+<tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+5
+</tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+
+# TOOL RESULT
+
+ID: toolu_014PjTVN3x8GpegV4FtdEw9K
+
+<tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+
+</tool.toolu_014PjTVN3x8GpegV4FtdEw9K>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PkKpqiHBYAPPxRw8JyAZiJ
+
+## command
+
+<tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+printf '`` hello ``' | xxd
+</tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+
+## timeout
+
+<tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+5
+</tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+
+# TOOL RESULT
+
+ID: toolu_01PkKpqiHBYAPPxRw8JyAZiJ
+
+<tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+00000000: 6060 2068 656c 6c6f 2060 60              `` hello ``
+
+</tool.toolu_01PkKpqiHBYAPPxRw8JyAZiJ>
+
+# ASSISTANT
+
+So the content is:  `` hello `` (2 backticks, space, "hello", space, 2 backticks). The issue is that after the grammar matches "hello" as `code_language`, the contents scanner is called and it's positioned at the space after "hello". Then it should consume " ``" but it's not finding the closing backticks correctly.
+
+Actually, let me step back and think about this differently. The issue might be in how I'm thinking about the grammar. Let me look at what the working tests expect.
+
+Looking at the failing "Double backticks no language" test, it expects ```` ` ```` to be parsed as a code block where the content is ` ` (space backtick space). This means the grammar should be trying the second choice: `code_backticks, code_contents, code_backticks`.
+
+But the first choice `code_backticks, code_language, code_contents, code_backticks` will always try to match `code_language` first, which will match any alphabetic character.
+
+I think the issue is that the current approach is fundamentally flawed. Let me look at the successful approach from the markdown parser more carefully and try to understand how to apply it to my case.
+
+Looking at the markdown parser, it uses the scanner to decide whether to emit a `FENCED_CODE_BLOCK_START` or `FENCED_CODE_BLOCK_END` token. The grammar doesn't have a separate "contents" token - the contents are just regular text tokens that get parsed normally.
+
+But in my case, I need to have a contents token because the code contents shouldn't be parsed as regular text (it might contain backticks, markdown, etc. that shouldn't be interpreted).
+
+Let me try a different approach - let me make the contents scanner much simpler and just consume everything until EOF, and let the grammar handle the backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01T6DBg4buxzbm8q1BkFo81m
+
+## path
+
+<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+./src/scanner.c
+</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+
+## git-commit-message
+
+<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+Simplify code_contents to just consume everything until EOF
+</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+
+## original-content
+
+<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
     // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
         // Simple implementation - consume everything until closing backticks
@@ -6131,12 +6324,43 @@ Re-enable code_contents scanner with minimal implementation
         lexer->result_symbol = CODE_CONTENTS;
         return true;
     }
-</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+
+## new-content
+
+<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+    // Handle code contents
+    if (valid_symbols[CODE_CONTENTS]) {
+        // Very simple implementation - just consume a few characters
+        // The grammar should handle the rest
+        bool has_content = false;
+        int char_count = 0;
+        
+        while (lexer->lookahead != 0 && char_count < 100) {
+            if (lexer->lookahead == '`') {
+                // Don't consume backticks, let the grammar handle them
+                break;
+            }
+            advance(lexer);
+            has_content = true;
+            char_count++;
+        }
+        
+        if (has_content) {
+            lexer->result_symbol = CODE_CONTENTS;
+            return true;
+        }
+        
+        // If no content, still return the token (empty content)
+        lexer->result_symbol = CODE_CONTENTS;
+        return true;
+    }
+</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
 
 # TOOL RESULT
 
-ID: toolu_01JYZqXaF3VuoKBp4uGrtauX
+ID: toolu_01T6DBg4buxzbm8q1BkFo81m
 
-<tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
 
-</tool.toolu_01JYZqXaF3VuoKBp4uGrtauX>
+</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>

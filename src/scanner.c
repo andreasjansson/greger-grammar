@@ -916,32 +916,27 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     
     // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
-        // Simple implementation - consume everything until closing backticks
-        while (lexer->lookahead != 0) {
+        // Very simple implementation - just consume a few characters
+        // The grammar should handle the rest
+        bool has_content = false;
+        int char_count = 0;
+        
+        while (lexer->lookahead != 0 && char_count < 100) {
             if (lexer->lookahead == '`') {
-                // Check if this could be closing backticks
-                int backtick_count = 0;
-                TSLexer saved_lexer = *lexer;
-                
-                while (lexer->lookahead == '`') {
-                    backtick_count++;
-                    advance(lexer);
-                }
-                
-                if (backtick_count == scanner->last_backtick_count) {
-                    // This is the closing sequence, restore and stop
-                    *lexer = saved_lexer;
-                    break;
-                } else {
-                    // Not the closing sequence, restore and include as content
-                    *lexer = saved_lexer;
-                    advance(lexer);
-                }
-            } else {
-                advance(lexer);
+                // Don't consume backticks, let the grammar handle them
+                break;
             }
+            advance(lexer);
+            has_content = true;
+            char_count++;
         }
         
+        if (has_content) {
+            lexer->result_symbol = CODE_CONTENTS;
+            return true;
+        }
+        
+        // If no content, still return the token (empty content)
         lexer->result_symbol = CODE_CONTENTS;
         return true;
     }
