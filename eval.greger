@@ -8369,5 +8369,120 @@ static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_016ok7PNKwnJutBe8BmdeNFf
 
 <tool.toolu_016ok7PNKwnJutBe8BmdeNFf>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output from end scanner function
 </tool.toolu_016ok7PNKwnJutBe8BmdeNFf>
+
+# ASSISTANT
+
+Now let me try a different approach. I think the issue might be that the scanner state isn't being properly preserved or there's some other issue. Let me check if I can make the simplest possible case work - empty code blocks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015QyePJ7dM3GDu42Aaea25m
+
+## command
+
+<tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+printf '# ASSISTANT\n\n``' | tree-sitter parse /dev/stdin
+</tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+
+## timeout
+
+<tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+10
+</tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+
+# TOOL RESULT
+
+ID: toolu_015QyePJ7dM3GDu42Aaea25m
+
+<tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+(source_file [0, 0] - [2, 2]
+  (assistant [0, 0] - [2, 2]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 2]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 2] - [2, 2]))))
+/dev/stdin	Parse:    0.05 ms	   292 bytes/ms	(MISSING code_backticks_end [2, 2] - [2, 2])
+Command failed with exit code 1
+</tool.toolu_015QyePJ7dM3GDu42Aaea25m>
+
+# ASSISTANT
+
+This is very strange! The `code_backticks_start` spans from [2,0] to [2,2], which includes both backticks. This suggests that the scanner is consuming both backticks in the start function and then the end function is being called but with no characters to consume.
+
+This tells me that there's a fundamental issue with how I'm handling the scanning. The start function is consuming too many characters. Let me check if this is the root cause by looking at what the start function is doing:
+
+1. It counts backticks: `level = 2`
+2. It sets the delimiter length: `scanner->fenced_code_block_delimiter_length = 2`
+3. It advances the lexer position for each backtick
+
+But then when the end function is called, there are no more backticks left to consume because the start function already consumed them all.
+
+This tells me that my approach is fundamentally flawed. I need to understand how the tool content approach works correctly.
+
+Let me trace through the tool content approach to understand the correct pattern:
+
+1. `scan_tool_start_tag` - consumes `<tool.name>` and sets `in_tool_content = true`
+2. `scan_tool_content_head` - consumes content until finding `</tool.name>` (but doesn't consume the closing tag)
+3. `scan_tool_end_tag` - consumes `</tool.name>` and sets `in_tool_content = false`
+
+The key insight is that the start tag scanner only consumes the opening tag, not any content. The content scanner consumes the content but stops before the closing tag. The end tag scanner consumes the closing tag.
+
+In my implementation, I need to:
+1. `scan_code_backticks_start` - consume opening backticks only
+2. `scan_code_content` - consume content until finding closing backticks (but don't consume them)
+3. `scan_code_backticks_end` - consume closing backticks only
+
+The problem is that my current implementation is consuming all the backticks in the start function. I need to make sure that for the case ``, the start function consumes only the opening backtick(s), and the end function consumes the closing backtick(s).
+
+But wait - for the case ``, there's no way to distinguish between opening and closing backticks without lookahead. This is exactly what I was trying to do with the lookahead logic.
+
+Let me step back and think about this differently. Maybe I need to implement this like the tool content where I can distinguish between opening and closing based on context or content.
+
+Actually, let me check if the issue is that I need to handle the case where there's no content differently. Let me make the grammar handle the case with content explicitly:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01DuJtBX3wEEMmgkiBayTXFh
+
+## path
+
+<tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+./grammar.js
+</tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+## git-commit-message
+
+<tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+Add code_content back to grammar and test
+</tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+## original-content
+
+<tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+    code: $ => seq(
+      $.code_backticks_start,
+      $.code_backticks_end,
+    ),
+</tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+## new-content
+
+<tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+    code: $ => seq(
+      $.code_backticks_start,
+      optional($.code_content),
+      $.code_backticks_end,
+    ),
+</tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+# TOOL RESULT
+
+ID: toolu_01DuJtBX3wEEMmgkiBayTXFh
+
+<tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
+
+</tool.toolu_01DuJtBX3wEEMmgkiBayTXFh>
