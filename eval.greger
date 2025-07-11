@@ -6608,5 +6608,174 @@ More text after.
 ID: toolu_01CMejyCjPwJ1iEyFjkx7RCx
 
 <tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test/corpus/code-close.txt with 294 characters. Successfully staged 2 file(s) and committed with message: Add test case for code close tag functionality
 </tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FxqG1by3rURPR4L228zQrC
+
+## command
+
+<tool.toolu_01FxqG1by3rURPR4L228zQrC>
+cd . && timeout 10 tree-sitter test --file-name code-close.txt
+</tool.toolu_01FxqG1by3rURPR4L228zQrC>
+
+## timeout
+
+<tool.toolu_01FxqG1by3rURPR4L228zQrC>
+15
+</tool.toolu_01FxqG1by3rURPR4L228zQrC>
+
+# TOOL RESULT
+
+ID: toolu_01FxqG1by3rURPR4L228zQrC
+
+<tool.toolu_01FxqG1by3rURPR4L228zQrC>
+  code-close:
+      6. ✗ Code close tag test
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag test:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_start_tag)
+        (code_content)
+        (UNEXPECTED '>')))
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_close_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01FxqG1by3rURPR4L228zQrC>
+
+# ASSISTANT
+
+The issue is clear now. The scanner is not recognizing the code close tag correctly. Let me think about this differently.
+
+The problem is that I'm checking for the code close tag pattern in the `code_content` scanner, but the issue is that the advancing logic is wrong. When I find the code close tag pattern, I'm not advancing the lexer to actually consume the pattern.
+
+But wait - I think I understand the issue better now. The problem is that when we reach the `<$code-close/>`, the scanner is being called with `valid_symbols[CODE_CLOSE_TAG]` but the `scan_code_close_tag` function is failing to match.
+
+Let me debug this by adding some debug output to understand what's happening. But first, let me check if the scanner is properly checking for this. 
+
+I think the issue might be in the sequence of character checks. Let me test a very simple version:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HR3xx3mapYo7TS3uf4utK9
+
+## command
+
+<tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+cd . && printf '<$code-close/>' | hexdump -C
+</tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+
+## timeout
+
+<tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+5
+</tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+
+# TOOL RESULT
+
+ID: toolu_01HR3xx3mapYo7TS3uf4utK9
+
+<tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+00000000  3c 24 63 6f 64 65 2d 63  6c 6f 73 65 2f 3e        |<$code-close/>|
+0000000e
+
+</tool.toolu_01HR3xx3mapYo7TS3uf4utK9>
+
+# ASSISTANT
+
+That looks right. Let me check if the problem is that the scanner is not being called at all or if it's being called and failing. Let me simplify the test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LWpaWMda3ZroHU9H4kEztY
+
+## command
+
+<tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+cd . && printf '```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+
+## timeout
+
+<tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+10
+</tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+
+# TOOL RESULT
+
+ID: toolu_01LWpaWMda3ZroHU9H4kEztY
+
+<tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+(source_file [0, 0] - [2, 14]
+  (ERROR [0, 0] - [2, 14]
+    (ERROR [1, 0] - [2, 14])))
+/dev/stdin	Parse:    0.59 ms	    38 bytes/ms	(ERROR [0, 0] - [2, 14])
+Command failed with exit code 1
+</tool.toolu_01LWpaWMda3ZroHU9H4kEztY>
+
+# ASSISTANT
+
+The issue might be a fundamental problem with the structure. Let me look at what's happening. When we have:
+
+```
+```
+code
+<$code-close/>
+```
+
+The sequence should be:
+1. `code_start_tag` recognizes ```` (3 backticks)
+2. `code_content` recognizes `code\n` and then stops at `<$code-close/>`
+3. `code_close_tag` recognizes `<$code-close/>`
+
+But the issue is that the code close tag scanner is being called but failing to match.
+
+Actually, let me trace through the logic more carefully. Let me add some debug output to the scan_code_close_tag function temporarily:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01WYcUg5eBC26ESs4pWJn9Dq
+
+## path
+
+<tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+./src/scanner.c
+</tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+## git-commit-message
+
+<tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+Add debug output to scan_code_close_tag to understand what's happening
+</tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+## diff
+
+<tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+</tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+# TOOL RESULT
+
+ID: toolu_01WYcUg5eBC26ESs4pWJn9Dq
+
+<tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+</tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
