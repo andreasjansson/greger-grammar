@@ -10219,5 +10219,326 @@ Add test case for triple backticks with content on same line
 ID: toolu_01PxVaUY5JKk721jWsuiofZ2
 
 <tool.toolu_01PxVaUY5JKk721jWsuiofZ2>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Add test case for triple backticks with content on same line
 </tool.toolu_01PxVaUY5JKk721jWsuiofZ2>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XGdRobq5yfEVW8bJJWiStq
+
+## command
+
+<tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+tree-sitter test
+</tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+
+## timeout
+
+<tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+30
+</tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+
+# TOOL RESULT
+
+ID: toolu_01XGdRobq5yfEVW8bJJWiStq
+
+<tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✓ Single backtick with double backticks inside
+     19. ✓ Triple backticks with content on same line
+  complex-workflow:
+     20. ✓ Complex workflow
+  eval-nested-braces:
+     21. ✓ Eval nested braces
+  eval-partial:
+     22. ✓ Eval partial cases -- Warning: Slow parse rate (1132.743 bytes/ms)
+  eval-results:
+     23. ✓ Eval results
+  eval:
+     24. ✓ Eval
+  html-comments:
+     25. ✓ HTML comments
+  html-tags:
+     26. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     27. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     28. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     29. ✓ Multiple tool uses
+  nested-code-blocks:
+     30. ✓ Nested code blocks
+  safe-shell-commands:
+     31. ✓ Safe shell commands
+  server-tool-use-basic:
+     32. ✓ Server tool use basic
+  server-tool-use-string-result:
+     33. ✓ Server tool use string result
+  simple-conversation:
+     34. ✓ Simple conversation
+  simple-user-message:
+     35. ✓ Simple user message
+  system-and-user:
+     36. ✓ System and user
+  text-with-markdown-headings:
+     37. ✓ Text with markdown headings
+  thinking-only:
+     38. ✓ Thinking only
+  thinking-section:
+     39. ✓ Thinking section
+  tool-use-multiple-params:
+     40. ✓ Tool use multiple params
+  tool-use-only:
+     41. ✓ Tool use only
+  tool-use-single-param:
+     42. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     43. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     44. ✓ Tool use with tool use in params
+  triple-hash:
+     45. ✓ Triple hash not in citation
+  untagged-content:
+     46. ✓ Untagged content
+  xml-tags-backticks:
+     47. ✓ Tags in backticks
+
+Total parses: 47; successful parses: 47; failed parses: 0; success percentage: 100.00%; average speed: 22207 bytes/ms
+
+
+</tool.toolu_01XGdRobq5yfEVW8bJJWiStq>
+
+# ASSISTANT
+
+Perfect! All tests pass including the new one.
+
+## Summary
+
+I successfully identified and fixed the issue with triple-backtick code blocks followed by other content on the same line. Here's what I did:
+
+1. **Identified the problem**: The case BACKTICK BACKTICK BACKTICK a BACKTICK BACKTICK BACKTICK space b was failing to parse correctly.
+
+2. **Root cause**: The `scan_code_end_tag` function had overly restrictive logic that required triple+ backtick code blocks to be followed only by newlines or EOF. When there was other content (like space and 'b') after the closing backticks, the function would return false and refuse to generate the closing tag.
+
+3. **Applied the fix**: Removed the restriction that required newlines after triple backtick closing tags. The code was:
+
+   ```c
+   // For fenced code blocks (3+ backticks), require newline/EOF after closing
+   if (scanner->code_backtick_count >= 3) {
+       // Skip whitespace after closing backticks
+       while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+           advance(lexer);
+       }
+       if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+           return false;
+       }
+   }
+   ```
+
+   I replaced it with a simple comment allowing any content after closing backticks.
+
+4. **Added comprehensive test**: Added a test case "Triple backticks with content on same line" to ensure this behavior is captured in the test suite.
+
+5. **Verified the fix**: 
+   - The original issue now works: BACKTICK BACKTICK BACKTICK a BACKTICK BACKTICK BACKTICK space b parses correctly
+   - All existing tests continue to pass
+   - Inline triple backticks work: BACKTICK BACKTICK BACKTICK a BACKTICK BACKTICK BACKTICK text after
+   - Multiline triple backticks still work normally
+   - Quadruple backticks and other variants work correctly
+
+The fix allows triple backtick code blocks to be followed by any content on the same line, which matches standard Markdown behavior and makes the parser more flexible.
+
+# USER
+
+Look at debug.greger now. I notice that single-backticks always extend to the end of the line. That's a bug. Add a test case, reprodue, and fix
+
+# THINKING
+
+Signature: ErsCCkYIBRgCKkBOvgFeTI51d9K6kNdefFUKjn6dI88X/qrLms+5VP3JzEYFa0QEghjEWRLDOkcXd2Ddj/3CgzpDTalR6gwRYhFZEgxFvmXjJvzEMqHCruAaDJzqpvFPXZkk+AoHuiIwto8TDlNiXs2Z9u4oP2ZUaOn06HM8zAE7TIy0EHS7YuPPqvJ626iRcLfJ1Ef3uzH/KqIB/syE8XlgDBAsvGIg6Z7nzpBLvU2ukGGbvylint7QO5PuOwU5fE4td15goRHSgj3rPcpndl/vYGh3zCTzAtOECVGP9+9yV9IfwwmwkVPiKpTP2MEe+Wf9ZyZWlgVoTImsVqIedZE8GZMtHRyfB1tP/VCaRLdsLcN7dxa/dZmGH35GTT9cPKbC1ZZY+2WuR9yqydZnYnh6qih0aa0fqk3uUEDJGAE=
+
+The user is saying that single backticks always extend to the end of the line, which is a bug. Let me look at debug.greger to see what they mean.
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_012kbuarG5vso8AyapHveQyo
+
+## path
+
+<tool.toolu_012kbuarG5vso8AyapHveQyo>
+debug.greger
+</tool.toolu_012kbuarG5vso8AyapHveQyo>
+
+# TOOL RESULT
+
+ID: toolu_012kbuarG5vso8AyapHveQyo
+
+<tool.toolu_012kbuarG5vso8AyapHveQyo>
+# USER
+
+`a` b
+</tool.toolu_012kbuarG5vso8AyapHveQyo>
+
+# ASSISTANT
+
+Ah, I see the issue! The content is single BACKTICK a single BACKTICK space b. This should be parsed as:
+
+1. Single BACKTICK code block containing just 'a'
+2. Text content ' b' after the code block
+
+But based on your description, it's probably parsing the single BACKTICK code block as extending all the way to the end of the line, including the ' b' part.
+
+Let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01U4KsFV89peaqqeGecj1dsz
+
+## command
+
+<tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+tree-sitter parse debug.greger
+</tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+
+## timeout
+
+<tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+10
+</tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+
+# TOOL RESULT
+
+ID: toolu_01U4KsFV89peaqqeGecj1dsz
+
+<tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 5]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 5])
+      (code_end_tag [2, 5] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_01U4KsFV89peaqqeGecj1dsz>
+
+# ASSISTANT
+
+You're absolutely right! The code content spans from [2, 1] to [2, 5], which means it's consuming 'a' + BACKTICK + ' b' instead of just 'a'. The single BACKTICK should close when it encounters the second BACKTICK.
+
+Let me add a test case first:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01GSqQkQtYVqrQof8GfLpdTk
+
+## path
+
+<tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+test/corpus/code.txt
+</tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+
+## git-commit-message
+
+<tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+Add test case for single backtick with proper closing
+</tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+
+## original-content
+
+<tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+===============================
+Triple backticks with content on same line
+===============================
+
+# USER
+
+```a``` b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+</tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+
+## new-content
+
+<tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+===============================
+Triple backticks with content on same line
+===============================
+
+# USER
+
+```a``` b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Single backtick with proper closing
+===============================
+
+# USER
+
+`a` b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+</tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+
+# TOOL RESULT
+
+ID: toolu_01GSqQkQtYVqrQof8GfLpdTk
+
+<tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
+
+</tool.toolu_01GSqQkQtYVqrQof8GfLpdTk>
