@@ -41,6 +41,10 @@ when not in code parsing state:
 This should be implemented by the scanner, similar to how we implement tool use content or eval responses.
 
 
+## Misc
+
+Important: Don't do any git operations like stashing or changing branches!
+
 # USER
 
 ## Overarching task to complete
@@ -4698,3 +4702,255 @@ The scanner now properly implements the three-phase code block parsing:
 - **`CODE_END_TAG`**: Matching closing backticks
 
 This provides the separate tokens needed for proper syntax
+
+# USER
+
+Great! Now add a special `<$code-close/>` tag that closes any open backticks. As in, if the scanner sees `<$code-close/>` (the same way we're looking for tool end tags in scan_tool_end_tag) it exits the code block as though it had encountered the correct number of backticks to close the current code block.
+
+The purpose is this:
+
+Claude tends to leave code blocks open, so we need a special tag that closes code blocks before starting next section (if there is open backticks, as determined by treesitter at point just before inserting next section).
+
+It needs to be something very unlikely to appear naturally.
+
+# THINKING
+
+Signature: ErYGCkYIBRgCKkBr14eG4QJqrWgKg6YS2VTLbzUGB4Y6Ov4HiXY5N5lFEdN0v2cqsJG4jJF/fEKYSONBKdCi8WD0BaWJZL8ixITYEgzRztcwTm6xikTsaacaDEBon48kcWQNAvlt/CIwc6TdfKK+CGs1FJ8SIfRLBhwjKrPHhljtMljMlUJpiDoKn/cz+WYZ3ROv0x9jbybmKp0FSED1uPjnehS+vdbx8ioiEhpV84PdYOAJAjaBb2XrKBw/yqnddNvkryi3tEBrrmAjT+x2T6SerUxpml14rlKPbZVq85Wc3quvfvEKHSy9sDtwKYe1DJHP933TkTeyQWDB+OzaKBy4RRs8WFbi787rfKhWvHDU3VsuVTbUVdC2OV1W+aEtd85h1vVakVGyXayoNINbnIfqSydUFrhkFC7AwZVYaB8FNijHY1iM8RZBPjBiY/6MTHZcDcZNklAsGFlP7Vrw9797T8GCENFu/Sx83nKtyp3KP+AgY77pTFJLvgbis7hUGSF0wxRrtS0AeZJJwZ9rrwwQMDIyzPe3ION1msnsFocbQu1lrEoFvb1pWxq/tfAFntSpUA6/ds/2N8sV3L9su7Hnh05+PZhLSsYzFnKwW8aetSdOyv0YTS/rfqNty1Tk7EJFFh9PSxYveRy9vSe+BJuW9liWERESic3qvbKk92RHzbGQM1LtHUoCnrPBzNbePm9LCS4XkIeNki6LgeWXyGCxT52JFGe4am1neCP0l5/1ho+nN5jIJoMdQ2NuoeSbXvozLndT+xFP1IlBzvnYUIcBo1eZ3hmJxqiKTnYIBGrISidnVdaedmsAc+Enczl3PRiYD1wNNE/5swpw9Ew8NRs2nzwZoZs4bW+2dTwYtxxmvVwNAnQIoLwd93gWmGfHJEiE9E/TlosxRyERVscO8W2rj2t8wOi0ixa8eb2lK5uI6t+JCt5JopeeR1vkoaAOZe2a6TJDKnla7xxPYVcyN7K1oe6X3crrpzLvaY6RgI2ldmZQ3I7l9C0SGBz6xrIt/txKVkBEuphyFuejh8p+meJ6m4pn3OXrd0kIjpUqKag7biLzQm9V1N8mXOJ5lBwdt9pOdIGRIP2GGAE=
+
+The user wants me to add a special `<$code-close/>` tag that can force-close any open code blocks. This is similar to how we handle tool end tags in `scan_tool_end_tag`.
+
+Looking at the current code, I need to:
+
+1. Add a new token type for `CODE_CLOSE_TAG`
+2. Add the token to the externals in grammar.js
+3. Implement a scanner function that detects `<$code-close/>` 
+4. Make sure it resets the code scanner state (sets `in_code_content = false`, `code_backtick_count = 0`)
+5. Add it to the main scanner dispatch function
+6. Possibly add it to the grammar rules so it can be used in the right places
+
+Let me look at how `scan_tool_end_tag` works first:
+
+# ASSISTANT
+
+Great idea! Let me add the `<$code-close/>` tag. First, let me examine how the tool end tag scanning works:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01PU7G6qPNPH4A3VUoCPyYkU
+
+## path
+
+<tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+./src/scanner.c
+</tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+
+## start-line
+
+<tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+240
+</tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+
+## end-line
+
+<tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+280
+</tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+
+## include-line-numbers
+
+<tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+true
+</tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+
+# TOOL RESULT
+
+ID: toolu_01PU7G6qPNPH4A3VUoCPyYkU
+
+<tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+240: 
+241: static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+242:     if (lexer->lookahead != '<') return false;
+243:     advance(lexer);
+244: 
+245:     if (lexer->lookahead != '/') return false;
+246:     advance(lexer);
+247: 
+248:     // Check for "tool."
+249:     if (lexer->lookahead != 't') return false;
+250:     advance(lexer);
+251:     if (lexer->lookahead != 'o') return false;
+252:     advance(lexer);
+253:     if (lexer->lookahead != 'o') return false;
+254:     advance(lexer);
+255:     if (lexer->lookahead != 'l') return false;
+256:     advance(lexer);
+257:     if (lexer->lookahead != '.') return false;
+258:     advance(lexer);
+259: 
+260:     // Scan any tool ID until >
+261:     while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+262:         advance(lexer);
+263:     }
+264: 
+265:     if (lexer->lookahead != '>') return false;
+266:     advance(lexer);
+267: 
+268:     scanner->in_tool_content = false;
+269:     scanner->expecting_tail = false;
+270:     scanner->tool_id[0] = '\0';
+271:     lexer->result_symbol = TOOL_END_TAG;
+272:     return true;
+273: }
+274: 
+275: static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
+276:     if (!scanner->in_tool_content || scanner->expecting_tail) return false;
+277: 
+278:     lexer->mark_end(lexer);
+279: 
+280:     // Build the expected closing tag
+</tool.toolu_01PU7G6qPNPH4A3VUoCPyYkU>
+
+# ASSISTANT
+
+Perfect! Now let me add the `CODE_CLOSE_TAG` token. First, I need to add it to the token enum:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01SqTBTxgzwPWi5YHYK5sWiM
+
+## path
+
+<tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+./src/scanner.c
+</tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+
+## start-line
+
+<tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+1
+</tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+
+## end-line
+
+<tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+50
+</tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+
+## include-line-numbers
+
+<tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+true
+</tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+
+# TOOL RESULT
+
+ID: toolu_01SqTBTxgzwPWi5YHYK5sWiM
+
+<tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+ 1: #include "tree_sitter/parser.h"
+ 2: #include <wctype.h>
+ 3: #include <string.h>
+ 4: #include <stdio.h>
+ 5: 
+ 6: enum TokenType {
+ 7:     TOOL_START_TAG,
+ 8:     TOOL_END_TAG,
+ 9:     TOOL_CONTENT_HEAD,
+10:     TOOL_CONTENT_TAIL,
+11:     HTML_COMMENT,
+12:     EVAL_CONTENT,
+13:     EVAL_RESULT_START_TAG,
+14:     EVAL_RESULT_END_TAG,
+15:     EVAL_RESULT_CONTENT_HEAD,
+16:     EVAL_RESULT_CONTENT_TAIL,
+17:     ERROR_SENTINEL,
+18:     CODE_START_TAG,
+19:     CODE_CONTENT,
+20:     CODE_END_TAG,
+21:     EVAL_LANGUAGE,
+22: };
+23: 
+24: typedef struct {
+25:     char tool_id[256];
+26:     bool in_tool_content;
+27:     bool expecting_tail; // true when we've scanned head and now need tail
+28:     char eval_result_id[256];
+29:     bool in_eval_result_content;
+30:     bool expecting_eval_result_tail;
+31:     int code_backtick_count; // Track the number of backticks in the opening sequence
+32:     bool in_code_content; // true when we're inside code content
+33: } Scanner;
+34: 
+35: static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
+36: 
+37: static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
+38: 
+39: unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
+40:     Scanner *scanner = (Scanner *)payload;
+41: 
+42:     size_t tool_id_len = strlen(scanner->tool_id);
+43:     if (tool_id_len >= 255) tool_id_len = 255;
+44:     
+45:     size_t eval_result_id_len = strlen(scanner->eval_result_id);
+46:     if (eval_result_id_len >= 255) eval_result_id_len = 255;
+47: 
+48:     buffer[0] = scanner->in_tool_content ? 1 : 0;
+49:     buffer[1] = scanner->expecting_tail ? 1 : 0;
+50:     buffer[2] = tool_id_len;
+</tool.toolu_01SqTBTxgzwPWi5YHYK5sWiM>
+
+# ASSISTANT
+
+Now let me add the CODE_CLOSE_TAG token:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017xzGVE9L1u6gnGqWRSU4Sf
+
+## path
+
+<tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+./src/scanner.c
+</tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+
+## git-commit-message
+
+<tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+Add CODE_CLOSE_TAG token for force-closing code blocks
+</tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+
+## diff
+
+<tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+ enum TokenType {
+     TOOL_START_TAG,
+     TOOL_END_TAG,
+     TOOL_CONTENT_HEAD,
+     TOOL_CONTENT_TAIL,
+     HTML_COMMENT,
+     EVAL_CONTENT,
+     EVAL_RESULT_START_TAG,
+     EVAL_RESULT_END_TAG,
+     EVAL_RESULT_CONTENT_HEAD,
+     EVAL_RESULT_CONTENT_TAIL,
+     ERROR_SENTINEL,
+     CODE_START_TAG,
+     CODE_CONTENT,
+     CODE_END_TAG,
++    CODE_CLOSE_TAG,
+     EVAL_LANGUAGE,
+ };
+\ No newline at end of file
+
+</tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+
+# TOOL RESULT
+
+ID: toolu_017xzGVE9L1u6gnGqWRSU4Sf
+
+<tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
+
+</tool.toolu_017xzGVE9L1u6gnGqWRSU4Sf>
