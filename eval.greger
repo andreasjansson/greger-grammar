@@ -5907,5 +5907,515 @@ Fix code content handling for empty content between backtick and newline
 ID: toolu_012SqqrGwzUhkfDwuHjTHeKC
 
 <tool.toolu_012SqqrGwzUhkfDwuHjTHeKC>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code content handling for empty content between backtick and newline
 </tool.toolu_012SqqrGwzUhkfDwuHjTHeKC>
+
+# ASSISTANT
+
+Now let me rebuild and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01TJ1AL16oCEjh7gQuX4RrHP
+
+## command
+
+<tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+tree-sitter generate
+</tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+
+## timeout
+
+<tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+30
+</tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+
+# TOOL RESULT
+
+ID: toolu_01TJ1AL16oCEjh7gQuX4RrHP
+
+<tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+
+</tool.toolu_01TJ1AL16oCEjh7gQuX4RrHP>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EnGoP3FVukSaNMtn82tQum
+
+## command
+
+<tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+tree-sitter parse test-backtick-end-of-line.greger
+</tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+
+## timeout
+
+<tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+10
+</tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+
+# TOOL RESULT
+
+ID: toolu_01EnGoP3FVukSaNMtn82tQum
+
+<tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (ERROR [2, 1] - [4, 1]
+      (code_start_tag [2, 1] - [2, 2])
+      (ERROR [4, 0] - [4, 1]))
+    (text [4, 1] - [5, 0])))
+test-backtick-end-of-line.greger	Parse:    0.07 ms	   207 bytes/ms	(ERROR [2, 1] - [4, 1])
+Command failed with exit code 1
+</tool.toolu_01EnGoP3FVukSaNMtn82tQum>
+
+# ASSISTANT
+
+Still having the issue. Let me debug this further by adding some debugging output to understand what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AQPVGGwQmoUHcoc6bf3HcJ
+
+## command
+
+<tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+tree-sitter parse test-backtick-end-of-line.greger --debug
+</tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+
+## timeout
+
+<tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+10
+</tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+
+# TOOL RESULT
+
+ID: toolu_01AQPVGGwQmoUHcoc6bf3HcJ
+
+<tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:191, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'U'
+  consume character:'S'
+  consume character:'E'
+  consume character:'R'
+lexed_lookahead sym:user_header, size:6
+shift state:123
+process version:0, version_count:1, state:123, row:0, col:6
+lex_internal state:8, row:0, column:6
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:54
+process version:0, version_count:1, state:54, row:2, col:0
+lex_external state:2, row:2, column:0
+lex_internal state:11, row:2, column:0
+  consume character:'a'
+lexed_lookahead sym:_text_content, size:1
+shift state:32
+process version:0, version_count:1, state:32, row:2, col:1
+lex_external state:2, row:2, column:1
+  consume character:'`'
+lexed_lookahead sym:code_start_tag, size:1
+reduce sym:text, child_count:1
+shift state:87
+process version:0, version_count:1, state:87, row:2, col:2
+lex_external state:5, row:2, column:2
+lex_internal state:0, row:2, column:2
+  skip character:10
+  skip character:10
+lex_external state:1, row:2, column:2
+lex_internal state:0, row:2, column:2
+  skip character:10
+  skip character:10
+skip_unrecognized_character
+  consume character:'b'
+lex_external state:1, row:4, column:1
+lex_internal state:0, row:4, column:1
+  skip character:10
+lexed_lookahead sym:ERROR, size:3
+detect_error lookahead:ERROR
+resume version:0
+skip_token symbol:ERROR
+process version:0, version_count:1, state:0, row:4, col:1
+lex_external state:1, row:4, column:1
+lex_internal state:0, row:4, column:1
+  skip character:10
+lexed_lookahead sym:end, size:1
+recover_to_previous state:5, depth:3
+recover_eof
+process version:1, version_count:2, state:5, row:4, col:1
+lex_external state:2, row:4, column:1
+lex_internal state:193, row:4, column:1
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+shift state:32
+process version:0, version_count:1, state:32, row:5, col:0
+lex_external state:2, row:5, column:0
+lex_internal state:193, row:5, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:content_blocks_repeat1, child_count:2
+reduce sym:user, child_count:3
+reduce sym:source_file, child_count:1
+accept
+select_smaller_error symbol:source_file, over_symbol:ERROR
+done
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (ERROR [2, 1] - [4, 1]
+      (code_start_tag [2, 1] - [2, 2])
+      (ERROR [4, 0] - [4, 1]))
+    (text [4, 1] - [5, 0])))
+test-backtick-end-of-line.greger	Parse:    9.59 ms	     1 bytes/ms	(ERROR [2, 1] - [4, 1])
+Command failed with exit code 1
+</tool.toolu_01AQPVGGwQmoUHcoc6bf3HcJ>
+
+# ASSISTANT
+
+I'm still seeing the same issue. Notice that at "process version:0, version_count:1, state:87, row:2, col:2", the scanner is in "lex_external state:5". This tells me that the scanner is being called but something is wrong.
+
+Let me check if there's an issue with my condition for calling `scan_code_end_tag`. The condition I added was:
+
+```c
+if (valid_symbols[CODE_END_TAG]) {
+    // For single/double backticks, newlines can also trigger end tag
+    if (lexer->lookahead == '`' || 
+        (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+         (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+        return scan_code_end_tag(scanner, lexer);
+    }
+}
+```
+
+The problem might be that the scanner is being called for `CODE_CONTENT` in "lex_external state:5", but it's not being called for `CODE_END_TAG` at all.
+
+Let me check the main scanner function to see the order of operations:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01MvJcRuHQdYjcFfEJo9fYZt
+
+## path
+
+<tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+src/scanner.c
+</tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+
+## start-line
+
+<tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+1040
+</tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+
+## end-line
+
+<tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+1080
+</tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+
+# TOOL RESULT
+
+ID: toolu_01MvJcRuHQdYjcFfEJo9fYZt
+
+<tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+Start index out of bounds: 1039
+</tool.toolu_01MvJcRuHQdYjcFfEJo9fYZt>
+
+# ASSISTANT
+
+Let me find the main scanner function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_015URRBWaECbpgW9o1q2VCSa
+
+## pattern
+
+<tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+bool tree_sitter_greger_external_scanner_scan
+</tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+
+## path
+
+<tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+src/scanner.c
+</tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+
+## context-lines
+
+<tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+20
+</tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+
+# TOOL RESULT
+
+ID: toolu_015URRBWaECbpgW9o1q2VCSa
+
+<tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+916-            has_content = true;
+917-            lexer->mark_end(lexer);
+918-        } else {
+919-            if (!iswspace(lexer->lookahead)) {
+920-                has_non_whitespace = true;
+921-            }
+922-            advance(lexer);
+923-            has_content = true;
+924-            lexer->mark_end(lexer);
+925-        }
+926-    }
+927-    
+928-    if (has_content && has_non_whitespace) {
+929-        lexer->result_symbol = EVAL_CONTENT;
+930-        return true;
+931-    }
+932-    
+933-    return false;
+934-}
+935-
+936:bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+937-    Scanner *scanner = (Scanner *)payload;
+938-
+939-    // Check for error recovery mode
+940-    if (valid_symbols[ERROR_SENTINEL]) {
+941-        return false;
+942-    }
+943-
+944-    // Handle tool content (raw text) when in tool content state
+945-    if (scanner->in_tool_content) {
+946-        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+947-            return scan_tool_content_head(scanner, lexer);
+948-        }
+949-        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+950-            return scan_tool_content_tail(scanner, lexer);
+951-        }
+952-    }
+953-
+954-    // Handle eval result content when in eval result content state
+955-    if (scanner->in_eval_result_content) {
+956-        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+
+</tool.toolu_015URRBWaECbpgW9o1q2VCSa>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_013rzkgHV8FmHaFhBPhK7rAc
+
+## path
+
+<tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+src/scanner.c
+</tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+
+## start-line
+
+<tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+936
+</tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+
+## end-line
+
+<tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+1000
+</tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+
+# TOOL RESULT
+
+ID: toolu_013rzkgHV8FmHaFhBPhK7rAc
+
+<tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Handle tool content (raw text) when in tool content state
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+            return scan_tool_content_tail(scanner, lexer);
+        }
+    }
+
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_tail(scanner, lexer);
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+
+
+    if (lexer->lookahead == '<') {
+        // Handle HTML comments first - they should have priority
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
+        }
+
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
+
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+</tool.toolu_013rzkgHV8FmHaFhBPhK7rAc>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01MYjJHjs76xdoqqygbde7Ci
+
+## path
+
+<tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+src/scanner.c
+</tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+
+## start-line
+
+<tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+1000
+</tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+
+## end-line
+
+<tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+1020
+</tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+
+# TOOL RESULT
+
+ID: toolu_01MYjJHjs76xdoqqygbde7Ci
+
+<tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+        return scan_eval_content(lexer);
+    }
+    
+    // Handle code start tag
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+        return scan_code_start_tag(scanner, lexer);
+    }
+    
+    // Handle code content
+    if (valid_symbols[CODE_CONTENT]) {
+        return scan_code_content(scanner, lexer);
+    }
+    
+    // Handle code end tag
+    if (valid_symbols[CODE_END_TAG]) {
+        // For single/double backticks, newlines can also trigger end tag
+        if (lexer->lookahead == '`' || 
+            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+            return scan_code_end_tag(scanner, lexer);
+        }
+</tool.toolu_01MYjJHjs76xdoqqygbde7Ci>
+
+# ASSISTANT
+
+I think I found the issue! Looking at the scanner logic, the `CODE_CONTENT` check happens before the `CODE_END_TAG` check. In the debug output, I can see that the scanner is in "lex_external state:5" and it's probably being called for `CODE_CONTENT` first.
+
+The problem is that when `scan_code_content` returns false (because there's no content), the scanner should then be called for `CODE_END_TAG`, but it seems like it's not being called.
+
+Let me look at the debug output again:
+
+```
+process version:0, version_count:1, state:87, row:2, col:2
+lex_external state:5, row:2, column:2
+lex_internal state:0, row:2, column:2
+  skip character:10
+  skip character:10
+lex_external state:1, row:2, column:2
+```
+
+The scanner goes from `lex_external state:5` to `lex_external state:1`. State 5 is probably `CODE_CONTENT`, and state 1 is probably some other state, but it's not trying `CODE_END_TAG`.
+
+I think the issue is that the scanner is not properly maintaining the state. Let me trace through what should happen:
+
+1. `scan_code_start_tag` is called, sets `scanner->in_code_content = true` and `scanner->code_backtick_count = 1`
+2. `scan_code_content` is called, sees immediate newline, returns false
+3. `scan_code_end_tag` should be called, sees newline, generates synthetic closing tag
+
+But maybe the issue is that the scanner state is not being properly preserved between calls. Let me check if there's an issue with the serialization/deserialization.
+
+Actually, let me try a different approach. Let me look at the case where it works correctly. Let me test a case where there's content:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01YMhgee8Tv7aPZLNkbL9WtS
+
+## path
+
+<tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+test-backtick-with-content.greger
+</tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+
+## contents
+
+<tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+# USER
+
+a`hello
+
+b
+</tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+
+## git-commit-message
+
+<tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+Add test case for backtick with content
+</tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+
+# TOOL RESULT
+
+ID: toolu_01YMhgee8Tv7aPZLNkbL9WtS
+
+<tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+
+</tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
