@@ -297,10 +297,7 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    code: $ => seq(
-      $.code_backticks_start,
-      $.code_backticks_end,
-    ),
+    code: $ => $.code_content,
 
     _text_content: $ => choice(
       /[^`\n]+/,
