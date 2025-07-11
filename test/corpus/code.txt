@@ -1,0 +1,321 @@
+==================
+Inline code with single backticks
+==================
+
+# USER
+
+Foo `bar` baz
+
+# ASSISTANT
+
+Code `example` in text.
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+=======================
+Inline code with double backticks
+=======================
+
+# ASSISTANT
+
+`` `code` ``
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks no language
+===============================
+
+# ASSISTANT
+
+```
+multi
+line
+code
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+==============================
+Triple backticks with language
+==============================
+
+# ASSISTANT
+
+```python
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+=========================================
+Triple backticks with invalid language (has spaces)
+=========================================
+
+# ASSISTANT
+
+```python stuff
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Quadruple backticks with language
+===============================
+
+# ASSISTANT
+
+````rust
+fn main() {
+    println!("Hello with ``` inside");
+}
+````
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks inline with language
+===============================
+
+# ASSISTANT
+
+```javascript console.log("hello")```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks language with numbers and symbols
+===============================
+
+# ASSISTANT
+
+```c++
+#include <iostream>
+```
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Empty code blocks
+===============================
+
+# ASSISTANT
+
+`````
+`````
+
+More text.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Unclosed single backtick terminated by newline
+===============================
+
+# ASSISTANT
+
+there is `no closing backtick on single-backtick line
+there is ``no closing backtick on double-backtick line
+
+More text.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Backtick at end of line
+===============================
+
+# USER
+
+a`
+
+b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Single backtick with double backticks inside
+===============================
+
+# USER
+
+`a``
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks with content on same line
+===============================
+
+# USER
+
+```a``` b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Single backtick extends to end of line
+===============================
+
+# USER
+
+`a` b
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))

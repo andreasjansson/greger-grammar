@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup tree-sitter
+      uses: tree-sitter/setup-action/cli@v1
+    
+    - name: Run tests
+      uses: tree-sitter/parser-test-action@v2

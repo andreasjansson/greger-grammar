@@ -1,0 +1,80 @@
+====
+Eval
+====
+
+# SYSTEM
+
+${before}
+
+You are a helpful assistant.
+
+<safe-shell-commands>
+foo
+${:bash echo bar}
+</safe-shell-commands>
+
+${:python
+after
+{ foo ${bar} }
+}
+
+# USER
+
+${
+before
+}
+
+What's the weather like?
+
+what is ${(+ 1 1)} + ${2}?
+
+# ASSISTANT
+
+Warm.
+
+${foo}
+
+---
+
+(source_file
+  (system
+    (system_header)
+    (eval
+      (eval_start_brace)
+      (eval_content)
+      (eval_end_brace))
+    (text)
+    (safe_shell_commands
+      (shell_command)
+      (eval
+        (eval_start_brace
+          (eval_language))
+        (eval_content)
+        (eval_end_brace)))
+    (text)
+    (eval
+      (eval_start_brace
+        (eval_language))
+      (eval_content)
+      (eval_end_brace))
+    (text))
+  (user
+    (user_header)
+    (eval
+      (eval_start_brace)
+      (eval_content)
+      (eval_end_brace))
+    (text)
+    (eval
+      (eval_start_brace)
+      (eval_content)
+      (eval_end_brace))
+    (text)
+    (eval
+      (eval_start_brace)
+      (eval_content)
+      (eval_end_brace))
+    (text))
+  (assistant
+    (assistant_header)
+    (text)))

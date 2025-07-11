@@ -20,6 +20,16 @@ module.exports = grammar({
     $.tool_content_head,
     $.tool_content_tail,
     $.html_comment,
+    $.eval_content,
+    $.eval_result_start_tag,
+    $.eval_result_end_tag,
+    $.eval_result_content_head,
+    $.eval_result_content_tail,
+    $.error_sentinel,
+    $.code_start_tag,
+    $.code_content,
+    $.code_end_tag,
+    $.eval_language,
   ],
 
   inline: $ => [
@@ -28,9 +38,7 @@ module.exports = grammar({
     $.system_content_blocks,
   ],
 
-
   rules: {
-
     source_file: $ => seq(
       optional($.untagged_text),
       optional($.system),
@@ -198,25 +206,24 @@ module.exports = grammar({
 
     assistant_content_blocks: $ => repeat1(choice(
       $.citation_entry,
-      $.text,
-      $.code_block,
-      $.inline_code,
+      $.code,
+      alias($.assistant_text, $.text),
       $.html_comment,
     )),
 
     system_content_blocks: $ => repeat1(choice(
-      $.text,
-      $.code_block,
-      $.inline_code,
       $.html_comment,
+      $.eval,
+      $.code,
       $.safe_shell_commands,
+      $.text,
     )),
 
     content_blocks: $ => repeat1(choice(
-      $.text,
-      $.code_block,
-      $.inline_code,
       $.html_comment,
+      $.eval,
+      $.code,
+      $.text,
     )),
 
     text: $ => prec.right(repeat1(choice(
@@ -224,7 +231,14 @@ module.exports = grammar({
       /\n/,
     ))),
 
-    _text_content: $ => token(prec(-1, /[^`\n]+/)),
+    assistant_text: $ => prec.right(repeat1(choice(
+      $._assistant_text_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^`$\n]+|\$[^{]/)),
+
+    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
 
     _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
 
@@ -241,32 +255,14 @@ module.exports = grammar({
 
     content: $ => alias($._tool_element, 'content'),
 
-    code_block: $ => seq(
-      '```',
-      optional($.code_block_language),
-      /\n/,
-      optional($.code_block_content),
-      '```',
-    ),
 
-    code_block_language: _ => /[^\n]*/,
 
-    code_block_content: _ => repeat1(choice(
-      /[^`\n]+/,
-      /\n/,
-      /`[^`]/,
-      /``[^`]/,
-    )),
 
-    inline_code: $ => seq(
-      '`',
-      /[^`\n]+/,
-      '`',
-    ),
 
     safe_shell_commands: $ => seq(
       '<safe-shell-commands>',
       repeat(choice(
+        $.eval,
         $.shell_command,
         /\n/,
       )),
@@ -274,6 +270,46 @@ module.exports = grammar({
     ),
 
     // TODO: allow `<` in safe shell commands, somehow...
-    shell_command: _ => /[^<\n]+/
-  }
+    shell_command: _ => token(prec(-2, /[^<\n]+/)),
+
+    eval: $ => seq(
+      $.eval_start_brace,
+      repeat(choice(
+        $.eval_content,
+        $.eval_result,
+      )),
+      $.eval_end_brace,
+    ),
+
+    eval_result: $ => seq(
+      $.eval_result_start_tag,
+      $.eval_result_content,
+      $.eval_result_end_tag,
+    ),
+
+    eval_result_content: $ => seq(
+      $.eval_result_content_head,
+      optional($.eval_result_content_tail),
+    ),
+
+    eval_start_brace: $ => seq(
+      '${',
+      optional(seq(':', $.eval_language))
+    ),
+
+    eval_end_brace: $ => '}',
+
+    code: $ => seq(
+      $.code_start_tag,
+      optional($.code_content),
+      choice($.code_end_tag, $.code_close_tag),
+    ),
+
+    code_close_tag: $ => '<$code-close/>',
+
+
+    
+
+
+  },
 });

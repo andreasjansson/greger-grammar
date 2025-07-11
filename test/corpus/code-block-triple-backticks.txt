@@ -15,12 +15,75 @@ Neither should this
 
 What do you think?
 
+# ASSISTANT
+
+```text
+Single ` within a triple-backtick block should not be parsed separately
+even ` ` ` if there are multiple with spaces between them.
+```
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01T2qsrhEoxETc9BfoS7KqJT
+
+## path
+
+<tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+debug-last-char-is-backtick.txt
+</tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+
+# TOOL RESULT
+
+ID: toolu_01T2qsrhEoxETc9BfoS7KqJT
+
+<tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+```
+tool content should not parse backticks
+```
+</tool.toolu_01T2qsrhEoxETc9BfoS7KqJT>
+
 ---
 
 (source_file
   (user
     (user_header)
     (text)
-    (code_block
-      (code_block_content))
-    (text)))
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text))
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text))
+  (tool_use
+    (tool_use_header)
+    (name
+      (key)
+      (value))
+    (id
+      (key)
+      (value))
+    (tool_param
+      (tool_param_header
+        (name))
+      (value
+        (tool_start_tag)
+        (tool_content
+          (tool_content_head))
+        (tool_end_tag))))
+  (tool_result
+    (tool_result_header)
+    (id
+      (key)
+      (value))
+    (content
+      (tool_start_tag)
+      (tool_content
+        (tool_content_head))
+      (tool_end_tag))))
