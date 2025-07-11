@@ -28,7 +28,7 @@ typedef struct {
     char eval_result_id[256];
     bool in_eval_result_content;
     bool expecting_eval_result_tail;
-    int last_backtick_count; // Track the number of backticks in the opening sequence
+    int fenced_code_block_delimiter_length; // Track the number of backticks in the opening sequence
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
