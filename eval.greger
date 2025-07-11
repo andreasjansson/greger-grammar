@@ -3112,5 +3112,477 @@ Simplify code_content to basic approach without lookahead
 ID: toolu_011U9w13nGV9nvzB4RqRndNb
 
 <tool.toolu_011U9w13nGV9nvzB4RqRndNb>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code_content to basic approach without lookahead
 </tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01J2i5V9R4a1XwzkKHcTA6Bx
+
+## command
+
+<tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+cd . && printf '# ASSISTANT\n\n`` `hello` ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+
+## timeout
+
+<tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+10
+</tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+
+# TOOL RESULT
+
+ID: toolu_01J2i5V9R4a1XwzkKHcTA6Bx
+
+<tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+(source_file [0, 0] - [2, 13]
+  (ERROR [0, 0] - [2, 13]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 13])))
+/dev/stdin	Parse:    0.05 ms	   549 bytes/ms	(ERROR [0, 0] - [2, 13])
+Command failed with exit code 1
+</tool.toolu_01J2i5V9R4a1XwzkKHcTA6Bx>
+
+# ASSISTANT
+
+It's not hanging anymore, but the nested backticks case is still causing issues. Let me check what's happening by running the tests:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019ikNq3w7Annc6WTdTzjXBF
+
+## command
+
+<tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+cd . && timeout 10 tree-sitter test -f "simple inline code"
+</tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+
+## timeout
+
+<tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+15
+</tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+
+# TOOL RESULT
+
+ID: toolu_019ikNq3w7Annc6WTdTzjXBF
+
+<tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+error: unexpected argument '-f' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_019ikNq3w7Annc6WTdTzjXBF>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016dwUU6stZGM4ceh7SPZtjW
+
+## command
+
+<tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+cd . && timeout 10 tree-sitter test --filter "simple inline code"
+</tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+
+## timeout
+
+<tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+15
+</tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+
+# TOOL RESULT
+
+ID: toolu_016dwUU6stZGM4ceh7SPZtjW
+
+<tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+error: unexpected argument '--filter' found
+
+  tip: a similar argument exists: '--file-name'
+
+Usage: tree-sitter test <--include <INCLUDE>|--exclude <EXCLUDE>|--file-name <FILE_NAME>|--update|--debug|--debug-build|--debug-graph|--wasm|--open-log|--config-path <CONFIG_PATH>|--show-fields|--stat <STAT>|--rebuild|--overview-only>
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_016dwUU6stZGM4ceh7SPZtjW>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0145L4S5KnJLnVEbFUaz6qSx
+
+## command
+
+<tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+cd . && timeout 10 tree-sitter test --include "simple inline code"
+</tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+
+## timeout
+
+<tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+15
+</tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+
+# TOOL RESULT
+
+ID: toolu_0145L4S5KnJLnVEbFUaz6qSx
+
+<tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+
+Total parses: 0; successful parses: 0; failed parses: 0; success percentage: N/A; average speed: N/A
+
+
+</tool.toolu_0145L4S5KnJLnVEbFUaz6qSx>
+
+# ASSISTANT
+
+Let me run a broader test to see what happens:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VuggV66XAV4UfkvA4cg9k9
+
+## command
+
+<tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+cd . && timeout 30 tree-sitter test --file-name code.txt
+</tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+
+## timeout
+
+<tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+35
+</tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+
+# TOOL RESULT
+
+ID: toolu_01VuggV66XAV4UfkvA4cg9k9
+
+<tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+  code:
+      6. ✓ Inline code with single backticks
+      7. ✗ Inline code with double backticks
+      8. ✓ Triple backticks no language
+      9. ✓ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✗ Quadruple backticks with language
+     12. ✓ Triple backticks inline with language
+     13. ✓ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+
+2 failures:
+
+correct / expected / unexpected
+
+  1. Inline code with double backticks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_start_tag)
+        (UNEXPECTED '`')))
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+
+  2. Quadruple backticks with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_start_tag)
+        (code_content)
+        (UNEXPECTED '`')
+        (eval_end_brace)
+        (UNEXPECTED '`')))))
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01VuggV66XAV4UfkvA4cg9k9>
+
+# ASSISTANT
+
+The simple cases work but the nested ones fail. The issue is that the scan_code_end_tag is too strict. The problem is that when we have `\`\`hello\`\`` the scanner sequence is:
+
+1. `scan_code_start_tag` detects `\`\`` (2 backticks), sets `code_backtick_count = 2`
+2. `scan_code_content` consumes ` ` (space) 
+3. `scan_code_end_tag` sees `\`` (1 backtick) but expects 2, so it fails
+
+The issue is that the current `scan_code_end_tag` is consuming ALL backticks at once, but it should only consume exactly the number it needs to match.
+
+Let me examine the failing test cases more closely:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01AQ2f4ND1nuy6yLUGuMo6y8
+
+## path
+
+<tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+./test/corpus/code.txt
+</tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+
+## start-line
+
+<tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+47
+</tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+
+## end-line
+
+<tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+80
+</tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+
+## include-line-numbers
+
+<tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+true
+</tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+
+# TOOL RESULT
+
+ID: toolu_01AQ2f4ND1nuy6yLUGuMo6y8
+
+<tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+47:     (assistant_header)
+48:     (code
+49:       (code_start_tag)
+50:       (code_content)
+51:       (code_end_tag))
+52:     (text)))
+53: 
+54: ===============================
+55: Triple backticks no language
+56: ===============================
+57: 
+58: # ASSISTANT
+59: 
+60: ```
+61: multi
+62: line
+63: code
+64: ```
+65: 
+66: More text after.
+67: 
+68: ---
+69: 
+70: (source_file
+71:   (assistant
+72:     (assistant_header)
+73:     (code
+74:       (code_start_tag)
+75:       (code_content)
+76:       (code_end_tag))
+77:     (text)))
+78: 
+79: ==============================
+80: Triple backticks with language
+</tool.toolu_01AQ2f4ND1nuy6yLUGuMo6y8>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01H7KvQcfEFXmxPwHE4daZUj
+
+## path
+
+<tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+./test/corpus/code.txt
+</tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+
+## start-line
+
+<tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+18
+</tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+
+## end-line
+
+<tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+53
+</tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+
+## include-line-numbers
+
+<tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+true
+</tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+
+# TOOL RESULT
+
+ID: toolu_01H7KvQcfEFXmxPwHE4daZUj
+
+<tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+18:     (text)
+19:     (code
+20:       (code_start_tag)
+21:       (code_content)
+22:       (code_end_tag))
+23:     (text))
+24:   (assistant
+25:     (assistant_header)
+26:     (text)
+27:     (code
+28:       (code_start_tag)
+29:       (code_content)
+30:       (code_end_tag))
+31:     (text)))
+32: 
+33: =======================
+34: Inline code with double backticks
+35: =======================
+36: 
+37: # ASSISTANT
+38: 
+39: `` `code` ``
+40: 
+41: More text after.
+42: 
+43: ---
+44: 
+45: (source_file
+46:   (assistant
+47:     (assistant_header)
+48:     (code
+49:       (code_start_tag)
+50:       (code_content)
+51:       (code_end_tag))
+52:     (text)))
+53: 
+</tool.toolu_01H7KvQcfEFXmxPwHE4daZUj>
+
+# ASSISTANT
+
+So the expected structure for `\`\` \`code\` \`\`` is:
+- `code_start_tag` for `\`\`` (2 backticks)
+- `code_content` for ` \`code\` ` (space, 1 backtick, "code", 1 backtick, space)
+- `code_end_tag` for `\`\`` (2 backticks)
+
+This means my current implementation is wrong. The `code_content` should consume ALL content up to the matching closing delimiter, including internal backticks that don't match the opening count. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014jt3NZg524Z6xAmXUfYCoy
+
+## path
+
+<tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+./src/scanner.c
+</tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+
+## git-commit-message
+
+<tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+Fix code_content to properly handle nested backticks by consuming until matching closing delimiter
+</tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+
+## diff
+
+<tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+-    // Very simple approach: consume anything that's not a backtick
++    // Consume content until we find the exact closing delimiter
+     while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+-            // Stop at any backtick - let the end tag handle matching
+-            if (has_content) {
+-                lexer->result_symbol = CODE_CONTENT;
+-                return true;
++            // Count consecutive backticks to see if it matches our opening count
++            int consecutive_backticks = 0;
++            TSLexer temp_lexer = *lexer;
++            while (temp_lexer.lookahead == '`' && consecutive_backticks < 20) {
++                consecutive_backticks++;
++                temp_lexer.advance(&temp_lexer, false);
++            }
++            
++            // If we have exactly the right number of backticks, this could be the closing
++            if (consecutive_backticks == scanner->code_backtick_count) {
++                // For fenced code blocks (3+), check if this is at line start and followed by newline/EOF
++                if (scanner->code_backtick_count >= 3) {
++                    // TODO: Check line start condition if needed
++                    // For now, assume any matching sequence can close
++                    if (has_content) {
++                        lexer->result_symbol = CODE_CONTENT;
++                        return true;
++                    } else {
++                        return false;
++                    }
++                } else {
++                    // For inline code, exact match is sufficient
++                    if (has_content) {
++                        lexer->result_symbol = CODE_CONTENT;
++                        return true;
++                    } else {
++                        return false;
++                    }
++                }
+             } else {
+-                return false;
++                // Not the right number of backticks, consume as content
++                advance(lexer);
++                has_content = true;
++                lexer->mark_end(lexer);
+             }
+         } else {
+             // For inline code (1-2 backticks), stop at newlines
+             if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             
+             // Regular content
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+     
+     // Reached end of input
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+
+# TOOL RESULT
+
+ID: toolu_014jt3NZg524Z6xAmXUfYCoy
+
+<tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+
+</tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
