@@ -941,10 +941,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return parse_code_delimiter(scanner, lexer, valid_symbols);
     }
     
-    // Handle code contents
-    if (valid_symbols[CODE_CONTENTS]) {
-        return scan_code_contents(scanner, lexer);
-    }
+
     
     // Handle eval language
     if (valid_symbols[EVAL_LANGUAGE]) {
