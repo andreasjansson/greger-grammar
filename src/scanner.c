@@ -740,58 +740,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             code_close_match_index = 0;
         }
         
-        // Check for regular closing pattern
-        if (lexer->lookahead == expected_closing[match_index]) {
+        // Check for regular closing pattern (only for 3+ backticks)
+        if (scanner->code_backtick_count >= 3 && lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
-                // For 1-2 backticks, check if this is a balanced closing
-                if (scanner->code_backtick_count <= 2) {
-                    // Save position to peek ahead
-                    TSLexer saved_lexer = *lexer;
-                    
-                    // Count consecutive backticks starting from current position
-                    int consecutive_backticks = 0;
-                    while (lexer->lookahead == '`') {
-                        consecutive_backticks++;
-                        advance(lexer);
-                    }
-                    
-                    // Restore position
-                    *lexer = saved_lexer;
-                    
-                    // Only treat as closing if we have exactly the right number of backticks
-                    // and they're not part of a longer sequence
-                    if (consecutive_backticks == expected_len) {
-                        // Check what comes after the backticks
-                        for (int i = 0; i < expected_len; i++) {
-                            advance(lexer);
-                        }
-                        // If followed by more backticks, treat as content
-                        if (lexer->lookahead == '`') {
-                            // Restore and treat as content
-                            *lexer = saved_lexer;
-                            match_index = 0;
-                            advance(lexer);
-                            has_content = true;
-                            if (code_close_match_index == 0) {
-                                lexer->mark_end(lexer);
-                            }
-                            continue;
-                        }
-                        // Valid closing, restore to before the backticks
-                        *lexer = saved_lexer;
-                    } else {
-                        // Wrong number of backticks, treat as content
-                        match_index = 0;
-                        advance(lexer);
-                        has_content = true;
-                        if (code_close_match_index == 0) {
-                            lexer->mark_end(lexer);
-                        }
-                        continue;
-                    }
-                }
-                
                 // Found complete closing pattern, stop here (don't consume it)
                 if (has_content) {
                     lexer->result_symbol = CODE_CONTENT;
