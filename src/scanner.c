@@ -807,16 +807,7 @@ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
         return false;
     }
     
-    // For fenced code blocks (3+ backticks), require newline/EOF after closing
-    if (scanner->code_backtick_count >= 3) {
-        // Skip whitespace after closing backticks
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            advance(lexer);
-        }
-        if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
-            return false;
-        }
-    }
+    // Note: Allow any content after closing backticks - don't require newline
     
     // Valid closing tag
     scanner->code_backtick_count = 0;
