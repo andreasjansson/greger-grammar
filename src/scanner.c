@@ -1005,8 +1005,13 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
     
     // Handle code end tag
-    if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
-        return scan_code_end_tag(scanner, lexer);
+    if (valid_symbols[CODE_END_TAG]) {
+        // For single/double backticks, newlines can also trigger end tag
+        if (lexer->lookahead == '`' || 
+            (scanner->in_code_content && scanner->code_backtick_count <= 2 && 
+             (lexer->lookahead == '\n' || lexer->lookahead == '\r'))) {
+            return scan_code_end_tag(scanner, lexer);
+        }
     }
     
     // Handle eval language
