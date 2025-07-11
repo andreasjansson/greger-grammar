@@ -741,7 +741,7 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
             }
             
             // If this matches the opening backtick count, this is the closing sequence
-            if (backtick_count == scanner->last_backtick_count) {
+            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
                 // Restore lexer position and let the grammar handle the closing backticks
                 *lexer = saved_lexer;
                 break;
