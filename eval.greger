@@ -10295,5 +10295,271 @@ Fix language detection for inline code blocks
 ID: toolu_015NL6FsCS2octBAiXEgGgcp
 
 <tool.toolu_015NL6FsCS2octBAiXEgGgcp>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix language detection for inline code blocks
 </tool.toolu_015NL6FsCS2octBAiXEgGgcp>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011QN3RZfNUsAgpPidGXxJyh
+
+## command
+
+<tool.toolu_011QN3RZfNUsAgpPidGXxJyh>
+cd . && tree-sitter generate
+</tool.toolu_011QN3RZfNUsAgpPidGXxJyh>
+
+# TOOL RESULT
+
+ID: toolu_011QN3RZfNUsAgpPidGXxJyh
+
+<tool.toolu_011QN3RZfNUsAgpPidGXxJyh>
+
+</tool.toolu_011QN3RZfNUsAgpPidGXxJyh>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011Jj8eLEikv6HUsFUC1QNLr
+
+## command
+
+<tool.toolu_011Jj8eLEikv6HUsFUC1QNLr>
+cd . && echo '# ASSISTANT
+
+```javascript console.log("hello")```' | tree-sitter parse
+</tool.toolu_011Jj8eLEikv6HUsFUC1QNLr>
+
+# TOOL RESULT
+
+ID: toolu_011Jj8eLEikv6HUsFUC1QNLr
+
+<tool.toolu_011Jj8eLEikv6HUsFUC1QNLr>
+
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [2, 34])
+      (code_backticks [2, 34] - [2, 37]))
+    (text [2, 37] - [3, 0])))
+
+</tool.toolu_011Jj8eLEikv6HUsFUC1QNLr>
+
+# ASSISTANT
+
+Still not working. The issue is more fundamental. Let me debug this by adding some temporary debug output to understand what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01F2cqYNprvRTXTH3HAMxCV5
+
+## command
+
+<tool.toolu_01F2cqYNprvRTXTH3HAMxCV5>
+cd . && echo '# ASSISTANT
+
+```javascript console.log("hello")```' | tree-sitter parse --debug | head -30
+</tool.toolu_01F2cqYNprvRTXTH3HAMxCV5>
+
+# TOOL RESULT
+
+ID: toolu_01F2cqYNprvRTXTH3HAMxCV5
+
+<tool.toolu_01F2cqYNprvRTXTH3HAMxCV5>
+
+new_parse
+process version:0, version_count:1, state:1, row:0, col:0
+lex_internal state:174, row:0, column:0
+  consume character:'#'
+  consume character:' '
+  consume character:'A'
+  consume character:'S'
+  consume character:'S'
+  consume character:'I'
+  consume character:'S'
+  consume character:'T'
+  consume character:'A'
+  consume character:'N'
+  consume character:'T'
+lexed_lookahead sym:assistant_header, size:11
+shift state:118
+process version:0, version_count:1, state:118, row:0, col:11
+lex_internal state:8, row:0, column:11
+  consume character:10
+  consume character:10
+lexed_lookahead sym:\n\n, size:2
+shift state:62
+process version:0, version_count:1, state:62, row:2, col:0
+lex_external state:2, row:2, column:0
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:108
+process version:0, version_count:1, state:108, row:2, col:3
+lex_external state:7, row:2, column:3
+  consume character:'j'
+  consume character:'a'
+  consume character:'v'
+  consume character:'a'
+  consume character:'s'
+  consume character:'c'
+  consume character:'r'
+  consume character:'i'
+  consume character:'p'
+  consume character:'t'
+  consume character:' '
+  consume character:'j'
+  consume character:'o'
+  consume character:'n'
+  consume character:'s'
+  consume character:'o'
+  consume character:'l'
+  consume character:'e'
+  consume character:'.'
+  consume character:'l'
+  consume character:'o'
+  consume character:'g'
+  consume character:'('
+  consume character:'"'
+  consume character:'h'
+  consume character:'e'
+  consume character:'l'
+  consume character:'l'
+  consume character:'o'
+  consume character:'"'
+  consume character:')'
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_contents, size:31
+shift state:138
+process version:0, version_count:1, state:138, row:2, col:34
+lex_external state:11, row:2, column:34
+  consume character:'`'
+  consume character:'`'
+  consume character:'`'
+lexed_lookahead sym:code_backticks, size:3
+shift state:50
+process version:0, version_count:1, state:50, row:2, col:37
+lex_external state:2, row:2, column:37
+lex_internal state:177, row:2, column:37
+  consume character:10
+lexed_lookahead sym:name_token1, size:1
+reduce sym:code, child_count:3
+shift state:29
+process version:0, version_count:1, state:29, row:3, col:0
+lex_external state:2, row:3, column:0
+lex_internal state:177, row:3, column:0
+lexed_lookahead sym:end, size:0
+reduce sym:text, child_count:1
+reduce sym:assistant_content_blocks_repeat1, child_count:2
+reduce sym:assistant, child_count:3
+reduce sym:source_file, child_count:1
+accept
+done
+(source_file [0, 0] - [3, 0]
+  (assistant [0, 0] - [3, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 37]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [2, 34])
+      (code_backticks [2, 34] - [2, 37]))
+    (text [2, 37] - [3, 0])))
+
+</tool.toolu_01F2cqYNprvRTXTH3HAMxCV5>
+
+# ASSISTANT
+
+I can see the problem! The external scanner is consuming everything "javascript console.log..." as `code_contents` with size 31, which means it's not calling the language scanner at all.
+
+The issue is that my logic for detecting a language identifier is not working correctly. The contents scanner is still consuming the entire line, including the language part.
+
+Looking at my logic:
+1. It skips whitespace 
+2. It sees "javascript" and tries to scan it as a language identifier
+3. After "javascript" it sees a space, which should trigger the "return false" to let grammar handle it
+4. But something is going wrong
+
+Let me add some debug output to understand what's happening in the scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_0138L7pAJfKRCFPBS2N51e6c
+
+## path
+
+<tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+./src/scanner.c
+</tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+
+## git-commit-message
+
+<tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+Add debug output to understand language detection logic
+</tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+
+## diff
+
+<tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
++    printf("DEBUG: scan_code_contents called, backtick_count=%d, char='%c'\n", scanner->last_backtick_count, lexer->lookahead);
++    
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->last_backtick_count > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
++        printf("DEBUG: After skipping whitespace, char='%c'\n", lexer->lookahead);
++        
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
++            printf("DEBUG: Found potential language start\n");
+             // Check if this looks like a language identifier
+             TSLexer saved_lexer = *lexer;
+             
+             // Scan potential language identifier
+             while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+                    iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+                    lexer->lookahead == '+' || lexer->lookahead == '-') {
+                 advance(lexer);
+             }
+             
++            printf("DEBUG: After scanning identifier, char='%c'\n", lexer->lookahead);
++            
+             // Skip trailing whitespace
+             while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                 advance(lexer);
+             }
+             
++            printf("DEBUG: After skipping trailing whitespace, char='%c'\n", lexer->lookahead);
++            
+             // If followed by newline or space, this is a language identifier
+             if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == ' ' || lexer->lookahead == '\t') {
++                printf("DEBUG: Detected language identifier, returning false\n");
+                 return false;
+             }
+             
++            printf("DEBUG: Not a language identifier, continuing with contents\n");
+             // Not a language identifier, restore lexer and continue
+             *lexer = saved_lexer;
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+
+# TOOL RESULT
+
+ID: toolu_0138L7pAJfKRCFPBS2N51e6c
+
+<tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
+
+</tool.toolu_0138L7pAJfKRCFPBS2N51e6c>
