@@ -7347,5 +7347,130 @@ Restructure code grammar to handle content like markdown parser
 ID: toolu_012z8TbWFyGh764RFH3tak8e
 
 <tool.toolu_012z8TbWFyGh764RFH3tak8e>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restructure code grammar to handle content like markdown parser
 </tool.toolu_012z8TbWFyGh764RFH3tak8e>
+
+# ASSISTANT
+
+Let me test this change:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VVB713c4KyjTb1u9S526P1
+
+## command
+
+<tool.toolu_01VVB713c4KyjTb1u9S526P1>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01VVB713c4KyjTb1u9S526P1>
+
+## timeout
+
+<tool.toolu_01VVB713c4KyjTb1u9S526P1>
+10
+</tool.toolu_01VVB713c4KyjTb1u9S526P1>
+
+# TOOL RESULT
+
+ID: toolu_01VVB713c4KyjTb1u9S526P1
+
+<tool.toolu_01VVB713c4KyjTb1u9S526P1>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01VVB713c4KyjTb1u9S526P1>
+
+# ASSISTANT
+
+Good! Now let me test the problematic case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01YEEiJkCbyveSjmj8Mt2J1o
+
+## command
+
+<tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+
+## timeout
+
+<tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+10
+</tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+
+# TOOL RESULT
+
+ID: toolu_01YEEiJkCbyveSjmj8Mt2J1o
+
+<tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 3])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.02 ms	  1117 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01YEEiJkCbyveSjmj8Mt2J1o>
+
+# ASSISTANT
+
+I'm still getting `code_contents` in the parse tree, which means the external scanner is still being used. Let me remove the `CODE_CONTENTS` from the externals and the scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FQKXnDsnZSpSouhnDSek9V
+
+## path
+
+<tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+./grammar.js
+</tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+
+## git-commit-message
+
+<tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+Remove CODE_CONTENTS from externals since we handle content with regular grammar
+</tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+
+## diff
+
+<tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+   externals: $ => [
+     $.tool_start_tag,
+     $.tool_end_tag,
+     $.tool_content_head,
+     $.tool_content_tail,
+     $.html_comment,
+     $.eval_content,
+     $.eval_result_start_tag,
+     $.eval_result_end_tag,
+     $.eval_result_content_head,
+     $.eval_result_content_tail,
+     $.error_sentinel,
+     $.code_backticks_start,
+     $.code_backticks_end,
+-    $.code_contents,
+     $.eval_language,
+   ],
+\ No newline at end of file
+
+</tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+
+# TOOL RESULT
+
+ID: toolu_01FQKXnDsnZSpSouhnDSek9V
+
+<tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
+
+</tool.toolu_01FQKXnDsnZSpSouhnDSek9V>
