@@ -934,19 +934,9 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_eval_content(lexer);
     }
     
-    // Handle code content when in code parsing state
-    if (scanner->in_code_content) {
-        if (valid_symbols[CODE_CONTENT]) {
-            return scan_code_content(scanner, lexer);
-        }
-        if (valid_symbols[CODE_BACKTICKS_END]) {
-            return scan_code_backticks_end(scanner, lexer);
-        }
-    }
-    
-    // Handle code backticks start
-    if (lexer->lookahead == '`' && valid_symbols[CODE_BACKTICKS_START]) {
-        return scan_code_backticks_start(scanner, lexer);
+    // Handle code backticks (any number of backticks)
+    if (lexer->lookahead == '`' && (valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END])) {
+        return parse_code_delimiter(scanner, lexer, valid_symbols);
     }
     
 

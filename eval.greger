@@ -9143,5 +9143,62 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
 ID: toolu_01JSwy7JbaVL2Z6qDM2pFRnT
 
 <tool.toolu_01JSwy7JbaVL2Z6qDM2pFRnT>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Rewrite scanner to follow markdown parser pattern
 </tool.toolu_01JSwy7JbaVL2Z6qDM2pFRnT>
+
+# ASSISTANT
+
+Now I need to update the main scanner loop to use the consolidated function:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CFdfNxzF6A9AmPXmZUGTLh
+
+## path
+
+<tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+./src/scanner.c
+</tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+## git-commit-message
+
+<tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+Update main scanner loop to use consolidated code delimiter function
+</tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+## original-content
+
+<tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+    // Handle code content when in code parsing state
+    if (scanner->in_code_content) {
+        if (valid_symbols[CODE_CONTENT]) {
+            return scan_code_content(scanner, lexer);
+        }
+        if (valid_symbols[CODE_BACKTICKS_END]) {
+            return scan_code_backticks_end(scanner, lexer);
+        }
+    }
+    
+    // Handle code backticks start
+    if (lexer->lookahead == '`' && valid_symbols[CODE_BACKTICKS_START]) {
+        return scan_code_backticks_start(scanner, lexer);
+    }
+</tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+## new-content
+
+<tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+    // Handle code backticks (any number of backticks)
+    if (lexer->lookahead == '`' && (valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END])) {
+        return parse_code_delimiter(scanner, lexer, valid_symbols);
+    }
+</tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+# TOOL RESULT
+
+ID: toolu_01CFdfNxzF6A9AmPXmZUGTLh
+
+<tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
+
+</tool.toolu_01CFdfNxzF6A9AmPXmZUGTLh>
