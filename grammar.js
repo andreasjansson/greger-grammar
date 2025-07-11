@@ -299,7 +299,11 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    code: $ => $.code_content,
+    code: $ => seq(
+      $.code_start_tag,
+      optional($.code_content),
+      $.code_end_tag,
+    ),
 
 
     
