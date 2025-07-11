@@ -2339,5 +2339,717 @@ Update code rule to use single CODE_CONTENT token
 ID: toolu_0112b9WTQJZdEjNF3CGP2Rvq
 
 <tool.toolu_0112b9WTQJZdEjNF3CGP2Rvq>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update code rule to use single CODE_CONTENT token
 </tool.toolu_0112b9WTQJZdEjNF3CGP2Rvq>
+
+# ASSISTANT
+
+Now let's test our changes by running the failing case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013tcg9HuJXu37sijrC25M1x
+
+## command
+
+<tool.toolu_013tcg9HuJXu37sijrC25M1x>
+printf '# ASSISTANT\n\n`` `code` ``' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_013tcg9HuJXu37sijrC25M1x>
+
+# TOOL RESULT
+
+ID: toolu_013tcg9HuJXu37sijrC25M1x
+
+<tool.toolu_013tcg9HuJXu37sijrC25M1x>
+(source_file [0, 0] - [2, 12]
+  (assistant [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 12]
+      (code_backticks_start [2, 0] - [2, 12])
+      (code_backticks_end [2, 12] - [2, 12]))))
+/dev/stdin	Parse:    0.05 ms	   524 bytes/ms	(MISSING code_backticks_end [2, 12] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_013tcg9HuJXu37sijrC25M1x>
+
+# ASSISTANT
+
+I see the issue - the Tree-sitter parser is still expecting the old tokens. Let me regenerate the grammar:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Dd7c8fPM32N99kgUq7qviV
+
+## command
+
+<tool.toolu_01Dd7c8fPM32N99kgUq7qviV>
+tree-sitter generate
+</tool.toolu_01Dd7c8fPM32N99kgUq7qviV>
+
+# TOOL RESULT
+
+ID: toolu_01Dd7c8fPM32N99kgUq7qviV
+
+<tool.toolu_01Dd7c8fPM32N99kgUq7qviV>
+
+</tool.toolu_01Dd7c8fPM32N99kgUq7qviV>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01He3T5T2VozUGocq7nP5pcz
+
+## command
+
+<tool.toolu_01He3T5T2VozUGocq7nP5pcz>
+tree-sitter build
+</tool.toolu_01He3T5T2VozUGocq7nP5pcz>
+
+# TOOL RESULT
+
+ID: toolu_01He3T5T2VozUGocq7nP5pcz
+
+<tool.toolu_01He3T5T2VozUGocq7nP5pcz>
+
+</tool.toolu_01He3T5T2VozUGocq7nP5pcz>
+
+# ASSISTANT
+
+Now let's test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KgvnMkr93ZMmTodNZBp8Mj
+
+## command
+
+<tool.toolu_01KgvnMkr93ZMmTodNZBp8Mj>
+printf '# ASSISTANT\n\n`` `code` ``' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01KgvnMkr93ZMmTodNZBp8Mj>
+
+# TOOL RESULT
+
+ID: toolu_01KgvnMkr93ZMmTodNZBp8Mj
+
+<tool.toolu_01KgvnMkr93ZMmTodNZBp8Mj>
+(source_file [0, 0] - [2, 12]
+  (assistant [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 12]
+      (code_content [2, 0] - [2, 12]))))
+
+</tool.toolu_01KgvnMkr93ZMmTodNZBp8Mj>
+
+# ASSISTANT
+
+Great! The double backticks with internal backticks are now parsing successfully. Let me run the test suite to make sure we haven't broken anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HarNfBV8C6e4WJrL6hmSwu
+
+## command
+
+<tool.toolu_01HarNfBV8C6e4WJrL6hmSwu>
+timeout 30 tree-sitter test
+</tool.toolu_01HarNfBV8C6e4WJrL6hmSwu>
+
+# TOOL RESULT
+
+ID: toolu_01HarNfBV8C6e4WJrL6hmSwu
+
+<tool.toolu_01HarNfBV8C6e4WJrL6hmSwu>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✗ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✗ Code block triple backticks
+  code:
+      6. ✗ Inline code with single backticks
+      7. ✗ Inline code with double backticks
+      8. ✗ Triple backticks no language
+      9. ✗ Triple backticks with language
+     10. ✗ Triple backticks with invalid language (has spaces)
+     11. ✗ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✗ Empty code blocks
+  complex-workflow:
+     15. ✓ Complex workflow
+  eval-nested-braces:
+     16. ✗ Eval nested braces
+  eval-partial:
+     17. ✗ Eval partial cases
+  eval-results:
+     18. ✗ Eval results
+  eval:
+     19. ✗ Eval
+  html-comments:
+     20. ✗ HTML comments
+  html-tags:
+     21. ✗ HTML tags should be interpreted as text
+  less-than-greater-than:
+     22. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     23. ✗ Mixed code blocks and sections
+  multiple-tool-uses:
+     24. ✓ Multiple tool uses
+  nested-code-blocks:
+     25. ✗ Nested code blocks
+  safe-shell-commands:
+     26. ✓ Safe shell commands
+  server-tool-use-basic:
+     27. ✓ Server tool use basic
+  server-tool-use-string-result:
+     28. ✓ Server tool use string result
+  simple-conversation:
+     29. ✓ Simple conversation
+  simple-user-message:
+     30. ✓ Simple user message
+  system-and-user:
+     31. ✓ System and user
+  text-with-markdown-headings:
+     32. ✓ Text with markdown headings
+  thinking-only:
+     33. ✓ Thinking only
+  thinking-section:
+     34. ✗ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✗ Tags in backticks
+
+21 failures:
+
+correct / expected / unexpected
+
+  1. Code block with nested headers:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  2. Code block triple backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (tool_use
+        (tool_use_header)
+        (name
+          (key)
+          (value))
+        (id
+          (key)
+          (value))
+        (tool_param
+          (tool_param_header
+            (name))
+          (value
+            (tool_start_tag)
+            (tool_content
+              (tool_content_head))
+            (tool_end_tag))))
+      (tool_result
+        (tool_result_header)
+        (id
+          (key)
+          (value))
+        (content
+          (tool_start_tag)
+          (tool_content
+            (tool_content_head))
+          (tool_end_tag))))
+
+
+  3. Inline code with single backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  4. Inline code with double backticks:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  5. Triple backticks no language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  6. Triple backticks with language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  7. Triple backticks with invalid language (has spaces):
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  8. Quadruple backticks with language:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  9. Triple backticks inline with language:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  10. Triple backticks language with numbers and symbols:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  11. Empty code blocks:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (code
+          (code_content))
+          (code_backticks_start)
+          (code_backticks_end))
+        (text)))
+
+
+  12. Eval nested braces:
+
+    (source_file
+      (user
+        (user_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)))
+
+
+  13. Eval partial cases:
+
+    (source_file
+      (system
+        (system_header)
+        (text)))
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (MISSING eval_end_brace))))
+
+
+  14. Eval results:
+
+    (source_file
+      (system
+        (system_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head)
+              (eval_result_content_tail))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_result
+            (eval_result_start_tag)
+            (eval_result_content
+              (eval_result_content_head))
+            (eval_result_end_tag))
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_end_brace))
+        (text)))
+
+
+  15. Eval:
+
+    (source_file
+      (system
+        (system_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (safe_shell_commands
+          (shell_command)
+          (eval
+            (eval_start_brace
+              (eval_language))
+            (eval_content)
+            (eval_end_brace)))
+        (text)
+        (eval
+          (eval_start_brace
+            (eval_language))
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (user
+        (user_header)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text)
+        (eval
+          (eval_start_brace)
+          (eval_content)
+          (eval_end_brace))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  16. HTML comments:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (html_comment)
+        (text)
+        (html_comment)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text)))
+
+
+  17. HTML tags should be interpreted as text:
+
+    (source_file
+      (system
+        (system_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text)))
+
+
+  18. Mixed code blocks and sections:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)))
+
+
+  19. Nested code blocks:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text)))
+
+
+  20. Thinking section:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (thinking
+        (thinking_header)
+        (thinking_signature
+          (key)
+          (value))
+        (text))
+      (assistant
+        (assistant_header)
+        (text))
+      (user
+        (user_header)
+        (text))
+      (thinking
+        (thinking_header)
+        (text)))
+
+
+  21. Tags in backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text)
+        (code
+          (code_content))
+        (code)
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01HarNfBV8C6e4WJrL6hmSwu>
+
+# ASSISTANT
+
+I see the issue - the test expectations are still expecting the old `code_backticks_start` and `code_backticks_end` tokens. Let me update the test file to match the new structure:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RzuUsGuGkyTeo5GfLPr4qb
+
+## path
+
+<tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+./test/corpus/code.txt
+</tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+
+## git-commit-message
+
+<tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+Update test expectations to use new code_content token structure
+</tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+
+## diff
+
+<tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+ (source_file
+   (user
+     (user_header)
+     (text)
+     (code
+-      (code_backticks_start)
+-      (code_backticks_end))
++      (code_content))
+     (text))
+   (assistant
+     (assistant_header)
+     (text)
+     (code
+-      (code_backticks_start)
+-      (code_backticks_end))
++      (code_content))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+
+# TOOL RESULT
+
+ID: toolu_01RzuUsGuGkyTeo5GfLPr4qb
+
+<tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
+
+</tool.toolu_01RzuUsGuGkyTeo5GfLPr4qb>
