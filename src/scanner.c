@@ -779,12 +779,16 @@ static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
     if (lexer->lookahead != '`') return false;
     
+    fprintf(stderr, "DEBUG: scan_code_backticks_end called, lookahead='%c'\n", lexer->lookahead);
+    
     // Count the number of backticks
     int level = 0;
     while (lexer->lookahead == '`') {
         advance(lexer);
         level++;
     }
+    
+    fprintf(stderr, "DEBUG: level=%d, expected=%d\n", level, scanner->fenced_code_block_delimiter_length);
     
     // Must match the opening delimiter length
     if (level != scanner->fenced_code_block_delimiter_length) {
@@ -806,6 +810,7 @@ static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
     scanner->fenced_code_block_delimiter_length = 0;
     scanner->in_code_content = false;
     lexer->result_symbol = CODE_BACKTICKS_END;
+    fprintf(stderr, "DEBUG: returning CODE_BACKTICKS_END\n");
     return true;
 }
 
