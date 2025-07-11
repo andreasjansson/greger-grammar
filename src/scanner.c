@@ -684,13 +684,7 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-    if (!scanner->in_code_content) {
-        fprintf(stderr, "DEBUG: Not in code content\n");
-        return false;
-    }
-    
-    fprintf(stderr, "DEBUG: In code content, looking at char: %c (code: %d)\n", 
-            lexer->lookahead, lexer->lookahead);
+    if (!scanner->in_code_content) return false;
     
     // For inline code (1-2 backticks), check if we're immediately at a newline
     if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
