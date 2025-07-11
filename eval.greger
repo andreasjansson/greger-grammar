@@ -2935,5 +2935,228 @@ Fix code block parsing to handle single/double backticks and inline vs block con
 ID: toolu_01WdGMtGzW8iA76SnsnFgmoe
 
 <tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code block parsing to handle single/double backticks and inline vs block context
 </tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+
+# ASSISTANT
+
+Now let me test the double backticks case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RCkrw811rzkwCNS9bveXHV
+
+## command
+
+<tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+cd . && printf '# ASSISTANT\n\n``hello``' | tree-sitter parse /dev/stdin
+</tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+
+## timeout
+
+<tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+10
+</tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+
+# TOOL RESULT
+
+ID: toolu_01RCkrw811rzkwCNS9bveXHV
+
+<tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+(source_file [0, 0] - [2, 9]
+  (assistant [0, 0] - [2, 9]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 7])
+      (code_backticks_end [2, 7] - [2, 9]))))
+
+</tool.toolu_01RCkrw811rzkwCNS9bveXHV>
+
+# ASSISTANT
+
+Great! That's working now. Let me test the single backtick case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011Mgxd1iKTqs726hFvzy6XB
+
+## command
+
+<tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+
+## timeout
+
+<tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+10
+</tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+
+# TOOL RESULT
+
+ID: toolu_011Mgxd1iKTqs726hFvzy6XB
+
+<tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_011Mgxd1iKTqs726hFvzy6XB>
+
+# ASSISTANT
+
+Good! Now let me test the triple backticks inline case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015SYbPXujLWcM31RKAvrPGe
+
+## command
+
+<tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+cd . && printf '# ASSISTANT\n\n```javascript console.log("hello")```' | tree-sitter parse /dev/stdin
+</tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+
+## timeout
+
+<tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+10
+</tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+
+# TOOL RESULT
+
+ID: toolu_015SYbPXujLWcM31RKAvrPGe
+
+<tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+(source_file [0, 0] - [2, 37]
+  (ERROR [0, 0] - [2, 37]
+    (assistant_header [0, 0] - [0, 11])
+    (ERROR [2, 0] - [2, 37])))
+/dev/stdin	Parse:    0.02 ms	  2094 bytes/ms	(ERROR [0, 0] - [2, 37])
+Command failed with exit code 1
+</tool.toolu_015SYbPXujLWcM31RKAvrPGe>
+
+# ASSISTANT
+
+The issue is that inline triple backticks should not be treated as fenced code blocks due to the info string containing backticks. Let me check what the markdown parser expects here. According to the CommonMark spec, inline triple backticks should be treated as inline code if they're not at the start of a line, OR if the info string contains backticks.
+
+Let me check the actual failing test case:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01KNHqfB4NNDJCWHRpWDvFBW
+
+## pattern
+
+<tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+```javascript console.log
+</tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+
+## path
+
+<tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+./test/corpus/code.txt
+</tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+
+## context-lines
+
+<tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+10
+</tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+
+# TOOL RESULT
+
+ID: toolu_01KNHqfB4NNDJCWHRpWDvFBW
+
+<tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+164-      (code_contents)
+165-      (code_backticks_end))
+166-    (text)))
+167-
+168-===============================
+169-Triple backticks inline with language
+170-===============================
+171-
+172-# ASSISTANT
+173-
+174:```javascript console.log("hello")```
+175-
+176-More text after.
+177-
+178----
+179-
+180-(source_file
+181-  (assistant
+182-    (assistant_header)
+183-    (code
+184-      (code_backticks_start)
+
+</tool.toolu_01KNHqfB4NNDJCWHRpWDvFBW>
+
+# ASSISTANT
+
+The test expects this to parse as a single code block. The issue is that our logic is checking for backticks in the info string, but the closing backticks are not part of the info string - they're the end of the inline code block.
+
+Let me fix this by improving the info string checking logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HS3K5atLW6wwGmdR5yvuEa
+
+## path
+
+<tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+./src/scanner.c
+</tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+
+## git-commit-message
+
+<tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+Fix inline triple backticks by properly handling info string vs closing backticks
+</tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+
+## diff
+
+<tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+         // For triple+ backticks, check if info string contains backticks (invalid for fenced code blocks)
+         bool info_string_has_backtick = false;
+         
+         if (level >= 3) {
+             // Save current position to restore later
+             TSLexer saved_lexer = *lexer;
+             
++            // Look for backticks in the info string (until first space or newline)
+             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+-                   lexer->lookahead != 0) {
++                   lexer->lookahead != 0 && lexer->lookahead != ' ') {
+                 if (lexer->lookahead == '`') {
+                     info_string_has_backtick = true;
+                     break;
+                 }
+                 advance(lexer);
+             }
+             
+             // Restore position - we only checked, didn't consume
+             *lexer = saved_lexer;
+         }
+\ No newline at end of file
+
+</tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+
+# TOOL RESULT
+
+ID: toolu_01HS3K5atLW6wwGmdR5yvuEa
+
+<tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>
+
+</tool.toolu_01HS3K5atLW6wwGmdR5yvuEa>

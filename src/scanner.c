@@ -692,8 +692,9 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
             // Save current position to restore later
             TSLexer saved_lexer = *lexer;
             
+            // Look for backticks in the info string (until first space or newline)
             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-                   lexer->lookahead != 0) {
+                   lexer->lookahead != 0 && lexer->lookahead != ' ') {
                 if (lexer->lookahead == '`') {
                     info_string_has_backtick = true;
                     break;
