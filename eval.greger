@@ -9056,46 +9056,175 @@ Perfect! This shows exactly how the markdown inline parser handles it:
 
 The key insight is that the content between the delimiters is handled by the `repeat(choice($._text_base, '[', ']', $._soft_line_break, $._html_tag))` part of the grammar, which means backticks within the content are treated as normal text, not as special tokens.
 
-Let me check what the actual grammar structure looks like for this:
+Let me check what the actual grammar structure looks like for this:```
+
+
 
 # ASSISTANT
 
- the `repeat(choice(...))` means the content can be empty, or it can contain any combination of text, brackets, line breaks, and HTML tags.
+ the `repeat(choice(...))` means zero or more of various content types, and since it's just normal grammar rules, the backticks get absorbed as regular text tokens.
 
-Let me update my grammar to match this approach exactly:
+Let me restructure my grammar to match this approach exactly:
 
 # TOOL USE
 
 Name: str-replace
-ID: toolu_01C2PPScmdVSf6Lk4yh7jReE
+ID: toolu_01SAyRytGMMTPqGuN2BsRE5b
 
 ## path
 
-<tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+<tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
 ./grammar.js
-</tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+</tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
 
 ## git-commit-message
 
-<tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
-Match markdown approach - handle content with regular grammar rules, not external tokens
-</tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+<tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
+Match markdown approach - remove separate content token and handle content with grammar rules
+</tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
 
-## original-content
+## diff
 
-<tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
-    code: $ => seq(
-      $.code_backticks_start,
-      optional($.code_content),
-      $.code_backticks_end,
+<tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
+     code: $ => seq(
+       $.code_backticks_start,
+-      optional($.code_content),
++      repeat(choice(
++        $._text_content,
++        /\n/,
++      )),
+       $.code_backticks_end,
+-    ),
+-
+-    code_content: $ => token(prec(-1, /[^]*?/)),
+\ No newline at end of file
++    ),
+\ No newline at end of file
+
+</tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
+
+# TOOL RESULT
+
+ID: toolu_01SAyRytGMMTPqGuN2BsRE5b
+
+<tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
+Original content not found in file: /Users/andreas/projects/greger-grammar/grammar.js -- Try again!
+</tool.toolu_01SAyRytGMMTPqGuN2BsRE5b>
+
+# ASSISTANT
+
+Let me check what's currently in the grammar:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01N8fQJs3hthHMbirTSN4iJA
+
+## path
+
+<tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+./grammar.js
+</tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+
+## start-line
+
+<tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+270
+</tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+
+## end-line
+
+<tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+290
+</tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+
+# TOOL RESULT
+
+ID: toolu_01N8fQJs3hthHMbirTSN4iJA
+
+<tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
+
+    // TODO: allow `<` in safe shell commands, somehow...
+    shell_command: _ => token(prec(-2, /[^<\n]+/)),
+
+    eval: $ => seq(
+      $.eval_start_brace,
+      repeat(choice(
+        $.eval_content,
+        $.eval_result,
+      )),
+      $.eval_end_brace,
     ),
 
-    code_content: $ => token(prec(-1, /[^]*?/)),
-</tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+    eval_result: $ => seq(
+      $.eval_result_start_tag,
+      $.eval_result_content,
+      $.eval_result_end_tag,
+    ),
 
-## new-content
+    eval_result_content: $ => seq(
+      $.eval_result_content_head,
+</tool.toolu_01N8fQJs3hthHMbirTSN4iJA>
 
-<tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+# ASSISTANT
+
+Let me find where the code rule is defined:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01WxqNZRbB31vGnimWUbtwzt
+
+## pattern
+
+<tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+code:.*seq
+</tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+
+## path
+
+<tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+./grammar.js
+</tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+
+# TOOL RESULT
+
+ID: toolu_01WxqNZRbB31vGnimWUbtwzt
+
+<tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+301:    code: $ => seq(
+
+</tool.toolu_01WxqNZRbB31vGnimWUbtwzt>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01VgXEf9vrF4x2WeFUVh56ji
+
+## path
+
+<tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+./grammar.js
+</tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+
+## start-line
+
+<tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+300
+</tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+
+## end-line
+
+<tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+310
+</tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+
+# TOOL RESULT
+
+ID: toolu_01VgXEf9vrF4x2WeFUVh56ji
+
+<tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+
     code: $ => seq(
       $.code_backticks_start,
       repeat(choice(
@@ -9106,16 +9235,49 @@ Match markdown approach - handle content with regular grammar rules, not externa
       $.code_backticks_end,
     ),
 
-    _text_content: $ => choice(
-      /[^`\n]+/,
-      /[ \t]+/,
-    ),
-</tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+</tool.toolu_01VgXEf9vrF4x2WeFUVh56ji>
+
+# ASSISTANT
+
+I see the current structure. The issue is that I have backticks as a separate choice in the repeat, which means they'll be parsed as individual tokens. But the `_text_content` should already include backticks. Let me simplify this to match the markdown approach exactly:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01KMPsHhCfEdrTSkBjBdQcF1
+
+## path
+
+<tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
+./grammar.js
+</tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
+
+## git-commit-message
+
+<tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
+Simplify code content to match markdown approach exactly
+</tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
+
+## diff
+
+<tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
+     code: $ => seq(
+       $.code_backticks_start,
+       repeat(choice(
+         $._text_content,
+-        '`',
+         /\n/,
+       )),
+       $.code_backticks_end,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
 
 # TOOL RESULT
 
-ID: toolu_01C2PPScmdVSf6Lk4yh7jReE
+ID: toolu_01KMPsHhCfEdrTSkBjBdQcF1
 
-<tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+<tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>
 
-</tool.toolu_01C2PPScmdVSf6Lk4yh7jReE>
+</tool.toolu_01KMPsHhCfEdrTSkBjBdQcF1>

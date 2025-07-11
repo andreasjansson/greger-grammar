@@ -302,7 +302,6 @@ module.exports = grammar({
       $.code_backticks_start,
       repeat(choice(
         $._text_content,
-        '`',
         /\n/,
       )),
       $.code_backticks_end,
