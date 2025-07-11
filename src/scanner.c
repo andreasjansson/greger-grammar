@@ -758,7 +758,6 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
     }
     
     // PRIORITY 3: If neither open nor close is valid, don't consume the backticks
-    fprintf(stderr, "DEBUG: parse_code_delimiter returning false (no match)\n");
     return false;
 }
 
