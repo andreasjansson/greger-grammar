@@ -5695,5 +5695,163 @@ Move code_close_tag check to earlier in dispatch to prevent code_content from co
 ID: toolu_01LxvxgVoCKVfvQxQfRoFi1c
 
 <tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Move code_close_tag check to earlier in dispatch to prevent code_content from consuming it
 </tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+
+# ASSISTANT
+
+Now let's test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012YfhL67CtGaeirM1oyShFH
+
+## command
+
+<tool.toolu_012YfhL67CtGaeirM1oyShFH>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>\n\nMore text after.' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_012YfhL67CtGaeirM1oyShFH>
+
+## timeout
+
+<tool.toolu_012YfhL67CtGaeirM1oyShFH>
+10
+</tool.toolu_012YfhL67CtGaeirM1oyShFH>
+
+# TOOL RESULT
+
+ID: toolu_012YfhL67CtGaeirM1oyShFH
+
+<tool.toolu_012YfhL67CtGaeirM1oyShFH>
+(source_file [0, 0] - [6, 16]
+  (assistant [0, 0] - [6, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [6, 16]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [6, 16])
+      (code_end_tag [6, 16] - [6, 16]))))
+/dev/stdin	Parse:    0.06 ms	  1094 bytes/ms	(MISSING code_end_tag [6, 16] - [6, 16])
+Command failed with exit code 1
+</tool.toolu_012YfhL67CtGaeirM1oyShFH>
+
+# ASSISTANT
+
+The issue is that the code_content scanner is consuming the entire content including the `<$code-close/>` tag. Let me fix the code_content scanner to stop when it sees the code close tag:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017zLHbHPYDTVRZnEx3tpizA
+
+## path
+
+<tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+./src/scanner.c
+</tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+
+## git-commit-message
+
+<tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+Modify code_content scanner to stop at <$code-close/> tags
+</tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+
+## diff
+
+<tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+     // Build the expected closing pattern (just the right number of backticks)
+     char expected_closing[21]; // Max 20 backticks + null terminator
+     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+         expected_closing[i] = '`';
+     }
+     expected_closing[scanner->code_backtick_count] = '\0';
+     int expected_len = scanner->code_backtick_count;
+     
++    // Also check for code close tag pattern
++    const char *code_close_pattern = "<$code-close/>";
++    int code_close_len = 14;
++    
+     int match_index = 0;
++    int code_close_match_index = 0;
+     
+-    // Scan content until we find the closing pattern
++    // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
++        // Check for code close tag pattern
++        if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
++            code_close_match_index++;
++            if (code_close_match_index == code_close_len) {
++                // Found complete code close tag, stop here (don't consume it)
++                if (has_content) {
++                    lexer->result_symbol = CODE_CONTENT;
++                    return true;
++                } else {
++                    return false;
++                }
++            }
++        } else {
++            code_close_match_index = 0;
++        }
++        
++        // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+                 lexer->mark_end(lexer);
+             }
+         }
+     }
+     
+     // Reached end without finding closing tag
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+
+# TOOL RESULT
+
+ID: toolu_017zLHbHPYDTVRZnEx3tpizA
+
+<tool.toolu_017zLHbHPYDTVRZnEx3tpizA>
+
+</tool.toolu_017zLHbHPYDTVRZnEx3tpizA>

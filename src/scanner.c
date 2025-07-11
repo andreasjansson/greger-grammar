@@ -698,10 +698,32 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     expected_closing[scanner->code_backtick_count] = '\0';
     int expected_len = scanner->code_backtick_count;
     
-    int match_index = 0;
+    // Also check for code close tag pattern
+    const char *code_close_pattern = "<$code-close/>";
+    int code_close_len = 14;
     
-    // Scan content until we find the closing pattern
+    int match_index = 0;
+    int code_close_match_index = 0;
+    
+    // Scan content until we find the closing pattern or code close tag
     while (lexer->lookahead != 0) {
+        // Check for code close tag pattern
+        if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+            code_close_match_index++;
+            if (code_close_match_index == code_close_len) {
+                // Found complete code close tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            code_close_match_index = 0;
+        }
+        
+        // Check for regular closing pattern
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
