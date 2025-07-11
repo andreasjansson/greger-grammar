@@ -305,6 +305,8 @@ module.exports = grammar({
       choice($.code_end_tag, $.code_close_tag),
     ),
 
+    code_close_tag: $ => '<$code-close/>',
+
 
     
 
