@@ -8189,5 +8189,224 @@ Move mark_end to after consuming all characters
 ID: toolu_018AG24xwRa2GSvmwWzcLadN
 
 <tool.toolu_018AG24xwRa2GSvmwWzcLadN>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Move mark_end to after consuming all characters
 </tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JzZjQ5Ju5UR9Db5M5yhQy3
+
+## command
+
+<tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+cd . && printf '# ASSISTANT\n\n```\n<$>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+
+## timeout
+
+<tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+10
+</tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+
+# TOOL RESULT
+
+ID: toolu_01JzZjQ5Ju5UR9Db5M5yhQy3
+
+<tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+(source_file [0, 0] - [3, 3]
+  (assistant [0, 0] - [3, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [3, 3])
+      (code_close_tag [3, 3] - [3, 3]))))
+/dev/stdin	Parse:    1.08 ms	    18 bytes/ms	(MISSING code_close_tag [3, 3] - [3, 3])
+Command failed with exit code 1
+</tool.toolu_01JzZjQ5Ju5UR9Db5M5yhQy3>
+
+# ASSISTANT
+
+Still missing. Let me try to understand the issue better. Let me check if there's an issue with the code content scanner that's preventing the correct range from being set:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018u5qPYBvV2RTfopqLcVPX8
+
+## command
+
+<tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+
+## timeout
+
+<tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+10
+</tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+
+# TOOL RESULT
+
+ID: toolu_018u5qPYBvV2RTfopqLcVPX8
+
+<tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 3])
+      (code_close_tag [4, 3] - [4, 3]))))
+/dev/stdin	Parse:    0.03 ms	   805 bytes/ms	(MISSING code_close_tag [4, 3] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_018u5qPYBvV2RTfopqLcVPX8>
+
+# ASSISTANT
+
+The problem is clear now. The code_content is consuming up to position `[4, 3]` (which is where the `<$>` starts) but the code_close_tag is not consuming any characters (`[4, 3] - [4, 3]`). The scanner needs to actually consume the characters.
+
+Looking at the error, it's not that the scanner is failing, but that it's creating an empty range. Let me check if there's an issue with the `mark_end` call. Let me also check if the issue is in the logic where I'm supposed to mark the end before advancing.
+
+Actually, I think the issue might be that the code_content scanner is consuming the `<$>` as content, not stopping before it. Let me check if the code_content scanner is working correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013rD48KPeC7WTXhnzDpv56M
+
+## command
+
+<tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+
+## timeout
+
+<tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+10
+</tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+
+# TOOL RESULT
+
+ID: toolu_013rD48KPeC7WTXhnzDpv56M
+
+<tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+(source_file [0, 0] - [4, 3]
+  (assistant [0, 0] - [4, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 3])
+      (code_close_tag [4, 3] - [4, 3]))))
+/dev/stdin	Parse:    0.03 ms	   943 bytes/ms	(MISSING code_close_tag [4, 3] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_013rD48KPeC7WTXhnzDpv56M>
+
+# ASSISTANT
+
+Wait, the code_content is showing `[2, 3] - [4, 3]` which means it goes from position 3 in line 2 to position 3 in line 4. But position 3 in line 4 is the `>` character, which means it's consuming the `<$` and stopping at the `>`. 
+
+This tells me that the code_content scanner is correctly stopping at `<$>` but not consuming the `<$`. Let me check if the issue is that the code_content scanner is incorrectly stopping at the code close tag.
+
+Let me look at the code_content scanner's logic for handling the code close tag:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01TgJoqSgPY8jYRkhMo1bJ4B
+
+## path
+
+<tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+./src/scanner.c
+</tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+
+## start-line
+
+<tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+739
+</tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+
+## end-line
+
+<tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+760
+</tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+
+## include-line-numbers
+
+<tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+true
+</tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+
+# TOOL RESULT
+
+ID: toolu_01TgJoqSgPY8jYRkhMo1bJ4B
+
+<tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+739:             advance(lexer);
+740:         } else {
+741:             // Reset match and continue as content
+742:             if (match_index > 0) {
+743:                 // We were partially matching, reset but don't advance yet
+744:                 match_index = 0;
+745:                 // Don't advance here, reprocess this character
+746:             } else {
+747:                 // For inline code (1-2 backticks), stop at newlines
+748:                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+749:                     if (has_content) {
+750:                         lexer->result_symbol = CODE_CONTENT;
+751:                         return true;
+752:                     } else {
+753:                         return false;
+754:                     }
+755:                 }
+756:                 
+757:                 advance(lexer);
+758:                 has_content = true;
+759:                 lexer->mark_end(lexer);
+760:             }
+</tool.toolu_01TgJoqSgPY8jYRkhMo1bJ4B>
+
+# ASSISTANT
+
+The issue is the code_content scanner is looking for `<$code-close/>` but I changed it to `<$>`. Let me update that:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_013Y4sCVkhogcafA7F3tiN4t
+
+## path
+
+<tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+./src/scanner.c
+</tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+
+## git-commit-message
+
+<tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+Update code_content scanner to look for simplified <$> pattern
+</tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+
+## diff
+
+<tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+     // Also check for code close tag pattern
+-    const char *code_close_pattern = "<$code-close/>";
+-    int code_close_len = 14;
+\ No newline at end of file
++    const char *code_close_pattern = "<$>";
++    int code_close_len = 3;
+\ No newline at end of file
+
+</tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+
+# TOOL RESULT
+
+ID: toolu_013Y4sCVkhogcafA7F3tiN4t
+
+<tool.toolu_013Y4sCVkhogcafA7F3tiN4t>
+
+</tool.toolu_013Y4sCVkhogcafA7F3tiN4t>

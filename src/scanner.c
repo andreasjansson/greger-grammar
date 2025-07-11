@@ -699,8 +699,8 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     int expected_len = scanner->code_backtick_count;
     
     // Also check for code close tag pattern
-    const char *code_close_pattern = "<$code-close/>";
-    int code_close_len = 14;
+    const char *code_close_pattern = "<$>";
+    int code_close_len = 3;
     
     int match_index = 0;
     int code_close_match_index = 0;
