@@ -2720,5 +2720,415 @@ Correct the lookahead logic to properly restore lexer state when backticks shoul
 ID: toolu_01Xc74kKGZsndM4N5vy4rZwk
 
 <tool.toolu_01Xc74kKGZsndM4N5vy4rZwk>
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick lookahead logic to properly handle content backticks
 
+Correct the lookahead logic to properly restore lexer state when backticks should be treated as content rather than closing patterns. The previous logic had issues with advancing and restoring the lexer position.
 </tool.toolu_01Xc74kKGZsndM4N5vy4rZwk>
+
+# ASSISTANT
+
+Let me test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0175ap26DhbeyuvpPNgbDqkS
+
+## command
+
+<tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+cd . && echo '# USER
+
+`a``' | tree-sitter parse /dev/stdin
+</tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+
+## timeout
+
+<tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+10
+</tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+
+# TOOL RESULT
+
+ID: toolu_0175ap26DhbeyuvpPNgbDqkS
+
+<tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 4]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 4])
+      (code_end_tag [2, 4] - [2, 4]))
+    (text [2, 4] - [3, 0])))
+
+</tool.toolu_0175ap26DhbeyuvpPNgbDqkS>
+
+# ASSISTANT
+
+Excellent! Now `a`` is being parsed correctly as a single code block containing "a``" (from position [2, 1] to [2, 4], which is the string "a``"). The code block is implicitly closed at the end of the line (synthetic end tag at position [2, 4]).
+
+Let's verify that the other case still works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015KVD5u27oYcpBg3WtYbbUL
+
+## command
+
+<tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+cd . && echo '# USER
+
+`a` b' | tree-sitter parse /dev/stdin
+</tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+
+## timeout
+
+<tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+10
+</tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+
+# TOOL RESULT
+
+ID: toolu_015KVD5u27oYcpBg3WtYbbUL
+
+<tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (text [2, 3] - [3, 0])))
+
+</tool.toolu_015KVD5u27oYcpBg3WtYbbUL>
+
+# ASSISTANT
+
+Perfect! Both cases work correctly:
+- `a` b parses as: code block with "a" + text " b"
+- `a`` parses as: code block with "a``" 
+
+Let's run the full test suite to make sure everything still works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_013ZCGDWWXHagqduHVtUvfYN
+
+## command
+
+<tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+cd . && tree-sitter test
+</tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+
+## timeout
+
+<tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+15
+</tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+
+# TOOL RESULT
+
+ID: toolu_013ZCGDWWXHagqduHVtUvfYN
+
+<tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✓ Single backtick with double backticks inside
+     19. ✓ Triple backticks with content on same line
+     20. ✓ Single backtick extends to end of line
+  complex-workflow:
+     21. ✓ Complex workflow
+  eval-nested-braces:
+     22. ✓ Eval nested braces
+  eval-partial:
+     23. ✓ Eval partial cases -- Warning: Slow parse rate (1542.169 bytes/ms)
+  eval-results:
+     24. ✓ Eval results
+  eval:
+     25. ✓ Eval
+  html-comments:
+     26. ✓ HTML comments
+  html-tags:
+     27. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     28. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     29. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     30. ✓ Multiple tool uses
+  nested-code-blocks:
+     31. ✓ Nested code blocks
+  safe-shell-commands:
+     32. ✓ Safe shell commands
+  server-tool-use-basic:
+     33. ✓ Server tool use basic
+  server-tool-use-string-result:
+     34. ✓ Server tool use string result
+  simple-conversation:
+     35. ✓ Simple conversation
+  simple-user-message:
+     36. ✓ Simple user message
+  system-and-user:
+     37. ✓ System and user
+  text-with-markdown-headings:
+     38. ✓ Text with markdown headings
+  thinking-only:
+     39. ✓ Thinking only
+  thinking-section:
+     40. ✓ Thinking section
+  tool-use-multiple-params:
+     41. ✓ Tool use multiple params
+  tool-use-only:
+     42. ✓ Tool use only
+  tool-use-single-param:
+     43. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     44. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     45. ✓ Tool use with tool use in params
+  triple-hash:
+     46. ✓ Triple hash not in citation
+  untagged-content:
+     47. ✓ Untagged content
+  xml-tags-backticks:
+     48. ✓ Tags in backticks
+
+Total parses: 48; successful parses: 48; failed parses: 0; success percentage: 100.00%; average speed: 28142 bytes/ms
+
+
+</tool.toolu_013ZCGDWWXHagqduHVtUvfYN>
+
+# ASSISTANT
+
+Excellent! All tests are passing now. Let me test with your debug file to make sure the specific case that was mentioned in the task works correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DBCEK8NX31HtAYSmAMftQN
+
+## command
+
+<tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+cd . && tree-sitter parse debug.greger
+</tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+
+## timeout
+
+<tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+10
+</tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+
+# TOOL RESULT
+
+ID: toolu_01DBCEK8NX31HtAYSmAMftQN
+
+<tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (text [2, 3] - [3, 0])))
+
+</tool.toolu_01DBCEK8NX31HtAYSmAMftQN>
+
+# ASSISTANT
+
+Perfect! The debug file `# USER\n\n`a` b` is now parsing correctly as:
+- A code block containing "a" (from position [2, 1] to [2, 2])
+- Followed by text " b" (from position [2, 3] to [3, 0])
+
+Let me also test a few more edge cases to make sure everything works:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01K2ejQXJPt45YVCKGnzPtey
+
+## command
+
+<tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+cd . && echo '# USER
+
+``a`` b' | tree-sitter parse /dev/stdin
+</tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+
+## timeout
+
+<tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+10
+</tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+
+# TOOL RESULT
+
+ID: toolu_01K2ejQXJPt45YVCKGnzPtey
+
+<tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 5]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 2] - [2, 3])
+      (code_end_tag [2, 3] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_01K2ejQXJPt45YVCKGnzPtey>
+
+# ASSISTANT
+
+Great! Double backticks also work correctly: ``a`` b parses as code block with "a" + text " b".
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01E6J7KB7STKunT3nqnkQ7MF
+
+## command
+
+<tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+cd . && echo '# USER
+
+```a``` b' | tree-sitter parse /dev/stdin
+</tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+
+## timeout
+
+<tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+10
+</tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+
+# TOOL RESULT
+
+ID: toolu_01E6J7KB7STKunT3nqnkQ7MF
+
+<tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 4])
+      (code_end_tag [2, 4] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01E6J7KB7STKunT3nqnkQ7MF>
+
+# ASSISTANT
+
+Perfect! Triple backticks continue to work correctly as well.
+
+Let me test one more edge case - what happens when there's punctuation after the backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012NwAKnnQq9r75sqz2m3zDy
+
+## command
+
+<tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+cd . && echo '# USER
+
+`a`, `b`.' | tree-sitter parse /dev/stdin
+</tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+
+## timeout
+
+<tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+10
+</tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+
+# TOOL RESULT
+
+ID: toolu_012NwAKnnQq9r75sqz2m3zDy
+
+<tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (text [2, 3] - [2, 5])
+    (code [2, 5] - [2, 8]
+      (code_start_tag [2, 5] - [2, 6])
+      (code_content [2, 6] - [2, 7])
+      (code_end_tag [2, 7] - [2, 8]))
+    (text [2, 8] - [3, 0])))
+
+</tool.toolu_012NwAKnnQq9r75sqz2m3zDy>
+
+# ASSISTANT
+
+Excellent! The punctuation case also works perfectly:
+- `a`, parses as code block "a" + text ", "
+- `b`. parses as code block "b" + text "."
+
+## Summary
+
+I have successfully fixed the single and double backtick parsing issue in your tree-sitter grammar. Here's what was implemented:
+
+### The Problem
+Previously, single and double backticks were extending to the end of the line instead of properly closing at their matching backticks. For example:
+- `a` b was being parsed as a single code block containing "a` b"
+- Instead of parsing as code block "a" + text " b"
+
+### The Solution
+I modified the `scan_code_content` function in `src/scanner.c` to:
+
+1. **Remove the restriction**: The original code only applied closing pattern detection to 3+ backticks (`scanner->code_backtick_count >= 3`). I removed this restriction so single and double backticks can also close properly.
+
+2. **Add intelligent closing detection**: For single and double backticks, I added logic to distinguish between closing backticks and content backticks by checking what comes after the potential closing pattern:
+   - If followed by whitespace, end of input, or punctuation (`.`, `,`, `!`, etc.), treat as a closing pattern
+   - If followed by other characters (like another backtick), treat as content
+
+### Key Behaviors Now Working
+- ✅ `a` b → code block "a" + text " b"  
+- ✅ `a`` → code block "a``" (backticks treated as content)
+- ✅ ``a`` b → code block "a" + text " b"
+- ✅ `a`, `b`. → code block "a" + text ", " + code block "b" + text "."
+- ✅ All existing triple+ backtick functionality remains unchanged
+- ✅ All existing tests continue to pass
+
+### Implementation Details
+The fix adds a lookahead mechanism that:
+1. Temporarily advances past potential closing backticks
+2. Checks the following character to determine if it's a word boundary
+3. Restores the lexer position if the backticks should be treated as content
+4. Only applies this logic to single and double backticks (triple+ backticks use the simpler, more permissive logic)
+
+This ensures that cases like `a`` don't incorrectly close at the first backtick, while still allowing proper closing in cases like `a` b where there's a clear word boundary.
+
+# USER
+
