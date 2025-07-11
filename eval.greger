@@ -8558,5 +8558,47 @@ Restore full code close tag pattern in the scanner function
 ID: toolu_011u88b7Zhahi4n4pEf5Mjme
 
 <tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Restore full code close tag pattern in the scanner function
 </tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+
+# ASSISTANT
+
+Let me also restore the proper grammar rule to use choice again:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Xo6xijRVabSA4rcRgftrhA
+
+## path
+
+<tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+./grammar.js
+</tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+
+## git-commit-message
+
+<tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+Restore choice between code_end_tag and code_close_tag in grammar
+</tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+
+## diff
+
+<tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+     code: $ => seq(
+       $.code_start_tag,
+       optional($.code_content),
+-      $.code_close_tag,
++      choice($.code_end_tag, $.code_close_tag),
+     ),
+\ No newline at end of file
+
+</tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+
+# TOOL RESULT
+
+ID: toolu_01Xo6xijRVabSA4rcRgftrhA
+
+<tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+
+</tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
