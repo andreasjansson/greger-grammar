@@ -3091,5 +3091,138 @@ Add dollar test case
 ID: toolu_01D9bL94ChpWyR5EKJmftzc2
 
 <tool.toolu_01D9bL94ChpWyR5EKJmftzc2>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test_dollar.greger with 11 characters. Successfully staged 2 file(s) and committed with message: Add dollar test case
 </tool.toolu_01D9bL94ChpWyR5EKJmftzc2>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Q12Z7b5yz6v453Lkign9hn
+
+## command
+
+<tool.toolu_01Q12Z7b5yz6v453Lkign9hn>
+timeout 10 tree-sitter parse test_dollar.greger
+</tool.toolu_01Q12Z7b5yz6v453Lkign9hn>
+
+# TOOL RESULT
+
+ID: toolu_01Q12Z7b5yz6v453Lkign9hn
+
+<tool.toolu_01Q12Z7b5yz6v453Lkign9hn>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 3]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 2])
+      (code_end_tag [2, 2] - [2, 3]))
+    (text [2, 3] - [3, 0])))
+
+</tool.toolu_01Q12Z7b5yz6v453Lkign9hn>
+
+# ASSISTANT
+
+That works fine. Let me check if the issue is in the scanner or in the grammar logic. Let me check the scan_code_content function more carefully to see what happens when it encounters a LESSTHAN character:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01A5QYURiaMJoBfEsAsLWZS4
+
+## path
+
+<tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+src/scanner.c
+</tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+
+## start-line
+
+<tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+825
+</tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+
+## end-line
+
+<tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+850
+</tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+
+# TOOL RESULT
+
+ID: toolu_01A5QYURiaMJoBfEsAsLWZS4
+
+<tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+        }
+    }
+    
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+
+static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're at a newline to generate synthetic closing tag
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // Generate synthetic closing tag without consuming the newline
+        scanner->code_backtick_count = 0;
+        scanner->in_code_content = false;
+        lexer->result_symbol = CODE_END_TAG;
+        return true;
+    }
+    
+    // Regular case: looking for actual backticks
+    if (lexer->lookahead != '`') return false;
+</tool.toolu_01A5QYURiaMJoBfEsAsLWZS4>
+
+# ASSISTANT
+
+The issue might be that the scanner is not properly handling the validation. Let me check if the scanner is actually being called for code content. Let me add some debug information by temporarily modifying the scanner to see what's happening:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01CNXE5f123hGPyuWNagwky8
+
+## path
+
+<tool.toolu_01CNXE5f123hGPyuWNagwky8>
+src/scanner.c
+</tool.toolu_01CNXE5f123hGPyuWNagwky8>
+
+## git-commit-message
+
+<tool.toolu_01CNXE5f123hGPyuWNagwky8>
+Add debug output to scanner
+</tool.toolu_01CNXE5f123hGPyuWNagwky8>
+
+## diff
+
+<tool.toolu_01CNXE5f123hGPyuWNagwky8>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+-    if (!scanner->in_code_content) return false;
+\ No newline at end of file
++    if (!scanner->in_code_content) {
++        fprintf(stderr, "DEBUG: Not in code content\n");
++        return false;
++    }
++    
++    fprintf(stderr, "DEBUG: In code content, looking at char: %c (code: %d)\n", 
++            lexer->lookahead, lexer->lookahead);
+\ No newline at end of file
+
+</tool.toolu_01CNXE5f123hGPyuWNagwky8>
+
+# TOOL RESULT
+
+ID: toolu_01CNXE5f123hGPyuWNagwky8
+
+<tool.toolu_01CNXE5f123hGPyuWNagwky8>
+
+</tool.toolu_01CNXE5f123hGPyuWNagwky8>
