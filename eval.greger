@@ -6519,5 +6519,94 @@ Fix code_content scanner to handle newlines properly when looking for code close
 ID: toolu_01KpgWryq5T44XfXB8uoZhC3
 
 <tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code_content scanner to handle newlines properly when looking for code close tag
 </tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+
+# ASSISTANT
+
+That didn't fix the main issue. The problem is still that the content scanner is stopping at the right place but the code close tag scanner is not working. 
+
+Wait - I think I understand the problem now. The issue is that I'm checking for the code close tag pattern in the code_content scanner, but when we actually get to the code close tag, the scanner is being called with valid_symbols[CODE_CLOSE_TAG] but the scan_code_close_tag function is not correctly recognizing it.
+
+Let me create a simple test to debug the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01B4qTXLYC6wi6SayPEQGarS
+
+## command
+
+<tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+cd . && tree-sitter test --debug 2>&1 | grep -A 5 -B 5 "code-close" | head -20
+</tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+
+## timeout
+
+<tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+10
+</tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+
+# TOOL RESULT
+
+ID: toolu_01B4qTXLYC6wi6SayPEQGarS
+
+<tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+
+</tool.toolu_01B4qTXLYC6wi6SayPEQGarS>
+
+# ASSISTANT
+
+Let me try a different approach. Let me check what happens if I add a simple test for the code close tag:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01CMejyCjPwJ1iEyFjkx7RCx
+
+## path
+
+<tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+./test/corpus/code-close.txt
+</tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+
+## git-commit-message
+
+<tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+Add test case for code close tag functionality
+</tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+
+## contents
+
+<tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+===============================
+Code close tag test
+===============================
+
+# ASSISTANT
+
+```
+unclosed code
+<$code-close/>
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_close_tag))
+    (text)))
+</tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+
+# TOOL RESULT
+
+ID: toolu_01CMejyCjPwJ1iEyFjkx7RCx
+
+<tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
+
+</tool.toolu_01CMejyCjPwJ1iEyFjkx7RCx>
