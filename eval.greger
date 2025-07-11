@@ -3878,5 +3878,101 @@ Remove debug output from return statement
 ID: toolu_013JiCZFSu3pZwsAvZor8uo5
 
 <tool.toolu_013JiCZFSu3pZwsAvZor8uo5>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output from return statement
 </tool.toolu_013JiCZFSu3pZwsAvZor8uo5>
+
+# ASSISTANT
+
+Now let me test again:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HYAwJsYC3q9iMH9aKEfKS1
+
+## command
+
+<tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+
+## timeout
+
+<tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+10
+</tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+
+# TOOL RESULT
+
+ID: toolu_01HYAwJsYC3q9iMH9aKEfKS1
+
+<tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.05 ms	   499 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01HYAwJsYC3q9iMH9aKEfKS1>
+
+# ASSISTANT
+
+The issue persists. Let me think about this differently. The problem is that when the external scanner returns `false`, the lexer position is advanced but no token is produced, which creates a parsing error.
+
+Looking at the markdown parser more carefully, I think the key insight is that their external scanner doesn't consume characters when it can't match a token. Let me examine their approach more carefully.
+
+The issue is that when I advance the lexer in `parse_code_delimiter` and then return `false`, the characters are consumed but no token is produced. This is what causes the ERROR.
+
+Let me check if the problem is in the saving/restoring logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01MBm8CgnrxCwcdLGmS6YfJV
+
+## path
+
+<tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+./src/scanner.c
+</tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+
+## git-commit-message
+
+<tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+Fix lexer position handling to prevent character consumption on false return
+</tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+
+## diff
+
+<tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
++    // Save the starting position
++    TSLexer saved_lexer = *lexer;
++    
+     // Count the number of backticks
+     int level = 0;
+     while (lexer->lookahead == '`') {
+         advance(lexer);
+         level++;
+     }
+     
+     lexer->mark_end(lexer);
+     
+     // PRIORITY 1: Check if this can close an existing code block (exact match of delimiter length)
+     if (level == scanner->fenced_code_block_delimiter_length && 
+         valid_symbols[CODE_BACKTICKS_END] &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+\ No newline at end of file
+
+</tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+
+# TOOL RESULT
+
+ID: toolu_01MBm8CgnrxCwcdLGmS6YfJV
+
+<tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
+
+</tool.toolu_01MBm8CgnrxCwcdLGmS6YfJV>
