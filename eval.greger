@@ -4462,5 +4462,239 @@ Add comprehensive test file for edge cases
 ID: toolu_01BBL8PJAKZP444ZCHTwy4wN
 
 <tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test-edge-cases.greger with 192 characters. Successfully staged 2 file(s) and committed with message: Add comprehensive test file for edge cases
 </tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01E9HaFEwZEHwR3uEVotpE6T
+
+## command
+
+<tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+tree-sitter parse test-edge-cases.greger
+</tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+
+## timeout
+
+<tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+10
+</tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+
+# TOOL RESULT
+
+ID: toolu_01E9HaFEwZEHwR3uEVotpE6T
+
+<tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+(source_file [0, 0] - [12, 0]
+  (assistant [0, 0] - [12, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 34])
+    (code [2, 34] - [2, 43]
+      (code_start_tag [2, 34] - [2, 35])
+      (code_content [2, 35] - [2, 43])
+      (code_end_tag [2, 43] - [2, 43]))
+    (text [2, 43] - [4, 22])
+    (code [4, 22] - [4, 37]
+      (code_start_tag [4, 22] - [4, 24])
+      (code_content [4, 24] - [4, 37])
+      (code_end_tag [4, 37] - [4, 37]))
+    (text [4, 37] - [7, 0])
+    (code [7, 0] - [9, 3]
+      (code_start_tag [7, 0] - [7, 3])
+      (code_content [7, 3] - [9, 0])
+      (code_end_tag [9, 0] - [9, 3]))
+    (text [9, 3] - [12, 0])))
+
+</tool.toolu_01E9HaFEwZEHwR3uEVotpE6T>
+
+# ASSISTANT
+
+Perfect! The parsing is working correctly:
+
+1. Single backtick `unclosed` is properly terminated at the newline
+2. Double backtick ``also unclosed`` is properly terminated at the newline  
+3. Triple backtick blocks still work normally and continue across newlines until the closing triple backtick
+
+Let me test one more edge case to make sure the infinite loop issue mentioned in the instructions is fixed:
+
+# ASSISTANT
+
+ 
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Bo3krgo8Le63iZEhpZ3gsT
+
+## command
+
+<tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+
+## timeout
+
+<tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+5
+</tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+
+# TOOL RESULT
+
+ID: toolu_01Bo3krgo8Le63iZEhpZ3gsT
+
+<tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+(source_file [0, 0] - [2, 11]
+  (assistant [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 11]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 3] - [2, 9])
+      (code_end_tag [2, 9] - [2, 11]))))
+
+</tool.toolu_01Bo3krgo8Le63iZEhpZ3gsT>
+
+# ASSISTANT
+
+Great! This also works correctly - the double backtick case with proper closing works fine.
+
+Now let me test the problematic case mentioned in the instructions:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RPxLDfP937u6tWb2KMwkBT
+
+## command
+
+<tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+printf '# ASSISTANT\n\n`` hello ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+
+## timeout
+
+<tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+5
+</tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+
+# TOOL RESULT
+
+ID: toolu_01RPxLDfP937u6tWb2KMwkBT
+
+<tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+(source_file [0, 0] - [2, 11]
+  (assistant [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 11]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 3] - [2, 9])
+      (code_end_tag [2, 9] - [2, 11]))))
+
+</tool.toolu_01RPxLDfP937u6tWb2KMwkBT>
+
+# ASSISTANT
+
+Wait, let me test the actual infinite loop case mentioned:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014jcRNpsjq9vMj4Qft8JUV9
+
+## command
+
+<tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+printf '# ASSISTANT\n\n`` hello `' | tree-sitter parse /dev/stdin
+</tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+
+## timeout
+
+<tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+5
+</tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+
+# TOOL RESULT
+
+ID: toolu_014jcRNpsjq9vMj4Qft8JUV9
+
+<tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+(source_file [0, 0] - [2, 10]
+  (ERROR [0, 0] - [2, 10]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 2])
+    (code_content [2, 3] - [2, 9])
+    (ERROR [2, 9] - [2, 10])))
+/dev/stdin	Parse:    0.03 ms	   867 bytes/ms	(ERROR [0, 0] - [2, 10])
+Command failed with exit code 1
+</tool.toolu_014jcRNpsjq9vMj4Qft8JUV9>
+
+# ASSISTANT
+
+And let me test the case where the input ends with a backtick:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015i4s228Vy1eCKpJYzuj2rN
+
+## command
+
+<tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+printf '# ASSISTANT\n\n`` hello `' | tree-sitter parse /dev/stdin
+</tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+
+## timeout
+
+<tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+5
+</tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+
+# TOOL RESULT
+
+ID: toolu_015i4s228Vy1eCKpJYzuj2rN
+
+<tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+(source_file [0, 0] - [2, 10]
+  (ERROR [0, 0] - [2, 10]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 2])
+    (code_content [2, 3] - [2, 9])
+    (ERROR [2, 9] - [2, 10])))
+/dev/stdin	Parse:    0.03 ms	   903 bytes/ms	(ERROR [0, 0] - [2, 10])
+Command failed with exit code 1
+</tool.toolu_015i4s228Vy1eCKpJYzuj2rN>
+
+# ASSISTANT
+
+This is expected behavior - the last backtick is not properly closed, so it goes into an error state. But importantly, it doesn't hang - it finishes quickly. This is good.
+
+Let me clean up the test files I created:
+
+# TOOL USE
+
+Name: delete-files
+ID: toolu_01RJjskzQKDt5uegzFnj5Saq
+
+## paths
+
+<tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+[
+  "test-unclosed-backticks.greger",
+  "test-edge-cases.greger"
+]
+</tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+
+## git-commit-message
+
+<tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+Clean up test files
+</tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+
+# TOOL RESULT
+
+ID: toolu_01RJjskzQKDt5uegzFnj5Saq
+
+<tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+
+</tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
