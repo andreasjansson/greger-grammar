@@ -3298,5 +3298,83 @@ Add more debug output
 ID: toolu_01B1C9Nn8SC32xUJkVyX4oaa
 
 <tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add more debug output
 </tool.toolu_01B1C9Nn8SC32xUJkVyX4oaa>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01E4ANM6P42FbbjJt1tRUCUj
+
+## command
+
+<tool.toolu_01E4ANM6P42FbbjJt1tRUCUj>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01E4ANM6P42FbbjJt1tRUCUj>
+
+# TOOL RESULT
+
+ID: toolu_01E4ANM6P42FbbjJt1tRUCUj
+
+<tool.toolu_01E4ANM6P42FbbjJt1tRUCUj>
+DEBUG: In code content, looking at char: < (code: 60)
+DEBUG: Starting code content scan, backtick count: 1
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.06 ms	   204 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01E4ANM6P42FbbjJt1tRUCUj>
+
+# ASSISTANT
+
+Good, so we're entering the code content scan with 1 backtick. Now let me add debug output to see what happens in the main loop:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01XkNQpUWNd22wfs9EopsHtb
+
+## path
+
+<tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+src/scanner.c
+</tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+
+## git-commit-message
+
+<tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+Add debug output to main loop
+</tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+
+## diff
+
+<tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+     // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
++        fprintf(stderr, "DEBUG: Loop iteration, char: %c (code: %d)\n", 
++                lexer->lookahead, lexer->lookahead);
++        
+         // For inline code (1-2 backticks), stop at newlines
+         if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
++            fprintf(stderr, "DEBUG: Found newline, has_content: %d\n", has_content);
+             if (has_content) {
+                 lexer->result_symbol = CODE_CONTENT;
+                 return true;
+             } else {
+                 return false;
+             }
+         }
+\ No newline at end of file
+
+</tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+
+# TOOL RESULT
+
+ID: toolu_01XkNQpUWNd22wfs9EopsHtb
+
+<tool.toolu_01XkNQpUWNd22wfs9EopsHtb>
+
+</tool.toolu_01XkNQpUWNd22wfs9EopsHtb>

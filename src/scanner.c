@@ -722,8 +722,12 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     
     // Scan content until we find the closing pattern or code close tag
     while (lexer->lookahead != 0) {
+        fprintf(stderr, "DEBUG: Loop iteration, char: %c (code: %d)\n", 
+                lexer->lookahead, lexer->lookahead);
+        
         // For inline code (1-2 backticks), stop at newlines
         if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+            fprintf(stderr, "DEBUG: Found newline, has_content: %d\n", has_content);
             if (has_content) {
                 lexer->result_symbol = CODE_CONTENT;
                 return true;
