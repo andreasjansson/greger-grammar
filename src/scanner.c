@@ -666,7 +666,7 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
     
     lexer->mark_end(lexer);
     
-    // If this can close a code block (exact match of delimiter length)
+    // PRIORITY 1: Check if this can close an existing code block (exact match of delimiter length)
     if (level == scanner->fenced_code_block_delimiter_length && 
         valid_symbols[CODE_BACKTICKS_END] &&
         scanner->fenced_code_block_delimiter_length > 0) {
@@ -690,7 +690,7 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
         }
     }
     
-    // If this could be the start of a code block
+    // PRIORITY 2: Check if this could be the start of a new code block
     if (valid_symbols[CODE_BACKTICKS_START]) {
         // For fenced code blocks (3+ backticks), check if info string contains backticks
         if (level >= 3) {
@@ -757,6 +757,7 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
         }
     }
     
+    // PRIORITY 3: If neither open nor close is valid, don't consume the backticks
     return false;
 }
 
