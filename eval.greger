@@ -2783,5 +2783,157 @@ Keep triple backticks with language test but remove code_language expectations
 ID: toolu_01THdFxD9yaRznmw9GEN1gqM
 
 <tool.toolu_01THdFxD9yaRznmw9GEN1gqM>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Keep triple backticks with language test but remove code_language expectations
 </tool.toolu_01THdFxD9yaRznmw9GEN1gqM>
+
+# ASSISTANT
+
+Wait, I need to check if there were any tests expecting code_language nodes. Let me search more carefully:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01RqMi5bERrrz1z2vW4eq8Kj
+
+## pattern
+
+<tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+language
+</tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+
+## path
+
+<tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+./test/corpus
+</tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+
+## recursive
+
+<tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+true
+</tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+
+# TOOL RESULT
+
+ID: toolu_01RqMi5bERrrz1z2vW4eq8Kj
+
+<tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:50:Double backticks no language
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:71:Triple backticks no language
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:96:Triple backticks with language
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:120:Triple backticks with invalid language (has spaces)
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:144:Quadruple backticks with language
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:169:Triple backticks inline with language
+/Users/andreas/projects/greger-grammar/test/corpus/code.txt:190:Triple backticks language with numbers and symbols
+/Users/andreas/projects/greger-grammar/test/corpus/eval.txt:51:          (eval_language))
+/Users/andreas/projects/greger-grammar/test/corpus/eval.txt:57:        (eval_language))
+
+</tool.toolu_01RqMi5bERrrz1z2vW4eq8Kj>
+
+# ASSISTANT
+
+Good, no `code_language` expectations. Now let me fix the scanner to handle the different types of backticks properly. The key insight is that I need to differentiate between:
+
+1. **Single backticks**: inline code
+2. **Double backticks**: inline code  
+3. **Triple+ backticks at start of line**: fenced code blocks
+4. **Triple+ backticks inline**: inline code
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01WdGMtGzW8iA76SnsnFgmoe
+
+## path
+
+<tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+./src/scanner.c
+</tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+
+## git-commit-message
+
+<tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+Fix code block parsing to handle single/double backticks and inline vs block context
+</tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+
+## diff
+
+<tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of backticks
+     int level = 0;
+     while (lexer->lookahead == '`') {
+         advance(lexer);
+         level++;
+     }
+     
+     // Mark the end after consuming just the backticks
+     lexer->mark_end(lexer);
+     
+     // If this is able to close a fenced code block then that is the only valid interpretation
+     if (valid_symbols[CODE_BACKTICKS_END] && 
+         level >= scanner->fenced_code_block_delimiter_length &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+         
+-        scanner->fenced_code_block_delimiter_length = 0;
+-        lexer->result_symbol = CODE_BACKTICKS_END;
+-        return true;
++        // For inline code (1-2 backticks), we can close immediately
++        // For block code (3+ backticks), we need to be followed by newline or EOF
++        if (scanner->fenced_code_block_delimiter_length <= 2 || 
++            lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
++            scanner->fenced_code_block_delimiter_length = 0;
++            lexer->result_symbol = CODE_BACKTICKS_END;
++            return true;
++        }
+     }
+     
+     // If this could be the start of a fenced code block
+-    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+-        // Check if the info string contains any backticks (invalid for fenced code blocks)
++    if (valid_symbols[CODE_BACKTICKS_START]) {
++        // For triple+ backticks, check if info string contains backticks (invalid for fenced code blocks)
+         bool info_string_has_backtick = false;
+         
+-        // Only check for backticks in the info string for multi-backtick blocks
+-        if (level > 1) {
++        if (level >= 3) {
++            // Save current position to restore later
++            TSLexer saved_lexer = *lexer;
++            
+             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                    lexer->lookahead != 0) {
+                 if (lexer->lookahead == '`') {
+                     info_string_has_backtick = true;
+                     break;
+                 }
+                 advance(lexer);
+             }
++            
++            // Restore position - we only checked, didn't consume
++            *lexer = saved_lexer;
+         }
+         
+         // If info string doesn't contain backticks, this is a valid fenced code block start
+         if (!info_string_has_backtick) {
+             lexer->result_symbol = CODE_BACKTICKS_START;
+             scanner->fenced_code_block_delimiter_length = level;
+             return true;
+         }
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+
+# TOOL RESULT
+
+ID: toolu_01WdGMtGzW8iA76SnsnFgmoe
+
+<tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>
+
+</tool.toolu_01WdGMtGzW8iA76SnsnFgmoe>

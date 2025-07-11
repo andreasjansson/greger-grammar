@@ -673,18 +673,25 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
         level >= scanner->fenced_code_block_delimiter_length &&
         scanner->fenced_code_block_delimiter_length > 0) {
         
-        scanner->fenced_code_block_delimiter_length = 0;
-        lexer->result_symbol = CODE_BACKTICKS_END;
-        return true;
+        // For inline code (1-2 backticks), we can close immediately
+        // For block code (3+ backticks), we need to be followed by newline or EOF
+        if (scanner->fenced_code_block_delimiter_length <= 2 || 
+            lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+            scanner->fenced_code_block_delimiter_length = 0;
+            lexer->result_symbol = CODE_BACKTICKS_END;
+            return true;
+        }
     }
     
     // If this could be the start of a fenced code block
-    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
-        // Check if the info string contains any backticks (invalid for fenced code blocks)
+    if (valid_symbols[CODE_BACKTICKS_START]) {
+        // For triple+ backticks, check if info string contains backticks (invalid for fenced code blocks)
         bool info_string_has_backtick = false;
         
-        // Only check for backticks in the info string for multi-backtick blocks
-        if (level > 1) {
+        if (level >= 3) {
+            // Save current position to restore later
+            TSLexer saved_lexer = *lexer;
+            
             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
                    lexer->lookahead != 0) {
                 if (lexer->lookahead == '`') {
@@ -693,6 +700,9 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
                 }
                 advance(lexer);
             }
+            
+            // Restore position - we only checked, didn't consume
+            *lexer = saved_lexer;
         }
         
         // If info string doesn't contain backticks, this is a valid fenced code block start
