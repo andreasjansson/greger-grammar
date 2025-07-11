@@ -3924,8 +3924,8 @@ static bool scan_code_content(TSLexer *lexer) {
 
 # ASSISTANT
 
-I found the issue! In the inline case (````javascript console.log("hello")````), the scanner is trying to process the info string but encounters a space and then the content without finding a newline. Let me fix this logic:```
-
+I found the issue! In the inline case (````javascript console.log("hello")````), the scanner is trying to process the info string but encounters a space and then the content without finding a newline. Let me fix this logic:
+```
 
 
 # TOOL USE
@@ -3945,52 +3945,40 @@ ID: toolu_01WhVV3vEd6MRB5PyCdcq5PT
 Fix scanner to handle inline triple backticks with language correctly
 </tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
 
-## original-content
+## diff
 
 <tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
-    // For fenced code blocks (3+ backticks), check if info string contains backticks
-    if (opening_backticks >= 3) {
-        // Look for backticks in the info string (until newline)
-        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-               lexer->lookahead != 0) {
-            if (lexer->lookahead == '`') {
-                // Invalid if info string contains backticks
-                return false;
-            }
-            advance(lexer);
-        }
-    }
-</tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
+     // For fenced code blocks (3+ backticks), check if info string contains backticks
+     if (opening_backticks >= 3) {
+-        // Look for backticks in the info string (until newline)
++        // Look for backticks in the info string (until newline or content)
+         while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                lexer->lookahead != 0) {
+             if (lexer->lookahead == '`') {
+-                // Invalid if info string contains backticks
+-                return false;
++                // Check if this is the start of closing backticks
++                // Count consecutive backticks at this position
++                int consecutive_backticks = 0;
++                TSLexer temp_lexer = *lexer;
++                while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer)) {
++                    consecutive_backticks++;
++                    temp_lexer.advance(&temp_lexer, false);
++                }
++                
++                if (consecutive_backticks == opening_backticks) {
++                    // This is the closing delimiter, stop processing info string
++                    break;
++                } else {
++                    // Invalid if info string contains backticks that are not the closing delimiter
++                    return false;
++                }
+             }
+             advance(lexer);
+         }
+     }
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
-    // For fenced code blocks (3+ backticks), check if info string contains backticks
-    if (opening_backticks >= 3) {
-        // Look for backticks in the info string (until newline or content)
-        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-               lexer->lookahead != 0) {
-            if (lexer->lookahead == '`') {
-                // Check if this is the start of closing backticks
-                // Count consecutive backticks at this position
-                int consecutive_backticks = 0;
-                TSLexer temp_lexer = *lexer;
-                while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer)) {
-                    consecutive_backticks++;
-                    temp_lexer.advance(&temp_lexer, false);
-                }
-                
-                if (consecutive_backticks == opening_backticks) {
-                    // This is the closing delimiter, stop processing info string
-                    break;
-                } else {
-                    // Invalid if info string contains backticks that are not the closing delimiter
-                    return false;
-                }
-            }
-            advance(lexer);
-        }
-    }
 </tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
 
 # TOOL RESULT
@@ -4000,3 +3988,111 @@ ID: toolu_01WhVV3vEd6MRB5PyCdcq5PT
 <tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
 
 </tool.toolu_01WhVV3vEd6MRB5PyCdcq5PT>
+
+
+# ASSISTANT
+
+Let me rebuild and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RuF1EpnwcwknFxvE7dJirK
+
+## command
+
+<tool.toolu_01RuF1EpnwcwknFxvE7dJirK>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01RuF1EpnwcwknFxvE7dJirK>
+
+# TOOL RESULT
+
+ID: toolu_01RuF1EpnwcwknFxvE7dJirK
+
+<tool.toolu_01RuF1EpnwcwknFxvE7dJirK>
+
+</tool.toolu_01RuF1EpnwcwknFxvE7dJirK>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01T5Xw5y772dH5aqutSS7xq6
+
+## command
+
+<tool.toolu_01T5Xw5y772dH5aqutSS7xq6>
+printf '# ASSISTANT\n\n```javascript console.log("hello")```\n\nMore text after.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01T5Xw5y772dH5aqutSS7xq6>
+
+# TOOL RESULT
+
+ID: toolu_01T5Xw5y772dH5aqutSS7xq6
+
+<tool.toolu_01T5Xw5y772dH5aqutSS7xq6>
+
+</tool.toolu_01T5Xw5y772dH5aqutSS7xq6>
+
+# ASSISTANT
+
+The command seemed to hang. Let me test with a different approach - this might be getting stuck in an infinite loop. Let me check if there's an issue with the temp_lexer logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01PYGcRnhHZR8BAN6GrF1Xn8
+
+## path
+
+<tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+./src/scanner.c
+</tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+
+## git-commit-message
+
+<tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+Simplify scanner logic to avoid potential infinite loops
+</tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+
+## diff
+
+<tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+-    // For fenced code blocks (3+ backticks), check if info string contains backticks
++    // For fenced code blocks (3+ backticks), skip the info string
+     if (opening_backticks >= 3) {
+-        // Look for backticks in the info string (until newline or content)
++        // Skip until newline or first backtick (which would be content/closing)
+         while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+-               lexer->lookahead != 0) {
+-            if (lexer->lookahead == '`') {
+-                // Check if this is the start of closing backticks
+-                // Count consecutive backticks at this position
+-                int consecutive_backticks = 0;
+-                TSLexer temp_lexer = *lexer;
+-                while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer)) {
+-                    consecutive_backticks++;
+-                    temp_lexer.advance(&temp_lexer, false);
+-                }
+-                
+-                if (consecutive_backticks == opening_backticks) {
+-                    // This is the closing delimiter, stop processing info string
+-                    break;
+-                } else {
+-                    // Invalid if info string contains backticks that are not the closing delimiter
+-                    return false;
+-                }
+-            }
++               lexer->lookahead != 0 && lexer->lookahead != '`') {
+             advance(lexer);
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+
+# TOOL RESULT
+
+ID: toolu_01PYGcRnhHZR8BAN6GrF1Xn8
+
+<tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
+
+</tool.toolu_01PYGcRnhHZR8BAN6GrF1Xn8>
