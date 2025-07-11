@@ -8484,5 +8484,79 @@ Restore full code close tag pattern and fix the scanner
 ID: toolu_018wrGmKRCEWLu1MDnhj2TjJ
 
 <tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Restore full code close tag pattern and fix the scanner
 </tool.toolu_018wrGmKRCEWLu1MDnhj2TjJ>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_011u88b7Zhahi4n4pEf5Mjme
+
+## path
+
+<tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+./src/scanner.c
+</tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+
+## git-commit-message
+
+<tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+Restore full code close tag pattern in the scanner function
+</tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+
+## diff
+
+<tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+     if (lexer->lookahead != '<') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '$') return false;
+     advance(lexer);
+     
++    // Check for "code-close"
++    if (lexer->lookahead != 'c') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'o') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'd') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'e') return false;
++    advance(lexer);
++    if (lexer->lookahead != '-') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'c') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'l') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'o') return false;
++    advance(lexer);
++    if (lexer->lookahead != 's') return false;
++    advance(lexer);
++    if (lexer->lookahead != 'e') return false;
++    advance(lexer);
++    
++    if (lexer->lookahead != '/') return false;
++    advance(lexer);
++    
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->mark_end(lexer);
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+
+# TOOL RESULT
+
+ID: toolu_011u88b7Zhahi4n4pEf5Mjme
+
+<tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
+
+</tool.toolu_011u88b7Zhahi4n4pEf5Mjme>
