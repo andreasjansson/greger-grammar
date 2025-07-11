@@ -8600,5 +8600,192 @@ Restore choice between code_end_tag and code_close_tag in grammar
 ID: toolu_01Xo6xijRVabSA4rcRgftrhA
 
 <tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Restore choice between code_end_tag and code_close_tag in grammar
 </tool.toolu_01Xo6xijRVabSA4rcRgftrhA>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014RLHdWKz4voKqNniJ584Yo
+
+## command
+
+<tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+cd . && tree-sitter generate
+</tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+
+## timeout
+
+<tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+15
+</tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+
+# TOOL RESULT
+
+ID: toolu_014RLHdWKz4voKqNniJ584Yo
+
+<tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+
+</tool.toolu_014RLHdWKz4voKqNniJ584Yo>
+
+# ASSISTANT
+
+Now let's test the working case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01P3ihGqTfRtB4ZJhok22UXq
+
+## command
+
+<tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+
+## timeout
+
+<tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+10
+</tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+
+# TOOL RESULT
+
+ID: toolu_01P3ihGqTfRtB4ZJhok22UXq
+
+<tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.51 ms	    71 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01P3ihGqTfRtB4ZJhok22UXq>
+
+# ASSISTANT
+
+We're back to the original issue. Let me understand this better. The problem seems to be fundamental with how the scanner is being called. Let me check if there might be an issue with putting back the check that the scanner should only work when in code content:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01QF2tPqmMiyQR2KKucarAeR
+
+## path
+
+<tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+./src/scanner.c
+</tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+
+## git-commit-message
+
+<tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+Add back the in_code_content check to scan_code_close_tag
+</tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+
+## original-content
+
+<tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '$') return false;
+    advance(lexer);
+    
+    // Check for "code-close"
+    if (lexer->lookahead != 'c') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'd') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'c') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+    
+    // Force close any open code block
+    scanner->code_backtick_count = 0;
+    scanner->in_code_content = false;
+    lexer->mark_end(lexer);
+    lexer->result_symbol = CODE_CLOSE_TAG;
+    return true;
+}
+</tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+
+## new-content
+
+<tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+    // Only recognize code close tag when there's actually an open code block
+    if (!scanner->in_code_content) return false;
+    
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '$') return false;
+    advance(lexer);
+    
+    // Check for "code-close"
+    if (lexer->lookahead != 'c') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'd') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'c') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+    
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+    
+    // Force close any open code block
+    scanner->code_backtick_count = 0;
+    scanner->in_code_content = false;
+    lexer->mark_end(lexer);
+    lexer->result_symbol = CODE_CLOSE_TAG;
+    return true;
+}
+</tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+
+# TOOL RESULT
+
+ID: toolu_01QF2tPqmMiyQR2KKucarAeR
+
+<tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
+
+</tool.toolu_01QF2tPqmMiyQR2KKucarAeR>
