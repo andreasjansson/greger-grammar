@@ -10016,5 +10016,158 @@ Allow backticks in code content
 ID: toolu_01UZZnAfhFqLt18gwsTUMz1Q
 
 <tool.toolu_01UZZnAfhFqLt18gwsTUMz1Q>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Allow backticks in code content
 </tool.toolu_01UZZnAfhFqLt18gwsTUMz1Q>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VWcZ9eZNfv1Qa23n9pFT16
+
+## command
+
+<tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+
+## timeout
+
+<tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+10
+</tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+
+# TOOL RESULT
+
+ID: toolu_01VWcZ9eZNfv1Qa23n9pFT16
+
+<tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+DEBUG: doing lookahead for level=2
+DEBUG: found 1 consecutive backticks
+DEBUG: found 1 consecutive backticks
+DEBUG: found 2 consecutive backticks
+DEBUG: found matching closing delimiter
+DEBUG: lookahead successful, returning true
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.16 ms	   159 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01VWcZ9eZNfv1Qa23n9pFT16>
+
+# ASSISTANT
+
+Still the same issue. Let me remove the debug output and think about this differently. The problem is that the scanner is working correctly, but the grammar isn't parsing the content correctly.
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01P4wK2oWCtfw2QYqJBoudDd
+
+## path
+
+<tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+./src/scanner.c
+</tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+## git-commit-message
+
+<tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+Remove debug output
+</tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+## original-content
+
+<tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+        } else {
+            // For inline code (1-2 backticks), use lookahead to find closing delimiter
+            TSLexer saved_lexer = *lexer;
+            
+            bool found_closing = false;
+            fprintf(stderr, "DEBUG: doing lookahead for level=%d\n", level);
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    // Count consecutive backticks
+                    int consecutive_backticks = 0;
+                    while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
+                        consecutive_backticks++;
+                        advance(lexer);
+                    }
+                    
+                    fprintf(stderr, "DEBUG: found %d consecutive backticks\n", consecutive_backticks);
+                    
+                    if (consecutive_backticks == level) {
+                        // Found matching closing delimiter
+                        found_closing = true;
+                        fprintf(stderr, "DEBUG: found matching closing delimiter\n");
+                        break;
+                    }
+                } else {
+                    // For inline code (1-2 backticks), stop at newlines
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                        break;
+                    }
+                    advance(lexer);
+                }
+            }
+            
+            // Restore position
+            *lexer = saved_lexer;
+            
+            if (!found_closing) {
+                fprintf(stderr, "DEBUG: no matching closing delimiter found\n");
+                return false;
+            }
+            
+            fprintf(stderr, "DEBUG: lookahead successful, returning true\n");
+        }
+</tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+## new-content
+
+<tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+        } else {
+            // For inline code (1-2 backticks), use lookahead to find closing delimiter
+            TSLexer saved_lexer = *lexer;
+            
+            bool found_closing = false;
+            while (!lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    // Count consecutive backticks
+                    int consecutive_backticks = 0;
+                    while (lexer->lookahead == '`' && !lexer->eof(lexer)) {
+                        consecutive_backticks++;
+                        advance(lexer);
+                    }
+                    
+                    if (consecutive_backticks == level) {
+                        // Found matching closing delimiter
+                        found_closing = true;
+                        break;
+                    }
+                } else {
+                    // For inline code (1-2 backticks), stop at newlines
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+                        break;
+                    }
+                    advance(lexer);
+                }
+            }
+            
+            // Restore position
+            *lexer = saved_lexer;
+            
+            if (!found_closing) {
+                return false;
+            }
+        }
+</tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+# TOOL RESULT
+
+ID: toolu_01P4wK2oWCtfw2QYqJBoudDd
+
+<tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>
+
+</tool.toolu_01P4wK2oWCtfw2QYqJBoudDd>

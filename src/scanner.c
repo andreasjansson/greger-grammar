@@ -726,7 +726,6 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
             TSLexer saved_lexer = *lexer;
             
             bool found_closing = false;
-            fprintf(stderr, "DEBUG: doing lookahead for level=%d\n", level);
             while (!lexer->eof(lexer)) {
                 if (lexer->lookahead == '`') {
                     // Count consecutive backticks
@@ -736,12 +735,9 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
                         advance(lexer);
                     }
                     
-                    fprintf(stderr, "DEBUG: found %d consecutive backticks\n", consecutive_backticks);
-                    
                     if (consecutive_backticks == level) {
                         // Found matching closing delimiter
                         found_closing = true;
-                        fprintf(stderr, "DEBUG: found matching closing delimiter\n");
                         break;
                     }
                 } else {
@@ -757,11 +753,8 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
             *lexer = saved_lexer;
             
             if (!found_closing) {
-                fprintf(stderr, "DEBUG: no matching closing delimiter found\n");
                 return false;
             }
-            
-            fprintf(stderr, "DEBUG: lookahead successful, returning true\n");
         }
         
         // Valid code block start
