@@ -6062,5 +6062,226 @@ Remove standalone code_close_tag from content blocks since it's now part of code
 ID: toolu_01JGXeJj3Dqe6JBbY1BMrNXf
 
 <tool.toolu_01JGXeJj3Dqe6JBbY1BMrNXf>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove standalone code_close_tag from content blocks since it's now part of code rule
 </tool.toolu_01JGXeJj3Dqe6JBbY1BMrNXf>
+
+# ASSISTANT
+
+Let me rebuild and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012phCkCxH2D2y5sxhRtZesQ
+
+## command
+
+<tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+cd . && tree-sitter generate
+</tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+
+## timeout
+
+<tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+15
+</tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+
+# TOOL RESULT
+
+ID: toolu_012phCkCxH2D2y5sxhRtZesQ
+
+<tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+
+</tool.toolu_012phCkCxH2D2y5sxhRtZesQ>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0175WdHsdYfM6XBgEQuiAzME
+
+## command
+
+<tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+
+## timeout
+
+<tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+10
+</tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+
+# TOOL RESULT
+
+ID: toolu_0175WdHsdYfM6XBgEQuiAzME
+
+<tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.40 ms	   113 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_0175WdHsdYfM6XBgEQuiAzME>
+
+# ASSISTANT
+
+The issue is still there. Let me check what's happening with the code close tag scanner. I think there might be an issue with the scanner logic. Let me check if the scanner is only trying to match the close tag when it's in code content:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_011hBvEtyxVghEFmSFnWQLfq
+
+## path
+
+<tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+./src/scanner.c
+</tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+
+## start-line
+
+<tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+821
+</tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+
+## end-line
+
+<tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+860
+</tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+
+## include-line-numbers
+
+<tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+true
+</tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+
+# TOOL RESULT
+
+ID: toolu_011hBvEtyxVghEFmSFnWQLfq
+
+<tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+821:     if (lexer->lookahead != '-') return false;
+822:     advance(lexer);
+823:     if (lexer->lookahead != 'c') return false;
+824:     advance(lexer);
+825:     if (lexer->lookahead != 'l') return false;
+826:     advance(lexer);
+827:     if (lexer->lookahead != 'o') return false;
+828:     advance(lexer);
+829:     if (lexer->lookahead != 's') return false;
+830:     advance(lexer);
+831:     if (lexer->lookahead != 'e') return false;
+832:     advance(lexer);
+833:     
+834:     if (lexer->lookahead != '/') return false;
+835:     advance(lexer);
+836:     
+837:     if (lexer->lookahead != '>') return false;
+838:     advance(lexer);
+839:     
+840:     // Force close any open code block
+841:     scanner->code_backtick_count = 0;
+842:     scanner->in_code_content = false;
+843:     lexer->result_symbol = CODE_CLOSE_TAG;
+844:     return true;
+845: }
+846: 
+847: 
+848: 
+849: 
+850: 
+851: 
+852: 
+853: static bool scan_eval_language(TSLexer *lexer) {
+854:     // Skip any leading whitespace
+855:     while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+856:         advance(lexer);
+857:     }
+858:     
+859:     // Must start with a letter or underscore for valid language
+860:     if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+</tool.toolu_011hBvEtyxVghEFmSFnWQLfq>
+
+# ASSISTANT
+
+I see the issue! The scanner function doesn't check if there's actually an open code block before trying to close it. The code close tag should only be recognized when there's actually an open code block. Let me modify the scanner:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RRJapLAPL7SQUqwWrZdpip
+
+## path
+
+<tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+./src/scanner.c
+</tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+
+## git-commit-message
+
+<tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+Only recognize code_close_tag when there's actually an open code block
+</tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+
+## diff
+
+<tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
++    // Only recognize code close tag when there's actually an open code block
++    if (!scanner->in_code_content) return false;
++    
+     if (lexer->lookahead != '<') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '$') return false;
+     advance(lexer);
+     
+     // Check for "code-close"
+     if (lexer->lookahead != 'c') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'o') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'd') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'e') return false;
+     advance(lexer);
+     if (lexer->lookahead != '-') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'c') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'l') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'o') return false;
+     advance(lexer);
+     if (lexer->lookahead != 's') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'e') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '/') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+
+# TOOL RESULT
+
+ID: toolu_01RRJapLAPL7SQUqwWrZdpip
+
+<tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+
+</tool.toolu_01RRJapLAPL7SQUqwWrZdpip>

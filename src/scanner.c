@@ -803,6 +803,9 @@ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
 }
 
 static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+    // Only recognize code close tag when there's actually an open code block
+    if (!scanner->in_code_content) return false;
+    
     if (lexer->lookahead != '<') return false;
     advance(lexer);
     
