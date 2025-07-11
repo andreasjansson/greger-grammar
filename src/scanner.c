@@ -150,7 +150,7 @@ void *tree_sitter_greger_external_scanner_create(void) {
     scanner->in_eval_result_content = false;
     scanner->expecting_eval_result_tail = false;
     scanner->eval_result_id[0] = '\0';
-    scanner->last_backtick_count = 0;
+    scanner->fenced_code_block_delimiter_length = 0;
     return scanner;
 }
 
