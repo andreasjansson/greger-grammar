@@ -5011,5 +5011,115 @@ Update html-comments test expectation
 ID: toolu_01Gc2ThMqdNVxQYjDZwV2rFg
 
 <tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/html-comments.txt. Successfully staged 2 file(s) and committed with message: Update html-comments test expectation
 </tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+
+# ASSISTANT
+
+Let me check the html-tags test:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01B9aN6MS1xQFVVC6B5uqVqg
+
+## path
+
+<tool.toolu_01B9aN6MS1xQFVVC6B5uqVqg>
+./test/corpus/html-tags.txt
+</tool.toolu_01B9aN6MS1xQFVVC6B5uqVqg>
+
+# TOOL RESULT
+
+ID: toolu_01B9aN6MS1xQFVVC6B5uqVqg
+
+<tool.toolu_01B9aN6MS1xQFVVC6B5uqVqg>
+=======================================
+HTML tags should be interpreted as text
+=======================================
+
+# SYSTEM
+
+You are a helpful assistant.
+
+<foo>foo<bar></bar></foo>
+
+This should not be parsed as safe shell commands:
+
+<safe-shell-commands-something-else>
+
+# USER
+
+<safe-shell-commands>safe shell commands should only be parsed in system</safe-shell-commands>
+
+What's the weather like?
+
+<eval>Eval isn't a thing, shouldn't be parsed separately</eval>
+
+This is an unclosed tag which should still just be parsed as text: <qux>
+
+# ASSISTANT
+
+This is a <pre>unparsed `<pre>` tag</pre>
+
+---
+
+(source_file
+  (system
+    (system_header)
+    (text))
+  (user
+    (user_header)
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code)
+    (text)))
+</tool.toolu_01B9aN6MS1xQFVVC6B5uqVqg>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_014ZYTVB6UMR3VujMp9eeXY9
+
+## path
+
+<tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+./test/corpus/html-tags.txt
+</tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+
+## git-commit-message
+
+<tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+Update html-tags test expectation
+</tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+
+## diff
+
+<tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+ (source_file
+   (system
+     (system_header)
+     (text))
+   (user
+     (user_header)
+     (text))
+   (assistant
+     (assistant_header)
+     (text)
+-    (code)
++    (code
++      (code_content))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+
+# TOOL RESULT
+
+ID: toolu_014ZYTVB6UMR3VujMp9eeXY9
+
+<tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
+
+</tool.toolu_014ZYTVB6UMR3VujMp9eeXY9>
