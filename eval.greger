@@ -4430,5 +4430,52 @@ Remove more debug output
 ID: toolu_01BS39Sa9unhgYgk4KV5Y2K6
 
 <tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove more debug output
 </tool.toolu_01BS39Sa9unhgYgk4KV5Y2K6>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012d32Ax6PAc9pL49XT5X9S8
+
+## path
+
+<tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+src/scanner.c
+</tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+
+## git-commit-message
+
+<tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+Remove debug output from main loop
+</tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+
+## diff
+
+<tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+     // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
+-        fprintf(stderr, "DEBUG: Loop iteration, char: %c (code: %d)\n", 
+-                lexer->lookahead, lexer->lookahead);
+-        
+         // For inline code (1-2 backticks), stop at newlines
+         if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+-            fprintf(stderr, "DEBUG: Found newline, has_content: %d\n", has_content);
+             if (has_content) {
+                 lexer->result_symbol = CODE_CONTENT;
+                 return true;
+             } else {
+                 return false;
+             }
+         }
+\ No newline at end of file
+
+</tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+
+# TOOL RESULT
+
+ID: toolu_012d32Ax6PAc9pL49XT5X9S8
+
+<tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
+
+</tool.toolu_012d32Ax6PAc9pL49XT5X9S8>
