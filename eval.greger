@@ -9790,5 +9790,361 @@ Remove restriction requiring newline after triple backtick closing tags
 ID: toolu_019foSRcydR1phCov1SnGcCD
 
 <tool.toolu_019foSRcydR1phCov1SnGcCD>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove restriction requiring newline after triple backtick closing tags
 </tool.toolu_019foSRcydR1phCov1SnGcCD>
+
+# ASSISTANT
+
+Now let me test this fix:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Y8yYDhbep9a7MgfHF8w2Yy
+
+## command
+
+<tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+tree-sitter generate
+</tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+
+## timeout
+
+<tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+30
+</tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+
+# TOOL RESULT
+
+ID: toolu_01Y8yYDhbep9a7MgfHF8w2Yy
+
+<tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+
+</tool.toolu_01Y8yYDhbep9a7MgfHF8w2Yy>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Ybe8cQEB1ochTmf8x6yk4y
+
+## command
+
+<tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+tree-sitter parse debug.greger
+</tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+
+## timeout
+
+<tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+10
+</tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+
+# TOOL RESULT
+
+ID: toolu_01Ybe8cQEB1ochTmf8x6yk4y
+
+<tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 4])
+      (code_end_tag [2, 4] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01Ybe8cQEB1ochTmf8x6yk4y>
+
+# ASSISTANT
+
+Excellent! This works now. The content is parsed as:
+- code_start_tag: the opening triple backticks
+- code_content: just the 'a'
+- code_end_tag: the closing triple backticks  
+- text: the space and 'b' after the code block
+
+Let me test the other failing case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016XNA2umvsHRRFop7qizs8K
+
+## command
+
+<tool.toolu_016XNA2umvsHRRFop7qizs8K>
+tree-sitter parse test-debug-triple.greger
+</tool.toolu_016XNA2umvsHRRFop7qizs8K>
+
+## timeout
+
+<tool.toolu_016XNA2umvsHRRFop7qizs8K>
+10
+</tool.toolu_016XNA2umvsHRRFop7qizs8K>
+
+# TOOL RESULT
+
+ID: toolu_016XNA2umvsHRRFop7qizs8K
+
+<tool.toolu_016XNA2umvsHRRFop7qizs8K>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 4])
+      (code_end_tag [2, 4] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_016XNA2umvsHRRFop7qizs8K>
+
+# ASSISTANT
+
+Perfect! Now let me run the full test suite to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BQWRRgs5BWoaQ7YEsSF5mg
+
+## command
+
+<tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+tree-sitter test
+</tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+
+## timeout
+
+<tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+30
+</tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+
+# TOOL RESULT
+
+ID: toolu_01BQWRRgs5BWoaQ7YEsSF5mg
+
+<tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✓ Single backtick with double backticks inside
+  complex-workflow:
+     19. ✓ Complex workflow
+  eval-nested-braces:
+     20. ✓ Eval nested braces
+  eval-partial:
+     21. ✓ Eval partial cases -- Warning: Slow parse rate (1275.714 bytes/ms)
+  eval-results:
+     22. ✓ Eval results
+  eval:
+     23. ✓ Eval
+  html-comments:
+     24. ✓ HTML comments
+  html-tags:
+     25. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     26. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     27. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     28. ✓ Multiple tool uses
+  nested-code-blocks:
+     29. ✓ Nested code blocks
+  safe-shell-commands:
+     30. ✓ Safe shell commands
+  server-tool-use-basic:
+     31. ✓ Server tool use basic
+  server-tool-use-string-result:
+     32. ✓ Server tool use string result
+  simple-conversation:
+     33. ✓ Simple conversation
+  simple-user-message:
+     34. ✓ Simple user message
+  system-and-user:
+     35. ✓ System and user
+  text-with-markdown-headings:
+     36. ✓ Text with markdown headings
+  thinking-only:
+     37. ✓ Thinking only
+  thinking-section:
+     38. ✓ Thinking section
+  tool-use-multiple-params:
+     39. ✓ Tool use multiple params
+  tool-use-only:
+     40. ✓ Tool use only
+  tool-use-single-param:
+     41. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     42. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     43. ✓ Tool use with tool use in params
+  triple-hash:
+     44. ✓ Triple hash not in citation
+  untagged-content:
+     45. ✓ Untagged content
+  xml-tags-backticks:
+     46. ✓ Tags in backticks
+
+Total parses: 46; successful parses: 46; failed parses: 0; success percentage: 100.00%; average speed: 23925 bytes/ms
+
+
+</tool.toolu_01BQWRRgs5BWoaQ7YEsSF5mg>
+
+# ASSISTANT
+
+Excellent! All tests are still passing. Let me test a few more edge cases to make sure the fix is robust:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CQ5Lt9YH9GuANCVh37FQxE
+
+## command
+
+<tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+printf '# USER\n\n```a```text after' | tree-sitter parse /dev/stdin
+</tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+
+## timeout
+
+<tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+5
+</tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+
+# TOOL RESULT
+
+ID: toolu_01CQ5Lt9YH9GuANCVh37FQxE
+
+<tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+(source_file [0, 0] - [2, 17]
+  (user [0, 0] - [2, 17]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 4])
+      (code_end_tag [2, 4] - [2, 7]))
+    (text [2, 7] - [2, 17])))
+
+</tool.toolu_01CQ5Lt9YH9GuANCVh37FQxE>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01M6rPXe9nsdWdPmYka5KPq8
+
+## command
+
+<tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+printf '# USER\n\n````code````more' | tree-sitter parse /dev/stdin
+</tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+
+## timeout
+
+<tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+5
+</tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+
+# TOOL RESULT
+
+ID: toolu_01M6rPXe9nsdWdPmYka5KPq8
+
+<tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+(source_file [0, 0] - [2, 16]
+  (user [0, 0] - [2, 16]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 12]
+      (code_start_tag [2, 0] - [2, 4])
+      (code_content [2, 4] - [2, 8])
+      (code_end_tag [2, 8] - [2, 12]))
+    (text [2, 12] - [2, 16])))
+
+</tool.toolu_01M6rPXe9nsdWdPmYka5KPq8>
+
+# ASSISTANT
+
+Perfect! And let me test that normal multiline cases still work:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01T1VbLyuJrStYsCdrRPt7Ws
+
+## command
+
+<tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+printf '# USER\n\n```\nmultiline\ncode\n```\nafter' | tree-sitter parse /dev/stdin
+</tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+
+## timeout
+
+<tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+5
+</tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+
+# TOOL RESULT
+
+ID: toolu_01T1VbLyuJrStYsCdrRPt7Ws
+
+<tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+(source_file [0, 0] - [6, 5]
+  (user [0, 0] - [6, 5]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [5, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [5, 0])
+      (code_end_tag [5, 0] - [5, 3]))
+    (text [5, 3] - [6, 5])))
+
+</tool.toolu_01T1VbLyuJrStYsCdrRPt7Ws>
+
+# ASSISTANT
+
+Great! Let me clean up the test files:
+
+# TOOL USE
+
+Name: delete-files
+ID: toolu_01VRF7traBNqeyktk4AhN6Ne
+
+## paths
+
+<tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
+[
+  "test-debug-triple.greger"
+]
+</tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
+
+## git-commit-message
+
+<tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
+Clean up test file
+</tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
+
+# TOOL RESULT
+
+ID: toolu_01VRF7traBNqeyktk4AhN6Ne
+
+<tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
+
+</tool.toolu_01VRF7traBNqeyktk4AhN6Ne>
