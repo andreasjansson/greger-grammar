@@ -9645,5 +9645,149 @@ Remove code close tag pattern checking from code_content scanner
 ID: toolu_01Dy5dVZWUJS5qFKy16nmcag
 
 <tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove code close tag pattern checking from code_content scanner
 </tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+
+# ASSISTANT
+
+Now let me rebuild the grammar and test it:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XkCFh6FrvUxCw3JcHtDgfT
+
+## command
+
+<tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+cd . && tree-sitter generate
+</tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+
+## timeout
+
+<tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+15
+</tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+
+# TOOL RESULT
+
+ID: toolu_01XkCFh6FrvUxCw3JcHtDgfT
+
+<tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+
+</tool.toolu_01XkCFh6FrvUxCw3JcHtDgfT>
+
+# ASSISTANT
+
+Now let's test the basic functionality:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019Ghu5a4MZsJdEdwrJWhLFG
+
+## command
+
+<tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+
+## timeout
+
+<tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+10
+</tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+
+# TOOL RESULT
+
+ID: toolu_019Ghu5a4MZsJdEdwrJWhLFG
+
+<tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+(source_file [0, 0] - [4, 14]
+  (assistant [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 14])
+      (code_close_tag [4, 14] - [4, 14]))))
+/dev/stdin	Parse:    0.62 ms	    57 bytes/ms	(MISSING code_close_tag [4, 14] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_019Ghu5a4MZsJdEdwrJWhLFG>
+
+# ASSISTANT
+
+We're getting closer! The structure is correct now and the `code_close_tag` is being recognized, but it's showing as `MISSING` with an empty range `[4, 14] - [4, 14]`. This suggests the grammar is expecting the token but it's not being matched properly.
+
+The issue is that the code_content is consuming everything including the `<$code-close/>` pattern. Since it's now a regular token, I need to make sure the code_content doesn't consume it. But wait - that's the beauty of having it as a regular grammar token! The parser should handle this automatically.
+
+Let me check if the issue is with precedence. The code_content might be taking precedence over the code_close_tag. Let me test a simple case to see what happens:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AotkHNJWoRaz9ioQE1AFZt
+
+## command
+
+<tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+cd . && printf '# ASSISTANT\n\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+
+## timeout
+
+<tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+10
+</tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+
+# TOOL RESULT
+
+ID: toolu_01AotkHNJWoRaz9ioQE1AFZt
+
+<tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+(source_file [0, 0] - [2, 14]
+  (assistant [0, 0] - [2, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 14])))
+
+</tool.toolu_01AotkHNJWoRaz9ioQE1AFZt>
+
+# ASSISTANT
+
+So when it's on its own, it's treated as regular text, which is correct. The issue is when it's part of a code block. Let me test if the issue is that the code_content scanner is consuming the token when it shouldn't. 
+
+Actually, I think the issue might be that since the code_close_tag is now a regular token, the parser's conflict resolution might be favoring code_content over the code_close_tag. Let me try adding a precedence to the code_close_tag:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01V4ydCJLY8AdfFyJ4LAWfu6
+
+## path
+
+<tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+./grammar.js
+</tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+
+## git-commit-message
+
+<tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+Add precedence to code_close_tag to prioritize it over code_content
+</tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+
+## diff
+
+<tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+-    code_close_tag: $ => '<$code-close/>',
+\ No newline at end of file
++    code_close_tag: $ => token(prec(1, '<$code-close/>')),
+\ No newline at end of file
+
+</tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+
+# TOOL RESULT
+
+ID: toolu_01V4ydCJLY8AdfFyJ4LAWfu6
+
+<tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+
+</tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
