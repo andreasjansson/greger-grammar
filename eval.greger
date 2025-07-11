@@ -5569,5 +5569,131 @@ Add code_close_tag as a standalone rule in content blocks
 ID: toolu_013bWGPrkxPajhNoyd1DkZvt
 
 <tool.toolu_013bWGPrkxPajhNoyd1DkZvt>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add code_close_tag as a standalone rule in content blocks
 </tool.toolu_013bWGPrkxPajhNoyd1DkZvt>
+
+# ASSISTANT
+
+Now let me rebuild the grammar and test it:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018SV2Ru4yP4J35DqkP2PDJZ
+
+## command
+
+<tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+cd . && tree-sitter generate
+</tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+
+## timeout
+
+<tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+15
+</tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+
+# TOOL RESULT
+
+ID: toolu_018SV2Ru4yP4J35DqkP2PDJZ
+
+<tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+
+</tool.toolu_018SV2Ru4yP4J35DqkP2PDJZ>
+
+# ASSISTANT
+
+Now let's test the basic functionality:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011mT2jVnAQGo6wj2XPVjZxM
+
+## command
+
+<tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>\n\nMore text after.' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+
+## timeout
+
+<tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+10
+</tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+
+# TOOL RESULT
+
+ID: toolu_011mT2jVnAQGo6wj2XPVjZxM
+
+<tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+(source_file [0, 0] - [6, 16]
+  (assistant [0, 0] - [6, 16]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [6, 16]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [6, 16])
+      (code_end_tag [6, 16] - [6, 16]))))
+/dev/stdin	Parse:    0.78 ms	    80 bytes/ms	(MISSING code_end_tag [6, 16] - [6, 16])
+Command failed with exit code 1
+</tool.toolu_011mT2jVnAQGo6wj2XPVjZxM>
+
+# ASSISTANT
+
+It seems like the code_close_tag is not being recognized. Let me check if the scanner is being called. Let me also check the dispatch ordering - the code close tag should be checked before the code content:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01LxvxgVoCKVfvQxQfRoFi1c
+
+## path
+
+<tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+./src/scanner.c
+</tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+
+## git-commit-message
+
+<tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+Move code_close_tag check to earlier in dispatch to prevent code_content from consuming it
+</tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+
+## diff
+
+<tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+     // Handle code start tag
+     if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+         return scan_code_start_tag(scanner, lexer);
+     }
+     
++    // Handle code close tag (check before code content so it doesn't get consumed)
++    if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
++        return scan_code_close_tag(scanner, lexer);
++    }
++    
+     // Handle code content
+     if (valid_symbols[CODE_CONTENT]) {
+         return scan_code_content(scanner, lexer);
+     }
+     
+     // Handle code end tag
+     if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
+         return scan_code_end_tag(scanner, lexer);
+-    }
+-    
+-    // Handle code close tag
+-    if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
+-        return scan_code_close_tag(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+
+# TOOL RESULT
+
+ID: toolu_01LxvxgVoCKVfvQxQfRoFi1c
+
+<tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
+
+</tool.toolu_01LxvxgVoCKVfvQxQfRoFi1c>
