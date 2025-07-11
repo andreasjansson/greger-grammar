@@ -936,6 +936,15 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     
     // Handle code backticks (any number of backticks)
     if ((valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END]) && lexer->lookahead == '`') {
+        // Debug: print what valid_symbols are set for backticks
+        if (valid_symbols[CODE_BACKTICKS_START]) {
+            fprintf(stderr, "DEBUG: CODE_BACKTICKS_START is valid\n");
+        }
+        if (valid_symbols[CODE_BACKTICKS_END]) {
+            fprintf(stderr, "DEBUG: CODE_BACKTICKS_END is valid\n");
+        }
+        fprintf(stderr, "DEBUG: delimiter_length=%d, lookahead='%c'\n", 
+                scanner->fenced_code_block_delimiter_length, lexer->lookahead);
         return parse_code_delimiter(scanner, lexer, valid_symbols);
     }
     
