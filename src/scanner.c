@@ -749,7 +749,12 @@ static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     // Simple content scanning - consume everything until we hit closing backticks
-    while (lexer->lookahead != 0) {
+    int safety_counter = 0;
+    const int max_iterations = 10000;
+    
+    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+        safety_counter++;
+        
         if (lexer->lookahead == '`') {
             // Check if this could be closing backticks
             TSLexer saved_lexer = *lexer;

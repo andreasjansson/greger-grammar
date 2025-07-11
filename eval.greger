@@ -9221,5 +9221,166 @@ Add CODE_LANGUAGE handling to main scanner function
 ID: toolu_01QEFHecjK1F22oyWGCzb3B5
 
 <tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add CODE_LANGUAGE handling to main scanner function
 </tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+
+# ASSISTANT
+
+Now let me generate and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017JPfNDT72GUe2mfovzQJxN
+
+## command
+
+<tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+cd . && tree-sitter generate
+</tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+
+## timeout
+
+<tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+10
+</tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+
+# TOOL RESULT
+
+ID: toolu_017JPfNDT72GUe2mfovzQJxN
+
+<tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+
+</tool.toolu_017JPfNDT72GUe2mfovzQJxN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LJnpDPqXP6LvaHRfquptUV
+
+## command
+
+<tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+cd . && printf '# ASSISTANT\n\n`hello`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+
+## timeout
+
+<tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+10
+</tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+
+# TOOL RESULT
+
+ID: toolu_01LJnpDPqXP6LvaHRfquptUV
+
+<tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+(source_file [0, 0] - [2, 7]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 7])))
+/dev/stdin	Parse:    0.06 ms	   315 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_01LJnpDPqXP6LvaHRfquptUV>
+
+# ASSISTANT
+
+There's an issue. Let me debug step by step. Let me test a basic case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011sFzZFMb4XSpAV7jXr1VWK
+
+## command
+
+<tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+cd . && printf '# ASSISTANT\n\n```python\ncode\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+
+## timeout
+
+<tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+10
+</tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+
+# TOOL RESULT
+
+ID: toolu_011sFzZFMb4XSpAV7jXr1VWK
+
+<tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+Command failed with exit code 124
+</tool.toolu_011sFzZFMb4XSpAV7jXr1VWK>
+
+# ASSISTANT
+
+There's a timeout issue again. Let me check if there's an infinite loop in the scanner. The issue might be in the `scan_code_contents` function. Let me add some safety checks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01NjWZ2tfTiR7GRWv2EVbvGb
+
+## path
+
+<tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+./src/scanner.c
+</tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+
+## git-commit-message
+
+<tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+Add safety check to prevent infinite loop in code_contents
+</tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+
+## diff
+
+<tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // Simple content scanning - consume everything until we hit closing backticks
+-    while (lexer->lookahead != 0) {
++    int safety_counter = 0;
++    const int max_iterations = 10000;
++    
++    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
++        safety_counter++;
++        
+         if (lexer->lookahead == '`') {
+             // Check if this could be closing backticks
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening count, stop here
+             if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+                 *lexer = saved_lexer; // Restore position
+                 break;
+             } else {
+                 // Not the closing sequence, include as content
+                 *lexer = saved_lexer;
+                 advance(lexer);
+             }
+         } else {
+             advance(lexer);
+         }
+     }
+     
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+
+# TOOL RESULT
+
+ID: toolu_01NjWZ2tfTiR7GRWv2EVbvGb
+
+<tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
+
+</tool.toolu_01NjWZ2tfTiR7GRWv2EVbvGb>
