@@ -1968,5 +1968,179 @@ Add test for unclosed single and double backticks terminated by newlines
 ID: toolu_01RMphfiTeXebreejFSoPKeh
 
 <tool.toolu_01RMphfiTeXebreejFSoPKeh>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code.txt. Successfully staged 2 file(s) and committed with message: Add test for unclosed single and double backticks terminated by newlines
 </tool.toolu_01RMphfiTeXebreejFSoPKeh>
+
+# ASSISTANT
+
+Now let me test if this test passes with the current implementation:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Mq1VFL9pi78pWS24DGpJw6
+
+## command
+
+<tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+tree-sitter test
+</tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+
+## timeout
+
+<tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+30
+</tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+
+# TOOL RESULT
+
+ID: toolu_01Mq1VFL9pi78pWS24DGpJw6
+
+<tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result -- Warning: Slow parse rate (2442.415 bytes/ms)
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✗ Unclosed single backtick terminated by newline
+  complex-workflow:
+     17. ✓ Complex workflow
+  eval-nested-braces:
+     18. ✓ Eval nested braces
+  eval-partial:
+     19. ✓ Eval partial cases -- Warning: Slow parse rate (2020.968 bytes/ms)
+  eval-results:
+     20. ✓ Eval results
+  eval:
+     21. ✓ Eval
+  html-comments:
+     22. ✓ HTML comments
+  html-tags:
+     23. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     24. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     25. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     26. ✓ Multiple tool uses
+  nested-code-blocks:
+     27. ✓ Nested code blocks
+  safe-shell-commands:
+     28. ✓ Safe shell commands
+  server-tool-use-basic:
+     29. ✓ Server tool use basic
+  server-tool-use-string-result:
+     30. ✓ Server tool use string result
+  simple-conversation:
+     31. ✓ Simple conversation
+  simple-user-message:
+     32. ✓ Simple user message
+  system-and-user:
+     33. ✓ System and user
+  text-with-markdown-headings:
+     34. ✓ Text with markdown headings
+  thinking-only:
+     35. ✓ Thinking only
+  thinking-section:
+     36. ✓ Thinking section
+  tool-use-multiple-params:
+     37. ✓ Tool use multiple params
+  tool-use-only:
+     38. ✓ Tool use only
+  tool-use-single-param:
+     39. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     40. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     41. ✓ Tool use with tool use in params
+  triple-hash:
+     42. ✓ Triple hash not in citation
+  untagged-content:
+     43. ✓ Untagged content
+  xml-tags-backticks:
+     44. ✓ Tags in backticks
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Unclosed single backtick terminated by newline:
+
+    (source_file
+      (assistant
+        (assistant_header)
+        (text)
+        (ERROR
+        (code
+          (code_start_tag)
+          (code_content)
+          (UNEXPECTED 't'))
+          (code_end_tag))
+        (text)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01Mq1VFL9pi78pWS24DGpJw6>
+
+# ASSISTANT
+
+I see the issue. The current implementation isn't properly handling the newline termination. Let me examine the code more carefully. The problem is in the `scan_code_content` function where it should detect newlines and terminate the code block for single and double backticks.
+
+Looking at the scanner, I need to modify it to generate a synthetic closing tag when encountering a newline for single/double backticks. Let me check what the current scanner state is when it encounters the newline:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_017FFUFdQKXWp25xB3mbdG2J
+
+## path
+
+<tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+test-unclosed-backticks.greger
+</tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+
+## contents
+
+<tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+# ASSISTANT
+
+there is `no closing backtick on single-backtick line
+there is ``no closing backtick on double-backtick line
+
+More text.
+</tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+
+## git-commit-message
+
+<tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+Add test file for unclosed backticks
+</tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+
+# TOOL RESULT
+
+ID: toolu_017FFUFdQKXWp25xB3mbdG2J
+
+<tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
+
+</tool.toolu_017FFUFdQKXWp25xB3mbdG2J>
