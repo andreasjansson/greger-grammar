@@ -668,16 +668,12 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
     
-    fprintf(stderr, "DEBUG: scan_code_backticks_start called, lookahead='%c'\n", lexer->lookahead);
-    
     // Count the number of backticks
     int level = 0;
     while (lexer->lookahead == '`') {
         advance(lexer);
         level++;
     }
-    
-    fprintf(stderr, "DEBUG: counted %d backticks\n", level);
     
     // For fenced code blocks (3+ backticks), check if info string contains backticks
     if (level >= 3) {
@@ -702,7 +698,6 @@ static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
     scanner->fenced_code_block_delimiter_length = level;
     scanner->in_code_content = true;
     lexer->result_symbol = CODE_BACKTICKS_START;
-    fprintf(stderr, "DEBUG: returning CODE_BACKTICKS_START, set delimiter_length=%d\n", level);
     return true;
 }
 
