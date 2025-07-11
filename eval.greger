@@ -4696,5 +4696,43 @@ Clean up test files
 ID: toolu_01RJjskzQKDt5uegzFnj5Saq
 
 <tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
-
+Successfully deleted 2 file(s): /Users/andreas/projects/greger-grammar/test-unclosed-backticks.greger, /Users/andreas/projects/greger-grammar/test-edge-cases.greger. Git status: Successfully staged 3 file(s) and committed with message: Clean up test files
 </tool.toolu_01RJjskzQKDt5uegzFnj5Saq>
+
+# ASSISTANT
+
+## Summary
+
+I have successfully implemented the requested feature to make newlines automatically terminate single and double backtick blocks. Here's what I did:
+
+### Changes Made:
+
+1. **Added a test case** in `test/corpus/code.txt` that covers the specific example provided:
+   - Single backtick: `there is `no closing backtick on single-backtick line`
+   - Double backtick: `there is ``no closing backtick on double-backtick line``
+
+2. **Modified the scanner in `src/scanner.c`** to handle newline termination:
+   - Updated `scan_code_content()` to stop at newlines for single/double backticks (moved the newline check earlier in the loop)
+   - Updated `scan_code_end_tag()` to generate synthetic closing tags when encountering newlines for single/double backticks  
+   - Fixed the main scanner function to call `scan_code_end_tag()` for newlines in addition to backticks
+
+### Key Logic:
+
+- **Single and double backticks (1-2 backticks)**: Now automatically terminated by newlines
+- **Triple+ backticks (3+ backticks)**: Continue to work normally across multiple lines until proper closing backticks are found
+- **Proper closing backticks**: Still work correctly when present
+
+### Testing:
+
+- All existing tests continue to pass (44/44 tests passing)
+- The new test case passes
+- Edge cases work correctly:
+  - Unclosed single backticks are terminated at newlines
+  - Unclosed double backticks are terminated at newlines
+  - Triple backtick blocks still work normally
+  - No infinite loops occur with malformed input
+
+The implementation maintains backward compatibility while adding the requested newline termination behavior for inline code blocks.
+
+# USER
+
