@@ -300,7 +300,6 @@ module.exports = grammar({
 
     code: $ => seq(
       $.code_backticks_start,
-      optional($.code_content),
       $.code_backticks_end,
     ),
 
