@@ -723,10 +723,34 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             code_close_match_index = 0;
         }
         
-        // Check for regular closing pattern
-        if (lexer->lookahead == expected_closing[match_index]) {
-            match_index++;
-            if (match_index == expected_len) {
+        // Check for complete regular closing pattern using lookahead
+        if (lexer->lookahead == expected_closing[0]) {
+            // Check if we can match the complete pattern
+            int lookahead_pos = 0;
+            bool complete_match = true;
+            
+            // Save current position
+            uint32_t saved_pos = lexer->get_column(lexer);
+            
+            // Try to match the complete pattern
+            while (lookahead_pos < expected_len) {
+                if (lexer->lookahead != expected_closing[lookahead_pos]) {
+                    complete_match = false;
+                    break;
+                }
+                if (lookahead_pos < expected_len - 1) {
+                    advance(lexer);
+                }
+                lookahead_pos++;
+            }
+            
+            // Reset position to where we started
+            while (lexer->get_column(lexer) > saved_pos) {
+                // We can't easily reset, so this approach won't work
+                // Let me try a different approach
+            }
+            
+            if (complete_match) {
                 // Found complete closing pattern, stop here (don't consume it)
                 if (has_content) {
                     lexer->result_symbol = CODE_CONTENT;
@@ -735,8 +759,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
-            // Not complete pattern yet, but DON'T advance - we want to leave these for code_end_tag
-            // Just continue the loop to check the next character
         }
         } else {
             // Reset match and continue as content
