@@ -7049,5 +7049,108 @@ Update scanner create function for new state field
 ID: toolu_01Nf1HyNbsz9hR53fz7XoCQo
 
 <tool.toolu_01Nf1HyNbsz9hR53fz7XoCQo>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update scanner create function for new state field
 </tool.toolu_01Nf1HyNbsz9hR53fz7XoCQo>
+
+# ASSISTANT
+
+Now let me implement the markdown-style fenced code block parsing:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01T1UecLfMoJTnfKh9JY8Cjq
+
+## path
+
+<tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+./src/scanner.c
+</tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+
+## git-commit-message
+
+<tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+Replace old backtick functions with markdown-style fenced code block parsing
+</tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+
+## diff
+
+<tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+-static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
++static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
+-    // Count and consume backticks (any number, 1 or more)
+-    int backtick_count = 0;
++    // Count the number of backticks
++    int level = 0;
+     while (lexer->lookahead == '`') {
+-        backtick_count++;
+         advance(lexer);
++        level++;
+     }
+     
+-    if (backtick_count >= 1) {
+-        // If this is the first time we're seeing backticks, store the count
+-        // If we already have a count, this is likely the closing sequence
+-        if (scanner->last_backtick_count == 0) {
+-            scanner->last_backtick_count = backtick_count;
+-        } else {
+-            // This is a closing sequence, reset the count
+-            scanner->last_backtick_count = 0;
+-        }
++    // If this is able to close a fenced code block then that is the only valid interpretation
++    if (valid_symbols[CODE_BACKTICKS_END] && 
++        level >= scanner->fenced_code_block_delimiter_length &&
++        scanner->fenced_code_block_delimiter_length > 0) {
+         
+-        lexer->result_symbol = CODE_BACKTICKS;
++        // Check if this is at the end of line (closing delimiter must be on its own line for block style)
++        // For inline style, we don't require newline
++        scanner->fenced_code_block_delimiter_length = 0;
++        lexer->result_symbol = CODE_BACKTICKS_END;
+         return true;
+     }
+     
++    // If this could be the start of a fenced code block
++    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
++        // Check if the info string contains any backticks (invalid for fenced code blocks)
++        bool info_string_has_backtick = false;
++        TSLexer saved_lexer = *lexer;
++        
++        // Only check for backticks in the info string for multi-backtick blocks
++        if (level > 1) {
++            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
++                   lexer->lookahead != 0) {
++                if (lexer->lookahead == '`') {
++                    info_string_has_backtick = true;
++                    break;
++                }
++                advance(lexer);
++            }
++        }
++        
++        // Restore lexer position
++        *lexer = saved_lexer;
++        
++        // If info string doesn't contain backticks, this is a valid fenced code block start
++        if (!info_string_has_backtick) {
++            lexer->result_symbol = CODE_BACKTICKS_START;
++            scanner->fenced_code_block_delimiter_length = level;
++            return true;
++        }
++    }
++    
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+
+# TOOL RESULT
+
+ID: toolu_01T1UecLfMoJTnfKh9JY8Cjq
+
+<tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>
+
+</tool.toolu_01T1UecLfMoJTnfKh9JY8Cjq>

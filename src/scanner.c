@@ -655,28 +655,55 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
+static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     if (lexer->lookahead != '`') return false;
     
-    // Count and consume backticks (any number, 1 or more)
-    int backtick_count = 0;
+    // Count the number of backticks
+    int level = 0;
     while (lexer->lookahead == '`') {
-        backtick_count++;
         advance(lexer);
+        level++;
     }
     
-    if (backtick_count >= 1) {
-        // If this is the first time we're seeing backticks, store the count
-        // If we already have a count, this is likely the closing sequence
-        if (scanner->last_backtick_count == 0) {
-            scanner->last_backtick_count = backtick_count;
-        } else {
-            // This is a closing sequence, reset the count
-            scanner->last_backtick_count = 0;
+    // If this is able to close a fenced code block then that is the only valid interpretation
+    if (valid_symbols[CODE_BACKTICKS_END] && 
+        level >= scanner->fenced_code_block_delimiter_length &&
+        scanner->fenced_code_block_delimiter_length > 0) {
+        
+        // Check if this is at the end of line (closing delimiter must be on its own line for block style)
+        // For inline style, we don't require newline
+        scanner->fenced_code_block_delimiter_length = 0;
+        lexer->result_symbol = CODE_BACKTICKS_END;
+        return true;
+    }
+    
+    // If this could be the start of a fenced code block
+    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+        // Check if the info string contains any backticks (invalid for fenced code blocks)
+        bool info_string_has_backtick = false;
+        TSLexer saved_lexer = *lexer;
+        
+        // Only check for backticks in the info string for multi-backtick blocks
+        if (level > 1) {
+            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                   lexer->lookahead != 0) {
+                if (lexer->lookahead == '`') {
+                    info_string_has_backtick = true;
+                    break;
+                }
+                advance(lexer);
+            }
         }
         
-        lexer->result_symbol = CODE_BACKTICKS;
-        return true;
+        // Restore lexer position
+        *lexer = saved_lexer;
+        
+        // If info string doesn't contain backticks, this is a valid fenced code block start
+        if (!info_string_has_backtick) {
+            lexer->result_symbol = CODE_BACKTICKS_START;
+            scanner->fenced_code_block_delimiter_length = level;
+            return true;
+        }
     }
     
     return false;
