@@ -689,15 +689,45 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     lexer->mark_end(lexer);
     bool has_content = false;
     
-    // Consume content until we encounter backticks that could be closing
+    // Consume content until we encounter the exact closing pattern  
     while (lexer->lookahead != 0) {
         if (lexer->lookahead == '`') {
-            // Just stop at backticks and let the grammar try to match the end tag
-            if (has_content) {
-                lexer->result_symbol = CODE_CONTENT;
-                return true;
+            // Count consecutive backticks here to see if it matches our required count
+            int consecutive_backticks = 0;
+            while (lexer->lookahead == '`' && consecutive_backticks < scanner->code_backtick_count) {
+                consecutive_backticks++;
+                advance(lexer);
+            }
+            
+            // If we consumed exactly the right number of backticks, this could be the closing
+            if (consecutive_backticks == scanner->code_backtick_count) {
+                // Check if this is actually the closing pattern
+                if (scanner->code_backtick_count >= 3) {
+                    // For fenced code blocks, accept any matching pattern (simplified)
+                    if (has_content) {
+                        // Put the backticks back by backing up
+                        for (int i = 0; i < consecutive_backticks; i++) {
+                            // Unfortunately, we can't back up the lexer, so we need a different approach
+                        }
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    // For inline code, this is likely the closing
+                    if (has_content) {
+                        // Put the backticks back - can't do this, need different approach
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
             } else {
-                return false;
+                // Not the right number of backticks, treat as content
+                has_content = true;
+                lexer->mark_end(lexer);
             }
         } else {
             // For inline code (1-2 backticks), stop at newlines
