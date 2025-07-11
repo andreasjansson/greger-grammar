@@ -1959,5 +1959,129 @@ Fix backtick pattern matching - check complete pattern before advancing
 ID: toolu_01QFSZCiSAXpw6oBuk4gaMmG
 
 <tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick pattern matching - check complete pattern before advancing
 </tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_018hagoQmrqKXgbqvC6LVdmo
+
+## path
+
+<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+./src/scanner.c
+</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+
+## start-line
+
+<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+720
+</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+
+## end-line
+
+<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+750
+</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+
+## include-line-numbers
+
+<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+true
+</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+
+# TOOL RESULT
+
+ID: toolu_018hagoQmrqKXgbqvC6LVdmo
+
+<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+720:             }
+721:             // Continue checking this character for backtick patterns too
+722:         } else {
+723:             code_close_match_index = 0;
+724:         }
+725:         
+726:         // Check for regular closing pattern
+727:         if (lexer->lookahead == expected_closing[match_index]) {
+728:             match_index++;
+729:             if (match_index == expected_len) {
+730:                 // Found complete closing pattern, stop here (don't consume it)
+731:                 if (has_content) {
+732:                     lexer->result_symbol = CODE_CONTENT;
+733:                     return true;
+734:                 } else {
+735:                     return false;
+736:                 }
+737:             }
+738:             advance(lexer);
+739:             has_content = true;
+740:             // Only mark end if we're not in middle of matching code close pattern
+741:             if (code_close_match_index == 0) {
+742:                 lexer->mark_end(lexer);
+743:             }
+744:         } else {
+745:             // Reset match and continue as content
+746:             if (match_index > 0) {
+747:                 // We were partially matching, reset but don't advance yet
+748:                 match_index = 0;
+749:                 // Don't advance here, reprocess this character
+750:             } else {
+</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
+
+# ASSISTANT
+
+I see the issue! On line 738, I'm calling `advance(lexer)` after checking that we have a character match, but BEFORE checking if we have a complete pattern match. This means when we get to the last backtick of a closing pattern, we advance past it before realizing we have a complete match.
+
+The fix is to check for complete pattern match first, then advance. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017tnoRMDp7kKDq3ouffr7Zs
+
+## path
+
+<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+./src/scanner.c
+</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+
+## git-commit-message
+
+<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+Fix backtick pattern matching - check complete pattern before advancing
+</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+
+## diff
+
+<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+         // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
++            // Not complete pattern yet, advance and continue
+             advance(lexer);
+             has_content = true;
+             // Only mark end if we're not in middle of matching code close pattern
+             if (code_close_match_index == 0) {
+                 lexer->mark_end(lexer);
+             }
+\ No newline at end of file
+
+</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+
+# TOOL RESULT
+
+ID: toolu_017tnoRMDp7kKDq3ouffr7Zs
+
+<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
+
+</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>

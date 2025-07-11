@@ -735,6 +735,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
+            // Not complete pattern yet, advance and continue
             advance(lexer);
             has_content = true;
             // Only mark end if we're not in middle of matching code close pattern
