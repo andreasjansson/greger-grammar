@@ -9734,5 +9734,262 @@ Rewrite scanner to exactly match markdown inline parser logic
 ID: toolu_017G8AJ6MyPbvWPJdcYm7Wxk
 
 <tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Rewrite scanner to exactly match markdown inline parser logic
 </tool.toolu_017G8AJ6MyPbvWPJdcYm7Wxk>
+
+# ASSISTANT
+
+Now let me test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016GRGm2reYMEgFMzs4zXAgX
+
+## command
+
+<tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+
+## timeout
+
+<tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+10
+</tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+
+# TOOL RESULT
+
+ID: toolu_016GRGm2reYMEgFMzs4zXAgX
+
+<tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.06 ms	   412 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_016GRGm2reYMEgFMzs4zXAgX>
+
+# ASSISTANT
+
+Still the same issue! This suggests that the problem might not be in the scanner logic, but somewhere else. Let me run a successful test first to verify the scanner is working:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017FVaEjSv3HdDm9zMnhF7AS
+
+## command
+
+<tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+cd . && printf '# ASSISTANT\n\n``hello``' | tree-sitter parse /dev/stdin
+</tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+
+## timeout
+
+<tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+10
+</tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+
+# TOOL RESULT
+
+ID: toolu_017FVaEjSv3HdDm9zMnhF7AS
+
+<tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+(source_file [0, 0] - [2, 9]
+  (assistant [0, 0] - [2, 9]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 7] - [2, 9]))))
+
+</tool.toolu_017FVaEjSv3HdDm9zMnhF7AS>
+
+# ASSISTANT
+
+That works. The issue is definitely specific to having backticks in the content. Let me run the test and see exactly where the failure is happening. 
+
+Let me try to understand what's happening by looking at a simpler case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_011EDhek1Yha23hBPzYN224k
+
+## command
+
+<tool.toolu_011EDhek1Yha23hBPzYN224k>
+cd . && printf '# ASSISTANT\n\n`` ` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_011EDhek1Yha23hBPzYN224k>
+
+## timeout
+
+<tool.toolu_011EDhek1Yha23hBPzYN224k>
+10
+</tool.toolu_011EDhek1Yha23hBPzYN224k>
+
+# TOOL RESULT
+
+ID: toolu_011EDhek1Yha23hBPzYN224k
+
+<tool.toolu_011EDhek1Yha23hBPzYN224k>
+(source_file [0, 0] - [2, 7]
+  (ERROR [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 7])))
+/dev/stdin	Parse:    0.02 ms	   882 bytes/ms	(ERROR [0, 0] - [2, 7])
+Command failed with exit code 1
+</tool.toolu_011EDhek1Yha23hBPzYN224k>
+
+# ASSISTANT
+
+The issue is the same. The problem is at position [2, 3] which is right after the space after the opening ``. This suggests that when the parser tries to parse the single backtick, it's failing.
+
+Let me check if this is working correctly now by comparing with the working tests:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QEgJZzK3eJTDhCWZevagw1
+
+## command
+
+<tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+cd . && tree-sitter test --include "Inline code"
+</tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+
+## timeout
+
+<tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+10
+</tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+
+# TOOL RESULT
+
+ID: toolu_01QEgJZzK3eJTDhCWZevagw1
+
+<tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+  code:
+      6. ✗ Inline code with single backticks
+      7. ✗ Inline code with double backticks
+
+2 failures:
+
+correct / expected / unexpected
+
+  1. Inline code with single backticks:
+
+    (source_file
+      (user
+        (user_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text))
+      (assistant
+        (assistant_header)
+        (text)
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)))
+
+
+  2. Inline code with double backticks:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_backticks_start)
+        (UNEXPECTED '`')))
+        (code
+          (code_backticks_start)
+          (code_contents)
+          (code_backticks_end))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01QEgJZzK3eJTDhCWZevagw1>
+
+# ASSISTANT
+
+The tests are still expecting `code_contents` nodes, which I removed from the externals. Let me update the tests to match the new structure:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Byr7Y7uZ4zBwLZo1UMwQsA
+
+## path
+
+<tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+./test/corpus/code.txt
+</tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+
+## git-commit-message
+
+<tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+Update test expectations to match new code structure without separate content nodes
+</tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+
+## diff
+
+<tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+ ---
+ 
+ (source_file
+   (user
+     (user_header)
+     (text)
+     (code
+       (code_backticks_start)
+-      (code_contents)
+       (code_backticks_end))
+     (text))
+   (assistant
+     (assistant_header)
+     (text)
+     (code
+       (code_backticks_start)
+-      (code_contents)
+       (code_backticks_end))
+     (text)))
+ 
+ =======================
+ Inline code with double backticks
+ =======================
+ 
+ # ASSISTANT
+ 
+ `` `code` ``
+ 
+ More text after.
+ 
+ ---
+ 
+ (source_file
+   (assistant
+     (assistant_header)
+     (code
+       (code_backticks_start)
+-      (code_contents)
+       (code_backticks_end))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+
+# TOOL RESULT
+
+ID: toolu_01Byr7Y7uZ4zBwLZo1UMwQsA
+
+<tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
+
+</tool.toolu_01Byr7Y7uZ4zBwLZo1UMwQsA>
