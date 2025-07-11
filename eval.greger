@@ -9602,5 +9602,774 @@ Remove CODE_LANGUAGE from enum
 ID: toolu_01UGtiM6W4VjQZfzi2KDBbmH
 
 <tool.toolu_01UGtiM6W4VjQZfzi2KDBbmH>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove CODE_LANGUAGE from enum
 </tool.toolu_01UGtiM6W4VjQZfzi2KDBbmH>
+
+# ASSISTANT
+
+Now let me copy the markdown scanner's backtick logic. Let me look at their approach again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01D686cbXPab6XBM9QGg1hb6
+
+## path
+
+<tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+
+## start-line
+
+<tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+400
+</tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+
+## end-line
+
+<tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+460
+</tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+
+# TOOL RESULT
+
+ID: toolu_01D686cbXPab6XBM9QGg1hb6
+
+<tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+}
+
+static bool parse_fenced_code_block(Scanner *s, const char delimiter,
+                                    TSLexer *lexer, const bool *valid_symbols) {
+    // count the number of backticks
+    uint8_t level = 0;
+    while (lexer->lookahead == delimiter) {
+        advance(s, lexer);
+        level++;
+    }
+    mark_end(s, lexer);
+    // If this is able to close a fenced code block then that is the only valid
+    // interpretation. It can only close a fenced code block if the number of
+    // backticks is at least the number of backticks of the opening delimiter.
+    // Also it cannot be indented more than 3 spaces.
+    if ((delimiter == '`' ? valid_symbols[FENCED_CODE_BLOCK_END_BACKTICK]
+                          : valid_symbols[FENCED_CODE_BLOCK_END_TILDE]) &&
+        s->indentation < 4 && level >= s->fenced_code_block_delimiter_length) {
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(s, lexer);
+        }
+        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            s->fenced_code_block_delimiter_length = 0;
+            lexer->result_symbol = delimiter == '`'
+                                       ? FENCED_CODE_BLOCK_END_BACKTICK
+                                       : FENCED_CODE_BLOCK_END_TILDE;
+            return true;
+        }
+    }
+    // If this could be the start of a fenced code block, check if the info
+    // string contains any backticks.
+    if ((delimiter == '`' ? valid_symbols[FENCED_CODE_BLOCK_START_BACKTICK]
+                          : valid_symbols[FENCED_CODE_BLOCK_START_TILDE]) &&
+        level >= 3) {
+        bool info_string_has_backtick = false;
+        if (delimiter == '`') {
+            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' &&
+                   !lexer->eof(lexer)) {
+                if (lexer->lookahead == '`') {
+                    info_string_has_backtick = true;
+                    break;
+                }
+                advance(s, lexer);
+            }
+        }
+        // If it does not then choose to interpret this as the start of a fenced
+        // code block.
+        if (!info_string_has_backtick) {
+            lexer->result_symbol = delimiter == '`'
+                                       ? FENCED_CODE_BLOCK_START_BACKTICK
+                                       : FENCED_CODE_BLOCK_START_TILDE;
+            if (!s->simulate)
+                push_block(s, FENCED_CODE_BLOCK);
+            // Remember the length of the delimiter for later, since we need it
+            // to decide whether a sequence of backticks can close the block.
+            s->fenced_code_block_delimiter_length = level;
+            s->indentation = 0;
+            return true;
+        }
+    }
+    return false;
+</tool.toolu_01D686cbXPab6XBM9QGg1hb6>
+
+# ASSISTANT
+
+Let me also look at their advance and mark_end functions:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_016VfGA2rLfhBFrmhaPeGYe9
+
+## pattern
+
+<tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+static inline.*advance
+</tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+
+## path
+
+<tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+
+## context-lines
+
+<tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+3
+</tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+
+# TOOL RESULT
+
+ID: toolu_016VfGA2rLfhBFrmhaPeGYe9
+
+<tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+No matches found
+</tool.toolu_016VfGA2rLfhBFrmhaPeGYe9>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01HmznsHVmmFv8z6NYCLNx9q
+
+## pattern
+
+<tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+advance.*Scanner"
+</tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+
+## path
+
+<tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+
+## context-lines
+
+<tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+3
+</tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+
+# TOOL RESULT
+
+ID: toolu_01HmznsHVmmFv8z6NYCLNx9q
+
+<tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+No matches found
+</tool.toolu_01HmznsHVmmFv8z6NYCLNx9q>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_011zppsrah42Q9F2vqRaZacG
+
+## pattern
+
+<tool.toolu_011zppsrah42Q9F2vqRaZacG>
+uint8_t advance"
+</tool.toolu_011zppsrah42Q9F2vqRaZacG>
+
+## path
+
+<tool.toolu_011zppsrah42Q9F2vqRaZacG>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_011zppsrah42Q9F2vqRaZacG>
+
+## context-lines
+
+<tool.toolu_011zppsrah42Q9F2vqRaZacG>
+5
+</tool.toolu_011zppsrah42Q9F2vqRaZacG>
+
+# TOOL RESULT
+
+ID: toolu_011zppsrah42Q9F2vqRaZacG
+
+<tool.toolu_011zppsrah42Q9F2vqRaZacG>
+No matches found
+</tool.toolu_011zppsrah42Q9F2vqRaZacG>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01P4ZTWS23hDkZkskg9D5AfX
+
+## pattern
+
+<tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+advance.*Scanner"
+</tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+
+## path
+
+<tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+
+# TOOL RESULT
+
+ID: toolu_01P4ZTWS23hDkZkskg9D5AfX
+
+<tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+No matches found
+</tool.toolu_01P4ZTWS23hDkZkskg9D5AfX>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01KjC7nGAe1kNrrCC2igbzSD
+
+## pattern
+
+<tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+advance"
+</tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+
+## path
+
+<tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+
+## context-lines
+
+<tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+1
+</tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+
+## max-results
+
+<tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+5
+</tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+
+# TOOL RESULT
+
+ID: toolu_01KjC7nGAe1kNrrCC2igbzSD
+
+<tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+No matches found
+</tool.toolu_01KjC7nGAe1kNrrCC2igbzSD>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_012tkf1iw34vYyrzMvBSab61
+
+## path
+
+<tool.toolu_012tkf1iw34vYyrzMvBSab61>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_012tkf1iw34vYyrzMvBSab61>
+
+## start-line
+
+<tool.toolu_012tkf1iw34vYyrzMvBSab61>
+120
+</tool.toolu_012tkf1iw34vYyrzMvBSab61>
+
+## end-line
+
+<tool.toolu_012tkf1iw34vYyrzMvBSab61>
+140
+</tool.toolu_012tkf1iw34vYyrzMvBSab61>
+
+# TOOL RESULT
+
+ID: toolu_012tkf1iw34vYyrzMvBSab61
+
+<tool.toolu_012tkf1iw34vYyrzMvBSab61>
+    "td",       "tfoot",      "th",     "thead",    "title",    "tr",
+    "track",    "ul"};
+
+// For explanation of the tokens see grammar.js
+static const bool paragraph_interrupt_symbols[] = {
+    false, // LINE_ENDING,
+    false, // SOFT_LINE_ENDING,
+    false, // BLOCK_CLOSE,
+    false, // BLOCK_CONTINUATION,
+    true,  // BLOCK_QUOTE_START,
+    false, // INDENTED_CHUNK_START,
+    true,  // ATX_H1_MARKER,
+    true,  // ATX_H2_MARKER,
+    true,  // ATX_H3_MARKER,
+    true,  // ATX_H4_MARKER,
+    true,  // ATX_H5_MARKER,
+    true,  // ATX_H6_MARKER,
+    true,  // SETEXT_H1_UNDERLINE,
+    true,  // SETEXT_H2_UNDERLINE,
+    true,  // THEMATIC_BREAK,
+    true,  // LIST_MARKER_MINUS,
+</tool.toolu_012tkf1iw34vYyrzMvBSab61>
+
+# ASSISTANT
+
+Let me find their utility functions:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Q6kJo5y9aTGq4s4DDiYqgS
+
+## path
+
+<tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+
+## start-line
+
+<tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+180
+</tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+
+## end-line
+
+<tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+220
+</tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+
+# TOOL RESULT
+
+ID: toolu_01Q6kJo5y9aTGq4s4DDiYqgS
+
+<tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+// Block should be closed after next line break
+static const uint8_t STATE_CLOSE_BLOCK = 0x1 << 4;
+
+static size_t roundup_32(size_t x) {
+    x--;
+
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+
+    x++;
+
+    return x;
+}
+
+typedef struct {
+    // A stack of open blocks in the current parse state
+    struct {
+        size_t size;
+        size_t capacity;
+        Block *items;
+    } open_blocks;
+
+    // Parser state flags
+    uint8_t state;
+    // Number of blocks that have been matched so far. Only changes during
+    // matching and is reset after every line ending
+    uint8_t matched;
+    // Consumed but "unused" indentation. Sometimes a tab needs to be "split" to
+    // be used in multiple tokens.
+    uint8_t indentation;
+    // The current column. Used to decide how many spaces a tab should equal
+    uint8_t column;
+    // The delimiter length of the currently open fenced code block
+    uint8_t fenced_code_block_delimiter_length;
+
+    bool simulate;
+} Scanner;
+
+</tool.toolu_01Q6kJo5y9aTGq4s4DDiYqgS>
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_0189SsbyoFAHPBqJHJn1ADBn
+
+## path
+
+<tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/src/scanner.c
+</tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+
+## start-line
+
+<tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+300
+</tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+
+## end-line
+
+<tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+330
+</tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+
+# TOOL RESULT
+
+ID: toolu_0189SsbyoFAHPBqJHJn1ADBn
+
+<tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+// no new block
+//    has been opened.
+// 2. When encountering a new block after a soft line break.
+// 3. When a `$._trigger_error` token is valid, which is used to stop parse
+// branches through
+//    normal tree-sitter grammar rules.
+//
+// See also the `$._soft_line_break` and `$._paragraph_end_newline` tokens in
+// grammar.js
+static bool error(TSLexer *lexer) {
+    lexer->result_symbol = ERROR;
+    return true;
+}
+
+// Advance the lexer one character
+// Also keeps track of the current column, counting tabs as spaces with tab stop
+// 4 See https://github.github.com/gfm/#tabs
+static size_t advance(Scanner *s, TSLexer *lexer) {
+    size_t size = 1;
+    if (lexer->lookahead == '\t') {
+        size = 4 - s->column;
+        s->column = 0;
+    } else {
+        s->column = (s->column + 1) % 4;
+    }
+    lexer->advance(lexer, false);
+    return size;
+}
+
+// Try to match the given block, i.e. consume all tokens that belong to the
+// block. These are
+</tool.toolu_0189SsbyoFAHPBqJHJn1ADBn>
+
+# ASSISTANT
+
+Great! Now let me adapt their approach. I'll copy their `parse_fenced_code_block` logic but adapt it for our simpler case:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BELYTSuKFVTdf9TJaHKY38
+
+## path
+
+<tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+./src/scanner.c
+</tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+
+## git-commit-message
+
+<tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+Replace with simplified markdown-style fenced code block parsing
+</tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+
+## diff
+
+<tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of backticks
+     int level = 0;
+     while (lexer->lookahead == '`') {
+         advance(lexer);
+         level++;
+     }
+-    
+-    // Mark the end after consuming just the backticks
+     lexer->mark_end(lexer);
+     
+     // If this is able to close a fenced code block then that is the only valid interpretation
+     if (valid_symbols[CODE_BACKTICKS_END] && 
+         level >= scanner->fenced_code_block_delimiter_length &&
+         scanner->fenced_code_block_delimiter_length > 0) {
+         
+         scanner->fenced_code_block_delimiter_length = 0;
+         lexer->result_symbol = CODE_BACKTICKS_END;
+         return true;
+     }
+     
+     // If this could be the start of a fenced code block
+     if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+-        // Check if the info string contains any backticks (invalid for fenced code blocks)
++        // For multi-backtick blocks, check if the info string contains any backticks (invalid)
+         bool info_string_has_backtick = false;
+-        
+-        // Only check for backticks in the info string for multi-backtick blocks
+         if (level > 1) {
+             while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+                    lexer->lookahead != 0) {
+                 if (lexer->lookahead == '`') {
+                     info_string_has_backtick = true;
+                     break;
+                 }
+                 advance(lexer);
+             }
+         }
+         
+         // If info string doesn't contain backticks, this is a valid fenced code block start
+         if (!info_string_has_backtick) {
+             lexer->result_symbol = CODE_BACKTICKS_START;
+             scanner->fenced_code_block_delimiter_length = level;
+             return true;
+         }
+     }
+     
+     return false;
+ }
+ 
+-
+-static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    // Rule 1: Single backticks never have language
+-    if (scanner->fenced_code_block_delimiter_length == 1) {
+-        return false;
+-    }
+-    
+-    // Rule 2: Two or more backticks + optional spaces + non-spaces + newline = valid language
+-    if (scanner->fenced_code_block_delimiter_length >= 2) {
+-        // Skip optional spaces (not newlines)
+-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-            advance(lexer);
+-        }
+-        
+-        // Must have non-spaces (language identifier)
+-        if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+-            return false;
+-        }
+-        
+-        // Scan the language identifier
+-        while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+-               iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+-               lexer->lookahead == '+' || lexer->lookahead == '-') {
+-            advance(lexer);
+-        }
+-        
+-        // Must be followed by newline for valid language
+-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-            lexer->result_symbol = CODE_LANGUAGE;
+-            return true;
+-        }
+-        
+-        // Rule 3: Anything else should be treated as content (return false)
+-        return false;
+-    }
+-    
+-    return false;
+-}
+-
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+     // Simple content scanning - consume everything until we hit closing backticks
+-    int safety_counter = 0;
+-    const int max_iterations = 10000;
+-    
+-    while (lexer->lookahead != 0 && safety_counter < max_iterations) {
+-        safety_counter++;
+-        
++    while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+             // Check if this could be closing backticks
+             TSLexer saved_lexer = *lexer;
+             int backtick_count = 0;
+             
+             while (lexer->lookahead == '`') {
+                 backtick_count++;
+                 advance(lexer);
+             }
+             
+             // If this matches the opening count, stop here
+             if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+                 *lexer = saved_lexer; // Restore position
+                 break;
+             } else {
+                 // Not the closing sequence, include as content
+                 *lexer = saved_lexer;
+                 advance(lexer);
+             }
+         } else {
+             advance(lexer);
+         }
+     }
+     
+     lexer->result_symbol = CODE_CONTENTS;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+
+# TOOL RESULT
+
+ID: toolu_01BELYTSuKFVTdf9TJaHKY38
+
+<tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+Original content not found in file: /Users/andreas/projects/greger-grammar/src/scanner.c -- Try again!
+</tool.toolu_01BELYTSuKFVTdf9TJaHKY38>
+
+# ASSISTANT
+
+Let me find the functions and remove them:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_011FNWLbg89qNTy32p5mpYtH
+
+## pattern
+
+<tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+static bool scan_code_language
+</tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+
+## path
+
+<tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+./src/scanner.c
+</tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+
+## context-lines
+
+<tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+30
+</tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+
+# TOOL RESULT
+
+ID: toolu_011FNWLbg89qNTy32p5mpYtH
+
+<tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+681-    // If this could be the start of a fenced code block
+682-    if (valid_symbols[CODE_BACKTICKS_START] && level >= 1) {
+683-        // Check if the info string contains any backticks (invalid for fenced code blocks)
+684-        bool info_string_has_backtick = false;
+685-        
+686-        // Only check for backticks in the info string for multi-backtick blocks
+687-        if (level > 1) {
+688-            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+689-                   lexer->lookahead != 0) {
+690-                if (lexer->lookahead == '`') {
+691-                    info_string_has_backtick = true;
+692-                    break;
+693-                }
+694-                advance(lexer);
+695-            }
+696-        }
+697-        
+698-        // If info string doesn't contain backticks, this is a valid fenced code block start
+699-        if (!info_string_has_backtick) {
+700-            lexer->result_symbol = CODE_BACKTICKS_START;
+701-            scanner->fenced_code_block_delimiter_length = level;
+702-            return true;
+703-        }
+704-    }
+705-    
+706-    return false;
+707-}
+708-
+709-
+710-
+711:static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+712-    // Rule 1: Single backticks never have language
+713-    if (scanner->fenced_code_block_delimiter_length == 1) {
+714-        return false;
+715-    }
+716-    
+717-    // Rule 2: Two or more backticks + optional spaces + non-spaces + newline = valid language
+718-    if (scanner->fenced_code_block_delimiter_length >= 2) {
+719-        // Skip optional spaces (not newlines)
+720-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+721-            advance(lexer);
+722-        }
+723-        
+724-        // Must have non-spaces (language identifier)
+725-        if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+726-            return false;
+727-        }
+728-        
+729-        // Scan the language identifier
+730-        while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+731-               iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+732-               lexer->lookahead == '+' || lexer->lookahead == '-') {
+733-            advance(lexer);
+734-        }
+735-        
+736-        // Must be followed by newline for valid language
+737-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+738-            lexer->result_symbol = CODE_LANGUAGE;
+739-            return true;
+740-        }
+741-        
+
+</tool.toolu_011FNWLbg89qNTy32p5mpYtH>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01K5jse6XLgXm52wo7Ms9Y66
+
+## path
+
+<tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+./src/scanner.c
+</tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+
+## git-commit-message
+
+<tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+Remove scan_code_language function entirely
+</tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+
+## diff
+
+<tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+-static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+-    // Rule 1: Single backticks never have language
+-    if (scanner->fenced_code_block_delimiter_length == 1) {
+-        return false;
+-    }
+-    
+-    // Rule 2: Two or more backticks + optional spaces + non-spaces + newline = valid language
+-    if (scanner->fenced_code_block_delimiter_length >= 2) {
+-        // Skip optional spaces (not newlines)
+-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+-            advance(lexer);
+-        }
+-        
+-        // Must have non-spaces (language identifier)
+-        if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+-            return false;
+-        }
+-        
+-        // Scan the language identifier
+-        while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+-               iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+-               lexer->lookahead == '+' || lexer->lookahead == '-') {
+-            advance(lexer);
+-        }
+-        
+-        // Must be followed by newline for valid language
+-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-            lexer->result_symbol = CODE_LANGUAGE;
+-            return true;
+-        }
+-        
+-        // Rule 3: Anything else should be treated as content (return false)
+-        return false;
+-    }
+-    
+-    return false;
+-}
+\ No newline at end of file
+
+</tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+
+# TOOL RESULT
+
+ID: toolu_01K5jse6XLgXm52wo7Ms9Y66
+
+<tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>
+
+</tool.toolu_01K5jse6XLgXm52wo7Ms9Y66>

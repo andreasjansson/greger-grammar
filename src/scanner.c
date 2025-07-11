@@ -708,43 +708,7 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
 
 
 
-static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
-    // Rule 1: Single backticks never have language
-    if (scanner->fenced_code_block_delimiter_length == 1) {
-        return false;
-    }
-    
-    // Rule 2: Two or more backticks + optional spaces + non-spaces + newline = valid language
-    if (scanner->fenced_code_block_delimiter_length >= 2) {
-        // Skip optional spaces (not newlines)
-        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-            advance(lexer);
-        }
-        
-        // Must have non-spaces (language identifier)
-        if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
-            return false;
-        }
-        
-        // Scan the language identifier
-        while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
-               iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
-               lexer->lookahead == '+' || lexer->lookahead == '-') {
-            advance(lexer);
-        }
-        
-        // Must be followed by newline for valid language
-        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-            lexer->result_symbol = CODE_LANGUAGE;
-            return true;
-        }
-        
-        // Rule 3: Anything else should be treated as content (return false)
-        return false;
-    }
-    
-    return false;
-}
+
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     // Simple content scanning - consume everything until we hit closing backticks
