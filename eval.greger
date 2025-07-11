@@ -2392,5 +2392,69 @@ Add code debug test file
 ID: toolu_01H8eokYctutpprgPFUZ8NWY
 
 <tool.toolu_01H8eokYctutpprgPFUZ8NWY>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test_code_debug.greger with 15 characters. Successfully staged 2 file(s) and committed with message: Add code debug test file
 </tool.toolu_01H8eokYctutpprgPFUZ8NWY>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Dbkk6u9vNsQy9EAAiuQYZg
+
+## command
+
+<tool.toolu_01Dbkk6u9vNsQy9EAAiuQYZg>
+timeout 10 tree-sitter parse test_code_debug.greger
+</tool.toolu_01Dbkk6u9vNsQy9EAAiuQYZg>
+
+# TOOL RESULT
+
+ID: toolu_01Dbkk6u9vNsQy9EAAiuQYZg
+
+<tool.toolu_01Dbkk6u9vNsQy9EAAiuQYZg>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 6])
+      (code_end_tag [2, 6] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01Dbkk6u9vNsQy9EAAiuQYZg>
+
+# ASSISTANT
+
+This one works fine. So the issue is specifically with the LESSTHAN character. Let me test:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_015mbyTAXWtXqoRaFuA4XYij
+
+## path
+
+<tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+test_lessthan.greger
+</tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+
+## git-commit-message
+
+<tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+Add less than test file
+</tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+
+## contents
+
+<tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+# USER
+
+`<`
+</tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+
+# TOOL RESULT
+
+ID: toolu_015mbyTAXWtXqoRaFuA4XYij
+
+<tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
+
+</tool.toolu_015mbyTAXWtXqoRaFuA4XYij>
