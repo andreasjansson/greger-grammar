@@ -747,17 +747,17 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                 // Found complete closing pattern, but need to check if it's a valid close
                 bool is_valid_close = true;
                 
-                // For single and double backticks, only close if followed by whitespace, 
-                // end of input, or certain punctuation
+                // For all backtick counts, check if the closing pattern is valid
+                // Look ahead to see what comes after the potential closing backticks
+                TSLexer saved_lexer = *lexer;
+                
+                // We're currently at the last backtick of the potential closing sequence
+                // We need to advance past it to see what comes next
+                advance(lexer);
+                
                 if (scanner->code_backtick_count <= 2) {
-                    // Look ahead to see what comes after the potential closing backticks
-                    TSLexer saved_lexer = *lexer;
-                    
-                    // We're currently at the last backtick of the potential closing sequence
-                    // We need to advance past it to see what comes next
-                    advance(lexer);
-                    
-                    // Check what comes after the closing backticks
+                    // For single and double backticks, only close if followed by whitespace, 
+                    // end of input, or certain punctuation
                     if (lexer->lookahead != 0 && 
                         !iswspace(lexer->lookahead) && 
                         lexer->lookahead != '.' && 
@@ -774,10 +774,16 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                         // Not followed by whitespace or punctuation, treat as content
                         is_valid_close = false;
                     }
-                    
-                    // Restore lexer position
-                    *lexer = saved_lexer;
+                } else {
+                    // For triple+ backticks, don't close if followed by more backticks
+                    if (lexer->lookahead == '`') {
+                        // Followed by another backtick, treat as content
+                        is_valid_close = false;
+                    }
                 }
+                
+                // Restore lexer position
+                *lexer = saved_lexer;
                 
                 if (is_valid_close) {
                     // Valid closing pattern, stop here (don't consume it)

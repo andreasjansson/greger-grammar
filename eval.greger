@@ -3374,5 +3374,682 @@ Modify the main scanner function to not skip whitespace when scanning code conte
 ID: toolu_01RBhQTm3NkJk5czGiY5Zw6x
 
 <tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Preserve whitespace in code content
 
+Modify the main scanner function to not skip whitespace when scanning code content, ensuring that leading/trailing spaces within code blocks are preserved as part of the content.
 </tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+
+# ASSISTANT
+
+Now let's test the fix:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JYVYgtw8K9REDp1jQRw9Qd
+
+## command
+
+<tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+cd . && echo '# USER
+
+`    a`' | tree-sitter parse /dev/stdin
+</tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+
+## timeout
+
+<tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+10
+</tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+
+# TOOL RESULT
+
+ID: toolu_01JYVYgtw8K9REDp1jQRw9Qd
+
+<tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 6])
+      (code_end_tag [2, 6] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01JYVYgtw8K9REDp1jQRw9Qd>
+
+# ASSISTANT
+
+Perfect! Now the code content is `[2, 1] - [2, 6]` which includes the leading spaces: `"    a"`.
+
+Let's test a few more cases to make sure this works correctly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01UKCsdhW4SQFfn2fr8LMcVF
+
+## command
+
+<tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+cd . && echo '# USER
+
+`  a  `' | tree-sitter parse /dev/stdin
+</tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+
+## timeout
+
+<tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+10
+</tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+
+# TOOL RESULT
+
+ID: toolu_01UKCsdhW4SQFfn2fr8LMcVF
+
+<tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 6])
+      (code_end_tag [2, 6] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01UKCsdhW4SQFfn2fr8LMcVF>
+
+# ASSISTANT
+
+Great! The content `[2, 1] - [2, 6]` is now `"  a  "` - both leading and trailing spaces are preserved.
+
+Let's test with double backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_019HFvgYAbzLDeiNU6Xh8Z6E
+
+## command
+
+<tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+cd . && echo '# USER
+
+``  a  ``' | tree-sitter parse /dev/stdin
+</tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+
+## timeout
+
+<tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+10
+</tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+
+# TOOL RESULT
+
+ID: toolu_019HFvgYAbzLDeiNU6Xh8Z6E
+
+<tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 9]
+      (code_start_tag [2, 0] - [2, 2])
+      (code_content [2, 2] - [2, 7])
+      (code_end_tag [2, 7] - [2, 9]))
+    (text [2, 9] - [3, 0])))
+
+</tool.toolu_019HFvgYAbzLDeiNU6Xh8Z6E>
+
+# ASSISTANT
+
+Excellent! The double backtick case also works correctly - content `[2, 2] - [2, 7]` is `"  a  "`.
+
+Let's test with triple backticks to make sure they still work:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NCdLMHqW9bY4KCm3VvBXHL
+
+## command
+
+<tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+cd . && echo '# USER
+
+```  a  ```' | tree-sitter parse /dev/stdin
+</tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+
+## timeout
+
+<tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+10
+</tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+
+# TOOL RESULT
+
+ID: toolu_01NCdLMHqW9bY4KCm3VvBXHL
+
+<tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 11]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [2, 8])
+      (code_end_tag [2, 8] - [2, 11]))
+    (text [2, 11] - [3, 0])))
+
+</tool.toolu_01NCdLMHqW9bY4KCm3VvBXHL>
+
+# ASSISTANT
+
+Perfect! Triple backticks also preserve the whitespace correctly.
+
+Let's run the full test suite to make sure we haven't broken anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01F6pNgifNoKGrbN7353izoe
+
+## command
+
+<tool.toolu_01F6pNgifNoKGrbN7353izoe>
+cd . && tree-sitter test
+</tool.toolu_01F6pNgifNoKGrbN7353izoe>
+
+## timeout
+
+<tool.toolu_01F6pNgifNoKGrbN7353izoe>
+15
+</tool.toolu_01F6pNgifNoKGrbN7353izoe>
+
+# TOOL RESULT
+
+ID: toolu_01F6pNgifNoKGrbN7353izoe
+
+<tool.toolu_01F6pNgifNoKGrbN7353izoe>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+     17. ✓ Backtick at end of line
+     18. ✓ Single backtick with double backticks inside
+     19. ✓ Triple backticks with content on same line
+     20. ✓ Single backtick extends to end of line
+  complex-workflow:
+     21. ✓ Complex workflow
+  eval-nested-braces:
+     22. ✓ Eval nested braces
+  eval-partial:
+     23. ✓ Eval partial cases -- Warning: Slow parse rate (1119.586 bytes/ms)
+  eval-results:
+     24. ✓ Eval results
+  eval:
+     25. ✓ Eval
+  html-comments:
+     26. ✓ HTML comments
+  html-tags:
+     27. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     28. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     29. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     30. ✓ Multiple tool uses
+  nested-code-blocks:
+     31. ✓ Nested code blocks
+  safe-shell-commands:
+     32. ✓ Safe shell commands
+  server-tool-use-basic:
+     33. ✓ Server tool use basic
+  server-tool-use-string-result:
+     34. ✓ Server tool use string result
+  simple-conversation:
+     35. ✓ Simple conversation
+  simple-user-message:
+     36. ✓ Simple user message
+  system-and-user:
+     37. ✓ System and user
+  text-with-markdown-headings:
+     38. ✓ Text with markdown headings
+  thinking-only:
+     39. ✓ Thinking only
+  thinking-section:
+     40. ✓ Thinking section
+  tool-use-multiple-params:
+     41. ✓ Tool use multiple params
+  tool-use-only:
+     42. ✓ Tool use only
+  tool-use-single-param:
+     43. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     44. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     45. ✓ Tool use with tool use in params
+  triple-hash:
+     46. ✓ Triple hash not in citation
+  untagged-content:
+     47. ✓ Untagged content
+  xml-tags-backticks:
+     48. ✓ Tags in backticks
+
+Total parses: 48; successful parses: 48; failed parses: 0; success percentage: 100.00%; average speed: 19700 bytes/ms
+
+
+</tool.toolu_01F6pNgifNoKGrbN7353izoe>
+
+# ASSISTANT
+
+Excellent! All tests are still passing. Let's also test that normal text parsing (outside of code blocks) still works correctly and whitespace is still handled properly:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AmDKHVDYYY7PSNbEfNUxWQ
+
+## command
+
+<tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+cd . && echo '# USER
+
+    This is normal text with leading spaces' | tree-sitter parse /dev/stdin
+</tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+
+## timeout
+
+<tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+10
+</tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+
+# TOOL RESULT
+
+ID: toolu_01AmDKHVDYYY7PSNbEfNUxWQ
+
+<tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [3, 0])))
+
+</tool.toolu_01AmDKHVDYYY7PSNbEfNUxWQ>
+
+# ASSISTANT
+
+Good! Normal text parsing still works correctly - the leading spaces are not causing issues.
+
+## Summary
+
+I've successfully fixed the whitespace preservation issue in code content. Here's what was done:
+
+### The Problem
+Leading and trailing whitespace within code blocks was being stripped. For example:
+- `    a` was parsing with code content just `"a"` instead of `"    a"`
+- `  a  ` was parsing with code content just `"a"` instead of `"  a  "`
+
+### The Root Cause
+The main scanner function had this code at the beginning:
+```c
+// Skip whitespace but preserve newlines for other tokens
+while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+    skip(lexer);
+}
+```
+
+This was skipping whitespace before determining which token to scan, including when scanning code content where whitespace should be preserved.
+
+### The Solution
+I modified the whitespace skipping logic to only skip whitespace when NOT in code content mode:
+```c
+// Skip whitespace but preserve newlines for other tokens
+// Don't skip whitespace when scanning code content
+if (!scanner->in_code_content) {
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+}
+```
+
+### Results
+Now whitespace is properly preserved in all code block types:
+- ✅ `    a` → code content: `"    a"` (preserves leading spaces)
+- ✅ `  a  ` → code content: `"  a  "` (preserves leading and trailing spaces)
+- ✅ ``  a  `` → code content: `"  a  "` (works for double backticks)
+- ✅ ```  a  ``` → code content: `"  a  "` (works for triple backticks)
+- ✅ All existing functionality continues to work
+- ✅ Normal text parsing outside code blocks is unaffected
+
+The fix ensures that whitespace within code blocks is treated as significant content, which is the expected behavior for code formatting.
+
+# USER
+
+Look in debug.greger now. There's another issue where
+
+BACKTICK BACKTICK BACKTICK
+
+BACKTICK BACKTICK BACKTICK BACKTICK
+
+BACKTICK BACKTICK BACKTICK
+
+throws an error.
+
+Parsed, this should be:
+
+* (code_start_tag): BACKTICK BACKTICK BACKTICK
+* (code_content): BACKTICK BACKTICK BACKTICK BACKTICK
+* (code_end_tag): BACKTICK BACKTICK BACKTICK
+
+As in, anything inside triple backticks should be parsed as code_content until another triple backtick is encountered.
+
+The first 3 characters of the quadruple backtick should not be parsed as triple backtick since they have another backtick afterwards, without a space before.
+
+# THINKING
+
+Signature: EvsFCkYIBRgCKkBGz9IBiSyAfoF4FpQYs44TyoEW7ZmQ5gNmrdupOt0VM5KgdF60e8EIaxGshbMo10yJwmU6hCzhaOwmi08b3IqvEgwIGCtXu2HQK20P290aDL6AfV6UxaRBvjGBiyIwfDu10/XEq7B4AMVfJCT3E95yibzS+Y9CjC75EBvoTTtCgDKuRL6KqVK0mzXhFHaYKuIEMJD+obFvXxIymfuBzvEl46SLGf2LLLK/2b1rEsMEp+4A9tJW9M2pEQVxQ/vjLjTnozs5lxckx6pF+XQAEEu/LwBMAX+dNPXr6vmWnNBU/nIcl+VEPFzokk3V14t/yuIYkPROjK/vsTrpoDa1aXb1aokvXhpa2X06mR49Yy/IkaWc3jKX3lHPT1jibeAKURQBM5WsIk8EJAt0JWacG1pziSu6UYZ5NLwJWzlJICdfnZwz097XQLRFsHWfNLwOWD+gBOAhBxoevUOMH7/X6EQt56lEEAI7n9grafcSHbQNv09NxR1vanSsycx0uuvjfZOMC9Ouvr06Koxl36z+f0jaxUsuNOs8pludleWlGb1r5YhVz7iu4D4QWBNV7F1bH07eF43z0GfGHBxj7UJNgkp76H5G8y6t6l1go7iGlkfdtjWSMHy7QpEW9aq66gODqpfZSLn25oNVg3yZy6BWwpjujnlO8oPtV+qjYcyO27JfLCv3GTRrmTxXY4OaLoPYObuV4EN8jxgAdgzIK8bzi66kkNGivmcu/5dXGlujAaaLPK1z4EQMfSQac1dsXNGcmSknMR+BD63h3i1hc1ros1+7EY0eVh0RGZwd4yeWQxMqhr7tM5z7I2omoQbXCQJjmBepTWlY5LNOg8MWAYqYgz4RG17RRfsAwswwWa/8wLHTANjzNesprlqYZEcm53H4IUftbAJFmIWHSNQIlQ9frUW2G1ohu6wPtUrtXv7XKCIOM3zh5N8d7NQMz8JJ7wdabFrp5mmU5m6Tr+IiIThXgnISVxh7xv00ceFQRCCF+RW2fXuftBgB
+
+Let me understand the issue:
+
+1. We have:
+   ```
+   ```
+   ````
+   ```
+   ```
+
+2. This should be parsed as:
+   - Opening: ``` (3 backticks)
+   - Content: ```` (4 backticks - treated as content)
+   - Closing: ``` (3 backticks)
+
+3. The problem is that the scanner is probably trying to parse the first 3 backticks of the ```` as a closing pattern, which is incorrect.
+
+4. The rule should be: when we're inside a 3-backtick code block, we only close when we encounter exactly 3 backticks that are NOT followed by more backticks.
+
+Let me check the debug.greger file first to see the exact content.
+
+# ASSISTANT
+
+Let me first check what's in the debug.greger file:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_015Cqk3sKRzsTAd6yn3fTnoR
+
+## path
+
+<tool.toolu_015Cqk3sKRzsTAd6yn3fTnoR>
+./debug.greger
+</tool.toolu_015Cqk3sKRzsTAd6yn3fTnoR>
+
+# TOOL RESULT
+
+ID: toolu_015Cqk3sKRzsTAd6yn3fTnoR
+
+<tool.toolu_015Cqk3sKRzsTAd6yn3fTnoR>
+# USER
+
+```
+````
+```
+</tool.toolu_015Cqk3sKRzsTAd6yn3fTnoR>
+
+# ASSISTANT
+
+I see the issue! Let me test this case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014oZVE3zMXyjnPS2TKzjJ9x
+
+## command
+
+<tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+cd . && tree-sitter parse debug.greger
+</tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+
+## timeout
+
+<tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+10
+</tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+
+# TOOL RESULT
+
+ID: toolu_014oZVE3zMXyjnPS2TKzjJ9x
+
+<tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+(source_file [0, 0] - [5, 0]
+  (ERROR [0, 0] - [4, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [3, 0])
+    (ERROR [3, 0] - [4, 3])))
+debug.greger	Parse:    0.20 ms	   104 bytes/ms	(ERROR [0, 0] - [4, 3])
+Command failed with exit code 1
+</tool.toolu_014oZVE3zMXyjnPS2TKzjJ9x>
+
+# ASSISTANT
+
+You're absolutely right! The issue is that the scanner is incorrectly trying to close the triple backtick code block at the first three backticks of the ```` line, instead of treating the entire ```` as content.
+
+The problem is in the closing pattern detection logic. When we're inside a 3-backtick code block and encounter ```` (4 backticks), the scanner should recognize that this is NOT a valid closing pattern because:
+
+1. We need exactly 3 backticks to close a 3-backtick block
+2. The first 3 backticks of ```` are followed by another backtick, so they shouldn't be treated as a closing pattern
+
+Let me examine the current logic in the code content scanner:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01AAA4yxxJm16oE1hPopfVWu
+
+## path
+
+<tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+./src/scanner.c
+</tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+
+## start-line
+
+<tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+743
+</tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+
+## end-line
+
+<tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+800
+</tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+
+## include-line-numbers
+
+<tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+true
+</tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+
+# TOOL RESULT
+
+ID: toolu_01AAA4yxxJm16oE1hPopfVWu
+
+<tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+743:         // Check for regular closing pattern
+744:         if (lexer->lookahead == expected_closing[match_index]) {
+745:             match_index++;
+746:             if (match_index == expected_len) {
+747:                 // Found complete closing pattern, but need to check if it's a valid close
+748:                 bool is_valid_close = true;
+749:                 
+750:                 // For single and double backticks, only close if followed by whitespace, 
+751:                 // end of input, or certain punctuation
+752:                 if (scanner->code_backtick_count <= 2) {
+753:                     // Look ahead to see what comes after the potential closing backticks
+754:                     TSLexer saved_lexer = *lexer;
+755:                     
+756:                     // We're currently at the last backtick of the potential closing sequence
+757:                     // We need to advance past it to see what comes next
+758:                     advance(lexer);
+759:                     
+760:                     // Check what comes after the closing backticks
+761:                     if (lexer->lookahead != 0 && 
+762:                         !iswspace(lexer->lookahead) && 
+763:                         lexer->lookahead != '.' && 
+764:                         lexer->lookahead != ',' && 
+765:                         lexer->lookahead != '!' && 
+766:                         lexer->lookahead != '?' && 
+767:                         lexer->lookahead != ';' && 
+768:                         lexer->lookahead != ':' && 
+769:                         lexer->lookahead != ')' && 
+770:                         lexer->lookahead != ']' && 
+771:                         lexer->lookahead != '}' && 
+772:                         lexer->lookahead != '<' && 
+773:                         lexer->lookahead != '>') {
+774:                         // Not followed by whitespace or punctuation, treat as content
+775:                         is_valid_close = false;
+776:                     }
+777:                     
+778:                     // Restore lexer position
+779:                     *lexer = saved_lexer;
+780:                 }
+781:                 
+782:                 if (is_valid_close) {
+783:                     // Valid closing pattern, stop here (don't consume it)
+784:                     if (has_content) {
+785:                         lexer->result_symbol = CODE_CONTENT;
+786:                         return true;
+787:                     } else {
+788:                         return false;
+789:                     }
+790:                 } else {
+791:                     // Not a valid close, treat as content
+792:                     match_index = 0;
+793:                     advance(lexer);
+794:                     has_content = true;
+795:                     lexer->mark_end(lexer);
+796:                 }
+797:             } else {
+798:                 // Still building the closing pattern, advance to next character
+799:                 advance(lexer);
+800:             }
+</tool.toolu_01AAA4yxxJm16oE1hPopfVWu>
+
+# ASSISTANT
+
+I can see the issue! The current logic only applies the "valid close" check to single and double backticks (line 752: `if (scanner->code_backtick_count <= 2)`). For triple+ backticks, it doesn't check what comes after the closing pattern.
+
+The problem is that when we encounter ```` inside a triple-backtick code block:
+1. The first 3 backticks match the expected closing pattern
+2. The code doesn't check what comes after those 3 backticks
+3. It treats the first 3 backticks as a closing pattern
+4. The 4th backtick becomes an unexpected character, causing a parse error
+
+I need to extend the "valid close" logic to also apply to triple+ backticks. The rule should be: for any code block, the closing backticks should not be followed by more backticks (unless separated by whitespace).
+
+Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HNobYZEvaw5RrDYxABPP9k
+
+## path
+
+<tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+./src/scanner.c
+</tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+
+## git-commit-message
+
+<tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+Fix triple+ backtick closing pattern detection
+
+Extend the valid close check to triple+ backticks to prevent cases like ```` from incorrectly closing a triple backtick code block. The closing pattern should not be followed by additional backticks.
+</tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+
+## diff
+
+<tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+-                // For single and double backticks, only close if followed by whitespace, 
+-                // end of input, or certain punctuation
++                // For all backtick counts, check if the closing pattern is valid
++                // Look ahead to see what comes after the potential closing backticks
++                TSLexer saved_lexer = *lexer;
++                
++                // We're currently at the last backtick of the potential closing sequence
++                // We need to advance past it to see what comes next
++                advance(lexer);
++                
+                 if (scanner->code_backtick_count <= 2) {
+-                    // Look ahead to see what comes after the potential closing backticks
+-                    TSLexer saved_lexer = *lexer;
+-                    
+-                    // We're currently at the last backtick of the potential closing sequence
+-                    // We need to advance past it to see what comes next
+-                    advance(lexer);
+-                    
+-                    // Check what comes after the closing backticks
++                    // For single and double backticks, only close if followed by whitespace, 
++                    // end of input, or certain punctuation
+                     if (lexer->lookahead != 0 && 
+                         !iswspace(lexer->lookahead) && 
+                         lexer->lookahead != '.' && 
+                         lexer->lookahead != ',' && 
+                         lexer->lookahead != '!' && 
+                         lexer->lookahead != '?' && 
+                         lexer->lookahead != ';' && 
+                         lexer->lookahead != ':' && 
+                         lexer->lookahead != ')' && 
+                         lexer->lookahead != ']' && 
+                         lexer->lookahead != '}' && 
+                         lexer->lookahead != '<' && 
+                         lexer->lookahead != '>') {
+                         // Not followed by whitespace or punctuation, treat as content
+                         is_valid_close = false;
+                     }
+-                    
+-                    // Restore lexer position
+-                    *lexer = saved_lexer;
+-                }
+\ No newline at end of file
++                } else {
++                    // For triple+ backticks, don't close if followed by more backticks
++                    if (lexer->lookahead == '`') {
++                        // Followed by another backtick, treat as content
++                        is_valid_close = false;
++                    }
++                }
++                
++                // Restore lexer position
++                *lexer = saved_lexer;
+\ No newline at end of file
+
+</tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+
+# TOOL RESULT
+
+ID: toolu_01HNobYZEvaw5RrDYxABPP9k
+
+<tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
+
+</tool.toolu_01HNobYZEvaw5RrDYxABPP9k>
