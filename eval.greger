@@ -9368,49 +9368,29 @@ ID: toolu_017WsZcG74FmWtthhBuhzagg
 Remove CODE_CLOSE_TAG from scanner enum
 </tool.toolu_017WsZcG74FmWtthhBuhzagg>
 
-## original-content
+## diff
 
 <tool.toolu_017WsZcG74FmWtthhBuhzagg>
-enum TokenType {
-    TOOL_START_TAG,
-    TOOL_END_TAG,
-    TOOL_CONTENT_HEAD,
-    TOOL_CONTENT_TAIL,
-    HTML_COMMENT,
-    EVAL_CONTENT,
-    EVAL_RESULT_START_TAG,
-    EVAL_RESULT_END_TAG,
-    EVAL_RESULT_CONTENT_HEAD,
-    EVAL_RESULT_CONTENT_TAIL,
-    ERROR_SENTINEL,
-    CODE_START_TAG,
-    CODE_CONTENT,
-    CODE_END_TAG,
-    CODE_CLOSE_TAG,
-    EVAL_LANGUAGE,
-};
-</tool.toolu_017WsZcG74FmWtthhBuhzagg>
+ enum TokenType {
+     TOOL_START_TAG,
+     TOOL_END_TAG,
+     TOOL_CONTENT_HEAD,
+     TOOL_CONTENT_TAIL,
+     HTML_COMMENT,
+     EVAL_CONTENT,
+     EVAL_RESULT_START_TAG,
+     EVAL_RESULT_END_TAG,
+     EVAL_RESULT_CONTENT_HEAD,
+     EVAL_RESULT_CONTENT_TAIL,
+     ERROR_SENTINEL,
+     CODE_START_TAG,
+     CODE_CONTENT,
+     CODE_END_TAG,
+-    CODE_CLOSE_TAG,
+     EVAL_LANGUAGE,
+ };
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_017WsZcG74FmWtthhBuhzagg>
-enum TokenType {
-    TOOL_START_TAG,
-    TOOL_END_TAG,
-    TOOL_CONTENT_HEAD,
-    TOOL_CONTENT_TAIL,
-    HTML_COMMENT,
-    EVAL_CONTENT,
-    EVAL_RESULT_START_TAG,
-    EVAL_RESULT_END_TAG,
-    EVAL_RESULT_CONTENT_HEAD,
-    EVAL_RESULT_CONTENT_TAIL,
-    ERROR_SENTINEL,
-    CODE_START_TAG,
-    CODE_CONTENT,
-    CODE_END_TAG,
-    EVAL_LANGUAGE,
-};
 </tool.toolu_017WsZcG74FmWtthhBuhzagg>
 
 # TOOL RESULT
@@ -9418,5 +9398,86 @@ enum TokenType {
 ID: toolu_017WsZcG74FmWtthhBuhzagg
 
 <tool.toolu_017WsZcG74FmWtthhBuhzagg>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove CODE_CLOSE_TAG from scanner enum
 </tool.toolu_017WsZcG74FmWtthhBuhzagg>
+
+# ASSISTANT
+
+Now let me remove the scan_code_close_tag function:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01UqEUYGdyJk66k2PkcxQ1yA
+
+## path
+
+<tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+./src/scanner.c
+</tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+
+## git-commit-message
+
+<tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+Remove scan_code_close_tag function since it's now a regular token
+</tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+
+## diff
+
+<tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+-static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+-    // Only recognize code close tag when there's actually an open code block
+-    if (!scanner->in_code_content) return false;
+-    
+-    if (lexer->lookahead != '<') return false;
+-    advance(lexer);
+-    
+-    if (lexer->lookahead != '$') return false;
+-    advance(lexer);
+-    
+-    // Check for "code-close"
+-    if (lexer->lookahead != 'c') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'o') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'd') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'e') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != '-') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'c') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'l') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'o') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 's') return false;
+-    advance(lexer);
+-    if (lexer->lookahead != 'e') return false;
+-    advance(lexer);
+-    
+-    if (lexer->lookahead != '/') return false;
+-    advance(lexer);
+-    
+-    if (lexer->lookahead != '>') return false;
+-    advance(lexer);
+-    
+-    // Force close any open code block
+-    scanner->code_backtick_count = 0;
+-    scanner->in_code_content = false;
+-    lexer->mark_end(lexer);
+-    lexer->result_symbol = CODE_CLOSE_TAG;
+-    return true;
+-}
+\ No newline at end of file
+
+</tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+
+# TOOL RESULT
+
+ID: toolu_01UqEUYGdyJk66k2PkcxQ1yA
+
+<tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
+
+</tool.toolu_01UqEUYGdyJk66k2PkcxQ1yA>
