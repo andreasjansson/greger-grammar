@@ -303,7 +303,7 @@ module.exports = grammar({
     code: $ => seq(
       $.code_start_tag,
       optional($.code_content),
-      choice($.code_end_tag, $.code_close_tag),
+      $.code_close_tag,
     ),
 
 

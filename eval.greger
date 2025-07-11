@@ -7306,5 +7306,471 @@ Temporarily remove in_code_content check to debug the issue
 ID: toolu_019aUtDNKV8QAMJ3aYqLsDCg
 
 <tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Temporarily remove in_code_content check to debug the issue
 </tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01C1WKhRGzZdgLHRM1TEDgfp
+
+## command
+
+<tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+
+## timeout
+
+<tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+10
+</tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+
+# TOOL RESULT
+
+ID: toolu_01C1WKhRGzZdgLHRM1TEDgfp
+
+<tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.83 ms	    43 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01C1WKhRGzZdgLHRM1TEDgfp>
+
+# ASSISTANT
+
+Still the same issue. Let me test if the code close tag is being recognized at all when used alone:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01FJX7Xreq8uYZJK7c4PPRpo
+
+## command
+
+<tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+cd . && printf '# ASSISTANT\n\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+
+## timeout
+
+<tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+10
+</tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+
+# TOOL RESULT
+
+ID: toolu_01FJX7Xreq8uYZJK7c4PPRpo
+
+<tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+(source_file [0, 0] - [2, 14]
+  (assistant [0, 0] - [2, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 14])))
+
+</tool.toolu_01FJX7Xreq8uYZJK7c4PPRpo>
+
+# ASSISTANT
+
+So when there's no code block, it gets parsed as text. This means the grammar is working correctly in that case. The issue is specifically when there's an open code block.
+
+Let me check if the issue is in the grammar rule. Maybe the problem is in how the grammar is handling the choice between code_end_tag and code_close_tag. Let me look at the grammar rule again and see if I need to adjust it:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_017tPKHf2Eznp4D1SwQgLqWV
+
+## path
+
+<tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+./grammar.js
+</tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+
+## start-line
+
+<tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+303
+</tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+
+## end-line
+
+<tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+308
+</tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+
+## include-line-numbers
+
+<tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+true
+</tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+
+# TOOL RESULT
+
+ID: toolu_017tPKHf2Eznp4D1SwQgLqWV
+
+<tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+303:     code: $ => seq(
+304:       $.code_start_tag,
+305:       optional($.code_content),
+306:       choice($.code_end_tag, $.code_close_tag),
+307:     ),
+308: 
+</tool.toolu_017tPKHf2Eznp4D1SwQgLqWV>
+
+# ASSISTANT
+
+The grammar rule looks correct. Let me test a simple example to isolate the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_017wU6CKqXtFFnRXmJqx51cR
+
+## command
+
+<tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+cd . && printf '```\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+
+## timeout
+
+<tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+10
+</tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+
+# TOOL RESULT
+
+ID: toolu_017wU6CKqXtFFnRXmJqx51cR
+
+<tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+(source_file [0, 0] - [1, 14]
+  (ERROR [0, 0] - [1, 14]
+    (ERROR [1, 0] - [1, 14])))
+/dev/stdin	Parse:    0.02 ms	   919 bytes/ms	(ERROR [0, 0] - [1, 14])
+Command failed with exit code 1
+</tool.toolu_017wU6CKqXtFFnRXmJqx51cR>
+
+# ASSISTANT
+
+The issue is that it's not being recognized at all at the root level. But let me try one more test - what if I test the code close tag from a context where it should be recognized:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RrG7kUMr9oxPU4PNCWK6f8
+
+## command
+
+<tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+cd . && printf '```\n<$code-close/>\n```' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+
+## timeout
+
+<tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+10
+</tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+
+# TOOL RESULT
+
+ID: toolu_01RrG7kUMr9oxPU4PNCWK6f8
+
+<tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+(source_file [0, 0] - [2, 3]
+  (ERROR [0, 0] - [2, 3]
+    (ERROR [1, 0] - [2, 3])))
+/dev/stdin	Parse:    0.03 ms	   711 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01RrG7kUMr9oxPU4PNCWK6f8>
+
+# ASSISTANT
+
+I think the issue is that the grammar is not correctly handling this at the top level. I need to make sure that the code blocks can be used at the top level. Let me check where code blocks are allowed:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01Nz4H6rfuf6xZznqoVmorrk
+
+## pattern
+
+<tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+code"
+</tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+
+## path
+
+<tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+./grammar.js
+</tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+
+## context-lines
+
+<tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+5
+</tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+
+# TOOL RESULT
+
+ID: toolu_01Nz4H6rfuf6xZznqoVmorrk
+
+<tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+No matches found
+</tool.toolu_01Nz4H6rfuf6xZznqoVmorrk>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01XHKB1FVYZ4rFAXbhjQBahX
+
+## pattern
+
+<tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+code
+</tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+
+## path
+
+<tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+./grammar.js
+</tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+
+## context-lines
+
+<tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+2
+</tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+
+# TOOL RESULT
+
+ID: toolu_01XHKB1FVYZ4rFAXbhjQBahX
+
+<tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+27-    $.eval_result_content_tail,
+28-    $.error_sentinel,
+29:    $.code_start_tag,
+30:    $.code_content,
+31:    $.code_end_tag,
+32:    $.code_close_tag,
+33-    $.eval_language,
+34-  ],
+--
+208-    assistant_content_blocks: $ => repeat1(choice(
+209-      $.citation_entry,
+210:      $.code,
+211-      alias($.assistant_text, $.text),
+212-      $.html_comment,
+--
+216-      $.html_comment,
+217-      $.eval,
+218:      $.code,
+219-      $.safe_shell_commands,
+220-      $.text,
+--
+224-      $.html_comment,
+225-      $.eval,
+226:      $.code,
+227-      $.text,
+228-    )),
+--
+301-    eval_end_brace: $ => '}',
+302-
+303:    code: $ => seq(
+304:      $.code_start_tag,
+305:      optional($.code_content),
+306:      choice($.code_end_tag, $.code_close_tag),
+307-    ),
+308-
+
+</tool.toolu_01XHKB1FVYZ4rFAXbhjQBahX>
+
+# ASSISTANT
+
+Good, so code blocks are allowed in `assistant_content_blocks`, `system_content_blocks`, and `content_blocks`, but not at the top level. Let me test with a proper context:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_012NimPc3ZA6j7ibPowrvk1X
+
+## command
+
+<tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+cd . && printf '# ASSISTANT\n\n```\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+
+## timeout
+
+<tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+10
+</tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+
+# TOOL RESULT
+
+ID: toolu_012NimPc3ZA6j7ibPowrvk1X
+
+<tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+(source_file [0, 0] - [3, 14]
+  (ERROR [0, 0] - [3, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [3, 13])
+    (ERROR [3, 13] - [3, 14])))
+/dev/stdin	Parse:    0.58 ms	    53 bytes/ms	(ERROR [0, 0] - [3, 14])
+Command failed with exit code 1
+</tool.toolu_012NimPc3ZA6j7ibPowrvk1X>
+
+# ASSISTANT
+
+This is the same issue we had before. Let me check if the issue is in the code content scanner. Maybe the problem is that the scanner is being called at the wrong time. Let me check if there's an issue with when the scanner is called.
+
+Wait, let me look at the precise error again. The error is `(ERROR [3, 13] - [3, 14])` which means the error is specifically on position 13-14 in line 3. In the string `<$code-close/>` that would be the `>` character at the end.
+
+This means the scanner is successfully consuming `<$code-close/` but failing on the final `>`. Let me check if there's an issue with the scanner logic at that point:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01A2RcBbLG8bmFpGCwvN4eCC
+
+## path
+
+<tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+./src/scanner.c
+</tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+
+## start-line
+
+<tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+838
+</tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+
+## end-line
+
+<tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+848
+</tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+
+## include-line-numbers
+
+<tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+true
+</tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+
+# TOOL RESULT
+
+ID: toolu_01A2RcBbLG8bmFpGCwvN4eCC
+
+<tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+838:     if (lexer->lookahead != '>') return false;
+839:     advance(lexer);
+840:     
+841:     // Force close any open code block
+842:     scanner->code_backtick_count = 0;
+843:     scanner->in_code_content = false;
+844:     lexer->result_symbol = CODE_CLOSE_TAG;
+845:     return true;
+846: }
+847: 
+848: 
+</tool.toolu_01A2RcBbLG8bmFpGCwvN4eCC>
+
+# ASSISTANT
+
+That looks correct. Let me check if there's an issue with how the scanner is being used. Let me look at the scan_tool_end_tag function to see if there's something different:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Jjbyrq8t85Hk3NNbA367Mc
+
+## path
+
+<tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+./src/scanner.c
+</tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+
+## start-line
+
+<tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+262
+</tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+
+## end-line
+
+<tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+272
+</tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+
+## include-line-numbers
+
+<tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+true
+</tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+
+# TOOL RESULT
+
+ID: toolu_01Jjbyrq8t85Hk3NNbA367Mc
+
+<tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+262:     while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+263:         advance(lexer);
+264:     }
+265: 
+266:     if (lexer->lookahead != '>') return false;
+267:     advance(lexer);
+268: 
+269:     scanner->in_tool_content = false;
+270:     scanner->expecting_tail = false;
+271:     scanner->tool_id[0] = '\0';
+272:     lexer->result_symbol = TOOL_END_TAG;
+</tool.toolu_01Jjbyrq8t85Hk3NNbA367Mc>
+
+# ASSISTANT
+
+This looks similar to what I have. Let me try a different debugging approach. I'll check if there might be an issue with the parser calling the scanner. Let me check if the logic for `choice($.code_end_tag, $.code_close_tag)` is working correctly.
+
+Let me remove the choice for now and just use code_close_tag to see if that works:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01F7g2ZLn9xJXEhi3mM2eL9T
+
+## path
+
+<tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+./grammar.js
+</tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+
+## git-commit-message
+
+<tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+Temporarily test with just code_close_tag to debug the issue
+</tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+
+## diff
+
+<tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+     code: $ => seq(
+       $.code_start_tag,
+       optional($.code_content),
+-      choice($.code_end_tag, $.code_close_tag),
++      $.code_close_tag,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+
+# TOOL RESULT
+
+ID: toolu_01F7g2ZLn9xJXEhi3mM2eL9T
+
+<tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+
+</tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
