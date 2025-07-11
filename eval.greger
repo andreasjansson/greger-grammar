@@ -8411,5 +8411,172 @@ Update code grammar to allow backticks within content like markdown parser
 ID: toolu_01Xdo75oozNkm6FpBeU9QRjt
 
 <tool.toolu_01Xdo75oozNkm6FpBeU9QRjt>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Update code grammar to allow backticks within content like markdown parser
 </tool.toolu_01Xdo75oozNkm6FpBeU9QRjt>
+
+# ASSISTANT
+
+Let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01J6dW9KRs6SX2FMM3VCJ878
+
+## command
+
+<tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+
+## timeout
+
+<tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+10
+</tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+
+# TOOL RESULT
+
+ID: toolu_01J6dW9KRs6SX2FMM3VCJ878
+
+<tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.12 ms	   213 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01J6dW9KRs6SX2FMM3VCJ878>
+
+# ASSISTANT
+
+The issue is that the space after the opening backticks is at position [2, 2] but the next token starts at [2, 3]. Let me see what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MXEKNP12rhsJheA5LuqozW
+
+## command
+
+<tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+cd . && printf '# ASSISTANT\n\n``hello world``' | tree-sitter parse /dev/stdin
+</tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+
+## timeout
+
+<tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+10
+</tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+
+# TOOL RESULT
+
+ID: toolu_01MXEKNP12rhsJheA5LuqozW
+
+<tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+(source_file [0, 0] - [2, 15]
+  (assistant [0, 0] - [2, 15]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 15]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 13] - [2, 15]))))
+
+</tool.toolu_01MXEKNP12rhsJheA5LuqozW>
+
+# ASSISTANT
+
+That works! The issue is that my `_code_content` rule is still not matching the content. Let me debug this by checking what should be at position [2, 2]:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RSv9ywRnW5hY8sW7YtNN63
+
+## command
+
+<tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+cd . && printf '# ASSISTANT\n\n``hello``' | tree-sitter parse /dev/stdin
+</tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+
+## timeout
+
+<tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+10
+</tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+
+# TOOL RESULT
+
+ID: toolu_01RSv9ywRnW5hY8sW7YtNN63
+
+<tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+(source_file [0, 0] - [2, 9]
+  (assistant [0, 0] - [2, 9]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 9]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 7] - [2, 9]))))
+
+</tool.toolu_01RSv9ywRnW5hY8sW7YtNN63>
+
+# ASSISTANT
+
+The issue is that my `_code_content` rule is not being used. I suspect there's an issue with the precedence or the way I'm handling it. Let me check the grammar rule more carefully.
+
+Actually, let me look at the exact difference again. In the working case ```hello world``` the content is "hello world" with no backticks. In the failing case `` `code` ``, the content is " `code` " which contains backticks.
+
+Let me try a different approach. Let me use a more explicit content rule:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01GJfPgvMww5desQ4wm6vdFL
+
+## path
+
+<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+./grammar.js
+</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+## git-commit-message
+
+<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+Use explicit content tokens for code blocks
+</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+## original-content
+
+<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+    code: $ => seq(
+      $.code_backticks_start,
+      repeat(choice(
+        $._code_content,
+        /\n/,
+      )),
+      $.code_backticks_end,
+    ),
+
+    _code_content: $ => token(prec(-1, /[^\n]+/)),
+</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+## new-content
+
+<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+    code: $ => seq(
+      $.code_backticks_start,
+      repeat(choice(
+        /[^`\n]+/,  // non-backtick, non-newline characters
+        /`/,        // single backticks as content
+        /\n/,       // newlines
+      )),
+      $.code_backticks_end,
+    ),
+</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+# TOOL RESULT
+
+ID: toolu_01GJfPgvMww5desQ4wm6vdFL
+
+<tool.toolu_01GJfPgvMww5desQ4wm6vdFL>
+
+</tool.toolu_01GJfPgvMww5desQ4wm6vdFL>

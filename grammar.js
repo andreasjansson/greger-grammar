@@ -301,13 +301,12 @@ module.exports = grammar({
     code: $ => seq(
       $.code_backticks_start,
       repeat(choice(
-        $._code_content,
-        /\n/,
+        /[^`\n]+/,  // non-backtick, non-newline characters
+        /`/,        // single backticks as content
+        /\n/,       // newlines
       )),
       $.code_backticks_end,
     ),
-
-    _code_content: $ => token(prec(-1, /[^\n]+/)),
     
 
 
