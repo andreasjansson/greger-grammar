@@ -692,37 +692,9 @@ static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
         
         // Restore position - we only checked, didn't consume
         *lexer = saved_lexer;
-    } else {
-        // For inline code (1-2 backticks), use lookahead to find closing delimiter
-        TSLexer saved_lexer = *lexer;
-        
-        int close_level = 0;
-        while (!lexer->eof(lexer)) {
-            if (lexer->lookahead == '`') {
-                close_level++;
-            } else {
-                if (close_level == level) {
-                    // Found matching closing delimiter
-                    *lexer = saved_lexer; // Restore position
-                    break;
-                }
-                close_level = 0;
-            }
-            advance(lexer);
-        }
-        
-        // Check if we ended with the right level
-        if (close_level != level) {
-            // No matching closing delimiter found, restore position
-            *lexer = saved_lexer;
-            return false;
-        }
-        
-        // Restore position
-        *lexer = saved_lexer;
     }
     
-    // Valid code block start
+    // Valid code block start - don't do lookahead for inline code
     scanner->fenced_code_block_delimiter_length = level;
     scanner->in_code_content = true;
     lexer->result_symbol = CODE_BACKTICKS_START;
