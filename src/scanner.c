@@ -665,11 +665,8 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 
 
 
-static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '`') return false;
-    
-    // Save the starting position so we can restore it if we don't match
-    TSLexer saved_lexer = *lexer;
     
     // Count the number of backticks
     int level = 0;
@@ -678,102 +675,174 @@ static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *v
         level++;
     }
     
-    lexer->mark_end(lexer);
-    
-    // PRIORITY 1: Check if this can close an existing code block (exact match of delimiter length)
-    if (level == scanner->fenced_code_block_delimiter_length && 
-        valid_symbols[CODE_BACKTICKS_END] &&
-        scanner->fenced_code_block_delimiter_length > 0) {
+    // For fenced code blocks (3+ backticks), check if info string contains backticks
+    if (level >= 3) {
+        // Save current position to restore later
+        TSLexer saved_lexer = *lexer;
         
-        // For fenced code blocks (3+ backticks), require newline/EOF after closing
-        if (scanner->fenced_code_block_delimiter_length >= 3) {
-            // Skip whitespace after closing backticks
-            while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
-                advance(lexer);
-            }
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
-                scanner->fenced_code_block_delimiter_length = 0;
-                lexer->result_symbol = CODE_BACKTICKS_END;
-                return true;
-            }
-        } else {
-            // For inline code (1-2 backticks), close immediately
-            scanner->fenced_code_block_delimiter_length = 0;
-            lexer->result_symbol = CODE_BACKTICKS_END;
-            return true;
-        }
-    }
-    
-    // PRIORITY 2: Check if this could be the start of a new code block
-    if (valid_symbols[CODE_BACKTICKS_START]) {
-        // For fenced code blocks (3+ backticks), check if info string contains backticks
-        if (level >= 3) {
-            bool info_string_has_backtick = false;
-            
-            // Save current position to restore later
-            TSLexer saved_lexer = *lexer;
-            
-            // Look for backticks in the info string (until newline)
-            while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-                   lexer->lookahead != 0) {
-                if (lexer->lookahead == '`') {
-                    info_string_has_backtick = true;
-                    break;
-                }
-                advance(lexer);
-            }
-            
-            // Restore position - we only checked, didn't consume
-            *lexer = saved_lexer;
-            
-            // Invalid if info string contains backticks
-            if (info_string_has_backtick) {
+        // Look for backticks in the info string (until newline)
+        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+               lexer->lookahead != 0) {
+            if (lexer->lookahead == '`') {
+                // Invalid if info string contains backticks
                 return false;
             }
-            
-            // Valid fenced code block start
-            scanner->fenced_code_block_delimiter_length = level;
-            lexer->result_symbol = CODE_BACKTICKS_START;
-            return true;
-        } else {
-            // For inline code (1-2 backticks), use lookahead like markdown parser
-            // Save current position to restore later
-            TSLexer saved_lexer = *lexer;
-            
-            int close_level = 0;
-            while (!lexer->eof(lexer)) {
-                if (lexer->lookahead == '`') {
-                    close_level++;
-                } else {
-                    if (close_level == level) {
-                        // Found matching closing delimiter
-                        *lexer = saved_lexer; // Restore position
-                        scanner->fenced_code_block_delimiter_length = level;
-                        lexer->result_symbol = CODE_BACKTICKS_START;
-                        return true;
-                    }
-                    close_level = 0;
+            advance(lexer);
+        }
+        
+        // Restore position - we only checked, didn't consume
+        *lexer = saved_lexer;
+    } else {
+        // For inline code (1-2 backticks), use lookahead to find closing delimiter
+        TSLexer saved_lexer = *lexer;
+        
+        int close_level = 0;
+        while (!lexer->eof(lexer)) {
+            if (lexer->lookahead == '`') {
+                close_level++;
+            } else {
+                if (close_level == level) {
+                    // Found matching closing delimiter
+                    *lexer = saved_lexer; // Restore position
+                    break;
                 }
-                advance(lexer);
+                close_level = 0;
             }
-            
-            // Check if we ended with the right level
-            if (close_level == level) {
-                *lexer = saved_lexer; // Restore position
-                scanner->fenced_code_block_delimiter_length = level;
-                lexer->result_symbol = CODE_BACKTICKS_START;
-                return true;
-            }
-            
+            advance(lexer);
+        }
+        
+        // Check if we ended with the right level
+        if (close_level != level) {
             // No matching closing delimiter found, restore position
             *lexer = saved_lexer;
             return false;
         }
+        
+        // Restore position
+        *lexer = saved_lexer;
     }
     
-    // PRIORITY 3: If neither open nor close is valid, restore position and don't consume the backticks
-    *lexer = saved_lexer;
+    // Valid code block start
+    scanner->fenced_code_block_delimiter_length = level;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_BACKTICKS_START;
+    return true;
+}
+
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    lexer->mark_end(lexer);
+    
+    // Build the expected closing delimiter
+    char expected_closing[256];
+    for (int i = 0; i < scanner->fenced_code_block_delimiter_length; i++) {
+        expected_closing[i] = '`';
+    }
+    expected_closing[scanner->fenced_code_block_delimiter_length] = '\0';
+    int expected_len = scanner->fenced_code_block_delimiter_length;
+    
+    int match_index = 0;
+    bool has_content = false;
+    
+    // Scan content until we find the closing delimiter
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing delimiter
+                // For fenced code blocks (3+ backticks), require newline/EOF after closing
+                if (scanner->fenced_code_block_delimiter_length >= 3) {
+                    // Save position to check what comes after
+                    TSLexer saved_lexer = *lexer;
+                    advance(lexer);
+                    
+                    // Skip whitespace after closing backticks
+                    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                        advance(lexer);
+                    }
+                    
+                    if (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0) {
+                        // Valid closing delimiter, restore position and stop
+                        *lexer = saved_lexer;
+                        break;
+                    } else {
+                        // Not a valid closing delimiter, restore and continue as content
+                        *lexer = saved_lexer;
+                        match_index = 0;
+                        advance(lexer);
+                        has_content = true;
+                        lexer->mark_end(lexer);
+                    }
+                } else {
+                    // For inline code (1-2 backticks), close immediately
+                    // Back up to before the closing backticks
+                    for (int i = 0; i < match_index; i++) {
+                        lexer->advance(lexer, true); // advance backwards
+                    }
+                    break;
+                }
+            } else {
+                advance(lexer);
+            }
+        } else {
+            // Reset match and process as content
+            if (match_index > 0) {
+                match_index = 0;
+            }
+            
+            // For inline code (1-2 backticks), don't allow newlines
+            if (scanner->fenced_code_block_delimiter_length <= 2 && 
+                (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                break;
+            }
+            
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
     return false;
+}
+
+static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of backticks
+    int level = 0;
+    while (lexer->lookahead == '`') {
+        advance(lexer);
+        level++;
+    }
+    
+    // Must match the opening delimiter length
+    if (level != scanner->fenced_code_block_delimiter_length) {
+        return false;
+    }
+    
+    // For fenced code blocks (3+ backticks), require newline/EOF after closing
+    if (scanner->fenced_code_block_delimiter_length >= 3) {
+        // Skip whitespace after closing backticks
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+            return false;
+        }
+    }
+    
+    // Valid closing delimiter
+    scanner->fenced_code_block_delimiter_length = 0;
+    scanner->in_code_content = false;
+    lexer->result_symbol = CODE_BACKTICKS_END;
+    return true;
 }
 
 
