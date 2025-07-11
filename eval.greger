@@ -8100,5 +8100,94 @@ Simplify code close tag pattern to just <$> for debugging
 ID: toolu_01DG2VyPX6VcC6urLwjBCM85
 
 <tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code close tag pattern to just <$> for debugging
 </tool.toolu_01DG2VyPX6VcC6urLwjBCM85>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Vb7Kx6g2dPZm5tepYBmgA6
+
+## command
+
+<tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+cd . && printf '# ASSISTANT\n\n```\n<$>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+
+## timeout
+
+<tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+10
+</tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+
+# TOOL RESULT
+
+ID: toolu_01Vb7Kx6g2dPZm5tepYBmgA6
+
+<tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+(source_file [0, 0] - [3, 3]
+  (assistant [0, 0] - [3, 3]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 3]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [3, 3])
+      (code_close_tag [3, 3] - [3, 3]))))
+/dev/stdin	Parse:    0.68 ms	    29 bytes/ms	(MISSING code_close_tag [3, 3] - [3, 3])
+Command failed with exit code 1
+</tool.toolu_01Vb7Kx6g2dPZm5tepYBmgA6>
+
+# ASSISTANT
+
+Progress! The code close tag is now being recognized (it shows `(code_close_tag [3, 3] - [3, 3])` in the tree) but it's marked as `MISSING`. This means the scanner is working, but there's an issue with how it's being parsed.
+
+The issue is that position `[3, 3]` to `[3, 3]` is an empty range, which suggests the scanner isn't consuming the characters properly. Looking at the code, I think the issue is that I need to move the `mark_end` call to after consuming all the characters:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018AG24xwRa2GSvmwWzcLadN
+
+## path
+
+<tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+./src/scanner.c
+</tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+
+## git-commit-message
+
+<tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+Move mark_end to after consuming all characters
+</tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+
+## diff
+
+<tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+     if (lexer->lookahead != '<') return false;
+-    lexer->mark_end(lexer);
+     advance(lexer);
+     
+     if (lexer->lookahead != '$') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->mark_end(lexer);
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+
+# TOOL RESULT
+
+ID: toolu_018AG24xwRa2GSvmwWzcLadN
+
+<tool.toolu_018AG24xwRa2GSvmwWzcLadN>
+
+</tool.toolu_018AG24xwRa2GSvmwWzcLadN>

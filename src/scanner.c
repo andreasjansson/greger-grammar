@@ -805,7 +805,6 @@ static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
 
 static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
     if (lexer->lookahead != '<') return false;
-    lexer->mark_end(lexer);
     advance(lexer);
     
     if (lexer->lookahead != '$') return false;
