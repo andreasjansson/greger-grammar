@@ -3132,3 +3132,247 @@ This ensures that cases like `a`` don't incorrectly close at the first backtick,
 
 # USER
 
+One thing I notice now is that in
+
+`    a`,
+
+the leading spaces before the 'a' are not part of the code content. They should be
+
+# THINKING
+
+Signature: EvAICkYIBRgCKkDzvqYDcvQj/kecM13GIEr/GIhA4aO0FZHxM2JCzu+U1kJWnJOP7xvd9P8a6q+Vhh2ptjKaY09FqhMIES22GLKhEgx9neTwv5c5tbhWYy4aDGhiiVOjesycwoUp5SIwpIB6ADB0PxhSm1PI/JTe7aDis1G7E5nl4GUi67VDchBEp0a9LsMKrwfB1bLz5AA5KtcH23j+zr4b5oPwAUzHzZRpPLsPXDQb8/xw8RUL5zkSTT3EGhRvfTQkNAVHXnP2fy/Ku+2pytIV6ifI66i0eEs2hMQ6H5ik1TXD/P34MSTMvUpXgoblNYR1wkjmtY5360wtDyAEbloRjKxI9yPeWBolS3XQryqkj3isjA7pk+0MO4tCyfCUwx5wlrj78u1gr25y0e7JQzudjZB2qyHOhsRX7ciKjchnbU5RG3xBd5K1s9H+0MJh89QMwQdOAHO2AxW2/5LKCWF4ZYZCUu8xIWoGDwU3k703I2eVZrZIn0Koz3bKyuqlhT0/fSGwOm/SvvaZttptxUQWOuMPxUrMwM/A5/AhbecwroqXO10ByIHsij4uDV60Q4AcZnEqOhHm9/vMKJFLolbIb3J2ZL5sbfCOe1QPGdbfEL53F/rVCTNWcSWSBy5qek86UaiwmVCHBbDNWm+WGnqImULqqhwlA29TU5eqjhSgMQpgNgEjRhtMbiWJTAgWmGlwqNUCROc83KY6TYJteSyh1uM1QtEJAN+5I+RuEpRwMk0+l6vzFqDFrgRFByzgOKWS9v5H+oxqMtMZQ/4cOpGm68DSfn2TGeEzfq58OUMdHE+D5b5aX3IsqT9S2Dr6HP3aeGpRcP1qRYHmuW5v0aOYUQ5h/uANitxAy7NlmcPTxU9RvcyKYJb+H16i4Wz++Xzl7C7ypCuZPwB9kK5O9Vqd/ETQyexNW1R1i/F4Y5qAzD/kG87sDBUqZpyvGfDdsJXGVJXkHgem2X1HDAdXsra6EG4b6KG4tFJ3vlqBKuphIgCM+BdKJ/9YYaMJd+IWhe3dVTDbw7LPlRJ2bM9Vc5UleFFH89AkH5jlujCtCqDW2BqKhlfPII2d0y1hal04JGjInwRpX2QOPVIoDVZ761TZ6VBtuz9DgA///wvvKQmS2lWwKnoUdf2ldq3yvPkh8Vtp2VSxSD5t0uVN+1Cn/BwH0TydsCqIHYI7Th2rz8EEkJquHZc91Xsf3O8EVb55l8S6p2VwUwHRPDpD5axFTZMBE+He5Xm0azUTbNNjwYPuFzueZHG2AwekiJhk2KRr9X4joNssIDvb1EmGjnYSfNuw4+znC8F/vRXlm+NpVdUXzcZkDwxI9jzrqZ7UYWCk6I339PeqW5QoMMUSYiYks8vk6w5hjm+Qp//bWQOwsmDc4QkvK5SQjzHFlNvznhZbohEM+PHrGac+wCbCyWsrjAgrYWnMwaOQSCFwjgxKjFeqs+07545/pXSTY0kXKVa+kBZ379ShR+I59e9wOajp0edDt+tEEiigNG87JKshbU3pJWQYAQ==
+
+The user is pointing out that in the case of `    a`, the leading spaces before the 'a' are not being included in the code content. They should be part of the code content.
+
+Let me think about this. In the current implementation, when we scan code content, we should be including all characters between the opening and closing backticks, including leading whitespace.
+
+Looking at the `scan_code_content` function, I need to see if there's something that's causing whitespace to be skipped. Let me examine the code more carefully.
+
+Actually, looking at the main scanner function, I see this at the beginning:
+
+```c
+// Skip whitespace but preserve newlines for other tokens
+while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+    skip(lexer);
+}
+```
+
+This might be the issue. The scanner is skipping whitespace before determining what token to scan. But for code content, we want to preserve all whitespace.
+
+Let me check if this is the case by testing it.
+
+# ASSISTANT
+
+You're absolutely right! Let me test this to see the current behavior:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AiozZ8MEpp5iYSg5hb82VU
+
+## command
+
+<tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+cd . && echo '# USER
+
+`    a`' | tree-sitter parse /dev/stdin
+</tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+
+## timeout
+
+<tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+10
+</tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+
+# TOOL RESULT
+
+ID: toolu_01AiozZ8MEpp5iYSg5hb82VU
+
+<tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 7]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 5] - [2, 6])
+      (code_end_tag [2, 6] - [2, 7]))
+    (text [2, 7] - [3, 0])))
+
+</tool.toolu_01AiozZ8MEpp5iYSg5hb82VU>
+
+# ASSISTANT
+
+I can see the issue! The code content is `[2, 5] - [2, 6]` which is just `"a"`, but it should be `[2, 1] - [2, 6]` which would be `"    a"` (the spaces plus the 'a').
+
+The problem is in the main scanner function. At the beginning of `tree_sitter_greger_external_scanner_scan`, there's this code:
+
+```c
+// Skip whitespace but preserve newlines for other tokens
+while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+    skip(lexer);
+}
+```
+
+This is skipping whitespace before determining which token to scan, but for code content, we want to preserve all whitespace. The issue is that this whitespace skipping happens before we check for `CODE_CONTENT`.
+
+Let me fix this by modifying the scanner to not skip whitespace when we're in code content mode:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01TXpATsfunzbwTxjieuJK6A
+
+## path
+
+<tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+./src/scanner.c
+</tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+
+## start-line
+
+<tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+920
+</tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+
+## end-line
+
+<tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+940
+</tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+
+## include-line-numbers
+
+<tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+true
+</tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+
+# TOOL RESULT
+
+ID: toolu_01TXpATsfunzbwTxjieuJK6A
+
+<tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+920:             lexer->mark_end(lexer);
+921:         } else if (lexer->lookahead == '}') {
+922:             if (brace_count > 0) {
+923:                 // This is a closing brace for a nested opening brace
+924:                 brace_count--;
+925:                 if (!iswspace(lexer->lookahead)) {
+926:                     has_non_whitespace = true;
+927:                 }
+928:                 advance(lexer);
+929:                 has_content = true;
+930:                 lexer->mark_end(lexer);
+931:             } else {
+932:                 // This is the closing brace for our eval, stop here
+933:                 break;
+934:             }
+935:         } else if (lexer->lookahead == '<') {
+936:             TSLexer saved = *lexer;
+937:             advance(lexer);
+938:             
+939:             // Check if this is a tag starting with 'e' (could be eval-result)
+940:             if (lexer->lookahead == 'e') {
+</tool.toolu_01TXpATsfunzbwTxjieuJK6A>
+
+# ASSISTANT
+
+Let me find the main scan function:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01Hviw4MZ7vCftRpaUugdQHn
+
+## pattern
+
+<tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+Skip whitespace but preserve newlines
+</tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+
+## path
+
+<tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+./src/scanner.c
+</tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+
+## context-lines
+
+<tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+10
+</tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+
+# TOOL RESULT
+
+ID: toolu_01Hviw4MZ7vCftRpaUugdQHn
+
+<tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+989-    // Handle eval result content when in eval result content state
+990-    if (scanner->in_eval_result_content) {
+991-        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+992-            return scan_eval_result_content_head(scanner, lexer);
+993-        }
+994-        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+995-            return scan_eval_result_content_tail(scanner, lexer);
+996-        }
+997-    }
+998-
+999:    // Skip whitespace but preserve newlines for other tokens
+1000-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+1001-        skip(lexer);
+1002-    }
+1003-
+1004-
+1005-
+1006-    if (lexer->lookahead == '<') {
+1007-        // Handle HTML comments first - they should have priority
+1008-        if (valid_symbols[HTML_COMMENT]) {
+1009-            return scan_html_comment(lexer);
+
+</tool.toolu_01Hviw4MZ7vCftRpaUugdQHn>
+
+# ASSISTANT
+
+Found it! The issue is on lines 999-1002. The scanner is skipping whitespace before checking for code content. I need to modify this to not skip whitespace when we're in code content mode:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RBhQTm3NkJk5czGiY5Zw6x
+
+## path
+
+<tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+./src/scanner.c
+</tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+
+## git-commit-message
+
+<tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+Preserve whitespace in code content
+
+Modify the main scanner function to not skip whitespace when scanning code content, ensuring that leading/trailing spaces within code blocks are preserved as part of the content.
+</tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+
+## diff
+
+<tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+     // Skip whitespace but preserve newlines for other tokens
+-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+-        skip(lexer);
++    // Don't skip whitespace when scanning code content
++    if (!scanner->in_code_content) {
++        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
++            skip(lexer);
++        }
+     }
+\ No newline at end of file
+
+</tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+
+# TOOL RESULT
+
+ID: toolu_01RBhQTm3NkJk5czGiY5Zw6x
+
+<tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>
+
+</tool.toolu_01RBhQTm3NkJk5czGiY5Zw6x>

@@ -997,8 +997,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     // Skip whitespace but preserve newlines for other tokens
-    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
-        skip(lexer);
+    // Don't skip whitespace when scanning code content
+    if (!scanner->in_code_content) {
+        while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            skip(lexer);
+        }
     }
 
 
