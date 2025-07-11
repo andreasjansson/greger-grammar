@@ -744,6 +744,45 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
         if (lexer->lookahead == expected_closing[match_index]) {
             match_index++;
             if (match_index == expected_len) {
+                // For single/double backticks, verify that closing is proper
+                if (scanner->code_backtick_count <= 2) {
+                    // Check what comes after the closing backticks
+                    TSLexer saved = *lexer;
+                    
+                    // Advance past the closing backticks to see what follows
+                    for (int i = 0; i < expected_len; i++) {
+                        if (lexer->lookahead == '`') {
+                            advance(lexer);
+                        } else {
+                            // Not enough backticks, restore and continue as content
+                            *lexer = saved;
+                            match_index = 0;
+                            advance(lexer);
+                            has_content = true;
+                            if (code_close_match_index == 0) {
+                                lexer->mark_end(lexer);
+                            }
+                            continue;
+                        }
+                    }
+                    
+                    // Check if followed by another backtick (which means it's not a proper closing)
+                    if (lexer->lookahead == '`') {
+                        // Restore and continue as content
+                        *lexer = saved;
+                        match_index = 0;
+                        advance(lexer);
+                        has_content = true;
+                        if (code_close_match_index == 0) {
+                            lexer->mark_end(lexer);
+                        }
+                        continue;
+                    }
+                    
+                    // Valid closing pattern, restore to before the closing backticks
+                    *lexer = saved;
+                }
+                
                 // Found complete closing pattern, stop here (don't consume it)
                 if (has_content) {
                     lexer->result_symbol = CODE_CONTENT;
