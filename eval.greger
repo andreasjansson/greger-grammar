@@ -47,3030 +47,1926 @@ Important: Don't do any git operations like stashing or changing branches!
 
 # USER
 
-## Overarching task to complete
-
-Implement a special `<$code-close/>` tag that force-closes any open backtick code blocks in a Greger markdown parser. This addresses Claude's tendency to leave code blocks unclosed, allowing the parser to recover and continue parsing subsequent sections.
-
-## Current overall state
-
-✅ **Core Code Block Functionality**: Successfully fixed all infinite loop issues in Tree-sitter code scanning. All existing code block tests pass (42/43 total tests passing).
-
-✅ **Code Block Architecture**: Implemented proper 3-phase code block parsing with separate `CODE_START_TAG`, `CODE_CONTENT`, `CODE_END_TAG` tokens for syntax highlighting support.
-
-✅ **Code Close Tag Foundation**: Implemented `<$code-close/>` as a regular grammar token (not external scanner) - much cleaner approach.
-
-❌ **Scanner Logic Issue**: Code content scanner is too greedy and partially consumes the `<$code-close/>` pattern, leaving the final `>` character as an error.
-
-## Current sub-task to complete
-
-Fix the `code_content` external scanner logic to properly stop before the complete `<$code-close/>` pattern without consuming any part of it. The scanner currently stops at position just before the `>` character instead of before the `<` character.
-
-## Current state
-
-**Grammar Implementation**: 
-- `code_close_tag: $ => '<$code-close/>'` defined as regular token
-- `code: $ => seq($.code_start_tag, optional($.code_content), choice($.code_end_tag, $.code_close_tag))`
-- Removed from externals (was previously attempted as external scanner)
-
-**Scanner Issue**: 
-- `scan_code_content()` function has pattern detection for `<$code-close/>` but advancing logic is incorrect
-- Content scanner stops at `[line, 13]` when it should stop at `[line, 0]` (before the `<`)
-- Error shows `(UNEXPECTED '>')` indicating partial consumption
-
-**Test Status**:
-- All regular code tests pass: `` `inline` ``, ``` ``` triple backticks, etc.
-- Code close test fails with: `(code_content [2, 3] - [4, 13]) (ERROR [4, 13] - [4, 14])`
-
-## Useful or important files and directories to read
-
-1. **`./src/scanner.c`** - External scanner with buggy `scan_code_content()` function (lines ~730-780), specifically the code close pattern detection logic
-2. **`./grammar.js`** - Grammar definition with `code_close_tag` token and `code` rule using `choice()`
-3. **`./test/corpus/code.txt`** - Working code block test cases (all passing)
-4. **`./test/corpus/code-close.txt`** - Current failing test case for code close functionality
-5. **Working reference patterns**: 
-   - `scan_tool_content_head()` and `scan_tool_content_tail()` in `./src/scanner.c` (lines ~275-420) show correct head/tail pattern
-   - Look at how tool content scanner stops before closing tags without consuming them
-
-## Learnings from previous web searches
-
-No web searches performed. Key insights from examining Tree-sitter example repositories:
-
-**From `~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/`**:
-- **JavaScript scanner** (`javascript/src/scanner.c`): Shows simple pattern matching with `for (bool has_content = false;; has_content = true)` loops
-- **Python scanner** (`python/src/scanner.c`): Demonstrates proper string content scanning that stops at exact delimiters
-- **Markdown scanner** (`markdown/src/scanner.c`): Shows fenced code block handling with delimiter counting
-
-**Key Pattern**: Successful scanners use lookahead without consuming characters when they need to stop before a pattern.
-
-## Additional context
-
-**Architecture Decision**: Using regular grammar token for `<$code-close/>` is much cleaner than external scanner approach. The grammar handles tokenization naturally.
-
-**Pattern Requirements**:
-- Only recognize `<$code-close/>` when inside a code block context
-- When outside code blocks, treat as regular text (currently working)
-- Must not consume any part of the pattern in code_content scanner
-- Scanner should stop content parsing completely before the `<` character
-
-**Critical Scanner Logic**: The issue is in the advancing logic where the scanner checks for the code close pattern but continues advancing character by character, partially consuming the pattern. Need to implement clean boundary detection.
-
-**Success Criteria**:
-- `scan_code_content()` returns with content ending before `<$code-close/>`
-- Grammar successfully matches the complete `<$code-close/>` token
-- Parse tree shows: `(code (code_start_tag) (code_content) (code_close_tag))`
-
-## Next steps
-
-1. **Debug scanner advancing logic**: Fix `scan_code_content()` in `./src/scanner.c` to properly stop before consuming any part of `<$code-close/>` pattern
-2. **Test incrementally**: Use `printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | tree-sitter parse /dev/stdin` to verify fix
-3. **Update test expectations**: Once working, update `./test/corpus/code-close.txt` with correct expected parse tree
-4. **Verify edge cases**: Test with various code block types (inline, fenced, nested)
-5. **Run full test suite**: Ensure no regressions in existing functionality
-
-**Current failing command**: `printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | tree-sitter parse /dev/stdin` should produce clean parse tree instead of ERROR.
+Add a test for this type of backtick
 
 ```
 
+there is `no closing backtick on single-backtick line
+there is ``no closing backtick on double-backtick line
+
+```
+
+And make it so that a newline automatically terminates single- and double-backtick blocks.
 
 # THINKING
 
-Signature: Eo0GCkYIBRgCKkDyojZaJaF8JMNleZ8a/6U4i6e9+gR7JFaUx2p/2LWyoQpLgtZ7JHoty3siNIw3qXIWos/ijPSehad+Gsi3RkWLEgyBI046GSmtPEe/qFUaDFSWkIFFso+epmt1aiIwYZ/gP/RmLyfP1J2ooGbkOs+etZdVISuAXTHoXGz8lPS6rjp11x7FMaZ3wPrQHk87KvQE2UhBFl7qZLORCwmAVUHm7QOlCm71fQv86mnij2B4mCQ+3N9cfXqpiCJ4e0OJyf9cL5lNXYOBkvSqoBl9bj9dmY8L0LQxkE/lhZpCXLkTRBvApwT0UtsKgj8IHK7V9/45VUmroY0JuS9zbn7RizVLghV6KY061fvXC2MQHTiQ1g5QPT+x/Cj1QQk3HmECRgKWBIJkqIeJERa27T28VqiUHuMD9pH+bQMwpMkTB0VeOaVWRR4FQf4QuNvcnCHtq8tFJNbXY8HlYr0HgTj8WES2KR3oq4sbBPe6p++OYTl7n61jMVucJTQvZH9SM5D19b3sxlN+pZ0P9nePLruVA3OUeaaCC0PfO1Ad8fho1M/0TPsgYo2udG9RnCfDfIc2AsJl/duk9QIsSAtFjbaae1Du5PkquoynPYE1ilxBWgQCqqrxPrlwE50xRLA/MCvGLrWYGFFb0dVkCaEXV3g8tNHzF/d+iQBgtDLtPD4eiAiw1stQM3SRWs5GOsvSxNoHfKTBupbwPVUZiHtFPMuJ3J5SwEU/WsPJwYap2J0njDlG9qcLKXRFla2yt4AQN1PG3IskYbZXtS/2CBfvtHmCiECZDtdPgIk2r/6HHfVWt36LMCnpVbtTWzmt7uzefdcoI74AQKLxC9eL3VgXCXZtyo1vovvT99bZBgUC7rNO0+Wuoei/7we/lBDHZPS4pmTLCZitqoA8K/B9Rd3J5FVPd7w3i4sVZ8tgVFqPa37cJCv0azHei9mexGHHue1fb+phrnFLu4Po76MLQh60y8BEGmUoiMXNBA2RwrkHEdU2nAORkwiFpE1rZJ7+eom86BDvePuEYY/xgRgB
+Signature: Eq0GCkYIBRgCKkB3XDyo0GKt2Bzy9XCF3WmxB0eP/pqVg52DgEyUbcgZcBwnfCl304OdONrE+5Pw+NBAkLRQeUBFJi5EbiJUudJ7EgyJabZmuXJQVrv60cAaDM7j7b2zULMcQaTAiyIwAwmVynXbgD6JFYpedefnkif9HTpiUliil/5pnOl0X28dqUsLbbOdzOmgDP8HpsWwKpQFynIAwZsw1qaXiUdKPMavhu3aqpxI9VtlcgfFDosn60yhpjU41paAQlRuU8xFQZNHF39tIsXndjl/vOpxbWyvaeUbFySNpKhr4DFYg3xnUO5Qv9vxhUwQhwgvbml4lOEC6+cSVcqPiEq1JrwnT92u7NPX9z5yhHCa9Pu+vzq10r2PojekrjhkpDHVXV9mMraRmvk3nIfeVSGTzhcDN8mCNZND6IPxyQi+R+oCpCuEuIf7Fe7Euej38riJsn/RXd3bj5iHuBZ0FyWazP+HVZy9QVX+VxH7Illh7vpkRkWrYmK8pJ86uo5H+dNKEy7UJdsUExd5jHF3GP9ACRA5ASIDlE/EB7LVUPPxTeGBCagObZunmbD8FaZZtUD7RkH7VX84I5Ddq5gTVvWmG1mOwC8rZr6LKDy+PIDS9+Ywiyb6CZBNVlXRDIolMTiw1HUaTKm73Kg+deO4OuNj/68PA6AL7tioHFkVvG/Fb3RX5r4VmuO9MzlBs/F5KqnReVCF9IGAvkO7Bg6skkogh4JFlHD8aZ7RSN6fhL7XqG6QFLR/SEqCxydigXsYMKcDn5YqvnJHYMPh+H6/coGe89ukISXmg3GA6Y1yW4komwSTISFlPkmxQifJTqXrPftsK7mditc7f+0/fN8cDyXeC3sVp7Q/6Zh20kwOH1YcPy9Bo24FWr8aG/YQQd7Vdf9kwyRHxww0MquLH9TSHfTdHUyjNtnGRpTnC8s+x9Sm8nvDzv5KRXwOnTaIRC09BkGitIrCKimym9iBPQRf2cZLtA6rPNYOhRgfTe+gLc3JHCSK//5J0lSfSibWHKbpDBkH0rm39qztCGApwby9uSBDDisjPRSH1tJ9kqawOgjukdL3pWi3ltwpvq3nGAE=
 
-Let me understand the current state and the issue:
+The user wants me to add a test for a specific type of backtick behavior and then modify the grammar to make newlines automatically terminate single and double backtick blocks. 
 
-1. The user has implemented a `<$code-close/>` tag to force-close code blocks
-2. The grammar has `code_close_tag: $ => '<$code-close/>'` as a regular token
-3. The issue is in the `scan_code_content()` external scanner function - it's too greedy and partially consumes the `<$code-close/>` pattern, leaving the final `>` character as an error
+Let me first understand what they're asking for:
 
-The problem is that the code content scanner is consuming up to the `>` character instead of stopping before the `<` character.
+1. Add a test for cases where there are unclosed single and double backticks
+2. Modify the grammar so that newlines automatically terminate single and double backtick blocks (but not triple+ backtick blocks)
 
-Let me first look at the current scanner implementation to understand the issue better.
+I should first look at the current codebase to understand how it's structured, then add the test, and finally modify the grammar/scanner to implement this behavior.
+
+Let me start by exploring the codebase.
 
 # ASSISTANT
 
-I'll help you fix the scanner logic issue where the `code_content` scanner is partially consuming the `<$code-close/>` pattern. Let me first examine the current scanner implementation to understand the exact problem.
+I'll help you add a test for unclosed backticks and modify the grammar to make newlines automatically terminate single and double backtick blocks. Let me start by exploring the current codebase structure.
+
+# TOOL USE
+
+Name: list-directory
+ID: toolu_01XtuLuVGq3UFFvbedzqm9rH
+
+## path
+
+<tool.toolu_01XtuLuVGq3UFFvbedzqm9rH>
+.
+</tool.toolu_01XtuLuVGq3UFFvbedzqm9rH>
+
+# TOOL RESULT
+
+ID: toolu_01XtuLuVGq3UFFvbedzqm9rH
+
+<tool.toolu_01XtuLuVGq3UFFvbedzqm9rH>
+./:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--       541  .editorconfig
+drwxr-xr-x  (dir)  .git
+-rw-r--r--       941  .gitattributes
+drwxr-xr-x  (dir)  .github
+-rw-r--r--       431  .gitignore
+-rw-r--r--      2820  CMakeLists.txt
+-rw-r--r--       725  Cargo.toml
+-rw-r--r--      1071  LICENSE
+-rw-r--r--      3451  Makefile
+-rw-r--r--      1090  Package.swift
+-rw-r--r--      2570  README.md
+-rw-r--r--       765  binding.gyp
+drwxr-xr-x  (dir)  bindings
+-rw-r--r--        39  debug-double-backticks.greger
+-rw-r--r--         9  debug-last-char-is-backtick.txt
+-rw-r--r--         0  debug-last-char-is-backtick.txt.tmp
+-rw-r--r--        42  debug-simple-code.greger
+-rw-r--r--        16  debug.greger
+-rw-r--r--        77  debug_eval.greger
+-rw-r--r--        74  debug_help.txt
+-rw-r--r--        20  debug_single.greger
+-rw-r--r--      1621  eval.greger
+-rw-r--r--       113  go.mod
+-rw-r--r--      6086  grammar.js
+-rw-r--r--     88288  libtree-sitter-greger.a
+-rwxr-xr-x    101512  libtree-sitter-greger.dylib
+-rw-r--r--    142195  log.html
+-rw-r--r--      1194  package.json
+-rwxr-xr-x    101344  parser.dylib
+-rw-r--r--       771  pyproject.toml
+-rw-r--r--      2066  setup.py
+drwxr-xr-x  (dir)  src
+drwxr-xr-x  (dir)  test
+-rw-r--r--        60  test-hang.greger
+-rw-r--r--        43  test_close_tag.greger
+-rw-r--r--        17  test_debug.greger
+-rwxr-xr-x        19  test_debug.sh
+-rw-r--r--        20  test_debug2.greger
+-rw-r--r--        18  test_debug3.greger
+-rw-r--r--        18  test_debug4.greger
+-rw-r--r--        30  test_debug5.greger
+-rw-r--r--        30  test_debug6.greger
+-rw-r--r--        17  test_debug7.greger
+-rw-r--r--        18  test_debug8.greger
+-rw-r--r--        17  test_debug9.greger
+-rw-r--r--        18  test_debug_exact.greger
+-rw-r--r--        19  test_debug_exact2.greger
+-rw-r--r--        18  test_debug_exact3.greger
+-rw-r--r--        18  test_debug_exact4.greger
+-rw-r--r--        18  test_debug_exact5.greger
+-rw-r--r--        21  test_debug_exact6.greger
+-rw-r--r--        26  test_debug_exact7.greger
+-rw-r--r--        26  test_debug_manual.greger
+-rw-r--r--        23  test_debug_simple.greger
+-rw-r--r--        19  test_debug_single_char.greger
+-rw-r--r--        26  test_double.greger
+-rw-r--r--        26  test_double_backticks.greger
+-rw-r--r--        21  test_double_vs_triple.greger
+-rw-r--r--        22  test_double_with_content.greger
+-rw-r--r--       172  test_edge_case_error.txt
+-rw-r--r--        19  test_empty_double.greger
+-rw-r--r--        19  test_empty_with_space.greger
+-rw-r--r--        19  test_empty_with_space_debug.greger
+-rw-r--r--        26  test_exact.greger
+-rw-r--r--        24  test_exact2.greger
+-rw-r--r--         3  test_exact_chars.greger
+-rw-r--r--        26  test_exact_debug.greger
+-rw-r--r--        26  test_exact_debug2.greger
+-rw-r--r--        17  test_exact_input.greger
+-rw-r--r--        26  test_exact_reproduction.greger
+-rw-r--r--        19  test_minimal.greger
+-rw-r--r--        21  test_minimal_error.txt
+-rw-r--r--        24  test_no_inner_backticks.greger
+-rw-r--r--        27  test_no_space.greger
+-rw-r--r--        20  test_no_space_between.greger
+-rw-r--r--        22  test_no_spaces.greger
+-rw-r--r--        18  test_partial.greger
+-rw-r--r--        27  test_simple.greger
+-rw-r--r--        17  test_simple2.greger
+-rw-r--r--        17  test_simple3.greger
+-rw-r--r--        18  test_simple4.greger
+-rw-r--r--        17  test_simple5.greger
+-rw-r--r--        18  test_simple6.greger
+-rw-r--r--        17  test_simple7.greger
+-rw-r--r--        22  test_simple_case.greger
+-rw-r--r--        21  test_simple_content.greger
+-rw-r--r--        17  test_simple_debug.greger
+-rw-r--r--        19  test_simple_double.greger
+-rw-r--r--        19  test_simple_space.greger
+-rw-r--r--        20  test_simpler.greger
+-rw-r--r--        21  test_single.greger
+-rw-r--r--        23  test_space_after.greger
+-rw-r--r--        23  test_space_after_opening.greger
+-rw-r--r--        23  test_spaced_content.greger
+-rw-r--r--        21  test_triple_simple.greger
+-rw-r--r--       241  tree-sitter-greger.pc
+-rwxr-xr-x     49216  tree-sitter-greger.wasm
+-rw-r--r--       874  tree-sitter.json
+</tool.toolu_01XtuLuVGq3UFFvbedzqm9rH>
+
+# ASSISTANT
+
+Let me check the test directory structure first:
+
+# TOOL USE
+
+Name: list-directory
+ID: toolu_01KgnPnKC2Le4D5DUEMAMSY5
+
+## path
+
+<tool.toolu_01KgnPnKC2Le4D5DUEMAMSY5>
+test
+</tool.toolu_01KgnPnKC2Le4D5DUEMAMSY5>
+
+# TOOL RESULT
+
+ID: toolu_01KgnPnKC2Le4D5DUEMAMSY5
+
+<tool.toolu_01KgnPnKC2Le4D5DUEMAMSY5>
+test/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+drwxr-xr-x  (dir)  corpus
+</tool.toolu_01KgnPnKC2Le4D5DUEMAMSY5>
+
+# TOOL USE
+
+Name: list-directory
+ID: toolu_01VzpR6Ts1TU771mk1zEJfZA
+
+## path
+
+<tool.toolu_01VzpR6Ts1TU771mk1zEJfZA>
+test/corpus
+</tool.toolu_01VzpR6Ts1TU771mk1zEJfZA>
+
+# TOOL RESULT
+
+ID: toolu_01VzpR6Ts1TU771mk1zEJfZA
+
+<tool.toolu_01VzpR6Ts1TU771mk1zEJfZA>
+test/corpus/:
+drwxr-xr-x  (dir)  .
+drwxr-xr-x  (dir)  ..
+-rw-r--r--      1331  citations-after-tool-result.txt
+-rw-r--r--      1995  citations-basic.txt
+-rw-r--r--      1752  citations-multiple.txt
+-rw-r--r--       467  code-block-nested-headers.txt
+-rw-r--r--      1478  code-block-triple-backticks.txt
+-rw-r--r--       295  code-close.txt
+-rw-r--r--      2889  code.txt
+-rw-r--r--      2065  complex-workflow.txt
+-rw-r--r--       226  eval-nested-braces.txt
+-rw-r--r--       213  eval-partial.txt
+-rw-r--r--      3136  eval-results.txt
+-rw-r--r--      1049  eval.txt
+-rw-r--r--       483  html-comments.txt
+-rw-r--r--       836  html-tags.txt
+-rw-r--r--       270  less-than-greater-than.txt
+-rw-r--r--       497  mixed-code-blocks-and-sections.txt
+-rw-r--r--      1638  multiple-tool-uses.txt
+-rw-r--r--       462  nested-code-blocks.txt
+-rw-r--r--       333  safe-shell-commands.txt
+-rw-r--r--      1169  server-tool-use-basic.txt
+-rw-r--r--      1007  server-tool-use-string-result.txt
+-rw-r--r--       233  simple-conversation.txt
+-rw-r--r--       149  simple-user-message.txt
+-rw-r--r--       228  system-and-user.txt
+-rw-r--r--       257  text-with-markdown-headings.txt
+-rw-r--r--       260  thinking-only.txt
+-rw-r--r--       609  thinking-section.txt
+-rw-r--r--      1448  tool-use-multiple-params.txt
+-rw-r--r--       502  tool-use-only.txt
+-rw-r--r--       899  tool-use-single-param.txt
+-rw-r--r--      1324  tool-use-with-code-in-params.txt
+-rw-r--r--      1208  tool-use-with-tool-use-in-params.txt
+-rw-r--r--       253  triple-hash.txt
+-rw-r--r--       247  untagged-content.txt
+-rw-r--r--       462  xml-tags-backticks.txt
+</tool.toolu_01VzpR6Ts1TU771mk1zEJfZA>
+
+# ASSISTANT
+
+Let me look at the current code-related tests to understand the structure:
 
 # TOOL USE
 
 Name: read-file
-ID: toolu_01RPebNCDL4Ns9WFKUgyF3gc
+ID: toolu_01L23L1nDXR3qQaUPLabtT2T
 
 ## path
 
-<tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-./src/scanner.c
-</tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-
-## start-line
-
-<tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-730
-</tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-
-## end-line
-
-<tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-780
-</tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-
-## include-line-numbers
-
-<tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-true
-</tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
+<tool.toolu_01L23L1nDXR3qQaUPLabtT2T>
+test/corpus/code.txt
+</tool.toolu_01L23L1nDXR3qQaUPLabtT2T>
 
 # TOOL RESULT
 
-ID: toolu_01RPebNCDL4Ns9WFKUgyF3gc
-
-<tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-730:                 // Found complete closing pattern, stop here (don't consume it)
-731:                 if (has_content) {
-732:                     lexer->result_symbol = CODE_CONTENT;
-733:                     return true;
-734:                 } else {
-735:                     return false;
-736:                 }
-737:             }
-738:             advance(lexer);
-739:         } else {
-740:             // Reset match and continue as content
-741:             if (match_index > 0) {
-742:                 // We were partially matching, reset but don't advance yet
-743:                 match_index = 0;
-744:                 // Don't advance here, reprocess this character
-745:             } else {
-746:                 // For inline code (1-2 backticks), stop at newlines
-747:                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-748:                     if (has_content) {
-749:                         lexer->result_symbol = CODE_CONTENT;
-750:                         return true;
-751:                     } else {
-752:                         return false;
-753:                     }
-754:                 }
-755:                 
-756:                 advance(lexer);
-757:                 has_content = true;
-758:                 lexer->mark_end(lexer);
-759:             }
-760:         }
-761:     }
-762:     
-763:     // Reached end without finding closing tag
-764:     if (has_content) {
-765:         lexer->result_symbol = CODE_CONTENT;
-766:         return true;
-767:     }
-768:     
-769:     return false;
-770: }
-771: 
-772: static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
-773:     if (!scanner->in_code_content || lexer->lookahead != '`') return false;
-774:     
-775:     // Count the number of closing backticks
-776:     int closing_backticks = 0;
-777:     while (lexer->lookahead == '`' && closing_backticks < 20) {
-778:         advance(lexer);
-779:         closing_backticks++;
-780:     }
-</tool.toolu_01RPebNCDL4Ns9WFKUgyF3gc>
-
-# ASSISTANT
-
-Let me see the full `scan_code_content` function to understand the complete logic:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_01KVL65KAG3xy9soUZgQaMS9
-
-## path
-
-<tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-./src/scanner.c
-</tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-
-## start-line
-
-<tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-680
-</tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-
-## end-line
-
-<tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-770
-</tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-
-## include-line-numbers
-
-<tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-true
-</tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-
-# TOOL RESULT
-
-ID: toolu_01KVL65KAG3xy9soUZgQaMS9
-
-<tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-680:     scanner->code_backtick_count = opening_backticks;
-681:     scanner->in_code_content = true;
-682:     lexer->result_symbol = CODE_START_TAG;
-683:     return true;
-684: }
-685: 
-686: static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-687:     if (!scanner->in_code_content) return false;
-688:     
-689:     lexer->mark_end(lexer);
-690:     bool has_content = false;
-691:     
-692:     // Build the expected closing pattern (just the right number of backticks)
-693:     char expected_closing[21]; // Max 20 backticks + null terminator
-694:     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
-695:         expected_closing[i] = '`';
-696:     }
-697:     expected_closing[scanner->code_backtick_count] = '\0';
-698:     int expected_len = scanner->code_backtick_count;
-699:     
-700:     // Also check for code close tag pattern (to stop before it)
-701:     const char *code_close_pattern = "<$code-close/>";
-702:     int code_close_len = 14;
-703:     
-704:     int match_index = 0;
-705:     int code_close_match_index = 0;
-706:     
-707:     // Scan content until we find the closing pattern or code close tag
-708:     while (lexer->lookahead != 0) {
-709:         // Check for code close tag pattern first
-710:         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-711:             code_close_match_index++;
-712:             if (code_close_match_index == code_close_len) {
-713:                 // Found complete code close tag, stop here (don't consume it)
-714:                 if (has_content) {
-715:                     lexer->result_symbol = CODE_CONTENT;
-716:                     return true;
-717:                 } else {
-718:                     return false;
-719:                 }
-720:             }
-721:             // Don't advance yet, let regular pattern matching handle it
-722:         } else {
-723:             code_close_match_index = 0;
-724:         }
-725:         
-726:         // Check for regular closing pattern
-727:         if (lexer->lookahead == expected_closing[match_index]) {
-728:             match_index++;
-729:             if (match_index == expected_len) {
-730:                 // Found complete closing pattern, stop here (don't consume it)
-731:                 if (has_content) {
-732:                     lexer->result_symbol = CODE_CONTENT;
-733:                     return true;
-734:                 } else {
-735:                     return false;
-736:                 }
-737:             }
-738:             advance(lexer);
-739:         } else {
-740:             // Reset match and continue as content
-741:             if (match_index > 0) {
-742:                 // We were partially matching, reset but don't advance yet
-743:                 match_index = 0;
-744:                 // Don't advance here, reprocess this character
-745:             } else {
-746:                 // For inline code (1-2 backticks), stop at newlines
-747:                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-748:                     if (has_content) {
-749:                         lexer->result_symbol = CODE_CONTENT;
-750:                         return true;
-751:                     } else {
-752:                         return false;
-753:                     }
-754:                 }
-755:                 
-756:                 advance(lexer);
-757:                 has_content = true;
-758:                 lexer->mark_end(lexer);
-759:             }
-760:         }
-761:     }
-762:     
-763:     // Reached end without finding closing tag
-764:     if (has_content) {
-765:         lexer->result_symbol = CODE_CONTENT;
-766:         return true;
-767:     }
-768:     
-769:     return false;
-770: }
-</tool.toolu_01KVL65KAG3xy9soUZgQaMS9>
-
-# ASSISTANT
-
-Now let me look at the failing test to understand exactly what should happen:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_018d5YuCCe9eHTGUvJnP5qsc
-
-## path
-
-<tool.toolu_018d5YuCCe9eHTGUvJnP5qsc>
-./test/corpus/code-close.txt
-</tool.toolu_018d5YuCCe9eHTGUvJnP5qsc>
-
-# TOOL RESULT
-
-ID: toolu_018d5YuCCe9eHTGUvJnP5qsc
-
-<tool.toolu_018d5YuCCe9eHTGUvJnP5qsc>
-===============================
-Code close tag test
-===============================
-
-# ASSISTANT
-
-```
-unclosed code
-<$code-close/>
-
-More text after.
-
----
-
-(source_file
-  (ERROR
-    (assistant_header)
-    (code_start_tag)
-    (code_content)
-    (UNEXPECTED '>')))
-</tool.toolu_018d5YuCCe9eHTGUvJnP5qsc>
-
-# ASSISTANT
-
-I can see the issue now. The problem is in the scanner logic. Let me trace through what's happening:
-
-1. The scanner is checking for the `<$code-close/>` pattern
-2. When it finds a match, it's supposed to stop *before* consuming the pattern
-3. But the current logic has a bug: it's advancing the lexer for the regular backtick pattern matching, which is consuming characters from the code-close pattern
-
-Let me examine the tool content scanner that you mentioned works correctly:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_01TF7ULbjncSfAyPPKshp1Vd
-
-## path
-
-<tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-./src/scanner.c
-</tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-
-## start-line
-
-<tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-275
-</tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-
-## end-line
-
-<tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-320
-</tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-
-## include-line-numbers
-
-<tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-true
-</tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-
-# TOOL RESULT
-
-ID: toolu_01TF7ULbjncSfAyPPKshp1Vd
-
-<tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-275: static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
-276:     if (!scanner->in_tool_content || scanner->expecting_tail) return false;
-277: 
-278:     lexer->mark_end(lexer);
-279: 
-280:     // Build the expected closing tag
-281:     char expected_closing[512];
-282:     strncpy(expected_closing, "</tool.", sizeof(expected_closing) - 1);
-283:     expected_closing[sizeof(expected_closing) - 1] = '\0';
-284:     strncat(expected_closing, scanner->tool_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
-285:     strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
-286:     int expected_len = strlen(expected_closing);
-287: 
-288:     int match_index = 0;
-289:     bool has_content = false;
-290:     int line_count = 0;
-291:     bool current_line_has_content = false;
-292: 
-293:     // Scan first 4 lines or until we find the closing tag
-294:     while (lexer->lookahead != 0) {
-295:         if (lexer->lookahead == expected_closing[match_index]) {
-296:             match_index++;
-297:             if (match_index == expected_len) {
-298:                 // Found complete closing tag, stop here (don't consume it)
-299:                 if (has_content) {
-300:                     lexer->result_symbol = TOOL_CONTENT_HEAD;
-301:                     return true;
-302:                 } else {
-303:                     // No content, let the grammar handle the end tag
-304:                     return false;
-305:                 }
-306:             }
-307:             advance(lexer);
-308:             current_line_has_content = true;
-309:         } else {
-310:             // Reset match and continue as content
-311:             if (match_index > 0) {
-312:                 // We were partially matching but failed, reset and process current char as content
-313:                 match_index = 0;
-314:             }
-315:             
-316:             // Process current character as content
-317:             if (lexer->lookahead == '\n') {
-318:                 if (current_line_has_content) {
-319:                     line_count++;
-320:                     current_line_has_content = false;
-</tool.toolu_01TF7ULbjncSfAyPPKshp1Vd>
-
-# ASSISTANT
-
-I can see the problem! In the tool content scanner, when it finds the complete closing tag match (line 298), it stops **without consuming the pattern**. But in the code content scanner, the logic is mixed up.
-
-Let me look at the key differences:
-
-1. **Tool scanner**: When it finds the complete pattern, it returns immediately without advancing
-2. **Code scanner**: It's trying to handle both backtick patterns and code-close patterns, but the logic is convoluted
-
-The issue is in lines 721 and 738 of the code scanner. When matching the code-close pattern, it says "Don't advance yet, let regular pattern matching handle it", but then it continues to the regular pattern matching code which calls `advance(lexer)` on line 738.
-
-Let me fix this by restructuring the logic:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01AmgiSoqtK9LL4sTzrnKdyJ
-
-## path
-
-<tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-./src/scanner.c
-</tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-
-## diff
-
-<tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
- static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-     if (!scanner->in_code_content) return false;
-     
-     lexer->mark_end(lexer);
-     bool has_content = false;
-     
-     // Build the expected closing pattern (just the right number of backticks)
-     char expected_closing[21]; // Max 20 backticks + null terminator
-     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
-         expected_closing[i] = '`';
-     }
-     expected_closing[scanner->code_backtick_count] = '\0';
-     int expected_len = scanner->code_backtick_count;
-     
-     // Also check for code close tag pattern (to stop before it)
-     const char *code_close_pattern = "<$code-close/>";
-     int code_close_len = 14;
-     
-     int match_index = 0;
-     int code_close_match_index = 0;
-     
-     // Scan content until we find the closing pattern or code close tag
-     while (lexer->lookahead != 0) {
-         // Check for code close tag pattern first
-         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-             code_close_match_index++;
-             if (code_close_match_index == code_close_len) {
-                 // Found complete code close tag, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            // Don't advance yet, let regular pattern matching handle it
-+            // Continue to advance and process as regular content for now
-+            // This character might also be part of a backtick pattern
-         } else {
-+            // Reset code close match
-             code_close_match_index = 0;
-         }
-         
-         // Check for regular closing pattern
-         if (lexer->lookahead == expected_closing[match_index]) {
-             match_index++;
-             if (match_index == expected_len) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            advance(lexer);
-+            // If we're also matching code-close pattern, we need to be careful
-+            if (code_close_match_index > 0) {
-+                // We're in middle of matching code close - advance and continue
-+                advance(lexer);
-+                has_content = true;
-+                lexer->mark_end(lexer);
-+            } else {
-+                // Only matching backticks, advance normally
-+                advance(lexer);
-+            }
-         } else {
--            // Reset match and continue as content
-+            // Reset backtick match and continue as content
-             if (match_index > 0) {
--                // We were partially matching, reset but don't advance yet
-+                // We were partially matching backticks, reset but don't advance yet
-                 match_index = 0;
-                 // Don't advance here, reprocess this character
-             } else {
-                 // For inline code (1-2 backticks), stop at newlines
-                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                     if (has_content) {
-                         lexer->result_symbol = CODE_CONTENT;
-                         return true;
-                     } else {
-                         return false;
-                     }
-                 }
-                 
-                 advance(lexer);
-                 has_content = true;
-                 lexer->mark_end(lexer);
-             }
-         }
-     }
-     
-     // Reached end without finding closing tag
-     if (has_content) {
-         lexer->result_symbol = CODE_CONTENT;
-         return true;
-     }
-     
-     return false;
- }
-\ No newline at end of file
-
-</tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-
-## git-commit-message
-
-<tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-Fix code content scanner logic to handle code-close pattern correctly
-</tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-
-# TOOL RESULT
-
-ID: toolu_01AmgiSoqtK9LL4sTzrnKdyJ
-
-<tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code content scanner logic to handle code-close pattern correctly
-</tool.toolu_01AmgiSoqtK9LL4sTzrnKdyJ>
-
-# ASSISTANT
-
-Wait, that fix is still not right. The issue is more fundamental. Let me look at this more carefully. The problem is that the scanner logic is trying to handle both patterns simultaneously, but when it finds the complete code-close pattern, it needs to stop **immediately** without processing it further.
-
-Let me simplify this and fix it properly:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01Uo6g6B7ow6AyHCgSvTSEbu
-
-## path
-
-<tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-./src/scanner.c
-</tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-
-## git-commit-message
-
-<tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-Simplify code content scanner to properly detect code-close without consuming it
-</tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-
-## diff
-
-<tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
- static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-     if (!scanner->in_code_content) return false;
-     
-     lexer->mark_end(lexer);
-     bool has_content = false;
-     
-     // Build the expected closing pattern (just the right number of backticks)
-     char expected_closing[21]; // Max 20 backticks + null terminator
-     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
-         expected_closing[i] = '`';
-     }
-     expected_closing[scanner->code_backtick_count] = '\0';
-     int expected_len = scanner->code_backtick_count;
-     
-     // Also check for code close tag pattern (to stop before it)
-     const char *code_close_pattern = "<$code-close/>";
-     int code_close_len = 14;
-     
-     int match_index = 0;
-     int code_close_match_index = 0;
-     
-     // Scan content until we find the closing pattern or code close tag
-     while (lexer->lookahead != 0) {
-         // Check for code close tag pattern first
-         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-             code_close_match_index++;
-             if (code_close_match_index == code_close_len) {
-                 // Found complete code close tag, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            // Continue to advance and process as regular content for now
--            // This character might also be part of a backtick pattern
-+            // Don't advance yet - we need to continue checking this character
-         } else {
-             // Reset code close match
-             code_close_match_index = 0;
-         }
-         
--        // Check for regular closing pattern
--        if (lexer->lookahead == expected_closing[match_index]) {
--            match_index++;
--            if (match_index == expected_len) {
--                // Found complete closing pattern, stop here (don't consume it)
--                if (has_content) {
--                    lexer->result_symbol = CODE_CONTENT;
--                    return true;
--                } else {
--                    return false;
--                }
--            }
--            // If we're also matching code-close pattern, we need to be careful
--            if (code_close_match_index > 0) {
--                // We're in middle of matching code close - advance and continue
--                advance(lexer);
--                has_content = true;
--                lexer->mark_end(lexer);
--            } else {
--                // Only matching backticks, advance normally
--                advance(lexer);
--            }
--        } else {
--            // Reset backtick match and continue as content
--            if (match_index > 0) {
--                // We were partially matching backticks, reset but don't advance yet
--                match_index = 0;
--                // Don't advance here, reprocess this character
--            } else {
--                // For inline code (1-2 backticks), stop at newlines
--                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-+        // Only proceed with regular processing if we haven't found code close
-+        if (code_close_match_index == 0) {
-+            // Check for regular closing pattern
-+            if (lexer->lookahead == expected_closing[match_index]) {
-+                match_index++;
-+                if (match_index == expected_len) {
-+                    // Found complete closing pattern, stop here (don't consume it)
-                     if (has_content) {
-                         lexer->result_symbol = CODE_CONTENT;
-                         return true;
-                     } else {
-                         return false;
-                     }
-                 }
--                
-                 advance(lexer);
--                has_content = true;
--                lexer->mark_end(lexer);
-+            } else {
-+                // Reset match and continue as content
-+                if (match_index > 0) {
-+                    // We were partially matching, reset but don't advance yet
-+                    match_index = 0;
-+                    // Don't advance here, reprocess this character
-+                } else {
-+                    // For inline code (1-2 backticks), stop at newlines
-+                    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-+                        if (has_content) {
-+                            lexer->result_symbol = CODE_CONTENT;
-+                            return true;
-+                        } else {
-+                            return false;
-+                        }
-+                    }
-+                    
-+                    advance(lexer);
-+                    has_content = true;
-+                    lexer->mark_end(lexer);
-+                }
-             }
-+        } else {
-+            // We're in middle of matching code close pattern, advance and continue
-+            advance(lexer);
-+            has_content = true;
-+            lexer->mark_end(lexer);
-         }
-     }
-     
-     // Reached end without finding closing tag
-     if (has_content) {
-         lexer->result_symbol = CODE_CONTENT;
-         return true;
-     }
-     
-     return false;
- }
-\ No newline at end of file
-
-</tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-
-# TOOL RESULT
-
-ID: toolu_01Uo6g6B7ow6AyHCgSvTSEbu
-
-<tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code content scanner to properly detect code-close without consuming it
-</tool.toolu_01Uo6g6B7ow6AyHCgSvTSEbu>
-
-# ASSISTANT
-
-Now let's test this fix:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01HGbQKBu5Rhk3jJWQs6mEqW
-
-## command
-
-<tool.toolu_01HGbQKBu5Rhk3jJWQs6mEqW>
-printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01HGbQKBu5Rhk3jJWQs6mEqW>
-
-# TOOL RESULT
-
-ID: toolu_01HGbQKBu5Rhk3jJWQs6mEqW
-
-<tool.toolu_01HGbQKBu5Rhk3jJWQs6mEqW>
-(source_file [0, 0] - [4, 14]
-  (ERROR [0, 0] - [4, 14]
-    (assistant_header [0, 0] - [0, 11])
-    (code_start_tag [2, 0] - [2, 3])
-    (code_content [2, 3] - [4, 13])
-    (ERROR [4, 13] - [4, 14])))
-/dev/stdin	Parse:    0.39 ms	    91 bytes/ms	(ERROR [0, 0] - [4, 14])
-Command failed with exit code 1
-</tool.toolu_01HGbQKBu5Rhk3jJWQs6mEqW>
-
-# ASSISTANT
-
-The scanner is still consuming up to character 13 instead of stopping before the `<`. Let me debug this more carefully. The issue seems to be that when we match the complete code-close pattern, we're not resetting the lexer position properly.
-
-Let me check what the tool scanner does more carefully:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_01AiChQzxwH3uugWUMwsNY3s
-
-## path
-
-<tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-./src/scanner.c
-</tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-
-## start-line
-
-<tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-294
-</tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-
-## end-line
-
-<tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-310
-</tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-
-## include-line-numbers
-
-<tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-true
-</tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-
-# TOOL RESULT
-
-ID: toolu_01AiChQzxwH3uugWUMwsNY3s
-
-<tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-294:     while (lexer->lookahead != 0) {
-295:         if (lexer->lookahead == expected_closing[match_index]) {
-296:             match_index++;
-297:             if (match_index == expected_len) {
-298:                 // Found complete closing tag, stop here (don't consume it)
-299:                 if (has_content) {
-300:                     lexer->result_symbol = TOOL_CONTENT_HEAD;
-301:                     return true;
-302:                 } else {
-303:                     // No content, let the grammar handle the end tag
-304:                     return false;
-305:                 }
-306:             }
-307:             advance(lexer);
-308:             current_line_has_content = true;
-309:         } else {
-310:             // Reset match and continue as content
-</tool.toolu_01AiChQzxwH3uugWUMwsNY3s>
-
-# ASSISTANT
-
-I think I see the problem. The issue is that `lexer->mark_end(lexer)` is being called too often. Every time we advance normally, we're marking the end position. But when we detect the complete code-close pattern, we need to return to the last marked position that was before the pattern started.
-
-Let me rewrite this more carefully, following the exact pattern from the tool scanner:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01HWrxN75w5DdGumdkCQoHYt
-
-## path
-
-<tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-./src/scanner.c
-</tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-
-## git-commit-message
-
-<tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-Rewrite code content scanner to properly handle end marking like tool scanner
-</tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-
-## diff
-
-<tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
- static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-     if (!scanner->in_code_content) return false;
-     
-     lexer->mark_end(lexer);
-     bool has_content = false;
-     
-     // Build the expected closing pattern (just the right number of backticks)
-     char expected_closing[21]; // Max 20 backticks + null terminator
-     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
-         expected_closing[i] = '`';
-     }
-     expected_closing[scanner->code_backtick_count] = '\0';
-     int expected_len = scanner->code_backtick_count;
-     
-     // Also check for code close tag pattern (to stop before it)
-     const char *code_close_pattern = "<$code-close/>";
-     int code_close_len = 14;
-     
-     int match_index = 0;
-     int code_close_match_index = 0;
-     
-     // Scan content until we find the closing pattern or code close tag
-     while (lexer->lookahead != 0) {
-         // Check for code close tag pattern first
-         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-             code_close_match_index++;
-             if (code_close_match_index == code_close_len) {
-                 // Found complete code close tag, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            // Don't advance yet - we need to continue checking this character
-+            // Continue checking this character for backtick patterns too
-         } else {
--            // Reset code close match
-             code_close_match_index = 0;
-         }
-         
--        // Only proceed with regular processing if we haven't found code close
--        if (code_close_match_index == 0) {
--            // Check for regular closing pattern
--            if (lexer->lookahead == expected_closing[match_index]) {
--                match_index++;
--                if (match_index == expected_len) {
--                    // Found complete closing pattern, stop here (don't consume it)
-+        // Check for regular closing pattern
-+        if (lexer->lookahead == expected_closing[match_index]) {
-+            match_index++;
-+            if (match_index == expected_len) {
-+                // Found complete closing pattern, stop here (don't consume it)
-+                if (has_content) {
-+                    lexer->result_symbol = CODE_CONTENT;
-+                    return true;
-+                } else {
-+                    return false;
-+                }
-+            }
-+            advance(lexer);
-+            has_content = true;
-+        } else {
-+            // Reset match and continue as content
-+            if (match_index > 0) {
-+                // We were partially matching, reset but don't advance yet
-+                match_index = 0;
-+                // Don't advance here, reprocess this character
-+            } else {
-+                // For inline code (1-2 backticks), stop at newlines
-+                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                     if (has_content) {
-                         lexer->result_symbol = CODE_CONTENT;
-                         return true;
-                     } else {
-                         return false;
-                     }
-                 }
-+                
-                 advance(lexer);
--            } else {
--                // Reset match and continue as content
--                if (match_index > 0) {
--                    // We were partially matching, reset but don't advance yet
--                    match_index = 0;
--                    // Don't advance here, reprocess this character
--                } else {
--                    // For inline code (1-2 backticks), stop at newlines
--                    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
--                        if (has_content) {
--                            lexer->result_symbol = CODE_CONTENT;
--                            return true;
--                        } else {
--                            return false;
--                        }
--                    }
--                    
--                    advance(lexer);
--                    has_content = true;
--                    lexer->mark_end(lexer);
--                }
-+                has_content = true;
-+                lexer->mark_end(lexer);
-             }
--        } else {
--            // We're in middle of matching code close pattern, advance and continue
--            advance(lexer);
--            has_content = true;
--            lexer->mark_end(lexer);
-         }
-     }
-     
-     // Reached end without finding closing tag
-     if (has_content) {
-         lexer->result_symbol = CODE_CONTENT;
-         return true;
-     }
-     
-     return false;
- }
-\ No newline at end of file
-
-</tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-
-# TOOL RESULT
-
-ID: toolu_01HWrxN75w5DdGumdkCQoHYt
-
-<tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Rewrite code content scanner to properly handle end marking like tool scanner
-</tool.toolu_01HWrxN75w5DdGumdkCQoHYt>
-
-# ASSISTANT
-
-Let's test this version:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01E3XPBviFvJ9DvhT57bXNWM
-
-## command
-
-<tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
-printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
-
-# TOOL RESULT
-
-ID: toolu_01E3XPBviFvJ9DvhT57bXNWM
-
-<tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
-(source_file [0, 0] - [4, 14]
-  (ERROR [0, 0] - [4, 14]
-    (assistant_header [0, 0] - [0, 11])
-    (code_start_tag [2, 0] - [2, 3])
-    (code_content [2, 3] - [4, 13])
-    (ERROR [4, 13] - [4, 14])))
-/dev/stdin	Parse:    0.73 ms	    49 bytes/ms	(ERROR [0, 0] - [4, 14])
-Command failed with exit code 1
-</tool.toolu_01E3XPBviFvJ9DvhT57bXNWM>
-
-# ASSISTANT
-
-The same issue persists. I think I need to understand this more fundamentally. Let me try a different approach. The problem is that `lexer->mark_end(lexer)` is being called after we've already consumed part of the `<$code-close/>` pattern.
-
-Let me trace this step by step. The scanner is processing:
-1. `code` - advances and marks end
-2. `\n` - advances and marks end  
-3. `<` - matches first char of code-close pattern, advances and marks end (BUG!)
-4. `$` - matches second char of code-close pattern, advances and marks end (BUG!)
-5. ... continues until `>` 
-6. When it reaches the complete pattern, it tries to return, but mark_end was already called at position 13 (just before the `>`)
-
-The fix is to NOT call `mark_end` when we're in the middle of matching the code-close pattern. Let me implement this:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01PGe8hdbxvtHc4mkYR4GF2Y
-
-## path
-
-<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-./src/scanner.c
-</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-
-## git-commit-message
-
-<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-Fix mark_end issue - don't mark end when matching code-close pattern
-</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-
-## diff
-
-<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
- static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
-     if (!scanner->in_code_content) return false;
-     
-     lexer->mark_end(lexer);
-     bool has_content = false;
-     
-     // Build the expected closing pattern (just the right number of backticks)
-     char expected_closing[21]; // Max 20 backticks + null terminator
-     for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
-         expected_closing[i] = '`';
-     }
-     expected_closing[scanner->code_backtick_count] = '\0';
-     int expected_len = scanner->code_backtick_count;
-     
-     // Also check for code close tag pattern (to stop before it)
-     const char *code_close_pattern = "<$code-close/>";
-     int code_close_len = 14;
-     
-     int match_index = 0;
-     int code_close_match_index = 0;
-     
-     // Scan content until we find the closing pattern or code close tag
-     while (lexer->lookahead != 0) {
-         // Check for code close tag pattern first
-         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
-             code_close_match_index++;
-             if (code_close_match_index == code_close_len) {
-                 // Found complete code close tag, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
-             // Continue checking this character for backtick patterns too
-         } else {
-             code_close_match_index = 0;
-         }
-         
-         // Check for regular closing pattern
-         if (lexer->lookahead == expected_closing[match_index]) {
-             match_index++;
-             if (match_index == expected_len) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
-             advance(lexer);
-             has_content = true;
-+            // Only mark end if we're not in middle of matching code close pattern
-+            if (code_close_match_index == 0) {
-+                lexer->mark_end(lexer);
-+            }
-         } else {
-             // Reset match and continue as content
-             if (match_index > 0) {
-                 // We were partially matching, reset but don't advance yet
-                 match_index = 0;
-                 // Don't advance here, reprocess this character
-             } else {
-                 // For inline code (1-2 backticks), stop at newlines
-                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                     if (has_content) {
-                         lexer->result_symbol = CODE_CONTENT;
-                         return true;
-                     } else {
-                         return false;
-                     }
-                 }
-                 
-                 advance(lexer);
-                 has_content = true;
--                lexer->mark_end(lexer);
-+                // Only mark end if we're not in middle of matching code close pattern
-+                if (code_close_match_index == 0) {
-+                    lexer->mark_end(lexer);
-+                }
-             }
-         }
-     }
-     
-     // Reached end without finding closing tag
-     if (has_content) {
-         lexer->result_symbol = CODE_CONTENT;
-         return true;
-     }
-     
-     return false;
- }
-\ No newline at end of file
-
-</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-
-# TOOL RESULT
-
-ID: toolu_01PGe8hdbxvtHc4mkYR4GF2Y
-
-<tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix mark_end issue - don't mark end when matching code-close pattern
-</tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-
-# ASSISTANT
-
-Let's test this:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_018H2spPb9UQXuKwYqctdLkS
-
-## command
-
-<tool.toolu_018H2spPb9UQXuKwYqctdLkS>
-printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_018H2spPb9UQXuKwYqctdLkS>
-
-# TOOL RESULT
-
-ID: toolu_018H2spPb9UQXuKwYqctdLkS
-
-<tool.toolu_018H2spPb9UQXuKwYqctdLkS>
-(source_file [0, 0] - [4, 14]
-  (assistant [0, 0] - [4, 14]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [4, 14]
-      (code_start_tag [2, 0] - [2, 3])
-      (code_content [2, 3] - [4, 0])
-      (code_close_tag [4, 0] - [4, 14]))))
-
-</tool.toolu_018H2spPb9UQXuKwYqctdLkS>
-
-# ASSISTANT
-
-Excellent! This works! The scanner now correctly stops the `code_content` at `[4, 0]` (before the `<`) and the `code_close_tag` is properly recognized from `[4, 0]` to `[4, 14]`.
-
-Let's run the formal test to confirm:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01AFWUvcCsVjrYhfxDQNzw6S
-
-## command
-
-<tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
-tree-sitter test -f "Code close tag test"
-</tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
-
-# TOOL RESULT
-
-ID: toolu_01AFWUvcCsVjrYhfxDQNzw6S
-
-<tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
-error: unexpected argument '-f' found
-
-Usage: tree-sitter test [OPTIONS]
-
-For more information, try '--help'.
-Command failed with exit code 2
-</tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_015aMBYR7Xo49EVCfY3B6Ysp
-
-## command
-
-<tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
-tree-sitter test --help
-</tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
-
-# TOOL RESULT
-
-ID: toolu_015aMBYR7Xo49EVCfY3B6Ysp
-
-<tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
-Run a parser's tests
-
-Usage: tree-sitter test [OPTIONS]
-
-Options:
-  -i, --include <INCLUDE>          Only run corpus test cases whose name matches the given regex
-  -e, --exclude <EXCLUDE>          Only run corpus test cases whose name does not match the given regex
-      --file-name <FILE_NAME>      Only run corpus test cases from from a given filename
-  -u, --update                     Update all syntax trees in corpus files with current parser output
-  -d, --debug                      Show parsing debug log
-  -0, --debug-build                Compile a parser in debug mode
-  -D, --debug-graph                Produce the log.html file with debug graphs
-      --wasm                       Compile parsers to wasm instead of native dynamic libraries
-      --open-log                   Open `log.html` in the default browser, if `--debug-graph` is supplied
-      --config-path <CONFIG_PATH>  The path to an alternative config.json file
-      --show-fields                Force showing fields in test diffs
-      --stat <STAT>                Show parsing statistics [possible values: all, outliers-and-total, total-only]
-  -r, --rebuild                    Force rebuild the parser
-      --overview-only              Show only the pass-fail overview tree
-  -h, --help                       Print help
-
-</tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01CAW8EyAjRCpfVY4F8ddyN3
-
-## command
-
-<tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
-tree-sitter test -i "Code close tag test"
-</tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
-
-# TOOL RESULT
-
-ID: toolu_01CAW8EyAjRCpfVY4F8ddyN3
-
-<tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
-  code-close:
-      6. ✗ Code close tag test
-
-1 failure:
-
-correct / expected / unexpected
-
-  1. Code close tag test:
-
-    (source_file
-      (assistant
-      (ERROR
-        (assistant_header)
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_close_tag))
-        (text)))
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '>')))
-
-Command failed with exit code 1
-</tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
-
-# ASSISTANT
-
-The test is failing because the expected output in the test file is wrong. The test expects an ERROR but now we get a correct parse. Let me update the test expectation:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01MD31fzJrbXLzNdKfQMM3aG
-
-## path
-
-<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-./test/corpus/code-close.txt
-</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-
-## git-commit-message
-
-<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-Update code close test expectation to match correct parse tree
-</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-
-## original-content
-
-<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-===============================
-Code close tag test
-===============================
-
-# ASSISTANT
-
-```
-unclosed code
-<$code-close/>
-
-More text after.
-
----
-
-(source_file
-  (ERROR
-    (assistant_header)
-    (code_start_tag)
-    (code_content)
-    (UNEXPECTED '>')))
-</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-
-## new-content
-
-<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-===============================
-Code close tag test
-===============================
-
-# ASSISTANT
-
-```
-unclosed code
-<$code-close/>
-
-More text after.
-
----
-
-(source_file
-  (assistant
-    (assistant_header)
-    (code
-      (code_start_tag)
-      (code_content)
-      (code_close_tag))
-    (text)))
-</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-
-# TOOL RESULT
-
-ID: toolu_01MD31fzJrbXLzNdKfQMM3aG
-
-<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code-close.txt. Successfully staged 2 file(s) and committed with message: Update code close test expectation to match correct parse tree
-</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
-
-# ASSISTANT
-
-Now let's test again:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_018hUmPM8f1KzGPMdzYFSPiE
-
-## command
-
-<tool.toolu_018hUmPM8f1KzGPMdzYFSPiE>
-tree-sitter test -i "Code close tag test"
-</tool.toolu_018hUmPM8f1KzGPMdzYFSPiE>
-
-# TOOL RESULT
-
-ID: toolu_018hUmPM8f1KzGPMdzYFSPiE
-
-<tool.toolu_018hUmPM8f1KzGPMdzYFSPiE>
-  code-close:
-      6. ✓ Code close tag test
-
-Total parses: 1; successful parses: 1; failed parses: 0; success percentage: 100.00%; average speed: 99 bytes/ms
-
-
-</tool.toolu_018hUmPM8f1KzGPMdzYFSPiE>
-
-# ASSISTANT
-
-Perfect! Now let's run all tests to make sure we haven't broken anything:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01EZdo2m2mHqgg9zFsN4FbEd
-
-## command
-
-<tool.toolu_01EZdo2m2mHqgg9zFsN4FbEd>
-tree-sitter test
-</tool.toolu_01EZdo2m2mHqgg9zFsN4FbEd>
-
-# TOOL RESULT
-
-ID: toolu_01EZdo2m2mHqgg9zFsN4FbEd
-
-<tool.toolu_01EZdo2m2mHqgg9zFsN4FbEd>
-  citations-after-tool-result:
-      1. ✓ Citations after tool result -- Warning: Slow parse rate (425.350 bytes/ms)
-  citations-basic:
-      2. ✓ Citations basic
-  citations-multiple:
-      3. ✓ Citations multiple
-  code-block-nested-headers:
-      4. ✗ Code block with nested headers
-  code-block-triple-backticks:
-      5. ✗ Code block triple backticks
-  code-close:
-      6. ✓ Code close tag test
-  code:
-      7. ✓ Inline code with single backticks
-      8. ✗ Inline code with double backticks
-      9. ✗ Triple backticks no language
-     10. ✗ Triple backticks with language
-     11. ✗ Triple backticks with invalid language (has spaces)
-     12. ✗ Quadruple backticks with language
-     13. ✗ Triple backticks inline with language
-     14. ✗ Triple backticks language with numbers and symbols
-     15. ✗ Empty code blocks
-  complex-workflow:
-     16. ✓ Complex workflow
-  eval-nested-braces:
-     17. ✓ Eval nested braces
-  eval-partial:
-     18. ✓ Eval partial cases
-  eval-results:
-     19. ✓ Eval results
-  eval:
-     20. ✓ Eval
-  html-comments:
-     21. ✗ HTML comments
-  html-tags:
-     22. ✓ HTML tags should be interpreted as text
-  less-than-greater-than:
-     23. ✓ Less than/greater than
-  mixed-code-blocks-and-sections:
-     24. ✗ Mixed code blocks and sections
-  multiple-tool-uses:
-     25. ✓ Multiple tool uses
-  nested-code-blocks:
-     26. ✗ Nested code blocks
-  safe-shell-commands:
-     27. ✓ Safe shell commands
-  server-tool-use-basic:
-     28. ✓ Server tool use basic
-  server-tool-use-string-result:
-     29. ✓ Server tool use string result
-  simple-conversation:
-     30. ✓ Simple conversation
-  simple-user-message:
-     31. ✓ Simple user message
-  system-and-user:
-     32. ✓ System and user
-  text-with-markdown-headings:
-     33. ✓ Text with markdown headings
-  thinking-only:
-     34. ✓ Thinking only
-  thinking-section:
-     35. ✓ Thinking section
-  tool-use-multiple-params:
-     36. ✓ Tool use multiple params
-  tool-use-only:
-     37. ✓ Tool use only
-  tool-use-single-param:
-     38. ✓ Tool use single param
-  tool-use-with-code-in-params:
-     39. ✓ Tool use with code in params
-  tool-use-with-tool-use-in-params:
-     40. ✓ Tool use with tool use in params
-  triple-hash:
-     41. ✓ Triple hash not in citation
-  untagged-content:
-     42. ✓ Untagged content
-  xml-tags-backticks:
-     43. ✗ Tags in backticks
-
-14 failures:
-
-correct / expected / unexpected
-
-  1. Code block with nested headers:
-
-    (source_file
-      (user
-        (user_header)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text))
-      (assistant
-        (assistant_header)
-        (text)))
-
-
-  2. Code block triple backticks:
-
-    (source_file
-      (user
-        (user_header)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text))
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))))(tool_use
-  (tool_use_header)
-  (name
-    (key)
-    (value))
-  (id
-    (key)
-    (value))
-  (tool_param
-    (tool_param_header
-      (name))
-    (value
-      (tool_start_tag)
-      (tool_content
-        (tool_content_head))
-      (tool_end_tag))))(tool_result
-  (tool_result_header)
-  (id
-    (key)
-    (value))
-  (content
-    (tool_start_tag)
-    (tool_content
-      (tool_content_head))
-    (tool_end_tag)))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text))
-      (tool_use
-        (tool_use_header)
-        (name
-          (key)
-          (value))
-        (id
-          (key)
-          (value))
-        (tool_param
-          (tool_param_header
-            (name))
-          (value
-            (tool_start_tag)
-            (tool_content
-              (tool_content_head))
-            (tool_end_tag))))
-      (tool_result
-        (tool_result_header)
-        (id
-          (key)
-          (value))
-        (content
-          (tool_start_tag)
-          (tool_content
-            (tool_content_head))
-          (tool_end_tag))))
-
-
-  3. Inline code with double backticks:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  4. Triple backticks no language:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  5. Triple backticks with language:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  6. Triple backticks with invalid language (has spaces):
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  7. Quadruple backticks with language:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  8. Triple backticks inline with language:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  9. Triple backticks language with numbers and symbols:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  10. Empty code blocks:
-
-    (source_file
-      (ERROR
-      (assistant
-        (assistant_header)
-        (code_start_tag)
-        (code_content)
-        (UNEXPECTED '`')))
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-
-  11. HTML comments:
-
-    (source_file
-      (user
-        (user_header)
-        (text)
-        (html_comment)
-        (text)
-        (html_comment)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text)))
-
-
-  12. Mixed code blocks and sections:
-
-    (source_file
-      (user
-        (user_header)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text))
-      (assistant
-        (assistant_header)
-        (text)))
-
-
-  13. Nested code blocks:
-
-    (source_file
-      (user
-        (user_header)
-        (text))
-      (assistant
-        (assistant_header)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text)))
-
-
-  14. Tags in backticks:
-
-    (source_file
-      (user
-        (user_header)
-        (text)
-        (ERROR
-        (code
-          (code_start_tag)
-          (code_content)
-          (UNEXPECTED '`'))
-          (code_end_tag))
-        (text)
-        (code
-          (code_start_tag)
-          (code_content)
-          (code_end_tag))
-        (text)))
-
-Command failed with exit code 1
-</tool.toolu_01EZdo2m2mHqgg9zFsN4FbEd>
-
-# ASSISTANT
-
-Oh no! My fix broke the regular code block parsing. All the code blocks are now showing `(UNEXPECTED '`')` errors. The issue is that my modification to the `code_content` scanner is now preventing it from properly stopping at the closing backticks.
-
-Let me analyze the problem. The issue is in how I'm handling the backtick matching logic when there's also a code-close pattern match in progress. Let me look at a failing test case:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01RhHy6X8tsF6LQsnKUNiVmj
-
-## command
-
-<tool.toolu_01RhHy6X8tsF6LQsnKUNiVmj>
-printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01RhHy6X8tsF6LQsnKUNiVmj>
-
-# TOOL RESULT
-
-ID: toolu_01RhHy6X8tsF6LQsnKUNiVmj
-
-<tool.toolu_01RhHy6X8tsF6LQsnKUNiVmj>
-(source_file [0, 0] - [4, 3]
-  (ERROR [0, 0] - [4, 3]
-    (assistant_header [0, 0] - [0, 11])
-    (code_start_tag [2, 0] - [2, 3])
-    (code_content [2, 3] - [4, 2])
-    (ERROR [4, 2] - [4, 3])))
-/dev/stdin	Parse:    0.03 ms	   823 bytes/ms	(ERROR [0, 0] - [4, 3])
-Command failed with exit code 1
-</tool.toolu_01RhHy6X8tsF6LQsnKUNiVmj>
-
-# ASSISTANT
-
-I can see the issue. The problem is similar to what we had with code-close. The content scanner is consuming up to the second backtick `[4, 2]`, leaving just the last backtick `[4, 3]` as an error. This suggests the same issue is happening with the regular backtick pattern matching.
-
-Let me look at the failing case more closely. The content is consuming "test\n``" and leaving the final "`" as ERROR. This means the scanner is not properly recognizing when to stop at the closing backticks.
-
-The issue is that I'm not properly handling the case where we match the expected closing pattern. Let me trace through this:
-
-1. Scanner sees `` ` `` (first backtick) - matches expected_closing[0], match_index becomes 1
-2. Scanner sees `` ` `` (second backtick) - matches expected_closing[1], match_index becomes 2  
-3. Scanner sees `` ` `` (third backtick) - matches expected_closing[2], match_index becomes 3
-4. At this point, match_index == expected_len (3), so it should return without consuming
-
-But the issue is that I'm calling `advance(lexer)` BEFORE checking if match_index == expected_len. Let me fix this:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01QFSZCiSAXpw6oBuk4gaMmG
-
-## path
-
-<tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-./src/scanner.c
-</tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
-## git-commit-message
-
-<tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-Fix backtick pattern matching - check complete pattern before advancing
-</tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
-## diff
-
-<tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
-</tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
-# TOOL RESULT
-
-ID: toolu_01QFSZCiSAXpw6oBuk4gaMmG
-
-<tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick pattern matching - check complete pattern before advancing
-</tool.toolu_01QFSZCiSAXpw6oBuk4gaMmG>
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_018hagoQmrqKXgbqvC6LVdmo
-
-## path
-
-<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-./src/scanner.c
-</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-
-## start-line
-
-<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-720
-</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-
-## end-line
-
-<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-750
-</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-
-## include-line-numbers
-
-<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-true
-</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-
-# TOOL RESULT
-
-ID: toolu_018hagoQmrqKXgbqvC6LVdmo
-
-<tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-720:             }
-721:             // Continue checking this character for backtick patterns too
-722:         } else {
-723:             code_close_match_index = 0;
-724:         }
-725:         
-726:         // Check for regular closing pattern
-727:         if (lexer->lookahead == expected_closing[match_index]) {
-728:             match_index++;
-729:             if (match_index == expected_len) {
-730:                 // Found complete closing pattern, stop here (don't consume it)
-731:                 if (has_content) {
-732:                     lexer->result_symbol = CODE_CONTENT;
-733:                     return true;
-734:                 } else {
-735:                     return false;
-736:                 }
-737:             }
-738:             advance(lexer);
-739:             has_content = true;
-740:             // Only mark end if we're not in middle of matching code close pattern
-741:             if (code_close_match_index == 0) {
-742:                 lexer->mark_end(lexer);
-743:             }
-744:         } else {
-745:             // Reset match and continue as content
-746:             if (match_index > 0) {
-747:                 // We were partially matching, reset but don't advance yet
-748:                 match_index = 0;
-749:                 // Don't advance here, reprocess this character
-750:             } else {
-</tool.toolu_018hagoQmrqKXgbqvC6LVdmo>
-
-# ASSISTANT
-
-I see the issue! On line 738, I'm calling `advance(lexer)` after checking that we have a character match, but BEFORE checking if we have a complete pattern match. This means when we get to the last backtick of a closing pattern, we advance past it before realizing we have a complete match.
-
-The fix is to check for complete pattern match first, then advance. Let me fix this:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_017tnoRMDp7kKDq3ouffr7Zs
-
-## path
-
-<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-./src/scanner.c
-</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-
-## git-commit-message
-
-<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-Fix backtick pattern matching - check complete pattern before advancing
-</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-
-## diff
-
-<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-         // Check for regular closing pattern
-         if (lexer->lookahead == expected_closing[match_index]) {
-             match_index++;
-             if (match_index == expected_len) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
-+            // Not complete pattern yet, advance and continue
-             advance(lexer);
-             has_content = true;
-             // Only mark end if we're not in middle of matching code close pattern
-             if (code_close_match_index == 0) {
-                 lexer->mark_end(lexer);
-             }
-\ No newline at end of file
-
-</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-
-# TOOL RESULT
-
-ID: toolu_017tnoRMDp7kKDq3ouffr7Zs
-
-<tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick pattern matching - check complete pattern before advancing
-</tool.toolu_017tnoRMDp7kKDq3ouffr7Zs>
-
-# ASSISTANT
-
-Now let's test the basic case:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_014KLBRUD1AsB6rkcYZFPT3D
-
-## command
-
-<tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
-printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
-
-# TOOL RESULT
-
-ID: toolu_014KLBRUD1AsB6rkcYZFPT3D
-
-<tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
-(source_file [0, 0] - [4, 3]
-  (ERROR [0, 0] - [4, 3]
-    (assistant_header [0, 0] - [0, 11])
-    (code_start_tag [2, 0] - [2, 3])
-    (code_content [2, 3] - [4, 2])
-    (ERROR [4, 2] - [4, 3])))
-/dev/stdin	Parse:    0.68 ms	    36 bytes/ms	(ERROR [0, 0] - [4, 3])
-Command failed with exit code 1
-</tool.toolu_014KLBRUD1AsB6rkcYZFPT3D>
-
-# ASSISTANT
-
-The same issue persists. Let me examine this more carefully by looking at the specific case. The issue seems to be that the content scanner is consuming to `[4, 2]` when it should consume only to `[4, 0]`. 
-
-Let me check what the content actually is:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_013df4YQ1PNFbtDu3RV3SFvb
-
-## command
-
-<tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
-printf '# ASSISTANT\n\n```\ntest\n```' | od -c
-</tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
-
-# TOOL RESULT
-
-ID: toolu_013df4YQ1PNFbtDu3RV3SFvb
-
-<tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
-0000000    #       A   S   S   I   S   T   A   N   T  \n  \n   `   `   `
-0000020   \n   t   e   s   t  \n   `   `   `                            
-0000031
-
-</tool.toolu_013df4YQ1PNFbtDu3RV3SFvb>
-
-# ASSISTANT
-
-So the content is:
-- `[2, 3]` to `[4, 0]` should be: `\ntest\n`
-- `[4, 0]` to `[4, 3]` should be: ``` (the closing backticks)
-
-But the scanner is consuming `[2, 3]` to `[4, 2]` which is `\ntest\n`` (it's consuming 2 of the 3 closing backticks).
-
-The issue is that the scanner is still calling `advance(lexer)` when it shouldn't be. Let me trace through this again:
-
-1. Scanner starts at position `[2, 3]` (after opening ```)
-2. It sees `\n` - this doesn't match expected_closing[0] (which is `), so it goes to the else branch
-3. In the else branch, match_index is 0, so it goes to the inner else
-4. It calls `advance(lexer)` and `has_content = true`
-5. Continue this pattern for `test\n`
-6. Scanner sees first closing `` ` at position `[4, 0]`
-7. This matches expected_closing[0], so match_index becomes 1
-8. match_index (1) != expected_len (3), so it continues
-9. It calls `advance(lexer)` advancing to position `[4, 1]`
-10. Scanner sees second closing `` ` at position `[4, 1]`
-11. This matches expected_closing[1], so match_index becomes 2
-12. match_index (2) != expected_len (3), so it continues
-13. It calls `advance(lexer)` advancing to position `[4, 2]`
-14. Scanner sees third closing `` ` at position `[4, 2]`
-15. This matches expected_closing[2], so match_index becomes 3
-16. match_index (3) == expected_len (3), so it returns with CODE_CONTENT
-17. The lexer position is now at `[4, 2]` but we want it at `[4, 0]`
-
-The problem is that the logic assumes we should always advance when we're matching a pattern, but that's only true if we're consuming the pattern. For the closing pattern, we should NOT advance because we want to leave the closing backticks for the `code_end_tag` scanner.
-
-I need to distinguish between:
-1. Characters that are part of the content (should advance and mark end)
-2. Characters that are part of the closing pattern (should not advance)
-
-Let me fix this by not advancing when matching the closing pattern:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_018xtWx1GRzP8pZ6yT7rh9tH
-
-## path
-
-<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-./src/scanner.c
-</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-
-## git-commit-message
-
-<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-Fix backtick pattern matching - don't advance when matching closing pattern
-</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-
-## diff
-
-<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-         // Check for regular closing pattern
-         if (lexer->lookahead == expected_closing[match_index]) {
-             match_index++;
-             if (match_index == expected_len) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            // Not complete pattern yet, advance and continue
--            advance(lexer);
--            has_content = true;
--            // Only mark end if we're not in middle of matching code close pattern
--            if (code_close_match_index == 0) {
--                lexer->mark_end(lexer);
--            }
-\ No newline at end of file
-+            // Not complete pattern yet, but DON'T advance - we want to leave these for code_end_tag
-+            // Just continue the loop to check the next character
-+        }
-\ No newline at end of file
-
-</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-
-# TOOL RESULT
-
-ID: toolu_018xtWx1GRzP8pZ6yT7rh9tH
-
-<tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix backtick pattern matching - don't advance when matching closing pattern
-</tool.toolu_018xtWx1GRzP8pZ6yT7rh9tH>
-
-# ASSISTANT
-
-Wait, that's not right either. If I don't advance, I'll get stuck in an infinite loop. The issue is more subtle. Let me think about this differently.
-
-The problem is that I'm trying to match the closing pattern character by character, but I should be doing a lookahead to see if the complete pattern matches, without advancing.
-
-Let me revert this and implement a proper lookahead approach:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01Rg4A3ZPS4S8m1pxQkNcJvF
-
-## path
-
-<tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-./src/scanner.c
-</tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-
-## git-commit-message
-
-<tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-Implement proper lookahead for closing patterns
-</tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-
-## diff
-
-<tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
--        // Check for regular closing pattern
--        if (lexer->lookahead == expected_closing[match_index]) {
--            match_index++;
--            if (match_index == expected_len) {
-+        // Check for complete regular closing pattern using lookahead
-+        if (lexer->lookahead == expected_closing[0]) {
-+            // Check if we can match the complete pattern
-+            int lookahead_pos = 0;
-+            bool complete_match = true;
-+            
-+            // Save current position
-+            uint32_t saved_pos = lexer->get_column(lexer);
-+            
-+            // Try to match the complete pattern
-+            while (lookahead_pos < expected_len) {
-+                if (lexer->lookahead != expected_closing[lookahead_pos]) {
-+                    complete_match = false;
-+                    break;
-+                }
-+                if (lookahead_pos < expected_len - 1) {
-+                    advance(lexer);
-+                }
-+                lookahead_pos++;
-+            }
-+            
-+            // Reset position to where we started
-+            while (lexer->get_column(lexer) > saved_pos) {
-+                // We can't easily reset, so this approach won't work
-+                // Let me try a different approach
-+            }
-+            
-+            if (complete_match) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
--            // Not complete pattern yet, but DON'T advance - we want to leave these for code_end_tag
--            // Just continue the loop to check the next character
-         }
-\ No newline at end of file
-
-</tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-
-# TOOL RESULT
-
-ID: toolu_01Rg4A3ZPS4S8m1pxQkNcJvF
-
-<tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement proper lookahead for closing patterns
-</tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-
-# ASSISTANT
-
-Actually, that approach won't work because Tree-sitter doesn't provide a way to reset the lexer position. Let me look at how the working tool scanner handles this. The key insight is that the tool scanner pattern `</tool.*>` doesn't have overlapping characters with regular content, but backticks do.
-
-Let me check the working tool scanner approach more carefully:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_01CmVzRiFPYbWkQVf8R9FjJW
-
-## path
-
-<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-./src/scanner.c
-</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-
-## start-line
-
-<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-295
-</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-
-## end-line
-
-<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-325
-</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-
-## include-line-numbers
-
-<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-true
-</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-
-# TOOL RESULT
-
-ID: toolu_01CmVzRiFPYbWkQVf8R9FjJW
-
-<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-295:         if (lexer->lookahead == expected_closing[match_index]) {
-296:             match_index++;
-297:             if (match_index == expected_len) {
-298:                 // Found complete closing tag, stop here (don't consume it)
-299:                 if (has_content) {
-300:                     lexer->result_symbol = TOOL_CONTENT_HEAD;
-301:                     return true;
-302:                 } else {
-303:                     // No content, let the grammar handle the end tag
-304:                     return false;
-305:                 }
-306:             }
-307:             advance(lexer);
-308:             current_line_has_content = true;
-309:         } else {
-310:             // Reset match and continue as content
-311:             if (match_index > 0) {
-312:                 // We were partially matching but failed, reset and process current char as content
-313:                 match_index = 0;
-314:             }
-315:             
-316:             // Process current character as content
-317:             if (lexer->lookahead == '\n') {
-318:                 if (current_line_has_content) {
-319:                     line_count++;
-320:                     current_line_has_content = false;
-321:                 }
-322:                 advance(lexer);
-323:                 has_content = true;
-324:                 lexer->mark_end(lexer);
-325:                 
-</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
-
-# ASSISTANT
-
-Wait, I think I see the issue! In the tool scanner, it's calling `advance(lexer)` on line 307 AFTER checking for complete match but BEFORE checking if it's complete. This means it's consuming characters that are part of the closing pattern.
-
-But the tool scanner works because of how it uses `lexer->mark_end(lexer)`. Let me see where that's called:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_0159jmZ9MMfxjCdN7GLCdvSz
-
-## path
-
-<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-./src/scanner.c
-</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-
-## start-line
-
-<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-305
-</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-
-## end-line
-
-<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-315
-</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-
-## include-line-numbers
-
-<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-true
-</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-
-# TOOL RESULT
-
-ID: toolu_0159jmZ9MMfxjCdN7GLCdvSz
-
-<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-305:                 }
-306:             }
-307:             advance(lexer);
-308:             current_line_has_content = true;
-309:         } else {
-310:             // Reset match and continue as content
-311:             if (match_index > 0) {
-312:                 // We were partially matching but failed, reset and process current char as content
-313:                 match_index = 0;
-314:             }
-315:             
-</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
-
-# ASSISTANT
-
-I see! The tool scanner is calling `advance(lexer)` but it's NOT calling `lexer->mark_end(lexer)` when it's matching the closing pattern. It only calls `mark_end` when processing regular content.
-
-The key insight is that `mark_end` determines where the token ends. So if we advance past closing pattern characters but don't mark the end there, the token will end at the last place we called `mark_end`.
-
-Let me fix my code scanner to follow the same pattern:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_01YP6nNcvorYyyTEQrzqsd1M
-
-## path
-
-<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-./src/scanner.c
-</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-
-## git-commit-message
-
-<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-Fix code scanner to match tool scanner pattern - advance but don't mark end when matching closing pattern
-</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-
-## diff
-
-<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
--        // Check for complete regular closing pattern using lookahead
--        if (lexer->lookahead == expected_closing[0]) {
--            // Check if we can match the complete pattern
--            int lookahead_pos = 0;
--            bool complete_match = true;
--            
--            // Save current position
--            uint32_t saved_pos = lexer->get_column(lexer);
--            
--            // Try to match the complete pattern
--            while (lookahead_pos < expected_len) {
--                if (lexer->lookahead != expected_closing[lookahead_pos]) {
--                    complete_match = false;
--                    break;
--                }
--                if (lookahead_pos < expected_len - 1) {
--                    advance(lexer);
--                }
--                lookahead_pos++;
--            }
--            
--            // Reset position to where we started
--            while (lexer->get_column(lexer) > saved_pos) {
--                // We can't easily reset, so this approach won't work
--                // Let me try a different approach
--            }
--            
--            if (complete_match) {
-+        // Check for regular closing pattern
-+        if (lexer->lookahead == expected_closing[match_index]) {
-+            match_index++;
-+            if (match_index == expected_len) {
-                 // Found complete closing pattern, stop here (don't consume it)
-                 if (has_content) {
-                     lexer->result_symbol = CODE_CONTENT;
-                     return true;
-                 } else {
-                     return false;
-                 }
-             }
-+            // Advance but don't mark end - we're matching the closing pattern
-+            advance(lexer);
-+            has_content = true;
-         }
-\ No newline at end of file
-
-</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-
-# TOOL RESULT
-
-ID: toolu_01YP6nNcvorYyyTEQrzqsd1M
-
-<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code scanner to match tool scanner pattern - advance but don't mark end when matching closing pattern
-</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
-
-# ASSISTANT
-
-Let's test this:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01Q8wR1Uqev9qXRYmhRY3NiU
-
-## command
-
-<tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
-printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
-
-# TOOL RESULT
-
-ID: toolu_01Q8wR1Uqev9qXRYmhRY3NiU
-
-<tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
-Failed to load language in current directory
-
-Caused by:
-    Parser compilation failed.
-    Stdout: 
-    Stderr: /Users/andreas/projects/greger-grammar/./src/scanner.c:742:11: error: expected expression
-            } else {
-              ^
-    /Users/andreas/projects/greger-grammar/./src/scanner.c:770:5: error: expected identifier or '('
-        if (has_content) {
-        ^
-    /Users/andreas/projects/greger-grammar/./src/scanner.c:775:5: error: expected identifier or '('
-        return false;
-        ^
-    /Users/andreas/projects/greger-grammar/./src/scanner.c:776:1: error: extraneous closing brace ('}')
-    }
-    ^
-    4 errors generated.
-    
-Command failed with exit code 1
-</tool.toolu_01Q8wR1Uqev9qXRYmhRY3NiU>
-
-# ASSISTANT
-
-I have a syntax error. Let me check the scanner code:
-
-# TOOL USE
-
-Name: read-file
-ID: toolu_014vU7xbVpMeYTUjg3VhSkEa
-
-## path
-
-<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-./src/scanner.c
-</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-
-## start-line
-
-<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-735
-</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-
-## end-line
-
-<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-780
-</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-
-## include-line-numbers
-
-<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-true
-</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-
-# TOOL RESULT
-
-ID: toolu_014vU7xbVpMeYTUjg3VhSkEa
-
-<tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-735:                     return false;
-736:                 }
-737:             }
-738:             // Advance but don't mark end - we're matching the closing pattern
-739:             advance(lexer);
-740:             has_content = true;
-741:         }
-742:         } else {
-743:             // Reset match and continue as content
-744:             if (match_index > 0) {
-745:                 // We were partially matching, reset but don't advance yet
-746:                 match_index = 0;
-747:                 // Don't advance here, reprocess this character
-748:             } else {
-749:                 // For inline code (1-2 backticks), stop at newlines
-750:                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-751:                     if (has_content) {
-752:                         lexer->result_symbol = CODE_CONTENT;
-753:                         return true;
-754:                     } else {
-755:                         return false;
-756:                     }
-757:                 }
-758:                 
-759:                 advance(lexer);
-760:                 has_content = true;
-761:                 // Only mark end if we're not in middle of matching code close pattern
-762:                 if (code_close_match_index == 0) {
-763:                     lexer->mark_end(lexer);
-764:                 }
-765:             }
-766:         }
-767:     }
-768:     
-769:     // Reached end without finding closing tag
-770:     if (has_content) {
-771:         lexer->result_symbol = CODE_CONTENT;
-772:         return true;
-773:     }
-774:     
-775:     return false;
-776: }
-777: 
-778: static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
-779:     if (!scanner->in_code_content || lexer->lookahead != '`') return false;
-780:     
-</tool.toolu_014vU7xbVpMeYTUjg3VhSkEa>
-
-# ASSISTANT
-
-I see the issue - there's an extra `}` on line 741 and a misplaced `} else {` on line 742. Let me fix this:
-
-# TOOL USE
-
-Name: str-replace
-ID: toolu_013nSapAFD5kF6SsSWJ5q8Ye
-
-## path
-
-<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-./src/scanner.c
-</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
-## git-commit-message
-
-<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-Fix syntax error - remove extra braces
-</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
-## original-content
-
-<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-            // Advance but don't mark end - we're matching the closing pattern
-            advance(lexer);
-            has_content = true;
-        }
-        } else {
-</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
-## new-content
-
-<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-            // Advance but don't mark end - we're matching the closing pattern
-            advance(lexer);
-            has_content = true;
-        } else {
-</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
-# TOOL RESULT
-
-ID: toolu_013nSapAFD5kF6SsSWJ5q8Ye
-
-<tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix syntax error - remove extra braces
-</tool.toolu_013nSapAFD5kF6SsSWJ5q8Ye>
-
-# ASSISTANT
-
-Now let's test:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01HSoMbmKaptpgfGkX5Fj4Le
-
-## command
-
-<tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
-printf '# ASSISTANT\n\n```\ntest\n```' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
-
-# TOOL RESULT
-
-ID: toolu_01HSoMbmKaptpgfGkX5Fj4Le
-
-<tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
-(source_file [0, 0] - [4, 3]
-  (assistant [0, 0] - [4, 3]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [4, 3]
-      (code_start_tag [2, 0] - [2, 3])
-      (code_content [2, 3] - [4, 0])
-      (code_end_tag [4, 0] - [4, 3]))))
-
-</tool.toolu_01HSoMbmKaptpgfGkX5Fj4Le>
-
-# ASSISTANT
-
-Perfect! Now the code content ends at `[4, 0]` (before the closing backticks) and the code end tag is properly recognized from `[4, 0]` to `[4, 3]`.
-
-Let's test the code-close functionality is still working:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_019efNS9ky4nGG3VJxFdWyMD
-
-## command
-
-<tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
-printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
-
-# TOOL RESULT
-
-ID: toolu_019efNS9ky4nGG3VJxFdWyMD
-
-<tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
-(source_file [0, 0] - [4, 14]
-  (assistant [0, 0] - [4, 14]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [4, 14]
-      (code_start_tag [2, 0] - [2, 3])
-      (code_content [2, 3] - [4, 0])
-      (code_close_tag [4, 0] - [4, 14]))))
-
-</tool.toolu_019efNS9ky4nGG3VJxFdWyMD>
-
-# ASSISTANT
-
-Great! Both cases are working. Let's run the full test suite:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01NR4HgYpjv43x11sEMHRQJU
-
-## command
-
-<tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
-tree-sitter test
-</tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
-
-# TOOL RESULT
-
-ID: toolu_01NR4HgYpjv43x11sEMHRQJU
-
-<tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
-  citations-after-tool-result:
-      1. ✓ Citations after tool result
-  citations-basic:
-      2. ✓ Citations basic
-  citations-multiple:
-      3. ✓ Citations multiple
-  code-block-nested-headers:
-      4. ✓ Code block with nested headers
-  code-block-triple-backticks:
-      5. ✓ Code block triple backticks
-  code-close:
-      6. ✓ Code close tag test
-  code:
-      7. ✓ Inline code with single backticks
-      8. ✓ Inline code with double backticks
-      9. ✓ Triple backticks no language
-     10. ✓ Triple backticks with language
-     11. ✓ Triple backticks with invalid language (has spaces)
-     12. ✓ Quadruple backticks with language
-     13. ✓ Triple backticks inline with language
-     14. ✓ Triple backticks language with numbers and symbols
-     15. ✓ Empty code blocks
-  complex-workflow:
-     16. ✓ Complex workflow
-  eval-nested-braces:
-     17. ✓ Eval nested braces
-  eval-partial:
-     18. ✓ Eval partial cases -- Warning: Slow parse rate (1328.683 bytes/ms)
-  eval-results:
-     19. ✓ Eval results
-  eval:
-     20. ✓ Eval
-  html-comments:
-     21. ✓ HTML comments
-  html-tags:
-     22. ✓ HTML tags should be interpreted as text
-  less-than-greater-than:
-     23. ✓ Less than/greater than
-  mixed-code-blocks-and-sections:
-     24. ✓ Mixed code blocks and sections
-  multiple-tool-uses:
-     25. ✓ Multiple tool uses
-  nested-code-blocks:
-     26. ✓ Nested code blocks
-  safe-shell-commands:
-     27. ✓ Safe shell commands
-  server-tool-use-basic:
-     28. ✓ Server tool use basic
-  server-tool-use-string-result:
-     29. ✓ Server tool use string result
-  simple-conversation:
-     30. ✓ Simple conversation
-  simple-user-message:
-     31. ✓ Simple user message
-  system-and-user:
-     32. ✓ System and user
-  text-with-markdown-headings:
-     33. ✓ Text with markdown headings
-  thinking-only:
-     34. ✓ Thinking only
-  thinking-section:
-     35. ✓ Thinking section
-  tool-use-multiple-params:
-     36. ✓ Tool use multiple params
-  tool-use-only:
-     37. ✓ Tool use only
-  tool-use-single-param:
-     38. ✓ Tool use single param
-  tool-use-with-code-in-params:
-     39. ✓ Tool use with code in params
-  tool-use-with-tool-use-in-params:
-     40. ✓ Tool use with tool use in params
-  triple-hash:
-     41. ✓ Triple hash not in citation
-  untagged-content:
-     42. ✓ Untagged content
-  xml-tags-backticks:
-     43. ✓ Tags in backticks
-
-Total parses: 43; successful parses: 43; failed parses: 0; success percentage: 100.00%; average speed: 24415 bytes/ms
-
-
-</tool.toolu_01NR4HgYpjv43x11sEMHRQJU>
-
-# ASSISTANT
-
-Excellent! All tests are passing now. Let me run a few more specific tests to make sure everything is working correctly:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01GDbDt5cJqiSjSWWsBPhKTr
-
-## command
-
-<tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
-printf '# ASSISTANT\n\n`inline code`' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
-
-# TOOL RESULT
-
-ID: toolu_01GDbDt5cJqiSjSWWsBPhKTr
-
-<tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
-(source_file [0, 0] - [2, 13]
-  (assistant [0, 0] - [2, 13]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [2, 13]
-      (code_start_tag [2, 0] - [2, 1])
-      (code_content [2, 1] - [2, 12])
-      (code_end_tag [2, 12] - [2, 13]))))
-
-</tool.toolu_01GDbDt5cJqiSjSWWsBPhKTr>
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_015qyA4yQMs9PDvSQudu1NZL
-
-## command
-
-<tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
-printf '# ASSISTANT\n\n``double backticks``' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
-
-# TOOL RESULT
-
-ID: toolu_015qyA4yQMs9PDvSQudu1NZL
-
-<tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
-(source_file [0, 0] - [2, 20]
-  (assistant [0, 0] - [2, 20]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [2, 20]
-      (code_start_tag [2, 0] - [2, 2])
-      (code_content [2, 2] - [2, 18])
-      (code_end_tag [2, 18] - [2, 20]))))
-
-</tool.toolu_015qyA4yQMs9PDvSQudu1NZL>
-
-# ASSISTANT
-
-Perfect! Let's also test edge cases:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_011ya1TwrXC1QqtqU8tKUbQa
-
-## command
-
-<tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
-printf '# ASSISTANT\n\n```\ncode with backticks ` inside\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
-
-# TOOL RESULT
-
-ID: toolu_011ya1TwrXC1QqtqU8tKUbQa
-
-<tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
-(source_file [0, 0] - [4, 14]
-  (assistant [0, 0] - [4, 14]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [4, 14]
-      (code_start_tag [2, 0] - [2, 3])
-      (code_content [2, 3] - [4, 0])
-      (code_close_tag [4, 0] - [4, 14]))))
-
-</tool.toolu_011ya1TwrXC1QqtqU8tKUbQa>
-
-# ASSISTANT
-
-Great! The code-close works even when there are backticks inside the content.
-
-Let me test another edge case - what happens when `<$code-close/>` appears outside of a code block:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01E3LmBNJXNDRoS22PzGPzrN
-
-## command
-
-<tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
-printf '# ASSISTANT\n\nRegular text with <$code-close/> inside.' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
-
-# TOOL RESULT
-
-ID: toolu_01E3LmBNJXNDRoS22PzGPzrN
-
-<tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
-(source_file [0, 0] - [2, 40]
-  (assistant [0, 0] - [2, 40]
-    (assistant_header [0, 0] - [0, 11])
-    (text [2, 0] - [2, 40])))
-
-</tool.toolu_01E3LmBNJXNDRoS22PzGPzrN>
-
-# ASSISTANT
-
-Perfect! When `<$code-close/>` appears outside of a code block, it's treated as regular text and doesn't interfere with parsing.
-
-Let me also test the complex case with more content after the code-close:
-
-# TOOL USE
-
-Name: shell-command
-ID: toolu_01BNbRbkov8e8nLNuw21mqqQ
-
-## command
-
-<tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
-printf '# ASSISTANT\n\n```\ncode\n<$code-close/>\n\nMore text after the code block.' | timeout 10 tree-sitter parse /dev/stdin
-</tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
-
-# TOOL RESULT
-
-ID: toolu_01BNbRbkov8e8nLNuw21mqqQ
-
-<tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
-(source_file [0, 0] - [6, 31]
-  (assistant [0, 0] - [6, 31]
-    (assistant_header [0, 0] - [0, 11])
-    (code [2, 0] - [4, 14]
-      (code_start_tag [2, 0] - [2, 3])
-      (code_content [2, 3] - [4, 0])
-      (code_close_tag [4, 0] - [4, 14]))
-    (text [4, 14] - [6, 31])))
-
-</tool.toolu_01BNbRbkov8e8nLNuw21mqqQ>
-
-# ASSISTANT
-
-Excellent! The parser correctly handles the text after the code-close tag.
-
-## Summary
-
-I've successfully implemented the `<$code-close/>` tag functionality in the Greger markdown parser. Here's what was accomplished:
-
-### ✅ **Core Implementation**
-
-1. **Grammar Definition**: Added `code_close_tag: $ => '<$code-close/>'` as a regular grammar token
-2. **Code Rule**: Modified `code` rule to accept either `code_end_tag` or `code_close_tag` as closing tokens
-3. **Scanner Logic**: Fixed the `scan_code_content()` function to properly detect and stop before the `<$code-close/>` pattern
-
-### ✅ **Key Technical Fixes**
-
-1. **Boundary Detection**: Scanner now correctly stops code content before consuming any part of the `<$code-close/>` pattern
-2. **Mark End Logic**: Implemented proper `lexer->mark_end()` behavior to ensure token boundaries are correct
-3. **Pattern Matching**: Fixed the backtick pattern matching to work correctly with the code-close detection
-4. **Syntax Preservation**: All existing code block functionality (inline, fenced, nested) continues to work perfectly
-
-### ✅ **Test Results**
-
-- **All 43 tests passing** (100% success rate)
-- **Code-close functionality working** - properly closes unclosed code blocks
-- **Regular code blocks working** - `` `inline` ``, ` ``` triple backticks, etc.
-- **Edge cases handled** - backticks inside content, code-close outside code blocks, content after code-close
-
-### ✅ **Usage Examples**
-
-```
-# ASSISTANT
-
-```
-unclosed code block
-<$code-close/>
-
-More text continues here.
-```
-
-**Parse result:**
-```
-(source_file
-  (assistant
-    (assistant_header)
-    (code
-      (code_start_tag)
-      (code_content)
-      (code_close_tag))
-    (text)))
-```
-
-The implementation successfully addresses Claude's tendency to leave code blocks unclosed by providing a force-close mechanism that allows the parser to recover and continue parsing subsequent sections correctly.
+ID: toolu_01L23L1nDXR3qQaUPLabtT2T
+
+<tool.toolu_01L23L1nDXR3qQaUPLabtT2T>
+==================
+Inline code with single backticks
+==================
 
 # USER
 
+Foo `bar` baz
+
+# ASSISTANT
+
+Code `example` in text.
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+=======================
+Inline code with double backticks
+=======================
+
+# ASSISTANT
+
+`` `code` ``
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks no language
+===============================
+
+# ASSISTANT
+
+```
+multi
+line
+code
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+==============================
+Triple backticks with language
+==============================
+
+# ASSISTANT
+
+```python
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+=========================================
+Triple backticks with invalid language (has spaces)
+=========================================
+
+# ASSISTANT
+
+```python stuff
+def hello():
+    print("world")
+```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Quadruple backticks with language
+===============================
+
+# ASSISTANT
+
+````rust
+fn main() {
+    println!("Hello with ``` inside");
+}
+````
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks inline with language
+===============================
+
+# ASSISTANT
+
+```javascript console.log("hello")```
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Triple backticks language with numbers and symbols
+===============================
+
+# ASSISTANT
+
+```c++
+#include <iostream>
+```
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+
+===============================
+Empty code blocks
+===============================
+
+# ASSISTANT
+
+`````
+`````
+
+More text.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_end_tag))
+    (text)))
+</tool.toolu_01L23L1nDXR3qQaUPLabtT2T>
+
+# ASSISTANT
+
+Now let me look at the grammar to understand the current code implementation:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01NXHQvkN5qyHYVwYpjMfa9s
+
+## path
+
+<tool.toolu_01NXHQvkN5qyHYVwYpjMfa9s>
+grammar.js
+</tool.toolu_01NXHQvkN5qyHYVwYpjMfa9s>
+
+# TOOL RESULT
+
+ID: toolu_01NXHQvkN5qyHYVwYpjMfa9s
+
+<tool.toolu_01NXHQvkN5qyHYVwYpjMfa9s>
+/**
+ * @file Greger grammar for tree-sitter
+ * @author Andreas Jansson
+ * @license MIT
+ */
+
+/// <reference types="tree-sitter-cli/dsl" />
+// @ts-check
+
+module.exports = grammar({
+  name: "greger",
+
+  extras: $ => [
+    /[ \t\n]/,
+  ],
+
+  externals: $ => [
+    $.tool_start_tag,
+    $.tool_end_tag,
+    $.tool_content_head,
+    $.tool_content_tail,
+    $.html_comment,
+    $.eval_content,
+    $.eval_result_start_tag,
+    $.eval_result_end_tag,
+    $.eval_result_content_head,
+    $.eval_result_content_tail,
+    $.error_sentinel,
+    $.code_start_tag,
+    $.code_content,
+    $.code_end_tag,
+    $.eval_language,
+  ],
+
+  inline: $ => [
+    $.content_blocks,
+    $.assistant_content_blocks,
+    $.system_content_blocks,
+  ],
+
+  rules: {
+    source_file: $ => seq(
+      optional($.untagged_text),
+      optional($.system),
+      repeat($._block),
+    ),
+
+    untagged_text: $ => prec(-1, repeat1(
+      seq(
+        $._untagged_text_content,
+        "\n"
+      ))),
+
+    _block: $ => choice(
+      $.user,
+      $.assistant,
+      $.thinking,
+      $.tool_use,
+      $.tool_result,
+      $.server_tool_use,
+      $.web_search_tool_result,
+    ),
+
+    user: $ => seq(
+      $.user_header,
+      '\n\n',
+      $.content_blocks,
+    ),
+
+    assistant: $ => seq(
+      $.assistant_header,
+      '\n\n',
+      $.assistant_content_blocks,
+    ),
+
+    system: $ => seq(
+      $.system_header,
+      '\n\n',
+      $.system_content_blocks,
+    ),
+
+    thinking: $ => seq(
+      $.thinking_header,
+      '\n\n',
+      optional(seq(
+        $.thinking_signature,
+        '\n\n',
+      )),
+      $.content_blocks,
+    ),
+
+    tool_use: $ => seq(
+      $.tool_use_header,
+      '\n\n',
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    tool_result: $ => seq(
+      $.tool_result_header,
+      '\n\n',
+      $.id,
+      $.content,
+    ),
+
+    server_tool_use: $ => seq(
+      $.server_tool_use_header,
+      '\n\n',
+      repeat(choice(
+        $.name,
+        $.id,
+        $.tool_param,
+      )),
+    ),
+
+    web_search_tool_result: $ => seq(
+      $.web_search_tool_result_header,
+      '\n\n',
+      $.id,
+      $.content,
+    ),
+
+    user_header: _ => token('# USER'),
+
+    assistant_header: _ => token('# ASSISTANT'),
+    system_header: _ => token('# SYSTEM'),
+
+    thinking_header: _ => token('# THINKING'),
+
+    tool_use_header: _ => token('# TOOL USE'),
+
+    tool_result_header: _ => token('# TOOL RESULT'),
+
+    server_tool_use_header: _ => token('# SERVER TOOL USE'),
+
+    web_search_tool_result_header: _ => token('# WEB SEARCH TOOL RESULT'),
+
+    name: $ => seq(
+      alias('Name:', $.key),
+      field('value', $.value),
+      /\n/
+    ),
+
+    id: $ => seq(
+      alias('ID:', $.key),
+      field('value', $.value),
+      /\n/
+    ),
+
+    thinking_signature: $ => seq(
+      alias('Signature: ', $.key),
+      field('value', $.value),
+    ),
+
+    tool_param: $ => seq(
+      $.tool_param_header,
+      /\n/,
+      optional(/\n/),
+      alias($._tool_element, $.value),
+    ),
+
+    tool_param_header: $ => seq(
+      '## ',
+      alias($.param_name, $.name),
+    ),
+
+    param_name: $ => /[^\n]+/,
+
+    citation_entry: $ => seq(
+      alias(token(/## https?:\/\/[^\n\s]+/), $.url),
+      /\n/,
+      optional(/\n/),
+      seq(
+        alias($.citation_title, $.title),
+        alias($.citation_text, $.cited_text),
+        alias($.citation_encrypted_index, $.encrypted_index),
+      ),
+      optional(alias($.citation_text, $.cited_text)),
+      optional(alias($.citation_encrypted_index, $.encrypted_index)),
+    ),
+
+
+
+    citation_title: $ => seq(
+      alias('Title: ', $.key),
+      optional(field("value", $.value)),
+      /\n/,
+    ),
+
+    citation_text: $ => seq(
+      alias('Cited text: ', $.key),
+      optional(field("value", $.value)),
+      /\n/,
+    ),
+
+    citation_encrypted_index: $ => seq(
+      alias('Encrypted index: ', $.key),
+      field("value", $.value),
+      /\n/,
+    ),
+
+    value: _ => /[^\n]+/,
+
+    assistant_content_blocks: $ => repeat1(choice(
+      $.citation_entry,
+      $.code,
+      alias($.assistant_text, $.text),
+      $.html_comment,
+    )),
+
+    system_content_blocks: $ => repeat1(choice(
+      $.html_comment,
+      $.eval,
+      $.code,
+      $.safe_shell_commands,
+      $.text,
+    )),
+
+    content_blocks: $ => repeat1(choice(
+      $.html_comment,
+      $.eval,
+      $.code,
+      $.text,
+    )),
+
+    text: $ => prec.right(repeat1(choice(
+      $._text_content,
+      /\n/,
+    ))),
+
+    assistant_text: $ => prec.right(repeat1(choice(
+      $._assistant_text_content,
+      /\n/,
+    ))),
+
+    _text_content: $ => token(prec(-1, /[^`$\n]+|\$[^{]/)),
+
+    _assistant_text_content: $ => token(prec(-1, /[^`\n]+/)),
+
+    _untagged_text_content: $ => token(prec(-2, seq(/[^#\n]+/, '\n'))),
+
+    _tool_element: $ => seq(
+      $.tool_start_tag,
+      field('value', $.tool_content),
+      $.tool_end_tag,
+    ),
+
+    tool_content: $ => seq(
+      $.tool_content_head,
+      optional($.tool_content_tail),
+    ),
+
+    content: $ => alias($._tool_element, 'content'),
+
+
+
+
+
+    safe_shell_commands: $ => seq(
+      '<safe-shell-commands>',
+      repeat(choice(
+        $.eval,
+        $.shell_command,
+        /\n/,
+      )),
+      '</safe-shell-commands>',
+    ),
+
+    // TODO: allow `<` in safe shell commands, somehow...
+    shell_command: _ => token(prec(-2, /[^<\n]+/)),
+
+    eval: $ => seq(
+      $.eval_start_brace,
+      repeat(choice(
+        $.eval_content,
+        $.eval_result,
+      )),
+      $.eval_end_brace,
+    ),
+
+    eval_result: $ => seq(
+      $.eval_result_start_tag,
+      $.eval_result_content,
+      $.eval_result_end_tag,
+    ),
+
+    eval_result_content: $ => seq(
+      $.eval_result_content_head,
+      optional($.eval_result_content_tail),
+    ),
+
+    eval_start_brace: $ => seq(
+      '${',
+      optional(seq(':', $.eval_language))
+    ),
+
+    eval_end_brace: $ => '}',
+
+    code: $ => seq(
+      $.code_start_tag,
+      optional($.code_content),
+      choice($.code_end_tag, $.code_close_tag),
+    ),
+
+    code_close_tag: $ => '<$code-close/>',
+
+
+    
+
+
+  },
+});
+</tool.toolu_01NXHQvkN5qyHYVwYpjMfa9s>
+
+# ASSISTANT
+
+Now let me check the scanner to understand how code blocks are currently handled:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_019oHT5D4BJWBHqBmrHq4UpK
+
+## path
+
+<tool.toolu_019oHT5D4BJWBHqBmrHq4UpK>
+src/scanner.c
+</tool.toolu_019oHT5D4BJWBHqBmrHq4UpK>
+
+# TOOL RESULT
+
+ID: toolu_019oHT5D4BJWBHqBmrHq4UpK
+
+<tool.toolu_019oHT5D4BJWBHqBmrHq4UpK>
+#include "tree_sitter/parser.h"
+#include <wctype.h>
+#include <string.h>
+#include <stdio.h>
+
+enum TokenType {
+    TOOL_START_TAG,
+    TOOL_END_TAG,
+    TOOL_CONTENT_HEAD,
+    TOOL_CONTENT_TAIL,
+    HTML_COMMENT,
+    EVAL_CONTENT,
+    EVAL_RESULT_START_TAG,
+    EVAL_RESULT_END_TAG,
+    EVAL_RESULT_CONTENT_HEAD,
+    EVAL_RESULT_CONTENT_TAIL,
+    ERROR_SENTINEL,
+    CODE_START_TAG,
+    CODE_CONTENT,
+    CODE_END_TAG,
+    EVAL_LANGUAGE,
+};
+
+typedef struct {
+    char tool_id[256];
+    bool in_tool_content;
+    bool expecting_tail; // true when we've scanned head and now need tail
+    char eval_result_id[256];
+    bool in_eval_result_content;
+    bool expecting_eval_result_tail;
+    int code_backtick_count; // Track the number of backticks in the opening sequence
+    bool in_code_content; // true when we're inside code content
+} Scanner;
+
+static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
+
+static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
+
+unsigned tree_sitter_greger_external_scanner_serialize(void *payload, char *buffer) {
+    Scanner *scanner = (Scanner *)payload;
+
+    size_t tool_id_len = strlen(scanner->tool_id);
+    if (tool_id_len >= 255) tool_id_len = 255;
+    
+    size_t eval_result_id_len = strlen(scanner->eval_result_id);
+    if (eval_result_id_len >= 255) eval_result_id_len = 255;
+
+    buffer[0] = scanner->in_tool_content ? 1 : 0;
+    buffer[1] = scanner->expecting_tail ? 1 : 0;
+    buffer[2] = tool_id_len;
+    memcpy(buffer + 3, scanner->tool_id, tool_id_len);
+
+    size_t offset = 3 + tool_id_len;
+    buffer[offset] = scanner->in_eval_result_content ? 1 : 0;
+    buffer[offset + 1] = scanner->expecting_eval_result_tail ? 1 : 0;
+    buffer[offset + 2] = eval_result_id_len;
+    memcpy(buffer + offset + 3, scanner->eval_result_id, eval_result_id_len);
+    
+    size_t final_offset = offset + 3 + eval_result_id_len;
+    buffer[final_offset] = scanner->code_backtick_count;
+    buffer[final_offset + 1] = scanner->in_code_content ? 1 : 0;
+
+    return final_offset + 2;
+}
+
+void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {
+    Scanner *scanner = (Scanner *)payload;
+
+    if (length == 0) {
+        scanner->in_tool_content = false;
+        scanner->expecting_tail = false;
+        scanner->tool_id[0] = '\0';
+        scanner->in_eval_result_content = false;
+        scanner->expecting_eval_result_tail = false;
+        scanner->eval_result_id[0] = '\0';
+        scanner->code_backtick_count = 0;
+        scanner->in_code_content = false;
+        return;
+    }
+
+    scanner->in_tool_content = buffer[0] == 1;
+    if (length > 1) {
+        scanner->expecting_tail = buffer[1] == 1;
+        if (length > 2) {
+            unsigned tool_id_len = buffer[2];
+            if (tool_id_len >= 255) tool_id_len = 255;
+            if (length >= 3 + tool_id_len) {
+                memcpy(scanner->tool_id, buffer + 3, tool_id_len);
+                scanner->tool_id[tool_id_len] = '\0';
+                
+                // Deserialize eval result state
+                size_t offset = 3 + tool_id_len;
+                if (length > offset) {
+                    scanner->in_eval_result_content = buffer[offset] == 1;
+                    if (length > offset + 1) {
+                        scanner->expecting_eval_result_tail = buffer[offset + 1] == 1;
+                        if (length > offset + 2) {
+                            unsigned eval_result_id_len = buffer[offset + 2];
+                            if (eval_result_id_len >= 255) eval_result_id_len = 255;
+                            if (length >= offset + 3 + eval_result_id_len) {
+                                memcpy(scanner->eval_result_id, buffer + offset + 3, eval_result_id_len);
+                                scanner->eval_result_id[eval_result_id_len] = '\0';
+                                
+                                // Deserialize code state
+                                size_t final_offset = offset + 3 + eval_result_id_len;
+                                if (length > final_offset) {
+                                    scanner->code_backtick_count = buffer[final_offset];
+                                    if (length > final_offset + 1) {
+                                        scanner->in_code_content = buffer[final_offset + 1] == 1;
+                                    } else {
+                                        scanner->in_code_content = false;
+                                    }
+                                } else {
+                                    scanner->code_backtick_count = 0;
+                                    scanner->in_code_content = false;
+                                }
+                            } else {
+                                scanner->eval_result_id[0] = '\0';
+                                scanner->code_backtick_count = 0;
+                                scanner->in_code_content = false;
+                            }
+                        } else {
+                            scanner->eval_result_id[0] = '\0';
+                        }
+                    } else {
+                        scanner->expecting_eval_result_tail = false;
+                        scanner->eval_result_id[0] = '\0';
+                    }
+                } else {
+                    scanner->in_eval_result_content = false;
+                    scanner->expecting_eval_result_tail = false;
+                    scanner->eval_result_id[0] = '\0';
+                }
+            } else {
+                scanner->tool_id[0] = '\0';
+                scanner->in_eval_result_content = false;
+                scanner->expecting_eval_result_tail = false;
+                scanner->eval_result_id[0] = '\0';
+            }
+        } else {
+            scanner->tool_id[0] = '\0';
+            scanner->in_eval_result_content = false;
+            scanner->expecting_eval_result_tail = false;
+            scanner->eval_result_id[0] = '\0';
+        }
+    } else {
+        scanner->expecting_tail = false;
+        scanner->tool_id[0] = '\0';
+        scanner->in_eval_result_content = false;
+        scanner->expecting_eval_result_tail = false;
+        scanner->eval_result_id[0] = '\0';
+    }
+}
+
+void *tree_sitter_greger_external_scanner_create(void) {
+    Scanner *scanner = malloc(sizeof(Scanner));
+    scanner->in_tool_content = false;
+    scanner->expecting_tail = false;
+    scanner->tool_id[0] = '\0';
+    scanner->in_eval_result_content = false;
+    scanner->expecting_eval_result_tail = false;
+    scanner->eval_result_id[0] = '\0';
+    scanner->code_backtick_count = 0;
+    scanner->in_code_content = false;
+    return scanner;
+}
+
+void tree_sitter_greger_external_scanner_destroy(void *payload) {
+    free(payload);
+}
+
+static bool scan_html_comment(TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '!') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Now we're inside the comment, scan until we find -->
+    unsigned dashes = 0;
+    while (lexer->lookahead) {
+        switch (lexer->lookahead) {
+            case '-':
+                ++dashes;
+                break;
+            case '>':
+                if (dashes >= 2) {
+                    lexer->result_symbol = HTML_COMMENT;
+                    advance(lexer);
+                    return true;
+                }
+                // fallthrough
+            default:
+                dashes = 0;
+        }
+        advance(lexer);
+    }
+
+    return false;
+}
+
+static bool scan_tool_start_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Get the tool ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->tool_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->tool_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = true;
+    scanner->expecting_tail = false;
+    lexer->result_symbol = TOOL_START_TAG;
+    return true;
+}
+
+static bool scan_tool_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "tool."
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'o') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '.') return false;
+    advance(lexer);
+
+    // Scan any tool ID until >
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    scanner->in_tool_content = false;
+    scanner->expecting_tail = false;
+    scanner->tool_id[0] = '\0';
+    lexer->result_symbol = TOOL_END_TAG;
+    return true;
+}
+
+static bool scan_tool_content_head(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content || scanner->expecting_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</tool.", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->tool_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+    int line_count = 0;
+    bool current_line_has_content = false;
+
+    // Scan first 4 lines or until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT_HEAD;
+                    return true;
+                } else {
+                    // No content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+            current_line_has_content = true;
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching but failed, reset and process current char as content
+                match_index = 0;
+            }
+            
+            // Process current character as content
+            if (lexer->lookahead == '\n') {
+                if (current_line_has_content) {
+                    line_count++;
+                    current_line_has_content = false;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+                
+                // If we've completed 4 lines, break and let natural flow determine if tail exists
+                if (line_count >= 4) {
+                    break;
+                }
+            } else {
+                current_line_has_content = true;
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Return head if we have content
+    if (has_content) {
+        // If we broke out because we reached 4 lines, check if there's more content
+        if (line_count >= 4) {
+            // Check if current position is at the closing tag
+            int temp_match = 0;
+            while (lexer->lookahead == expected_closing[temp_match] && temp_match < expected_len) {
+                temp_match++;
+                if (temp_match == expected_len) {
+                    // We're at the closing tag, no tail needed
+                    break;
+                }
+                lexer->advance(lexer, false);
+            }
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_tail = true;
+            }
+        }
+        
+        lexer->result_symbol = TOOL_CONTENT_HEAD;
+        return true;
+    }
+
+    return false;
+}
+
+static bool scan_tool_content_tail(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_tool_content || !scanner->expecting_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</tool.", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->tool_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan remaining content until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                scanner->expecting_tail = false;
+                if (has_content) {
+                    lexer->result_symbol = TOOL_CONTENT_TAIL;
+                    return true;
+                } else {
+                    // No tail content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    scanner->expecting_tail = false;
+    if (has_content) {
+        lexer->result_symbol = TOOL_CONTENT_TAIL;
+        return true;
+    }
+
+    return false;
+}
+
+
+
+static bool scan_eval_result_start_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    // Check for "eval-result-"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'r') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'u') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Get the eval result ID and store it
+    int id_len = 0;
+    while (lexer->lookahead != '>' && lexer->lookahead != 0 && id_len < 255) {
+        scanner->eval_result_id[id_len++] = lexer->lookahead;
+        advance(lexer);
+    }
+    scanner->eval_result_id[id_len] = '\0';
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->mark_end(lexer);
+    scanner->in_eval_result_content = true;
+    scanner->expecting_eval_result_tail = false;
+    lexer->result_symbol = EVAL_RESULT_START_TAG;
+    return true;
+}
+
+static bool scan_eval_result_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '<') return false;
+    advance(lexer);
+
+    if (lexer->lookahead != '/') return false;
+    advance(lexer);
+
+    // Check for "eval-result-"
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'v') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'a') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'r') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'e') return false;
+    advance(lexer);
+    if (lexer->lookahead != 's') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'u') return false;
+    advance(lexer);
+    if (lexer->lookahead != 'l') return false;
+    advance(lexer);
+    if (lexer->lookahead != 't') return false;
+    advance(lexer);
+    if (lexer->lookahead != '-') return false;
+    advance(lexer);
+
+    // Scan eval result ID until >
+    while (lexer->lookahead != '>' && lexer->lookahead != 0) {
+        advance(lexer);
+    }
+
+    if (lexer->lookahead != '>') return false;
+    advance(lexer);
+
+    lexer->mark_end(lexer);
+    scanner->in_eval_result_content = false;
+    scanner->expecting_eval_result_tail = false;
+    scanner->eval_result_id[0] = '\0';
+    lexer->result_symbol = EVAL_RESULT_END_TAG;
+    return true;
+}
+
+static bool scan_eval_result_content_head(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+    int line_count = 0;
+    bool current_line_has_content = false;
+
+    // Scan first 4 lines or until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+                return true;
+            }
+            advance(lexer);
+            current_line_has_content = true;
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching but failed, reset and process current char as content
+                match_index = 0;
+            }
+            
+            // Process current character as content
+            if (lexer->lookahead == '\n') {
+                if (current_line_has_content) {
+                    line_count++;
+                    current_line_has_content = false;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+                
+                // If we've completed 4 lines, break and let natural flow determine if tail exists
+                if (line_count >= 4) {
+                    break;
+                }
+            } else {
+                current_line_has_content = true;
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Always return head token (even for empty content, like tool_content_head)
+    if (has_content) {
+        // If we broke out because we reached 4 lines, check if there's more content
+        if (line_count >= 4) {
+            // Check if current position is at the closing tag
+            int temp_match = 0;
+            while (lexer->lookahead == expected_closing[temp_match] && temp_match < expected_len) {
+                temp_match++;
+                if (temp_match == expected_len) {
+                    // We're at the closing tag, no tail needed
+                    break;
+                }
+                lexer->advance(lexer, false);
+            }
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_eval_result_tail = true;
+            }
+        }
+    }
+    
+    lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+    return true;
+
+    return false;
+}
+
+static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || !scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan remaining content until we find the closing tag
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing tag, stop here (don't consume it)
+                scanner->expecting_eval_result_tail = false;
+                if (has_content) {
+                    lexer->result_symbol = EVAL_RESULT_CONTENT_TAIL;
+                    return true;
+                } else {
+                    // No tail content, let the grammar handle the end tag
+                    return false;
+                }
+            }
+            advance(lexer);
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            }
+        }
+    }
+
+    // Reached end without finding closing tag
+    scanner->expecting_eval_result_tail = false;
+    if (has_content) {
+        lexer->result_symbol = EVAL_RESULT_CONTENT_TAIL;
+        return true;
+    }
+
+    return false;
+}
+
+
+
+
+
+static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
+    if (lexer->lookahead != '`') return false;
+    
+    // Count the number of opening backticks
+    int opening_backticks = 0;
+    while (lexer->lookahead == '`' && opening_backticks < 20) {
+        advance(lexer);
+        opening_backticks++;
+    }
+    
+    // Store the count and set state
+    scanner->code_backtick_count = opening_backticks;
+    scanner->in_code_content = true;
+    lexer->result_symbol = CODE_START_TAG;
+    return true;
+}
+
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    lexer->mark_end(lexer);
+    bool has_content = false;
+    
+    // Build the expected closing pattern (just the right number of backticks)
+    char expected_closing[21]; // Max 20 backticks + null terminator
+    for (int i = 0; i < scanner->code_backtick_count && i < 20; i++) {
+        expected_closing[i] = '`';
+    }
+    expected_closing[scanner->code_backtick_count] = '\0';
+    int expected_len = scanner->code_backtick_count;
+    
+    // Also check for code close tag pattern (to stop before it)
+    const char *code_close_pattern = "<$code-close/>";
+    int code_close_len = 14;
+    
+    int match_index = 0;
+    int code_close_match_index = 0;
+    
+    // Scan content until we find the closing pattern or code close tag
+    while (lexer->lookahead != 0) {
+        // Check for code close tag pattern first
+        if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+            code_close_match_index++;
+            if (code_close_match_index == code_close_len) {
+                // Found complete code close tag, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // Continue checking this character for backtick patterns too
+        } else {
+            code_close_match_index = 0;
+        }
+        
+        // Check for regular closing pattern
+        if (lexer->lookahead == expected_closing[match_index]) {
+            match_index++;
+            if (match_index == expected_len) {
+                // Found complete closing pattern, stop here (don't consume it)
+                if (has_content) {
+                    lexer->result_symbol = CODE_CONTENT;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // Advance but don't mark end - we're matching the closing pattern
+            advance(lexer);
+            has_content = true;
+        } else {
+            // Reset match and continue as content
+            if (match_index > 0) {
+                // We were partially matching, reset but don't advance yet
+                match_index = 0;
+                // Don't advance here, reprocess this character
+            } else {
+                // For inline code (1-2 backticks), stop at newlines
+                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                    if (has_content) {
+                        lexer->result_symbol = CODE_CONTENT;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                
+                advance(lexer);
+                has_content = true;
+                // Only mark end if we're not in middle of matching code close pattern
+                if (code_close_match_index == 0) {
+                    lexer->mark_end(lexer);
+                }
+            }
+        }
+    }
+    
+    // Reached end without finding closing tag
+    if (has_content) {
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+
+static bool scan_code_end_tag(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content || lexer->lookahead != '`') return false;
+    
+    // Count the number of closing backticks
+    int closing_backticks = 0;
+    while (lexer->lookahead == '`' && closing_backticks < 20) {
+        advance(lexer);
+        closing_backticks++;
+    }
+    
+    // Check if this matches the opening backticks
+    if (closing_backticks != scanner->code_backtick_count) {
+        return false;
+    }
+    
+    // For fenced code blocks (3+ backticks), require newline/EOF after closing
+    if (scanner->code_backtick_count >= 3) {
+        // Skip whitespace after closing backticks
+        while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+            advance(lexer);
+        }
+        if (lexer->lookahead != '\n' && lexer->lookahead != '\r' && lexer->lookahead != 0) {
+            return false;
+        }
+    }
+    
+    // Valid closing tag
+    scanner->code_backtick_count = 0;
+    scanner->in_code_content = false;
+    lexer->result_symbol = CODE_END_TAG;
+    return true;
+}
+
+
+
+
+
+
+
+
+
+static bool scan_eval_language(TSLexer *lexer) {
+    // Skip any leading whitespace
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        advance(lexer);
+    }
+    
+    // Must start with a letter or underscore for valid language
+    if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
+        return false;
+    }
+    
+    // Scan the language identifier
+    bool has_content = false;
+    
+    while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+           iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+           lexer->lookahead == '+' || lexer->lookahead == '-') {
+        advance(lexer);
+        has_content = true;
+    }
+    
+    if (!has_content) {
+        return false;
+    }
+    
+    lexer->result_symbol = EVAL_LANGUAGE;
+    return true;
+}
+
+
+static bool scan_eval_content(TSLexer *lexer) {
+    bool has_content = false;
+    bool has_non_whitespace = false;
+    int brace_count = 0;
+    
+    // Don't consume content that starts with : (language prefix)
+    if (lexer->lookahead == ':') {
+        return false;
+    }
+    
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '{') {
+            // Found opening brace, increment counter
+            brace_count++;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else if (lexer->lookahead == '}') {
+            if (brace_count > 0) {
+                // This is a closing brace for a nested opening brace
+                brace_count--;
+                if (!iswspace(lexer->lookahead)) {
+                    has_non_whitespace = true;
+                }
+                advance(lexer);
+                has_content = true;
+                lexer->mark_end(lexer);
+            } else {
+                // This is the closing brace for our eval, stop here
+                break;
+            }
+        } else if (lexer->lookahead == '<') {
+            TSLexer saved = *lexer;
+            advance(lexer);
+            
+            // Check if this is a tag starting with 'e' (could be eval-result)
+            if (lexer->lookahead == 'e') {
+                *lexer = saved;
+                break; // Exit the while loop
+            }
+            
+            // Otherwise, restore and continue as content
+            *lexer = saved;
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        } else {
+            if (!iswspace(lexer->lookahead)) {
+                has_non_whitespace = true;
+            }
+            advance(lexer);
+            has_content = true;
+            lexer->mark_end(lexer);
+        }
+    }
+    
+    if (has_content && has_non_whitespace) {
+        lexer->result_symbol = EVAL_CONTENT;
+        return true;
+    }
+    
+    return false;
+}
+
+bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+    Scanner *scanner = (Scanner *)payload;
+
+    // Check for error recovery mode
+    if (valid_symbols[ERROR_SENTINEL]) {
+        return false;
+    }
+
+    // Handle tool content (raw text) when in tool content state
+    if (scanner->in_tool_content) {
+        if (valid_symbols[TOOL_CONTENT_HEAD] && !scanner->expecting_tail) {
+            return scan_tool_content_head(scanner, lexer);
+        }
+        if (valid_symbols[TOOL_CONTENT_TAIL] && scanner->expecting_tail) {
+            return scan_tool_content_tail(scanner, lexer);
+        }
+    }
+
+    // Handle eval result content when in eval result content state
+    if (scanner->in_eval_result_content) {
+        if (valid_symbols[EVAL_RESULT_CONTENT_HEAD] && !scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_head(scanner, lexer);
+        }
+        if (valid_symbols[EVAL_RESULT_CONTENT_TAIL] && scanner->expecting_eval_result_tail) {
+            return scan_eval_result_content_tail(scanner, lexer);
+        }
+    }
+
+    // Skip whitespace but preserve newlines for other tokens
+    while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+        skip(lexer);
+    }
+
+
+
+    if (lexer->lookahead == '<') {
+        // Handle HTML comments first - they should have priority
+        if (valid_symbols[HTML_COMMENT]) {
+            return scan_html_comment(lexer);
+        }
+
+        // Handle eval result start tag
+        if (valid_symbols[EVAL_RESULT_START_TAG]) {
+            return scan_eval_result_start_tag(scanner, lexer);
+        }
+
+        // Handle eval result end tag
+        if (valid_symbols[EVAL_RESULT_END_TAG]) {
+            return scan_eval_result_end_tag(scanner, lexer);
+        }
+
+        // Handle tool start tag
+        if (valid_symbols[TOOL_START_TAG]) {
+            return scan_tool_start_tag(scanner, lexer);
+        }
+
+        // Handle tool end tag
+        if (valid_symbols[TOOL_END_TAG]) {
+            return scan_tool_end_tag(scanner, lexer);
+        }
+    }
+
+    // Handle eval content
+    if (valid_symbols[EVAL_CONTENT]) {
+        return scan_eval_content(lexer);
+    }
+    
+    // Handle code start tag
+    if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+        return scan_code_start_tag(scanner, lexer);
+    }
+    
+    // Handle code content
+    if (valid_symbols[CODE_CONTENT]) {
+        return scan_code_content(scanner, lexer);
+    }
+    
+    // Handle code end tag
+    if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
+        return scan_code_end_tag(scanner, lexer);
+    }
+    
+    // Handle eval language
+    if (valid_symbols[EVAL_LANGUAGE]) {
+        return scan_eval_language(lexer);
+    }
+    
+    return false;
+}
+
+
+</tool.toolu_019oHT5D4BJWBHqBmrHq4UpK>
+
+# ASSISTANT
+
+Now I understand the current structure. I need to:
+
+1. Add a test for unclosed single and double backticks that should be terminated by newlines
+2. Modify the `scan_code_content` function to handle newline termination for single and double backticks
+
+Let me first add the test:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RMphfiTeXebreejFSoPKeh
+
+## path
+
+<tool.toolu_01RMphfiTeXebreejFSoPKeh>
+test/corpus/code.txt
+</tool.toolu_01RMphfiTeXebreejFSoPKeh>
+
+## diff
+
+<tool.toolu_01RMphfiTeXebreejFSoPKeh>
+ ===============================
+ Empty code blocks
+ ===============================
+ 
+ # ASSISTANT
+ 
+ `````
+ `````
+ 
+ More text.
+ 
+ ---
+ 
+ (source_file
+   (assistant
+     (assistant_header)
+     (code
+       (code_start_tag)
+       (code_content)
+       (code_end_tag))
++    (text)))
++
++===============================
++Unclosed single backtick terminated by newline
++===============================
++
++# ASSISTANT
++
++there is `no closing backtick on single-backtick line
++there is ``no closing backtick on double-backtick line
++
++More text.
++
++---
++
++(source_file
++  (assistant
++    (assistant_header)
++    (text)
++    (code
++      (code_start_tag)
++      (code_content)
++      (code_end_tag))
++    (text)
++    (code
++      (code_start_tag)
++      (code_content)
++      (code_end_tag))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_01RMphfiTeXebreejFSoPKeh>
+
+## git-commit-message
+
+<tool.toolu_01RMphfiTeXebreejFSoPKeh>
+Add test for unclosed single and double backticks terminated by newlines
+</tool.toolu_01RMphfiTeXebreejFSoPKeh>
+
+# TOOL RESULT
+
+ID: toolu_01RMphfiTeXebreejFSoPKeh
+
+<tool.toolu_01RMphfiTeXebreejFSoPKeh>
+
+</tool.toolu_01RMphfiTeXebreejFSoPKeh>
