@@ -657,9 +657,6 @@ static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
 static bool parse_code_delimiter(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     if (lexer->lookahead != '`') return false;
     
-    // Save the starting position
-    TSLexer saved_lexer = *lexer;
-    
     // Count the number of backticks
     int level = 0;
     while (lexer->lookahead == '`') {
