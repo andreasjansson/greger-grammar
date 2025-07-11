@@ -2076,5 +2076,155 @@ Fix code close tag state handling - reset scanner state when encountering code c
 ID: toolu_019VmnYm5U2Xo61KJh512bzd
 
 <tool.toolu_019VmnYm5U2Xo61KJh512bzd>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code close tag state handling - reset scanner state when encountering code close tag
 </tool.toolu_019VmnYm5U2Xo61KJh512bzd>
+
+# ASSISTANT
+
+Now let's test both debug files to see if the issues are fixed:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018Uvv6sNFzY1ygkWaQd4Qf5
+
+## command
+
+<tool.toolu_018Uvv6sNFzY1ygkWaQd4Qf5>
+timeout 10 tree-sitter parse debug.greger
+</tool.toolu_018Uvv6sNFzY1ygkWaQd4Qf5>
+
+# TOOL RESULT
+
+ID: toolu_018Uvv6sNFzY1ygkWaQd4Qf5
+
+<tool.toolu_018Uvv6sNFzY1ygkWaQd4Qf5>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+debug.greger	Parse:    0.11 ms	   105 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_018Uvv6sNFzY1ygkWaQd4Qf5>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AET31bofEWfg1xevcXZ2az
+
+## command
+
+<tool.toolu_01AET31bofEWfg1xevcXZ2az>
+timeout 10 tree-sitter parse debug2.greger
+</tool.toolu_01AET31bofEWfg1xevcXZ2az>
+
+# TOOL RESULT
+
+ID: toolu_01AET31bofEWfg1xevcXZ2az
+
+<tool.toolu_01AET31bofEWfg1xevcXZ2az>
+(source_file [0, 0] - [7, 0]
+  (user [0, 0] - [7, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_close_tag [4, 0] - [4, 14]))
+    (text [4, 14] - [6, 0])
+    (code [6, 0] - [6, 3]
+      (code_start_tag [6, 0] - [6, 1])
+      (code_content [6, 1] - [6, 2])
+      (code_end_tag [6, 2] - [6, 3]))
+    (text [6, 3] - [7, 0])))
+
+</tool.toolu_01AET31bofEWfg1xevcXZ2az>
+
+# ASSISTANT
+
+Great! The debug2.greger file is now parsing correctly. The code close tag is working properly. But debug.greger still has an issue. Let me look more closely at what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AhsLqrnFgT2yVcSv3dmXaM
+
+## command
+
+<tool.toolu_01AhsLqrnFgT2yVcSv3dmXaM>
+timeout 10 tree-sitter parse debug.greger --debug-graph
+</tool.toolu_01AhsLqrnFgT2yVcSv3dmXaM>
+
+# TOOL RESULT
+
+ID: toolu_01AhsLqrnFgT2yVcSv3dmXaM
+
+<tool.toolu_01AhsLqrnFgT2yVcSv3dmXaM>
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+debug.greger	Parse:    0.12 ms	    95 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01AhsLqrnFgT2yVcSv3dmXaM>
+
+# ASSISTANT
+
+The issue is that the code_content is not being generated properly. Let me check the debug.greger file again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01GdhHk2vw7cLJNsv8AE9wym
+
+## path
+
+<tool.toolu_01GdhHk2vw7cLJNsv8AE9wym>
+debug.greger
+</tool.toolu_01GdhHk2vw7cLJNsv8AE9wym>
+
+# TOOL RESULT
+
+ID: toolu_01GdhHk2vw7cLJNsv8AE9wym
+
+<tool.toolu_01GdhHk2vw7cLJNsv8AE9wym>
+# USER
+
+`<`
+</tool.toolu_01GdhHk2vw7cLJNsv8AE9wym>
+
+# ASSISTANT
+
+So we have a single BACKTICK followed by a LESSTHAN, then another BACKTICK. The scanner should be able to handle this. Let me check what happens when we parse just the code portion:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01Xemwjs4J4Fkv5tfkaASYyh
+
+## path
+
+<tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+test_simple.greger
+</tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+
+## git-commit-message
+
+<tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+Add simple test file for debugging
+</tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+
+## contents
+
+<tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+`a`
+</tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+
+# TOOL RESULT
+
+ID: toolu_01Xemwjs4J4Fkv5tfkaASYyh
+
+<tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
+
+</tool.toolu_01Xemwjs4J4Fkv5tfkaASYyh>
