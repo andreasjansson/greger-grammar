@@ -953,6 +953,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
         return parse_fenced_code_block(scanner, lexer, valid_symbols);
     }
     
+    // Handle code language
+    if (valid_symbols[CODE_LANGUAGE]) {
+        return scan_code_language(scanner, lexer);
+    }
+    
     // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
         return scan_code_contents(scanner, lexer);

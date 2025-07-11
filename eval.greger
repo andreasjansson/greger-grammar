@@ -9171,5 +9171,55 @@ Remove code_language grammar rule since it's now handled in scanner
 ID: toolu_01TnwHAkwFTjDfN6U5HpATxa
 
 <tool.toolu_01TnwHAkwFTjDfN6U5HpATxa>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove code_language grammar rule since it's now handled in scanner
 </tool.toolu_01TnwHAkwFTjDfN6U5HpATxa>
+
+# ASSISTANT
+
+Now I need to update the main scanner function to handle CODE_LANGUAGE:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01QEFHecjK1F22oyWGCzb3B5
+
+## path
+
+<tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+./src/scanner.c
+</tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+
+## git-commit-message
+
+<tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+Add CODE_LANGUAGE handling to main scanner function
+</tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+
+## diff
+
+<tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
++    // Handle code language
++    if (valid_symbols[CODE_LANGUAGE]) {
++        return scan_code_language(scanner, lexer);
++    }
++    
+     // Handle code contents
+     if (valid_symbols[CODE_CONTENTS]) {
+         return scan_code_contents(scanner, lexer);
+     }
+     
+     // Handle eval language
+     if (valid_symbols[EVAL_LANGUAGE]) {
+         return scan_eval_language(lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+
+# TOOL RESULT
+
+ID: toolu_01QEFHecjK1F22oyWGCzb3B5
+
+<tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
+
+</tool.toolu_01QEFHecjK1F22oyWGCzb3B5>
