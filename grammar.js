@@ -149,7 +149,7 @@ module.exports = grammar({
     ),
 
     thinking_signature: $ => prec(1, seq(
-      alias('Signature: ', $.key),
+      alias(token('Signature: '), $.key),
       field('value', $.value),
       /\n/
     )),

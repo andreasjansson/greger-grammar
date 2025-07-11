@@ -7354,5 +7354,89 @@ Add precedence to thinking_signature rule
 ID: toolu_016QvT8ETUmoeXkH1Pa5fHnN
 
 <tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to thinking_signature rule
 </tool.toolu_016QvT8ETUmoeXkH1Pa5fHnN>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WmRdcckubL4SAcvuoa9JNP
+
+## command
+
+<tool.toolu_01WmRdcckubL4SAcvuoa9JNP>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01WmRdcckubL4SAcvuoa9JNP>
+
+# TOOL RESULT
+
+ID: toolu_01WmRdcckubL4SAcvuoa9JNP
+
+<tool.toolu_01WmRdcckubL4SAcvuoa9JNP>
+
+</tool.toolu_01WmRdcckubL4SAcvuoa9JNP>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HS1qbSqb8KA55xX2ugPvZj
+
+## command
+
+<tool.toolu_01HS1qbSqb8KA55xX2ugPvZj>
+printf '# THINKING\n\nSignature: test\n\nSome text.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01HS1qbSqb8KA55xX2ugPvZj>
+
+# TOOL RESULT
+
+ID: toolu_01HS1qbSqb8KA55xX2ugPvZj
+
+<tool.toolu_01HS1qbSqb8KA55xX2ugPvZj>
+(source_file [0, 0] - [4, 10]
+  (thinking [0, 0] - [4, 10]
+    (thinking_header [0, 0] - [0, 10])
+    (text [2, 0] - [4, 10])))
+
+</tool.toolu_01HS1qbSqb8KA55xX2ugPvZj>
+
+# ASSISTANT
+
+Still not working. Let me try a different approach. I think the issue might be that the `'Signature: '` literal is not being tokenized correctly. Let me make the signature key a token instead:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_017s4k8JZpzfNM2VWWRbF22W
+
+## path
+
+<tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+./grammar.js
+</tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+
+## git-commit-message
+
+<tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+Change thinking_signature to use token for key
+</tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+
+## diff
+
+<tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+     thinking_signature: $ => prec(1, seq(
+-      alias('Signature: ', $.key),
++      alias(token('Signature: '), $.key),
+       field('value', $.value),
+       /\n/
+     )),
+\ No newline at end of file
+
+</tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+
+# TOOL RESULT
+
+ID: toolu_017s4k8JZpzfNM2VWWRbF22W
+
+<tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
+
+</tool.toolu_017s4k8JZpzfNM2VWWRbF22W>
