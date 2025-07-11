@@ -718,6 +718,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     return false;
                 }
             }
+            // Don't advance yet, let regular pattern matching handle it
         } else {
             code_close_match_index = 0;
         }

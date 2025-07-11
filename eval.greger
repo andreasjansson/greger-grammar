@@ -10287,5 +10287,191 @@ Try simple string pattern for code_close_tag
 ID: toolu_016otjNATnUN25TGFAbCCqx8
 
 <tool.toolu_016otjNATnUN25TGFAbCCqx8>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Try simple string pattern for code_close_tag
 </tool.toolu_016otjNATnUN25TGFAbCCqx8>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018rEVDFkubhw3JC3M3gHrgj
+
+## command
+
+<tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+cd . && tree-sitter generate
+</tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+
+## timeout
+
+<tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+15
+</tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+
+# TOOL RESULT
+
+ID: toolu_018rEVDFkubhw3JC3M3gHrgj
+
+<tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+
+</tool.toolu_018rEVDFkubhw3JC3M3gHrgj>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01B4aaUKtD4ozfAa4YAW8bat
+
+## command
+
+<tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+
+## timeout
+
+<tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+10
+</tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+
+# TOOL RESULT
+
+ID: toolu_01B4aaUKtD4ozfAa4YAW8bat
+
+<tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.11 ms	   325 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01B4aaUKtD4ozfAa4YAW8bat>
+
+# ASSISTANT
+
+Same issue. Let me try a simpler test - what if I remove the code_content altogether and just have the start and close tags:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WEzn4hUvbhLYS7qGzPHQGS
+
+## command
+
+<tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+cd . && printf '# ASSISTANT\n\n```<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+
+## timeout
+
+<tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+10
+</tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+
+# TOOL RESULT
+
+ID: toolu_01WEzn4hUvbhLYS7qGzPHQGS
+
+<tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+(source_file [0, 0] - [2, 17]
+  (ERROR [0, 0] - [2, 17]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [2, 16])
+    (ERROR [2, 16] - [2, 17])))
+/dev/stdin	Parse:    0.02 ms	  1395 bytes/ms	(ERROR [0, 0] - [2, 17])
+Command failed with exit code 1
+</tool.toolu_01WEzn4hUvbhLYS7qGzPHQGS>
+
+# ASSISTANT
+
+Still the same issue. The code_content is consuming the `<$code-close/` and leaving the `>` as an error. This tells me that the issue is in the code_content scanner - it's still consuming parts of the close tag pattern even though I tried to make it stop.
+
+Let me check if there's a bug in my scanner logic. Let me fix the issue where the scanner advances when it shouldn't:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HzanDQbTZ6UTEU2fXmx59D
+
+## path
+
+<tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+./src/scanner.c
+</tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+
+## git-commit-message
+
+<tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+Fix code_content scanner to properly handle code close tag detection
+</tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+
+## diff
+
+<tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+     // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
+         // Check for code close tag pattern first
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
++            // Don't advance yet, let regular pattern matching handle it
+         } else {
+             code_close_match_index = 0;
+         }
+         
+         // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+                 lexer->mark_end(lexer);
+             }
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+
+# TOOL RESULT
+
+ID: toolu_01HzanDQbTZ6UTEU2fXmx59D
+
+<tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
+
+</tool.toolu_01HzanDQbTZ6UTEU2fXmx59D>
