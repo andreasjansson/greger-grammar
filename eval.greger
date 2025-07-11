@@ -4909,5 +4909,107 @@ Update mixed-code-blocks-and-sections test expectation
 ID: toolu_01EHdoTHqfAtctHpYcAujAM1
 
 <tool.toolu_01EHdoTHqfAtctHpYcAujAM1>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/mixed-code-blocks-and-sections.txt. Successfully staged 2 file(s) and committed with message: Update mixed-code-blocks-and-sections test expectation
 </tool.toolu_01EHdoTHqfAtctHpYcAujAM1>
+
+# ASSISTANT
+
+Let me check the html-comments test:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01LLVVqyzMT3LBAnczXi9HyF
+
+## path
+
+<tool.toolu_01LLVVqyzMT3LBAnczXi9HyF>
+./test/corpus/html-comments.txt
+</tool.toolu_01LLVVqyzMT3LBAnczXi9HyF>
+
+# TOOL RESULT
+
+ID: toolu_01LLVVqyzMT3LBAnczXi9HyF
+
+<tool.toolu_01LLVVqyzMT3LBAnczXi9HyF>
+=================
+HTML comments
+=================
+
+# USER
+
+Here's some code:
+
+<!-- comment -->
+<!-- multi
+line
+
+comment -->
+
+```
+<!-- comment should be included -->
+# ASSISTANT
+This should not be parsed as a section header
+# TOOL USE
+Neither should this
+```
+
+What do you think?
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text)
+    (html_comment)
+    (text)
+    (html_comment)
+    (text)
+    (code)
+    (text)))
+</tool.toolu_01LLVVqyzMT3LBAnczXi9HyF>
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Gc2ThMqdNVxQYjDZwV2rFg
+
+## path
+
+<tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+./test/corpus/html-comments.txt
+</tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+
+## git-commit-message
+
+<tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+Update html-comments test expectation
+</tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+
+## diff
+
+<tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+ (source_file
+   (user
+     (user_header)
+     (text)
+     (html_comment)
+     (text)
+     (html_comment)
+     (text)
+-    (code)
++    (code
++      (code_content))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+
+# TOOL RESULT
+
+ID: toolu_01Gc2ThMqdNVxQYjDZwV2rFg
+
+<tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
+
+</tool.toolu_01Gc2ThMqdNVxQYjDZwV2rFg>
