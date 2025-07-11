@@ -714,7 +714,7 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
     // Let the grammar handle it
-    if (scanner->last_backtick_count > 1) {
+    if (scanner->fenced_code_block_delimiter_length > 1) {
         // Skip whitespace
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             advance(lexer);
