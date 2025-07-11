@@ -4440,5 +4440,278 @@ true
 ID: toolu_012qWVho4g3dkzBisJD7ZnZ2
 
 <tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/test/corpus/code-block-triple-backticks.txt (made 2 replacements). Successfully staged 2 file(s) and committed with message: Update code-block-triple-backticks test to use new token structure
 </tool.toolu_012qWVho4g3dkzBisJD7ZnZ2>
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01K6VP8k99mNw7rr6Gw9GpWT
+
+## pattern
+
+<tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+code_backticks_start
+</tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+
+## path
+
+<tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+./test/corpus/
+</tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+
+## file-type
+
+<tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+txt
+</tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+
+# TOOL RESULT
+
+ID: toolu_01K6VP8k99mNw7rr6Gw9GpWT
+
+<tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+No matches found
+</tool.toolu_01K6VP8k99mNw7rr6Gw9GpWT>
+
+# ASSISTANT
+
+Good, all the code_backticks_start instances are updated. Now let me look for other files that might need updating:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_0159QGT9SBV61vYr3nMVxCDy
+
+## pattern
+
+<tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+code_backticks_end
+</tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+
+## path
+
+<tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+./test/corpus/
+</tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+
+## file-type
+
+<tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+txt
+</tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+
+# TOOL RESULT
+
+ID: toolu_0159QGT9SBV61vYr3nMVxCDy
+
+<tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+No matches found
+</tool.toolu_0159QGT9SBV61vYr3nMVxCDy>
+
+# ASSISTANT
+
+Let me check for any other test files that might be using the old structure:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01LjCyeCvQRbCBE4q4QGELJh
+
+## pattern
+
+<tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+code.*code
+</tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+
+## path
+
+<tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+./test/corpus/
+</tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+
+## file-type
+
+<tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+txt
+</tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+
+## context-lines
+
+<tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+5
+</tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+
+# TOOL RESULT
+
+ID: toolu_01LjCyeCvQRbCBE4q4QGELJh
+
+<tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-9-# ASSISTANT
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-10-
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-11-You can use triple backticks:
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-12-
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-13-```
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt:14:Here's how to show `inline code` in a code block:
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-15-Use single backticks around `your code`.
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-16-```
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-17-
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-18-Does that help?
+/Users/andreas/projects/greger-grammar/test/corpus/nested-code-blocks.txt-19-
+
+</tool.toolu_01LjCyeCvQRbCBE4q4QGELJh>
+
+# ASSISTANT
+
+Let me look for files that have `(code` followed by `(code` patterns (which would indicate they're expecting the old structure):
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CYN3mS9qaQEiQ2RbeabynY
+
+## command
+
+<tool.toolu_01CYN3mS9qaQEiQ2RbeabynY>
+grep -r "code.*\n.*code" ./test/corpus/ | head -10
+</tool.toolu_01CYN3mS9qaQEiQ2RbeabynY>
+
+# TOOL RESULT
+
+ID: toolu_01CYN3mS9qaQEiQ2RbeabynY
+
+<tool.toolu_01CYN3mS9qaQEiQ2RbeabynY>
+
+</tool.toolu_01CYN3mS9qaQEiQ2RbeabynY>
+
+# ASSISTANT
+
+Let me check a specific test file that was mentioned in the failure output:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_011b8PuL536vshvj4PcVdRYx
+
+## path
+
+<tool.toolu_011b8PuL536vshvj4PcVdRYx>
+./test/corpus/nested-code-blocks.txt
+</tool.toolu_011b8PuL536vshvj4PcVdRYx>
+
+# TOOL RESULT
+
+ID: toolu_011b8PuL536vshvj4PcVdRYx
+
+<tool.toolu_011b8PuL536vshvj4PcVdRYx>
+=====================
+Nested code blocks
+=====================
+
+# USER
+
+How do I use backticks in markdown?
+
+# ASSISTANT
+
+You can use triple backticks:
+
+```
+Here's how to show `inline code` in a code block:
+Use single backticks around `your code`.
+```
+
+Does that help?
+
+---
+
+(source_file
+  (user
+    (user_header)
+    (text))
+  (assistant
+    (assistant_header)
+    (text)
+    (code)
+    (text)))
+</tool.toolu_011b8PuL536vshvj4PcVdRYx>
+
+# ASSISTANT
+
+This file looks like it's missing the expected structure. Let me look at the test output to understand what's expected:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01YVEqEsDuWpoEgo5gMWMXd9
+
+## command
+
+<tool.toolu_01YVEqEsDuWpoEgo5gMWMXd9>
+printf '# USER\n\nHow do I use backticks in markdown?\n\n# ASSISTANT\n\nYou can use triple backticks:\n\n```\nHere'\''s how to show `inline code` in a code block:\nUse single backticks around `your code`.\n```\n\nDoes that help?' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01YVEqEsDuWpoEgo5gMWMXd9>
+
+# TOOL RESULT
+
+ID: toolu_01YVEqEsDuWpoEgo5gMWMXd9
+
+<tool.toolu_01YVEqEsDuWpoEgo5gMWMXd9>
+(source_file [0, 0] - [13, 15]
+  (user [0, 0] - [4, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [4, 0]))
+  (assistant [4, 0] - [13, 15]
+    (assistant_header [4, 0] - [4, 11])
+    (text [6, 0] - [8, 0])
+    (code [8, 0] - [11, 3]
+      (code_content [8, 0] - [11, 3]))
+    (text [11, 3] - [13, 15])))
+
+</tool.toolu_01YVEqEsDuWpoEgo5gMWMXd9>
+
+# ASSISTANT
+
+Perfect! The parsing is working correctly. The test file expectation needs to be updated:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01NdzQgr5127t9svCCH12XGh
+
+## path
+
+<tool.toolu_01NdzQgr5127t9svCCH12XGh>
+./test/corpus/nested-code-blocks.txt
+</tool.toolu_01NdzQgr5127t9svCCH12XGh>
+
+## git-commit-message
+
+<tool.toolu_01NdzQgr5127t9svCCH12XGh>
+Update nested-code-blocks test expectation
+</tool.toolu_01NdzQgr5127t9svCCH12XGh>
+
+## diff
+
+<tool.toolu_01NdzQgr5127t9svCCH12XGh>
+ (source_file
+   (user
+     (user_header)
+     (text))
+   (assistant
+     (assistant_header)
+     (text)
+-    (code)
++    (code
++      (code_content))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_01NdzQgr5127t9svCCH12XGh>
+
+# TOOL RESULT
+
+ID: toolu_01NdzQgr5127t9svCCH12XGh
+
+<tool.toolu_01NdzQgr5127t9svCCH12XGh>
+
+</tool.toolu_01NdzQgr5127t9svCCH12XGh>
