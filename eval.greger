@@ -5564,5 +5564,485 @@ Simplify code block parsing to closely match markdown scanner logic
 ID: toolu_01P6XmbSVKFgytfA5D5X5Z1V
 
 <tool.toolu_01P6XmbSVKFgytfA5D5X5Z1V>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code block parsing to closely match markdown scanner logic
 </tool.toolu_01P6XmbSVKFgytfA5D5X5Z1V>
+
+# ASSISTANT
+
+Now let me test the updated code:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_016xBJ3jvSh69kXyEyqNgKh7
+
+## command
+
+<tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+
+## timeout
+
+<tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+10
+</tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+
+# TOOL RESULT
+
+ID: toolu_016xBJ3jvSh69kXyEyqNgKh7
+
+<tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_016xBJ3jvSh69kXyEyqNgKh7>
+
+# ASSISTANT
+
+Good! Now let me test the double backticks:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01M7Nj4yXvmakSLrwLxeHvec
+
+## command
+
+<tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+
+## timeout
+
+<tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+10
+</tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+
+# TOOL RESULT
+
+ID: toolu_01M7Nj4yXvmakSLrwLxeHvec
+
+<tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 3])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.02 ms	  1113 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01M7Nj4yXvmakSLrwLxeHvec>
+
+# ASSISTANT
+
+I still have the issue with backticks inside the content. Let me step back and think about this more carefully. In CommonMark, inline code blocks consume content until they find a matching closing sequence. The issue is that the content scanner is stopping at the first backtick instead of letting the grammar handle the whole thing.
+
+Let me look at how inline code is supposed to work. In markdown, `` `code` `` should parse as one code block where the content is " `code` " (with the backticks included in the content).
+
+The issue is that our current approach has the content scanner stopping at the first backtick. But the grammar should handle the decision about when to close the code block.
+
+Let me modify the approach to be more like the markdown parser. Looking at the markdown grammar, it doesn't have a separate "contents" token - it handles the content differently.
+
+Actually, let me check what the markdown parser's externals look like:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01CXDJJ6PBBqoivNc2HjZTQ6
+
+## pattern
+
+<tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+externals.*\[
+</tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+
+## path
+
+<tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+
+## context-lines
+
+<tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+20
+</tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+
+# TOOL RESULT
+
+ID: toolu_01CXDJJ6PBBqoivNc2HjZTQ6
+
+<tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+475-                    )
+476-                ),
+477-            ),
+478-
+479-            pipe_table_cell: $ => prec.right(seq(
+480-                choice(
+481-                    $._word,
+482-                    $._backslash_escape,
+483-                    common.punctuation_without($, ['|']),
+484-                ),
+485-                repeat(choice(
+486-                    $._word,
+487-                    $._whitespace,
+488-                    $._backslash_escape,
+489-                    common.punctuation_without($, ['|']),
+490-                )),
+491-            )),
+492-        } : {}),
+493-    },
+494-
+495:    externals: $ => [
+496-        // Quite a few of these tokens could maybe be implemented without use of the external parser.
+497-        // For this the `$._open_block` and `$._close_block` tokens should be used to tell the external
+498-        // parser to put a new anonymous block on the block stack.
+499-
+500-        // Block structure gets parsed as follows: After every newline (`$._line_ending`) we try to match
+501-        // as many open blocks as possible. For example if the last line was part of a block quote we look
+502-        // for a `>` at the beginning of the next line. We emit a `$.block_continuation` for each matched
+503-        // block. For this process the external scanner keeps a stack of currently open blocks.
+504-        //
+505-        // If we are not able to match all blocks that does not necessarily mean that all unmatched blocks
+506-        // have to be closed. It could also mean that the line is a lazy continuation line
+507-        // (https://github.github.com/gfm/#lazy-continuation-line, see also `$._split_token` and
+508-        // `$._soft_line_break_marker` below)
+509-        //
+510-        // If a block does get closed (because it was not matched or because some closing token was
+511-        // encountered) we emit a `$._block_close` token
+512-
+513-        $._line_ending, // this token does not contain the actual newline characters. see `$._newline`
+514-        $._soft_line_ending,
+515-        $._block_close,
+
+</tool.toolu_01CXDJJ6PBBqoivNc2HjZTQ6>
+
+# ASSISTANT
+
+I notice that the markdown grammar doesn't actually have code blocks handled by external scanner externals. Let me check what externals it does have:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01Uid3SxTFeveAymYCDQEfeJ
+
+## pattern
+
+<tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+externals.*\[
+</tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+
+## path
+
+<tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+
+## context-lines
+
+<tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+50
+</tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+
+# TOOL RESULT
+
+ID: toolu_01Uid3SxTFeveAymYCDQEfeJ
+
+<tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+445-            ),
+446-
+447-            pipe_table_row: $ => seq(
+448-                optional(seq(
+449-                    optional($._whitespace),
+450-                    '|',
+451-                )),
+452-                choice(
+453-                    seq(
+454-                        repeat1(prec.right(seq(
+455-                            choice(
+456-                                seq(
+457-                                    optional($._whitespace),
+458-                                    $.pipe_table_cell,
+459-                                    optional($._whitespace)
+460-                                ),
+461-                                alias($._whitespace, $.pipe_table_cell)
+462-                            ),
+463-                            '|',
+464-                        ))),
+465-                        optional($._whitespace),
+466-                        optional(seq(
+467-                            $.pipe_table_cell,
+468-                            optional($._whitespace)
+469-                        )),
+470-                    ),
+471-                    seq(
+472-                        optional($._whitespace),
+473-                        $.pipe_table_cell,
+474-                        optional($._whitespace)
+475-                    )
+476-                ),
+477-            ),
+478-
+479-            pipe_table_cell: $ => prec.right(seq(
+480-                choice(
+481-                    $._word,
+482-                    $._backslash_escape,
+483-                    common.punctuation_without($, ['|']),
+484-                ),
+485-                repeat(choice(
+486-                    $._word,
+487-                    $._whitespace,
+488-                    $._backslash_escape,
+489-                    common.punctuation_without($, ['|']),
+490-                )),
+491-            )),
+492-        } : {}),
+493-    },
+494-
+495:    externals: $ => [
+496-        // Quite a few of these tokens could maybe be implemented without use of the external parser.
+497-        // For this the `$._open_block` and `$._close_block` tokens should be used to tell the external
+498-        // parser to put a new anonymous block on the block stack.
+499-
+500-        // Block structure gets parsed as follows: After every newline (`$._line_ending`) we try to match
+501-        // as many open blocks as possible. For example if the last line was part of a block quote we look
+502-        // for a `>` at the beginning of the next line. We emit a `$.block_continuation` for each matched
+503-        // block. For this process the external scanner keeps a stack of currently open blocks.
+504-        //
+505-        // If we are not able to match all blocks that does not necessarily mean that all unmatched blocks
+506-        // have to be closed. It could also mean that the line is a lazy continuation line
+507-        // (https://github.github.com/gfm/#lazy-continuation-line, see also `$._split_token` and
+508-        // `$._soft_line_break_marker` below)
+509-        //
+510-        // If a block does get closed (because it was not matched or because some closing token was
+511-        // encountered) we emit a `$._block_close` token
+512-
+513-        $._line_ending, // this token does not contain the actual newline characters. see `$._newline`
+514-        $._soft_line_ending,
+515-        $._block_close,
+516-        $.block_continuation,
+517-
+518-        // Tokens signifying the start of a block. Blocks that do not need a `$._block_close` because they
+519-        // always span one line are marked as such.
+520-
+521-        $._block_quote_start,
+522-        $._indented_chunk_start,
+523-        $.atx_h1_marker, // atx headings do not need a `$._block_close`
+524-        $.atx_h2_marker,
+525-        $.atx_h3_marker,
+526-        $.atx_h4_marker,
+527-        $.atx_h5_marker,
+528-        $.atx_h6_marker,
+529-        $.setext_h1_underline, // setext headings do not need a `$._block_close`
+530-        $.setext_h2_underline,
+531-        $._thematic_break, // thematic breaks do not need a `$._block_close`
+532-        $._list_marker_minus,
+533-        $._list_marker_plus,
+534-        $._list_marker_star,
+535-        $._list_marker_parenthesis,
+536-        $._list_marker_dot,
+537-        $._list_marker_minus_dont_interrupt, // list items that do not interrupt an ongoing paragraph
+538-        $._list_marker_plus_dont_interrupt,
+539-        $._list_marker_star_dont_interrupt,
+540-        $._list_marker_parenthesis_dont_interrupt,
+541-        $._list_marker_dot_dont_interrupt,
+542-        $._fenced_code_block_start_backtick,
+543-        $._fenced_code_block_start_tilde,
+544-        $._blank_line_start, // Does not contain the newline characters. Blank lines do not need a `$._block_close`
+545-
+
+</tool.toolu_01Uid3SxTFeveAymYCDQEfeJ>
+
+# ASSISTANT
+
+I see that the markdown grammar has `$._fenced_code_block_start_backtick` and `$._fenced_code_block_end_backtick` but no separate content token. Let me see the full externals list:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01C9a9GKM71H6S75iizCuKyt
+
+## path
+
+<tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown/grammar.js
+</tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+
+## start-line
+
+<tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+495
+</tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+
+## end-line
+
+<tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+580
+</tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+
+# TOOL RESULT
+
+ID: toolu_01C9a9GKM71H6S75iizCuKyt
+
+<tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+    externals: $ => [
+        // Quite a few of these tokens could maybe be implemented without use of the external parser.
+        // For this the `$._open_block` and `$._close_block` tokens should be used to tell the external
+        // parser to put a new anonymous block on the block stack.
+
+        // Block structure gets parsed as follows: After every newline (`$._line_ending`) we try to match
+        // as many open blocks as possible. For example if the last line was part of a block quote we look
+        // for a `>` at the beginning of the next line. We emit a `$.block_continuation` for each matched
+        // block. For this process the external scanner keeps a stack of currently open blocks.
+        //
+        // If we are not able to match all blocks that does not necessarily mean that all unmatched blocks
+        // have to be closed. It could also mean that the line is a lazy continuation line
+        // (https://github.github.com/gfm/#lazy-continuation-line, see also `$._split_token` and
+        // `$._soft_line_break_marker` below)
+        //
+        // If a block does get closed (because it was not matched or because some closing token was
+        // encountered) we emit a `$._block_close` token
+
+        $._line_ending, // this token does not contain the actual newline characters. see `$._newline`
+        $._soft_line_ending,
+        $._block_close,
+        $.block_continuation,
+
+        // Tokens signifying the start of a block. Blocks that do not need a `$._block_close` because they
+        // always span one line are marked as such.
+
+        $._block_quote_start,
+        $._indented_chunk_start,
+        $.atx_h1_marker, // atx headings do not need a `$._block_close`
+        $.atx_h2_marker,
+        $.atx_h3_marker,
+        $.atx_h4_marker,
+        $.atx_h5_marker,
+        $.atx_h6_marker,
+        $.setext_h1_underline, // setext headings do not need a `$._block_close`
+        $.setext_h2_underline,
+        $._thematic_break, // thematic breaks do not need a `$._block_close`
+        $._list_marker_minus,
+        $._list_marker_plus,
+        $._list_marker_star,
+        $._list_marker_parenthesis,
+        $._list_marker_dot,
+        $._list_marker_minus_dont_interrupt, // list items that do not interrupt an ongoing paragraph
+        $._list_marker_plus_dont_interrupt,
+        $._list_marker_star_dont_interrupt,
+        $._list_marker_parenthesis_dont_interrupt,
+        $._list_marker_dot_dont_interrupt,
+        $._fenced_code_block_start_backtick,
+        $._fenced_code_block_start_tilde,
+        $._blank_line_start, // Does not contain the newline characters. Blank lines do not need a `$._block_close`
+
+        // Special tokens for block structure
+
+        // Closing backticks or tildas for a fenced code block. They are used to trigger a `$._close_block`
+        // which in turn will trigger a `$._block_close` at the beginning the following line.
+        $._fenced_code_block_end_backtick,
+        $._fenced_code_block_end_tilde,
+
+        $._html_block_1_start,
+        $._html_block_1_end,
+        $._html_block_2_start,
+        $._html_block_3_start,
+        $._html_block_4_start,
+        $._html_block_5_start,
+        $._html_block_6_start,
+        $._html_block_7_start,
+
+        // Similarly this is used if the closing of a block is not decided by the external parser.
+        // A `$._block_close` will be emitted at the beginning of the next line. Notice that a
+        // `$._block_close` can also get emitted if the parent block closes.
+        $._close_block,
+
+        // This is a workaround so the external parser does not try to open indented blocks when
+        // parsing a link reference definition.
+        $._no_indented_chunk,
+
+        // An `$._error` token is never valid  and gets emmited to kill invalid parse branches. Concretely
+        // this is used to decide wether a newline closes a paragraph and together and it gets emitted
+        // when trying to parse the `$._trigger_error` token in `$.link_title`.
+        $._error,
+        $._trigger_error,
+        $._eof,
+
+        $.minus_metadata,
+        $.plus_metadata,
+
+</tool.toolu_01C9a9GKM71H6S75iizCuKyt>
+
+# ASSISTANT
+
+I notice that the markdown grammar doesn't have a separate `code_contents` token at all! The content is handled by the normal grammar rules. This is an important insight - I may be overcomplicating this.
+
+Looking at the markdown grammar for fenced code blocks:
+
+```javascript
+fenced_code_block: $ => prec.right(choice(
+    seq(
+        alias($._fenced_code_block_start_backtick, $.fenced_code_block_delimiter),
+        optional($._whitespace),
+        optional($.info_string),
+        $._newline,
+        optional($.code_fence_content),
+        optional(seq(alias($._fenced_code_block_end_backtick, $.fenced_code_block_delimiter), $._close_block, $._newline)),
+        $._block_close,
+    ),
+```
+
+The content is just `$.code_fence_content` which is:
+```javascript
+code_fence_content: $ => repeat1(choice($._newline, $._line)),
+```
+
+This means the content isn't handled by the external scanner at all - it's just regular grammar rules that consume lines until the closing delimiter.
+
+This suggests I should simplify my approach. Instead of having a separate `CODE_CONTENTS` token, I should let the regular grammar handle the content parsing. But since this is a Greger grammar and not pure markdown, I need to adapt this approach.
+
+Let me try a different approach. Let me create a simplified version that handles both inline code and fenced code blocks, but without the complex content scanning:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01HSmBcv1CoJrUxFzngDbuFN
+
+## path
+
+<tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+./grammar.js
+</tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+
+## git-commit-message
+
+<tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+Simplify code block grammar to not require separate contents token
+</tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+
+## diff
+
+<tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+     code: $ => seq(
+       $.code_backticks_start,
+-      $.code_contents,
++      optional($.code_contents),
+       $.code_backticks_end,
+     ),
+\ No newline at end of file
+
+</tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+
+# TOOL RESULT
+
+ID: toolu_01HSmBcv1CoJrUxFzngDbuFN
+
+<tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
+
+</tool.toolu_01HSmBcv1CoJrUxFzngDbuFN>
