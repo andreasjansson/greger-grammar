@@ -656,12 +656,26 @@ static bool scan_code_content(TSLexer *lexer) {
     
     // For fenced code blocks (3+ backticks), check if info string contains backticks
     if (opening_backticks >= 3) {
-        // Look for backticks in the info string (until newline)
+        // Look for backticks in the info string (until newline or content)
         while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
                lexer->lookahead != 0) {
             if (lexer->lookahead == '`') {
-                // Invalid if info string contains backticks
-                return false;
+                // Check if this is the start of closing backticks
+                // Count consecutive backticks at this position
+                int consecutive_backticks = 0;
+                TSLexer temp_lexer = *lexer;
+                while (temp_lexer.lookahead == '`' && !temp_lexer.eof(&temp_lexer)) {
+                    consecutive_backticks++;
+                    temp_lexer.advance(&temp_lexer, false);
+                }
+                
+                if (consecutive_backticks == opening_backticks) {
+                    // This is the closing delimiter, stop processing info string
+                    break;
+                } else {
+                    // Invalid if info string contains backticks that are not the closing delimiter
+                    return false;
+                }
             }
             advance(lexer);
         }
