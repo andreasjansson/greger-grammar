@@ -762,7 +762,10 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
             continue; // Continue to next iteration to check this new character
         } else {
             if (code_close_match_index > 0) {
-                fprintf(stderr, "DEBUG: Resetting code close match index\n");
+                fprintf(stderr, "DEBUG: Resetting code close match index, marking previous chars as content\n");
+                // We had a partial match that failed, so the previous characters should be content
+                has_content = true;
+                lexer->mark_end(lexer);
                 code_close_match_index = 0;
             }
         }

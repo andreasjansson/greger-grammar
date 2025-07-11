@@ -4050,5 +4050,110 @@ Add debug output for validation logic
 ID: toolu_01BV4iWCPmUyfCqkrjdFpNZB
 
 <tool.toolu_01BV4iWCPmUyfCqkrjdFpNZB>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output for validation logic
 </tool.toolu_01BV4iWCPmUyfCqkrjdFpNZB>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SVyrbeZjY5FrSMfxVvLm6x
+
+## command
+
+<tool.toolu_01SVyrbeZjY5FrSMfxVvLm6x>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_01SVyrbeZjY5FrSMfxVvLm6x>
+
+# TOOL RESULT
+
+ID: toolu_01SVyrbeZjY5FrSMfxVvLm6x
+
+<tool.toolu_01SVyrbeZjY5FrSMfxVvLm6x>
+DEBUG: In code content, looking at char: < (code: 60)
+DEBUG: Starting code content scan, backtick count: 1
+DEBUG: Expected closing pattern: '`' (len: 1)
+DEBUG: Loop iteration, char: < (code: 60)
+DEBUG: Matching code close pattern at index 0
+DEBUG: Advanced past char, now looking at: ` (code: 96)
+DEBUG: Loop iteration, char: ` (code: 96)
+DEBUG: Resetting code close match index
+DEBUG: Matching backtick pattern at index 0
+DEBUG: Found complete backtick pattern
+DEBUG: Valid close, has_content: 0
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.08 ms	   147 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_01SVyrbeZjY5FrSMfxVvLm6x>
+
+# ASSISTANT
+
+Perfect! Now I can see the issue clearly. The scanner finds the valid closing pattern (the final backtick), but `has_content` is 0, meaning no content was collected. This is because the LESSTHAN character was consumed when we were checking for the code close pattern, but it was never marked as content.
+
+The issue is in the logic - when we partially match the code close pattern and then advance past the LESSTHAN character, we should mark it as content. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018XnRSEynXpphmftcvPdJuf
+
+## path
+
+<tool.toolu_018XnRSEynXpphmftcvPdJuf>
+src/scanner.c
+</tool.toolu_018XnRSEynXpphmftcvPdJuf>
+
+## git-commit-message
+
+<tool.toolu_018XnRSEynXpphmftcvPdJuf>
+Fix code close pattern matching to mark content when partial match fails
+</tool.toolu_018XnRSEynXpphmftcvPdJuf>
+
+## diff
+
+<tool.toolu_018XnRSEynXpphmftcvPdJuf>
+         // Check for code close tag pattern first
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+             fprintf(stderr, "DEBUG: Matching code close pattern at index %d\n", code_close_match_index);
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, reset scanner state and stop here (don't consume it)
+                 fprintf(stderr, "DEBUG: Found complete code close tag\n");
+                 scanner->code_backtick_count = 0;
+                 scanner->in_code_content = false;
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             // If we're in the middle of matching code close tag, advance and continue
+             advance(lexer);
+             fprintf(stderr, "DEBUG: Advanced past char, now looking at: %c (code: %d)\n", 
+                     lexer->lookahead, lexer->lookahead);
+             continue; // Continue to next iteration to check this new character
+         } else {
+             if (code_close_match_index > 0) {
+-                fprintf(stderr, "DEBUG: Resetting code close match index\n");
++                fprintf(stderr, "DEBUG: Resetting code close match index, marking previous chars as content\n");
++                // We had a partial match that failed, so the previous characters should be content
++                has_content = true;
++                lexer->mark_end(lexer);
+                 code_close_match_index = 0;
+             }
+         }
+\ No newline at end of file
+
+</tool.toolu_018XnRSEynXpphmftcvPdJuf>
+
+# TOOL RESULT
+
+ID: toolu_018XnRSEynXpphmftcvPdJuf
+
+<tool.toolu_018XnRSEynXpphmftcvPdJuf>
+
+</tool.toolu_018XnRSEynXpphmftcvPdJuf>
