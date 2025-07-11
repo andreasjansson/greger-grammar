@@ -708,25 +708,69 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
 
 
 
-static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
-    // Let the grammar handle it
-    if (scanner->fenced_code_block_delimiter_length > 1) {
-        // Skip whitespace
+static bool scan_code_language(Scanner *scanner, TSLexer *lexer) {
+    // Rule 1: Single backticks never have language
+    if (scanner->fenced_code_block_delimiter_length == 1) {
+        return false;
+    }
+    
+    // Rule 2: Two or more backticks + optional spaces + non-spaces + newline = valid language
+    if (scanner->fenced_code_block_delimiter_length >= 2) {
+        // Skip optional spaces (not newlines)
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
             advance(lexer);
         }
         
-        // If we see a language identifier, return false to let grammar handle it
-        if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+        // Must have non-spaces (language identifier)
+        if (!iswlower(lexer->lookahead) && !iswupper(lexer->lookahead) && lexer->lookahead != '_') {
             return false;
         }
+        
+        // Scan the language identifier
+        while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+               iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+               lexer->lookahead == '+' || lexer->lookahead == '-') {
+            advance(lexer);
+        }
+        
+        // Must be followed by newline for valid language
+        if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            lexer->result_symbol = CODE_LANGUAGE;
+            return true;
+        }
+        
+        // Rule 3: Anything else should be treated as content (return false)
+        return false;
     }
     
-    // Simple content scanning - consume everything until we hit a backtick
-    // The grammar will handle the backticks separately
-    while (lexer->lookahead != 0 && lexer->lookahead != '`') {
-        advance(lexer);
+    return false;
+}
+
+static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+    // Simple content scanning - consume everything until we hit closing backticks
+    while (lexer->lookahead != 0) {
+        if (lexer->lookahead == '`') {
+            // Check if this could be closing backticks
+            TSLexer saved_lexer = *lexer;
+            int backtick_count = 0;
+            
+            while (lexer->lookahead == '`') {
+                backtick_count++;
+                advance(lexer);
+            }
+            
+            // If this matches the opening count, stop here
+            if (backtick_count == scanner->fenced_code_block_delimiter_length) {
+                *lexer = saved_lexer; // Restore position
+                break;
+            } else {
+                // Not the closing sequence, include as content
+                *lexer = saved_lexer;
+                advance(lexer);
+            }
+        } else {
+            advance(lexer);
+        }
     }
     
     lexer->result_symbol = CODE_CONTENTS;
