@@ -6417,5 +6417,118 @@ Add test case for backtick with content
 ID: toolu_01YMhgee8Tv7aPZLNkbL9WtS
 
 <tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test-backtick-with-content.greger with 18 characters. Successfully staged 2 file(s) and committed with message: Add test case for backtick with content
 </tool.toolu_01YMhgee8Tv7aPZLNkbL9WtS>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KAkb3JwMn2pAWpYbsAyiMZ
+
+## command
+
+<tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+tree-sitter parse test-backtick-with-content.greger
+</tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+
+## timeout
+
+<tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+10
+</tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+
+# TOOL RESULT
+
+ID: toolu_01KAkb3JwMn2pAWpYbsAyiMZ
+
+<tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (code [2, 1] - [2, 7]
+      (code_start_tag [2, 1] - [2, 2])
+      (code_content [2, 2] - [2, 7])
+      (code_end_tag [2, 7] - [2, 7]))
+    (text [2, 7] - [5, 0])))
+
+</tool.toolu_01KAkb3JwMn2pAWpYbsAyiMZ>
+
+# ASSISTANT
+
+Good! This works correctly. So the issue is specifically when there's no content between the backtick and the newline.
+
+Let me check if there's a difference in how the scanner behaves. I suspect the issue might be with how I handle the whitespace skipping. 
+
+Looking at the main scanner function:
+
+```c
+// Skip whitespace but preserve newlines for other tokens
+while (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+    skip(lexer);
+}
+```
+
+This skips whitespace but preserves newlines. So when the scanner is called for `CODE_CONTENT`, the lookahead should be the newline character.
+
+But in the debug output, I see "skip character:10" (which is newline), so the scanner is skipping newlines even though it shouldn't.
+
+I think the issue might be that the scanner is being called multiple times with different `valid_symbols` sets, and the whitespace skipping is happening in the wrong context.
+
+Let me try a different approach. Instead of trying to fix the `scan_code_content` function, let me try to make the `scan_code_end_tag` function handle the empty content case by being more proactive about checking for it.
+
+Looking at the debug output again, I notice that the scanner state goes from 5 to 1. This suggests that the scanner tried to scan for `CODE_CONTENT` and failed, but then didn't try to scan for `CODE_END_TAG`.
+
+Actually, let me try a very different approach. Let me make the `scan_code_content` function return a zero-length content when there's no content between the backtick and newline:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_018wGAxcV5cSBimzNGDr66vx
+
+## path
+
+<tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+src/scanner.c
+</tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+## git-commit-message
+
+<tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+Return empty code content instead of false for backtick at end of line
+</tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+## original-content
+
+<tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're immediately at a newline
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // No content between backtick and newline, let parser skip to code_end_tag
+        return false;
+    }
+</tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+## new-content
+
+<tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_code_content) return false;
+    
+    // For inline code (1-2 backticks), check if we're immediately at a newline
+    if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        // No content between backtick and newline, return empty content
+        lexer->result_symbol = CODE_CONTENT;
+        return true;
+    }
+</tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+# TOOL RESULT
+
+ID: toolu_018wGAxcV5cSBimzNGDr66vx
+
+<tool.toolu_018wGAxcV5cSBimzNGDr66vx>
+
+</tool.toolu_018wGAxcV5cSBimzNGDr66vx>
