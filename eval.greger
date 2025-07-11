@@ -6444,5 +6444,111 @@ Add debug output to understand scanner behavior
 ID: toolu_014gUfUJeio52NFvpsR4CSyA
 
 <tool.toolu_014gUfUJeio52NFvpsR4CSyA>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to understand scanner behavior
 </tool.toolu_014gUfUJeio52NFvpsR4CSyA>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EqhmdoBdmbQvLfzbpVw7zu
+
+## command
+
+<tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+
+## timeout
+
+<tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+5
+</tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+
+# TOOL RESULT
+
+ID: toolu_01EqhmdoBdmbQvLfzbpVw7zu
+
+<tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+DEBUG: calling scan_code_backticks_start
+DEBUG: in_code_content=true, delimiter_length=1
+DEBUG: calling scan_code_content
+Command timed out after 5 seconds
+</tool.toolu_01EqhmdoBdmbQvLfzbpVw7zu>
+
+# ASSISTANT
+
+Perfect! I can see the issue now. The `scan_code_content` function is being called and entering an infinite loop. The issue is likely in the `scan_code_content` function itself. Let me look more closely at the logic:
+
+The problem might be that the content scanner is consuming content but never returning false, so it gets called repeatedly. Let me fix this by making sure the content scanner doesn't get called when there's no content to consume:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_0127uZWmKKHgx4uynMRbuUir
+
+## path
+
+<tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+./src/scanner.c
+</tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+
+## git-commit-message
+
+<tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+Fix infinite loop in code content scanner
+</tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+
+## diff
+
+<tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
++    // Don't consume content if we're at a backtick or newline (for inline code)
++    if (lexer->lookahead == '`') return false;
++    if (scanner->fenced_code_block_delimiter_length <= 2 && 
++        (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
++        return false;
++    }
++    
+     lexer->mark_end(lexer);
+     
+     bool has_content = false;
+     
+     // Consume content until we see the expected number of backticks
+     while (lexer->lookahead != 0) {
+         // For inline code (1-2 backticks), stop at newlines
+         if (scanner->fenced_code_block_delimiter_length <= 2 && 
+             (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+             break;
+         }
+         
+         // Stop at backticks - let the end scanner handle them
+         if (lexer->lookahead == '`') {
+             break;
+         }
+         
+         // Regular content character
+         advance(lexer);
+         has_content = true;
+         lexer->mark_end(lexer);
+     }
+     
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+
+# TOOL RESULT
+
+ID: toolu_0127uZWmKKHgx4uynMRbuUir
+
+<tool.toolu_0127uZWmKKHgx4uynMRbuUir>
+
+</tool.toolu_0127uZWmKKHgx4uynMRbuUir>

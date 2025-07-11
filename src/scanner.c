@@ -732,6 +732,13 @@ static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
 static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
     
+    // Don't consume content if we're at a backtick or newline (for inline code)
+    if (lexer->lookahead == '`') return false;
+    if (scanner->fenced_code_block_delimiter_length <= 2 && 
+        (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+        return false;
+    }
+    
     lexer->mark_end(lexer);
     
     bool has_content = false;
