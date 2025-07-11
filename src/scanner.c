@@ -668,13 +668,12 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
     // Mark the end after consuming just the backticks
     lexer->mark_end(lexer);
     
-    // If this is able to close a fenced code block then that is the only valid interpretation
+    // If this is able to close a code block then that is the only valid interpretation
     if (valid_symbols[CODE_BACKTICKS_END] && 
         level >= scanner->fenced_code_block_delimiter_length &&
         scanner->fenced_code_block_delimiter_length > 0) {
         
-        // For block code (3+ backticks), we need to be followed by newline or EOF
-        // For inline code (1-2 backticks), we can close immediately
+        // For fenced code blocks (3+ backticks), require newline/EOF after closing
         if (scanner->fenced_code_block_delimiter_length >= 3) {
             // Skip whitespace after closing backticks
             while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
@@ -686,7 +685,7 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
                 return true;
             }
         } else {
-            // For 1-2 backticks, close immediately
+            // For inline code (1-2 backticks), close immediately
             scanner->fenced_code_block_delimiter_length = 0;
             lexer->result_symbol = CODE_BACKTICKS_END;
             return true;
@@ -695,7 +694,7 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
     
     // If this could be the start of a code block
     if (valid_symbols[CODE_BACKTICKS_START]) {
-        // For 3+ backticks, check if info string contains backticks (invalid for fenced code blocks)
+        // For fenced code blocks (3+ backticks), check if info string contains backticks
         bool info_string_has_backtick = false;
         
         if (level >= 3) {
@@ -716,8 +715,10 @@ static bool parse_fenced_code_block(Scanner *scanner, TSLexer *lexer, const bool
             *lexer = saved_lexer;
         }
         
-        // If info string doesn't contain backticks, this is a valid code block start
-        if (!info_string_has_backtick) {
+        // Valid code block start if:
+        // - 1-2 backticks (inline code, always valid)
+        // - 3+ backticks with no backticks in info string (fenced code block)
+        if (level < 3 || !info_string_has_backtick) {
             lexer->result_symbol = CODE_BACKTICKS_START;
             scanner->fenced_code_block_delimiter_length = level;
             return true;
