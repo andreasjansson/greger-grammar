@@ -148,11 +148,11 @@ module.exports = grammar({
       /\n/
     ),
 
-    thinking_signature: $ => prec(1, seq(
-      alias(token('Signature: '), $.key),
+    thinking_signature: $ => seq(
+      alias('Signature: ', $.key),
       field('value', $.value),
       /\n/
-    )),
+    ),
 
     tool_param: $ => seq(
       $.tool_param_header,

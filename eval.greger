@@ -7738,5 +7738,109 @@ Remove thinking_signature from content_blocks
 ID: toolu_01TcvDt3Pk9RyU5YaRFgWof7
 
 <tool.toolu_01TcvDt3Pk9RyU5YaRFgWof7>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Remove thinking_signature from content_blocks
 </tool.toolu_01TcvDt3Pk9RyU5YaRFgWof7>
+
+# ASSISTANT
+
+Now let me try a different approach. Looking at the issue more carefully, I think the problem might be with how the key is defined. Let me examine how `name` and `id` define their keys:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01WxZhTBCd9JvVkMeGoPkCcx
+
+## path
+
+<tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+./grammar.js
+</tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+
+## start-line
+
+<tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+135
+</tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+
+## end-line
+
+<tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+155
+</tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+
+# TOOL RESULT
+
+ID: toolu_01WxZhTBCd9JvVkMeGoPkCcx
+
+<tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+    server_tool_use_header: _ => token('# SERVER TOOL USE'),
+
+    web_search_tool_result_header: _ => token('# WEB SEARCH TOOL RESULT'),
+
+    name: $ => seq(
+      alias('Name:', $.key),
+      field('value', $.value),
+      /\n/
+    ),
+
+    id: $ => seq(
+      alias('ID:', $.key),
+      field('value', $.value),
+      /\n/
+    ),
+
+    thinking_signature: $ => prec(1, seq(
+      alias(token('Signature: '), $.key),
+      field('value', $.value),
+      /\n/
+    )),
+</tool.toolu_01WxZhTBCd9JvVkMeGoPkCcx>
+
+# ASSISTANT
+
+I see a key difference! The `name` and `id` rules use `'Name:'` and `'ID:'` (without space), but the thinking signature uses `'Signature: '` (with space). Let me check the test file again:
+
+Looking at the test, it has `Signature: sig123`, which means there should be a space after the colon. But the `name` and `id` rules show `'Name:'` and `'ID:'` without a space. Let me check if the issue is with the space.
+
+Let me change the thinking signature to match the pattern of name and id:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01P8VLsVUTC8ZqM8YQbnG9t1
+
+## path
+
+<tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+./grammar.js
+</tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+
+## git-commit-message
+
+<tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+Fix thinking_signature to match name/id pattern
+</tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+
+## diff
+
+<tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+-    thinking_signature: $ => prec(1, seq(
+-      alias(token('Signature: '), $.key),
++    thinking_signature: $ => seq(
++      alias('Signature: ', $.key),
+       field('value', $.value),
+       /\n/
+-    )),
+\ No newline at end of file
++    ),
+\ No newline at end of file
+
+</tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+
+# TOOL RESULT
+
+ID: toolu_01P8VLsVUTC8ZqM8YQbnG9t1
+
+<tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
+
+</tool.toolu_01P8VLsVUTC8ZqM8YQbnG9t1>
