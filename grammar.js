@@ -151,6 +151,7 @@ module.exports = grammar({
     thinking_signature: $ => seq(
       alias('Signature: ', $.key),
       field('value', $.value),
+      /\n/
     ),
 
     tool_param: $ => seq(
