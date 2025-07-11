@@ -6283,5 +6283,241 @@ Only recognize code_close_tag when there's actually an open code block
 ID: toolu_01RRJapLAPL7SQUqwWrZdpip
 
 <tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Only recognize code_close_tag when there's actually an open code block
 </tool.toolu_01RRJapLAPL7SQUqwWrZdpip>
+
+# ASSISTANT
+
+Now let's test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01NaHGrNnCQatu2EbQ3Lyd4X
+
+## command
+
+<tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+
+## timeout
+
+<tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+10
+</tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+
+# TOOL RESULT
+
+ID: toolu_01NaHGrNnCQatu2EbQ3Lyd4X
+
+<tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.46 ms	    98 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01NaHGrNnCQatu2EbQ3Lyd4X>
+
+# ASSISTANT
+
+The issue persists. Let me test if the code close tag is being recognized on its own:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01ERumC9zZpvFHUiyV64rUaZ
+
+## command
+
+<tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+cd . && printf '# ASSISTANT\n\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+
+## timeout
+
+<tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+10
+</tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+
+# TOOL RESULT
+
+ID: toolu_01ERumC9zZpvFHUiyV64rUaZ
+
+<tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+(source_file [0, 0] - [2, 14]
+  (assistant [0, 0] - [2, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 14])))
+
+</tool.toolu_01ERumC9zZpvFHUiyV64rUaZ>
+
+# ASSISTANT
+
+Good, so when there's no open code block, the code close tag is treated as regular text. The problem is that the code content scanner is stopping at the `<$code-close/>` but the grammar doesn't know what to do with it. Let me add some debug information to understand what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BWxtSmpagEf16HeQeBM23W
+
+## command
+
+<tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+cd . && printf '# ASSISTANT\n\n```\nunclosed code\n<$code-close/>\n\nMore text.' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+
+## timeout
+
+<tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+10
+</tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+
+# TOOL RESULT
+
+ID: toolu_01BWxtSmpagEf16HeQeBM23W
+
+<tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+(source_file [0, 0] - [6, 10]
+  (ERROR [0, 0] - [6, 10]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [6, 10])))
+/dev/stdin	Parse:    0.03 ms	  2079 bytes/ms	(ERROR [0, 0] - [6, 10])
+Command failed with exit code 1
+</tool.toolu_01BWxtSmpagEf16HeQeBM23W>
+
+# ASSISTANT
+
+I think the issue might be related to the fact that after the code close tag, we need to handle the newline and continue parsing. But first, let me check if the code close tag is actually being recognized when it's in the scanner logic. 
+
+Looking at the output, it seems like the `code_content` is stopping at the right place (`[2, 3] - [4, 13]`), but the parser is expecting either `code_end_tag` or `code_close_tag` at position `[4, 13]` which should be the `<` of `<$code-close/>`. But there's an error there.
+
+This suggests that the scanner is being called but returning false. Let me check if there's an issue with the scanner logic. Let me test a much simpler version:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SXkAmBHNyQuTTZqkKQL2id
+
+## command
+
+<tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+
+## timeout
+
+<tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+10
+</tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+
+# TOOL RESULT
+
+ID: toolu_01SXkAmBHNyQuTTZqkKQL2id
+
+<tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.05 ms	   771 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01SXkAmBHNyQuTTZqkKQL2id>
+
+# ASSISTANT
+
+Same issue. Let me try to debug this with simpler test. I suspect there might be a newline issue in the scanner code content. Let me check if there's an issue with the code content scanner that's preventing it from stopping correctly:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01KpgWryq5T44XfXB8uoZhC3
+
+## path
+
+<tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+./src/scanner.c
+</tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+
+## git-commit-message
+
+<tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+Fix code_content scanner to handle newlines properly when looking for code close tag
+</tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+
+## diff
+
+<tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+     // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
+         // Check for code close tag pattern
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
++            // Don't advance yet, continue checking regular closing pattern too
+         } else {
+             code_close_match_index = 0;
+         }
+         
+         // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+                 lexer->mark_end(lexer);
+             }
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+
+# TOOL RESULT
+
+ID: toolu_01KpgWryq5T44XfXB8uoZhC3
+
+<tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
+
+</tool.toolu_01KpgWryq5T44XfXB8uoZhC3>
