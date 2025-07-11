@@ -6273,6 +6273,8 @@ But in my case, I need to have a contents token because the code contents should
 
 Let me try a different approach - let me make the contents scanner much simpler and just consume everything until EOF, and let the grammar handle the backticks:
 
+```
+
 # TOOL USE
 
 Name: str-replace
@@ -6290,71 +6292,59 @@ ID: toolu_01T6DBg4buxzbm8q1BkFo81m
 Simplify code_contents to just consume everything until EOF
 </tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
 
-## original-content
+## diff
 
 <tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
-    // Handle code contents
-    if (valid_symbols[CODE_CONTENTS]) {
-        // Simple implementation - consume everything until closing backticks
-        while (lexer->lookahead != 0) {
-            if (lexer->lookahead == '`') {
-                // Check if this could be closing backticks
-                int backtick_count = 0;
-                TSLexer saved_lexer = *lexer;
-                
-                while (lexer->lookahead == '`') {
-                    backtick_count++;
-                    advance(lexer);
-                }
-                
-                if (backtick_count == scanner->last_backtick_count) {
-                    // This is the closing sequence, restore and stop
-                    *lexer = saved_lexer;
-                    break;
-                } else {
-                    // Not the closing sequence, restore and include as content
-                    *lexer = saved_lexer;
-                    advance(lexer);
-                }
-            } else {
-                advance(lexer);
-            }
-        }
-        
-        lexer->result_symbol = CODE_CONTENTS;
-        return true;
-    }
-</tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+     // Handle code contents
+     if (valid_symbols[CODE_CONTENTS]) {
+-        // Simple implementation - consume everything until closing backticks
+-        while (lexer->lookahead != 0) {
++        // Very simple implementation - just consume a few characters
++        // The grammar should handle the rest
++        bool has_content = false;
++        int char_count = 0;
++        
++        while (lexer->lookahead != 0 && char_count < 100) {
+             if (lexer->lookahead == '`') {
+-                // Check if this could be closing backticks
+-                int backtick_count = 0;
+-                TSLexer saved_lexer = *lexer;
+-                
+-                while (lexer->lookahead == '`') {
+-                    backtick_count++;
+-                    advance(lexer);
+-                }
+-                
+-                if (backtick_count == scanner->last_backtick_count) {
+-                    // This is the closing sequence, restore and stop
+-                    *lexer = saved_lexer;
+-                    break;
+-                } else {
+-                    // Not the closing sequence, restore and include as content
+-                    *lexer = saved_lexer;
+-                    advance(lexer);
+-                }
+-            } else {
+-                advance(lexer);
++                // Don't consume backticks, let the grammar handle them
++                break;
+             }
++            advance(lexer);
++            has_content = true;
++            char_count++;
+         }
+         
++        if (has_content) {
++            lexer->result_symbol = CODE_CONTENTS;
++            return true;
++        }
++        
++        // If no content, still return the token (empty content)
+         lexer->result_symbol = CODE_CONTENTS;
+         return true;
+     }
+\ No newline at end of file
 
-## new-content
-
-<tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
-    // Handle code contents
-    if (valid_symbols[CODE_CONTENTS]) {
-        // Very simple implementation - just consume a few characters
-        // The grammar should handle the rest
-        bool has_content = false;
-        int char_count = 0;
-        
-        while (lexer->lookahead != 0 && char_count < 100) {
-            if (lexer->lookahead == '`') {
-                // Don't consume backticks, let the grammar handle them
-                break;
-            }
-            advance(lexer);
-            has_content = true;
-            char_count++;
-        }
-        
-        if (has_content) {
-            lexer->result_symbol = CODE_CONTENTS;
-            return true;
-        }
-        
-        // If no content, still return the token (empty content)
-        lexer->result_symbol = CODE_CONTENTS;
-        return true;
-    }
 </tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
 
 # TOOL RESULT
@@ -6364,3 +6354,179 @@ ID: toolu_01T6DBg4buxzbm8q1BkFo81m
 <tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
 
 </tool.toolu_01T6DBg4buxzbm8q1BkFo81m>
+
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XzGou2CVVs8PFqPNF7oXmr
+
+## command
+
+<tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+cd . && tree-sitter generate
+</tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+
+## timeout
+
+<tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+10
+</tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+
+# TOOL RESULT
+
+ID: toolu_01XzGou2CVVs8PFqPNF7oXmr
+
+<tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+
+</tool.toolu_01XzGou2CVVs8PFqPNF7oXmr>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BaJLtnVbUKa2AEPmt5gNyY
+
+## command
+
+<tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+cd . && printf '# ASSISTANT\n\n`` hello ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+
+## timeout
+
+<tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+10
+</tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+
+# TOOL RESULT
+
+ID: toolu_01BaJLtnVbUKa2AEPmt5gNyY
+
+<tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+(source_file [0, 0] - [2, 11]
+  (assistant [0, 0] - [2, 11]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 11]
+      (code_backticks [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 9])
+      (code_backticks [2, 9] - [2, 11]))))
+
+</tool.toolu_01BaJLtnVbUKa2AEPmt5gNyY>
+
+# ASSISTANT
+
+Great! That works. Now let me test the failing tests to see if this fixes the issues:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QwwJPkb8CJUiCgQrNxHrrM
+
+## command
+
+<tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+cd . && tree-sitter test | grep -E "(✓|✗)" | head -20
+</tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+
+## timeout
+
+<tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+30
+</tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+
+# TOOL RESULT
+
+ID: toolu_01QwwJPkb8CJUiCgQrNxHrrM
+
+<tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+      1. ✓ Citations after tool result
+      2. ✓ Citations basic
+      3. ✓ Citations multiple
+      4. ✗ Code block with nested headers
+      5. ✗ Code block triple backticks
+      6. ✗ Single backtick code
+      7. ✗ Double backticks no language
+      8. ✓ Triple backticks no language
+      9. ✗ Triple backticks with language
+     10. ✓ Triple backticks with invalid language (has spaces)
+     11. ✗ Quadruple backticks with language
+     12. ✗ Triple backticks inline with language
+     13. ✗ Triple backticks language with numbers and symbols
+     14. ✓ Empty code blocks
+     15. ✓ Complex workflow
+     16. ✓ Eval nested braces
+     17. ✓ Eval partial cases -- Warning: Slow parse rate (1785.914 bytes/ms)
+     18. ✓ Eval results
+     19. ✓ Eval
+     20. ✗ HTML comments
+
+</tool.toolu_01QwwJPkb8CJUiCgQrNxHrrM>
+
+# ASSISTANT
+
+We have progress! The Empty code blocks test is now passing. But several other tests are failing. The issue is probably that my contents scanner is too simplistic - it's not handling the language detection properly.
+
+Let me go back to the original issue. The core problem is that I need to have the contents scanner work with the grammar to properly detect when there's a language vs when there isn't.
+
+Looking at the failing tests, I think the key insight is that I need to properly handle the case where the scanner should defer to the grammar for language detection, but only in certain circumstances.
+
+Let me reimplement the contents scanner with proper language detection:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01KQpWqe1q46Q1FChGAxLSt1
+
+## path
+
+<tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+./src/scanner.c
+</tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+
+## git-commit-message
+
+<tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+Reimplement code_contents with proper language detection
+</tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+
+## diff
+
+<tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+     // Handle code contents
+     if (valid_symbols[CODE_CONTENTS]) {
+-        // Very simple implementation - just consume a few characters
+-        // The grammar should handle the rest
+-        bool has_content = false;
+-        int char_count = 0;
+-        
+-        while (lexer->lookahead != 0 && char_count < 100) {
+-            if (lexer->lookahead == '`') {
+-                // Don't consume backticks, let the grammar handle them
+-                break;
+-            }
+-            advance(lexer);
+-            has_content = true;
+-            char_count++;
+-        }
+-        
+-        if (has_content) {
+-            lexer->result_symbol = CODE_CONTENTS;
+-            return true;
+-        }
+-        
+-        // If no content, still return the token (empty content)
+-        lexer->result_symbol = CODE_CONTENTS;
+-        return true;
++        return scan_code_contents(scanner, lexer);
+     }
+\ No newline at end of file
+
+</tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+
+# TOOL RESULT
+
+ID: toolu_01KQpWqe1q46Q1FChGAxLSt1
+
+<tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>
+
+</tool.toolu_01KQpWqe1q46Q1FChGAxLSt1>

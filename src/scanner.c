@@ -916,29 +916,7 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
     
     // Handle code contents
     if (valid_symbols[CODE_CONTENTS]) {
-        // Very simple implementation - just consume a few characters
-        // The grammar should handle the rest
-        bool has_content = false;
-        int char_count = 0;
-        
-        while (lexer->lookahead != 0 && char_count < 100) {
-            if (lexer->lookahead == '`') {
-                // Don't consume backticks, let the grammar handle them
-                break;
-            }
-            advance(lexer);
-            has_content = true;
-            char_count++;
-        }
-        
-        if (has_content) {
-            lexer->result_symbol = CODE_CONTENTS;
-            return true;
-        }
-        
-        // If no content, still return the token (empty content)
-        lexer->result_symbol = CODE_CONTENTS;
-        return true;
+        return scan_code_contents(scanner, lexer);
     }
     
     // Handle eval language
