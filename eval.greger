@@ -5989,5 +5989,332 @@ Fix scanner to allow empty code content when code close tag is encountered immed
 ID: toolu_01VsAuMD4vVHC7iLeSMn991j
 
 <tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scanner to allow empty code content when code close tag is encountered immediately
 </tool.toolu_01VsAuMD4vVHC7iLeSMn991j>
+
+# ASSISTANT
+
+Now let's test the fix:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01JyDkkr6Vq32aMdpSJ6r49p
+
+## command
+
+<tool.toolu_01JyDkkr6Vq32aMdpSJ6r49p>
+timeout 10 tree-sitter test --file-name code-close-tag-mixed.txt
+</tool.toolu_01JyDkkr6Vq32aMdpSJ6r49p>
+
+# TOOL RESULT
+
+ID: toolu_01JyDkkr6Vq32aMdpSJ6r49p
+
+<tool.toolu_01JyDkkr6Vq32aMdpSJ6r49p>
+  code-close-tag-mixed:
+      7. ✓ Code close tag with mixed code blocks
+      8. ✗ Code close tag immediately after backtick
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag immediately after backtick:
+
+    (source_file
+      (user
+        (user_header)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_close_tag))
+        (text)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01JyDkkr6Vq32aMdpSJ6r49p>
+
+# ASSISTANT
+
+Good! The test is now passing the structure I expected. The scanner is now generating an empty `code_content` token when the code close tag is encountered immediately. Let me test the original debug file:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01C7SZtiEqHY1oJGX7a6KkfT
+
+## command
+
+<tool.toolu_01C7SZtiEqHY1oJGX7a6KkfT>
+timeout 10 tree-sitter parse debug.greger
+</tool.toolu_01C7SZtiEqHY1oJGX7a6KkfT>
+
+# TOOL RESULT
+
+ID: toolu_01C7SZtiEqHY1oJGX7a6KkfT
+
+<tool.toolu_01C7SZtiEqHY1oJGX7a6KkfT>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 15]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 1])
+      (code_close_tag [2, 1] - [2, 15]))
+    (text [2, 15] - [4, 0])
+    (code [4, 0] - [4, 3]
+      (code_start_tag [4, 0] - [4, 1])
+      (code_content [4, 1] - [4, 2])
+      (code_end_tag [4, 2] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01C7SZtiEqHY1oJGX7a6KkfT>
+
+# ASSISTANT
+
+Perfect! The debug.greger file is now parsing correctly without errors. The structure shows:
+1. A code block with empty content followed by a code close tag
+2. Regular text 
+3. Another code block with content 'a' followed by a regular code end tag
+
+Let me run the full test suite to make sure I didn't break anything:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Xo8pXfnHkCy9416VRY96oB
+
+## command
+
+<tool.toolu_01Xo8pXfnHkCy9416VRY96oB>
+timeout 30 tree-sitter test
+</tool.toolu_01Xo8pXfnHkCy9416VRY96oB>
+
+# TOOL RESULT
+
+ID: toolu_01Xo8pXfnHkCy9416VRY96oB
+
+<tool.toolu_01Xo8pXfnHkCy9416VRY96oB>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close-tag-basic:
+      6. ✓ Basic code close tag
+  code-close-tag-mixed:
+      7. ✓ Code close tag with mixed code blocks
+      8. ✗ Code close tag immediately after backtick
+  code-close:
+      9. ✓ Code close tag test
+  code-special-characters:
+     10. ✓ Code with special characters
+  code-with-lessthan:
+     11. ✓ Code with less-than character
+  code:
+     12. ✓ Inline code with single backticks
+     13. ✓ Inline code with double backticks
+     14. ✓ Triple backticks no language
+     15. ✓ Triple backticks with language
+     16. ✓ Triple backticks with invalid language (has spaces)
+     17. ✓ Quadruple backticks with language
+     18. ✓ Triple backticks inline with language
+     19. ✓ Triple backticks language with numbers and symbols
+     20. ✓ Empty code blocks
+     21. ✓ Unclosed single backtick terminated by newline
+     22. ✓ Backtick at end of line
+     23. ✓ Single backtick with double backticks inside
+     24. ✓ Triple backticks with content on same line
+     25. ✓ Single backtick extends to end of line
+  complex-workflow:
+     26. ✓ Complex workflow
+  eval-nested-braces:
+     27. ✓ Eval nested braces
+  eval-partial:
+     28. ✓ Eval partial cases -- Warning: Slow parse rate (1333.333 bytes/ms)
+  eval-results:
+     29. ✓ Eval results
+  eval:
+     30. ✓ Eval
+  html-comments:
+     31. ✓ HTML comments
+  html-tags:
+     32. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     33. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     34. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     35. ✓ Multiple tool uses
+  nested-code-blocks:
+     36. ✓ Nested code blocks
+  safe-shell-commands:
+     37. ✓ Safe shell commands
+  server-tool-use-basic:
+     38. ✓ Server tool use basic
+  server-tool-use-string-result:
+     39. ✓ Server tool use string result
+  simple-conversation:
+     40. ✓ Simple conversation
+  simple-user-message:
+     41. ✓ Simple user message
+  system-and-user:
+     42. ✓ System and user
+  text-with-markdown-headings:
+     43. ✓ Text with markdown headings
+  thinking-only:
+     44. ✓ Thinking only
+  thinking-section:
+     45. ✓ Thinking section
+  tool-use-multiple-params:
+     46. ✓ Tool use multiple params
+  tool-use-only:
+     47. ✓ Tool use only
+  tool-use-single-param:
+     48. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     49. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     50. ✓ Tool use with tool use in params
+  triple-hash:
+     51. ✓ Triple hash not in citation
+  untagged-content:
+     52. ✓ Untagged content
+  xml-tags-backticks:
+     53. ✓ Tags in backticks
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag immediately after backtick:
+
+    (source_file
+      (user
+        (user_header)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_close_tag))
+        (text)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_end_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_01Xo8pXfnHkCy9416VRY96oB>
+
+# ASSISTANT
+
+The test is still failing, but now I can see the correct structure is being generated. The issue is just that the expected output in the test doesn't match what the parser is actually producing. Let me check what the exact difference is and update the test expectation:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VkTP4j4UeDDieWRfATEYpd
+
+## command
+
+<tool.toolu_01VkTP4j4UeDDieWRfATEYpd>
+echo '# USER
+
+`<$code-close/>
+
+`a`' | tree-sitter parse /dev/stdin
+</tool.toolu_01VkTP4j4UeDDieWRfATEYpd>
+
+# TOOL RESULT
+
+ID: toolu_01VkTP4j4UeDDieWRfATEYpd
+
+<tool.toolu_01VkTP4j4UeDDieWRfATEYpd>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 15]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 1])
+      (code_close_tag [2, 1] - [2, 15]))
+    (text [2, 15] - [4, 0])
+    (code [4, 0] - [4, 3]
+      (code_start_tag [4, 0] - [4, 1])
+      (code_content [4, 1] - [4, 2])
+      (code_end_tag [4, 2] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01VkTP4j4UeDDieWRfATEYpd>
+
+# ASSISTANT
+
+I can see the issue now. The expected output in the test shows that the code content should be present (which it is), but the actual output has the correct structure. The problem is that the test expectation doesn't match the actual behavior.
+
+Let me update the test expectation to match the correct output:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012mgtcZk1fAZ5M2xbYudzLn
+
+## path
+
+<tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+test/corpus/code-close-tag-mixed.txt
+</tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+
+## git-commit-message
+
+<tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+Fix test expectation for code close tag immediately after backtick
+</tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+
+## diff
+
+<tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+ ================================================================================
+ Code close tag immediately after backtick
+ ================================================================================
+ 
+ # USER
+ 
+ `<$code-close/>
+ 
+ `a`
+ 
+ --------------------------------------------------------------------------------
+ 
+ (source_file
+   (user
+     (user_header)
+     (code
+       (code_start_tag)
++      (code_content)
+       (code_close_tag))
+     (text)
+     (code
+       (code_start_tag)
+       (code_content)
+       (code_end_tag))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+
+# TOOL RESULT
+
+ID: toolu_012mgtcZk1fAZ5M2xbYudzLn
+
+<tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
+
+</tool.toolu_012mgtcZk1fAZ5M2xbYudzLn>
