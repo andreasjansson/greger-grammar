@@ -299,18 +299,10 @@ module.exports = grammar({
 
     eval_end_brace: $ => '}',
 
-    code: $ => choice(
-      seq(
-        $.code_backticks_start,
-        $.code_language,
-        $.code_contents,
-        $.code_backticks_end,
-      ),
-      seq(
-        $.code_backticks_start,
-        $.code_contents,
-        $.code_backticks_end,
-      ),
+    code: $ => seq(
+      $.code_backticks_start,
+      $.code_contents,
+      $.code_backticks_end,
     ),
     
 
