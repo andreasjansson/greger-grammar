@@ -841,6 +841,7 @@ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
     // Force close any open code block
     scanner->code_backtick_count = 0;
     scanner->in_code_content = false;
+    lexer->mark_end(lexer);
     lexer->result_symbol = CODE_CLOSE_TAG;
     return true;
 }

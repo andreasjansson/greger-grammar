@@ -7772,5 +7772,107 @@ Temporarily test with just code_close_tag to debug the issue
 ID: toolu_01F7g2ZLn9xJXEhi3mM2eL9T
 
 <tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Temporarily test with just code_close_tag to debug the issue
 </tool.toolu_01F7g2ZLn9xJXEhi3mM2eL9T>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BzQggE3PLgbXspEniumDAx
+
+## command
+
+<tool.toolu_01BzQggE3PLgbXspEniumDAx>
+cd . && tree-sitter generate
+</tool.toolu_01BzQggE3PLgbXspEniumDAx>
+
+## timeout
+
+<tool.toolu_01BzQggE3PLgbXspEniumDAx>
+15
+</tool.toolu_01BzQggE3PLgbXspEniumDAx>
+
+# TOOL RESULT
+
+ID: toolu_01BzQggE3PLgbXspEniumDAx
+
+<tool.toolu_01BzQggE3PLgbXspEniumDAx>
+
+</tool.toolu_01BzQggE3PLgbXspEniumDAx>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XFTGBZBWGiF4Lw3vZazKEj
+
+## command
+
+<tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+cd . && printf '# ASSISTANT\n\n```\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+
+## timeout
+
+<tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+10
+</tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+
+# TOOL RESULT
+
+ID: toolu_01XFTGBZBWGiF4Lw3vZazKEj
+
+<tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+(source_file [0, 0] - [3, 14]
+  (ERROR [0, 0] - [3, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [3, 13])
+    (ERROR [3, 13] - [3, 14])))
+/dev/stdin	Parse:    0.62 ms	    50 bytes/ms	(ERROR [0, 0] - [3, 14])
+Command failed with exit code 1
+</tool.toolu_01XFTGBZBWGiF4Lw3vZazKEj>
+
+# ASSISTANT
+
+Still the same issue. Let me check if the issue is in the `mark_end` logic. Let me look more carefully at the scanner structure to see if I'm missing something:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_0138iLTa1QujooJgRsXbUQ5b
+
+## path
+
+<tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+./src/scanner.c
+</tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+
+## git-commit-message
+
+<tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+Add mark_end before returning true in scan_code_close_tag
+</tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+
+## diff
+
+<tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
++    lexer->mark_end(lexer);
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+\ No newline at end of file
+
+</tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+
+# TOOL RESULT
+
+ID: toolu_0138iLTa1QujooJgRsXbUQ5b
+
+<tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
+
+</tool.toolu_0138iLTa1QujooJgRsXbUQ5b>
