@@ -82,7 +82,7 @@ module.exports = grammar({
       '\n\n',
       optional(seq(
         $.thinking_signature,
-        '\n',
+        '\n\n',
       )),
       $.content_blocks,
     ),

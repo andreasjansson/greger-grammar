@@ -8437,5 +8437,391 @@ Fix thinking rule to handle newlines after signature properly
 ID: toolu_012dQGmmV4JcooNeAaAJGWWE
 
 <tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Fix thinking rule to handle newlines after signature properly
 </tool.toolu_012dQGmmV4JcooNeAaAJGWWE>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01GgPjuoUCQASTh1wqHgmiHf
+
+## command
+
+<tool.toolu_01GgPjuoUCQASTh1wqHgmiHf>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01GgPjuoUCQASTh1wqHgmiHf>
+
+# TOOL RESULT
+
+ID: toolu_01GgPjuoUCQASTh1wqHgmiHf
+
+<tool.toolu_01GgPjuoUCQASTh1wqHgmiHf>
+
+</tool.toolu_01GgPjuoUCQASTh1wqHgmiHf>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01MeyTrK63tHdAztDWtEQWPP
+
+## command
+
+<tool.toolu_01MeyTrK63tHdAztDWtEQWPP>
+printf '# THINKING\n\nSignature: test\n\nHello world.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01MeyTrK63tHdAztDWtEQWPP>
+
+# TOOL RESULT
+
+ID: toolu_01MeyTrK63tHdAztDWtEQWPP
+
+<tool.toolu_01MeyTrK63tHdAztDWtEQWPP>
+(source_file [0, 0] - [4, 12]
+  (ERROR [0, 0] - [4, 12]
+    (thinking_header [0, 0] - [0, 10])
+    (thinking_signature [2, 0] - [4, 0]
+      (key [2, 0] - [2, 11])
+      value: (value [2, 11] - [2, 15]))
+    (ERROR [4, 0] - [4, 12])))
+/dev/stdin	Parse:    0.06 ms	   647 bytes/ms	(ERROR [0, 0] - [4, 12])
+Command failed with exit code 1
+</tool.toolu_01MeyTrK63tHdAztDWtEQWPP>
+
+# ASSISTANT
+
+Still getting the error. Let me try a different approach. Let me check if the issue is that the thinking signature is consuming too much. Looking at the parse output, the signature span is `[2, 0] - [4, 0]`, which means it's consuming from line 2 to line 4. This suggests it's consuming the newline after the signature.
+
+The signature rule is:
+```
+thinking_signature: $ => seq(
+  alias('Signature: ', $.key),
+  field('value', $.value),
+  /\n/
+),
+```
+
+The signature should only consume `Signature: test\n`, not the empty line after it. Let me check if the issue is with the `value` rule:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01Anrk4TCZbvLTujMmtfmtHx
+
+## path
+
+<tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+./grammar.js
+</tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+
+## start-line
+
+<tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+204
+</tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+
+## end-line
+
+<tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+206
+</tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+
+# TOOL RESULT
+
+ID: toolu_01Anrk4TCZbvLTujMmtfmtHx
+
+<tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+    value: _ => /[^\n]+/,
+
+    assistant_content_blocks: $ => repeat1(choice(
+</tool.toolu_01Anrk4TCZbvLTujMmtfmtHx>
+
+# ASSISTANT
+
+The `value` rule is `/[^\n]+/`, which should match everything until the newline. That looks correct. The issue might be that the parse output is showing the wrong span range.
+
+Let me try a different debugging approach. Let me check if the issue is with the `content_blocks` rule by seeing if it can parse simple text after the signature:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01QS5sH78RmZdLepxsnC3as1
+
+## command
+
+<tool.toolu_01QS5sH78RmZdLepxsnC3as1>
+printf '# THINKING\n\nSignature: test\n\nH' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01QS5sH78RmZdLepxsnC3as1>
+
+# TOOL RESULT
+
+ID: toolu_01QS5sH78RmZdLepxsnC3as1
+
+<tool.toolu_01QS5sH78RmZdLepxsnC3as1>
+(source_file [0, 0] - [4, 1]
+  (ERROR [0, 0] - [4, 1]
+    (thinking_header [0, 0] - [0, 10])
+    (thinking_signature [2, 0] - [4, 0]
+      (key [2, 0] - [2, 11])
+      value: (value [2, 11] - [2, 15]))
+    (ERROR [4, 0] - [4, 1])))
+/dev/stdin	Parse:    0.03 ms	  1063 bytes/ms	(ERROR [0, 0] - [4, 1])
+Command failed with exit code 1
+</tool.toolu_01QS5sH78RmZdLepxsnC3as1>
+
+# ASSISTANT
+
+The issue is still there. Let me check if the problem is with how the newlines are being handled. Let me run the test with the original test file to understand the full picture:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KnSE3jAytmpE876MZL6QbP
+
+## command
+
+<tool.toolu_01KnSE3jAytmpE876MZL6QbP>
+timeout 30 tree-sitter test test/corpus/thinking-section.txt 2>&1 | head -20
+</tool.toolu_01KnSE3jAytmpE876MZL6QbP>
+
+# TOOL RESULT
+
+ID: toolu_01KnSE3jAytmpE876MZL6QbP
+
+<tool.toolu_01KnSE3jAytmpE876MZL6QbP>
+error: unexpected argument 'test/corpus/thinking-section.txt' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+
+</tool.toolu_01KnSE3jAytmpE876MZL6QbP>
+
+# ASSISTANT
+
+Let me just run the test and see the detailed output:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01WCKZLTURUDGqVaB6zeuPWD
+
+## command
+
+<tool.toolu_01WCKZLTURUDGqVaB6zeuPWD>
+timeout 30 tree-sitter test 2>&1 | grep -A 30 "Thinking section" | head -40
+</tool.toolu_01WCKZLTURUDGqVaB6zeuPWD>
+
+# TOOL RESULT
+
+ID: toolu_01WCKZLTURUDGqVaB6zeuPWD
+
+<tool.toolu_01WCKZLTURUDGqVaB6zeuPWD>
+     34. ✗ Thinking section
+  tool-use-multiple-params:
+     35. ✓ Tool use multiple params
+  tool-use-only:
+     36. ✓ Tool use only
+  tool-use-single-param:
+     37. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     38. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     39. ✓ Tool use with tool use in params
+  triple-hash:
+     40. ✓ Triple hash not in citation
+  untagged-content:
+     41. ✓ Untagged content
+  xml-tags-backticks:
+     42. ✓ Tags in backticks
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Thinking section:
+
+    (source_file
+      (user
+        (user_header)
+        (text))
+      (ERROR
+      (thinking
+        (thinking_header)
+        (thinking_signature
+          (key)
+          (value))
+        (UNEXPECTED 'h'))
+        (text))
+      (assistant
+        (assistant_header)
+        (text))
+      (user
+
+</tool.toolu_01WCKZLTURUDGqVaB6zeuPWD>
+
+# ASSISTANT
+
+Now I can see the issue! The error shows `(UNEXPECTED 'h')` which suggests that the parser is expecting something different after the thinking signature. Looking at the test output, it seems like there's a conflict between the thinking signature and the content that follows.
+
+The issue is that the parser is failing to parse the content after the signature. The `(UNEXPECTED 'h')` suggests that the parser encountered the letter 'h' but wasn't expecting it in that context.
+
+Looking at the error, it seems like the content after the signature is not being parsed as `text` properly. Let me check if the issue is with the `content_blocks` rule expecting the content after the signature.
+
+Let me try to understand what the parser is expecting by running the test with the actual file content:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VibFLHJvPZUiGvRdVM2P85
+
+## command
+
+<tool.toolu_01VibFLHJvPZUiGvRdVM2P85>
+timeout 10 tree-sitter parse /tmp/thinking_test.txt
+</tool.toolu_01VibFLHJvPZUiGvRdVM2P85>
+
+# TOOL RESULT
+
+ID: toolu_01VibFLHJvPZUiGvRdVM2P85
+
+<tool.toolu_01VibFLHJvPZUiGvRdVM2P85>
+(source_file [0, 0] - [21, 0]
+  (user [0, 0] - [4, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [4, 0]))
+  (ERROR [4, 0] - [8, 91]
+    (thinking_header [4, 0] - [4, 10])
+    (thinking_signature [6, 0] - [8, 0]
+      (key [6, 0] - [6, 11])
+      value: (value [6, 11] - [6, 17]))
+    (ERROR [8, 0] - [8, 91]))
+  (assistant [10, 0] - [14, 0]
+    (assistant_header [10, 0] - [10, 11])
+    (text [12, 0] - [14, 0]))
+  (user [14, 0] - [18, 0]
+    (user_header [14, 0] - [14, 6])
+    (text [16, 0] - [18, 0]))
+  (thinking [18, 0] - [21, 0]
+    (thinking_header [18, 0] - [18, 10])
+    (text [20, 0] - [21, 0])))
+/tmp/thinking_test.txt	Parse:    0.04 ms	  7015 bytes/ms	(ERROR [4, 0] - [8, 91])
+Command failed with exit code 1
+</tool.toolu_01VibFLHJvPZUiGvRdVM2P85>
+
+# ASSISTANT
+
+I can see that the first thinking block has the signature being parsed correctly, but then there's an error at `[8, 0] - [8, 91]`. Looking at the test file, line 8 should be the text content "This is a simple arithmetic question...".
+
+The issue seems to be that after the signature, the parser is not properly transitioning to parse the content as text. Let me examine what should happen:
+
+1. After the signature with `\n` 
+2. Then the thinking rule expects `\n` (one more newline)
+3. Then `content_blocks` should parse the remaining text
+
+But the issue might be that the signature is consuming more than it should. Let me check if the issue is with the span ranges. The signature span is `[6, 0] - [8, 0]`, which means it's consuming from line 6 to line 8, but it should only consume line 6 (the signature line).
+
+Let me check if the issue is that the signature is consuming the blank line. Maybe the issue is with how the `\n` is being handled in the signature rule. Let me check if the empty line is being consumed by the signature rule incorrectly.
+
+Let me try to debug this by testing what happens if I put the text immediately after the signature without a blank line:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01VSFwtNHtWQi4HE3kNZNKRe
+
+## command
+
+<tool.toolu_01VSFwtNHtWQi4HE3kNZNKRe>
+printf '# THINKING\n\nSignature: test\nHello world.' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_01VSFwtNHtWQi4HE3kNZNKRe>
+
+# TOOL RESULT
+
+ID: toolu_01VSFwtNHtWQi4HE3kNZNKRe
+
+<tool.toolu_01VSFwtNHtWQi4HE3kNZNKRe>
+(source_file [0, 0] - [3, 12]
+  (ERROR [0, 0] - [3, 12]
+    (thinking_header [0, 0] - [0, 10])
+    (thinking_signature [2, 0] - [3, 0]
+      (key [2, 0] - [2, 11])
+      value: (value [2, 11] - [2, 15]))
+    (ERROR [3, 0] - [3, 12])))
+/dev/stdin	Parse:    0.02 ms	  1675 bytes/ms	(ERROR [0, 0] - [3, 12])
+Command failed with exit code 1
+</tool.toolu_01VSFwtNHtWQi4HE3kNZNKRe>
+
+# ASSISTANT
+
+The issue is the same. This confirms that the problem is not with the blank line, but with how the parser transitions from the signature to the text content.
+
+Looking at the thinking rule again:
+```
+thinking: $ => seq(
+  $.thinking_header,
+  '\n\n',
+  optional(seq(
+    $.thinking_signature,
+    '\n',
+  )),
+  $.content_blocks,
+),
+```
+
+After the signature and the additional `\n`, the parser should parse `content_blocks`. The issue might be that `content_blocks` can't parse the remaining text properly.
+
+Let me try a different approach. Let me check if the issue is that the thinking signature is not being parsed as a proper node. The problem might be that the thinking signature is parsed, but then the parser doesn't know how to continue with the content_blocks.
+
+Looking at the actual test file, the structure is:
+```
+# THINKING
+
+Signature: sig123
+
+This is a simple arithmetic question...
+```
+
+So there's a blank line between the signature and the text. But in my grammar change, I changed the thinking rule to expect only one `\n` after the signature, not `\n\n`.
+
+Let me revert that change and try a different approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_015SNz1g4KzugjC2uynPmyxs
+
+## path
+
+<tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+./grammar.js
+</tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+
+## git-commit-message
+
+<tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+Revert thinking rule to expect \n\n after signature
+</tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+
+## diff
+
+<tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+     thinking: $ => seq(
+       $.thinking_header,
+       '\n\n',
+       optional(seq(
+         $.thinking_signature,
+-        '\n',
++        '\n\n',
+       )),
+       $.content_blocks,
+     ),
+\ No newline at end of file
+
+</tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+
+# TOOL RESULT
+
+ID: toolu_015SNz1g4KzugjC2uynPmyxs
+
+<tool.toolu_015SNz1g4KzugjC2uynPmyxs>
+
+</tool.toolu_015SNz1g4KzugjC2uynPmyxs>
