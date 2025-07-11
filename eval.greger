@@ -7130,5 +7130,222 @@ Update function call to use new parse_code_delimiter name
 ID: toolu_01TJy9Hr13kpG7HYNwCSvXSL
 
 <tool.toolu_01TJy9Hr13kpG7HYNwCSvXSL>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Update function call to use new parse_code_delimiter name
 </tool.toolu_01TJy9Hr13kpG7HYNwCSvXSL>
+
+# ASSISTANT
+
+Now let me test the implementation:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01XRAukLnMd5pheipJhtTHt5
+
+## command
+
+<tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+cd . && printf '# ASSISTANT\n\n`hello`' | tree-sitter parse /dev/stdin
+</tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+
+## timeout
+
+<tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+10
+</tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+
+# TOOL RESULT
+
+ID: toolu_01XRAukLnMd5pheipJhtTHt5
+
+<tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+(source_file [0, 0] - [2, 7]
+  (assistant [0, 0] - [2, 7]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 7]
+      (code_backticks_start [2, 0] - [2, 1])
+      (code_contents [2, 1] - [2, 6])
+      (code_backticks_end [2, 6] - [2, 7]))))
+
+</tool.toolu_01XRAukLnMd5pheipJhtTHt5>
+
+# ASSISTANT
+
+Good! Now let me test the problematic case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01HyrBrQkpEo8YEyWYA2JZiR
+
+## command
+
+<tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+cd . && printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+
+## timeout
+
+<tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+10
+</tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+
+# TOOL RESULT
+
+ID: toolu_01HyrBrQkpEo8YEyWYA2JZiR
+
+<tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (code_contents [2, 2] - [2, 3])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.02 ms	  1125 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01HyrBrQkpEo8YEyWYA2JZiR>
+
+# ASSISTANT
+
+The issue is still there. Let me debug this step by step. The problem seems to be that even though I'm detecting the start correctly, the content scanner is still stopping at the first backtick. Let me check what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014mBFeTDCzmSbmzEzCN28M3
+
+## command
+
+<tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+cd . && printf '# ASSISTANT\n\n``hello world``' | tree-sitter parse /dev/stdin
+</tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+
+## timeout
+
+<tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+10
+</tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+
+# TOOL RESULT
+
+ID: toolu_014mBFeTDCzmSbmzEzCN28M3
+
+<tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+(source_file [0, 0] - [2, 15]
+  (assistant [0, 0] - [2, 15]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 15]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_contents [2, 2] - [2, 13])
+      (code_backticks_end [2, 13] - [2, 15]))))
+
+</tool.toolu_014mBFeTDCzmSbmzEzCN28M3>
+
+# ASSISTANT
+
+That works! So the issue is specifically when there are backticks inside the content. The problem is that my `scan_code_contents` function is stopping at the first backtick it encounters. But in the markdown approach, the content parsing doesn't stop at backticks - it just continues until the grammar decides to try parsing the closing delimiter.
+
+Let me look at how the markdown inline parser handles this. In the markdown inline parser, the content is handled by:
+
+```javascript
+repeat(choice($._text_base, '[', ']', $._soft_line_break, $._html_tag))
+```
+
+This means backticks are treated as regular text content, not as special tokens. The external scanner only handles the opening and closing delimiters.
+
+Let me check how `$._text_base` is defined in the markdown inline parser:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01WLNXnDscrV3MyEmP4LTPFC
+
+## pattern
+
+<tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+_text_base.*choice
+</tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+
+## path
+
+<tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js
+</tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+
+## context-lines
+
+<tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+5
+</tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+
+# TOOL RESULT
+
+ID: toolu_01WLNXnDscrV3MyEmP4LTPFC
+
+<tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+360-            alias($._html_tag, $.html_tag),
+361-            $._text_base,
+362-            common.EXTENSION_TAGS ? $.tag : choice(),
+363-            $._unclosed_span,
+364-        ))),
+365:        _text_base: $ => choice(
+366-            $._word,
+367-            common.punctuation_without($, ['[', ']']),
+368-            $._whitespace,
+369-            '<!--',
+370-            /<![A-Z]+/,
+
+</tool.toolu_01WLNXnDscrV3MyEmP4LTPFC>
+
+# ASSISTANT
+
+The key insight is that `$._text_base` includes all punctuation EXCEPT `[` and `]`. This means backticks are treated as normal text content within code spans.
+
+In my grammar, I need to change the approach. Instead of having the content scanner stop at backticks, I should let the grammar handle the content parsing and only use the external scanner for the delimiters.
+
+Let me restructure the grammar to handle the content differently:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_012z8TbWFyGh764RFH3tak8e
+
+## path
+
+<tool.toolu_012z8TbWFyGh764RFH3tak8e>
+./grammar.js
+</tool.toolu_012z8TbWFyGh764RFH3tak8e>
+
+## git-commit-message
+
+<tool.toolu_012z8TbWFyGh764RFH3tak8e>
+Restructure code grammar to handle content like markdown parser
+</tool.toolu_012z8TbWFyGh764RFH3tak8e>
+
+## diff
+
+<tool.toolu_012z8TbWFyGh764RFH3tak8e>
+     code: $ => seq(
+       $.code_backticks_start,
+-      optional($.code_contents),
++      repeat(choice(
++        $._code_content,
++        /\n/,
++      )),
+       $.code_backticks_end,
+-    ),
+\ No newline at end of file
++    ),
++
++    _code_content: $ => token(prec(-1, /[^`\n]+/)),
+\ No newline at end of file
+
+</tool.toolu_012z8TbWFyGh764RFH3tak8e>
+
+# TOOL RESULT
+
+ID: toolu_012z8TbWFyGh764RFH3tak8e
+
+<tool.toolu_012z8TbWFyGh764RFH3tak8e>
+
+</tool.toolu_012z8TbWFyGh764RFH3tak8e>

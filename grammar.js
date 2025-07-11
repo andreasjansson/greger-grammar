@@ -301,9 +301,14 @@ module.exports = grammar({
 
     code: $ => seq(
       $.code_backticks_start,
-      optional($.code_contents),
+      repeat(choice(
+        $._code_content,
+        /\n/,
+      )),
       $.code_backticks_end,
     ),
+
+    _code_content: $ => token(prec(-1, /[^`\n]+/)),
     
 
 
