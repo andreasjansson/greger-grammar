@@ -1230,5 +1230,226 @@ Fix mark_end issue - don't mark end when matching code-close pattern
 ID: toolu_01PGe8hdbxvtHc4mkYR4GF2Y
 
 <tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix mark_end issue - don't mark end when matching code-close pattern
 </tool.toolu_01PGe8hdbxvtHc4mkYR4GF2Y>
+
+# ASSISTANT
+
+Let's test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018H2spPb9UQXuKwYqctdLkS
+
+## command
+
+<tool.toolu_018H2spPb9UQXuKwYqctdLkS>
+printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 10 tree-sitter parse /dev/stdin
+</tool.toolu_018H2spPb9UQXuKwYqctdLkS>
+
+# TOOL RESULT
+
+ID: toolu_018H2spPb9UQXuKwYqctdLkS
+
+<tool.toolu_018H2spPb9UQXuKwYqctdLkS>
+(source_file [0, 0] - [4, 14]
+  (assistant [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 0])
+      (code_close_tag [4, 0] - [4, 14]))))
+
+</tool.toolu_018H2spPb9UQXuKwYqctdLkS>
+
+# ASSISTANT
+
+Excellent! This works! The scanner now correctly stops the `code_content` at `[4, 0]` (before the `<`) and the `code_close_tag` is properly recognized from `[4, 0]` to `[4, 14]`.
+
+Let's run the formal test to confirm:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01AFWUvcCsVjrYhfxDQNzw6S
+
+## command
+
+<tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
+tree-sitter test -f "Code close tag test"
+</tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
+
+# TOOL RESULT
+
+ID: toolu_01AFWUvcCsVjrYhfxDQNzw6S
+
+<tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
+error: unexpected argument '-f' found
+
+Usage: tree-sitter test [OPTIONS]
+
+For more information, try '--help'.
+Command failed with exit code 2
+</tool.toolu_01AFWUvcCsVjrYhfxDQNzw6S>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_015aMBYR7Xo49EVCfY3B6Ysp
+
+## command
+
+<tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
+tree-sitter test --help
+</tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
+
+# TOOL RESULT
+
+ID: toolu_015aMBYR7Xo49EVCfY3B6Ysp
+
+<tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
+Run a parser's tests
+
+Usage: tree-sitter test [OPTIONS]
+
+Options:
+  -i, --include <INCLUDE>          Only run corpus test cases whose name matches the given regex
+  -e, --exclude <EXCLUDE>          Only run corpus test cases whose name does not match the given regex
+      --file-name <FILE_NAME>      Only run corpus test cases from from a given filename
+  -u, --update                     Update all syntax trees in corpus files with current parser output
+  -d, --debug                      Show parsing debug log
+  -0, --debug-build                Compile a parser in debug mode
+  -D, --debug-graph                Produce the log.html file with debug graphs
+      --wasm                       Compile parsers to wasm instead of native dynamic libraries
+      --open-log                   Open `log.html` in the default browser, if `--debug-graph` is supplied
+      --config-path <CONFIG_PATH>  The path to an alternative config.json file
+      --show-fields                Force showing fields in test diffs
+      --stat <STAT>                Show parsing statistics [possible values: all, outliers-and-total, total-only]
+  -r, --rebuild                    Force rebuild the parser
+      --overview-only              Show only the pass-fail overview tree
+  -h, --help                       Print help
+
+</tool.toolu_015aMBYR7Xo49EVCfY3B6Ysp>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01CAW8EyAjRCpfVY4F8ddyN3
+
+## command
+
+<tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
+tree-sitter test -i "Code close tag test"
+</tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
+
+# TOOL RESULT
+
+ID: toolu_01CAW8EyAjRCpfVY4F8ddyN3
+
+<tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
+  code-close:
+      6. ✗ Code close tag test
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag test:
+
+    (source_file
+      (assistant
+      (ERROR
+        (assistant_header)
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_close_tag))
+        (text)))
+        (code_start_tag)
+        (code_content)
+        (UNEXPECTED '>')))
+
+Command failed with exit code 1
+</tool.toolu_01CAW8EyAjRCpfVY4F8ddyN3>
+
+# ASSISTANT
+
+The test is failing because the expected output in the test file is wrong. The test expects an ERROR but now we get a correct parse. Let me update the test expectation:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01MD31fzJrbXLzNdKfQMM3aG
+
+## path
+
+<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+./test/corpus/code-close.txt
+</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+
+## git-commit-message
+
+<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+Update code close test expectation to match correct parse tree
+</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+
+## original-content
+
+<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+===============================
+Code close tag test
+===============================
+
+# ASSISTANT
+
+```
+unclosed code
+<$code-close/>
+
+More text after.
+
+---
+
+(source_file
+  (ERROR
+    (assistant_header)
+    (code_start_tag)
+    (code_content)
+    (UNEXPECTED '>')))
+</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+
+## new-content
+
+<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+===============================
+Code close tag test
+===============================
+
+# ASSISTANT
+
+```
+unclosed code
+<$code-close/>
+
+More text after.
+
+---
+
+(source_file
+  (assistant
+    (assistant_header)
+    (code
+      (code_start_tag)
+      (code_content)
+      (code_close_tag))
+    (text)))
+</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+
+# TOOL RESULT
+
+ID: toolu_01MD31fzJrbXLzNdKfQMM3aG
+
+<tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
+
+</tool.toolu_01MD31fzJrbXLzNdKfQMM3aG>
