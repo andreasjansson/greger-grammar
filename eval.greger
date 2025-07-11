@@ -3784,5 +3784,104 @@ Add debug output to show expected closing pattern
 ID: toolu_01FVG62gH6gEgrY39hY1uu5R
 
 <tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to show expected closing pattern
 </tool.toolu_01FVG62gH6gEgrY39hY1uu5R>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018akLheEpPx1HGN8VGScp3Q
+
+## command
+
+<tool.toolu_018akLheEpPx1HGN8VGScp3Q>
+timeout 10 tree-sitter parse test_lessthan.greger
+</tool.toolu_018akLheEpPx1HGN8VGScp3Q>
+
+# TOOL RESULT
+
+ID: toolu_018akLheEpPx1HGN8VGScp3Q
+
+<tool.toolu_018akLheEpPx1HGN8VGScp3Q>
+DEBUG: In code content, looking at char: < (code: 60)
+DEBUG: Starting code content scan, backtick count: 1
+DEBUG: Expected closing pattern: '`' (len: 1)
+DEBUG: Loop iteration, char: < (code: 60)
+DEBUG: Matching code close pattern at index 0
+DEBUG: Advanced past char, now looking at: ` (code: 96)
+(source_file [0, 0] - [3, 0]
+  (ERROR [0, 0] - [2, 3]
+    (user_header [0, 0] - [0, 6])
+    (code_start_tag [2, 0] - [2, 1])
+    (ERROR [2, 1] - [2, 3])))
+test_lessthan.greger	Parse:    0.08 ms	   141 bytes/ms	(ERROR [0, 0] - [2, 3])
+Command failed with exit code 1
+</tool.toolu_018akLheEpPx1HGN8VGScp3Q>
+
+# ASSISTANT
+
+Now I see the issue! The expected closing pattern is a single backtick, and after advancing past the LESSTHAN character, we're now looking at a backtick. But we're not entering the next loop iteration. The issue is that we need to continue the while loop after processing the code close pattern.
+
+The problem is that when we have a partial match on the code close pattern, we advance but don't continue the loop. Let me fix this:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Xk3LxxdxxjpQ9HcazcKZgw
+
+## path
+
+<tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+src/scanner.c
+</tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+
+## git-commit-message
+
+<tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+Fix code close pattern matching to continue loop properly
+</tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+
+## diff
+
+<tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+         // Check for code close tag pattern first
+         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+             fprintf(stderr, "DEBUG: Matching code close pattern at index %d\n", code_close_match_index);
+             code_close_match_index++;
+             if (code_close_match_index == code_close_len) {
+                 // Found complete code close tag, reset scanner state and stop here (don't consume it)
+                 fprintf(stderr, "DEBUG: Found complete code close tag\n");
+                 scanner->code_backtick_count = 0;
+                 scanner->in_code_content = false;
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+-            // If we're in the middle of matching code close tag, advance but don't continue
+-            // We need to check for backtick patterns as well
++            // If we're in the middle of matching code close tag, advance and continue
+             advance(lexer);
+             fprintf(stderr, "DEBUG: Advanced past char, now looking at: %c (code: %d)\n", 
+                     lexer->lookahead, lexer->lookahead);
+-            // Don't continue here - we want to check for backtick patterns too
++            continue; // Continue to next iteration to check this new character
+         } else {
+             if (code_close_match_index > 0) {
+                 fprintf(stderr, "DEBUG: Resetting code close match index\n");
+                 code_close_match_index = 0;
+             }
+         }
+\ No newline at end of file
+
+</tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+
+# TOOL RESULT
+
+ID: toolu_01Xk3LxxdxxjpQ9HcazcKZgw
+
+<tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
+
+</tool.toolu_01Xk3LxxdxxjpQ9HcazcKZgw>
