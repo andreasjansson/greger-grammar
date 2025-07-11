@@ -73,6 +73,8 @@ void tree_sitter_greger_external_scanner_deserialize(void *payload, const char *
         scanner->in_eval_result_content = false;
         scanner->expecting_eval_result_tail = false;
         scanner->eval_result_id[0] = '\0';
+        scanner->code_backtick_count = 0;
+        scanner->in_code_content = false;
         return;
     }
 
