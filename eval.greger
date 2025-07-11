@@ -2988,5 +2988,129 @@ Improve code_content scanning to handle nested backticks properly
 ID: toolu_01XVByKXcj3vUsjv7KRAUxAx
 
 <tool.toolu_01XVByKXcj3vUsjv7KRAUxAx>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Improve code_content scanning to handle nested backticks properly
 </tool.toolu_01XVByKXcj3vUsjv7KRAUxAx>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Pp84LPbMR6LMs3fWQtye9D
+
+## command
+
+<tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+cd . && printf '# ASSISTANT\n\n`` `hello` ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+
+## timeout
+
+<tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+10
+</tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+
+# TOOL RESULT
+
+ID: toolu_01Pp84LPbMR6LMs3fWQtye9D
+
+<tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+
+</tool.toolu_01Pp84LPbMR6LMs3fWQtye9D>
+
+# ASSISTANT
+
+It's hanging again. Let me debug this step by step. The issue is still in the temp_lexer logic. Let me create a much simpler version:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_011U9w13nGV9nvzB4RqRndNb
+
+## path
+
+<tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+./src/scanner.c
+</tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+
+## git-commit-message
+
+<tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+Simplify code_content to basic approach without lookahead
+</tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+
+## diff
+
+<tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+-    // Simple approach: just consume content until we find potential closing backticks
++    // Very simple approach: consume anything that's not a backtick
+     while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+-            // Count consecutive backticks at current position to see if it could be closing
+-            int consecutive_backticks = 0;
+-            TSLexer temp_lexer = *lexer;
+-            while (temp_lexer.lookahead == '`' && consecutive_backticks < 20) {
+-                consecutive_backticks++;
+-                temp_lexer.advance(&temp_lexer, false);
+-            }
+-            
+-            // If we have enough backticks to potentially close, stop here
+-            if (consecutive_backticks >= scanner->code_backtick_count) {
+-                if (has_content) {
+-                    lexer->result_symbol = CODE_CONTENT;
+-                    return true;
+-                } else {
+-                    return false;
+-                }
++            // Stop at any backtick - let the end tag handle matching
++            if (has_content) {
++                lexer->result_symbol = CODE_CONTENT;
++                return true;
+             } else {
+-                // Not enough backticks to close, consume as content
+-                advance(lexer);
+-                has_content = true;
+-                lexer->mark_end(lexer);
++                return false;
+             }
+         } else {
+             // For inline code (1-2 backticks), stop at newlines
+             if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             
+             // Regular content
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+     
+     // Reached end of input
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+
+# TOOL RESULT
+
+ID: toolu_011U9w13nGV9nvzB4RqRndNb
+
+<tool.toolu_011U9w13nGV9nvzB4RqRndNb>
+
+</tool.toolu_011U9w13nGV9nvzB4RqRndNb>
