@@ -3306,5 +3306,153 @@ Fix scanner priority order to match markdown parser logic
 ID: toolu_01UkfQ74u4qaAf9vSYFUJzrq
 
 <tool.toolu_01UkfQ74u4qaAf9vSYFUJzrq>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix scanner priority order to match markdown parser logic
 </tool.toolu_01UkfQ74u4qaAf9vSYFUJzrq>
+
+# ASSISTANT
+
+Now let me test if this fixes the issue:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014TBsg2JEm74VWNaWPtQUHK
+
+## command
+
+<tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+
+## timeout
+
+<tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+10
+</tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+
+# TOOL RESULT
+
+ID: toolu_014TBsg2JEm74VWNaWPtQUHK
+
+<tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+(source_file [0, 0] - [2, 12]
+  (ERROR [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code_backticks_start [2, 0] - [2, 2])
+    (ERROR [2, 3] - [2, 12])))
+/dev/stdin	Parse:    0.06 ms	   421 bytes/ms	(ERROR [0, 0] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_014TBsg2JEm74VWNaWPtQUHK>
+
+# ASSISTANT
+
+Still the same issue. The problem is that the scanner is still being called for content backticks. Let me think about this more carefully...
+
+The real issue is that the grammar rule:
+
+```javascript
+code: $ => seq(
+  $.code_backticks_start,
+  repeat(choice(
+    $._code_text_content,
+    '`',      // <-- This is the problem!
+    /\n/,
+  )),
+  $.code_backticks_end,
+),
+```
+
+The `'`'` in the grammar rule is competing with the external scanner. When the parser encounters a backtick inside the content, it has two choices:
+1. Use the grammar rule `'`'` 
+2. Call the external scanner for `CODE_BACKTICKS_END`
+
+The external scanner is being called because tree-sitter is trying to match `CODE_BACKTICKS_END`.
+
+Looking at the reference markdown parser, I notice that their content rule doesn't include backticks explicitly. Let me check how they handle it:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01XmuMChG1ZKfCfAwLBrEZ1Q
+
+## path
+
+<tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline/grammar.js
+</tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+
+## start-line
+
+<tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+122
+</tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+
+## end-line
+
+<tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+127
+</tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+
+# TOOL RESULT
+
+ID: toolu_01XmuMChG1ZKfCfAwLBrEZ1Q
+
+<tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+        code_span: $ => seq(
+            alias($._code_span_start, $.code_span_delimiter),
+            repeat(choice($._text_base, '[', ']', $._soft_line_break, $._html_tag)),
+            alias($._code_span_close, $.code_span_delimiter)
+        ),
+
+</tool.toolu_01XmuMChG1ZKfCfAwLBrEZ1Q>
+
+# ASSISTANT
+
+The key insight is that the markdown parser uses `$._text_base` which includes backticks via `common.punctuation_without($, ['[', ']'])`. The backticks are handled as part of the `punctuation_without` function.
+
+Let me check if I can simplify my grammar rule by removing the explicit `'`'` and relying on `$._code_text_content` to handle all content including backticks:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01FgrjcceoqDMSsXdn2cF3Cb
+
+## path
+
+<tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+./grammar.js
+</tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+
+## git-commit-message
+
+<tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+Remove explicit backtick from code content rule to avoid scanner conflicts
+</tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+
+## diff
+
+<tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+     code: $ => seq(
+       $.code_backticks_start,
+       repeat(choice(
+         $._code_text_content,
+-        '`',
+         /\n/,
+       )),
+       $.code_backticks_end,
+     ),
+ 
+-    _code_text_content: $ => /[^`\n]/,
+\ No newline at end of file
++    _code_text_content: $ => /[^\n]/,
+\ No newline at end of file
+
+</tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+
+# TOOL RESULT
+
+ID: toolu_01FgrjcceoqDMSsXdn2cF3Cb
+
+<tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
+
+</tool.toolu_01FgrjcceoqDMSsXdn2cF3Cb>
