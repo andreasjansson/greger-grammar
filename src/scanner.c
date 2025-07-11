@@ -29,6 +29,7 @@ typedef struct {
     bool in_eval_result_content;
     bool expecting_eval_result_tail;
     int fenced_code_block_delimiter_length; // Track the number of backticks in the opening sequence
+    bool in_code_content; // true when we're inside code content
 } Scanner;
 
 static inline void advance(TSLexer *lexer) { lexer->advance(lexer, false); }
