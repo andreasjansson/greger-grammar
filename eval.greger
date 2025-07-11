@@ -9789,5 +9789,202 @@ Add precedence to code_close_tag to prioritize it over code_content
 ID: toolu_01V4ydCJLY8AdfFyJ4LAWfu6
 
 <tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/grammar.js. Successfully staged 2 file(s) and committed with message: Add precedence to code_close_tag to prioritize it over code_content
 </tool.toolu_01V4ydCJLY8AdfFyJ4LAWfu6>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01LyKgAWs63up3p99NSVEMJg
+
+## command
+
+<tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+cd . && tree-sitter generate
+</tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+
+## timeout
+
+<tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+15
+</tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+
+# TOOL RESULT
+
+ID: toolu_01LyKgAWs63up3p99NSVEMJg
+
+<tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+
+</tool.toolu_01LyKgAWs63up3p99NSVEMJg>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Sn7MCVR3XdU7cfzRMyXsgM
+
+## command
+
+<tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+
+## timeout
+
+<tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+10
+</tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+
+# TOOL RESULT
+
+ID: toolu_01Sn7MCVR3XdU7cfzRMyXsgM
+
+<tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+(source_file [0, 0] - [4, 14]
+  (assistant [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [4, 14])
+      (code_close_tag [4, 14] - [4, 14]))))
+/dev/stdin	Parse:    0.11 ms	   324 bytes/ms	(MISSING code_close_tag [4, 14] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01Sn7MCVR3XdU7cfzRMyXsgM>
+
+# ASSISTANT
+
+Still the same issue. The problem is that the code_content is still consuming the token. Let me try a different approach. Maybe I need to make the code_content scanner aware that it should stop when it encounters this pattern, even though it's now a regular token.
+
+But wait - let me first check if the issue is simpler. Maybe the problem is that the grammar rule needs the content to be optional in a different way. Let me test what happens if I have no content:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01Xs2YmFr119e5564UBLsioD
+
+## command
+
+<tool.toolu_01Xs2YmFr119e5564UBLsioD>
+cd . && printf '# ASSISTANT\n\n```\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01Xs2YmFr119e5564UBLsioD>
+
+## timeout
+
+<tool.toolu_01Xs2YmFr119e5564UBLsioD>
+10
+</tool.toolu_01Xs2YmFr119e5564UBLsioD>
+
+# TOOL RESULT
+
+ID: toolu_01Xs2YmFr119e5564UBLsioD
+
+<tool.toolu_01Xs2YmFr119e5564UBLsioD>
+(source_file [0, 0] - [3, 14]
+  (assistant [0, 0] - [3, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [3, 14]
+      (code_start_tag [2, 0] - [2, 3])
+      (code_content [2, 3] - [3, 14])
+      (code_close_tag [3, 14] - [3, 14]))))
+/dev/stdin	Parse:    0.04 ms	   877 bytes/ms	(MISSING code_close_tag [3, 14] - [3, 14])
+Command failed with exit code 1
+</tool.toolu_01Xs2YmFr119e5564UBLsioD>
+
+# ASSISTANT
+
+Same issue. The code_content is consuming the newline and the tag. The issue is that the external scanner for code_content is too greedy and is consuming everything, including the `<$code-close/>` token.
+
+I think the solution is to make the code_content scanner stop when it sees the beginning of the code_close_tag pattern. Since the tag is now handled by the regular grammar, I just need to make sure the code_content scanner stops at `<$code-close/>`:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01BgZy2TYbYwSGg9E4NScLfb
+
+## path
+
+<tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+./src/scanner.c
+</tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+
+## git-commit-message
+
+<tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+Make code_content scanner stop at <$code-close/> pattern
+</tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+
+## diff
+
+<tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
++    // Also check for code close tag pattern (to stop before it)
++    const char *code_close_pattern = "<$code-close/>";
++    int code_close_len = 14;
++    
+     int match_index = 0;
++    int code_close_match_index = 0;
+     
+-    // Scan content until we find the closing pattern
++    // Scan content until we find the closing pattern or code close tag
+     while (lexer->lookahead != 0) {
++        // Check for code close tag pattern first
++        if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
++            code_close_match_index++;
++            if (code_close_match_index == code_close_len) {
++                // Found complete code close tag, stop here (don't consume it)
++                if (has_content) {
++                    lexer->result_symbol = CODE_CONTENT;
++                    return true;
++                } else {
++                    return false;
++                }
++            }
++        } else {
++            code_close_match_index = 0;
++        }
++        
++        // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+                 lexer->mark_end(lexer);
+             }
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+
+# TOOL RESULT
+
+ID: toolu_01BgZy2TYbYwSGg9E4NScLfb
+
+<tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
+
+</tool.toolu_01BgZy2TYbYwSGg9E4NScLfb>
