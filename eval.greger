@@ -11713,5 +11713,193 @@ Simplify closing pattern detection to avoid infinite loops
 ID: toolu_015kV5EcNx6tCbxaPhArRX7R
 
 <tool.toolu_015kV5EcNx6tCbxaPhArRX7R>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify closing pattern detection to avoid infinite loops
 </tool.toolu_015kV5EcNx6tCbxaPhArRX7R>
+
+# ASSISTANT
+
+This reverts back to the simpler approach: for single and double backticks, only terminate at newlines. This means that single and double backticks will always extend to the end of the line, but that's a reasonable behavior and avoids the complexity of trying to distinguish between closing backticks and content backticks.
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01DYLJ4j3FzGH9iUvQBJCSfQ
+
+## command
+
+<tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+tree-sitter generate
+</tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+
+## timeout
+
+<tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+30
+</tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+
+# TOOL RESULT
+
+ID: toolu_01DYLJ4j3FzGH9iUvQBJCSfQ
+
+<tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+
+</tool.toolu_01DYLJ4j3FzGH9iUvQBJCSfQ>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BU32foTrjPfPmXu4DkZAmw
+
+## command
+
+<tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+tree-sitter parse debug.greger
+</tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+
+## timeout
+
+<tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+10
+</tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+
+# TOOL RESULT
+
+ID: toolu_01BU32foTrjPfPmXu4DkZAmw
+
+<tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+(source_file [0, 0] - [3, 0]
+  (user [0, 0] - [3, 0]
+    (user_header [0, 0] - [0, 6])
+    (code [2, 0] - [2, 5]
+      (code_start_tag [2, 0] - [2, 1])
+      (code_content [2, 1] - [2, 5])
+      (code_end_tag [2, 5] - [2, 5]))
+    (text [2, 5] - [3, 0])))
+
+</tool.toolu_01BU32foTrjPfPmXu4DkZAmw>
+
+# ASSISTANT
+
+We're back to the original issue where the single BACKTICK extends to the end of the line (consuming 'a' + BACKTICK + ' b'). 
+
+Let me take a step back and think about this differently. The fundamental issue is that I want:
+
+1. Single BACKTICK code blocks to close at the first BACKTICK when it's followed by non-BACKTICK content
+2. Single BACKTICK code blocks to treat multiple backticks as content when they're part of a longer sequence
+3. Double BACKTICK code blocks to work similarly
+
+Maybe I should implement a different approach: instead of complex lookahead in the content scanner, I should modify the code_end_tag scanner to be smarter about when to generate a closing tag.
+
+Actually, let me try a very different approach. Instead of trying to detect the closing pattern in scan_code_content, let me implement proper closing detection in scan_code_end_tag that looks for balanced closing:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_013oZUKyZ48kNyYNmGFpMcx4
+
+## path
+
+<tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+src/scanner.c
+</tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+
+## git-commit-message
+
+<tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+Implement balanced closing detection for single/double backticks
+</tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+
+## diff
+
+<tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+-        // Check for regular closing pattern (only for 3+ backticks)
+-        // For 1-2 backticks, only terminate at newlines to avoid complexity with nested backticks
+-        if (scanner->code_backtick_count >= 3 && lexer->lookahead == expected_closing[match_index]) {
++        // Check for regular closing pattern
++        if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
++                // For 1-2 backticks, check if this is a balanced closing
++                if (scanner->code_backtick_count <= 2) {
++                    // Save position to peek ahead
++                    TSLexer saved_lexer = *lexer;
++                    
++                    // Count consecutive backticks starting from current position
++                    int consecutive_backticks = 0;
++                    while (lexer->lookahead == '`') {
++                        consecutive_backticks++;
++                        advance(lexer);
++                    }
++                    
++                    // Restore position
++                    *lexer = saved_lexer;
++                    
++                    // Only treat as closing if we have exactly the right number of backticks
++                    // and they're not part of a longer sequence
++                    if (consecutive_backticks == expected_len) {
++                        // Check what comes after the backticks
++                        for (int i = 0; i < expected_len; i++) {
++                            advance(lexer);
++                        }
++                        // If followed by more backticks, treat as content
++                        if (lexer->lookahead == '`') {
++                            // Restore and treat as content
++                            *lexer = saved_lexer;
++                            match_index = 0;
++                            advance(lexer);
++                            has_content = true;
++                            if (code_close_match_index == 0) {
++                                lexer->mark_end(lexer);
++                            }
++                            continue;
++                        }
++                        // Valid closing, restore to before the backticks
++                        *lexer = saved_lexer;
++                    } else {
++                        // Wrong number of backticks, treat as content
++                        match_index = 0;
++                        advance(lexer);
++                        has_content = true;
++                        if (code_close_match_index == 0) {
++                            lexer->mark_end(lexer);
++                        }
++                        continue;
++                    }
++                }
++                
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             // Advance while matching the closing pattern, but don't include in content
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 advance(lexer);
+                 has_content = true;
+                 // Only mark end if we're not in middle of matching code close pattern
+                 if (code_close_match_index == 0) {
+                     lexer->mark_end(lexer);
+                 }
+             }
+         }
+\ No newline at end of file
+
+</tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+
+# TOOL RESULT
+
+ID: toolu_013oZUKyZ48kNyYNmGFpMcx4
+
+<tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
+
+</tool.toolu_013oZUKyZ48kNyYNmGFpMcx4>
