@@ -732,34 +732,31 @@ static bool scan_code_backticks_start(Scanner *scanner, TSLexer *lexer) {
 static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     if (!scanner->in_code_content) return false;
     
-    // Don't consume content if we're at a backtick or newline (for inline code)
-    if (lexer->lookahead == '`') return false;
-    if (scanner->fenced_code_block_delimiter_length <= 2 && 
-        (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-        return false;
-    }
-    
-    lexer->mark_end(lexer);
-    
     bool has_content = false;
     
-    // Consume content until we see the expected number of backticks
-    while (lexer->lookahead != 0) {
-        // For inline code (1-2 backticks), stop at newlines
-        if (scanner->fenced_code_block_delimiter_length <= 2 && 
-            (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-            break;
+    // For inline code, stop at backticks or newlines
+    if (scanner->fenced_code_block_delimiter_length <= 2) {
+        if (lexer->lookahead == '`' || lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+            return false;
         }
         
-        // Stop at backticks - let the end scanner handle them
+        // Consume characters until backtick or newline
+        while (lexer->lookahead != 0 && lexer->lookahead != '`' && 
+               lexer->lookahead != '\n' && lexer->lookahead != '\r') {
+            advance(lexer);
+            has_content = true;
+        }
+    } else {
+        // For fenced code, stop at backticks
         if (lexer->lookahead == '`') {
-            break;
+            return false;
         }
         
-        // Regular content character
-        advance(lexer);
-        has_content = true;
-        lexer->mark_end(lexer);
+        // Consume characters until backtick
+        while (lexer->lookahead != 0 && lexer->lookahead != '`') {
+            advance(lexer);
+            has_content = true;
+        }
     }
     
     if (has_content) {

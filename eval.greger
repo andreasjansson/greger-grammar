@@ -6636,5 +6636,252 @@ Remove debug output and simplify code content scanner
 ID: toolu_014PCaUhjV9f7u6cVa4GxSiZ
 
 <tool.toolu_014PCaUhjV9f7u6cVa4GxSiZ>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove debug output and simplify code content scanner
 </tool.toolu_014PCaUhjV9f7u6cVa4GxSiZ>
+
+# ASSISTANT
+
+Let me implement a much simpler approach, similar to the eval content scanner. The problem might be that I'm overcomplicating it. Let me look at how the eval content scanner works:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01UyWmGLiP1c8U2X2TiUwaXz
+
+## path
+
+<tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+./src/scanner.c
+</tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+
+## start-line
+
+<tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+585
+</tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+
+## end-line
+
+<tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+625
+</tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+
+# TOOL RESULT
+
+ID: toolu_01UyWmGLiP1c8U2X2TiUwaXz
+
+<tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+            int temp_match = 0;
+            while (lexer->lookahead == expected_closing[temp_match] && temp_match < expected_len) {
+                temp_match++;
+                if (temp_match == expected_len) {
+                    // We're at the closing tag, no tail needed
+                    break;
+                }
+                lexer->advance(lexer, false);
+            }
+            
+            if (temp_match != expected_len) {
+                // We're not at the closing tag, so there must be more content
+                scanner->expecting_eval_result_tail = true;
+            }
+        }
+    }
+    
+    lexer->result_symbol = EVAL_RESULT_CONTENT_HEAD;
+    return true;
+
+    return false;
+}
+
+static bool scan_eval_result_content_tail(Scanner *scanner, TSLexer *lexer) {
+    if (!scanner->in_eval_result_content || !scanner->expecting_eval_result_tail) return false;
+
+    lexer->mark_end(lexer);
+
+    // Build the expected closing tag
+    char expected_closing[512];
+    strncpy(expected_closing, "</eval-result-", sizeof(expected_closing) - 1);
+    expected_closing[sizeof(expected_closing) - 1] = '\0';
+    strncat(expected_closing, scanner->eval_result_id, sizeof(expected_closing) - strlen(expected_closing) - 1);
+    strncat(expected_closing, ">", sizeof(expected_closing) - strlen(expected_closing) - 1);
+    int expected_len = strlen(expected_closing);
+
+    int match_index = 0;
+    bool has_content = false;
+
+    // Scan remaining content until we find the closing tag
+    while (lexer->lookahead != 0) {
+</tool.toolu_01UyWmGLiP1c8U2X2TiUwaXz>
+
+# ASSISTANT
+
+Let me look at the eval content scanner which is simpler:
+
+# TOOL USE
+
+Name: ripgrep
+ID: toolu_01KZ3Nv3LKgNBH24Lu3YJXiK
+
+## pattern
+
+<tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+scan_eval_content
+</tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+
+## path
+
+<tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+./src/scanner.c
+</tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+
+## context-lines
+
+<tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+10
+</tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+
+# TOOL RESULT
+
+ID: toolu_01KZ3Nv3LKgNBH24Lu3YJXiK
+
+<tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+833-    
+834-    if (!has_content) {
+835-        return false;
+836-    }
+837-    
+838-    lexer->result_symbol = EVAL_LANGUAGE;
+839-    return true;
+840-}
+841-
+842-
+843:static bool scan_eval_content(TSLexer *lexer) {
+844-    bool has_content = false;
+845-    bool has_non_whitespace = false;
+846-    int brace_count = 0;
+847-    
+848-    // Don't consume content that starts with : (language prefix)
+849-    if (lexer->lookahead == ':') {
+850-        return false;
+851-    }
+852-    
+853-    while (lexer->lookahead != 0) {
+--
+967-        }
+968-
+969-        // Handle tool end tag
+970-        if (valid_symbols[TOOL_END_TAG]) {
+971-            return scan_tool_end_tag(scanner, lexer);
+972-        }
+973-    }
+974-
+975-    // Handle eval content
+976-    if (valid_symbols[EVAL_CONTENT]) {
+977:        return scan_eval_content(lexer);
+978-    }
+979-    
+980-    // Handle code content when in code parsing state
+981-    if (scanner->in_code_content) {
+982-        if (valid_symbols[CODE_CONTENT]) {
+983-            return scan_code_content(scanner, lexer);
+984-        }
+985-        if (valid_symbols[CODE_BACKTICKS_END]) {
+986-            return scan_code_backticks_end(scanner, lexer);
+987-        }
+
+</tool.toolu_01KZ3Nv3LKgNBH24Lu3YJXiK>
+
+# ASSISTANT
+
+I see. The eval content scanner is much simpler and doesn't depend on state. Let me rewrite the code content scanner to follow the same pattern:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01B1mGhawdVRTFoE9ntWHVya
+
+## path
+
+<tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+./src/scanner.c
+</tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+
+## git-commit-message
+
+<tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+Rewrite code content scanner to follow eval content pattern
+</tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+
+## diff
+
+<tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+-    // Don't consume content if we're at a backtick or newline (for inline code)
+-    if (lexer->lookahead == '`') return false;
+-    if (scanner->fenced_code_block_delimiter_length <= 2 && 
+-        (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+-        return false;
+-    }
+-    
+-    lexer->mark_end(lexer);
+-    
+     bool has_content = false;
+     
+-    // Consume content until we see the expected number of backticks
+-    while (lexer->lookahead != 0) {
+-        // For inline code (1-2 backticks), stop at newlines
+-        if (scanner->fenced_code_block_delimiter_length <= 2 && 
+-            (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+-            break;
++    // For inline code, stop at backticks or newlines
++    if (scanner->fenced_code_block_delimiter_length <= 2) {
++        if (lexer->lookahead == '`' || lexer->lookahead == '\n' || lexer->lookahead == '\r') {
++            return false;
+         }
+         
+-        // Stop at backticks - let the end scanner handle them
++        // Consume characters until backtick or newline
++        while (lexer->lookahead != 0 && lexer->lookahead != '`' && 
++               lexer->lookahead != '\n' && lexer->lookahead != '\r') {
++            advance(lexer);
++            has_content = true;
++        }
++    } else {
++        // For fenced code, stop at backticks
+         if (lexer->lookahead == '`') {
+-            break;
++            return false;
+         }
+         
+-        // Regular content character
+-        advance(lexer);
+-        has_content = true;
+-        lexer->mark_end(lexer);
++        // Consume characters until backtick
++        while (lexer->lookahead != 0 && lexer->lookahead != '`') {
++            advance(lexer);
++            has_content = true;
++        }
+     }
+     
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+
+# TOOL RESULT
+
+ID: toolu_01B1mGhawdVRTFoE9ntWHVya
+
+<tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
+
+</tool.toolu_01B1mGhawdVRTFoE9ntWHVya>
