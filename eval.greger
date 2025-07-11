@@ -7059,5 +7059,252 @@ Remove duplicate code close tag check
 ID: toolu_01FgEnrDJsQ97CtXCUdoDuSV
 
 <tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove duplicate code close tag check
 </tool.toolu_01FgEnrDJsQ97CtXCUdoDuSV>
+
+# ASSISTANT
+
+Now let's test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01RNRBsgfUww9mrsKsvryY81
+
+## command
+
+<tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+cd . && printf '# ASSISTANT\n\n```\ncode\n<$code-close/>' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+
+## timeout
+
+<tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+10
+</tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+
+# TOOL RESULT
+
+ID: toolu_01RNRBsgfUww9mrsKsvryY81
+
+<tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+(source_file [0, 0] - [4, 14]
+  (ERROR [0, 0] - [4, 14]
+    (assistant_header [0, 0] - [0, 11])
+    (code_start_tag [2, 0] - [2, 3])
+    (code_content [2, 3] - [4, 13])
+    (ERROR [4, 13] - [4, 14])))
+/dev/stdin	Parse:    0.68 ms	    52 bytes/ms	(ERROR [0, 0] - [4, 14])
+Command failed with exit code 1
+</tool.toolu_01RNRBsgfUww9mrsKsvryY81>
+
+# ASSISTANT
+
+Still not working. Let me debug this further. I think the issue might be that the `in_code_content` flag is not being set correctly. Let me add some debug output to the scanner to see what's happening:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_014QJ9sfCFTE5jun5hBCSR9B
+
+## command
+
+<tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+cd . && timeout 10 tree-sitter test --file-name code-close.txt
+</tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+
+## timeout
+
+<tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+15
+</tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+
+# TOOL RESULT
+
+ID: toolu_014QJ9sfCFTE5jun5hBCSR9B
+
+<tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+  code-close:
+      6. ✗ Code close tag test
+
+1 failure:
+
+correct / expected / unexpected
+
+  1. Code close tag test:
+
+    (source_file
+      (ERROR
+      (assistant
+        (assistant_header)
+        (code_start_tag)
+        (code_content)
+        (UNEXPECTED '>')))
+        (code
+          (code_start_tag)
+          (code_content)
+          (code_close_tag))
+        (text)))
+
+Command failed with exit code 1
+</tool.toolu_014QJ9sfCFTE5jun5hBCSR9B>
+
+# ASSISTANT
+
+The error shows `(UNEXPECTED '>')` which means the scanner successfully consumed everything up to the `>` but failed to recognize the complete tag. This means the scanner is being called and is partially working, but failing at the end.
+
+Let me check if the issue is that the scanner state is not being preserved correctly. Let me look at the scanner logic again:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01BDRcweTxN9ipfqBp8fogQp
+
+## path
+
+<tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+./src/scanner.c
+</tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+
+## start-line
+
+<tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+813
+</tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+
+## end-line
+
+<tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+850
+</tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+
+## include-line-numbers
+
+<tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+true
+</tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+
+# TOOL RESULT
+
+ID: toolu_01BDRcweTxN9ipfqBp8fogQp
+
+<tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+813:     if (lexer->lookahead != '$') return false;
+814:     advance(lexer);
+815:     
+816:     // Check for "code-close"
+817:     if (lexer->lookahead != 'c') return false;
+818:     advance(lexer);
+819:     if (lexer->lookahead != 'o') return false;
+820:     advance(lexer);
+821:     if (lexer->lookahead != 'd') return false;
+822:     advance(lexer);
+823:     if (lexer->lookahead != 'e') return false;
+824:     advance(lexer);
+825:     if (lexer->lookahead != '-') return false;
+826:     advance(lexer);
+827:     if (lexer->lookahead != 'c') return false;
+828:     advance(lexer);
+829:     if (lexer->lookahead != 'l') return false;
+830:     advance(lexer);
+831:     if (lexer->lookahead != 'o') return false;
+832:     advance(lexer);
+833:     if (lexer->lookahead != 's') return false;
+834:     advance(lexer);
+835:     if (lexer->lookahead != 'e') return false;
+836:     advance(lexer);
+837:     
+838:     if (lexer->lookahead != '/') return false;
+839:     advance(lexer);
+840:     
+841:     if (lexer->lookahead != '>') return false;
+842:     advance(lexer);
+843:     
+844:     // Force close any open code block
+845:     scanner->code_backtick_count = 0;
+846:     scanner->in_code_content = false;
+847:     lexer->result_symbol = CODE_CLOSE_TAG;
+848:     return true;
+849: }
+850: 
+</tool.toolu_01BDRcweTxN9ipfqBp8fogQp>
+
+# ASSISTANT
+
+The scanner logic looks correct. The issue might be that `in_code_content` is not set when the scanner is called. Let me verify this by removing the check and seeing what happens:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_019aUtDNKV8QAMJ3aYqLsDCg
+
+## path
+
+<tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+./src/scanner.c
+</tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+
+## git-commit-message
+
+<tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+Temporarily remove in_code_content check to debug the issue
+</tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+
+## diff
+
+<tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+ static bool scan_code_close_tag(Scanner *scanner, TSLexer *lexer) {
+-    // Only recognize code close tag when there's actually an open code block
+-    if (!scanner->in_code_content) return false;
+-    
+     if (lexer->lookahead != '<') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '$') return false;
+     advance(lexer);
+     
+     // Check for "code-close"
+     if (lexer->lookahead != 'c') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'o') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'd') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'e') return false;
+     advance(lexer);
+     if (lexer->lookahead != '-') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'c') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'l') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'o') return false;
+     advance(lexer);
+     if (lexer->lookahead != 's') return false;
+     advance(lexer);
+     if (lexer->lookahead != 'e') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '/') return false;
+     advance(lexer);
+     
+     if (lexer->lookahead != '>') return false;
+     advance(lexer);
+     
+     // Force close any open code block
+     scanner->code_backtick_count = 0;
+     scanner->in_code_content = false;
+     lexer->result_symbol = CODE_CLOSE_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+
+# TOOL RESULT
+
+ID: toolu_019aUtDNKV8QAMJ3aYqLsDCg
+
+<tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
+
+</tool.toolu_019aUtDNKV8QAMJ3aYqLsDCg>
