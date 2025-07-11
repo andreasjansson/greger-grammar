@@ -7684,5 +7684,47 @@ Simplify code_contents scanner since backtick detection is now handled separatel
 ID: toolu_015q3ibQHysmZNV8KsrqZGHw
 
 <tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code_contents scanner since backtick detection is now handled separately
 </tool.toolu_015q3ibQHysmZNV8KsrqZGHw>
+
+# ASSISTANT
+
+Now let me update the main scanner function to use the new approach:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Caa6wbsh2LduQuu6Ac5Vk4
+
+## path
+
+<tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+./src/scanner.c
+</tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+
+## git-commit-message
+
+<tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+Update main scanner to use new fenced code block parsing
+</tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+
+## diff
+
+<tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+     // Handle code backticks (any number of backticks)
+-    if (valid_symbols[CODE_BACKTICKS] && lexer->lookahead == '`') {
+-        return scan_code_backticks(scanner, lexer);
++    if ((valid_symbols[CODE_BACKTICKS_START] || valid_symbols[CODE_BACKTICKS_END]) && lexer->lookahead == '`') {
++        return parse_fenced_code_block(scanner, lexer, valid_symbols);
+     }
+\ No newline at end of file
+
+</tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+
+# TOOL RESULT
+
+ID: toolu_01Caa6wbsh2LduQuu6Ac5Vk4
+
+<tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
+
+</tool.toolu_01Caa6wbsh2LduQuu6Ac5Vk4>
