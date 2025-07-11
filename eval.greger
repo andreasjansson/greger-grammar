@@ -9546,5 +9546,104 @@ Remove code close tag handling from main scanner dispatch
 ID: toolu_01A5iytBYdtNHUwKvg7TAEb6
 
 <tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Remove code close tag handling from main scanner dispatch
 </tool.toolu_01A5iytBYdtNHUwKvg7TAEb6>
+
+# ASSISTANT
+
+Now I need to remove the code close tag pattern checking from the code_content scanner since it's no longer needed:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01Dy5dVZWUJS5qFKy16nmcag
+
+## path
+
+<tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+./src/scanner.c
+</tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+
+## git-commit-message
+
+<tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+Remove code close tag pattern checking from code_content scanner
+</tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+
+## diff
+
+<tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+-    // Also check for code close tag pattern
+-    const char *code_close_pattern = "<$code-close/>";
+-    int code_close_len = 14;
+-    
+     int match_index = 0;
+-    int code_close_match_index = 0;
+     
+-    // Scan content until we find the closing pattern or code close tag
++    // Scan content until we find the closing pattern
+     while (lexer->lookahead != 0) {
+-        // Check for code close tag pattern
+-        if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
+-            code_close_match_index++;
+-            if (code_close_match_index == code_close_len) {
+-                // Found complete code close tag, stop here (don't consume it)
+-                if (has_content) {
+-                    lexer->result_symbol = CODE_CONTENT;
+-                    return true;
+-                } else {
+-                    return false;
+-                }
+-            }
+-            // Don't advance yet, continue checking regular closing pattern too
+-        } else {
+-            code_close_match_index = 0;
+-        }
+-        
+-        // Check for regular closing pattern
+         if (lexer->lookahead == expected_closing[match_index]) {
+             match_index++;
+             if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             advance(lexer);
+         } else {
+             // Reset match and continue as content
+             if (match_index > 0) {
+                 // We were partially matching, reset but don't advance yet
+                 match_index = 0;
+                 // Don't advance here, reprocess this character
+             } else {
+                 // For inline code (1-2 backticks), stop at newlines
+                 if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                     if (has_content) {
+                         lexer->result_symbol = CODE_CONTENT;
+                         return true;
+                     } else {
+                         return false;
+                     }
+                 }
+                 
+                 advance(lexer);
+                 has_content = true;
+                 lexer->mark_end(lexer);
+             }
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+
+# TOOL RESULT
+
+ID: toolu_01Dy5dVZWUJS5qFKy16nmcag
+
+<tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
+
+</tool.toolu_01Dy5dVZWUJS5qFKy16nmcag>
