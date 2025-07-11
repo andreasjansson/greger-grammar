@@ -2315,5 +2315,215 @@ Implement proper lookahead for closing patterns
 ID: toolu_01Rg4A3ZPS4S8m1pxQkNcJvF
 
 <tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Implement proper lookahead for closing patterns
 </tool.toolu_01Rg4A3ZPS4S8m1pxQkNcJvF>
+
+# ASSISTANT
+
+Actually, that approach won't work because Tree-sitter doesn't provide a way to reset the lexer position. Let me look at how the working tool scanner handles this. The key insight is that the tool scanner pattern `</tool.*>` doesn't have overlapping characters with regular content, but backticks do.
+
+Let me check the working tool scanner approach more carefully:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01CmVzRiFPYbWkQVf8R9FjJW
+
+## path
+
+<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+./src/scanner.c
+</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+
+## start-line
+
+<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+295
+</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+
+## end-line
+
+<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+325
+</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+
+## include-line-numbers
+
+<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+true
+</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+
+# TOOL RESULT
+
+ID: toolu_01CmVzRiFPYbWkQVf8R9FjJW
+
+<tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+295:         if (lexer->lookahead == expected_closing[match_index]) {
+296:             match_index++;
+297:             if (match_index == expected_len) {
+298:                 // Found complete closing tag, stop here (don't consume it)
+299:                 if (has_content) {
+300:                     lexer->result_symbol = TOOL_CONTENT_HEAD;
+301:                     return true;
+302:                 } else {
+303:                     // No content, let the grammar handle the end tag
+304:                     return false;
+305:                 }
+306:             }
+307:             advance(lexer);
+308:             current_line_has_content = true;
+309:         } else {
+310:             // Reset match and continue as content
+311:             if (match_index > 0) {
+312:                 // We were partially matching but failed, reset and process current char as content
+313:                 match_index = 0;
+314:             }
+315:             
+316:             // Process current character as content
+317:             if (lexer->lookahead == '\n') {
+318:                 if (current_line_has_content) {
+319:                     line_count++;
+320:                     current_line_has_content = false;
+321:                 }
+322:                 advance(lexer);
+323:                 has_content = true;
+324:                 lexer->mark_end(lexer);
+325:                 
+</tool.toolu_01CmVzRiFPYbWkQVf8R9FjJW>
+
+# ASSISTANT
+
+Wait, I think I see the issue! In the tool scanner, it's calling `advance(lexer)` on line 307 AFTER checking for complete match but BEFORE checking if it's complete. This means it's consuming characters that are part of the closing pattern.
+
+But the tool scanner works because of how it uses `lexer->mark_end(lexer)`. Let me see where that's called:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_0159jmZ9MMfxjCdN7GLCdvSz
+
+## path
+
+<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+./src/scanner.c
+</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+
+## start-line
+
+<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+305
+</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+
+## end-line
+
+<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+315
+</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+
+## include-line-numbers
+
+<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+true
+</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+
+# TOOL RESULT
+
+ID: toolu_0159jmZ9MMfxjCdN7GLCdvSz
+
+<tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+305:                 }
+306:             }
+307:             advance(lexer);
+308:             current_line_has_content = true;
+309:         } else {
+310:             // Reset match and continue as content
+311:             if (match_index > 0) {
+312:                 // We were partially matching but failed, reset and process current char as content
+313:                 match_index = 0;
+314:             }
+315:             
+</tool.toolu_0159jmZ9MMfxjCdN7GLCdvSz>
+
+# ASSISTANT
+
+I see! The tool scanner is calling `advance(lexer)` but it's NOT calling `lexer->mark_end(lexer)` when it's matching the closing pattern. It only calls `mark_end` when processing regular content.
+
+The key insight is that `mark_end` determines where the token ends. So if we advance past closing pattern characters but don't mark the end there, the token will end at the last place we called `mark_end`.
+
+Let me fix my code scanner to follow the same pattern:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01YP6nNcvorYyyTEQrzqsd1M
+
+## path
+
+<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+./src/scanner.c
+</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+
+## git-commit-message
+
+<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+Fix code scanner to match tool scanner pattern - advance but don't mark end when matching closing pattern
+</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+
+## diff
+
+<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+-        // Check for complete regular closing pattern using lookahead
+-        if (lexer->lookahead == expected_closing[0]) {
+-            // Check if we can match the complete pattern
+-            int lookahead_pos = 0;
+-            bool complete_match = true;
+-            
+-            // Save current position
+-            uint32_t saved_pos = lexer->get_column(lexer);
+-            
+-            // Try to match the complete pattern
+-            while (lookahead_pos < expected_len) {
+-                if (lexer->lookahead != expected_closing[lookahead_pos]) {
+-                    complete_match = false;
+-                    break;
+-                }
+-                if (lookahead_pos < expected_len - 1) {
+-                    advance(lexer);
+-                }
+-                lookahead_pos++;
+-            }
+-            
+-            // Reset position to where we started
+-            while (lexer->get_column(lexer) > saved_pos) {
+-                // We can't easily reset, so this approach won't work
+-                // Let me try a different approach
+-            }
+-            
+-            if (complete_match) {
++        // Check for regular closing pattern
++        if (lexer->lookahead == expected_closing[match_index]) {
++            match_index++;
++            if (match_index == expected_len) {
+                 // Found complete closing pattern, stop here (don't consume it)
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
++            // Advance but don't mark end - we're matching the closing pattern
++            advance(lexer);
++            has_content = true;
+         }
+\ No newline at end of file
+
+</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+
+# TOOL RESULT
+
+ID: toolu_01YP6nNcvorYyyTEQrzqsd1M
+
+<tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
+
+</tool.toolu_01YP6nNcvorYyyTEQrzqsd1M>
