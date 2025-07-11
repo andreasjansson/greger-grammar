@@ -706,6 +706,16 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
     
     // Scan content until we find the closing pattern or code close tag
     while (lexer->lookahead != 0) {
+        // For inline code (1-2 backticks), stop at newlines
+        if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+            if (has_content) {
+                lexer->result_symbol = CODE_CONTENT;
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
         // Check for code close tag pattern first
         if (lexer->lookahead == code_close_pattern[code_close_match_index]) {
             code_close_match_index++;
@@ -745,16 +755,6 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                 match_index = 0;
                 // Don't advance here, reprocess this character
             } else {
-                // For inline code (1-2 backticks), stop at newlines
-                if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                    if (has_content) {
-                        lexer->result_symbol = CODE_CONTENT;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-                
                 advance(lexer);
                 has_content = true;
                 // Only mark end if we're not in middle of matching code close pattern
