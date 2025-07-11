@@ -3584,5 +3584,146 @@ Fix code_content to properly handle nested backticks by consuming until matching
 ID: toolu_014jt3NZg524Z6xAmXUfYCoy
 
 <tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code_content to properly handle nested backticks by consuming until matching closing delimiter
 </tool.toolu_014jt3NZg524Z6xAmXUfYCoy>
+
+# ASSISTANT
+
+Let me test this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01YQVZADa9ZGgjj2R1xvQ8Dd
+
+## command
+
+<tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+cd . && printf '# ASSISTANT\n\n`` `hello` ``' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+
+## timeout
+
+<tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+10
+</tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+
+# TOOL RESULT
+
+ID: toolu_01YQVZADa9ZGgjj2R1xvQ8Dd
+
+<tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+
+</tool.toolu_01YQVZADa9ZGgjj2R1xvQ8Dd>
+
+# ASSISTANT
+
+It's hanging again. The issue is in the temp_lexer logic. Let me create a version that doesn't use temp_lexer at all:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01XFuj6J3rsd1vN5NXU8sgDJ
+
+## path
+
+<tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+./src/scanner.c
+</tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+
+## git-commit-message
+
+<tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+Remove temp_lexer usage from code_content to prevent infinite loops
+</tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+
+## diff
+
+<tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
+     if (!scanner->in_code_content) return false;
+     
+     lexer->mark_end(lexer);
+     bool has_content = false;
+     
+-    // Consume content until we find the exact closing delimiter
++    // Consume content until we encounter backticks that could be closing
+     while (lexer->lookahead != 0) {
+         if (lexer->lookahead == '`') {
+-            // Count consecutive backticks to see if it matches our opening count
+-            int consecutive_backticks = 0;
+-            TSLexer temp_lexer = *lexer;
+-            while (temp_lexer.lookahead == '`' && consecutive_backticks < 20) {
+-                consecutive_backticks++;
+-                temp_lexer.advance(&temp_lexer, false);
+-            }
+-            
+-            // If we have exactly the right number of backticks, this could be the closing
+-            if (consecutive_backticks == scanner->code_backtick_count) {
+-                // For fenced code blocks (3+), check if this is at line start and followed by newline/EOF
+-                if (scanner->code_backtick_count >= 3) {
+-                    // TODO: Check line start condition if needed
+-                    // For now, assume any matching sequence can close
+-                    if (has_content) {
+-                        lexer->result_symbol = CODE_CONTENT;
+-                        return true;
+-                    } else {
+-                        return false;
+-                    }
+-                } else {
+-                    // For inline code, exact match is sufficient
+-                    if (has_content) {
+-                        lexer->result_symbol = CODE_CONTENT;
+-                        return true;
+-                    } else {
+-                        return false;
+-                    }
+-                }
++            // Just stop at backticks and let the grammar try to match the end tag
++            if (has_content) {
++                lexer->result_symbol = CODE_CONTENT;
++                return true;
+             } else {
+-                // Not the right number of backticks, consume as content
+-                advance(lexer);
+-                has_content = true;
+-                lexer->mark_end(lexer);
++                return false;
+             }
+         } else {
+             // For inline code (1-2 backticks), stop at newlines
+             if (scanner->code_backtick_count <= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                 if (has_content) {
+                     lexer->result_symbol = CODE_CONTENT;
+                     return true;
+                 } else {
+                     return false;
+                 }
+             }
+             
+             // Regular content
+             advance(lexer);
+             has_content = true;
+             lexer->mark_end(lexer);
+         }
+     }
+     
+     // Reached end of input
+     if (has_content) {
+         lexer->result_symbol = CODE_CONTENT;
+         return true;
+     }
+     
+     return false;
+ }
+\ No newline at end of file
+
+</tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+
+# TOOL RESULT
+
+ID: toolu_01XFuj6J3rsd1vN5NXU8sgDJ
+
+<tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
+
+</tool.toolu_01XFuj6J3rsd1vN5NXU8sgDJ>
