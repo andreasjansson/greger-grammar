@@ -8591,5 +8591,158 @@ static bool scan_code_backticks_end(Scanner *scanner, TSLexer *lexer) {
 ID: toolu_01TS9ggK9TiiGYbtuqMKfaWk
 
 <tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to end scanner to understand the issue
 </tool.toolu_01TS9ggK9TiiGYbtuqMKfaWk>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01BpsZ4dwiU4M4wuSnycYuiv
+
+## command
+
+<tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+printf '# ASSISTANT\n\n`` `code` ``' | tree-sitter parse /dev/stdin
+</tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+
+## timeout
+
+<tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+10
+</tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+
+# TOOL RESULT
+
+ID: toolu_01BpsZ4dwiU4M4wuSnycYuiv
+
+<tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+(source_file [0, 0] - [2, 12]
+  (assistant [0, 0] - [2, 12]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [2, 10]
+      (code_backticks_start [2, 0] - [2, 2])
+      (code_backticks_end [2, 3] - [2, 10]))
+    (code [2, 10] - [2, 12]
+      (code_backticks_start [2, 10] - [2, 12])
+      (code_backticks_end [2, 12] - [2, 12]))))
+/dev/stdin	Parse:    0.07 ms	   369 bytes/ms	(MISSING code_backticks_end [2, 12] - [2, 12])
+Command failed with exit code 1
+</tool.toolu_01BpsZ4dwiU4M4wuSnycYuiv>
+
+# ASSISTANT
+
+No debug output! This means the `scan_code_backticks_end` function isn't being called at all. This is the same issue I had before - some other mechanism is producing the `code_backticks_end` tokens.
+
+This suggests that there's a fundamental issue with my scanner implementation. Looking back at the tree-sitter documentation and the tool content pattern, I think the issue might be that I'm not understanding how external tokens work.
+
+Let me step back and think about this differently. Maybe the issue is that the scanner isn't the right approach for this use case. Let me look at how the markdown parser actually works in their test case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01KvwKPZxYrepMQdCaXrCA6D
+
+## command
+
+<tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+echo '`` `code` ``' > /tmp/test_simple.md && cd ~/src/github/emacs-tree-sitter/tree-sitter-langs/repos/markdown/tree-sitter-markdown-inline && tree-sitter parse /tmp/test_simple.md
+</tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+
+## timeout
+
+<tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+10
+</tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+
+# TOOL RESULT
+
+ID: toolu_01KvwKPZxYrepMQdCaXrCA6D
+
+<tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+(inline [0, 0] - [1, 0]
+  (code_span [0, 0] - [0, 12]
+    (code_span_delimiter [0, 0] - [0, 2])
+    (code_span_delimiter [0, 10] - [0, 12])))
+
+</tool.toolu_01KvwKPZxYrepMQdCaXrCA6D>
+
+# ASSISTANT
+
+Perfect! The markdown parser produces the correct result:
+- `code_span` from [0,0] to [0,12] (the entire span)
+- `code_span_delimiter` from [0,0] to [0,2] (the opening ``)
+- `code_span_delimiter` from [0,10] to [0,12] (the closing ``)
+
+The content ` `code` ` (from [0,2] to [0,10]) is implicit, not represented as an explicit token.
+
+This tells me that my approach of trying to explicitly tokenize the content is wrong. I should follow the markdown parser's approach more closely where the content is implicit.
+
+Let me revert to the simpler approach without the CODE_CONTENT token:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01RH6KB62qFmamNaBDVCgdPY
+
+## path
+
+<tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+./grammar.js
+</tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+
+## git-commit-message
+
+<tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+Remove CODE_CONTENT token and follow markdown parser pattern
+</tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+
+## original-content
+
+<tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+  externals: $ => [
+    $.tool_start_tag,
+    $.tool_end_tag,
+    $.tool_content_head,
+    $.tool_content_tail,
+    $.html_comment,
+    $.eval_content,
+    $.eval_result_start_tag,
+    $.eval_result_end_tag,
+    $.eval_result_content_head,
+    $.eval_result_content_tail,
+    $.error_sentinel,
+    $.code_backticks_start,
+    $.code_content,
+    $.code_backticks_end,
+    $.eval_language,
+  ],
+</tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+
+## new-content
+
+<tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+  externals: $ => [
+    $.tool_start_tag,
+    $.tool_end_tag,
+    $.tool_content_head,
+    $.tool_content_tail,
+    $.html_comment,
+    $.eval_content,
+    $.eval_result_start_tag,
+    $.eval_result_end_tag,
+    $.eval_result_content_head,
+    $.eval_result_content_tail,
+    $.error_sentinel,
+    $.code_backticks_start,
+    $.code_backticks_end,
+    $.eval_language,
+  ],
+</tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+
+# TOOL RESULT
+
+ID: toolu_01RH6KB62qFmamNaBDVCgdPY
+
+<tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
+
+</tool.toolu_01RH6KB62qFmamNaBDVCgdPY>
