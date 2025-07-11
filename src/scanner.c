@@ -684,8 +684,6 @@ static bool scan_code_backticks(Scanner *scanner, TSLexer *lexer) {
 
 
 static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
-    printf("DEBUG: scan_code_contents called at char:'%c' (pos: %d)\n", lexer->lookahead, lexer->get_column(lexer));
-    
     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
     // Let the grammar handle it
     if (scanner->last_backtick_count > 1) {
@@ -713,7 +711,6 @@ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
             
             // If followed by newline, this is a language identifier
             if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                printf("DEBUG: Found language identifier, returning false\n");
                 return false;
             }
             

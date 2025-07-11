@@ -9199,5 +9199,187 @@ Make contents scanner return false when language identifier is present
 ID: toolu_01FTAFqrMB6RwpndU7wwR2rM
 
 <tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Make contents scanner return false when language identifier is present
 </tool.toolu_01FTAFqrMB6RwpndU7wwR2rM>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01B4WMVoL9umWC1m2NrceuUZ
+
+## command
+
+<tool.toolu_01B4WMVoL9umWC1m2NrceuUZ>
+cd . && tree-sitter generate
+</tool.toolu_01B4WMVoL9umWC1m2NrceuUZ>
+
+# TOOL RESULT
+
+ID: toolu_01B4WMVoL9umWC1m2NrceuUZ
+
+<tool.toolu_01B4WMVoL9umWC1m2NrceuUZ>
+
+</tool.toolu_01B4WMVoL9umWC1m2NrceuUZ>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_0115cQ4qodwhg42rxr6X3koJ
+
+## command
+
+<tool.toolu_0115cQ4qodwhg42rxr6X3koJ>
+cd . && echo '# ASSISTANT
+
+```python
+hello
+```' | tree-sitter parse
+</tool.toolu_0115cQ4qodwhg42rxr6X3koJ>
+
+# TOOL RESULT
+
+ID: toolu_0115cQ4qodwhg42rxr6X3koJ
+
+<tool.toolu_0115cQ4qodwhg42rxr6X3koJ>
+
+DEBUG: scan_code_contents called at char:'p' (pos: 3)
+DEBUG: Found language identifier, returning false
+DEBUG: scan_code_contents called at char:'
+' (pos: 9)
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_language [2, 3] - [2, 9])
+      (code_contents [2, 9] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_0115cQ4qodwhg42rxr6X3koJ>
+
+# ASSISTANT
+
+Excellent! It's working! The debug output shows:
+1. `scan_code_contents` is called at 'p' (position 3) - detects language identifier
+2. Returns `false` to let the grammar handle it
+3. Grammar successfully parses `code_language` from position 3 to 9 ("python")
+4. `scan_code_contents` is called again at newline (position 9) - correctly parses contents
+
+The parse tree now shows the correct structure:
+```
+(code_backticks [2, 0] - [2, 3])
+(code_language [2, 3] - [2, 9])
+(code_contents [2, 9] - [4, 0])
+(code_backticks [4, 0] - [4, 3])
+```
+
+Let me test the no-language case:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01N2prrSDUraDgXU4RAU9inT
+
+## command
+
+<tool.toolu_01N2prrSDUraDgXU4RAU9inT>
+cd . && echo '# ASSISTANT
+
+```
+hello
+```' | tree-sitter parse
+</tool.toolu_01N2prrSDUraDgXU4RAU9inT>
+
+# TOOL RESULT
+
+ID: toolu_01N2prrSDUraDgXU4RAU9inT
+
+<tool.toolu_01N2prrSDUraDgXU4RAU9inT>
+
+DEBUG: scan_code_contents called at char:'
+' (pos: 3)
+(source_file [0, 0] - [5, 0]
+  (assistant [0, 0] - [5, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (code [2, 0] - [4, 3]
+      (code_backticks [2, 0] - [2, 3])
+      (code_contents [2, 3] - [4, 0])
+      (code_backticks [4, 0] - [4, 3]))
+    (text [4, 3] - [5, 0])))
+
+</tool.toolu_01N2prrSDUraDgXU4RAU9inT>
+
+# ASSISTANT
+
+Perfect! Both cases are working correctly now. Let me remove the debug output and run the full test suite:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01NHGA6X3wiV2kugg5F1whQ3
+
+## path
+
+<tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+./src/scanner.c
+</tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+
+## git-commit-message
+
+<tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+Remove debug output - fix is working correctly
+</tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+
+## diff
+
+<tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+ static bool scan_code_contents(Scanner *scanner, TSLexer *lexer) {
+-    printf("DEBUG: scan_code_contents called at char:'%c' (pos: %d)\n", lexer->lookahead, lexer->get_column(lexer));
+-    
+     // For multi-backtick blocks, if we see a language identifier at the start, don't consume it
+     // Let the grammar handle it
+     if (scanner->last_backtick_count > 1) {
+         // Skip whitespace
+         while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+             advance(lexer);
+         }
+         
+         // If we see a language identifier, return false to let grammar handle it
+         if (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || lexer->lookahead == '_') {
+             // Check if this looks like a language identifier
+             TSLexer saved_lexer = *lexer;
+             
+             // Scan potential language identifier
+             while (iswlower(lexer->lookahead) || iswupper(lexer->lookahead) || 
+                    iswdigit(lexer->lookahead) || lexer->lookahead == '_' || 
+                    lexer->lookahead == '+' || lexer->lookahead == '-') {
+                 advance(lexer);
+             }
+             
+             // Skip trailing whitespace
+             while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+                 advance(lexer);
+             }
+             
+             // If followed by newline, this is a language identifier
+             if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-                printf("DEBUG: Found language identifier, returning false\n");
+                 return false;
+             }
+             
+             // Not a language identifier, restore lexer and continue
+             *lexer = saved_lexer;
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+
+# TOOL RESULT
+
+ID: toolu_01NHGA6X3wiV2kugg5F1whQ3
+
+<tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
+
+</tool.toolu_01NHGA6X3wiV2kugg5F1whQ3>
