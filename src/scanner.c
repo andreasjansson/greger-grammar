@@ -995,6 +995,11 @@ bool tree_sitter_greger_external_scanner_scan(void *payload, TSLexer *lexer, con
             return scan_html_comment(lexer);
         }
 
+        // Handle code close tag (check early since it has a specific pattern)
+        if (valid_symbols[CODE_CLOSE_TAG]) {
+            return scan_code_close_tag(scanner, lexer);
+        }
+
         // Handle eval result start tag
         if (valid_symbols[EVAL_RESULT_START_TAG]) {
             return scan_eval_result_start_tag(scanner, lexer);

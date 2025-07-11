@@ -6777,5 +6777,232 @@ Add debug output to scan_code_close_tag to understand what's happening
 ID: toolu_01WYcUg5eBC26ESs4pWJn9Dq
 
 <tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Add debug output to scan_code_close_tag to understand what's happening
 </tool.toolu_01WYcUg5eBC26ESs4pWJn9Dq>
+
+# ASSISTANT
+
+Wait, I made an empty change. Let me debug this more systematically. The issue might be that I'm not correctly handling the dispatch in the scanner. Let me check if the dispatch logic is wrong.
+
+Looking at the error message, it says `(UNEXPECTED '>')` which means it got to the `>` character and didn't know what to do with it. This suggests that the scanner is being called and failing to recognize the full tag.
+
+Let me check if the issue is in the scanner order. Let me also check the current main dispatch logic to understand what's happening:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01WsEhDiZAjiJQSYaGj3S1Pp
+
+## path
+
+<tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+./src/scanner.c
+</tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+
+## start-line
+
+<tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+1000
+</tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+
+## end-line
+
+<tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+1030
+</tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+
+## include-line-numbers
+
+<tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+true
+</tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+
+# TOOL RESULT
+
+ID: toolu_01WsEhDiZAjiJQSYaGj3S1Pp
+
+<tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+1000:             return scan_eval_result_start_tag(scanner, lexer);
+1001:         }
+1002: 
+1003:         // Handle eval result end tag
+1004:         if (valid_symbols[EVAL_RESULT_END_TAG]) {
+1005:             return scan_eval_result_end_tag(scanner, lexer);
+1006:         }
+1007: 
+1008:         // Handle tool start tag
+1009:         if (valid_symbols[TOOL_START_TAG]) {
+1010:             return scan_tool_start_tag(scanner, lexer);
+1011:         }
+1012: 
+1013:         // Handle tool end tag
+1014:         if (valid_symbols[TOOL_END_TAG]) {
+1015:             return scan_tool_end_tag(scanner, lexer);
+1016:         }
+1017:     }
+1018: 
+1019:     // Handle eval content
+1020:     if (valid_symbols[EVAL_CONTENT]) {
+1021:         return scan_eval_content(lexer);
+1022:     }
+1023:     
+1024:     // Handle code start tag
+1025:     if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+1026:         return scan_code_start_tag(scanner, lexer);
+1027:     }
+1028:     
+1029:     // Handle code close tag (check before code content so it doesn't get consumed)
+1030:     if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
+</tool.toolu_01WsEhDiZAjiJQSYaGj3S1Pp>
+
+# ASSISTANT
+
+The issue is obvious now! The code close tag check is happening AFTER the tool end tag check, but both start with `<`. The tool end tag scanner might be consuming the `<` before the code close tag scanner gets a chance.
+
+Let me check if this is the issue by looking at where the code close tag check happens relative to the other `<` handlers:
+
+# TOOL USE
+
+Name: read-file
+ID: toolu_01CA88sZx9muyJCm6TsG7HaF
+
+## path
+
+<tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+./src/scanner.c
+</tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+
+## start-line
+
+<tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+1010
+</tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+
+## end-line
+
+<tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+1050
+</tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+
+## include-line-numbers
+
+<tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+true
+</tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+
+# TOOL RESULT
+
+ID: toolu_01CA88sZx9muyJCm6TsG7HaF
+
+<tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+1010:             return scan_tool_start_tag(scanner, lexer);
+1011:         }
+1012: 
+1013:         // Handle tool end tag
+1014:         if (valid_symbols[TOOL_END_TAG]) {
+1015:             return scan_tool_end_tag(scanner, lexer);
+1016:         }
+1017:     }
+1018: 
+1019:     // Handle eval content
+1020:     if (valid_symbols[EVAL_CONTENT]) {
+1021:         return scan_eval_content(lexer);
+1022:     }
+1023:     
+1024:     // Handle code start tag
+1025:     if (lexer->lookahead == '`' && valid_symbols[CODE_START_TAG]) {
+1026:         return scan_code_start_tag(scanner, lexer);
+1027:     }
+1028:     
+1029:     // Handle code close tag (check before code content so it doesn't get consumed)
+1030:     if (lexer->lookahead == '<' && valid_symbols[CODE_CLOSE_TAG]) {
+1031:         return scan_code_close_tag(scanner, lexer);
+1032:     }
+1033:     
+1034:     // Handle code content
+1035:     if (valid_symbols[CODE_CONTENT]) {
+1036:         return scan_code_content(scanner, lexer);
+1037:     }
+1038:     
+1039:     // Handle code end tag
+1040:     if (lexer->lookahead == '`' && valid_symbols[CODE_END_TAG]) {
+1041:         return scan_code_end_tag(scanner, lexer);
+1042:     }
+1043:     
+1044:     // Handle eval language
+1045:     if (valid_symbols[EVAL_LANGUAGE]) {
+1046:         return scan_eval_language(lexer);
+1047:     }
+1048:     
+1049:     return false;
+1050: }
+</tool.toolu_01CA88sZx9muyJCm6TsG7HaF>
+
+# ASSISTANT
+
+The issue is that the code close tag check happens after the main `<` handling block (lines 999-1017) which handles all the tool and eval result tags. However, the `scan_tool_end_tag` function is looking for `</tool.` and will return false for `<$code-close/>`.
+
+But I think I might have found the issue. Let me move the code close tag check inside the main `<` handling block:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01JoQBEQAj1ECE76DEGp798X
+
+## path
+
+<tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+./src/scanner.c
+</tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+
+## git-commit-message
+
+<tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+Move code close tag check inside main < handling block
+</tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+
+## diff
+
+<tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+     if (lexer->lookahead == '<') {
+         // Handle HTML comments first - they should have priority
+         if (valid_symbols[HTML_COMMENT]) {
+             return scan_html_comment(lexer);
+         }
+ 
++        // Handle code close tag (check early since it has a specific pattern)
++        if (valid_symbols[CODE_CLOSE_TAG]) {
++            return scan_code_close_tag(scanner, lexer);
++        }
++
+         // Handle eval result start tag
+         if (valid_symbols[EVAL_RESULT_START_TAG]) {
+             return scan_eval_result_start_tag(scanner, lexer);
+         }
+ 
+         // Handle eval result end tag
+         if (valid_symbols[EVAL_RESULT_END_TAG]) {
+             return scan_eval_result_end_tag(scanner, lexer);
+         }
+ 
+         // Handle tool start tag
+         if (valid_symbols[TOOL_START_TAG]) {
+             return scan_tool_start_tag(scanner, lexer);
+         }
+ 
+         // Handle tool end tag
+         if (valid_symbols[TOOL_END_TAG]) {
+             return scan_tool_end_tag(scanner, lexer);
+         }
+     }
+\ No newline at end of file
+
+</tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+
+# TOOL RESULT
+
+ID: toolu_01JoQBEQAj1ECE76DEGp798X
+
+<tool.toolu_01JoQBEQAj1ECE76DEGp798X>
+
+</tool.toolu_01JoQBEQAj1ECE76DEGp798X>
