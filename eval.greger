@@ -4762,5 +4762,126 @@ Add test case for backtick at end of line
 ID: toolu_01GwkSv7joz6Zz1sHftzm4mw
 
 <tool.toolu_01GwkSv7joz6Zz1sHftzm4mw>
-
+Successfully wrote new file /Users/andreas/projects/greger-grammar/test-backtick-end-of-line.greger with 13 characters. Successfully staged 2 file(s) and committed with message: Add test case for backtick at end of line
 </tool.toolu_01GwkSv7joz6Zz1sHftzm4mw>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01PgokJrA2yeMrmChz3uSYRt
+
+## command
+
+<tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+tree-sitter parse test-backtick-end-of-line.greger
+</tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+
+## timeout
+
+<tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+10
+</tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+
+# TOOL RESULT
+
+ID: toolu_01PgokJrA2yeMrmChz3uSYRt
+
+<tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+(source_file [0, 0] - [5, 0]
+  (user [0, 0] - [5, 0]
+    (user_header [0, 0] - [0, 6])
+    (text [2, 0] - [2, 1])
+    (ERROR [2, 1] - [4, 1]
+      (code_start_tag [2, 1] - [2, 2])
+      (ERROR [4, 0] - [4, 1]))
+    (text [4, 1] - [5, 0])))
+test-backtick-end-of-line.greger	Parse:    0.03 ms	   427 bytes/ms	(ERROR [2, 1] - [4, 1])
+Command failed with exit code 1
+</tool.toolu_01PgokJrA2yeMrmChz3uSYRt>
+
+# ASSISTANT
+
+Perfect! I've reproduced the issue. The parser is seeing the backtick at the end of line 2, treating it as a code_start_tag, but then it's not properly detecting that the newline should terminate it.
+
+Now let me add this as a proper test case in the test corpus:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_0192L7s7bSDDRfHRX977WKuF
+
+## path
+
+<tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+test/corpus/code.txt
+</tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+
+## git-commit-message
+
+<tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+Add test case for backtick at end of line
+</tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+
+## diff
+
+<tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+ ===============================
+ Unclosed single backtick terminated by newline
+ ===============================
+ 
+ # ASSISTANT
+ 
+ there is `no closing backtick on single-backtick line
+ there is ``no closing backtick on double-backtick line
+ 
+ More text.
+ 
+ ---
+ 
+ (source_file
+   (assistant
+     (assistant_header)
+     (text)
+     (code
+       (code_start_tag)
+       (code_content)
+       (code_end_tag))
+     (text)
+     (code
+       (code_start_tag)
+       (code_content)
+       (code_end_tag))
++    (text)))
++
++===============================
++Backtick at end of line
++===============================
++
++# USER
++
++a`
++
++b
++
++---
++
++(source_file
++  (user
++    (user_header)
++    (text)
++    (code
++      (code_start_tag)
++      (code_content)
++      (code_end_tag))
+     (text)))
+\ No newline at end of file
+
+</tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+
+# TOOL RESULT
+
+ID: toolu_0192L7s7bSDDRfHRX977WKuF
+
+<tool.toolu_0192L7s7bSDDRfHRX977WKuF>
+
+</tool.toolu_0192L7s7bSDDRfHRX977WKuF>
