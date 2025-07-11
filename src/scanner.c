@@ -676,53 +676,7 @@ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
         opening_backticks++;
     }
     
-    // For fenced code blocks (3+ backticks), validate info string
-    if (opening_backticks >= 3) {
-        // Skip until newline or first backtick (which would be content/closing)
-        int chars_read = 0;
-        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
-               lexer->lookahead != 0 && lexer->lookahead != '`' && chars_read < 200) {
-            advance(lexer);
-            chars_read++;
-        }
-    } else {
-        // For inline code (1-2 backticks), do simplified lookahead
-        TSLexer saved_lexer = *lexer;
-        bool found_closing = false;
-        int chars_read = 0;
-        
-        while (!lexer->eof(lexer) && chars_read < 1000) {
-            if (lexer->lookahead == '`') {
-                int consecutive_backticks = 0;
-                while (lexer->lookahead == '`' && !lexer->eof(lexer) && consecutive_backticks < 20) {
-                    consecutive_backticks++;
-                    advance(lexer);
-                    chars_read++;
-                }
-                
-                if (consecutive_backticks == opening_backticks) {
-                    found_closing = true;
-                    break;
-                }
-            } else {
-                // For inline code, stop at newlines
-                if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                    break;
-                }
-                advance(lexer);
-                chars_read++;
-            }
-        }
-        
-        // Restore position
-        *lexer = saved_lexer;
-        
-        if (!found_closing) {
-            return false;
-        }
-    }
-    
-    // Valid code block start
+    // Store the count and set state
     scanner->code_backtick_count = opening_backticks;
     scanner->in_code_content = true;
     lexer->result_symbol = CODE_START_TAG;

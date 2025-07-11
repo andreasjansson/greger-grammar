@@ -10336,5 +10336,201 @@ Simplify code start tag scanner to avoid infinite loops
 ID: toolu_01BAaYEb15Ed8hezs2dhThVd
 
 <tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Simplify code start tag scanner to avoid infinite loops
 </tool.toolu_01BAaYEb15Ed8hezs2dhThVd>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01N4bFPv4jjXcz9iHMdcLmP6
+
+## command
+
+<tool.toolu_01N4bFPv4jjXcz9iHMdcLmP6>
+tree-sitter generate && tree-sitter build
+</tool.toolu_01N4bFPv4jjXcz9iHMdcLmP6>
+
+# TOOL RESULT
+
+ID: toolu_01N4bFPv4jjXcz9iHMdcLmP6
+
+<tool.toolu_01N4bFPv4jjXcz9iHMdcLmP6>
+
+</tool.toolu_01N4bFPv4jjXcz9iHMdcLmP6>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018xcLSRcQov3K4Zu9Tzr3Ta
+
+## command
+
+<tool.toolu_018xcLSRcQov3K4Zu9Tzr3Ta>
+printf '# ASSISTANT\n\n`hello`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_018xcLSRcQov3K4Zu9Tzr3Ta>
+
+# TOOL RESULT
+
+ID: toolu_018xcLSRcQov3K4Zu9Tzr3Ta
+
+<tool.toolu_018xcLSRcQov3K4Zu9Tzr3Ta>
+Command failed with exit code 124
+</tool.toolu_018xcLSRcQov3K4Zu9Tzr3Ta>
+
+# ASSISTANT
+
+There's still an infinite loop. Let me take a different approach. The issue might be that I'm making this too complicated. Let me go back to a much simpler approach and debug step by step.
+
+Let me create a minimal test case to debug this:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018QZTMvkmhM4vi27hYz1s4x
+
+## command
+
+<tool.toolu_018QZTMvkmhM4vi27hYz1s4x>
+printf '`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_018QZTMvkmhM4vi27hYz1s4x>
+
+# TOOL RESULT
+
+ID: toolu_018QZTMvkmhM4vi27hYz1s4x
+
+<tool.toolu_018QZTMvkmhM4vi27hYz1s4x>
+(source_file [0, 0] - [0, 1]
+  (ERROR [0, 0] - [0, 1]
+    (ERROR [0, 0] - [0, 1])))
+/dev/stdin	Parse:    0.87 ms	     1 bytes/ms	(ERROR [0, 0] - [0, 1])
+Command failed with exit code 1
+</tool.toolu_018QZTMvkmhM4vi27hYz1s4x>
+
+# ASSISTANT
+
+That works (produces an error but doesn't hang). Let me try with a complete structure:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01EFw4zkjjPLccsJtMToUeZc
+
+## command
+
+<tool.toolu_01EFw4zkjjPLccsJtMToUeZc>
+printf '# ASSISTANT\n\n`' | timeout 5 tree-sitter parse /dev/stdin
+</tool.toolu_01EFw4zkjjPLccsJtMToUeZc>
+
+# TOOL RESULT
+
+ID: toolu_01EFw4zkjjPLccsJtMToUeZc
+
+<tool.toolu_01EFw4zkjjPLccsJtMToUeZc>
+(source_file [0, 0] - [2, 1]
+  (ERROR [0, 0] - [2, 1]
+    (assistant_header [0, 0] - [0, 11])
+    (ERROR [2, 0] - [2, 1])))
+/dev/stdin	Parse:    0.02 ms	   641 bytes/ms	(ERROR [0, 0] - [2, 1])
+Command failed with exit code 1
+</tool.toolu_01EFw4zkjjPLccsJtMToUeZc>
+
+# ASSISTANT
+
+That works too. The issue might be when the scanner is trying to match the closing backtick. Let me try to see if the issue is in the scanner being called in the wrong order or with the wrong valid_symbols.
+
+I think the issue is that I'm trying to be too clever with the lookahead. Let me step back and implement a much simpler approach that doesn't use complex lookahead logic:
+
+# TOOL USE
+
+Name: str-replace
+ID: toolu_01JodPtesuiQkC9M2J6uNQMW
+
+## path
+
+<tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+./src/scanner.c
+</tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+
+## git-commit-message
+
+<tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+Implement much simpler code scanning without complex lookahead
+</tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+
+## diff
+
+<tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+ static bool scan_code_start_tag(Scanner *scanner, TSLexer *lexer) {
+     if (lexer->lookahead != '`') return false;
+     
+     // Count the number of opening backticks
+     int opening_backticks = 0;
+     while (lexer->lookahead == '`' && opening_backticks < 20) {
+         advance(lexer);
+         opening_backticks++;
+     }
+     
+-    // For fenced code blocks (3+ backticks), validate info string
+-    if (opening_backticks >= 3) {
+-        // Skip until newline or first backtick (which would be content/closing)
+-        int chars_read = 0;
+-        while (lexer->lookahead != '\n' && lexer->lookahead != '\r' && 
+-               lexer->lookahead != 0 && lexer->lookahead != '`' && chars_read < 200) {
+-            advance(lexer);
+-            chars_read++;
+-        }
+-    } else {
+-        // For inline code (1-2 backticks), do simplified lookahead
+-        TSLexer saved_lexer = *lexer;
+-        bool found_closing = false;
+-        int chars_read = 0;
+-        
+-        while (!lexer->eof(lexer) && chars_read < 1000) {
+-            if (lexer->lookahead == '`') {
+-                int consecutive_backticks = 0;
+-                while (lexer->lookahead == '`' && !lexer->eof(lexer) && consecutive_backticks < 20) {
+-                    consecutive_backticks++;
+-                    advance(lexer);
+-                    chars_read++;
+-                }
+-                
+-                if (consecutive_backticks == opening_backticks) {
+-                    found_closing = true;
+-                    break;
+-                }
+-            } else {
+-                // For inline code, stop at newlines
+-                if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
+-                    break;
+-                }
+-                advance(lexer);
+-                chars_read++;
+-            }
+-        }
+-        
+-        // Restore position
+-        *lexer = saved_lexer;
+-        
+-        if (!found_closing) {
+-            return false;
+-        }
+-    }
+-    
+-    // Valid code block start
++    // Store the count and set state
+     scanner->code_backtick_count = opening_backticks;
+     scanner->in_code_content = true;
+     lexer->result_symbol = CODE_START_TAG;
+     return true;
+ }
+\ No newline at end of file
+
+</tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+
+# TOOL RESULT
+
+ID: toolu_01JodPtesuiQkC9M2J6uNQMW
+
+<tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
+
+</tool.toolu_01JodPtesuiQkC9M2J6uNQMW>
