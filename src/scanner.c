@@ -753,35 +753,26 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     // Look ahead to see what comes after the potential closing backticks
                     TSLexer saved_lexer = *lexer;
                     
-                    // Advance past the potential closing backticks
-                    for (int i = 0; i < scanner->code_backtick_count; i++) {
-                        if (lexer->lookahead == '`') {
-                            advance(lexer);
-                        } else {
-                            is_valid_close = false;
-                            break;
-                        }
-                    }
+                    // We're currently at the last backtick of the potential closing sequence
+                    // We need to advance past it to see what comes next
+                    advance(lexer);
                     
-                    if (is_valid_close) {
-                        // Check what comes after the closing backticks
-                        if (lexer->lookahead != 0 && 
-                            !iswspace(lexer->lookahead) && 
-                            lexer->lookahead != '.' && 
-                            lexer->lookahead != ',' && 
-                            lexer->lookahead != '!' && 
-                            lexer->lookahead != '?' && 
-                            lexer->lookahead != ';' && 
-                            lexer->lookahead != ':' && 
-                            lexer->lookahead != ')' && 
-                            lexer->lookahead != ']' && 
-                            lexer->lookahead != '}' && 
-                            lexer->lookahead != '<' && 
-                            lexer->lookahead != '>' &&
-                            lexer->lookahead != '`') {
-                            // Not followed by whitespace or punctuation, treat as content
-                            is_valid_close = false;
-                        }
+                    // Check what comes after the closing backticks
+                    if (lexer->lookahead != 0 && 
+                        !iswspace(lexer->lookahead) && 
+                        lexer->lookahead != '.' && 
+                        lexer->lookahead != ',' && 
+                        lexer->lookahead != '!' && 
+                        lexer->lookahead != '?' && 
+                        lexer->lookahead != ';' && 
+                        lexer->lookahead != ':' && 
+                        lexer->lookahead != ')' && 
+                        lexer->lookahead != ']' && 
+                        lexer->lookahead != '}' && 
+                        lexer->lookahead != '<' && 
+                        lexer->lookahead != '>') {
+                        // Not followed by whitespace or punctuation, treat as content
+                        is_valid_close = false;
                     }
                     
                     // Restore lexer position
@@ -804,7 +795,7 @@ static bool scan_code_content(Scanner *scanner, TSLexer *lexer) {
                     lexer->mark_end(lexer);
                 }
             } else {
-                // Advance while matching the closing pattern, but don't include in content
+                // Still building the closing pattern, advance to next character
                 advance(lexer);
             }
         } else {
