@@ -4237,5 +4237,230 @@ Fix code end tag handling for newlines in single/double backticks
 ID: toolu_01U5n3oPmQjmXybpmaZu2K4E
 
 <tool.toolu_01U5n3oPmQjmXybpmaZu2K4E>
-
+Successfully replaced content in /Users/andreas/projects/greger-grammar/src/scanner.c. Successfully staged 2 file(s) and committed with message: Fix code end tag handling for newlines in single/double backticks
 </tool.toolu_01U5n3oPmQjmXybpmaZu2K4E>
+
+# ASSISTANT
+
+Now let me rebuild and test:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01U241rYUiu1pF1NRk9EzmrE
+
+## command
+
+<tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+tree-sitter generate
+</tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+
+## timeout
+
+<tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+30
+</tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+
+# TOOL RESULT
+
+ID: toolu_01U241rYUiu1pF1NRk9EzmrE
+
+<tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+
+</tool.toolu_01U241rYUiu1pF1NRk9EzmrE>
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_018woiE3Var7uLGrGcELnm4x
+
+## command
+
+<tool.toolu_018woiE3Var7uLGrGcELnm4x>
+tree-sitter parse test-unclosed-backticks.greger
+</tool.toolu_018woiE3Var7uLGrGcELnm4x>
+
+## timeout
+
+<tool.toolu_018woiE3Var7uLGrGcELnm4x>
+10
+</tool.toolu_018woiE3Var7uLGrGcELnm4x>
+
+# TOOL RESULT
+
+ID: toolu_018woiE3Var7uLGrGcELnm4x
+
+<tool.toolu_018woiE3Var7uLGrGcELnm4x>
+(source_file [0, 0] - [6, 0]
+  (assistant [0, 0] - [6, 0]
+    (assistant_header [0, 0] - [0, 11])
+    (text [2, 0] - [2, 9])
+    (code [2, 9] - [2, 53]
+      (code_start_tag [2, 9] - [2, 10])
+      (code_content [2, 10] - [2, 53])
+      (code_end_tag [2, 53] - [2, 53]))
+    (text [2, 53] - [3, 9])
+    (code [3, 9] - [3, 54]
+      (code_start_tag [3, 9] - [3, 11])
+      (code_content [3, 11] - [3, 54])
+      (code_end_tag [3, 54] - [3, 54]))
+    (text [3, 54] - [6, 0])))
+
+</tool.toolu_018woiE3Var7uLGrGcELnm4x>
+
+# ASSISTANT
+
+Excellent! The parsing now works correctly. Let me run the test suite to make sure I didn't break anything else:
+
+# TOOL USE
+
+Name: shell-command
+ID: toolu_01SUCpsBgWBLsUSSDk6VBFHf
+
+## command
+
+<tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+tree-sitter test
+</tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+
+## timeout
+
+<tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+30
+</tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+
+# TOOL RESULT
+
+ID: toolu_01SUCpsBgWBLsUSSDk6VBFHf
+
+<tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+  citations-after-tool-result:
+      1. ✓ Citations after tool result
+  citations-basic:
+      2. ✓ Citations basic
+  citations-multiple:
+      3. ✓ Citations multiple
+  code-block-nested-headers:
+      4. ✓ Code block with nested headers
+  code-block-triple-backticks:
+      5. ✓ Code block triple backticks
+  code-close:
+      6. ✓ Code close tag test
+  code:
+      7. ✓ Inline code with single backticks
+      8. ✓ Inline code with double backticks
+      9. ✓ Triple backticks no language
+     10. ✓ Triple backticks with language
+     11. ✓ Triple backticks with invalid language (has spaces)
+     12. ✓ Quadruple backticks with language
+     13. ✓ Triple backticks inline with language
+     14. ✓ Triple backticks language with numbers and symbols
+     15. ✓ Empty code blocks
+     16. ✓ Unclosed single backtick terminated by newline
+  complex-workflow:
+     17. ✓ Complex workflow
+  eval-nested-braces:
+     18. ✓ Eval nested braces
+  eval-partial:
+     19. ✓ Eval partial cases -- Warning: Slow parse rate (1156.654 bytes/ms)
+  eval-results:
+     20. ✓ Eval results
+  eval:
+     21. ✓ Eval
+  html-comments:
+     22. ✓ HTML comments
+  html-tags:
+     23. ✓ HTML tags should be interpreted as text
+  less-than-greater-than:
+     24. ✓ Less than/greater than
+  mixed-code-blocks-and-sections:
+     25. ✓ Mixed code blocks and sections
+  multiple-tool-uses:
+     26. ✓ Multiple tool uses
+  nested-code-blocks:
+     27. ✓ Nested code blocks
+  safe-shell-commands:
+     28. ✓ Safe shell commands
+  server-tool-use-basic:
+     29. ✓ Server tool use basic
+  server-tool-use-string-result:
+     30. ✓ Server tool use string result
+  simple-conversation:
+     31. ✓ Simple conversation
+  simple-user-message:
+     32. ✓ Simple user message
+  system-and-user:
+     33. ✓ System and user
+  text-with-markdown-headings:
+     34. ✓ Text with markdown headings
+  thinking-only:
+     35. ✓ Thinking only
+  thinking-section:
+     36. ✓ Thinking section
+  tool-use-multiple-params:
+     37. ✓ Tool use multiple params
+  tool-use-only:
+     38. ✓ Tool use only
+  tool-use-single-param:
+     39. ✓ Tool use single param
+  tool-use-with-code-in-params:
+     40. ✓ Tool use with code in params
+  tool-use-with-tool-use-in-params:
+     41. ✓ Tool use with tool use in params
+  triple-hash:
+     42. ✓ Triple hash not in citation
+  untagged-content:
+     43. ✓ Untagged content
+  xml-tags-backticks:
+     44. ✓ Tags in backticks
+
+Total parses: 44; successful parses: 44; failed parses: 0; success percentage: 100.00%; average speed: 23270 bytes/ms
+
+
+</tool.toolu_01SUCpsBgWBLsUSSDk6VBFHf>
+
+# ASSISTANT
+
+Perfect! All tests are passing now. Let me also test the specific cases mentioned in the user's request to make sure they work correctly:
+
+# TOOL USE
+
+Name: write-new-file
+ID: toolu_01BBL8PJAKZP444ZCHTwy4wN
+
+## path
+
+<tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+test-edge-cases.greger
+</tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+
+## contents
+
+<tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+# ASSISTANT
+
+Simple case with single backtick: `unclosed
+
+Double backtick case: ``also unclosed
+
+Triple backtick case should still work normally:
+```python
+print("hello")
+```
+
+More text after.
+</tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+
+## git-commit-message
+
+<tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+Add comprehensive test file for edge cases
+</tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+
+# TOOL RESULT
+
+ID: toolu_01BBL8PJAKZP444ZCHTwy4wN
+
+<tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
+
+</tool.toolu_01BBL8PJAKZP444ZCHTwy4wN>
